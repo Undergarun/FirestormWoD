@@ -270,11 +270,6 @@ enum Opcodes
         SMSG_VOICE_CHAT_STATUS                      = 0x0000,
         SMSG_AVAILABLE_VOICE_CHANNEL                = 0x0000,
 
-        /// Friend list
-        SMSG_USERLIST_ADD                           = 0x0000,
-        SMSG_USERLIST_REMOVE                        = 0x0000,
-        SMSG_USERLIST_UPDATE                        = 0x0000,
-
         /// Misc
         SMSG_SERVER_FIRST_ACHIEVEMENT               = 0x0000,
         SMSG_RAID_INSTANCE_MESSAGE                  = 0x0000,
@@ -300,8 +295,11 @@ enum Opcodes
         /// Channel
         SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0073,   ///< 6.0.1 18716
         SMSG_CHANNEL_NOTIFY_JOINED                  = 0x0077,   ///< 6.0.1 18716
-        SMSG_CHANNEL_NOTIFY                         = 0x0000,
-        SMSG_CHANNEL_LIST                           = 0x0000,   ///<
+        SMSG_CHANNEL_NOTIFY                         = 0x0071,   ///< 6.0.1 18716
+        SMSG_CHANNEL_LIST                           = 0x0852,   ///< 6.0.1 18716
+        SMSG_USERLIST_ADD                           = 0x10F6,   ///< 6.0.1 18716
+        SMSG_USERLIST_REMOVE                        = 0x08F1,   ///< 6.0.1 18716
+        SMSG_USERLIST_UPDATE                        = 0x0057,   ///< 6.0.1 18716
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

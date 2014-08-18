@@ -596,7 +596,7 @@ void Channel::List(Player * p_Player)
                 l_Member->IsVisibleGloballyFor(p_Player))
             {
                 l_Buffer << uint64(l_I->first);                     ///< Member guid
-                l_Buffer << uint32(0);                              ///< virtualRealmAddress
+                l_Buffer << uint32(realmID);                        ///< virtualRealmAddress
                 l_Buffer << uint8(l_I->second.flags);               ///< Flags
 
                 ++l_MemberCount;
@@ -819,25 +819,43 @@ void Channel::DeVoice(uint64 /*guid1*/, uint64 /*guid2*/)
 }
 
 // done
-void Channel::MakeNotifyPacket(WorldPacket* data, uint8 notify_type)
+void Channel::MakeNotifyPacket(WorldPacket* data, uint8 notify_type, uint64 p_SenderGUID, uint64 p_TargetGUID, std::string p_SenderName, uint8 p_OldFlags, uint8 p_NewFlags)
 {
+    Player * l_SenderPlayer = sObjectAccessor->FindPlayer(p_SenderGUID);
+
     data->Initialize(SMSG_CHANNEL_NOTIFY, 1+m_name.size()+1);
-    *data << uint8(notify_type);
-    *data << m_name;
+    data->WriteBits(notify_type, 6);
+    data->WriteBits(m_name.length(), 7);
+    data->WriteBits(p_SenderName.length(), 6);
+    data->FlushBits();
+
+    data->appendPackGUID(p_SenderGUID);
+    data->appendPackGUID(l_SenderPlayer ? l_SenderPlayer->GetSession()->GetWoWAccountGUID() : 0);
+    *data << uint32(p_SenderGUID ? realmID : 0);
+    data->appendPackGUID(p_TargetGUID);
+    *data << uint32(p_TargetGUID ? realmID : 0);
+    *data << int32(m_channelId);
+
+    if (notify_type == CHAT_MODE_CHANGE_NOTICE)
+    {
+        *data << uint8(p_OldFlags);
+        *data << uint8(p_NewFlags);
+    }
+
+    data->WriteString(m_name);
+    data->WriteString(p_SenderName);
 }
 
 // done 0x00
 void Channel::MakeJoined(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_JOINED_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_JOINED_NOTICE, guid, 0, "");
 }
 
 // done 0x01
 void Channel::MakeLeft(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_LEFT_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_LEFT_NOTICE, guid, 0, "");
 }
 
 // done 0x02
@@ -870,46 +888,43 @@ void Channel::MakeYouLeft(WorldPacket* p_Data)
 // done 0x04
 void Channel::MakeWrongPassword(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_WRONG_PASSWORD_NOTICE);
+    MakeNotifyPacket(data, CHAT_WRONG_PASSWORD_NOTICE, 0, 0, "");
 }
 
 // done 0x05
 void Channel::MakeNotMember(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_NOT_MEMBER_NOTICE);
+    MakeNotifyPacket(data, CHAT_NOT_MEMBER_NOTICE, 0, 0, "");
 }
 
 // done 0x06
 void Channel::MakeNotModerator(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_NOT_MODERATOR_NOTICE);
+    MakeNotifyPacket(data, CHAT_NOT_MODERATOR_NOTICE, 0, 0, "");
 }
 
 // done 0x07
 void Channel::MakePasswordChanged(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_PASSWORD_CHANGED_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_PASSWORD_CHANGED_NOTICE, guid, 0, "");
 }
 
 // done 0x08
 void Channel::MakeOwnerChanged(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_OWNER_CHANGED_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_OWNER_CHANGED_NOTICE, guid, 0, "");
 }
 
 // done 0x09
 void Channel::MakePlayerNotFound(WorldPacket* data, const std::string& name)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_NOT_FOUND_NOTICE);
-    *data << name;
+    MakeNotifyPacket(data, CHAT_PLAYER_NOT_FOUND_NOTICE, 0, 0, name);
 }
 
 // done 0x0A
 void Channel::MakeNotOwner(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_NOT_OWNER_NOTICE);
+    MakeNotifyPacket(data, CHAT_NOT_OWNER_NOTICE, 0, 0, "");
 }
 
 // done 0x0B
@@ -920,228 +935,169 @@ void Channel::MakeChannelOwner(WorldPacket* data)
     if (!sObjectMgr->GetPlayerNameByGUID(m_ownerGUID, name) || name.empty())
         name = "PLAYER_NOT_FOUND";
 
-    MakeNotifyPacket(data, CHAT_CHANNEL_OWNER_NOTICE);
-    *data << ((IsConstant() || !m_ownerGUID) ? "Nobody" : name);
+    MakeNotifyPacket(data, CHAT_CHANNEL_OWNER_NOTICE, 0, 0, ((IsConstant() || !m_ownerGUID) ? "Nobody" : name));
 }
 
 // done 0x0C
 void Channel::MakeModeChange(WorldPacket* data, uint64 guid, uint8 oldflags)
 {
-    MakeNotifyPacket(data, CHAT_MODE_CHANGE_NOTICE);
-    *data << uint64(guid);
-    *data << uint8(oldflags);
-    *data << uint8(GetPlayerFlags(guid));
+    MakeNotifyPacket(data, CHAT_MODE_CHANGE_NOTICE, guid, 0, "", oldflags, GetPlayerFlags(guid));
 }
 
 // done 0x0D
 void Channel::MakeAnnouncementsOn(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_ANNOUNCEMENTS_ON_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_ANNOUNCEMENTS_ON_NOTICE, guid, 0, "");
 }
 
 // done 0x0E
 void Channel::MakeAnnouncementsOff(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_ANNOUNCEMENTS_OFF_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_ANNOUNCEMENTS_OFF_NOTICE, guid, 0, "");
 }
 
 // done 0x11
 void Channel::MakeMuted(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_MUTED_NOTICE);
+    MakeNotifyPacket(data, CHAT_MUTED_NOTICE, 0, 0, "");
 }
 
 // done 0x12
 void Channel::MakePlayerKicked(WorldPacket* data, uint64 bad, uint64 good)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_KICKED_NOTICE);
-    *data << uint64(bad);
-    *data << uint64(good);
+    MakeNotifyPacket(data, CHAT_PLAYER_KICKED_NOTICE, bad, good, "");
 }
 
 // done 0x13
 void Channel::MakeBanned(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_BANNED_NOTICE);
+    MakeNotifyPacket(data, CHAT_BANNED_NOTICE, 0, 0, "");
 }
 
 // done 0x14
 void Channel::MakePlayerBanned(WorldPacket* data, uint64 bad, uint64 good)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_BANNED_NOTICE);
-    *data << uint64(bad);
-    *data << uint64(good);
+    MakeNotifyPacket(data, CHAT_PLAYER_BANNED_NOTICE, bad, good, "");
 }
 
 // done 0x15
 void Channel::MakePlayerUnbanned(WorldPacket* data, uint64 bad, uint64 good)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_UNBANNED_NOTICE);
-    *data << uint64(bad);
-    *data << uint64(good);
+    MakeNotifyPacket(data, CHAT_PLAYER_UNBANNED_NOTICE, bad, good, "");
 }
 
 // done 0x16
 void Channel::MakePlayerNotBanned(WorldPacket* data, const std::string &name)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_NOT_BANNED_NOTICE);
-    *data << name;
+    MakeNotifyPacket(data, CHAT_PLAYER_NOT_BANNED_NOTICE, 0, 0, name);
 }
 
 // done 0x17
 void Channel::MakePlayerAlreadyMember(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_ALREADY_MEMBER_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_PLAYER_ALREADY_MEMBER_NOTICE, guid, 0, "");
 }
 
 // done 0x18
 void Channel::MakeInvite(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_INVITE_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_INVITE_NOTICE, guid, 0, "");
 }
 
 // done 0x19
 void Channel::MakeInviteWrongFaction(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_INVITE_WRONG_FACTION_NOTICE);
+    MakeNotifyPacket(data, CHAT_INVITE_WRONG_FACTION_NOTICE, 0, 0, "");
 }
 
 // done 0x1A
 void Channel::MakeWrongFaction(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_WRONG_FACTION_NOTICE);
+    MakeNotifyPacket(data, CHAT_WRONG_FACTION_NOTICE, 0, 0, "");
 }
 
 // done 0x1B
 void Channel::MakeInvalidName(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_INVALID_NAME_NOTICE);
+    MakeNotifyPacket(data, CHAT_INVALID_NAME_NOTICE, 0, 0, "");
 }
 
 // done 0x1C
 void Channel::MakeNotModerated(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_NOT_MODERATED_NOTICE);
+    MakeNotifyPacket(data, CHAT_NOT_MODERATED_NOTICE, 0, 0, "");
 }
 
 // done 0x1D
 void Channel::MakePlayerInvited(WorldPacket* data, const std::string& name)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_INVITED_NOTICE);
-    *data << name;
+    MakeNotifyPacket(data, CHAT_PLAYER_INVITED_NOTICE, 0, 0, name);
 }
 
 // done 0x1E
 void Channel::MakePlayerInviteBanned(WorldPacket* data, const std::string& name)
 {
-    MakeNotifyPacket(data, CHAT_PLAYER_INVITE_BANNED_NOTICE);
-    *data << name;
+    MakeNotifyPacket(data, CHAT_PLAYER_INVITE_BANNED_NOTICE, 0, 0, name);
 }
 
 // done 0x1F
 void Channel::MakeThrottled(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_THROTTLED_NOTICE);
+    MakeNotifyPacket(data, CHAT_THROTTLED_NOTICE, 0, 0, "");
 }
 
 // done 0x20
 void Channel::MakeNotInArea(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_NOT_IN_AREA_NOTICE);
+    MakeNotifyPacket(data, CHAT_NOT_IN_AREA_NOTICE, 0, 0, "");
 }
 
 // done 0x21
 void Channel::MakeNotInLfg(WorldPacket* data)
 {
-    MakeNotifyPacket(data, CHAT_NOT_IN_LFG_NOTICE);
+    MakeNotifyPacket(data, CHAT_NOT_IN_LFG_NOTICE, 0, 0, "");
 }
 
 // done 0x22
 void Channel::MakeVoiceOn(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_VOICE_ON_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_VOICE_ON_NOTICE, guid, 0 , "");
 }
 
 // done 0x23
 void Channel::MakeVoiceOff(WorldPacket* data, uint64 guid)
 {
-    MakeNotifyPacket(data, CHAT_VOICE_OFF_NOTICE);
-    *data << uint64(guid);
+    MakeNotifyPacket(data, CHAT_VOICE_OFF_NOTICE, guid, 0, "");
 }
 
 void Channel::JoinNotify(uint64 guid)
 {
-    return;
-    ObjectGuid playerGuid = guid;
     WorldPacket data(SMSG_USERLIST_ADD);
-
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBits(GetName().size(), 7);
-    data.WriteBit(playerGuid[4]);
-
-    data.WriteByteSeq(playerGuid[5]);
-
-    if (GetName().size())
-    {
-        data.FlushBits();
-        data.append(GetName().c_str(), GetName().size());
-    }
-
+    data.appendPackGUID(guid);
+    data << uint8(m_flags);
     data << uint8(GetPlayerFlags(guid));
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[6]);
-    data << uint32(GetNumPlayers());
-    data.WriteByteSeq(playerGuid[2]);
+    data << uint32(m_channelId);
+
+    data.WriteBits(GetName().size(), 7);
+    data.FlushBits();
+
+    data.WriteString(GetName());
 
     SendToAllButOne(&data, guid);
 }
 
 void Channel::LeaveNotify(uint64 guid)
 {
-    return;
     WorldPacket data(SMSG_USERLIST_REMOVE);
-    ObjectGuid playerGuid = guid;
 
-    data.WriteBit(playerGuid[2]);
+    data.appendPackGUID(guid);
+    data << uint8(m_flags);
+    data << uint32(m_channelId);
+
     data.WriteBits(GetName().size(), 7);
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[4]);
+    data.FlushBits();
 
-    data << uint8(GetFlags());
-    data.WriteByteSeq(playerGuid[6]);
-    data << uint8(GetPlayerFlags(guid));
-    data.WriteByteSeq(playerGuid[0]);
-
-    if (GetName().size())
-        data.append(GetName().c_str(), GetName().size());
-
-    data << uint32(GetNumPlayers());
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[7]);
+    data.WriteString(GetName());
 
     if (IsConstant())
         SendToAllButOne(&data, guid);

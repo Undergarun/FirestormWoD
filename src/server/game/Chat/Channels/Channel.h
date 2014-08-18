@@ -70,6 +70,8 @@ enum ChatNotify
     CHAT_NOT_IN_LFG_NOTICE            = 0x21,           //+ "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
     CHAT_VOICE_ON_NOTICE              = 0x22,           //+ "[%s] Channel voice enabled by %s.";
     CHAT_VOICE_OFF_NOTICE             = 0x23,           //+ "[%s] Channel voice disabled by %s.";
+    CHAT_TRIAL_RESTRICTED             = 0x24,
+    CHAT_NOT_ALLOWED_IN_CHANNEL       = 0x25,
 };
 
 enum ChannelFlags
@@ -163,7 +165,7 @@ class Channel
 
     private:
         // initial packet data (notify type and channel name)
-        void MakeNotifyPacket(WorldPacket* data, uint8 notify_type);
+        void MakeNotifyPacket(WorldPacket* data, uint8 notify_type, uint64 p_SenderGUID, uint64 p_TargetGUID, std::string p_SenderName, uint8 p_OldFlags = 0, uint8 p_NewFlags = 0);
         // type specific packet data
         void MakeJoined(WorldPacket* data, uint64 guid);                        //+ 0x00
         void MakeLeft(WorldPacket* data, uint64 guid);                          //+ 0x01
