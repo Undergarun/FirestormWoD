@@ -537,16 +537,13 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
-
-    if (m_Player->m_mover->GetGUID() != guid)
-        return;
-
-    recvData.read_skip<uint32>();                          // unk
-
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
+
+    recvData.read_skip<uint32>();                          /// ACK Index
+
+    if (m_Player->m_mover->GetGUID() != movementInfo.guid)
+        return;
 
     m_Player->m_movementInfo = movementInfo;
 

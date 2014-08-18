@@ -20045,11 +20045,11 @@ void Unit::SendMoveKnockBack(Player* p_Player, float p_SpeedXY, float p_SpeedZ, 
     WorldPacket l_Packet(SMSG_MOVE_KNOCK_BACK, (1 + 8 + 4 + 4 + 4 + 4 + 4));
 
     l_Packet.appendPackGUID(GetGUID());
-    l_Packet << float(p_Sin);
+    l_Packet << uint32(0);
     l_Packet << float(p_Cos);
+    l_Packet << float(p_Sin);
     l_Packet << float(p_SpeedXY);
     l_Packet << float(p_SpeedZ);
-    l_Packet << uint32(0);
 
     p_Player->GetSession()->SendPacket(&l_Packet);
 }

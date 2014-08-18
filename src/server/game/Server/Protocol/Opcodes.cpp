@@ -715,6 +715,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT,                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_SPEED_CHEAT,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMoveKnockBackAck           );
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

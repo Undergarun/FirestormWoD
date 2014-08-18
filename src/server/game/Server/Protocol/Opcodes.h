@@ -664,6 +664,7 @@ enum Opcodes
     CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x125C,   ///< 6.0.1 18716
     CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x13CF,   ///< 6.0.1 18716
     CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x02CF,   ///< 6.0.1 18716
+    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x095F,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     /// Group
