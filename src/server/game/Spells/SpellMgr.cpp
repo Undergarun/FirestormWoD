@@ -3433,6 +3433,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 136339:// Lightning Tether
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 136350:// Lightning Tether (periodic)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;

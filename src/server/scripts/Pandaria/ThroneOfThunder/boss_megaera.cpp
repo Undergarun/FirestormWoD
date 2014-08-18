@@ -236,12 +236,12 @@ class boss_megaera : public CreatureScript
 
                 SummonInitialHeads();
 
-                //_Reset();
+                _Reset();
             }
 
             void EnterCombat(Unit* attacker)
             {
-                //_EnterCombat();
+                _EnterCombat();
 
                 if (pInstance)
                 {
@@ -264,7 +264,7 @@ class boss_megaera : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                //_JustDied();
+                _JustDied();
 
                 DisableActualHeads(true);
 
@@ -317,7 +317,7 @@ class boss_megaera : public CreatureScript
 
             void JustReachedHome()
             {
-                //_JustReachedHome();
+                _JustReachedHome();
 
                 if (pInstance)
                 {
@@ -469,7 +469,7 @@ class boss_megaera : public CreatureScript
                 {
                     me->CastSpell(me, SPELL_RAMPAGE_PERIODIC, true);
                     events.ScheduleEvent(EVENT_END_OF_RAMPAGE, 20000);
-                    me->MonsterTextEmote("|TInterface\\Icons\\trade_archaeology_whitehydrafigurine:20|tMegaera begins to |cFFF00000|Hspell:139458|h[Rampage]|h|r !", 0, true);
+                    me->MonsterTextEmote("Megaera begins to |cFFF00000|Hspell:139458|h[Rampage]|h|r !", 0, true);
 
                     std::list<Creature*> headList;
                     if (activesHeads & HEAD_VENOMOUS)
