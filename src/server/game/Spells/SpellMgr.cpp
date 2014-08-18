@@ -3427,6 +3427,13 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 65075:
+            case 65077:
+            case 64482:
+            case 55076:
+            case 60023:
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
+                break;
             case 137200:// Blessed Loa Spirit
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;

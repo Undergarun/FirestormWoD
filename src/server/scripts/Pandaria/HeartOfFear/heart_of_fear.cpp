@@ -595,9 +595,11 @@ class mob_set_thik_zephyrian : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (pInstance)
-                    if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
-                        garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
+                if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 200.0f))
+                    if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_GUSTWING, 200.0f))
+                        if (pInstance)
+                            if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
+                                garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1077,9 +1079,11 @@ class mob_set_thik_gustwing : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (pInstance)
-                    if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
-                        garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
+                if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 200.0f))
+                    if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_ZEPHYRIAN, 200.0f))
+                        if (pInstance)
+                            if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
+                                garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
             }
 
             void UpdateAI(const uint32 diff)

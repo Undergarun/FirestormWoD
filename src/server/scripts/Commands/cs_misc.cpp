@@ -145,6 +145,12 @@ class misc_commandscript : public CommandScript
             char* l_FirstName = strtok((char*)p_Args, " ");
             char* l_SecondName = strtok(NULL, " ");
 
+            if (!*l_FirstName || !*l_SecondName || strlen(l_FirstName) <= 1 || strlen(l_SecondName) <= 1)
+            {
+                p_Handler->PSendSysMessage("Error about players name.");
+                return true;
+            }
+
             Player* l_FirstLeader = sObjectAccessor->FindPlayerByName(l_FirstName);
             if (!l_FirstLeader || l_FirstLeader->getLevel() < 90)
             {

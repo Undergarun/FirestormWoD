@@ -258,7 +258,7 @@ class boss_primordius : public CreatureScript
 
                 m_Events.Reset();
 
-                m_Events.ScheduleEvent(EVENT_PRIMORDIAL_STRIKE, 2000);
+                m_Events.ScheduleEvent(EVENT_PRIMORDIAL_STRIKE, 6000);
                 m_Events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 7000);
                 m_Events.ScheduleEvent(EVENT_SUMMON_LIVING_FLUID, 5000);
 
@@ -404,8 +404,8 @@ class mob_living_fluid : public CreatureScript
                 m_Instance = p_Creature->GetInstanceScript();
             }
 
-            bool m_StartMutagenicCheck;
-            bool m_StartVolatileCheck;
+            bool m_StartMutagenicMethod;
+            bool m_StartVolatileMethod;
 
             InstanceScript* m_Instance;
 
@@ -416,8 +416,8 @@ class mob_living_fluid : public CreatureScript
                 me->SetSpeed(MOVE_WALK, 0.3f);
                 me->SetSpeed(MOVE_RUN, 0.3f);
 
-                m_StartVolatileCheck = false;
-                m_StartMutagenicCheck = false;
+                m_StartVolatileMethod  = false;
+                m_StartMutagenicMethod = false;
             }
 
             /// Start moving slowly to Primordius position when summoned
@@ -425,15 +425,18 @@ class mob_living_fluid : public CreatureScript
             {
                 if (m_Instance)
                 {
-                    if (Creature* l_Primordius = Creature::GetCreature(*me, m_Instance->GetData64(NPC_PRIMORDIUS)))
-                        me->GetMotionMaster()->MovePoint(0, l_Primordius->GetPositionX(), l_Primordius->GetPositionY(), l_Primordius->GetPositionZ());
+                    if (Creature* l_Primordius = GetClosestCreatureWithEntry(me, NPC_PRIMORDIUS, 200.0f, true))
+                        me->GetMotionMaster()->MoveFollow(l_Primordius, 0.1f, 0.1f);
                 }
             }
 
             void VolatilePool()
             {
-                if (!m_StartMutagenicCheck)
+                if (m_StartVolatileMethod)
                 {
+                    me->SetSpeed(MOVE_WALK, 0.1f);
+                    me->SetSpeed(MOVE_RUN, 0.1f);
+
                     /// If Living Fluid finds a really near player, it applies a random nephast aura to him.
                     if (Player* l_Player = me->FindNearestPlayer(3.0f))
                     {
@@ -450,7 +453,7 @@ class mob_living_fluid : public CreatureScript
                             while (l_Player->HasAura(nephastAuras[l_Index]))
                                 l_Index = urand(0, 3);
 
-                            m_StartVolatileCheck = false;
+                            m_StartVolatileMethod = false;
 
                             /// Stops checking players.
                             events.CancelEvent(EVENT_VOLATIL_CHECK);
@@ -465,15 +468,15 @@ class mob_living_fluid : public CreatureScript
 
             void MutagenicPool()
             {
-                if (!m_StartMutagenicCheck)
+                if (m_StartMutagenicMethod)
                 {
                     /// If players is already mutated, a debuff is applied instead of a buff.
                     if (Player* l_Player = me->FindNearestPlayer(3.0f))
                     {
                         if (l_Player->HasAura(SPELL_FULLY_MUTATED))
                         {
-                            m_StartVolatileCheck = true;
-                            m_StartMutagenicCheck = false;
+                            m_StartVolatileMethod = true;
+                            m_StartMutagenicMethod = false;
 
                             /// Stops checking players.
                             events.CancelEvent(EVENT_MUTAGENIC_CHECK);
@@ -500,7 +503,7 @@ class mob_living_fluid : public CreatureScript
                             {
                                 for (Player* l_Player : l_PlayerList)
                                 {
-                                    me->AddAura(beneficAuras[urand(0, 3)], l_Player);
+                                    l_Player->CastSpell(l_Player, beneficAuras[urand(0, 3)], false);
 
                                     uint8 l_StackCount = 0;
 
@@ -525,14 +528,14 @@ class mob_living_fluid : public CreatureScript
                                     /// Stops checking players.
                                     events.CancelEvent(EVENT_MUTAGENIC_CHECK);
 
-                                    m_StartMutagenicCheck = false;
-
-                                    me->DespawnOrUnsummon();
+                                    m_StartMutagenicMethod = false;
 
                                     l_AreaTrigger->Remove();
                                 }
                             }
                         }
+
+                        me->DespawnOrUnsummon();
                     }
                 }
             }
@@ -549,34 +552,30 @@ class mob_living_fluid : public CreatureScript
 
                     /// 80% chance to apply Volatile Pool.
                     /// 20% chance to apply Mutagenic Pool.
-                    me->CastSpell(me, roll_chance_i(80) ? SPELL_VOLATILE_POOL : SPELL_MUTAGENIC_POOL, false);
+                    me->CastSpell(me, roll_chance_i(20) ? SPELL_VOLATILE_POOL : SPELL_MUTAGENIC_POOL, true);
 
                     /// Starts checking players near for applying instructions.
-                    events.ScheduleEvent(EVENT_MUTAGENIC_CHECK, 500);
-                }
-            }
-
-            /// When a Living Fluid reaches Primordius, this one gains one evolution stack, his power is reset, and he gets healed. The Living Fluid despawns.
-            void MovementInform(uint32 p_Type, uint32 p_PointId)
-            {
-                if (p_Type != POINT_MOTION_TYPE)
-                    return;
-
-                if (p_PointId == 0 && m_Instance)
-                {
-                    if (Creature* l_Primordius = Creature::GetCreature(*me, m_Instance->GetData64(NPC_PRIMORDIUS)))
-                    {
-                        l_Primordius->AddAura(SPELL_EVOLUTION, l_Primordius);
-                        l_Primordius->SetPower(POWER_ENERGY, 0, true);
-                        l_Primordius->ModifyHealth(l_Primordius->GetMaxHealth() * 0.10f);
-                    }
-
-                    me->DespawnOrUnsummon();
+                    if (me->HasAura(SPELL_VOLATILE_POOL))
+                        events.ScheduleEvent(EVENT_VOLATIL_CHECK, 500);
+                    else
+                        events.ScheduleEvent(EVENT_MUTAGENIC_CHECK, 700);
                 }
             }
 
             void UpdateAI(const uint32 p_Diff)
             {
+                /// When a Living Fluid reaches Primordius, this one gains one evolution stack, his power is reset, and he gets healed. The Living Fluid despawns.
+                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                {
+                    if (Creature* l_Primordius = GetClosestCreatureWithEntry(me, NPC_PRIMORDIUS, 0.3f, true))
+                    {
+                        l_Primordius->AddAura(SPELL_EVOLUTION, l_Primordius);
+                        l_Primordius->SetPower(POWER_ENERGY, 0, true);
+                        l_Primordius->ModifyHealth(l_Primordius->GetMaxHealth() * 0.10f);
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
                 events.Update(p_Diff);
 
                 switch (events.ExecuteEvent())
@@ -589,7 +588,8 @@ class mob_living_fluid : public CreatureScript
 
                         if (!l_PlayerList.empty())
                         {
-                            m_StartVolatileCheck = true;
+                            m_StartVolatileMethod = true;
+
                             VolatilePool();
                         }
 
@@ -613,7 +613,7 @@ class mob_living_fluid : public CreatureScript
 
                                 if (!l_PlayerList.empty())
                                 {
-                                    m_StartMutagenicCheck = true;
+                                    m_StartMutagenicMethod = true;
                                     MutagenicPool();
                                 }
                             }
@@ -665,8 +665,9 @@ class mob_viscous_horror : public CreatureScript
             void UpdateAI(const uint32 p_Diff)
             {
                 /// If he gets <= 10.0f distance from primordius, wipes all the raid.
-                if (m_Instance && Creature::GetCreature(*me, m_Instance->GetData64(NPC_PRIMORDIUS)))
-                    me->CastSpell(me, SPELL_DEADLY_MUTAGEN, false);
+                if (m_Instance)
+                    if (Creature* l_Primordius = GetClosestCreatureWithEntry(me, NPC_PRIMORDIUS, 10.0f, true))
+                        me->CastSpell(me, SPELL_DEADLY_MUTAGEN, false);
 
                 events.Update(p_Diff);
 
