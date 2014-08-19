@@ -4764,6 +4764,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             {
                 if (m_originalCaster)
                 {
+                    // Furious Stone Breath cannot be interrupted except by Shell Concussion
+                    if (curSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
+                        continue;
+
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
@@ -7202,6 +7206,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     if (!unitTarget || unitTarget == m_caster)                 // can't steal from self
+        return;
+
+    // HACK FIX !! @TODO: Find how filter not stealable spells for boss
+    if (unitTarget->ToCreature() && unitTarget->ToCreature()->IsDungeonBoss())
         return;
 
     DispelChargesList steal_list;

@@ -3427,11 +3427,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 65075:
-            case 65077:
-            case 64482:
-            case 55076:
-            case 60023:
+            case 65075: // Tower of Flames
+            case 65077: // Tower of Frost
+            case 64482: // Tower of Life
+            case 55076: // Sun Scope
+            case 60023: // Scourge Banner Aura
+            case 137502:// Growing Fury
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
                 break;
             case 137200:// Blessed Loa Spirit
