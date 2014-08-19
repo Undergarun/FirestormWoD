@@ -317,26 +317,18 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandlePetitionQueryOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
+    uint64 l_ItemGUID;
 
-    uint32 guildId;
-    ObjectGuid petitionGuid;
+    uint32 l_PetitionID;
 
-    recvData >> guildId;
+    p_RecvData >> l_PetitionID;
+    p_RecvData.readPackGUID(l_ItemGUID);
 
-    uint8 bitsOrder[8] = { 7, 5, 4, 1, 3, 6, 0, 2 };
-    recvData.ReadBitInOrder(petitionGuid, bitsOrder);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(l_ItemGUID), l_PetitionID);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 3, 5, 6, 1, 7, 0, 2 };
-    recvData.ReadBytesSeq(petitionGuid, bytesOrder);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionGuid), guildId);
-
-    SendPetitionQueryOpcode(uint64(guildId));
+    SendPetitionQueryOpcode(uint64(l_PetitionID));
 }
 
 void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)

@@ -546,6 +546,7 @@ enum Opcodes
     CMSG_QUEST_POI_QUERY                        = 0x0E41,   ///< 6.0.1 18716
     CMSG_REALM_NAME_QUERY                       = 0x0CC1,   ///< 6.0.1 18716
     CMSG_GAMEOBJECT_QUERY                       = 0x0942,   ///< 6.0.1 18716
+    CMSG_PETITION_QUERY                         = 0x1152,   ///< 6.0.1 18716
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -695,6 +696,17 @@ enum Opcodes
     CMSG_SET_CONTACT_NOTES                      = 0x0C62,   ///< 6.0.1 18716
     CMSG_DEL_FRIEND                             = 0x0466,   ///< 6.0.1 18716
     CMSG_DEL_IGNORE                             = 0x1FE1,   ///< 6.0.1 18716
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Petition
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_OFFER_PETITION                         = 0x0000,
+    CMSG_PETITION_BUY                           = 0x0000,
+    CMSG_PETITION_DECLINE                       = 0x0000,
+    CMSG_PETITION_RENAME                        = 0x0000,
+    CMSG_PETITION_SHOWLIST                      = 0x0000,
+    CMSG_PETITION_SHOW_SIGNATURES               = 0x0000,
+    CMSG_PETITION_SIGN                          = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1005,17 +1017,9 @@ enum Opcodes
     CMSG_NEXT_CINEMATIC_CAMERA                        = 0x0000,
     CMSG_OBJECT_UPDATE_FAILED                         = 0x0000,
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x0000,
-    CMSG_OFFER_PETITION                               = 0x0000,
     CMSG_OPENING_CINEMATIC                            = 0x0000,
     CMSG_OPEN_ITEM                                    = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
-    CMSG_PETITION_BUY                                 = 0x0000,
-    CMSG_PETITION_DECLINE                             = 0x0000,
-    CMSG_PETITION_QUERY                               = 0x0000,
-    CMSG_PETITION_RENAME                              = 0x0000,
-    CMSG_PETITION_SHOWLIST                            = 0x0000,
-    CMSG_PETITION_SHOW_SIGNATURES                     = 0x0000,
-    CMSG_PETITION_SIGN                                = 0x0000,
     CMSG_PET_ABANDON                                  = 0x0000,
     CMSG_PET_ACTION                                   = 0x0000,
     CMSG_PET_CANCEL_AURA                              = 0x0000,
