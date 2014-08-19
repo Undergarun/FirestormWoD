@@ -835,11 +835,6 @@ struct ItemTemplate
                 return true;
         return false;
     }
-    bool HasStat(uint32 p_Stat)
-    {
-
-    }
-
 };
 
 //////////////////////////////////////////////////////////////
