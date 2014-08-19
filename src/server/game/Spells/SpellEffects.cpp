@@ -7208,6 +7208,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget == m_caster)                 // can't steal from self
         return;
 
+    // HACK FIX !! @TODO: Find how filter not stealable spells for boss
+    if (unitTarget->ToCreature() && unitTarget->ToCreature()->IsDungeonBoss())
+        return;
+
     DispelChargesList steal_list;
 
     // Create dispel mask by dispel type
