@@ -882,25 +882,22 @@ struct ChrSpecializationsEntry
     //uint32    Unk_601_18612;                              // 15       Unk_601_18612
 };
 
-/* Unused
 struct CinematicCameraEntry
 {
-    uint32      m_ID;                                       // 0        m_ID
-    char*       m_Model;                                    // 1        m_Model
-    uint32      m_SoundID;                                  // 2        m_SoundID
-    float       m_Origin_x;                                 // 3        m_Origin_x
-    float       m_Origin_y;                                 // 4        m_Origin_y
-    float       m_Origin_z;                                 // 5        m_Origin_z
-    float       m_OriginFacing;                             // 6        m_OriginFacing
+    uint32      id;                                         // 0 index
+    char*       filename;                                   // 1
+    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
+    float       EndPosX;                                    // 3
+    float       EndPosY;                                    // 4
+    float       EndPosZ;                                    // 5
+    float       GlobalRotation;                             // 6 
 };
-*/
 
 struct CinematicSequencesEntry
 {
-    uint32  Id;                                             // 0        Im_D
-    //uint32    m_SoundID;                                  // 1        m_SoundID
-    //uint32    m_Camera;                                   // 2-9      m_Camera                m_ID in CinematicCamera.dbc
-
+    uint32      Id;                                         // 0 index
+    //uint32      unk1;                                     // 1 always 0
+    uint32      cinematicCamera;                            // 2 id in CinematicCamera.dbc                                                        // 3-9 always 0
 };
 
 struct CreatureDisplayInfoEntry

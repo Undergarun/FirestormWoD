@@ -926,6 +926,10 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_knockBackTimer = 0;
 
+    m_CinematicSequence         = NULL;
+    m_InCinematic               = false;
+    m_CinematicClientStartTime  = 0;
+
     m_ignoreMovementCount = 0;
 
     m_groupUpdateDelay = 5000;
@@ -1920,6 +1924,27 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
         p_time = _skipDiff;
         _skipCount = 0;
         _skipDiff = 0;
+    }
+
+    if (m_InCinematic && m_CinematicSequence)
+    {
+        bool l_StartedAtClient = getMSTime() > m_CinematicClientStartTime;
+        uint32 l_Time = getMSTime() - m_CinematicClientStartTime;
+
+        if (l_StartedAtClient)
+        {
+            if (l_Time > m_CinematicSequence->Duration)
+                StopCinematic();
+            else if (l_StartedAtClient)
+            {
+                Position l_NewPosition;
+                m_CinematicSequence->GetPositionAtTime(l_Time, &l_NewPosition.m_positionX, &l_NewPosition.m_positionY, &l_NewPosition.m_positionZ);
+
+                Unit::UpdatePosition(l_NewPosition.m_positionX, l_NewPosition.m_positionY, l_NewPosition.m_positionZ, 0, true);
+                UpdateObjectVisibility();
+                SetFall(false);
+            }
+        }
     }
 
     // undelivered mail
@@ -7940,12 +7965,52 @@ void Player::SendDirectMessage(WorldPacket* data)
 {
     m_session->SendPacket(data);
 }
-
-void Player::SendCinematicStart(uint32 CinematicSequenceId)
+//////////////////////////////////////////////////////////////////////////
+/// Cinematic
+//////////////////////////////////////////////////////////////////////////
+void Player::StopCinematic()
 {
-    WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
-    data << uint32(CinematicSequenceId);
-    SendDirectMessage(&data);
+    if (m_CinematicSequence && IsInWorld())
+    {
+        m_CinematicSequence         = NULL;
+        m_InCinematic               = false;
+        m_CinematicClientStartTime  = 0;
+
+        Unit::UpdatePosition(m_CinematicStartX, m_CinematicStartY, m_CinematicStartZ, m_CinematicStartO, true);
+
+        getHostileRefManager().setOnlineOfflineState(true);
+
+        SetFall(true);
+
+        RemoveAura(60190);
+    }
+}
+void Player::SendCinematicStart(uint32 p_CinematicSequenceId)
+{
+    WorldPacket l_Data(SMSG_TRIGGER_CINEMATIC, 4);
+    l_Data << uint32(p_CinematicSequenceId);
+    SendDirectMessage(&l_Data);
+
+    StopCinematic();
+
+    m_CinematicSequence = const_cast<CinematicSequence*>(sCinematicSequenceMgr->GetSequence(p_CinematicSequenceId));
+
+    if (m_CinematicSequence)
+    {
+        m_CinematicClientStartTime  = (getMSTime() - GetSession()->GetLatency()) + 1500;
+        m_InCinematic               = true;
+
+        m_CinematicStartX = m_positionX;
+        m_CinematicStartY = m_positionY;
+        m_CinematicStartZ = m_positionZ;
+        m_CinematicStartO = GetOrientation();
+
+        getHostileRefManager().setOnlineOfflineState(false);
+
+        SetFall(false);
+
+        AddAura(60190, this);
+    }
 }
 
 void Player::SendMovieStart(uint32 MovieId)

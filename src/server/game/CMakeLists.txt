@@ -56,6 +56,7 @@ file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
+file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
 
 # Create game-libary
 
@@ -111,6 +112,7 @@ set(game_STAT_SRCS
   ${sources_Warden}
   ${sources_Weather}
   ${sources_World}
+  ${sources_Cinematic}
   ${sources_shared_ptrs}
 )
 
@@ -233,6 +235,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_CURRENT_SOURCE_DIR}/SharedPtrs
+  ${CMAKE_CURRENT_SOURCE_DIR}/Cinematic
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}

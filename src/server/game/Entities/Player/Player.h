@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "SpellChargesTracker.h"
+#include "CinematicPathMgr.h"
 
 // for template
 #include "SpellMgr.h"
@@ -2826,7 +2827,13 @@ class Player : public Unit, public GridObject<Player>
         void ResummonPetTemporaryUnSummonedIfAny();
         bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive(); }
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Cinematic
+        //////////////////////////////////////////////////////////////////////////
+        void StopCinematic();
         void SendCinematicStart(uint32 CinematicSequenceId);
+        bool IsInCinematic() { return m_InCinematic && m_CinematicSequence; }
+
         void SendMovieStart(uint32 MovieId);
 
         /*********************************************************/
@@ -3441,6 +3448,15 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _lastTargetedGO;
         float m_PersonnalXpRate;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Cinematic
+        //////////////////////////////////////////////////////////////////////////
+        CinematicSequence * m_CinematicSequence;
+        bool                m_InCinematic;
+        uint32              m_CinematicClientStartTime;
+        float               m_CinematicStartX, m_CinematicStartY, m_CinematicStartZ, m_CinematicStartO;
+        bool                m_FlyingBeforeCinematic;
 
         uint32 m_knockBackTimer;
         uint8  m_ignoreMovementCount;
