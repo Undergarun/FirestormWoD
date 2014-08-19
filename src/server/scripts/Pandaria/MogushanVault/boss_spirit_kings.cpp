@@ -440,6 +440,14 @@ class boss_spirit_kings_controler : public CreatureScript
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
                             fightInProgress = false;
 
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
+
                             if (pInstance)
                             {
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);

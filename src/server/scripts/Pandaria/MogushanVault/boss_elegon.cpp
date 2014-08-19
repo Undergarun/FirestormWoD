@@ -1560,6 +1560,12 @@ class mob_infinite_energy : public CreatureScript
                     }
                     case ACTION_INFINITE_LOOT:
                     {
+                        if (me->GetMap()->IsLFR())
+                        {
+                            AutomaticLootDistribution();
+                            break;
+                        }
+
                         // Loots chest
                         if (IsHeroic())
                             me->SummonGameObject(GOB_ELEGON_CHEST_HEROIC, middlePos.GetPositionX(), middlePos.GetPositionY(), middlePos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
@@ -1570,6 +1576,14 @@ class mob_infinite_energy : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void AutomaticLootDistribution()
+            {
+                me->SetLootRecipient(NULL);
+                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                if (l_Player && l_Player->GetGroup())
+                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
             }
 
             void UpdateAI(const uint32 diff)

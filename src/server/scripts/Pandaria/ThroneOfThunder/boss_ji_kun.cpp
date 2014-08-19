@@ -176,6 +176,13 @@ class boss_ji_kun : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void DoAction(const int32 action)

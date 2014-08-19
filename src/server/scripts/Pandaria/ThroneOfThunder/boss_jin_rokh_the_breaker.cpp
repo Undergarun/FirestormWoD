@@ -289,6 +289,14 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IONIZATION);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCUSED_LIGHTNING_IMPLOSION);
                 }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void DoAction(const int32 action)

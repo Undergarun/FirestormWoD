@@ -948,6 +948,7 @@ class ObjectMgr
         void LoadItemScriptNames();
         void LoadItemLocales();
         void LoadItemSpecs();
+        void LoadItemSpecsOverride();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();

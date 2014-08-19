@@ -415,6 +415,14 @@ class boss_horridon : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VENOM_BOLT_VOLLEY);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEADLY_PLAGUE);
                 }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void DamageTaken(Unit* attacker, uint32& damage)

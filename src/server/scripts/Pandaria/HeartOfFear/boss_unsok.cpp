@@ -225,6 +225,14 @@ class boss_unsok : public CreatureScript
                     exitDoor->SetGoState(GO_STATE_ACTIVE);
 
                 _JustDied();
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void EnterCombat(Unit* attacker)

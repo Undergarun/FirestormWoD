@@ -238,6 +238,14 @@ class boss_stone_guard_controler : public CreatureScript
                         // Removing energized tiles
                         me->RemoveAllDynObjects();
 
+                        if (me->GetMap()->IsLFR())
+                        {
+                            me->SetLootRecipient(NULL);
+                            Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                            if (l_Player && l_Player->GetGroup())
+                                sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        }
+
                         break;
                     }
                     case ACTION_POWER_DOWN:

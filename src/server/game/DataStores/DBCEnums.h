@@ -364,8 +364,6 @@ enum Difficulty
     DYNAMIC_DIFFICULTY           = 14                       // difficulty_entry_14
 };
 
-#define RAID_DIFFICULTY_MASK_25MAN 4                        // since 25man difficulties are 1 and 3, we can check them like that
-
 #define MAX_DUNGEON_DIFFICULTY     HEROIC_DIFFICULTY+1
 #define MAX_RAID_DIFFICULTY        MAN40_DIFFICULTY+1
 #define MAX_DIFFICULTY             DYNAMIC_DIFFICULTY+1     // difficulty_entry_15

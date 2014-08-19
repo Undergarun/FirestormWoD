@@ -371,6 +371,14 @@ class boss_tayak : public CreatureScript
                 summons.DespawnAll();
 
                 _JustDied();
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void JustSummoned(Creature* summon)

@@ -433,6 +433,14 @@ class boss_sha_of_fear : public CreatureScript
 
                     me->SetPower(POWER_ENERGY, 0);
                     pInstance->SaveToDB();
+
+                    if (me->GetMap()->IsLFR())
+                    {
+                        me->SetLootRecipient(NULL);
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
             }
 

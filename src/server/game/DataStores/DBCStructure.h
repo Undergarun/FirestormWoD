@@ -1563,11 +1563,22 @@ struct ItemSetEntry
     uint32    required_skill_value;                         // 36       m_requiredSkillRank
 };
 
+struct ItemSpecEntry
+{
+    uint32 ID;
+    uint32 MinLevel;
+    uint32 MaxLevel;
+    uint32 ItemType;
+    uint32 PrimaryStat;
+    uint32 SecondaryStat;
+    uint32 SpecializationID;
+};
+
 struct ItemSpecOverrideEntry
 {
     uint32 ID;
-    uint32 itemEntry;
-    uint32 specID;
+    uint32 ItemID;
+    uint32 SpecID;
 };
 
 // @author Selenium: 5.4 valid

@@ -1339,6 +1339,9 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_STATS_LIMITS_BLOCK] = ConfigMgr::GetFloatDefault("Stats.Limits.Block", 95.0f);
     m_float_configs[CONFIG_STATS_LIMITS_CRIT] = ConfigMgr::GetFloatDefault("Stats.Limits.Crit", 95.0f);
 
+    // LFR
+    m_float_configs[CONFIG_LFR_DROP_CHANCE] = ConfigMgr::GetFloatDefault("Lfr.DropChance", 25.0f);
+
     // Anticheat
     m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = ConfigMgr::GetBoolDefault("Anticheat.Enable", true);
     m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = ConfigMgr::GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
@@ -1550,17 +1553,20 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Disables");
     DisableMgr::LoadDisables();                                 // must be before loading quests and items
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                          ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                // must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                 ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                 // must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                          ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                   // must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                           ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecs();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                   ///< must be after LoadItemPrototypes
+    sObjectMgr->LoadItemSpecsOverride();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
