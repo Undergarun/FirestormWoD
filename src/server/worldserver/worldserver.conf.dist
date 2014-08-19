@@ -619,13 +619,14 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     4 - (Expansion 4 Mists of Pandaria)
+#        Default:     5 - (Expansion 5 Warlord of draenor)
+#                     4 - (Expansion 4 Mists of Pandaria)
 #                     3 - (Expansion 3 Cataclysm)
 #                     2 - (Expansion 2 Warth of the Lich King)
 #                     1 - (Expansion 1 Burning Crusade)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 4
+Expansion = 5
 
 #
 #    MinPlayerName
@@ -1095,7 +1096,7 @@ BeepAtStart = 1
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Bienvenue sur Pandashan, le premier serveur Mist of Pandaria au monde !"
+Motd = "Welcome on Garrosh, the first WoD server !"
 
 #
 #    Server.LoginInfo

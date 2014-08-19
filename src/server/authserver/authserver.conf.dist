@@ -50,7 +50,7 @@ MaxPingTime = 30
 #        Description: TCP port to reach the auth server.
 #        Default:     3724
 
-RealmServerPort = 3724
+RealmServerPort = 1119
 
 #
 #
