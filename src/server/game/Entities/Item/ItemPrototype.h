@@ -844,8 +844,9 @@ struct ItemTemplate
 // See Script_GetItemSpecInfo to update to next build
 namespace ItemSpecialization
 {
+    const static uint8 ITEM_SUBCLASS_EX_COUNT = 6;
     const static uint32 s_ItemSubClassSpec[ITEM_SUBCLASS_WEAPON_WAND] = { 0x0007, 0x0008, 0x0010, 0x000f, 0x000b, 0x000c, 0x0013, 0x0009, 0x000a, 0x001a, 0x0012, 0x001a, 0x001a, 0x000e, 0x001a, 0x000d, 0x0014, 0x001a, 0x0011 };
-    const static uint32 s_ItemSubClassSpecEx[6] = { 0x0016, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
+    const static uint32 s_ItemSubClassSpecEx[ITEM_SUBCLASS_EX_COUNT] = { 0x0016, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
 
     static uint32 GetItemType(const ItemTemplate* p_ItemTemplate)
     {
@@ -857,28 +858,28 @@ namespace ItemSpecialization
         {
             switch (p_ItemTemplate->SubClass)
             {
-            case ITEM_SUBCLASS_ARMOR_SHIELD:
-            case ITEM_SUBCLASS_ARMOR_LIBRAM:
-            case ITEM_SUBCLASS_ARMOR_IDOL:
-            case ITEM_SUBCLASS_ARMOR_TOTEM:
-            case ITEM_SUBCLASS_ARMOR_SIGIL:
-            case ITEM_SUBCLASS_ARMOR_RELIC:
-                l_ItemType = 6;
-                break;
-            case ITEM_SUBCLASS_ARMOR_CLOTH:
-                l_ItemType = p_ItemTemplate->InventoryType != INVTYPE_CLOAK;
-                break;
-            case ITEM_SUBCLASS_ARMOR_LEATHER:
-                l_ItemType = 2;
-                break;
-            case ITEM_SUBCLASS_ARMOR_MAIL:
-                l_ItemType = 3;
-                break;
-            case ITEM_SUBCLASS_ARMOR_PLATE:
-                l_ItemType = 4;
-                break;
-            default:
-                l_ItemType = 0;
+                case ITEM_SUBCLASS_ARMOR_SHIELD:
+                case ITEM_SUBCLASS_ARMOR_LIBRAM:
+                case ITEM_SUBCLASS_ARMOR_IDOL:
+                case ITEM_SUBCLASS_ARMOR_TOTEM:
+                case ITEM_SUBCLASS_ARMOR_SIGIL:
+                case ITEM_SUBCLASS_ARMOR_RELIC:
+                    l_ItemType = 6;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    l_ItemType = p_ItemTemplate->InventoryType != INVTYPE_CLOAK;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    l_ItemType = 2;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    l_ItemType = 3;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    l_ItemType = 4;
+                    break;
+                default:
+                    l_ItemType = 0;
             }
         }
         return l_ItemType;
@@ -889,42 +890,42 @@ namespace ItemSpecialization
         int32 l_ItemSpecStat = -1;
         switch (p_Stat)
         {
-        case 19:
-        case 20:
-        case 21:
-        case 32:
-            l_ItemSpecStat = 24;
-            break;
-        case 28:
-        case 29:
-        case 30:
-        case 36:
-            l_ItemSpecStat = 25;
-            break;
-        case 3:
-            l_ItemSpecStat = 1;
-            break;
-        case 4:
-            l_ItemSpecStat = 2;
-            break;
-        case 5:
-            l_ItemSpecStat = 0;
-            break;
-        case 6:
-            l_ItemSpecStat = 3;
-            break;
-        case 13:
-            l_ItemSpecStat = 5;
-            break;
-        case 14:
-            l_ItemSpecStat = 6;
-            break;
-        case 31:
-            l_ItemSpecStat = 4;
-            break;
-        default:
-            l_ItemSpecStat = -1;
-            break;
+            case ITEM_MOD_CRIT_MELEE_RATING:
+            case ITEM_MOD_CRIT_RANGED_RATING:
+            case ITEM_MOD_CRIT_SPELL_RATING:
+            case ITEM_MOD_CRIT_RATING:
+                l_ItemSpecStat = 24;
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+            case ITEM_MOD_HASTE_RANGED_RATING:
+            case ITEM_MOD_HASTE_SPELL_RATING:
+            case ITEM_MOD_HASTE_RATING:
+                l_ItemSpecStat = 25;
+                break;
+            case ITEM_MOD_AGILITY:
+                l_ItemSpecStat = 1;
+                break;
+            case ITEM_MOD_STRENGTH:
+                l_ItemSpecStat = 2;
+                break;
+            case ITEM_MOD_INTELLECT:
+                l_ItemSpecStat = 0;
+                break;
+            case ITEM_MOD_SPIRIT:
+                l_ItemSpecStat = 3;
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                l_ItemSpecStat = 5;
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                l_ItemSpecStat = 6;
+                break;
+            case ITEM_MOD_HIT_RATING:
+                l_ItemSpecStat = 4;
+                break;
+            default:
+                l_ItemSpecStat = -1;
+                break;
         }
 
         return l_ItemSpecStat;
