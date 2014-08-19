@@ -841,10 +841,11 @@ struct ItemTemplate
 /// ITEM SPEC
 /////////////////////////////////////////////////////////////
 
-// See Script_GetItemSpecInfo to update to next build
+// See Script_GetItemSpecInfo (LUA client-side function) to update to next build
+// Last update : 6.0.1 18179 internal client
 namespace ItemSpecialization
 {
-    const static uint8 ITEM_SUBCLASS_EX_COUNT = 6;
+    const static uint8  ITEM_SUBCLASS_EX_COUNT = 6;
     const static uint32 s_ItemSubClassSpec[ITEM_SUBCLASS_WEAPON_WAND] = { 0x0007, 0x0008, 0x0010, 0x000f, 0x000b, 0x000c, 0x0013, 0x0009, 0x000a, 0x001a, 0x0012, 0x001a, 0x001a, 0x000e, 0x001a, 0x000d, 0x0014, 0x001a, 0x0011 };
     const static uint32 s_ItemSubClassSpecEx[ITEM_SUBCLASS_EX_COUNT] = { 0x0016, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
 
