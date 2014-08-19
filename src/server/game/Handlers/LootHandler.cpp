@@ -33,7 +33,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-void WorldSession::HandleLootItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
 
@@ -43,19 +43,22 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & recvData)
 
     uint32 l_LootCount = 0;
 
+    uint16 l_Unk = 0;
+
     uint8 l_LootListID      = 0;
     uint8 l_LinkedLootSlot  = 255;
 
     std::vector<uint64> l_LootObjectGuids;
 
-    recvData >> l_LootCount;
+    p_RecvData >> l_Unk;
+    p_RecvData >> l_LootCount;
 
     l_LootObjectGuids.resize(l_LootCount);
 
     for (uint32 l_I = 0; l_I < l_LootCount; l_I++)
     {
-        recvData.readPackGUID(l_LootObjectGuids[l_I]);
-        recvData >> l_LootListID;
+        p_RecvData.readPackGUID(l_LootObjectGuids[l_I]);
+        p_RecvData >> l_LootListID;
 
         l_LinkedLootSlot = 0xFF;
 
