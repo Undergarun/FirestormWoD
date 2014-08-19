@@ -47,16 +47,15 @@ const uint8_t win32_packet_disable_filter_jam_dispatch[] =  {   0x00, 0x00, 0x00
                                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-const uint8_t win32_packet_routage_data[]                   = {0x90};                                       ///< nop
-const uint8_t win32_packet_routage_data2[]                  = {0x33, 0xFF, 0x90};                           ///< nop
+
+const uint8_t win32_packet_sending_routage[] = { 0xBB, 0x00, 0x00, 0x00, 0x00 };                           ///< mov     ebx, 0
 
 const struct RewriteItem Win32Patchs[] = {
     { 0x0000000, sizeof(win32_packet_disable_filter_jam_dispatch),  win32_packet_disable_filter_jam_dispatch    },   ///< Disable packet filter
-    { 0x0000000, sizeof(win32_packet_routage_data),                 win32_packet_routage_data                   },   ///< Don't use special routage for packets
-    { 0x0000000, sizeof(win32_packet_routage_data2),                win32_packet_routage_data2                  },   ///< Don't use special routage for packets
-    { 0x0A2ABF8, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
-    { 0x0A4E164, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
-    { 0x0AEBBEC, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
+    { 0x038BC49, sizeof(win32_packet_sending_routage),              win32_packet_sending_routage                },   ///< Don't use special routage for packets
+    { 0x0CC4E14, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
+    { 0x0CE7F2C, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
+    { 0x0D85AE0, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
 };
 
 const uint8_t mac64_packet_disable_filter_date[]  = {0x8B, 0x55, 0x0C, 0xE9, 0x41, 0x01, 0x00, 0x00}; // mov edx, [ebp+arg_4];  jmp 141h
