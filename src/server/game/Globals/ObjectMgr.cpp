@@ -2819,7 +2819,7 @@ void ObjectMgr::LoadItemSpecsOverride()
         if (!specInfo)
             continue;
 
-        if (_itemTemplateStore.find(specInfo->ItemID) != _itemTemplateStore.end())
+        if (_itemTemplateStore.find(specInfo->ItemID) == _itemTemplateStore.end())
             continue;
 
         ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->ItemID];

@@ -8267,14 +8267,14 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     if (l_LootTemplate == nullptr)
         return;
 
-    std::list<ItemTemplate*> l_LootTable;
+    std::list<ItemTemplate const*> l_LootTable;
     std::vector<uint32> l_Items;
-    //l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
 
-    float l_DropChance = 25.f + l_Player->GetBonusRollFails();// sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
+    float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
 
-    for (ItemTemplate* l_Template : l_LootTable)
+    for (ItemTemplate const* l_Template : l_LootTable)
     {
         for (SpecIndex l_ItemSpecID : l_Template->specs)
         {
@@ -8283,8 +8283,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         }
     }
 
-    //l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
-    l_Items.push_back(86739);
+    l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
 
     if (l_Items.empty())
     {
@@ -8292,23 +8291,36 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         l_Player->IncreaseBonusRollFails();
         l_Player->ModifyMoney(l_GoldAmount);
         l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
-        return;
-    }
 
-    std::random_shuffle(l_Items.begin(), l_Items.end());
-
-    if (roll_chance_i(l_DropChance))
-    {
-        l_Player->AddItem(l_Items[0], 1);
-        l_Player->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, true, false);
-        l_Player->ResetBonusRollFails();
+        WorldPacket l_Data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
+        l_Data << uint32(l_GoldAmount);
+        l_Data.WriteBit(1);   // "You loot..."
+        l_Data.FlushBits();
+        l_Player->GetSession()->SendPacket(&l_Data);
     }
     else
     {
-        int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
-        l_Player->IncreaseBonusRollFails();
-        l_Player->ModifyMoney(l_GoldAmount);
-        l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+        std::random_shuffle(l_Items.begin(), l_Items.end());
+
+        if (roll_chance_i(l_DropChance))
+        {
+            l_Player->AddItem(l_Items[0], 1);
+            l_Player->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, false, false);
+            l_Player->ResetBonusRollFails();
+        }
+        else
+        {
+            int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
+            l_Player->IncreaseBonusRollFails();
+            l_Player->ModifyMoney(l_GoldAmount);
+            l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+
+            WorldPacket l_Data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
+            l_Data << uint32(l_GoldAmount);
+            l_Data.WriteBit(1);   // "You loot..."
+            l_Data.FlushBits();
+            l_Player->GetSession()->SendPacket(&l_Data);
+        }
     }
 
     l_Player->ModifyCurrency(m_spellInfo->CurrencyID, -int32(m_spellInfo->CurrencyCount), false);

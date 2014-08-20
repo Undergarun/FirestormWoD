@@ -16541,10 +16541,10 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
     {
         l_Data.WriteBit(p_Mailed);
 
-        l_Data << uint32(0/*l_ItemTpl->RandomSuffix*/);
-        l_Data << uint32(117045);                   // Unk
-        l_Data << uint32(0);                        // SpecID
-        l_Data << uint32(2045946752/*l_ItemTpl->RandomProperty*/);
+        l_Data << uint32(l_ItemTpl->RandomSuffix);
+        l_Data << uint32(0);                        // Unk
+        l_Data << uint32(GetLootSpecId());
+        l_Data << uint32(l_ItemTpl->RandomProperty);
         l_Data << uint32(445);                      // ReforgeID
         l_Data << uint32(p_Entry);
     }
