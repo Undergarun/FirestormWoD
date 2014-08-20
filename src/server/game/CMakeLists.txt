@@ -24,6 +24,7 @@ file(GLOB_RECURSE sources_BattlePet BattlePet/*.cpp BattlePet/*.h)
 file(GLOB_RECURSE sources_BlackMarket BlackMarket/*.cpp BlackMarket/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
+file(GLOB_RECURSE sources_Cinematic Cinematic/*.cpp Cinematic/*.h)
 file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
 file(GLOB_RECURSE sources_Conditions Conditions/*.cpp Conditions/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
@@ -56,7 +57,6 @@ file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
-file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
 
 # Create game-libary
 
@@ -81,6 +81,7 @@ set(game_STAT_SRCS
   ${sources_BlackMarket}
   ${sources_Calendar}
   ${sources_Chat}
+  ${sources_Cinematic}
   ${sources_Combat}
   ${sources_Conditions}
   ${sources_DataStores}
@@ -178,6 +179,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Calendar
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Channels
+  ${CMAKE_CURRENT_SOURCE_DIR}/Cinematic
   ${CMAKE_CURRENT_SOURCE_DIR}/Combat
   ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
@@ -235,7 +237,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_CURRENT_SOURCE_DIR}/SharedPtrs
-  ${CMAKE_CURRENT_SOURCE_DIR}/Cinematic
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}

@@ -35,6 +35,7 @@
 #include "PlayerDump.h"
 #include "Player.h"
 #include "ObjectMgr.h"
+#include "CinematicPathMgr.h"
 
 #include "CliRunnable.h"
 #include "Log.h"
