@@ -26,22 +26,44 @@
 enum eSpells
 {
     // Intro
-    SPELL_FORCE_TO_JUMP         = 138359,
+    SPELL_FORCE_TO_JUMP                     = 138359,
 
     // Ji-Kun
-    SPELL_TALON_RAKE            = 134366,
-    SPELL_CAW_FIRST             = 138923,
-    SPELL_CAW_MISSILE           = 138926,
-    SPELL_QUILLS                = 134380,
-    SPELL_INFECTED_TALONS_PROC  = 140094,
-    SPELL_INFECTED_TALONS_AURA  = 140092
+    SPELL_TALON_RAKE                        = 134366,
+    SPELL_CAW_FIRST                         = 138923,
+    SPELL_CAW_MISSILE                       = 138926,
+    SPELL_QUILLS                            = 134380,
+    SPELL_INFECTED_TALONS_PROC              = 140094,
+    SPELL_INFECTED_TALONS_AURA              = 140092,
+    SPELL_DOWN_DRAFT                        = 134370,
+    // Nests (with no effect : 138360  - 139286)
+    SPELL_FEED_YOUNG                        = 137528, // Casting 2s, triggers 2x 134385 (to script)
+    SPELL_ECLOSION                          = 137534, // Spawn Juvenile (69836)
+    SPELL_DROP_FEED_POOL                    = 138209, // Shows exploding green pool
+    SPELL_FEED_POOL_PERIODIC_DMG            = 138319, // aura, 35k/s
+    SPELL_MOVE_JUMP_TO_TARGET               = 138359, // Jump to target
+    SPELL_PULL_TARGET_TO_OWN_POSITION       = 138406, // Pulls target
+    SPELL_FEED_SPAWN_SPELL                  = 138840, // Spawns green blob on caster
+    SPELL_FEED_POOL_SPAWN_SPELL_GREEN       = 138854, // Shows giant green pool at caster's feet
+    SPELL_FEED_JUMPS_DOWN_TO_HATCHLING      = 138904, // Jumps + triggers 139285
+    SPELL_JUMP_TO_TARGET_ABOVE_HATCHLING    = 138907, // Jumps to selected target
+    SPELL_BEAM_TO_JUMP_TARGET_NON_HATCHLING = 138914, // Green
+    SPELL_BEAM_TO_JUMP_TARGET_HATCHLING     = 138915, // Yellow
+    SPELL_FEED_APPEARANCE_SPELL             = 138918, // Exploding yellow egg visual
+    SPELL_FEED_POOL_SPAWN                   = 139020, // Shows exploding green pool + spawns feed pool (68188)
+    SPELL_NEST_GUARDIAN_SUMMON              = 139090, // Spawns Nest Guardian
+    SPELL_SPAWN_JI_KUN_HATCHLING            = 139148, // Spawns Ji-Kun Hatchling (70144)
+    SPELL_FEED_POOL_SPAWN_SPELL_YELLOW      = 139284, // Shows yellow pool at caster's feet
+    SPELL_SUMMON_FEED_POOL                  = 139285  // Shows exploding yellow pool
 };
 
 enum eEvents
 {
     EVENT_TALON_RAKE    = 1,
-    EVENT_CAW,
-    EVENT_QUILLS
+    EVENT_CAW           = 2,
+    EVENT_QUILLS        = 3,
+    EVENT_DOWN_DRAFT    = 4,
+    EVENT_FEED_YOUNG    = 5
 };
 
 enum eActions
@@ -104,7 +126,7 @@ Position const waypointPos[52] =
     { 6160.587f, 4354.137f, -24.45477f, 0.0f }
 };
 
-Position const bossPlatformPos = { 6112.219f, 4285.634f, -30.04051f, 0.f };
+Position const bossPlatformPos = { 6112.219f, 4285.634f, -30.04051f, 0.0f };
 
 Position const featherPos[5] =
 {
@@ -135,10 +157,13 @@ class boss_ji_kun : public CreatureScript
 
             bool m_Activated;
             uint32 m_ActualWaypoint;
+            std::vector<Position> m_PlayersPos;
 
             void Reset()
             {
                 m_Events.Reset();
+
+                m_PlayersPos.clear();
 
                 _Reset();
 
@@ -153,36 +178,38 @@ class boss_ji_kun : public CreatureScript
 
                 if (!m_Activated)
                 {
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(m_ActualWaypoint, waypointPos[0]);
+//                    me->GetMotionMaster()->Clear();
+//                    me->GetMotionMaster()->MovePoint(m_ActualWaypoint, waypointPos[0]);
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
-                m_Events.ScheduleEvent(EVENT_TALON_RAKE, 24000);
-                m_Events.ScheduleEvent(EVENT_CAW, urand(18000, 50000));
-                m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
+//                m_Events.ScheduleEvent(EVENT_TALON_RAKE, 24000);
+//                m_Events.ScheduleEvent(EVENT_CAW, urand(18000, 50000));
+//                m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
+                m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 10000);
+                m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 20000);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id)
+/*            void MovementInform(uint32 p_Type, uint32 p_Id)
             {
                 if (p_Type != POINT_MOTION_TYPE)
                     return;
 
                 uint32 l_NextId = p_Id < 51 ? p_Id++ : 0;
                 me->GetMotionMaster()->MovePoint(l_NextId, waypointPos[l_NextId]);
-            }
+            }*/
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 p_Action)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 p_Diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -190,7 +217,7 @@ class boss_ji_kun : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                m_Events.Update(diff);
+                m_Events.Update(p_Diff);
 
                 switch (m_Events.ExecuteEvent())
                 {
@@ -207,6 +234,26 @@ class boss_ji_kun : public CreatureScript
                         me->CastSpell(me, SPELL_QUILLS, true);
                         m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
                         break;
+                    case EVENT_DOWN_DRAFT:
+                    {
+                        std::list<Player*> l_PlayerList;
+                        GetPlayerListInGrid(l_PlayerList, me, 65.0f);
+
+                        m_PlayersPos.resize(l_PlayerList.size());
+                        for (Player* l_Player : l_PlayerList)
+                        {
+                            Position l_Pos;
+                            l_Player->GetPosition(&l_Pos);
+
+                            m_PlayersPos.push_back(l_Pos);
+                        }
+
+                        me->CastSpell(bossPlatformPos.m_positionX, bossPlatformPos.m_positionY, bossPlatformPos.m_positionZ, SPELL_DOWN_DRAFT, false);
+                        m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 120000);
+                        break;
+                    }
+                    case EVENT_FEED_YOUNG:
+                        break;
                     default:
                         break;
                 }
@@ -215,9 +262,9 @@ class boss_ji_kun : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new boss_ji_kunAI(creature);
+            return new boss_ji_kunAI(p_Creature);
         }
 };
 
@@ -261,9 +308,34 @@ class mob_jump_to_boss_platform : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* l_Creature) const
         {
-            return new mob_jump_to_boss_platformAI(creature);
+            return new mob_jump_to_boss_platformAI(l_Creature);
+        }
+};
+
+// Fall Catcher - 69839
+class mob_fall_catcher : public CreatureScript
+{
+    public:
+        mob_fall_catcher() : CreatureScript("mob_fall_catcher") { }
+
+        struct mob_fall_catcherAI : public ScriptedAI
+        {
+            mob_fall_catcherAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_fall_catcherAI(p_Creature);
         }
 };
 
@@ -279,10 +351,10 @@ class spell_caw : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, SPELL_CAW_MISSILE, true);
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, SPELL_CAW_MISSILE, true);
                 }
             }
 
@@ -308,25 +380,25 @@ class spell_infected_talons : public SpellScriptLoader
         {
             PrepareAuraScript(spell_infected_talons_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo & p_EventInfo)
             {
                 PreventDefaultAction();
-                Unit* caster = GetTarget();
+                Unit* l_Caster = GetTarget();
 
-                if (!caster || !eventInfo.GetActor() || !caster->ToCreature())
+                if (!l_Caster || !p_EventInfo.GetActor() || !l_Caster->ToCreature())
                     return;
 
-                if (caster != eventInfo.GetActor())
+                if (l_Caster != p_EventInfo.GetActor())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo() && eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_INFECTED_TALONS_AURA)
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_INFECTED_TALONS_AURA)
                     return;
 
-                if (!eventInfo.GetDamageInfo()->GetDamage())
+                if (!p_EventInfo.GetDamageInfo()->GetDamage())
                     return;
 
-                if (Unit* target = caster->getVictim())
-                    caster->CastSpell(target, SPELL_INFECTED_TALONS_AURA, true);
+                if (Unit* l_Target = l_Caster->getVictim())
+                    l_Caster->CastSpell(l_Target, SPELL_INFECTED_TALONS_AURA, true);
             }
 
             void Register()
@@ -341,10 +413,53 @@ class spell_infected_talons : public SpellScriptLoader
         }
 };
 
+// Regurgitate - 134385
+/*class spell_regurgitate : public SpellScriptLoader
+{
+    public:
+        spell_regurgitate() : SpellScriptLoader("spell_regurgitate") { }
+
+        class spell_regurgitate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_regurgitate_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                std::list<Creature*> l_HatchlingsList;
+                GetCreatureListWithEntryInGrid(l_HatchlingsList, l_Caster, 68192, 200.0f);
+
+                if (!l_HatchlingsList.empty())
+                {
+                    for (Creature* l_Hatchling : l_HatchlingsList)
+                    {
+     //                   l_Caster->SummonCreature()    <------ lost ID T_T
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_regurgitate_SpellScript::HandleBeforeCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_regurgitate_SpellScript();
+        }
+};*/
+
 void AddSC_boss_ji_kun()
 {
     new boss_ji_kun();
     new mob_jump_to_boss_platform();
+    new mob_fall_catcher();
     new spell_caw();
     new spell_infected_talons();
+//    new spell_regurgitate();
 }

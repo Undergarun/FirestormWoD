@@ -424,6 +424,29 @@ void AreaTrigger::Update(uint32 p_time)
 
             break;
         }
+        case 134370:// Down Draft
+        {
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, 60.0f);
+
+            Position pos;
+            GetPosition(&pos);
+
+            for (auto player : playerList)
+            {
+                if (player->IsWithinDist(caster, 50.0f, false))
+                {
+                    if (player->isAlive() && !player->hasForcedMovement)
+                        player->SendApplyMovementForce(true, pos, -12.0f);
+                    else if (!player->isAlive() && player->hasForcedMovement)
+                        player->SendApplyMovementForce(false, pos);
+                }
+                else if (player->hasForcedMovement)
+                    player->SendApplyMovementForce(false, pos);
+            }
+
+            break;
+        }
         default:
             break;
     }
@@ -454,6 +477,19 @@ void AreaTrigger::Remove()
                 break;
             }
             case 123461:// Get Away!
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, 100.0f);
+
+                Position pos;
+                GetPosition(&pos);
+
+                for (auto player : playerList)
+                    player->SendApplyMovementForce(false, pos);
+
+                break;
+            }
+            case 134370:// Down Draft
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, 100.0f);
