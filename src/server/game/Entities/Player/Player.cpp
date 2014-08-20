@@ -82,6 +82,7 @@
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
+#include "Garrison.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -690,6 +691,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 #pragma warning(default:4355)
 #endif
 
+    m_Garrison = nullptr;
+
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -966,6 +969,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
 Player::~Player()
 {
+    if (m_Garrison)
+        delete m_Garrison;
+
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
 
@@ -21246,6 +21252,9 @@ void Player::SaveToDB(bool create /*=false*/)
     PreparedStatement* stmt = NULL;
     uint8 index = 0;
 
+    if (m_Garrison)
+        m_Garrison->Save();
+
     if (create)
     {
         //! Insert query
@@ -30114,4 +30123,16 @@ bool Player::HasUnlockedReagentBank()
 void Player::UnlockReagentBank()
 {
     SetFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
+}
+
+Garrison * Player::GetGarrison()
+{
+    return m_Garrison;
+}
+void Player::CreateGarrison()
+{
+    if (m_Garrison)
+        return;
+
+    m_Garrison = new Garrison(this);
 }

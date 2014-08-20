@@ -57,6 +57,7 @@ file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
+file(GLOB_RECURSE sources_Garrison Garrison/*.h Garrison/*.cpp)
 
 # Create game-libary
 
@@ -114,6 +115,7 @@ set(game_STAT_SRCS
   ${sources_World}
   ${sources_Cinematic}
   ${sources_shared_ptrs}
+  ${sources_Garrison}
 )
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -179,6 +181,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Channels
   ${CMAKE_CURRENT_SOURCE_DIR}/Combat
+  ${CMAKE_CURRENT_SOURCE_DIR}/Garrison
   ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
   ${CMAKE_CURRENT_SOURCE_DIR}/DungeonFinding

@@ -50,6 +50,16 @@ extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
 
+//////////////////////////////////////////////////////////////////////////
+/// Garrison DB2
+//////////////////////////////////////////////////////////////////////////
+extern DB2Storage <GarrSiteLevelEntry>              sGarrSiteLevelStore;
+extern DB2Storage <GarrSiteLevelPlotInstEntry>      sGarrSiteLevelPlotInstStore;
+extern DB2Storage <GarrPlotInstanceEntry>           sGarrPlotInstanceStore;
+extern DB2Storage <GarrPlotEntry>                   sGarrPlotStore;
+extern DB2Storage <GarrPlotUICategoryEntry>         sGarrPlotUICategoryStore;
+
+
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 

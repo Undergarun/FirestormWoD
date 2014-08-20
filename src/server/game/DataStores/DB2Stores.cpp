@@ -49,6 +49,15 @@ DB2Storage <SpellPowerEntry>                sSpellPowerStore(SpellPowerEntryfmt)
 DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfmt);
 DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 
+//////////////////////////////////////////////////////////////////////////
+/// Garrison DB2
+//////////////////////////////////////////////////////////////////////////
+DB2Storage <GarrSiteLevelEntry>             sGarrSiteLevelStore(GarrSiteLevelEntryfmt);
+DB2Storage <GarrSiteLevelPlotInstEntry>     sGarrSiteLevelPlotInstStore(GarrSiteLevelPlotInstEntryfmt);
+DB2Storage <GarrPlotInstanceEntry>          sGarrPlotInstanceStore(GarrPlotInstanceEntryfmt);
+DB2Storage <GarrPlotEntry>                  sGarrPlotStore(GarrPlotEntryfmt);
+DB2Storage <GarrPlotUICategoryEntry>        sGarrPlotUICategoryStore(GarrPlotUICategoryEntryfmt);
+
 // DBC used only for initialization sTaxiPathNodeStore at startup.
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 SpellTotemMap sSpellTotemMap;
@@ -140,6 +149,15 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2");
     LoadDB2(bad_db2_files, sSpellClassOptionsStore,         db2Path, "SpellClassOptions.db2");
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Garrison DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sGarrSiteLevelStore,             db2Path, "GarrSiteLevel.db2");
+    LoadDB2(bad_db2_files, sGarrSiteLevelPlotInstStore,     db2Path, "GarrSiteLevelPlotInst.db2");
+    LoadDB2(bad_db2_files, sGarrPlotInstanceStore,          db2Path, "GarrPlotInstance.db2");
+    LoadDB2(bad_db2_files, sGarrPlotStore,                  db2Path, "GarrPlot.db2");
+    LoadDB2(bad_db2_files, sGarrPlotUICategoryStore,        db2Path, "GarrPlotUICategory.db2");
+    
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
     {
         if (const ItemModifiedAppearanceEntry * l_ModifiedAppearanceEntry = sItemModifiedAppearanceStore.LookupEntry(l_Y))

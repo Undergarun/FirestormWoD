@@ -1274,6 +1274,8 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
+class Garrison;
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1336,6 +1338,9 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetChatTag() const;
         std::string afkMsg;
         std::string dndMsg;
+
+        Garrison * GetGarrison();
+        void CreateGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 
@@ -3448,6 +3453,8 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _lastTargetedGO;
         float m_PersonnalXpRate;
+
+        Garrison * m_Garrison;
 
         //////////////////////////////////////////////////////////////////////////
         /// Cinematic

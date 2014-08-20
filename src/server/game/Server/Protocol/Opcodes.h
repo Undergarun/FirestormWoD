@@ -459,6 +459,34 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Garrison
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamGarrison
+        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x02E6,   ///< 6.0.1 18738
+        SMSG_GARRISON_PLOT_PLACED                                       = 0x0000,
+        SMSG_GARRISON_PLOT_REMOVED                                      = 0x0000,
+        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x0000,
+        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0000,
+        SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
+        SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
+        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0000,
+        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x0000,
+        SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
+        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x0000,
+        SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
+        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0000,
+        SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
+        SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
+        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0000,
+        SMSG_GARRISON_START_MISSION_RESULT                              = 0x0000,
+        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0000,
+        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0000,
+        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0000,
+        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
+        SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
+        SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
+        SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
+        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000,
+    #pragma endregion 
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -470,6 +498,40 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_HANDSHAKE                              = 0x4F57,
     SMSG_HANDSHAKE                              = 0x4F57,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Garrison
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_GARRISON_CREATE_CHEAT                              = 0x0000,
+    CMSG_GARRISON_DELETE_CHEAT                              = 0x0000,
+    CMSG_GARRISON_SET_LEVEL_CHEAT                           = 0x0000,
+    CMSG_UPGRADE_GARRISON                                   = 0x0000,
+    CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
+    CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
+    CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
+    CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
+    CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
+    CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
+    CMSG_GET_GARRISON_INFO                                  = 0x0B64,   ///< 6.0.1 18738
+    CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
+    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,
+    CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
+    CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
+    CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
+    CMSG_GARRISON_ADD_FOLLOWER_XPCHEAT                      = 0x0000,
+    CMSG_GARRISON_SET_FOLLOWER_ITEM_LEVEL_CHEAT             = 0x0000,
+    CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0000,
+    CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x0000,
+    CMSG_SHOW_GARRISON_TRANSFER                             = 0x0000,
+    CMSG_GARRISON_ADD_UNIQUE_FOLLOWER_CHEAT                 = 0x0000,
+    CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT                     = 0x0000,
+    CMSG_GARRISON_LIST_FOLLOWERS_CHEAT                      = 0x0000,
+    CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
+    CMSG_GARRISON_START_MISSION                             = 0x0000,
+    CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
+    CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
+    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

@@ -436,6 +436,61 @@ struct SpellClassOptionsEntry
     uint32    SpellFamilyName;                              // 6       m_spellClassSet
 };
 
+//////////////////////////////////////////////////////////////////////////
+/// Garrison DB2
+//////////////////////////////////////////////////////////////////////////
+struct GarrSiteLevelEntry
+{
+    uint32      SiteLevelID;                            // 0
+    uint32      Level;                                  // 1
+    uint32      MapID;                                  // 2
+    uint32      SiteID;                                 // 3
+    uint32      Unk1;                                   // 4
+    float       Unk2;                                   // 5
+    float       Unk3;                                   // 6
+    uint32      Unk4;                                   // 7
+    uint32      Unk5;                                   // 8
+    uint32      Unk6;                                   // 9
+    uint32      Unk7;                                   // 10
+};
+
+struct GarrSiteLevelPlotInstEntry
+{
+    uint32      ID;                                     // 0
+    uint32      SiteLevelID;                            // 1
+    uint32      PlotInstanceID;                         // 2
+    float       MinimapX;                               // 3
+    float       MinimapY;                               // 4
+    uint32      Unk1;                                   // 5
+};
+
+struct GarrPlotInstanceEntry
+{
+    uint32      InstanceID;                             // 0
+    uint32      PlotID;                                 // 1
+    char      * Name;                                   // 2
+};
+
+struct GarrPlotEntry
+{
+    uint32      PlotID;                                 // 0
+    uint32      PlotUiCategoryID;                       // 1
+    uint32      Unk1;                                   // 2
+    uint32      Unk2;                                   // 3
+    uint32      Unk3;                                   // 4
+    uint32      Unk4;                                   // 5
+    uint32      Unk5;                                   // 6
+    uint32      Unk6;                                   // 7
+    uint32      Unk7;                                   // 8
+};
+
+struct GarrPlotUICategoryEntry
+{
+    uint32      PlotUiCategoryID;                       // 0
+    char      * Name;                                   // 1
+    uint32      Type;                                   // 2
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()

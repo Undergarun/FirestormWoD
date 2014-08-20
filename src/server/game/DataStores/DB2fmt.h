@@ -43,4 +43,13 @@ const char SpellPowerEntryfmt[] = "nixiixxxxxffxx";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
 
+//////////////////////////////////////////////////////////////////////////
+/// Garrison DB2
+//////////////////////////////////////////////////////////////////////////
+const char GarrSiteLevelEntryfmt[] = "niiiiffiiii";
+const char GarrSiteLevelPlotInstEntryfmt[] = "niiffi";
+const char GarrPlotInstanceEntryfmt[] = "nis";
+const char GarrPlotEntryfmt[] = "niiiiiiii";
+const char GarrPlotUICategoryEntryfmt[] = "nsi";
+
 #endif

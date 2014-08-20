@@ -1293,6 +1293,8 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& p_RecvData)
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_COMPLETE_CINEMATIC");
+
+    m_Player->StopCinematic();
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)

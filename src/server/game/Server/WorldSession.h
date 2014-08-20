@@ -1076,6 +1076,11 @@ class WorldSession
         void HandleBlackMarketBid(WorldPacket& recvData);
         void SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId);
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Garrison
+        //////////////////////////////////////////////////////////////////////////
+        void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
