@@ -99,6 +99,8 @@ enum eSpells
     // Heroic
     SPELL_DESTABILIZING_ENERGIES    = 132222,
     SPELL_CATASTROPHIC_ANOMALY      = 127341,
+
+    SPELL_ELEGON_BONUS              = 132192
 };
 
 enum eEvents
@@ -651,6 +653,13 @@ class boss_elegon : public CreatureScript
                 if (GameObject* door = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ELEGON_DOOR_ENTRANCE)))
                     if (door->GetGoState() == GO_STATE_READY)
                         door->SetGoState(GO_STATE_ACTIVE);
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_ELEGON_BONUS, true);
+                }
             }
 
             void MoveInLineOfSight(Unit* who)

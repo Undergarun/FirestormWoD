@@ -55,8 +55,10 @@ enum eTayakSpells
     SPELL_SU_DUMMY_VIS          = 124024,   // Some dummy visual (for tornadoes?).
     SPELL_SU_DMG_AURA           = 124785,   // Triggers SPELL_SU_DMG every 1 sec.
     SPELL_SU_WIND_GALE          = 123633,
-    SPELL_SU_DUMMY_CRAP         = 123616, // Applies a dummy aura on a target.
-    SPELL_TAYAK_BERSERK         = 26662,     // Enrage, 490 seconds, or 8:10 minutes.
+    SPELL_SU_DUMMY_CRAP         = 123616,   // Applies a dummy aura on a target.
+    SPELL_TAYAK_BERSERK         = 26662,    // Enrage, 490 seconds, or 8:10 minutes.
+
+    SPELL_LORD_TAYAK_BONUS      = 132195
 };
 
 enum Yells
@@ -371,6 +373,13 @@ class boss_tayak : public CreatureScript
                 summons.DespawnAll();
 
                 _JustDied();
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_LORD_TAYAK_BONUS, true);
+                }
 
                 if (me->GetMap()->IsLFR())
                 {

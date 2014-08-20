@@ -884,6 +884,7 @@ enum Opcodes
     SMSG_DISPLAY_GAME_ERROR                           = 0x8BE,  // 5.4.0 17399 (JamList)
     SMSG_DISPLAY_PROMOTION                            = 0x809,  // 5.4.0 17399 - uint32(idPromotion)
     SMSG_DISPLAY_PLAYER_CHOICE                        = 0x829,  // 5.4.0 17399 (JamList) (NYI)
+    SMSG_DISPLAY_TOAST                                = 0x016,  // 5.4.0 17399
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x181,  // 5.4.0 17399
     SMSG_DROP_NEW_CONNECTION                          = 0x000,  // 5.0.5 16048
     SMSG_DUEL_COMPLETE                                = 0x18C,  // 5.4.0 17399

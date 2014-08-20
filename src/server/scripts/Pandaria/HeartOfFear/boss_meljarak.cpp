@@ -128,7 +128,9 @@ enum Spells
 
     // - Zar'thik Battle-Mender
     SPELL_MENDING               = 122193, // Triggers a 200 yard dummy + heal spell 122147.
-    SPELL_QUICKENING            = 122149  // All Swarm gets boost 25% dmg + as.
+    SPELL_QUICKENING            = 122149, // All Swarm gets boost 25% dmg + as.
+
+    SPELL_MELJARAK_BONUS        = 132197
 };
 
 enum Events
@@ -484,6 +486,13 @@ public:
             }
 
             _JustDied();
+
+            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+            {
+                if (Player* l_Player = l_Itr->getSource())
+                    me->CastSpell(l_Player, SPELL_MELJARAK_BONUS, true);
+            }
 
             if (me->GetMap()->IsLFR())
             {

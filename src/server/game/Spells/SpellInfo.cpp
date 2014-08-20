@@ -995,6 +995,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
         ReagentCount[i] = _reagents ? _reagents->ReagentCount[i] : 0;
 
+    CurrencyID = _reagents ? _reagents->CurrencyID : 0;
+    CurrencyCount = _reagents ? _reagents->CurrencyCount : 0;
+
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
     Stances = _shapeshift ? _shapeshift->Stances : 0;

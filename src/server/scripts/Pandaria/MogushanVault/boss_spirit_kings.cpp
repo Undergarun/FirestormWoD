@@ -17,12 +17,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-    @TODO :
-        - Event before boss, with Lorewalker Cho !
-        - http://www.youtube.com/watch?v=4xbUFstYo5g
-*/
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "mogu_shan_vault.h"
@@ -73,10 +67,11 @@ enum eSpells
     SPELL_INACTIVE_STUN         = 118319,
     SPELL_KING_BERSERK          = 120207,
     SPELL_ACTIVATION_VISUAL     = 118212,
+    SPELL_SPIRIT_KINGS_BONUS    = 132191,
 
     // Flanking Mogu
     SPELL_GHOST_VISUAL          = 117904,
-    SPELL_TRIGGER_ATTACK        = 117917,
+    SPELL_TRIGGER_ATTACK        = 117917
 };
 
 enum eEvents
@@ -478,6 +473,13 @@ class boss_spirit_kings_controler : public CreatureScript
                                         else
                                             me->Kill(spirit);
                                     }
+                                }
+
+                                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                                {
+                                    if (Player* l_Player = l_Itr->getSource())
+                                        me->CastSpell(l_Player, SPELL_SPIRIT_KINGS_BONUS, true);
                                 }
                             }
 

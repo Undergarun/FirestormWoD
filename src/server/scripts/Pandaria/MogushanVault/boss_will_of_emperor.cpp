@@ -71,6 +71,7 @@ enum eSpells
     SPELL_TERRACOTTA_SKYBEAM_S  = 118063,
     SPELL_TERRACOTTA_SKYBEAM_M  = 118060,
     SPELL_TERRACOTTA_SPAWN      = 118165,
+    SPELL_WOE_BONUS             = 132193,
 
     // Visual
     SPELL_COSMETIC_LIGHTNING    = 127732
@@ -355,7 +356,7 @@ class boss_jin_qin_xi : public CreatureScript
                         killer->Kill(otherBoss);
 
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
-                        cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
+                    cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
 
                 if (pInstance)
                 {
@@ -391,6 +392,13 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_QIN);
 
                 _JustDied();
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_WOE_BONUS, true);
+                }
             }
 
             void JustSummoned(Creature* summon)

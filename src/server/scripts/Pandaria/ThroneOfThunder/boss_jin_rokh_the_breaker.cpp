@@ -82,7 +82,9 @@ enum eSpells
     SPELL_LIGHTNING_STRIKE_PILLAR_VISUAL        = 138299,
     SPELL_LIGHTNING_STRIKE_SUMMON               = 138012,
     SPELL_LIGHTNING_STRIKE_DAMAGE               = 137647,
-    SPELL_LIGHTNING_DIFFUSION                   = 137905
+    SPELL_LIGHTNING_DIFFUSION                   = 137905,
+
+    SPELL_JINROKH_THE_BREAKER_BONUS             = 139674
 };
 
 enum eEvents
@@ -288,6 +290,13 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_STUN_PLAYER);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IONIZATION);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCUSED_LIGHTNING_IMPLOSION);
+                }
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_JINROKH_THE_BREAKER_BONUS, true);
                 }
 
                 if (me->GetMap()->IsLFR())
