@@ -60,6 +60,7 @@ enum eSpells
     SPELL_ANIM_SIT                      = 128886,
     SPELL_ZERO_ENERGY                   = 72242,
     SPELL_TOTALY_PETRIFIED              = 115877,
+    SPELL_STONE_GUARD_BONUS             = 125144,
 
     //  Energized Tiles
     SPELL_TILES_AURA                    = 116579,
@@ -237,6 +238,13 @@ class boss_stone_guard_controler : public CreatureScript
 
                         // Removing energized tiles
                         me->RemoveAllDynObjects();
+
+                        Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                        for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                        {
+                            if (Player* l_Player = l_Itr->getSource())
+                                me->CastSpell(l_Player, SPELL_STONE_GUARD_BONUS, true);
+                        }
 
                         break;
                     }

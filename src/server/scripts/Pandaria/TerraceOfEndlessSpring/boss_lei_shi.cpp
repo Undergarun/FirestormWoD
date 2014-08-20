@@ -42,7 +42,9 @@ enum eLeiShiSpells
     SPELL_SCARY_FOG_DOT     = 123705,
     SPELL_SCARY_FOG_STACKS  = 123712,
 
-    SPELL_LEI_SHI_TRANSFORM = 127535
+    SPELL_LEI_SHI_TRANSFORM = 127535,
+
+    SPELL_LEI_SHI_BONUS     = 132202
 };
 
 enum eLeiShiEvents
@@ -326,14 +328,19 @@ class boss_lei_shi : public CreatureScript
                             break;
                     }
 
+                    Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            l_Player->CombatStop();
+                            me->CastSpell(l_Player, SPELL_LEI_SHI_BONUS, true);
+                        }
+                    }
+
                     for (auto itr : animatedProtectors)
                         if (Creature* protector = Creature::GetCreature(*me, itr))
                             protector->DespawnOrUnsummon();
-
-                    Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                        if (Player* player = itr->getSource())
-                            player->CombatStop();
                 }
             }
 

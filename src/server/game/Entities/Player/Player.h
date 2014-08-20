@@ -72,6 +72,14 @@ typedef std::deque<Mail*> PlayerMails;
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
+enum ToastTypes
+{
+    TOAST_TYPE_NONE,
+    TOAST_TYPE_NEW_CURRENCY,
+    TOAST_TYPE_NEW_ITEM,
+    TOAST_TYPE_MONEY
+};
+
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
 {
@@ -1590,6 +1598,7 @@ class Player : public Unit, public GridObject<Player>
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();
+        void SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed);
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
@@ -2303,6 +2312,10 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetLootSpecId() const { return m_lootSpecId; }
         void SetLootSpecId(uint32 specId) { m_lootSpecId = specId; }
+
+        uint32 GetBonusRollFails() const { return m_BonusRollFails; }
+        void IncreaseBonusRollFails() { ++m_BonusRollFails; }
+        void ResetBonusRollFails() { m_BonusRollFails = 0; }
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -3175,7 +3188,9 @@ class Player : public Unit, public GridObject<Player>
 
         void outDebugValues() const;
         uint64 m_lootGuid;
+
         uint32 m_lootSpecId;
+        uint32 m_BonusRollFails;
 
         uint32 m_team;
         uint32 m_nextSave;

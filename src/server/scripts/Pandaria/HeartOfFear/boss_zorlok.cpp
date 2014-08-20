@@ -47,6 +47,8 @@ enum eZorlokSpells
     SPELL_ZORLOK_BERSERK        = 120207,
     SPELL_MAGNETIC_PULSE        = 147379,    // Pull the players on the boss
     SPELL_ECHO_OF_ZORLOK        = 127496,
+
+    SPELL_VIZIER_ZORLOK_BONUS   = 132194
 };
 
 enum eZorlokEvent
@@ -411,7 +413,6 @@ class boss_zorlok : public CreatureScript
                 return angle;
             }
 
-
             void JustDied(Unit* /*who*/)
             {
                 events.Reset();
@@ -437,6 +438,13 @@ class boss_zorlok : public CreatureScript
                 }
 
                 _JustDied();
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_VIZIER_ZORLOK_BONUS, true);
+                }
             }
 
             void JustReachedHome()

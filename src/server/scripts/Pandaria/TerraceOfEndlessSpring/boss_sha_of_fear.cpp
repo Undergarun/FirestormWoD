@@ -87,7 +87,9 @@ enum eShaOfFearSpells
     SPELL_SHA_CORRUPTION            = 120000,
     SPELL_ETERNAL_DARKNESS          = 120394,
     SPELL_GATHERING_SPEED           = 128419,
-    SPELL_SHA_SPINES                = 120438
+    SPELL_SHA_SPINES                = 120438,
+
+    SPELL_SHA_OF_FEAR_BONUS         = 132203
 };
 
 enum eShaOfFearEvents
@@ -433,6 +435,13 @@ class boss_sha_of_fear : public CreatureScript
 
                     me->SetPower(POWER_ENERGY, 0);
                     pInstance->SaveToDB();
+
+                    Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                            me->CastSpell(l_Player, SPELL_SHA_OF_FEAR_BONUS, true);
+                    }
                 }
             }
 

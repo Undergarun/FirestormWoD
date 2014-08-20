@@ -202,6 +202,8 @@ struct SpellReagentsEntry
     //uint32    Id;                                         // 0        m_ID
     int32     Reagent[MAX_SPELL_REAGENTS];                  // 1-9      m_reagent
     uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 10-18    m_reagentCount
+    uint32    CurrencyID;                                   // 19       m_CurrencyID
+    uint32    CurrencyCount;                                // 20       m_CurrencyCount
 };
 
 struct SpellReagent

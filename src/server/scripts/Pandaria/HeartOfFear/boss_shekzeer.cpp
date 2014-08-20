@@ -121,6 +121,8 @@ enum eShekzeerSpells
     SPELL_HOF_VISUAL                = 123840,
     SPELL_HOF_DMG                   = 125638,
     SPELL_HOF_RAY                   = 130680,
+
+    SPELL_SHEKZEER_BONUS            = 132199
 };
 
 enum eShekzeerEvents
@@ -371,6 +373,13 @@ class boss_shekzeer : public CreatureScript
                 fightInProgress = false;
 
                 _JustDied();
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_SHEKZEER_BONUS, true);
+                }
             }
 
             void KilledUnit(Unit* victim)

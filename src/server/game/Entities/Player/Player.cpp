@@ -768,7 +768,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_curSelection = 0;
     m_lootGuid = 0;
+
     m_lootSpecId = 0;
+    m_BonusRollFails = 0;
 
     m_comboTarget = 0;
     m_comboPoints = 0;
@@ -16519,6 +16521,40 @@ void Player::SendItemDurations()
 {
     for (ItemDurationList::const_iterator itr = m_itemDuration.begin(); itr != m_itemDuration.end(); ++itr)
         (*itr)->SendTimeUpdate(this);
+}
+
+void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
+{
+    ItemTemplate const* l_ItemTpl = sObjectMgr->GetItemTemplate(p_Entry);
+    if (!l_ItemTpl && p_Entry)
+        return;
+
+    WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
+
+    l_Data << uint32(p_Count);
+
+    l_Data.WriteBit(!true);                         // DisplayToastMethod
+    l_Data.WriteBit(p_BonusRoll);
+    l_Data.WriteBits(p_Type, 2);
+
+    if (p_Type == TOAST_TYPE_NEW_ITEM)
+    {
+        l_Data.WriteBit(p_Mailed);
+
+        l_Data << uint32(0/*l_ItemTpl->RandomSuffix*/);
+        l_Data << uint32(117045);                   // Unk
+        l_Data << uint32(0);                        // SpecID
+        l_Data << uint32(2045946752/*l_ItemTpl->RandomProperty*/);
+        l_Data << uint32(445);                      // ReforgeID
+        l_Data << uint32(p_Entry);
+    }
+
+    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
+
+    if (p_Type == TOAST_TYPE_NEW_CURRENCY)
+        l_Data << uint32(p_Entry);
+
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast)

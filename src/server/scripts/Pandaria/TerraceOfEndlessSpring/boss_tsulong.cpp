@@ -66,7 +66,6 @@ enum eTsulongSpells
     // The light of the day
     SPELL_BUFF_LIGHT_OF_DAY    = 123716,
 
-
     // The embodied terror
     SPELL_TERRORIZE_PLAYER     = 123011,
     SPELL_TERRORIZE_TSULONG    = 123012,
@@ -78,6 +77,8 @@ enum eTsulongSpells
     // Unstable sha
     SPELL_BOLT                 = 122881,
     SPELL_INSTABILITY          = 123697,
+
+    SPELL_TSULONG_BONUS        = 132201
 };
 
 enum eTsulongTimers
@@ -398,6 +399,13 @@ class boss_tsulong : public CreatureScript
                         break;
                     default:
                         break;
+                }
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_TSULONG_BONUS, true);
                 }
             }
 

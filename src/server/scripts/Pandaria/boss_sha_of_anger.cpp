@@ -23,6 +23,7 @@ enum eSpells
     SPELL_DOMINATE_MIND_WARNING = 119622,
     SPELL_DOMINATE_MIND         = 119626,
     SPELL_SEETHE_AURA           = 119487,
+    SPELL_SHA_OF_ANGER_BONUS    = 132205
 };
 
 enum eEvents

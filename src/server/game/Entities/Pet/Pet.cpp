@@ -947,6 +947,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             case CLASS_SHAMAN:          // Fire Elemental
             case CLASS_PRIEST:          // Shadowfiend and Mindbender
             case CLASS_DEATH_KNIGHT:    // Risen Ghoul
+            case CLASS_MAGE:            // Water Elemental
                 petType = SUMMON_PET;
                 break;
             case CLASS_HUNTER:
