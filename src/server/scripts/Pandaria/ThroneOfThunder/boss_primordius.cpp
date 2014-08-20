@@ -290,6 +290,14 @@ class boss_primordius : public CreatureScript
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     m_Instance->SetBossState(DATA_PRIMORDIUS, DONE);
                 }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void RegeneratePower(Powers p_Power, int32& p_Value)

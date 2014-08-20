@@ -3697,6 +3697,7 @@ bool Group::CanEnterInInstance()
                 break;
             case MAN25_DIFFICULTY:
             case MAN25_HEROIC_DIFFICULTY:
+            case RAID_TOOL_DIFFICULTY:
                 maxplayers = 25;
             case MAN40_DIFFICULTY:
                 maxplayers = 40;

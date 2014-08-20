@@ -34,7 +34,8 @@
 
 LFGMgr::LFGMgr(): m_update(true), m_QueueTimer(0), m_lfgProposalId(1),
 m_WaitTimeAvg(-1), m_WaitTimeTank(-1), m_WaitTimeHealer(-1), m_WaitTimeDps(-1),
-m_NumWaitTimeAvg(0), m_NumWaitTimeTank(0), m_NumWaitTimeHealer(0), m_NumWaitTimeDps(0)
+m_NumWaitTimeAvg(0), m_NumWaitTimeTank(0), m_NumWaitTimeHealer(0), m_NumWaitTimeDps(0),
+m_debug(false)
 {
     m_update = sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE);
     if (m_update)
@@ -1012,26 +1013,29 @@ LfgProposal* LFGMgr::FindNewGroups(LfgGuidList& check, LfgGuidList& all, LfgType
    @param[out]    pProposal Proposal found if groups are compatibles and Match
    @return true if group are compatibles
 */
-bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgType type)
+bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, LfgType p_Type)
 {
-    if (pProposal)                                         // Do not check anything if we already have a proposal
+    if (p_Proposal)                                         // Do not check anything if we already have a proposal
         return false;
 
-    uint8 maxGroupSize = 5;
-    if (type == LFG_SUBTYPEID_RAID)
-        maxGroupSize = 25;
-    if (type == LFG_SUBTYPEID_SCENARIO)
-        maxGroupSize = 3;
+    uint8 l_MaxGroupSize = 5;
+    if (p_Type == LFG_SUBTYPEID_RAID)
+        l_MaxGroupSize = 25;
+    if (p_Type == LFG_SUBTYPEID_SCENARIO)
+        l_MaxGroupSize = 3;
 
-    std::string strGuids = ConcatenateGuids(check);
+    if (IsInDebug())
+        l_MaxGroupSize = 2;
 
-    if (check.size() > maxGroupSize || check.empty())
+    std::string strGuids = ConcatenateGuids(p_Check);
+
+    if (p_Check.size() > l_MaxGroupSize || p_Check.empty())
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s): Size wrong - Not compatibles", strGuids.c_str());
         return false;
     }
 
-    if (check.size() == 1 && IS_PLAYER_GUID(check.front())) // Player joining dungeon... compatible
+    if (p_Check.size() == 1 && IS_PLAYER_GUID(p_Check.front())) // Player joining dungeon... compatible
         return true;
 
     // Previously cached?
@@ -1043,19 +1047,19 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
     }
 
     // Check all but new compatiblitity
-    if (check.size() > 2)
+    if (p_Check.size() > 2)
     {
-        uint64 frontGuid = check.front();
-        check.pop_front();
+        uint64 frontGuid = p_Check.front();
+        p_Check.pop_front();
 
         // Check all-but-new compatibilities (New, A, B, C, D) --> check(A, B, C, D)
-        if (!CheckCompatibility(check, pProposal, type))          // Group not compatible
+        if (!CheckCompatibility(p_Check, p_Proposal, p_Type))          // Group not compatible
         {
-            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) not compatibles (%s not compatibles)", strGuids.c_str(), ConcatenateGuids(check).c_str());
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) not compatibles (%s not compatibles)", strGuids.c_str(), ConcatenateGuids(p_Check).c_str());
             SetCompatibles(strGuids, false);
             return false;
         }
-        check.push_front(frontGuid);
+        p_Check.push_front(frontGuid);
         // all-but-new compatibles, now check with new
     }
 
@@ -1063,7 +1067,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
     uint8 numLfgGroups = 0;
     uint32 groupLowGuid = 0;
     LfgQueueInfoMap pqInfoMap;
-    for (LfgGuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= maxGroupSize; ++it)
+    for (LfgGuidList::const_iterator it = p_Check.begin(); it != p_Check.end() && numLfgGroups < 2 && numPlayers <= l_MaxGroupSize; ++it)
     {
         uint64 guid = (*it);
         LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid);
@@ -1093,11 +1097,11 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
         }
     }
 
-    if (check.size() == 1 && numPlayers != maxGroupSize)   // Single group with less than MAXGROUPSIZE - Compatibles
+    if (p_Check.size() == 1 && numPlayers != l_MaxGroupSize)   // Single group with less than MAXGROUPSIZE - Compatibles
         return true;
 
     // Do not match - groups already in a lfgDungeon or too much players
-    if (numLfgGroups > 1 || numPlayers > maxGroupSize)
+    if (numLfgGroups > 1 || numPlayers > l_MaxGroupSize)
     {
         SetCompatibles(strGuids, false);
         if (numLfgGroups > 1)
@@ -1149,7 +1153,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
 
     // if we dont have the same ammount of players then we have self ignoring candidates or different faction groups
     // otherwise check if roles are compatible
-    if (players.size() != numPlayers || !CheckGroupRoles(rolesMap, type))
+    if (players.size() != numPlayers || !CheckGroupRoles(rolesMap, p_Type))
     {
         if (players.size() == numPlayers)
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) Roles not compatible", strGuids.c_str());
@@ -1165,7 +1169,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
     for (LfgDungeonSet::const_iterator itDungeon = itFirst->second->dungeons.begin(); itDungeon != itFirst->second->dungeons.end(); ++itDungeon)
     {
         LfgQueueInfoMap::const_iterator itOther = itFirst;
-        if (itOther != pqInfoMap.end() && itOther->second->type != type )
+        if (itOther != pqInfoMap.end() && itOther->second->type != p_Type )
             continue;
         ++itOther;
         while (itOther != pqInfoMap.end() && itOther->second->dungeons.find(*itDungeon) != itOther->second->dungeons.end())
@@ -1185,14 +1189,14 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
     SetCompatibles(strGuids, true);
 
     // ----- Group is compatible, if we have MAXGROUPSIZE members then match is found
-    if (numPlayers != maxGroupSize)
+    if (numPlayers != l_MaxGroupSize)
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::CheckCompatibility: (%s) Compatibles but not match. Players(%u)", strGuids.c_str(), numPlayers);
         uint8 Tanks_Needed = LFG_TANKS_NEEDED;
         uint8 Healers_Needed = LFG_HEALERS_NEEDED;
         uint8 Dps_Needed = LFG_DPS_NEEDED;
 
-        switch (type)
+        switch (p_Type)
         {
             case LFG_SUBTYPEID_DUNGEON:
                 Dps_Needed = 3;
@@ -1215,6 +1219,14 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
                 Tanks_Needed = 1;
                 break;
         }
+
+        if (IsInDebug())
+        {
+            Dps_Needed     = 2;
+            Healers_Needed = 0;
+            Tanks_Needed   = 0;
+        }
+
         for (LfgQueueInfoMap::const_iterator itQueue = pqInfoMap.begin(); itQueue != pqInfoMap.end(); ++itQueue)
         {
             LfgQueueInfo* queue = itQueue->second;
@@ -1259,11 +1271,11 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
     // Select a random dungeon from the compatible list
     // TODO - Select the dungeon based on group item Level, not just random
     // Create a new proposal
-    pProposal = new LfgProposal(JadeCore::Containers::SelectRandomContainerElement(compatibleDungeons));
-    pProposal->cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
-    pProposal->state = LFG_PROPOSAL_INITIATING;
-    pProposal->queues = check;
-    pProposal->groupLowGuid = groupLowGuid;
+    p_Proposal = new LfgProposal(JadeCore::Containers::SelectRandomContainerElement(compatibleDungeons));
+    p_Proposal->cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
+    p_Proposal->state = LFG_PROPOSAL_INITIATING;
+    p_Proposal->queues = p_Check;
+    p_Proposal->groupLowGuid = groupLowGuid;
 
     // Assign new roles to players and assign new leader
     PlayerSet::const_iterator itPlayers = players.begin();
@@ -1274,7 +1286,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
             ++itPlayers;
         leader = (*itPlayers)->GetGUID();
     }
-    pProposal->leader = leader;
+    p_Proposal->leader = leader;
 
     uint8 numAccept = 0;
     for (itPlayers = players.begin(); itPlayers != players.end(); ++itPlayers)
@@ -1291,10 +1303,10 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgT
             }
         }
         ppPlayer->role = rolesMap[guid];
-        pProposal->players[guid] = ppPlayer;
+        p_Proposal->players[guid] = ppPlayer;
     }
-    if (numAccept == maxGroupSize)
-        pProposal->state = LFG_PROPOSAL_SUCCESS;
+    if (numAccept == l_MaxGroupSize)
+        p_Proposal->state = LFG_PROPOSAL_SUCCESS;
 
     return true;
 }
@@ -1566,6 +1578,13 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgType type, bool removeLeade
             break;
     }
 
+    if (IsInDebug())
+    {
+        dpsNeeded    = 2;
+        healerNeeded = 0;
+        tankNeeded   = 0;
+    }
+
     if (removeLeaderFlag)
         for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
             it->second &= ~ROLE_LEADER;
@@ -1780,7 +1799,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                     break;
                 }
             }
-            playersToTeleport.push_back(player);
+            //playersToTeleport.push_back(player);
             m_teleport.push_back(pguid);
             grp->SetLfgRoles(pguid, pProposal->players[pguid]->role);
             SetState(pguid, LFG_STATE_DUNGEON);
@@ -1816,6 +1835,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 case MAN10_HEROIC_DIFFICULTY:
                     maxPlayersToTeleport = 10;
                     break;
+                case RAID_TOOL_DIFFICULTY:
                 case MAN25_DIFFICULTY:
                 case MAN25_HEROIC_DIFFICULTY:
                     maxPlayersToTeleport = 25;
@@ -2671,4 +2691,75 @@ LfgUpdateData LFGMgr::GetLfgStatus(uint64 guid)
 {
     LfgPlayerData& playerData = m_Players[guid];
     return LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS,  playerData.GetSelectedDungeons(), playerData.GetComment());
+}
+
+void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
+{
+    float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
+
+    const LootTemplate* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
+    if (l_LootTemplate == nullptr)
+        return;
+
+    std::list<const ItemTemplate*> l_LootTable;
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+
+    for (GroupReference* l_GroupRef = p_Group->GetFirstMember(); l_GroupRef != NULL; l_GroupRef = l_GroupRef->next())
+    {
+        Player* l_Member = l_GroupRef->getSource();
+        if (l_Member == nullptr)
+            continue;
+
+        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
+        std::vector<uint32> l_Items;
+
+        for (const ItemTemplate* l_ItemTemplate : l_LootTable)
+        {
+            for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
+            {
+                if (l_ItemSpecializationId == l_SpecializationId)
+                    l_Items.push_back(l_ItemTemplate->ItemId);
+            }
+        }
+
+        if (!roll_chance_f(l_DropChance) || l_Items.empty())
+        {
+            const ItemTemplate* l_DefaultRewardItem = GetDefaultAutomaticLootItem(p_Creature);
+            if (!l_DefaultRewardItem)
+                continue;
+
+            l_Member->AddItem(l_DefaultRewardItem->ItemId, 1);
+            //l_Member->DisplayToast(l_DefaultRewardItem);
+            continue;
+        }
+
+        std::random_shuffle(l_Items.begin(), l_Items.end());
+        l_Member->AddItem(l_Items[0], 1);
+        //l_Member->DisplayToast(l_DefaultRewardItem);
+    }
+}
+
+/// Add default reward from LFR raid here
+const ItemTemplate* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
+{
+    uint32 l_ItemId = 0;
+    uint32 l_MapId  = p_Creature->GetMapId();
+
+    switch (l_MapId)
+    {
+        case 996:  ///< Terrace of Endless Spring
+            l_ItemId = 95617;   ///< Dividends of the Everlasting Spring
+            break;
+        case 1008: ///< Mogu'shan Vaults
+            l_ItemId = 95618;   ///< Cache of Mogu Riches
+            break;
+        case 1009: ///< Heart of Fear
+            l_ItemId = 95619;   ///< Amber Encased Treasure Pouch
+            break;
+        case 1098: ///< Throne of Thunder
+            l_ItemId = 95343;   ///< Treasures of the Thunder King
+            break;
+    }
+
+    return sObjectMgr->GetItemTemplate(l_ItemId);
 }

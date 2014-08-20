@@ -2380,7 +2380,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     }
 
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
-    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x4);
     item->SetState(ITEM_CHANGED, player);
 
     // Don't forget to remove currency cost
@@ -2392,10 +2392,11 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     player->ModifyCurrency(itemUpEntry->currencyId, -int32(itemUpEntry->currencyCost), false, true, true);
 }
 
-void WorldSession::HandleSetLootSpecialization(WorldPacket& recvData)
+void WorldSession::HandleSetLootSpecialization(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_LOOT_SPECIALIZATION");
 
-    uint32 specializationId = recvData.read<uint32>();
-    GetPlayer()->SetLootSpecId(specializationId);
+    uint32 l_SpecID = p_RecvData.read<uint32>();
+    GetPlayer()->SetLootSpecId(l_SpecID);
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID, l_SpecID);
 }

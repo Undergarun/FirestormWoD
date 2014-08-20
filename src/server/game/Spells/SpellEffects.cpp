@@ -259,7 +259,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
     &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187
     &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
-    &Spell::EffectNULL,                                     //189 SPELL_EFFECT_189
+    &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
     &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
     &Spell::EffectNULL,                                     //192 SPELL_EFFECT_192
@@ -8233,6 +8233,85 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
         default:
             break;
     }
+}
+
+void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld() || p_EffIndex != EFFECT_0)
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+    if (!l_Player)
+        return;
+    if (!l_Player->isAlive())
+        return;
+
+    Unit* l_Caster = NULL;
+    Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
+    if (!l_AuraList.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator l_Itr = l_AuraList.begin(); l_Itr != l_AuraList.end(); ++l_Itr)
+        {
+            if (AuraPtr l_Aura = (*l_Itr)->GetBase())
+                l_Caster = l_Aura->GetCaster();
+        }
+    }
+
+    if (!l_Caster || !l_Caster->ToCreature())
+        return;
+
+    LootTemplate const* l_LootTemplate = LootTemplates_Creature.GetLootFor(l_Caster->ToCreature()->GetCreatureTemplate()->lootid);
+    if (l_LootTemplate == nullptr)
+        return;
+
+    std::list<ItemTemplate*> l_LootTable;
+    std::vector<uint32> l_Items;
+    //l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+
+    float l_DropChance = 25.f + l_Player->GetBonusRollFails();// sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
+    uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+
+    for (ItemTemplate* l_Template : l_LootTable)
+    {
+        for (SpecIndex l_ItemSpecID : l_Template->specs)
+        {
+            if (l_ItemSpecID == l_SpecID)
+                l_Items.push_back(l_Template->ItemId);
+        }
+    }
+
+    //l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
+    l_Items.push_back(86739);
+
+    if (l_Items.empty())
+    {
+        int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
+        l_Player->IncreaseBonusRollFails();
+        l_Player->ModifyMoney(l_GoldAmount);
+        l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+        return;
+    }
+
+    std::random_shuffle(l_Items.begin(), l_Items.end());
+
+    if (roll_chance_i(l_DropChance))
+    {
+        l_Player->AddItem(l_Items[0], 1);
+        l_Player->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, true, false);
+        l_Player->ResetBonusRollFails();
+    }
+    else
+    {
+        int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
+        l_Player->IncreaseBonusRollFails();
+        l_Player->ModifyMoney(l_GoldAmount);
+        l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+    }
+
+    l_Player->ModifyCurrency(m_spellInfo->CurrencyID, -int32(m_spellInfo->CurrencyCount), false);
 }
 
 void Spell::EffectDeathGrip(SpellEffIndex effIndex)

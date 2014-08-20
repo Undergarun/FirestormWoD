@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "DBCStores.h"
 
 enum ItemModType
 {
@@ -834,8 +835,160 @@ struct ItemTemplate
                 return true;
         return false;
     }
-
 };
+
+//////////////////////////////////////////////////////////////
+/// ITEM SPEC
+/////////////////////////////////////////////////////////////
+
+// See Script_GetItemSpecInfo (LUA client-side function) to update to next build
+// Last update : 6.0.1 18179 internal client
+namespace ItemSpecialization
+{
+    const static uint8  ITEM_SUBCLASS_EX_COUNT = 6;
+    const static uint32 s_ItemSubClassSpec[ITEM_SUBCLASS_WEAPON_WAND] = { 0x0007, 0x0008, 0x0010, 0x000f, 0x000b, 0x000c, 0x0013, 0x0009, 0x000a, 0x001a, 0x0012, 0x001a, 0x001a, 0x000e, 0x001a, 0x000d, 0x0014, 0x001a, 0x0011 };
+    const static uint32 s_ItemSubClassSpecEx[ITEM_SUBCLASS_EX_COUNT] = { 0x0016, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
+
+    static uint32 GetItemType(const ItemTemplate* p_ItemTemplate)
+    {
+        uint32 l_ItemType = 0;
+
+        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
+            l_ItemType = 5;
+        else if (p_ItemTemplate->Class == ITEM_CLASS_ARMOR)
+        {
+            switch (p_ItemTemplate->SubClass)
+            {
+                case ITEM_SUBCLASS_ARMOR_SHIELD:
+                case ITEM_SUBCLASS_ARMOR_LIBRAM:
+                case ITEM_SUBCLASS_ARMOR_IDOL:
+                case ITEM_SUBCLASS_ARMOR_TOTEM:
+                case ITEM_SUBCLASS_ARMOR_SIGIL:
+                case ITEM_SUBCLASS_ARMOR_RELIC:
+                    l_ItemType = 6;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    l_ItemType = p_ItemTemplate->InventoryType != INVTYPE_CLOAK;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    l_ItemType = 2;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    l_ItemType = 3;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    l_ItemType = 4;
+                    break;
+                default:
+                    l_ItemType = 0;
+            }
+        }
+        return l_ItemType;
+    }
+
+    static int32 GetItemSpecStat(int32 p_Stat)
+    {
+        int32 l_ItemSpecStat = -1;
+        switch (p_Stat)
+        {
+            case ITEM_MOD_CRIT_MELEE_RATING:
+            case ITEM_MOD_CRIT_RANGED_RATING:
+            case ITEM_MOD_CRIT_SPELL_RATING:
+            case ITEM_MOD_CRIT_RATING:
+                l_ItemSpecStat = 24;
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+            case ITEM_MOD_HASTE_RANGED_RATING:
+            case ITEM_MOD_HASTE_SPELL_RATING:
+            case ITEM_MOD_HASTE_RATING:
+                l_ItemSpecStat = 25;
+                break;
+            case ITEM_MOD_AGILITY:
+                l_ItemSpecStat = 1;
+                break;
+            case ITEM_MOD_STRENGTH:
+                l_ItemSpecStat = 2;
+                break;
+            case ITEM_MOD_INTELLECT:
+                l_ItemSpecStat = 0;
+                break;
+            case ITEM_MOD_SPIRIT:
+                l_ItemSpecStat = 3;
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                l_ItemSpecStat = 5;
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                l_ItemSpecStat = 6;
+                break;
+            case ITEM_MOD_HIT_RATING:
+                l_ItemSpecStat = 4;
+                break;
+            default:
+                l_ItemSpecStat = -1;
+                break;
+        }
+
+        return l_ItemSpecStat;
+    }
+
+    static std::list<uint32> GetItemSpecStats(const ItemTemplate* p_ItemTemplate)
+    {
+        std::list<uint32> l_ItemSpecStats;
+
+        // Item stat
+        for (uint32 l_Idx = 0; l_Idx < MAX_ITEM_PROTO_STATS; l_Idx++)
+        {
+            if (p_ItemTemplate->ItemStat[l_Idx].ItemStatValue != 0)
+            {
+                int32 l_ItemSpecStat = GetItemSpecStat(p_ItemTemplate->ItemStat[l_Idx].ItemStatType);
+                if (l_ItemSpecStat != -1)
+                    l_ItemSpecStats.push_back(l_ItemSpecStat);
+            }
+        }
+
+        // Scaling stat
+        if (const ScalingStatDistributionEntry* l_ScalingStatDistribution = sScalingStatDistributionStore.LookupEntry(p_ItemTemplate->ScalingStatDistribution))
+        {
+            for (uint32 l_Idx = 0; l_Idx < MAX_ITEM_PROTO_STATS; l_Idx++)
+            {
+                if (l_ScalingStatDistribution->StatMod[l_Idx] != -1)
+                {
+                    int32 l_ItemSpecStat = GetItemSpecStat(l_ScalingStatDistribution->StatMod[l_Idx]);
+                    if (l_ItemSpecStat != -1)
+                        l_ItemSpecStats.push_back(l_ItemSpecStat);
+                }
+            }
+        }
+
+        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
+        {
+            if (p_ItemTemplate->SubClass <= ITEM_SUBCLASS_WEAPON_WAND)
+            {
+                l_ItemSpecStats.push_back(s_ItemSubClassSpec[p_ItemTemplate->SubClass]);
+                if (GetItemType(p_ItemTemplate) == 6)
+                {
+                    uint32 l_UnknowIndex = p_ItemTemplate->SubClass - 6;
+                    if (l_UnknowIndex <= 5)
+                        l_ItemSpecStats.push_back(s_ItemSubClassSpecEx[l_UnknowIndex]);
+                }
+            }
+        }
+
+        return l_ItemSpecStats;
+    }
+
+    static bool HasItemSpecStat(uint32 p_ItemSpecStat, std::list<uint32>& p_ItemStats)
+    {
+        for (uint32 l_ItemSpecStat : p_ItemStats)
+        {
+            if (l_ItemSpecStat == p_ItemSpecStat)
+                return true;
+        }
+
+        return false;
+    }
+}
 
 // Benchmarked: Faster than std::map (insert/find)
 typedef UNORDERED_MAP<uint32, ItemTemplate> ItemTemplateContainer;

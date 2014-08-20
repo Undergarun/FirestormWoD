@@ -70,6 +70,8 @@ enum eUnsokSpells
     SPELL_AMBER_GLOBULE         = 125498,
     SPELL_AMBER_BEACON          = 125502,
     SPELL_AMBERGEDDON           = 125508,
+
+    SPELL_UNSOK_BONUS           = 132198
 };
 
 enum eUnsokEvents
@@ -225,6 +227,21 @@ class boss_unsok : public CreatureScript
                     exitDoor->SetGoState(GO_STATE_ACTIVE);
 
                 _JustDied();
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_UNSOK_BONUS, true);
+                }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void EnterCombat(Unit* attacker)

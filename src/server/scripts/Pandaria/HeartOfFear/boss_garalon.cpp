@@ -17,7 +17,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "ScriptPCH.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -105,7 +104,9 @@ enum Spells
     SPELL_BROKEN_LEG_VIS   = 123500,
 
     // Mend Leg: Boss Leg heal spell. Used every 30 seconds after a leg dies.
-    SPELL_MEND_LEG         = 123495  // Dummy, handled to "revive" the leg. Triggers 123796 script effect to remove SPELL_BROKEN_LEG from boss, we don't use it.
+    SPELL_MEND_LEG         = 123495, // Dummy, handled to "revive" the leg. Triggers 123796 script effect to remove SPELL_BROKEN_LEG from boss, we don't use it.
+
+    SPELL_GARALON_BONUS    = 132196
 };
 
 enum Events
@@ -412,6 +413,21 @@ public:
             fightInProgress = false;
 
             _JustDied();
+
+            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+            {
+                if (Player* l_Player = l_Itr->getSource())
+                    me->CastSpell(l_Player, SPELL_GARALON_BONUS, true);
+            }
+
+            if (me->GetMap()->IsLFR())
+            {
+                me->SetLootRecipient(NULL);
+                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                if (l_Player && l_Player->GetGroup())
+                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+            }
         }
 
         void JustSummoned(Creature* summon)
