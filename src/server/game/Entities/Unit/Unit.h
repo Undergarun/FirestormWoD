@@ -714,8 +714,14 @@ enum NPCFlags
 /// Non Player Character flags
 enum NPCFlags2
 {
-    UNIT_NPC_FLAG2_NONE                 = 0x00000000,
-    UNIT_NPC_FLAG2_ITEM_UPGRADE         = 0x00000001    // Item Upgrade
+    UNIT_NPC_FLAG2_NONE                         = 0x00000000,
+    UNIT_NPC_FLAG2_ITEM_UPGRADE                 = 0x00000001,       /// Item Upgrade
+    UNIT_NPC_FLAG2_GARRISON_ARCHITECT           = 0x00000002,       /// Garrison Architect
+    UNIT_NPC_FLAG2_AI_OBSTACLE                  = 0x00000004,       /// AI Obstacle manager
+    UNIT_NPC_FLAG2_STEERING                     = 0x00000008,       /// ?
+    UNIT_NPC_FLAG2_UNUSED_1                     = 0x00000010,       /// ?
+    UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER    = 0x00000020,       /// Garrison Shipment Crafter
+    UNIT_NPC_FLAG2_GARRISON_MISSION_NPC         = 0x00000040        /// Garrison Mission NPC
 };
 
 enum MovementFlags
