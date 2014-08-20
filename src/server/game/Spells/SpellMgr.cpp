@@ -4440,9 +4440,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].SpellClassMask[1] = 0x48022DF0;
                 spellInfo->Effects[1].SpellClassMask[2] = 0x04000010;
                 break;
-            case 119049:// Kil'Jaeden's Cunning
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
             case 121039:// Mana Attunement (400%)
                 spellInfo->Effects[0].BasePoints = 50;
                 break;

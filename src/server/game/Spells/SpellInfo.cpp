@@ -3485,7 +3485,6 @@ bool SpellInfo::IsBreakingCamouflage() const
         case 13813: // Explosive Trap
         case 19263: // Deterence
         case 19434: // Aimed Shot
-        case 23989: // Readiness
         case 26297: // Berserking (Troll Racial)
         case 34477: // Misdirection
         case 34600: // Snake Trap
@@ -3763,10 +3762,6 @@ bool SpellInfo::IsWrongPrecastSpell(SpellInfo const* m_preCastSpell) const
             break;
         case 118858:// Incanter's Ward
             if (m_preCastSpell->Id == 118859)
-                return true;
-            break;
-        case 119050:// Kil'Jaeden's Cunning (Decrease speed)
-            if (m_preCastSpell->Id == 119049)
                 return true;
             break;
         default:

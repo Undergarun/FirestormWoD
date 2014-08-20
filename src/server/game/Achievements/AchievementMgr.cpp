@@ -2818,6 +2818,9 @@ bool AchievementMgr<T>::ConditionsSatisfied(AchievementCriteriaEntry const *crit
 template<class T>
 bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const *achievementCriteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const *unit, Player* referencePlayer) const
 {
+    if (!achievementCriteria)
+        return false;
+
     switch (AchievementCriteriaTypes(achievementCriteria->type))
     {
         case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
@@ -2991,6 +2994,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const *ac
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         {
+            if (!referencePlayer || !unit)
+                return false;
+
             // if miscValues != 0, it contains the questID.
             if (miscValue1)
             {
@@ -3000,7 +3006,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const *ac
             else
             {
                 // login case.
-                if (!referencePlayer || !referencePlayer->GetQuestRewardStatus(achievementCriteria->complete_quest.questID))
+                if (!referencePlayer->GetQuestRewardStatus(achievementCriteria->complete_quest.questID))
                     return false;
             }
 

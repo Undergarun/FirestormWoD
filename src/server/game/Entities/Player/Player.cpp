@@ -30483,10 +30483,6 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
             if (!HasAura(108499))
                 AddAura(108499, this);
             break;
-        case 119049:// Kil'Jaeden's Cunning
-            if (!HasAura(108507))
-                CastSpell(this, 108507, true); // Passive
-            break;
         case 108501:// Grimoire of Service
             learnSpell(111859, false);  // WARLOCK_GRIMOIRE_IMP
             learnSpell(111895, false);  // WARLOCK_GRIMOIRE_VOIDWALKER
@@ -30524,9 +30520,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
             break;
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
-            break;
-        case 119049:// Kil'Jaeden's Cunning
-            RemoveAura(108507);
             break;
         case 116011:// Rune of Power
         {
