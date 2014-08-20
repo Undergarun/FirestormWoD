@@ -1,0 +1,1 @@
+ALTER TABLE `creature_classlevelstats` ADD `basehp5` MEDIUMINT(8)  UNSIGNED  NOT NULL  DEFAULT '1'  AFTER `basehp4`;
