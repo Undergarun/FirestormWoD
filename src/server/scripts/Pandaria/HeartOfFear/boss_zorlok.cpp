@@ -437,6 +437,14 @@ class boss_zorlok : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
                 }
 
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
+
                 _JustDied();
 
                 Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();

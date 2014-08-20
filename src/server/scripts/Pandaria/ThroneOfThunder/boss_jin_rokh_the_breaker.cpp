@@ -298,6 +298,14 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     if (Player* l_Player = l_Itr->getSource())
                         me->CastSpell(l_Player, SPELL_JINROKH_THE_BREAKER_BONUS, true);
                 }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void DoAction(const int32 action)

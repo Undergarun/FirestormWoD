@@ -1628,6 +1628,24 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     }
 }
 
+void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList) const
+{
+    for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
+    {
+        if (i->type == LOOT_ITEM_TYPE_ITEM)
+        {
+            if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(i->itemid))
+            {
+
+                if (!l_ItemTemplate->HasSpec())
+                    continue;
+
+                p_ItemList.push_back(l_ItemTemplate);
+            }
+        }
+    }
+}
+
 // Overall chance for the group without equal chanced items
 float LootTemplate::LootGroup::RawTotalChance() const
 {

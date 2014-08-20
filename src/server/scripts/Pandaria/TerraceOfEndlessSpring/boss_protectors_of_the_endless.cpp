@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
+#include "LFGMgr.h"
 
 #define ENTRANCE_ORIENTATION 4.723f
 
@@ -434,6 +435,14 @@ class boss_ancient_regail : public CreatureScript
                                     me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
                             }
 
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
+
                             break;
                         }
                         default:
@@ -781,6 +790,14 @@ class boss_ancient_asani : public CreatureScript
                                     me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
                             }
 
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
+
                             break;
                         }
                         default:
@@ -1119,6 +1136,14 @@ class boss_protector_kaolan : public CreatureScript
                             {
                                 if (Player* l_Player = l_Itr->getSource())
                                     me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                             }
 
                             break;

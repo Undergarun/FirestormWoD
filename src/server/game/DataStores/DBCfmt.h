@@ -95,6 +95,7 @@ const char ItemLimitCategoryEntryfmt[]        = "nxii";
 const char ItemRandomPropertiesfmt[]          = "nxiiixxs";
 const char ItemRandomSuffixfmt[]              = "nsxiiiiiiiiii";
 const char ItemSetEntryfmt[]                  = "dsiiiiiiiiiixxxxxxxiiiiiiiiiiiiiiiiii";
+const char ItemSpecEntryfmt[]                 = "niiiiii";
 const char ItemSpecOverrideEntryfmt[]         = "nii";
 const char LFGDungeonEntryfmt[]               = "nxiiiiiiiiixxixixiiiixxxxixxx";
 const char LiquidTypefmt[]                    = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
