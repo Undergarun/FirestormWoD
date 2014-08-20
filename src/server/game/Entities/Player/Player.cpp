@@ -30249,8 +30249,14 @@ void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
             uint32 l_Title = l_TitleField[0].GetUInt32();
             uint32 l_Transaction = l_TitleField[1].GetUInt32();
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_GOLD);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_TITLE);
             stmt->setInt32(0, l_Transaction);
+            CharacterDatabase.Execute(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_TITLE_LOG);
+            stmt->setInt32(0, l_Transaction);
+            stmt->setInt32(1, GetGUIDLow());
+            stmt->setInt32(2, l_Title);
             CharacterDatabase.Execute(stmt);
 
             CharTitlesEntry const* l_TitleInfo = sCharTitlesStore.LookupEntry(l_Title);
