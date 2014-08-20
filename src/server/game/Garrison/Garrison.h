@@ -15,7 +15,16 @@ enum GarrisonMissionState
     GARRISON_MISSION_IN_PROGRESS    = 1
 };
 
-class Player;
+
+enum GarrisonPlotType
+{
+    GARRISON_PLOT_TYPE_SMALL    = 0,
+    GARRISON_PLOT_TYPE_MEDIUM   = 1,
+    GARRISON_PLOT_TYPE_LARGE    = 2,
+    GARRISON_PLOT_TYPE_MAX      = 3,
+};
+
+extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX];
 
 #define GARRISON_PLOT_INSTANCE_COUNT 40
 
@@ -31,12 +40,15 @@ extern GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRIS
 
 struct GarrisonMission
 {
+    uint64 DB_ID;
     uint32 MissionID;
     uint32 OfferTime;
     uint32 OfferMaxDuration;
     uint32 StartTime;
     GarrisonMissionState State;
 };
+
+class Player;
 
 class Garrison
 {
@@ -55,6 +67,10 @@ class Garrison
         std::vector<GarrisonPlotInstanceInfoLocation> GetPlots();
         /// Get plot instance plot type
         uint32 GetPlotType(uint32 p_PlotInstanceID);
+
+    public:
+        /// Open mission npc at client side
+        void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
 
     private:
         /// Init data for level

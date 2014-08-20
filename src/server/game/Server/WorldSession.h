@@ -1080,6 +1080,11 @@ class WorldSession
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
         void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
+        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
+        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
+        
+        void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
+        void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
 
     private:
         void InitializeQueryCallbackParameters();

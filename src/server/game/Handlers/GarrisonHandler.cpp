@@ -51,4 +51,56 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     }
 
     SendPacket(&l_Infos);
+
+    SendGarrisonOpenArchitect(false);
+}
+void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    bool l_CanUpgrade = false;
+
+    WorldPacket l_Data(SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT, 4);
+
+    l_Data << uint32(!l_CanUpgrade);
+
+    SendPacket(&l_Data);
+}
+void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    bool l_CanUpgrade = false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    WorldPacket l_Data(SMSG_GARRISON_OPEN_ARCHITECT, 4);
+
+    l_Data.appendPackGUID(p_CreatureGUID);
+
+    SendPacket(&l_Data);
+}
+void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    l_Garrison->SendGarrisonOpenMissionNpc(p_CreatureGUID);
 }

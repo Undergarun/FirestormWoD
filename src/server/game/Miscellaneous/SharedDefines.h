@@ -2060,10 +2060,14 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
     GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING  = 33,
     GAMEOBJECT_TYPE_GUILD_BANK             = 34,
-    GAMEOBJECT_TYPE_TRAPDOOR               = 35
+    GAMEOBJECT_TYPE_UNK                    = 35,
+    GAMEOBJECT_TYPE_TRAPDOOR               = 36,
+    GAMEOBJECT_TYPE_UNK2                   = 37,
+    GAMEOBJECT_TYPE_GARRISON_BUILD         = 38,
+    GAMEOBJECT_TYPE_GARRISON_PLOT          = 39
 };
 
-#define MAX_GAMEOBJECT_TYPE                  36             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  40             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags

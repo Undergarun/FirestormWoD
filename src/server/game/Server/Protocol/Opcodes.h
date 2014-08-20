@@ -484,10 +484,11 @@ enum Opcodes
         SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
-        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000,
+        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0AE4,   ///< 6.0.1 18738
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x1266,   ///< 6.0.1 18738
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0245,   ///< 6.0.1 18738
     #pragma endregion 
-
+        
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -532,6 +533,8 @@ enum Opcodes
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
     CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x04B3,   ///< 6.0.1 18738
+    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0C91,   ///< 6.0.1 18738
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

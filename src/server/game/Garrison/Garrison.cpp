@@ -1,6 +1,13 @@
 #include "Garrison.h"
 #include "Player.h"
 
+uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX] = 
+{
+    229501,     ///< GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_MEDIUM
+    232143      ///< GARRISON_PLOT_TYPE_LARGE
+};
+
 GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = {
     /// SiteLevelID PlotInstanceID      X            Y            Z           O
     /// Alliance Level 1                                                    
@@ -134,6 +141,32 @@ uint32 Garrison::GetPlotType(uint32 p_PlotInstanceID)
         return 0;
 
     return l_PlotUICategoryEntry->Type;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Open mission npc at client side
+void Garrison::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
+{
+    uint32 l_MissionToUpdateCount = 0;
+
+    WorldPacket l_Data(SMSG_GARRISON_OPEN_ARCHITECT, 4);
+
+    l_Data.appendPackGUID(p_CreatureGUID);
+    l_Data << uint32(l_MissionToUpdateCount);
+
+    if (l_MissionToUpdateCount)
+    {
+        /// TODO
+    }
+    else
+    {
+        l_Data.WriteBit(false);    ///< Hide UI
+        l_Data.FlushBits();
+    }
+
+    m_Owner->SendDirectMessage(&l_Data);
 }
 
 //////////////////////////////////////////////////////////////////////////

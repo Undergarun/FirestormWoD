@@ -58,7 +58,7 @@ extern DB2Storage <GarrSiteLevelPlotInstEntry>      sGarrSiteLevelPlotInstStore;
 extern DB2Storage <GarrPlotInstanceEntry>           sGarrPlotInstanceStore;
 extern DB2Storage <GarrPlotEntry>                   sGarrPlotStore;
 extern DB2Storage <GarrPlotUICategoryEntry>         sGarrPlotUICategoryStore;
-
+extern DB2Storage <GarrMissionEntry>                sGarrMissionStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);

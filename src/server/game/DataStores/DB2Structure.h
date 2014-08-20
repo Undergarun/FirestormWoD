@@ -491,6 +491,30 @@ struct GarrPlotUICategoryEntry
     uint32      Type;                                   // 2
 };
 
+struct GarrMissionEntry
+{
+    uint32 MissionRecID;
+    uint32 RequiredLevel;
+    uint32 RequiredItemLevel;
+    uint32 Unk1;
+    uint32 RequiredFollowersCount;
+    uint32 TravelDuration;
+    uint32 MissionDuration;
+    uint32 OfferDuration;
+    uint32 Unk2;
+    uint32 Unk3;
+    char * Title;
+    char * Description;
+    char * Location;
+    uint32 Unk4;
+    uint32 Unk5;
+    uint32 StartCost;
+    uint32 Quality;
+    uint32 RewardPlayerExperience;
+    uint32 Unk6;
+    uint32 Unk7;
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
