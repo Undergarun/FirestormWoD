@@ -289,10 +289,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             break;
         }
         case CONDITION_SPAWNMASK:
-            {
-                condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
-                break;
-            }
+        {
+            condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
