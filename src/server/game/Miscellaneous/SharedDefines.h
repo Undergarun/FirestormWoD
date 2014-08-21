@@ -2630,12 +2630,12 @@ enum Emote
     EMOTE_STATE_USESTANDING                      = 572,
     EMOTE_ONESHOT_LAUGH_NOSOUND                  = 574,
     EMOTE_RECLINED_MOUNT                         = 575,
-    EMOTE_ONESHOT_ATTACK1H                       = 577,
+    EMOTE_ONESHOT_ATTACK1H_NEW                   = 577,
     EMOTE_STATE_CRY_NOSOUND                      = 578,
     EMOTE_ONESHOT_CRY_NOSOUND                    = 579,
     EMOTE_ONESHOT_COMBATCRITICAL                 = 584,
     EMOTE_STATE_TRAIN                            = 585,
-    EMOTE_STATE_WORK_CHOPWOOD                    = 586, // lumber Axe
+    EMOTE_STATE_WORK_CHOPWOOD_NEW                    = 586, // lumber Axe
     EMOTE_ONESHOT_SPECIALATTACK2H                = 587,
     EMOTE_STATE_READ_AND_TALK                    = 588,
     EMOTE_ONESHOT_STAND_VAR1                     = 589,
@@ -2645,15 +2645,15 @@ enum Emote
     EMOTE_STATE_TALKONCE                         = 595,
     EMOTE_STATE_ATTACK2H                         = 596,
     EMOTE_STATE_SIT_GROUND                       = 598,
-    EMOTE_STATE_WORK_CHOPWOOD                    = 599, // (NO AXE, GARRISON)
+    EMOTE_STATE_WORK_CHOPWOOD_GARR               = 599, // (NO AXE, GARRISON)
     EMOTE_STATE_CUSTOMSPELL01                    = 601,
     EMOTE_ONESHOT_COMBATWOUND                    = 602,
     EMOTE_ONESHOT_TALK_EXCLAMATION               = 603,
-    EMOTE_ONESHOT_QUESTION                       = 604, // (Allow While Swim)
+    EMOTE_ONESHOT_QUESTION_SWIM_ALLOW            = 604, // (Allow While Swim)
     EMOTE_STATE_CRY                              = 605,
     EMOTE_STATE_USESTANDING_LOOP                 = 606, // (BUZZSAW)
     EMOTE_STATE_WORK_SMITH                       = 613, // (BLACKSMITH HAMMER)
-    EMOTE_STATE_WORK_CHOPWOOD                    = 614, // (NO AXE, GARRISON, FLESH)
+    EMOTE_STATE_WORK_CHOPWOOD_GARR_FLESH         = 614, // (NO AXE, GARRISON, FLESH)
     EMOTE_STATE_CUSTOMSPELL02                    = 615,
     EMOTE_STATE_READ_AND_SIT                     = 616
 };
@@ -3613,7 +3613,7 @@ enum CreatureFamily
     CREATURE_FAMILY_BASILISK            = 130,      // 5.0.5
     CREATURE_FAMILY_DIREHORN            = 138,      // 5.2.0
     CREATURE_FAMILY_STORM_ELEMENTAL     = 145,      // 6.0.1
-    CREATURE_FAMILY_WATER_ELEMENTAL     = 146,      // 6.0.1
+    CREATURE_FAMILY_WATER_ELEMENTAL_NEW = 146,      // 6.0.1
     CREATURE_FAMILY_TERRORGUARD         = 147,      // 6.0.1
     CREATURE_FAMILY_ABYSALL             = 148,      // 6.0.1
     CREATURE_FAMILY_RYLAK               = 149,      // 6.0.1
