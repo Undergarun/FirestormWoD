@@ -168,6 +168,8 @@ enum eCreatures
     NPC_NETHER_WYRM                 = 70507,
 
     NPC_JI_KUN                      = 69712,
+    NPC_FEED_POOL                   = 70216,
+    NPC_JUVENILE                    = 69836,
 
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
 

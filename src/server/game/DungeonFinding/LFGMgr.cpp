@@ -2729,13 +2729,13 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
                 continue;
 
             l_Member->AddItem(l_DefaultRewardItem->ItemId, 1);
-            //l_Member->DisplayToast(l_DefaultRewardItem);
+            l_Member->SendDisplayToast(l_DefaultRewardItem->ItemId, 1, TOAST_TYPE_NEW_ITEM, false, false);
             continue;
         }
 
         std::random_shuffle(l_Items.begin(), l_Items.end());
         l_Member->AddItem(l_Items[0], 1);
-        //l_Member->DisplayToast(l_DefaultRewardItem);
+        l_Member->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, false, false);
     }
 }
 
@@ -2758,6 +2758,28 @@ const ItemTemplate* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
             break;
         case 1098: ///< Throne of Thunder
             l_ItemId = 95343;   ///< Treasures of the Thunder King
+            break;
+        case 1136: ///< Siege of Orgrimmar
+        {
+            switch (p_Creature->GetEntry())
+            {
+                case 71543: ///< Immerseus
+                case 71475: ///< Rook Stonetoe
+                case 71479: ///< He Softfoot
+                case 71480: ///< Sun Thunderheart
+                case 71965: ///< Norushen
+                case 72276: ///< Amalgam of Corruption
+                case 71734: ///< Sha of Pride
+                    l_ItemId = 104271;
+                    break;
+                default:
+                    l_ItemId = 104275;
+                    break;
+            }
+
+            break;
+        }
+        default:
             break;
     }
 
