@@ -1996,6 +1996,7 @@ enum SpellMissInfo
     SPELL_MISS_REFLECT                 = 11
 };
 
+/// @TODO CGLCD::DisplayRangedStats (internal client) 
 enum SpellHitType
 {
     SPELL_HIT_TYPE_UNK1                = 0x00001,
@@ -3595,7 +3596,7 @@ enum CreatureEliteType
     CREATURE_ELITE_RAREELITE       = 2,
     CREATURE_ELITE_WORLDBOSS       = 3,
     CREATURE_ELITE_RARE            = 4,
-    CREATURE_UNKNOWN               = 5                      // found in 2.2.3 for 2 mobs
+    CREATURE_ELITE_TRIVIAL         = 5                      // found in 2.2.3 for 2 mobs
 };
 
 // values based at Holidays.dbc
@@ -4049,6 +4050,7 @@ enum TotemCategory
     TC_JEWELERS_KIT                = 238
 };
 
+/// CGUnit_C::OnDynamicFlagsChanged
 enum UnitDynFlags
 {
     UNIT_DYNFLAG_NONE                       = 0x0000,
@@ -4061,6 +4063,12 @@ enum UnitDynFlags
     UNIT_DYNFLAG_DEAD                       = 0x0040,
     UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0080,
     UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0100        // Lua_UnitIsTappedByAllThreatList
+};
+
+/// CGGameObject_C::OnUpdateDynamicFlags
+enum GameObjectDynFlags
+{
+    GAMEOBJECT_DYNAMIC_FLAG_PASSIVE_HIGHLIGHT = 0x010
 };
 
 enum CorpseDynFlags
