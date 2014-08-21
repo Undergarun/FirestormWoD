@@ -30,6 +30,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<GarrisonPlotInstanceInfoLocation>   l_Plots             = l_Garrison->GetPlots();
     std::vector<GarrisonMission>                    l_CompletedMission  = l_Garrison->GetCompletedMissions();
     std::vector<GarrisonMission>                    l_Missions          = l_Garrison->GetMissions();
+    std::vector<GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
 
     WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 200);
 
@@ -37,11 +38,23 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);     ///< Site Level ID
     l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
     
-    l_Infos << uint32(0);
-    l_Infos << uint32(l_Plots.size());   ///< JamGarrisonPlotInfo Count
+    l_Infos << uint32(l_Buildings.size());
+    l_Infos << uint32(l_Plots.size());
     l_Infos << uint32(0);
     l_Infos << uint32(l_Missions.size());
     l_Infos << uint32(l_CompletedMission.size());
+
+    for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
+    {
+        l_Infos << uint32(l_Buildings[l_I].PlotInstanceID);
+        l_Infos << uint32(l_Buildings[l_I].BuildingID);
+        l_Infos << uint32(l_Buildings[l_I].TimeBuiltStart);
+        l_Infos << uint32(l_Buildings[l_I].SpecID);
+        l_Infos << uint32(l_Buildings[l_I].TimeBuiltEnd);
+
+        l_Infos.WriteBit(l_Buildings[l_I].Active);
+        l_Infos.FlushBits();
+    }
 
     for (uint32 l_I = 0; l_I < l_Plots.size(); ++l_I)
     {

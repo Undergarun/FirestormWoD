@@ -126,6 +126,8 @@ class Garrison
         GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
         /// Get building
         GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID);
+        /// Get buildings
+        std::vector<GarrisonBuilding> GetBuildings();
 
         /// Get known blueprints
         std::vector<int32> GetKnownBlueprints();

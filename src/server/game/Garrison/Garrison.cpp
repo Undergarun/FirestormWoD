@@ -321,6 +321,11 @@ GarrisonBuilding Garrison::GetBuilding(uint32 p_PlotInstanceID)
         if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
             return m_Buildings[l_I];
 }
+/// Get buildings
+std::vector<GarrisonBuilding> Garrison::GetBuildings()
+{
+    return m_Buildings;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -436,11 +441,10 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
 
         if (l_Gob)
         {
-            l_Gob->SetRespawnTime(0);
-            l_Gob->Delete();
+            l_Gob->CleanupsBeforeDelete();
+            delete l_Gob;
         }
     }
-
 
     if (PlotIsFree(p_PlotInstanceID))
     {
