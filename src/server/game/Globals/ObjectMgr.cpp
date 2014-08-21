@@ -2782,7 +2782,7 @@ void ObjectMgr::LoadItemSpecs()
             {
                 if (l_ItemSpec->ItemType == ItemSpecialization::GetItemType(&l_ItemTemplate))
                 {
-                    std::list<uint32>& l_ItemStats = ItemSpecialization::GetItemSpecStats(&l_ItemTemplate);
+                    std::list<uint32>& l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
                     if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->PrimaryStat, l_ItemStats))
                     {
                         if (l_ItemSpec->SecondaryStat == 26)
