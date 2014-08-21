@@ -673,10 +673,11 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
         }
     }
 
+    uint32 l_GobEntry = 0;
+
     if (PlotIsFree(p_PlotInstanceID))
     {
-        GameObject * l_Gob = m_Owner->SummonGameObject(gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID)], l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
-        m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+        l_GobEntry = gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID)];
     }
     else
     {
@@ -684,8 +685,7 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
 
         if (l_Building.TimeBuiltEnd > time(0))
         {
-            GameObject * l_Gob = m_Owner->SummonGameObject(gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID)], l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
-            m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+            l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID)];
         }
         else
         {
@@ -694,8 +694,15 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
             if (!l_BuildingEntry)
                 return;
 
-            GameObject * l_Gob = m_Owner->SummonGameObject(l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()], l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
-            m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+            l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
         }
+    }
+
+    if (l_GobEntry != 0)
+    {
+        GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+
+        if (l_Gob)
+            m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
     }
 }
