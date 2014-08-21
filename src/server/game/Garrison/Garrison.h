@@ -60,7 +60,7 @@ extern GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRIS
 
 struct GarrisonMission
 {
-    uint64 DB_ID;
+    uint32 DB_ID;
     uint32 MissionID;
     uint32 OfferTime;
     uint32 OfferMaxDuration;
@@ -75,6 +75,7 @@ struct GarrisonFollower
 
 struct GarrisonBuilding
 {
+    uint32 DB_ID;
     uint32 PlotInstanceID;
     uint32 BuildingID;
     uint32 SpecID;
@@ -92,8 +93,17 @@ class Garrison
         /// Constructor
         Garrison(Player * p_Owner);
 
+        /// Create the garrison
+        void Create();
+        /// Load
+        bool Load();
         /// Save this garrison to DB
         void Save();
+        /// Delete garisson
+        static void Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation);
+
+        /// Update the garrison
+        void Update();
 
         /// Get GarrSiteLevelEntry for current garrison
         const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry();
@@ -140,6 +150,8 @@ class Garrison
         std::vector<int32> GetKnownSpecializations();
 
     private:
+        /// Init
+        void Init();
         /// Init data for level
         void InitDataForLevel();
         /// Init Game objects
@@ -150,6 +162,7 @@ class Garrison
 
     private:
         Player *    m_Owner;            ///< Garrison owner
+        uint32      m_ID;               ///< Garrison DB ID
         uint32      m_GarrisonLevel;    ///< Garrison level
         uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
         uint32      m_GarrisonSiteID;   ///< Garrison site ID

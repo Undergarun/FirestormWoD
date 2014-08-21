@@ -599,6 +599,27 @@ enum CharacterDatabaseStatements
     CHAR_SEL_BLACKMARKET_AUCTIONS,
     CHAR_SEL_BLACKMARKET_EXPIRED_AUCTIONS,
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Garrison
+    //////////////////////////////////////////////////////////////////////////
+    CHAR_INS_GARRISON,
+    CHAR_SEL_GARRISON_DB_ID,
+    CHAR_SEL_GARRISON,
+    CHAR_UPD_GARRISON,
+    CHAR_DEL_GARRISON,
+
+    CHAR_INS_GARRISON_BUILDING,
+    CHAR_SEL_GARRISON_BUILDING_DB_ID, 
+    CHAR_SEL_GARRISON_BUILDING,
+    CHAR_UPD_GARRISON_BUILDING,
+    CHAR_DEL_GARRISON_BUILDING,
+
+    CHAR_INS_GARRISON_MISSION,
+    CHAR_SEL_GARRISON_MISSION_DB_ID, 
+    CHAR_SEL_GARRISON_MISSION,
+    CHAR_UPD_GARRISON_MISSION,
+    CHAR_DEL_GARRISON_MISSION,
+
     MAX_CHARACTERDATABASE_STATEMENTS,
 };
 

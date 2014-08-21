@@ -6187,6 +6187,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
+            Garrison::Delete(playerguid, trans);
+
             CharacterDatabase.CommitTransaction(trans);
             break;
         }
@@ -19784,6 +19786,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // Set realmID
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, realmID);
+
+    Garrison * l_Garrison = new Garrison(this);
+
+    if (l_Garrison->Load())
+        m_Garrison = l_Garrison;
+    else
+        delete l_Garrison;
 
     return true;
 }

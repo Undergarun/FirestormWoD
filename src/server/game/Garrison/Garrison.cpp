@@ -1,5 +1,6 @@
 #include "Garrison.h"
 #include "Player.h"
+#include "DatabaseEnv.h"
 
 uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX] = 
 {
@@ -87,16 +88,193 @@ Garrison::Garrison(Player * p_Owner)
             m_GarrisonSiteID = 71;
             break;
     }
-
-    InitDataForLevel();
-    InitGameObjects();
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Create the garrison
+void Garrison::Create()
+{
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON);
+
+    uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
+    l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
+
+    CharacterDatabase.Query(l_Stmt);
+
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_DB_ID);
+
+    l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
+
+    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+
+    if (!l_Result)
+        assert(false && "Garrison::Create() failed to retrieve created garrison ID");
+
+    Field * l_Fields = l_Result->Fetch();
+    
+    m_ID = l_Fields[0].GetUInt32();
+
+    Init();
+}
+/// Load
+bool Garrison::Load()
+{
+    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_DB_ID);
+
+    uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
+
+    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+
+    if (l_Result)
+    {
+        Field * l_Fields = l_Result->Fetch();
+
+        m_ID            = l_Fields[0].GetUInt32();
+        m_GarrisonLevel = l_Fields[1].GetUInt32();
+
+        Tokenizer l_BluePrints(l_Fields[2].GetString(), ' ');
+
+        for (Tokenizer::const_iterator l_It = l_BluePrints.begin(); l_It != l_BluePrints.end(); ++l_It)
+            m_KnownBlueprints.push_back(atol(*l_It));
+
+        Tokenizer l_Specializations(l_Fields[3].GetString(), ' ');
+
+        for (Tokenizer::const_iterator l_It = l_Specializations.begin(); l_It != l_Specializations.end(); ++l_It)
+            m_KnownSpecializations.push_back(atol(*l_It));
+
+
+        l_Stmt      = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
+        l_Result    = CharacterDatabase.Query(l_Stmt);
+
+        if (l_Result)
+        {
+            do
+            {
+                l_Fields = l_Result->Fetch();
+
+                GarrisonBuilding l_Building;
+                l_Building.DB_ID            = l_Fields[0].GetUInt32();
+                l_Building.PlotInstanceID   = l_Fields[1].GetUInt32();
+                l_Building.BuildingID       = l_Fields[2].GetUInt32();
+                l_Building.SpecID           = l_Fields[3].GetUInt32();
+                l_Building.TimeBuiltStart   = l_Fields[4].GetUInt32();
+                l_Building.TimeBuiltEnd     = l_Fields[5].GetUInt32();
+                l_Building.Active           = l_Fields[6].GetBool();
+
+                m_Buildings.push_back(l_Building);
+            } while (l_Result->NextRow());
+        }
+
+        l_Stmt      = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION);
+        l_Result    = CharacterDatabase.Query(l_Stmt);
+
+        if (l_Result)
+        {
+            do
+            {
+                l_Fields = l_Result->Fetch();
+
+                GarrisonMission l_Mission;
+                l_Mission.DB_ID             = l_Fields[0].GetUInt32();
+                l_Mission.MissionID         = l_Fields[1].GetUInt32();
+                l_Mission.OfferTime         = l_Fields[2].GetUInt32();
+                l_Mission.OfferMaxDuration  = l_Fields[3].GetUInt32();
+                l_Mission.StartTime         = l_Fields[4].GetUInt32();
+                l_Mission.State             = (GarrisonMissionState)l_Fields[5].GetUInt32();
+
+                m_Missions.push_back(l_Mission);
+            } while (l_Result->NextRow());
+        }
+
+        Init();
+
+        return true;
+    }
+
+    return false;
+}
 /// Save this garrison to DB
 void Garrison::Save()
+{
+    std::ostringstream l_KnownBluePrintsStr;
+
+    for (uint32 l_I = 0; l_I < m_KnownBlueprints.size(); ++l_I)
+        l_KnownBluePrintsStr << m_KnownBlueprints[l_I] << ' ';
+
+    std::ostringstream l_KnownSpecializationsStr;
+
+    for (uint32 l_I = 0; l_I < m_KnownSpecializations.size(); ++l_I)
+        l_KnownSpecializationsStr << m_KnownSpecializations[l_I] << ' ';
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTION);
+
+    uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
+    l_Stmt->setString(l_Index++, l_KnownBluePrintsStr.str());
+    l_Stmt->setString(l_Index++, l_KnownSpecializationsStr.str());
+    l_Stmt->setUInt32(l_Index++, m_ID);
+
+    CharacterDatabase.AsyncQuery(l_Stmt);
+
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_BUILDING);
+
+        uint32 l_Index = 0;
+        l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].PlotInstanceID);
+        l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].BuildingID);
+        l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
+        l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
+        l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
+        l_Stmt->setBool(l_Index++, m_Buildings[l_I].Active);
+
+        l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].DB_ID);
+        l_Stmt->setUInt32(l_Index++, m_ID);
+
+        CharacterDatabase.AsyncQuery(l_Stmt);
+    }
+
+    for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+    {
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
+
+        uint32 l_Index = 0;
+        l_Stmt->setUInt32(l_Index++, m_Missions[l_I].MissionID);
+        l_Stmt->setUInt32(l_Index++, m_Missions[l_I].OfferTime);
+        l_Stmt->setUInt32(l_Index++, m_Missions[l_I].OfferMaxDuration);
+        l_Stmt->setUInt32(l_Index++, m_Missions[l_I].StartTime);
+        l_Stmt->setUInt32(l_Index++, m_Missions[l_I].State);
+
+        l_Stmt->setUInt32(l_Index++, m_Missions[l_I].DB_ID);
+        l_Stmt->setUInt32(l_Index++, m_ID);
+
+        CharacterDatabase.AsyncQuery(l_Stmt);
+    }
+}
+/// Delete garisson
+void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
+{
+    PreparedStatement* l_Stmt;
+
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_BUILDING);
+    l_Stmt->setUInt32(0, p_PlayerGUID);
+    p_Transation->Append(l_Stmt);
+
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+    l_Stmt->setUInt32(0, p_PlayerGUID);
+    p_Transation->Append(l_Stmt);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Update the garrison
+void Garrison::Update()
 {
 
 }
@@ -203,6 +381,29 @@ bool Garrison::AddMission(uint32 p_MissionRecID)
     l_Mission.State             = GARRISON_MISSION_AVAILABLE;
     l_Mission.StartTime         = 0;
 
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_MISSION);
+
+    uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_ID);
+    l_Stmt->setUInt32(l_Index++, p_MissionRecID);
+
+    CharacterDatabase.Query(l_Stmt);
+
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION_DB_ID);
+
+    l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_ID);
+    l_Stmt->setUInt32(l_Index++, p_MissionRecID);
+
+    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+
+    if (!l_Result)
+        assert(false && "Garrison::AddMission() failed to retrieve created garrison mission ID");
+
+    Field * l_Fields = l_Result->Fetch();
+
+    l_Mission.DB_ID = l_Fields[0].GetUInt32();
+
     m_Missions.push_back(l_Mission);
 
     return true;
@@ -308,6 +509,31 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     l_Building.SpecID           = 0;
     l_Building.Active           = false;
 
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
+
+    uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_ID);
+    l_Stmt->setUInt32(l_Index++, p_PlotInstanceID);
+    l_Stmt->setUInt32(l_Index++, p_BuildingRecID);
+
+    CharacterDatabase.Query(l_Stmt);
+
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING_DB_ID);
+
+    l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_ID);
+    l_Stmt->setUInt32(l_Index++, p_PlotInstanceID);
+    l_Stmt->setUInt32(l_Index++, p_BuildingRecID);
+
+    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+
+    if (!l_Result)
+        assert(false && "Garrison::PurchaseBuilding() failed to retrieve created garrison building ID");
+
+    Field * l_Fields = l_Result->Fetch();
+
+    l_Building.DB_ID = l_Fields[0].GetUInt32();
+
     m_Buildings.push_back(l_Building);
 
     UpdatePlotGameObject(p_PlotInstanceID);
@@ -384,6 +610,12 @@ std::vector<int32> Garrison::GetKnownSpecializations()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Init
+void Garrison::Init()
+{
+    InitDataForLevel();
+    InitGameObjects();
+}
 /// Init data for level
 void Garrison::InitDataForLevel()
 {
@@ -414,17 +646,12 @@ void Garrison::InitDataForLevel()
         if (gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == m_GarrisonLevelID)
             m_Plots.push_back(gGarrisonPlotInstanceInfoLocation[l_I]);
     }
-
-    m_KnownBlueprints.push_back(26);
-    m_KnownBlueprints.push_back(76);
 }
 /// Init Game objects
 void Garrison::InitGameObjects()
 {
     for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
-    {
         UpdatePlotGameObject(m_Plots[l_I].PlotInstanceID);
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////
