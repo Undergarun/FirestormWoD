@@ -72,7 +72,7 @@ enum Roles
 enum SpecIndex
 {
     SPEC_NONE                   = 0,
-    SPEC_PET                    = 1,
+    SPEC_PET                    = 1,    // not found in dbc 18671
     SPEC_MAGE_ARCANE            = 62,
     SPEC_MAGE_FIRE              = 63,
     SPEC_MAGE_FROST             = 64,
@@ -83,8 +83,8 @@ enum SpecIndex
     SPEC_WARRIOR_FURY           = 72,
     SPEC_WARRIOR_PROTECTION     = 73,
     SPEC_PET_FEROCITY           = 74,
-    SPEC_PET_TENACITY           = 81,
     SPEC_PET_CUNNING            = 79,
+    SPEC_PET_TENACITY           = 81,
     SPEC_DROOD_BALANCE          = 102,
     SPEC_DROOD_CAT              = 103,
     SPEC_DROOD_BEAR             = 104,
@@ -109,7 +109,10 @@ enum SpecIndex
     SPEC_WARLOCK_DESTRUCTION    = 267,
     SPEC_MONK_BREWMASTER        = 268,
     SPEC_MONK_WINDWALKER        = 269,
-    SPEC_MONK_MISTWEAVER        = 270
+    SPEC_MONK_MISTWEAVER        = 270,
+    SPEC_ROGUE_FEROCITY_ADAPT   = 535,
+    SPEC_ROGUE_CUNNING_ADAPT    = 536,
+    SPEC_ROGUE_TENACIOUS_ADAPT  = 537
 };
 
 // used in script definitions
@@ -133,7 +136,8 @@ enum Expansion
     EXP_BC          = 1,
     EXP_WOTLK       = 2,
     EXP_CATACLYSM   = 3,
-    EXP_PANDARIA    = 4
+    EXP_PANDARIA    = 4,
+    EXP_WOD         = 5
 };
 
 enum Gender
@@ -411,7 +415,7 @@ enum ItemQualities
     ITEM_QUALITY_EPIC                  = 4,                 //PURPLE
     ITEM_QUALITY_LEGENDARY             = 5,                 //ORANGE
     ITEM_QUALITY_ARTIFACT              = 6,                 //LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7
+    ITEM_QUALITY_HEIRLOOM              = 7                  //LIGHT YELLOW
 };
 
 #define MAX_ITEM_QUALITY                 8
@@ -1002,7 +1006,7 @@ enum Language
     LANG_PANDAREN_A                    = 43,           // Pandaren Alliance
     LANG_PANDAREN_H                    = 44,           // Pandaren Horde
     LANG_RIKKITUN                      = 168,
-    LANG_ADDON                         = 0xFFFFFFFF    // used by addons, in 2.4.0 not exist, replaced by messagetype?
+    LANG_ADDON                         = 0xFFFFFFFF    // used by addons, since 2.4.0 not exist, replaced by messagetype?
 };
 
 #define LANGUAGES_COUNT   25
@@ -1030,6 +1034,7 @@ enum Team
 
 enum SpellEffects
 {
+    SPELL_EFFECT_NONE                               = 0,
     SPELL_EFFECT_INSTAKILL                          = 1,
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
@@ -1243,7 +1248,40 @@ enum SpellEffects
     SPELL_EFFECT_211                                = 211, // Unk 5.4.0
     SPELL_EFFECT_212                                = 212, // Unk 5.4.0
     SPELL_EFFECT_DEATH_GRIP                         = 213,
-    TOTAL_SPELL_EFFECTS                             = 214
+    SPELL_EFFECT_214                                = 214, // Unk 6.0.1
+    SPELL_EFFECT_215                                = 215, // Unk 6.0.1
+    SPELL_EFFECT_216                                = 216, // Unk 6.0.1
+    SPELL_EFFECT_217                                = 217, // Unk 6.0.1
+    SPELL_EFFECT_218                                = 218, // Unk 6.0.1
+    SPELL_EFFECT_219                                = 219, // Unk 6.0.1
+    SPELL_EFFECT_220                                = 220, // Unk 6.0.1
+    SPELL_EFFECT_221                                = 221, // Unk 6.0.1
+    SPELL_EFFECT_222                                = 222, // Unk 6.0.1
+    SPELL_EFFECT_223                                = 223, // Unk 6.0.1
+    SPELL_EFFECT_224                                = 224, // Unk 6.0.1
+    SPELL_EFFECT_225                                = 225, // Unk 6.0.1
+    SPELL_EFFECT_226                                = 226, // Unk 6.0.1
+    SPELL_EFFECT_227                                = 227, // Unk 6.0.1
+    SPELL_EFFECT_228                                = 228, // Unk 6.0.1
+    SPELL_EFFECT_229                                = 229, // Unk 6.0.1
+    SPELL_EFFECT_230                                = 230, // Unk 6.0.1
+    SPELL_EFFECT_231                                = 231, // Unk 6.0.1
+    SPELL_EFFECT_232                                = 232, // Unk 6.0.1
+    SPELL_EFFECT_233                                = 233, // Unk 6.0.1
+    SPELL_EFFECT_234                                = 234, // Unk 6.0.1
+    SPELL_EFFECT_235                                = 235, // Unk 6.0.1
+    SPELL_EFFECT_236                                = 236, // Unk 6.0.1
+    SPELL_EFFECT_237                                = 237, // Unk 6.0.1
+    SPELL_EFFECT_238                                = 238, // Unk 6.0.1
+    SPELL_EFFECT_239                                = 239, // Unk 6.0.1
+    SPELL_EFFECT_240                                = 240, // Unk 6.0.1
+    SPELL_EFFECT_241                                = 241, // Unk 6.0.1
+    SPELL_EFFECT_242                                = 242, // Unk 6.0.1
+    SPELL_EFFECT_243                                = 243, // Unk 6.0.1
+    SPELL_EFFECT_244                                = 244, // Unk 6.0.1
+    SPELL_EFFECT_245                                = 245, // Unk 6.0.1
+    SPELL_EFFECT_246                                = 246, // Unk 6.0.1
+    TOTAL_SPELL_EFFECTS                             = 247
 };
 
 enum PetTameResult
@@ -2098,7 +2136,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_INTACT      = 0,
     GO_DESTRUCTIBLE_DAMAGED     = 1,
     GO_DESTRUCTIBLE_DESTROYED   = 2,
-    GO_DESTRUCTIBLE_REBUILDING  = 3,
+    GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
 // EmotesText.dbc
@@ -2356,7 +2394,8 @@ enum TextEmotes
     TEXT_EMOTE_OBJECT               = 450,
     TEXT_EMOTE_SWEAT                = 451,
     TEXT_EMOTE_YW                   = 453,
-    TEXT_EMOTE_READ                 = 456
+    TEXT_EMOTE_READ                 = 456,
+    TEXT_EMOTE_BOOT                 = 506
 };
 
 // Emotes.dbc
@@ -2590,7 +2629,34 @@ enum Emote
     EMOTE_ONESHOT_BREATHOFFIRE                   = 565,
     EMOTE_STATE_ATTACK1H                         = 567,
     EMOTE_STATE_USESTANDING                      = 572,
-    EMOTE_ONESHOT_LAUGH_NOSOUND                  = 574
+    EMOTE_ONESHOT_LAUGH_NOSOUND                  = 574,
+    EMOTE_RECLINED_MOUNT                         = 575,
+    EMOTE_ONESHOT_ATTACK1H_NEW                   = 577,
+    EMOTE_STATE_CRY_NOSOUND                      = 578,
+    EMOTE_ONESHOT_CRY_NOSOUND                    = 579,
+    EMOTE_ONESHOT_COMBATCRITICAL                 = 584,
+    EMOTE_STATE_TRAIN                            = 585,
+    EMOTE_STATE_WORK_CHOPWOOD_NEW                    = 586, // lumber Axe
+    EMOTE_ONESHOT_SPECIALATTACK2H                = 587,
+    EMOTE_STATE_READ_AND_TALK                    = 588,
+    EMOTE_ONESHOT_STAND_VAR1                     = 589,
+    EMOTE_REXXAR_STRANGLES_GOBLIN                = 590,
+    EMOTE_ONESHOT_STAND_VAR2                     = 591,
+    EMOTE_ONESHOT_DEATH                          = 592,
+    EMOTE_STATE_TALKONCE                         = 595,
+    EMOTE_STATE_ATTACK2H                         = 596,
+    EMOTE_STATE_SIT_GROUND                       = 598,
+    EMOTE_STATE_WORK_CHOPWOOD_GARR               = 599, // (NO AXE, GARRISON)
+    EMOTE_STATE_CUSTOMSPELL01                    = 601,
+    EMOTE_ONESHOT_COMBATWOUND                    = 602,
+    EMOTE_ONESHOT_TALK_EXCLAMATION               = 603,
+    EMOTE_ONESHOT_QUESTION_SWIM_ALLOW            = 604, // (Allow While Swim)
+    EMOTE_STATE_CRY                              = 605,
+    EMOTE_STATE_USESTANDING_LOOP                 = 606, // (BUZZSAW)
+    EMOTE_STATE_WORK_SMITH                       = 613, // (BLACKSMITH HAMMER)
+    EMOTE_STATE_WORK_CHOPWOOD_GARR_FLESH         = 614, // (NO AXE, GARRISON, FLESH)
+    EMOTE_STATE_CUSTOMSPELL02                    = 615,
+    EMOTE_STATE_READ_AND_SIT                     = 616
 };
 
 // AnimationData.dbc
@@ -3397,7 +3463,15 @@ enum Anim
     ANIM_BARPATRONSTANDEMOTEPOINT          = 798,
     ANIM_FLYBARPATRONSTANDEMOTEPOINT       = 799,
     ANIM_CARRIONSWARM                      = 800,
-    ANIM_FLYCARRIONSWARM                   = 801
+    ANIM_FLYCARRIONSWARM                   = 801,
+    ANIM_WHEELLOOP                         = 802,
+    ANIM_FLYWHEELLOOP                      = 803,
+    ANIM_STANDCHARACTERCREATE              = 804,
+    ANIM_FLYSTANDCHARATERCREATE            = 805,
+    ANIM_MOUNTCHOPPER                      = 806,
+    ANIM_FLYMOUNTCHOPPER                   = 807,
+    ANIM_FACEPOSE                          = 808,
+    ANIM_FLYFACEPOSE                       = 809
 };
 
 enum LockKeyType
@@ -3431,7 +3505,8 @@ enum LockType
     LOCKTYPE_INSCRIPTION           = 20,
     LOCKTYPE_OPEN_FROM_VEHICLE     = 21,
     LOCKTYPE_ARCHAEOLOGY           = 22,
-    LOCKTYPE_QUICK_OPEN_JCJ        = 23
+    LOCKTYPE_QUICK_OPEN_JCJ        = 23,
+    LOCKTYPE_LUMBER_MILL           = 28     // harvest timber (Garnison)
 };
 
 enum TrainerType                                            // this is important type for npcs!
@@ -3460,8 +3535,8 @@ enum CreatureType
     CREATURE_TYPE_TOTEM            = 11,
     CREATURE_TYPE_NON_COMBAT_PET   = 12,
     CREATURE_TYPE_GAS_CLOUD        = 13,
-    CREATURE_TYPE_WILD_PET         = 14,                    // New on MoP 5.0.5, used for battle pet
-    CREATURE_TYPE_ABBERATION       = 15                     // 5.4
+    CREATURE_TYPE_WILD_PET         = 14,                    // used for battle pet
+    CREATURE_TYPE_ABBERATION       = 15
 };
 
 uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
@@ -3522,23 +3597,29 @@ enum CreatureFamily
     CREATURE_FAMILY_BEETLE_OLD          = 57,
     CREATURE_FAMILY_SILITHID_2          = 59,
     CREATURE_FAMILY_WASP_2              = 66,
-    CREATURE_FAMILY_HYDRA               = 68,       // New on MoP 5.0.5
-    CREATURE_FAMILY_FEL_IMP             = 100,      // New on MoP 5.0.5
-    CREATURE_FAMILY_VOID_WALKER         = 101,      // New on MoP 5.0.5
-    CREATURE_FAMILY_SHIVARRA            = 102,      // New on MoP 5.0.5
-    CREATURE_FAMILY_OBSERVER            = 103,      // New on MoP 5.0.5
-    CREATURE_FAMILY_WRATH_GUARD         = 104,      // New on MoP 5.0.5
-    CREATURE_FAMILY_INFERNAL            = 108,      // New on MoP 5.0.5
-    CREATURE_FAMILY_ELEMENTAL_FIRE_TOTEM = 116,     // New on MoP 5.0.5
-    CREATURE_FAMILY_ELEMENTAL_EARTH_TOTEM =117,     // New on MoP 5.0.5
-    CREATURE_FAMILY_CRANE               = 125,      // New on MoP 5.0.5
-    CREATURE_FAMILY_WATER_STRIDER       = 126,      // New on MoP 5.0.5
-    CREATURE_FAMILY_PORCUPINE           = 127,      // New on MoP 5.0.5
-    CREATURE_FAMILY_QUILEN              = 128,      // New on MoP 5.0.5
-    CREATURE_FAMILY_GOAT                = 129,      // New on MoP 5.0.5
-    CREATURE_FAMILY_BASILISK            = 130,      // New on MoP 5.0.5
-    CREATURE_FAMILY_DIREHORN            = 138       // New on MoP 5.2.0
-
+    CREATURE_FAMILY_HYDRA               = 68,       // 5.0.5
+    CREATURE_FAMILY_FEL_IMP             = 100,      // 5.0.5
+    CREATURE_FAMILY_VOID_WALKER         = 101,      // 5.0.5
+    CREATURE_FAMILY_SHIVARRA            = 102,      // 5.0.5
+    CREATURE_FAMILY_OBSERVER            = 103,      // 5.0.5
+    CREATURE_FAMILY_WRATH_GUARD         = 104,      // 5.0.5
+    CREATURE_FAMILY_INFERNAL            = 108,      // 5.0.5
+    CREATURE_FAMILY_ELEMENTAL_FIRE_TOTEM = 116,     // 5.0.5
+    CREATURE_FAMILY_ELEMENTAL_EARTH_TOTEM =117,     // 5.0.5
+    CREATURE_FAMILY_CRANE               = 125,      // 5.0.5
+    CREATURE_FAMILY_WATER_STRIDER       = 126,      // 5.0.5
+    CREATURE_FAMILY_PORCUPINE           = 127,      // 5.0.5
+    CREATURE_FAMILY_QUILEN              = 128,      // 5.0.5
+    CREATURE_FAMILY_GOAT                = 129,      // 5.0.5
+    CREATURE_FAMILY_BASILISK            = 130,      // 5.0.5
+    CREATURE_FAMILY_DIREHORN            = 138,      // 5.2.0
+    CREATURE_FAMILY_STORM_ELEMENTAL     = 145,      // 6.0.1
+    CREATURE_FAMILY_WATER_ELEMENTAL_NEW = 146,      // 6.0.1
+    CREATURE_FAMILY_TERRORGUARD         = 147,      // 6.0.1
+    CREATURE_FAMILY_ABYSALL             = 148,      // 6.0.1
+    CREATURE_FAMILY_RYLAK               = 149,      // 6.0.1
+    CREATURE_FAMILY_RIVERBEAST          = 150,      // 6.0.1
+    CREATURE_FAMILY_STAG                = 151       // 6.0.1
 };
 
 enum CreatureTypeFlags
@@ -3599,7 +3680,7 @@ enum CreatureEliteType
     CREATURE_ELITE_TRIVIAL         = 5                      // found in 2.2.3 for 2 mobs
 };
 
-// values based at Holidays.dbc
+// values based at Holidays_*.DB2
 enum HolidayIds
 {
     HOLIDAY_NONE                     = 0,
@@ -3648,7 +3729,16 @@ enum HolidayIds
     HOLIDAY_CALL_TO_ARMS_TOK2        = 496,    // Call to Arms: Temple of Kotmogu
     HOLIDAY_CALL_TO_ARMS_BG2         = 497,    // Call to Arms: The Battle for Gilneas
     HOLIDAY_CALL_TO_ARMS_TP2         = 498,    // Call to Arms: Twin Peaks
-    HOLIDAY_CALL_TO_ARMS_WS2         = 499     // Call to Arms: Warsong Gulch
+    HOLIDAY_CALL_TO_ARMS_WS2         = 499,    // Call to Arms: Warsong Gulch
+    HOLIDAY_UNK_601_1                = 507,
+    HOLIDAY_UNK_601_2                = 508,
+    HOLIDAY_UNK_601_3                = 509, 
+    HOLIDAY_UNK_601_4                = 514,
+    HOLIDAY_UNK_601_5                = 515,
+    HOLIDAY_UNK_601_6                = 516,
+    HOLIDAY_UNK_601_7                = 517,
+    HOLIDAY_UNK_601_8                = 518,
+    HOLIDAY_UNK_601_9                = 519
 };
 
 // values based at QuestInfo.dbc
@@ -3665,8 +3755,9 @@ enum QuestTypes
     QUEST_TYPE_HEROIC              = 85,
     QUEST_TYPE_RAID_10             = 88,
     QUEST_TYPE_RAID_25             = 89,
-    QUEST_TYPE_SCENARIO            = 98, // New on MoP 5.0.5
-    QUEST_TYPE_ACCOUNT             = 102 // New on MoP 5.0.5
+    QUEST_TYPE_SCENARIO            = 98,    // 5.0.5
+    QUEST_TYPE_ACCOUNT             = 102,   // 5.0.5
+    QUEST_TYPE_SIDE_QUEST          = 104    // 6.0.1
 };
 
 // values based at QuestSort.dbc
@@ -3718,15 +3809,19 @@ enum QuestSort
     QUEST_SORT_FIRELANDS_INVASION  = 379,
     QUEST_SORT_ZANDALARI           = 380,
     QUEST_SORT_ELEMENTAL_BONDS     = 381,
-    QUEST_SORT_BREWMASTER_PANDAREN = 391,       // New on MoP 5.0.5
-    QUEST_SORT_SCENARIO            = 392,       // New on MoP 5.0.5
-    QUEST_SORT_BATTLE_PET          = 394,       // New on MoP 5.0.5
-    QUEST_SORT_MONK                = 395,       // New on MoP 5.0.5
-    QUEST_SORT_LANDFALL            = 396,
-    QUEST_SORT_PANDAREN_CAMPAIGN   = 397,
-    QUEST_SORT_RIDING              = 398,
-    QUEST_SORT_BRAWLERS_GUILD      = 399,
-    QUEST_SORT_PROVING_GROUNDS     = 400
+    QUEST_SORT_BREWMASTER_PANDAREN = 391,       // 5.0.5
+    QUEST_SORT_SCENARIO            = 392,       // 5.0.5
+    QUEST_SORT_BATTLE_PET          = 394,       // 5.0.5
+    QUEST_SORT_MONK                = 395,       // 5.0.5
+    QUEST_SORT_LANDFALL            = 396,       // 5.1.0
+    QUEST_SORT_PANDAREN_CAMPAIGN   = 397,       // 5.1.0
+    QUEST_SORT_RIDING              = 398,       // 5.1.0
+    QUEST_SORT_BRAWLERS_GUILD      = 399,       // 5.1.0
+    QUEST_SORT_PROVING_GROUNDS     = 400,
+    QUEST_SORT_GARRISON_CAMPAIGN   = 401,       // 6.0.1
+    QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1 
+    QUEST_SORT_GARRISON_SUPPORT     = 403,      // 6.0.1
+    QUEST_SORT_LOGGIN               = 404       // 6.0.1
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -3926,30 +4021,30 @@ enum SkillType
     SKILL_PET_BEETLE               = 818,
     SKILL_ALL_GUILD_PERKS          = 821,
     SKILL_PET_HYDRA                = 824,
-    SKILL_GENERAL_MONK             = 829, // GENERAL? 5.0.5
-    SKILL_NEW_WARRIOR              = 840, // New on MoP 5.0.5
-    SKILL_NEW_WARLOCK              = 849, // New in MoP 5.0.5
+    SKILL_GENERAL_MONK             = 829, // 5.0.5
+    SKILL_NEW_WARRIOR              = 840, // 5.0.5
+    SKILL_NEW_WARLOCK              = 849, // 5.0.5
     SKILL_RACIAL_PANDAREN          = 899, // 5.0.5
-    SKILL_NEW_MAGE                 = 904, // New in MoP 5.0.5
+    SKILL_NEW_MAGE                 = 904, // 5.0.5
     SKILL_LANG_PANDAREN_N          = 905, // 5.0.5
     SKILL_LANG_PANDAREN_A          = 906, // 5.0.5
     SKILL_LANG_PANDAREN_H          = 907, // 5.0.5
-    SKILL_NEW_ROGUE                = 921, // New in MoP 5.0.5
-    SKILL_NEW_SHAMAN               = 924, // New in MoP 5.0.5
-    SKILL_NEW_PET_IMP              = 927, // New in MoP 5.0.5
-    SKILL_NEW_PET_VOIDWALKER       = 928, // New in MoP 5.0.5
-    SKILL_NEW_PET_OBSERVER         = 930, // New in MoP 5.0.5
-    SKILL_NEW_PET_WRATHGUARD       = 931, // New in MoP 5.0.5
+    SKILL_NEW_ROGUE                = 921, // 5.0.5
+    SKILL_NEW_SHAMAN               = 924, // 5.0.5
+    SKILL_NEW_PET_IMP              = 927, // 5.0.5
+    SKILL_NEW_PET_VOIDWALKER       = 928, // 5.0.5
+    SKILL_NEW_PET_OBSERVER         = 930, // 5.0.5
+    SKILL_NEW_PET_WRATHGUARD       = 931, // 5.0.5
     SKILL_ALL                      = 934, // 5.0.5 Tous - Specialisations","Les sorts gerant une combinaison de specialisation se trouvent ici.
-    SKILL_NEW_RUNEFORGING          = 960, // New in MoP 5.0.5
-    SKILL_WAY_OF_GRILL             = 975, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_WOK               = 976, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_POT               = 977, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_STEAMER           = 978, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_OVEN              = 979, // New in MoP 5.0.5 (cooking)
-    SKILL_WAY_OF_BREW              = 980, // New in MoP 5.0.5 (cooking)
-    SKILL_APPRENTICE_COOKING       = 981, // New in MoP 5.0.5 (cooking)
-    SKILL_JOURNEYMAN_COOKBOOK      = 982, // New in MoP 5.0.5 (cooking)
+    SKILL_NEW_RUNEFORGING          = 960, // 5.0.5
+    SKILL_WAY_OF_GRILL             = 975, // 5.0.5 (cooking)
+    SKILL_WAY_OF_WOK               = 976, // 5.0.5 (cooking)
+    SKILL_WAY_OF_POT               = 977, // 5.0.5 (cooking)
+    SKILL_WAY_OF_STEAMER           = 978, // 5.0.5 (cooking)
+    SKILL_WAY_OF_OVEN              = 979, // 5.0.5 (cooking)
+    SKILL_WAY_OF_BREW              = 980, // 5.0.5 (cooking)
+    SKILL_APPRENTICE_COOKING       = 981, // 5.0.5 (cooking)
+    SKILL_JOURNEYMAN_COOKBOOK      = 982, // 5.0.5 (cooking)
     SKILL_PORCUPINE                = 983, // 5.4.X
     SKILL_CRANE                    = 984, // 5.4.X
     SKILL_WATER_STRIDER            = 985, // 5.4.X
@@ -3957,7 +4052,17 @@ enum SkillType
     SKILL_GOAT                     = 987, // 5.4.X
     SKILL_BASILIK                  = 988, // 5.4.X
     SKILL_NO_PLAYER                = 999, // 5.4.X
-    SKILL_DIREHORN                 = 1305 // 5.4.X Last on DBC
+    SKILL_DIREHORN                 = 1305,// 5.4.X
+    SKILL_PET_PRIMAL_STORM_ELEMENTAL = 1748,// 6.0.1
+    SKILL_PET_WATER_ELEMENTAL_TALENT = 1777,// 6.0.1
+    SKILL_PET_EXOTIC_RYLAK         = 1818, // 6.0.1
+    SKILL_PET_RIVERBEAST           = 1819, // 6.0.1
+    SKILL_GARRENCHANTING           = 1830, // 6.0.1
+    SKILL_LOGGING                  = 1945, // 6.0.1
+    SKILL_PET_TERRORGUARD          = 1981, // 6.0.1
+    SKILL_PET_ABYSSAL              = 1982, // 6.0.1
+    SKILL_PET_STAG                 = 1993, // 6.0.1
+    SKILL_PET_TRADING_POST         = 2000  // 6.0.1
 };
 
 #define MAX_SKILL_TYPE               1306
@@ -4047,7 +4152,8 @@ enum TotemCategory
     TC_RUNED_ELEMENTIUM_ROD        = 209,
     TC_HIGH_POWERED_BOLT_GUN       = 210,
     TC_RUNED_COPPER_ROD2           = 230,
-    TC_JEWELERS_KIT                = 238
+    TC_JEWELERS_KIT                = 238,
+    TC_ULTIMATE_GNOMISH_ARMY_KNIFE = 250        // 6.0.1
 };
 
 /// CGUnit_C::OnDynamicFlagsChanged
@@ -4250,7 +4356,6 @@ enum SummonCategory
     SUMMON_CATEGORY_PUPPET      = 3,
     SUMMON_CATEGORY_VEHICLE     = 4,
     SUMMON_CATEGORY_UNK         = 5                         // as of patch 3.3.5a only Bone Spike in Icecrown Citadel
-                                                            // uses this category
 };
 
 enum SummonType
@@ -4446,7 +4551,8 @@ enum BattlegroundTypeId
     BATTLEGROUND_SSM                = 708,  // Silver shard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
-    BATTLEGROUND_TTP                = 757   // The Tiger's Peak
+    BATTLEGROUND_TTP                = 757,  // The Tiger's Peak
+    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow)
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 758
@@ -4722,7 +4828,7 @@ enum CalendarError
 #define VOID_STORAGE_STORE_ITEM   25*GOLD
 #define VOID_STORAGE_MAX_DEPOSIT  9
 #define VOID_STORAGE_MAX_WITHDRAW 9
-#define VOID_STORAGE_MAX_SLOT     80
+#define VOID_STORAGE_MAX_SLOT     160
 
 enum VoidTransferError
 {

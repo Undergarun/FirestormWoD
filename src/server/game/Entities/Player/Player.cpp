@@ -1040,7 +1040,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
 
 bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 {
-    //FIXME: outfitId not used in player creating
+    // @FIXME: outfitId not used in player creating
     // TODO: need more checks against packet modifications
     // should check that skin, face, hair* are valid via DBC per race/class
     // also do it in Player::BuildEnumData, Player::LoadFromDB
@@ -1274,6 +1274,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             // BuyCount by default
             uint32 count = iProto->BuyCount;
 
+            // @todo remove this, use data in dbc or player_createinfoitem. 
             // special amount for food/drink
             if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
             {
