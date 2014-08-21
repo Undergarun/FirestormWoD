@@ -58,6 +58,8 @@ DB2Storage <GarrPlotInstanceEntry>          sGarrPlotInstanceStore(GarrPlotInsta
 DB2Storage <GarrPlotEntry>                  sGarrPlotStore(GarrPlotEntryfmt);
 DB2Storage <GarrPlotUICategoryEntry>        sGarrPlotUICategoryStore(GarrPlotUICategoryEntryfmt);
 DB2Storage <GarrMissionEntry>               sGarrMissionStore(GarrMissionEntryfmt);
+DB2Storage <GarrBuildingEntry>              sGarrBuildingStore(GarrBuildingEntryfmt);
+DB2Storage <GarrPlotBuildingEntry>          sGarrPlotBuildingStore(GarrPlotBuildingEntryfmt);
 
 // DBC used only for initialization sTaxiPathNodeStore at startup.
 TaxiPathNodesByPath sTaxiPathNodesByPath;
@@ -159,6 +161,9 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrPlotStore,                  db2Path, "GarrPlot.db2");
     LoadDB2(bad_db2_files, sGarrPlotUICategoryStore,        db2Path, "GarrPlotUICategory.db2");
     LoadDB2(bad_db2_files, sGarrMissionStore,               db2Path, "GarrMission.db2");
+    LoadDB2(bad_db2_files, sGarrBuildingStore,              db2Path, "GarrBuilding.db2");
+    LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2");
+    
     
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
     {

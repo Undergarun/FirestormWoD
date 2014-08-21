@@ -67,6 +67,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ArchaeologyMgr.h"
+#include "Garrison.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -280,7 +281,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207
     &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
     &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
-    &Spell::EffectNULL,                                     //210 SPELL_EFFECT_210
+    &Spell::EffectLearnBluePrint,                           //210 SPELL_EFFECT_LEARN_BLUE_PRINT
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
@@ -8225,4 +8226,27 @@ void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
 
     uint32 sceneId = m_spellInfo->Effects[effIndex].MiscValue;
     target->PlayScene(sceneId, target);
+}
+
+void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player)
+        return;
+
+    if (!l_Player->GetGarrison())
+        return;
+
+    if (l_Player->GetGarrison()->LearnBlueprint(m_spellInfo->Effects[p_EffIndex].MiscValue))
+    {
+        uint32 l_DestroyCount = 1;
+        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+    }
 }

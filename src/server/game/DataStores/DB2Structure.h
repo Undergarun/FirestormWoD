@@ -493,26 +493,60 @@ struct GarrPlotUICategoryEntry
 
 struct GarrMissionEntry
 {
-    uint32 MissionRecID;
-    uint32 RequiredLevel;
-    uint32 RequiredItemLevel;
-    uint32 Unk1;
-    uint32 RequiredFollowersCount;
-    uint32 TravelDuration;
-    uint32 MissionDuration;
-    uint32 OfferDuration;
-    uint32 Unk2;
-    uint32 Unk3;
-    char * Title;
-    char * Description;
-    char * Location;
-    uint32 Unk4;
-    uint32 Unk5;
-    uint32 StartCost;
-    uint32 Quality;
-    uint32 RewardPlayerExperience;
-    uint32 Unk6;
-    uint32 Unk7;
+    uint32 MissionRecID;                                // 0
+    uint32 RequiredLevel;                               // 1
+    uint32 RequiredItemLevel;                           // 2
+    uint32 Unk1;                                        // 3
+    uint32 RequiredFollowersCount;                      // 4
+    uint32 TravelDuration;                              // 5
+    uint32 MissionDuration;                             // 6
+    uint32 OfferDuration;                               // 7
+    uint32 Unk2;                                        // 8
+    uint32 Unk3;                                        // 9
+    char * Title;                                       // 10
+    char * Description;                                 // 11
+    char * Location;                                    // 12
+    uint32 Unk4;                                        // 13
+    uint32 Unk5;                                        // 14
+    uint32 StartCost;                                   // 15
+    uint32 Quality;                                     // 16
+    uint32 RewardPlayerExperience;                      // 17
+    uint32 Unk6;                                        // 18
+    uint32 Unk7;                                        // 19
+};
+
+struct GarrBuildingEntry
+{
+    uint32 BuildingID;                                  // 0
+    uint32 GameObjects[2];                              // 1 - 2
+    uint32 Unk2;                                        // 3
+    uint32 Unk3;                                        // 4
+    uint32 BuildingLevel;                               // 5
+    char * NameA;                                       // 6
+    char * NameH;                                       // 7
+    char * Brief;                                       // 8
+    char * Description;                                 // 9
+    uint32 BuildTime;                                   // 10
+    uint32 BuildCostCurrencyID;                         // 11
+    uint32 BuildCostCurrencyAmount;                     // 12
+    uint32 Unk4;                                        // 13
+    uint32 Unk5;                                        // 14
+    uint32 Unk6;                                        // 15
+    uint32 Unk7;                                        // 16
+    uint32 Unk8;                                        // 17
+    uint32 Unk9;                                        // 18
+    uint32 Unk10;                                       // 19
+    uint32 Unk11;                                       // 20
+    uint32 Unk12;                                       // 21
+    uint32 Unk13;                                       // 22
+    uint32 Unk14;                                       // 23
+};
+
+struct GarrPlotBuildingEntry
+{
+    uint32 ID;                                          // 0
+    uint32 PlotId;                                      // 1
+    uint32 BuildingID;                                  // 2
 };
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform

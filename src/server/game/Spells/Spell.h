@@ -435,6 +435,7 @@ class Spell
         void EffectResurrectWithAura(SpellEffIndex effIndex);
         void EffectTeleportToDigsite(SpellEffIndex effIndex);
         void EffectPlaySceneObject(SpellEffIndex effIndex);
+        void EffectLearnBluePrint(SpellEffIndex p_EffIndex);
 
         typedef std::set<AuraPtr> UsedSpellMods;
 

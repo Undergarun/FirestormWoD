@@ -52,5 +52,7 @@ const char GarrPlotInstanceEntryfmt[] = "nis";
 const char GarrPlotEntryfmt[] = "niiiiiiii";
 const char GarrPlotUICategoryEntryfmt[] = "nsi";
 const char GarrMissionEntryfmt[] = "niiiiiiiiisssiiiiiii";
+const char GarrBuildingEntryfmt[] = "niiiiissssiiiiiiiiiiiiii";
+const char GarrPlotBuildingEntryfmt[] = "nii";
 
 #endif

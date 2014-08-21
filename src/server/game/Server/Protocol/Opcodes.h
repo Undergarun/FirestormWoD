@@ -462,13 +462,13 @@ enum Opcodes
     #pragma region JamGarrison
         SMSG_GET_GARRISON_INFO_RESULT                                   = 0x02E6,   ///< 6.0.1 18738
         SMSG_GARRISON_PLOT_PLACED                                       = 0x0000,
-        SMSG_GARRISON_PLOT_REMOVED                                      = 0x0000,
-        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x0000,
+        SMSG_GARRISON_PLOT_REMOVED                                      = 0x02E1,   ///< 6.0.1 18738
+        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x0A52,   ///< 6.0.1 18738
         SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0000,
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
-        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0000,
-        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x0000,
+        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0255,   ///< 6.0.1 18738
+        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x0247,   ///< 6.0.1 18738
         SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
         SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x0000,
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
@@ -485,7 +485,7 @@ enum Opcodes
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0AE4,   ///< 6.0.1 18738
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x1266,   ///< 6.0.1 18738
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x12D1,   ///< 6.0.1 18738
         SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0245,   ///< 6.0.1 18738
     #pragma endregion 
         
@@ -515,8 +515,8 @@ enum Opcodes
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
     CMSG_GET_GARRISON_INFO                                  = 0x0B64,   ///< 6.0.1 18738
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,
+    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x020D,   ///< 6.0.1 18738
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0025,   ///< 6.0.1 18738
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
@@ -535,6 +535,7 @@ enum Opcodes
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x04B3,   ///< 6.0.1 18738
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0C91,   ///< 6.0.1 18738
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x01F5,   ///< 6.0.1 18738
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

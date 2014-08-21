@@ -513,13 +513,13 @@ void InitOpcodes()
     #pragma region JamGarrison
         DEFINE_OPCODE_HANDLER(SMSG_GET_GARRISON_INFO_RESULT,                                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_PLOT_PLACED,                                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_PLOT_REMOVED,                                     STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_PLACE_BUILDING_RESULT,                            STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_PLOT_REMOVED,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_PLACE_BUILDING_RESULT,                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_BUILDING_REMOVED,                                 STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT,                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT,        STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT,                           STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT, STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT, STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REMOTE_INFO,                                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_BUILDING_ACTIVATED,                               STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_UPGRADE_RESULT,                                   STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -565,8 +565,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT,   STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GET_GARRISON_INFO,                                   STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleGetGarrisonInfoOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT,                      STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA,  STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_PURCHASE_BUILDING,                          STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA,  STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleGarrisonRequestBlueprintAndSpecializationDataOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_PURCHASE_BUILDING,                          STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleGarrisonPurchaseBuildingOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_SET_BUILDING_ACTIVE,                        STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_FORCE_BUILDING_ACTIVE,                      STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_PORT_CHEAT,                                 STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
@@ -585,7 +585,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_BONUS_ROLL,                         STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_UPGRADEABLE,                        STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleRequestGarrisonUpgradeableOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO,         STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleRequestLandingPageShipmentInfoOpcode);
-
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_NPC_HELLO,                          STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleGarrisonMissionNPCHelloOpcode);
+    
     //////////////////////////////////////////////////////////////////////////
     /// User Router
     //////////////////////////////////////////////////////////////////////////

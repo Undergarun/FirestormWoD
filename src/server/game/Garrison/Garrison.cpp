@@ -8,6 +8,13 @@ uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX] =
     232143      ///< GARRISON_PLOT_TYPE_LARGE
 };
 
+uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX] =
+{
+    233957,     ///< GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_MEDIUM
+    0           ///< GARRISON_PLOT_TYPE_LARGE
+};
+
 GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = {
     /// SiteLevelID PlotInstanceID      X            Y            Z           O
     /// Alliance Level 1                                                    
@@ -82,6 +89,7 @@ Garrison::Garrison(Player * p_Owner)
     }
 
     InitDataForLevel();
+    InitGameObjects();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -117,6 +125,10 @@ GarrisonFactionIndex Garrison::GetGarrisonFactionIndex()
 
     return GARRISON_FACTION_HORDE;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Get slots for level
 std::vector<GarrisonPlotInstanceInfoLocation> Garrison::GetPlots()
 {
@@ -142,31 +154,226 @@ uint32 Garrison::GetPlotType(uint32 p_PlotInstanceID)
 
     return l_PlotUICategoryEntry->Type;
 }
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-/// Open mission npc at client side
-void Garrison::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
+/// Plot is free ?
+bool Garrison::PlotIsFree(uint32 p_PlotInstanceID)
 {
-    uint32 l_MissionToUpdateCount = 0;
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+            return false;
 
-    WorldPacket l_Data(SMSG_GARRISON_OPEN_ARCHITECT, 4);
-
-    l_Data.appendPackGUID(p_CreatureGUID);
-    l_Data << uint32(l_MissionToUpdateCount);
-
-    if (l_MissionToUpdateCount)
+    return true;
+}
+/// Get plot location
+GarrisonPlotInstanceInfoLocation Garrison::GetPlot(uint32 p_PlotInstanceID)
+{
+    for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
     {
-        /// TODO
+        if (m_Plots[l_I].SiteLevelID == m_GarrisonLevelID && m_Plots[l_I].PlotInstanceID == p_PlotInstanceID)
+            return m_Plots[l_I];
+    }
+
+    return GarrisonPlotInstanceInfoLocation();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Add mission
+bool Garrison::AddMission(uint32 p_MissionRecID)
+{
+    const GarrMissionEntry * l_MissionEntry = sGarrMissionStore.LookupEntry(p_MissionRecID);
+
+    if (!l_MissionEntry)
+        return false;
+
+    if (HaveMission(p_MissionRecID))
+        return false;
+
+    if (l_MissionEntry->RequiredLevel > m_Owner->getLevel())
+        return false;
+
+    if (l_MissionEntry->RequiredItemLevel > m_Owner->GetAverageItemLevel())
+        return false;
+
+    GarrisonMission l_Mission;
+
+    l_Mission.MissionID         = p_MissionRecID;
+    l_Mission.OfferTime         = time(0);
+    l_Mission.OfferMaxDuration  = l_MissionEntry->OfferDuration;
+    l_Mission.State             = GARRISON_MISSION_AVAILABLE;
+    l_Mission.StartTime         = 0;
+
+    m_Missions.push_back(l_Mission);
+
+    return true;
+}
+/// Player have mission
+bool Garrison::HaveMission(uint32 p_MissionRecID)
+{
+    for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        if (m_Missions[l_I].MissionID == p_MissionRecID)
+            return true;
+
+    return false;
+}
+/// Get missions
+std::vector<GarrisonMission> Garrison::GetMissions()
+{
+    std::vector<GarrisonMission> l_Result;
+
+    for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        if (m_Missions[l_I].State != GARRISON_MISSION_COMPLETE)
+            l_Result.push_back(m_Missions[l_I]);
+
+    return l_Result;
+}
+/// Get all completed missions
+std::vector<GarrisonMission> Garrison::GetCompletedMissions()
+{
+    std::vector<GarrisonMission> l_Result;
+
+    for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        if (m_Missions[l_I].State == GARRISON_MISSION_COMPLETE)
+            l_Result.push_back(m_Missions[l_I]);
+
+    return l_Result;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Can build building X at slot instance Y
+bool Garrison::IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID)
+{
+    const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+
+    if (!l_BuildingEntry)
+        return false;
+
+    const GarrPlotInstanceEntry * l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+
+    if (!l_PlotInstanceEntry)
+        return false;
+
+    /// Search building plot ID 
+    for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
+    {
+        const GarrPlotBuildingEntry * l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
+
+        if (l_PlotBuildingEntry && l_PlotBuildingEntry->PlotId == l_PlotInstanceEntry->PlotID && l_PlotBuildingEntry->BuildingID == p_BuildingRecID)
+            return true;
+    }
+
+    return false;
+}
+/// Player fill all condition
+GarrisonPurchaseBuildingResult Garrison::CanPurchaseBuilding(uint32 p_BuildingRecID)
+{
+    const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+
+    if (!l_BuildingEntry)
+        return GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
+
+    if (l_BuildingEntry->BuildCostCurrencyID != 0)
+    {
+        if (!m_Owner->HasCurrency(l_BuildingEntry->BuildCostCurrencyID, l_BuildingEntry->BuildCostCurrencyAmount))
+            return GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_CURRENCY;
+    }
+
+    return GARRISON_PURCHASE_BUILDING_OK;
+}
+/// PurchaseBuilding
+GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID)
+{
+    const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+
+    GarrisonBuilding l_Building;
+
+    memset(&l_Building, 0, sizeof(l_Building));
+
+    if (!l_BuildingEntry)
+        return l_Building;
+
+    if (l_BuildingEntry->BuildCostCurrencyID != 0)
+        m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, -(int32)l_BuildingEntry->BuildCostCurrencyAmount);
+
+    WorldPacket l_PlotRemoved(SMSG_GARRISON_PLOT_REMOVED, 4);
+    l_PlotRemoved << uint32(p_PlotInstanceID);
+    m_Owner->SendDirectMessage(&l_PlotRemoved);
+
+    l_Building.BuildingID       = p_BuildingRecID;
+    l_Building.PlotInstanceID   = p_PlotInstanceID;
+    l_Building.TimeBuiltStart   = time(0);
+    l_Building.TimeBuiltEnd     = time(0) + l_BuildingEntry->BuildTime;           ///< 5/5/1905 18:45:05
+    l_Building.SpecID           = 0;
+    l_Building.Active           = false;
+
+    m_Buildings.push_back(l_Building);
+
+    UpdatePlotGameObject(p_PlotInstanceID);
+    
+    return l_Building;
+}
+/// Get building
+GarrisonBuilding Garrison::GetBuilding(uint32 p_PlotInstanceID)
+{
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+            return m_Buildings[l_I];
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Get known blueprints
+std::vector<int32> Garrison::GetKnownBlueprints()
+{
+    return m_KnownBlueprints;
+}
+/// Learn blue print
+bool Garrison::LearnBlueprint(uint32 p_BuildingRecID)
+{
+    GarrisonLearnBluePrintResult l_ResultCode;
+
+    if (std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) == m_KnownBlueprints.end())
+    {
+        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+
+        if (l_BuildingEntry)
+        {
+            m_KnownBlueprints.push_back(p_BuildingRecID);
+            l_ResultCode = GARRISON_LEARN_BLUEPRINT_LEARNED;
+        }
+        else
+        {
+            l_ResultCode = GARRISON_LEARN_BLUEPRINT_UNABLE_TO_LEARN;
+        }
     }
     else
     {
-        l_Data.WriteBit(false);    ///< Hide UI
-        l_Data.FlushBits();
+        l_ResultCode = GARRISON_LEARN_BLUEPRINT_KNOWN;
     }
 
-    m_Owner->SendDirectMessage(&l_Data);
+    WorldPacket l_Result(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT, 8);
+    l_Result << uint32(l_ResultCode);
+    l_Result << uint32(p_BuildingRecID);
+
+    m_Owner->SendDirectMessage(&l_Result);
+
+    return true;
+}
+/// Known blue print
+bool Garrison::KnownBlueprint(uint32 p_BuildingRecID)
+{
+    return std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) != m_KnownBlueprints.end();
+}
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Get known specializations
+std::vector<int32> Garrison::GetKnownSpecializations()
+{
+    return m_KnownSpecializations;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,5 +410,61 @@ void Garrison::InitDataForLevel()
             m_Plots.push_back(gGarrisonPlotInstanceInfoLocation[l_I]);
     }
 
+    m_KnownBlueprints.push_back(26);
+    m_KnownBlueprints.push_back(76);
+}
+/// Init Game objects
+void Garrison::InitGameObjects()
+{
+    for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
+    {
+        UpdatePlotGameObject(m_Plots[l_I].PlotInstanceID);
+    }
+}
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Update plot gameobject
+void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
+{
+    GarrisonPlotInstanceInfoLocation l_PlotInfo = GetPlot(p_PlotInstanceID);
+
+    if (m_PlotsGob[p_PlotInstanceID] != 0)
+    {
+        GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsGob[p_PlotInstanceID]);
+
+        if (l_Gob)
+        {
+            l_Gob->SetRespawnTime(0);
+            l_Gob->Delete();
+        }
+    }
+
+
+    if (PlotIsFree(p_PlotInstanceID))
+    {
+        GameObject * l_Gob = m_Owner->SummonGameObject(gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID)], l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+        m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+    }
+    else
+    {
+        GarrisonBuilding l_Building = GetBuilding(p_PlotInstanceID);
+
+        if (l_Building.TimeBuiltEnd > time(0))
+        {
+            GameObject * l_Gob = m_Owner->SummonGameObject(gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID)], l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+            m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+        }
+        else
+        {
+            const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+
+            if (!l_BuildingEntry)
+                return;
+
+            GameObject * l_Gob = m_Owner->SummonGameObject(l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()], l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+            m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+        }
+    }
 }

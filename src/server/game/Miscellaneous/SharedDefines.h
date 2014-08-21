@@ -1239,7 +1239,7 @@ enum SpellEffects
     SPELL_EFFECT_207                                = 207, // Unused 5.4.0
     SPELL_EFFECT_TEST_REPUTATION                    = 208, // Unk 5.4.0
     SPELL_EFFECT_209                                = 209, // Unk 5.4.0
-    SPELL_EFFECT_210                                = 210, // Unk 5.4.0
+    SPELL_EFFECT_LEARN_BLUE_PRINT                   = 210,
     SPELL_EFFECT_211                                = 211, // Unk 5.4.0
     SPELL_EFFECT_212                                = 212, // Unk 5.4.0
     SPELL_EFFECT_DEATH_GRIP                         = 213,
