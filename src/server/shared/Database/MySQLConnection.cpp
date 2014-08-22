@@ -171,7 +171,7 @@ bool MySQLConnection::Execute(const char* sql)
 
             sLog->outInfo(LOG_FILTER_SQL, "SQL: %s", sql);
             sLog->outError(LOG_FILTER_SQL, "[%u] %s", lErrno, mysql_error(m_Mysql));
-            sLog->OutPandashan("[%u] %s", lErrno, mysql_error(m_Mysql));
+            sLog->OutPandashan("[%u] %s (%s)", lErrno, mysql_error(m_Mysql), sql);
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(sql);       // Try again

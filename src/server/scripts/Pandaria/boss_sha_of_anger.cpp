@@ -1,9 +1,22 @@
 /*
-Pandaria
-World boss
-Antoine Vallee for Pandashan Servers
-
+* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -76,6 +89,7 @@ class boss_sha_of_anger : public CreatureScript
             bool range;
 
             std::list<uint64> targetedDominationPlayerGuids;
+            std::list<uint64> m_LootersGuids;
 
             void Reset()
             {
@@ -104,6 +118,7 @@ class boss_sha_of_anger : public CreatureScript
                 events.ScheduleEvent(EVENT_UPDATE_RAGE, 1000);
 
                 targetedDominationPlayerGuids.clear();
+                m_LootersGuids.clear();
 
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 100.0f);
@@ -138,6 +153,28 @@ class boss_sha_of_anger : public CreatureScript
             void SummonedCreatureDespawn(Creature* summon)
             {
                 summons.Despawn(summon);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            {
+                if (p_Damage >= me->GetHealth())
+                {
+                    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::const_iterator l_Itr = l_ThreatList.begin(); l_Itr != l_ThreatList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = Player::GetPlayer(*me, (*l_Itr)->getUnitGuid()))
+                            m_LootersGuids.push_back(l_Player->GetGUID());
+                    }
+                }
+            }
+
+            void JustDied(Unit* p_Killer)
+            {
+                for (uint64 l_Guid : m_LootersGuids)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                        me->CastSpell(l_Player, SPELL_SHA_OF_ANGER_BONUS, true);
+                }
             }
 
             void UpdateAI(const uint32 diff)

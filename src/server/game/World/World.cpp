@@ -1562,11 +1562,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                          ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                           ///< must be after LoadItemPrototypes
-    sObjectMgr->LoadItemSpecs();
-
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                   ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecsOverride();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                            ///< must be after LoadItemPrototypes
+    sObjectMgr->LoadItemSpecs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();

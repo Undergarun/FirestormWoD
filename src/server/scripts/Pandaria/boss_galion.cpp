@@ -44,7 +44,9 @@ enum eSpells
     SPELL_CANON_DMG     = 121600,
 
     SPELL_IMPALING_PULL = 121747,
-    SPELL_GRIP_TARGET   = 75686
+    SPELL_GRIP_TARGET   = 75686,
+
+    SPELL_GALLEON_BONUS = 132206
 };
 
 uint32 const CanonSpells[8] = { SPELL_CANON_1, SPELL_CANON_2, SPELL_CANON_3, SPELL_CANON_4, SPELL_CANON_5, SPELL_CANON_6, SPELL_CANON_7, SPELL_CANON_8 };
@@ -97,6 +99,7 @@ class boss_galion : public CreatureScript
             EventMap m_Events;
             uint32 m_CheckVehicleTimer;
             uint8 m_CanonReady;
+            std::list<uint64> m_LootersGuids;
 
             void CheckVehicleAccessories()
             {
@@ -157,6 +160,8 @@ class boss_galion : public CreatureScript
 
                 m_CheckVehicleTimer = 2000;
                 m_CanonReady        = 0;
+
+                m_LootersGuids.clear();
             }
 
             void JustSummoned(Creature* p_Summon)
@@ -171,6 +176,12 @@ class boss_galion : public CreatureScript
                     l_ChiefSalyis->ToCreature()->AI()->Talk(TALK_DEATH);
 
                 summons.DespawnAll();
+
+                for (uint64 l_Guid : m_LootersGuids)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                        me->CastSpell(l_Player, SPELL_GALLEON_BONUS, true);
+                }
             }
 
             void KilledUnit(Unit* p_Killer)
@@ -195,6 +206,19 @@ class boss_galion : public CreatureScript
                 {
                     if (Unit* l_Warmonger = me->GetVehicleKit()->GetPassenger(l_Index))
                         l_Warmonger->ToCreature()->AI()->AttackStart(p_Attacker);
+                }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            {
+                if (p_Damage >= me->GetHealth())
+                {
+                    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::const_iterator l_Itr = l_ThreatList.begin(); l_Itr != l_ThreatList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = Player::GetPlayer(*me, (*l_Itr)->getUnitGuid()))
+                            m_LootersGuids.push_back(l_Player->GetGUID());
+                    }
                 }
             }
 

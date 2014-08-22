@@ -3435,6 +3435,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137502:// Growing Fury
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
                 break;
+            case 132205:// Sha of Anger Bonus
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 137200:// Blessed Loa Spirit
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
