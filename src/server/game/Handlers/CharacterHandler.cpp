@@ -1061,6 +1061,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     if (l_EuropaTicketSystemEnabled)
     {
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.FlushBits();
+
         l_Data << uint32(0);                                        ///< Max Tries
         l_Data << uint32(60);                                       ///< Per Milliseconds
         l_Data << uint32(10);                                       ///< Try Count

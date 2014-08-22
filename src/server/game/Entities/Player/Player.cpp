@@ -8885,19 +8885,20 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
             WorldPacket packet(SMSG_UPDATE_CURRENCY);
 
-            packet.WriteBit(weekCap != 0);
-            packet.WriteBit(0);                         // Print in log
-            packet.WriteBit(itr->second.seasonTotal);
-
-            if (itr->second.seasonTotal)
-                packet << uint32(itr->second.seasonTotal);
-
             packet << uint32(id);
             packet << uint32(newTotalCount / precision);
-            packet << uint32(0);                        // Unk
+            packet << uint32(0);                        // Flags
+
+            packet.WriteBit(weekCap != 0);
+            packet.WriteBit(itr->second.seasonTotal);
+            packet.WriteBit(0);                         // SuppressChatLog
+            packet.FlushBits();
 
             if (weekCap)
                 packet << uint32(newWeekCount / precision);
+
+            if (itr->second.seasonTotal)
+                packet << uint32(itr->second.seasonTotal);
 
             GetSession()->SendPacket(&packet);
         }
@@ -9032,8 +9033,8 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
         uint32 cap = GetCurrencyWeekCap(currencyEntry->ID);
 
         WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-        packet << uint32(cap / precision);
         packet << uint32(currenciesToUpdate[i]);
+        packet << uint32(cap / precision);
         GetSession()->SendPacket(&packet);
     }
 }
@@ -18748,8 +18749,16 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     data << uint32(quest->GetBonusTalents());              ///< Bonus talents
     data << uint32(moneyReward);
 
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.FlushBits();
+
     data.WriteBit(1);                                      ///< LaunchGossip
     data.WriteBit(1);                                      ///< UseQuestReward
+    data.FlushBits();
 
     GetSession()->SendPacket(&data);
 
@@ -18866,7 +18875,7 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
 
     WorldPacket data(SMSG_QUEST_UPDATE_ADD_PVP_CREDIT, (2*4) + 1);
     data << uint32(quest->GetQuestId());
-    data << uint8(old_count + add_count);
+    data << uint16(old_count + add_count);
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
@@ -30145,4 +30154,5 @@ void Player::CreateGarrison()
         return;
 
     m_Garrison = new Garrison(this);
+    m_Garrison->Create();
 }
