@@ -438,43 +438,45 @@ void fixNULLfields(std::string &line)
     }
 }
 
-DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, uint32 guid, bool onlyBoundedItems)
+DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems, uint32 p_AtLogin, bool p_Premade)
 {
-    uint32 charcount = AccountMgr::GetCharactersCount(account);
+    uint32 charcount = AccountMgr::GetCharactersCount(p_Account);
     if (charcount >= 11)
         return DUMP_TOO_MANY_CHARS;
 
-    FILE* fin = fopen(file.c_str(), "r");
+    FILE* fin = fopen(p_File.c_str(), "r");
     if (!fin)
         return DUMP_FILE_OPEN_ERROR;
 
     QueryResult result = QueryResult(NULL);
-    char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20];
+    char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20], atLogin[20];
 
     // midgar
     std::list<std::string> queryQueue;
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (guid != 0 && guid < sObjectMgr->_hiCharGuid)
+    if (p_Guid != 0 && p_Guid < sObjectMgr->_hiCharGuid)
     {
-        result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%d'", guid);
+        result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%d'", p_Guid);
         if (result)
-            guid = sObjectMgr->_hiCharGuid; // use first free if exists
+            p_Guid = sObjectMgr->_hiCharGuid; // use first free if exists
         else
             incHighest = false;
     }
     else
-        guid = sObjectMgr->_hiCharGuid;
+        p_Guid = sObjectMgr->_hiCharGuid;
 
-    name = "transfertCha";
+    if (!p_Premade)
+        p_Name = "transfertCha";
 
     // name encoded or empty
 
-    snprintf(newguid, 20, "%d", guid);
-    snprintf(chraccount, 20, "%d", account);
+    snprintf(newguid, 20, "%d", p_Guid);
+    snprintf(chraccount, 20, "%d", p_Account);
     snprintf(newpetid, 20, "%d", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");
+    snprintf(atLogin, 20, "%d", p_AtLogin);
 
     std::map<uint32, uint32> items;
     std::map<uint32, uint32> mails;
@@ -560,14 +562,22 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 // Avoid MySQL error (Data too long for column 'name' at row 1)
-                if (name.size() > 12)
-                    name = name.substr(0, 11);
+                if (p_Name.size() > 12)
+                    p_Name = p_Name.substr(0, 11);
 
-                if (!changenth(line, 3, name.c_str())) // characters.name
+                if (!changenth(line, 3, p_Name.c_str())) // characters.name
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!changenth(line, 41, "1"))       // characters.at_login set to "rename on login"
-                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (p_Premade)
+                {
+                    if (!changenth(line, 41, atLogin))
+                        ROLLBACK(DUMP_FILE_BROKEN);
+                }
+                else
+                {
+                    if (!changenth(line, 41, "1"))       // characters.at_login set to "rename on login"
+                        ROLLBACK(DUMP_FILE_BROKEN);
+                }
 
                 const char null[5] = "NULL";
 
@@ -656,7 +666,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     if (!changenth(line, 13, "0"))
                         ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (onlyBoundedItems)
+                if (p_OnlyBoundedItems)
                 {
                     std::string::size_type s, e;
                     if (!findnth(line, 9, s, e))
