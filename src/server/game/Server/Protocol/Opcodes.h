@@ -546,7 +546,7 @@ enum Opcodes
     CMSG_LOG_STREAMING_ERROR                    = 0x1D45,   ///< 6.0.2 18764
     CMSG_QUEUED_MESSAGES_END                    = 0x0000,   ///<
     CMSG_LOG_DISCONNECT                         = 0x1856,   ///< 6.0.2 18764
-    CMSG_PING                                   = 0x0A02,   ///< 6.0.2 18764
+    CMSG_PING                                   = 0x1B75,   ///< 6.0.2 18764
     CMSG_AUTH_CONTINUED_SESSION                 = 0x0000,   ///<
     CMSG_SUSPEND_TOKEN_RESPONSE                 = 0x0000,   ///<
     CMSG_AUTH_SESSION                           = 0x1B05,   ///< 6.0.2 18764
@@ -577,16 +577,16 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
-    CMSG_AUTOBANK_ITEM                          = 0x0000,   ///< 6.0.1
-    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0000,   ///< 6.0.1
-    CMSG_BUY_BANK_SLOT                          = 0x0000,   ///< 6.0.1
-    CMSG_BUY_REAGENT_BANK                       = 0x0000,   ///< 6.0.1
+    CMSG_AUTOBANK_ITEM                          = 0x06A5,   ///< 6.0.2 18764
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0686,   ///< 6.0.2 18764
+    CMSG_BUY_BANK_SLOT                          = 0x0204,   ///< 6.0.2 18764
+    CMSG_BUY_REAGENT_BANK                       = 0x0677,   ///< 6.0.2 18764
     CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0000,   ///< 6.0.1
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOOT                                   = 0x0000,   ///< 6.0.1
+    CMSG_LOOT                                   = 0x1AC8,   ///< 6.0.2 18764
     CMSG_LOOT_MONEY                             = 0x0000,   ///< 6.0.1
     CMSG_LOOT_ITEM                              = 0x0000,   ///< 6.0.1
     CMSG_LOOT_RELEASE                           = 0x0000,   ///< 6.0.1
@@ -641,11 +641,11 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LIST_INVENTORY                         = 0x0000,   ///< 6.0.1
-    CMSG_REPAIR_ITEM                            = 0x0000,   ///< 6.0.1
+    CMSG_LIST_INVENTORY                         = 0x0134,   ///< 6.0.2 18764
+    CMSG_REPAIR_ITEM                            = 0x1157,   ///< 6.0.2 18764
     CMSG_BUYBACK_ITEM                           = 0x0000,   ///< 6.0.1
-    CMSG_BUY_ITEM                               = 0x0000,   ///< 6.0.1
-    CMSG_SELL_ITEM                              = 0x0000,   ///< 6.0.1
+    CMSG_BUY_ITEM                               = 0x0077,   ///< 6.0.2 18764
+    CMSG_SELL_ITEM                              = 0x1037,   ///< 6.0.2 18764
 
     //////////////////////////////////////////////////////////////////////////
     /// Taxi
@@ -661,7 +661,7 @@ enum Opcodes
     CMSG_QUESTGIVER_HELLO                       = 0x0000,   ///< 6.0.1
     CMSG_QUESTGIVER_STATUS_QUERY                = 0x0000,   ///< 6.0.1
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0000,   ///< 6.0.1
-    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0000,   ///< 6.0.1
+    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0564,   ///< 6.0.2 18764
     CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x0000,   ///< 6.0.1
     CMSG_QUESTGIVER_CHOOSE_REWARD               = 0x0000,   ///< 6.0.1
     CMSG_QUESTGIVER_ACCEPT_QUEST                = 0x0000,   ///< 6.0.1
