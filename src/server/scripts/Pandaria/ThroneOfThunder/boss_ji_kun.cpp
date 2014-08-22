@@ -38,7 +38,7 @@ enum eSpells
     SPELL_DOWN_DRAFT                        = 134370,
     // Nests (with no effect : 138360  - 139286)
     SPELL_FEED_YOUNG                        = 137528, // Casting 2s, triggers 2x 134385 (to script)
-    SPELL_ECLOSION                          = 137534, // Spawn Juvenile (69836)
+    SPELL_HATCH                             = 137534, // Spawn Juvenile (69836)
     SPELL_DROP_FEED_POOL                    = 138209, // Shows exploding green pool
     SPELL_FEED_POOL_PERIODIC_DMG            = 138319, // aura, 35k/s
     SPELL_MOVE_JUMP_TO_TARGET               = 138359, // Jump to target
@@ -54,20 +54,23 @@ enum eSpells
     SPELL_NEST_GUARDIAN_SUMMON              = 139090, // Spawns Nest Guardian
     SPELL_SPAWN_JI_KUN_HATCHLING            = 139148, // Spawns Ji-Kun Hatchling (70144)
     SPELL_FEED_POOL_SPAWN_SPELL_YELLOW      = 139284, // Shows yellow pool at caster's feet
-    SPELL_SUMMON_FEED_POOL                  = 139285  // Shows exploding yellow pool
+    SPELL_SUMMON_FEED_POOL                  = 139285, // Shows exploding yellow pool
+    SPELL_SUMMON_FEED                       = 134385  // Summons Feed (68178)
 };
 
 enum eEvents
 {
-    EVENT_TALON_RAKE    = 1,
-    EVENT_CAW           = 2,
-    EVENT_QUILLS        = 3,
-    EVENT_DOWN_DRAFT    = 4,
-    EVENT_FEED_YOUNG    = 5
+    EVENT_TALON_RAKE          = 1,
+    EVENT_CAW                 = 2,
+    EVENT_QUILLS              = 3,
+    EVENT_DOWN_DRAFT          = 4,
+    EVENT_FEED_YOUNG          = 5,
+    EVENT_TURN_INTO_FLEDGLING = 6
 };
 
 enum eActions
 {
+    ACTION_SUMMON_FEED = 1
 };
 
 Position const waypointPos[52] =
@@ -181,6 +184,12 @@ class boss_ji_kun : public CreatureScript
 //                    me->GetMotionMaster()->Clear();
 //                    me->GetMotionMaster()->MovePoint(m_ActualWaypoint, waypointPos[0]);
                 }
+
+                std::list<Creature*> l_HatchlingsList;
+                GetCreatureListWithEntryInGrid(l_HatchlingsList, me, 68192, 200.0f);
+
+                for (Creature* l_Hatchling : l_HatchlingsList)
+                    l_Hatchling->DespawnOrUnsummon();
             }
 
             void EnterCombat(Unit* /*p_Attacker*/)
@@ -214,6 +223,8 @@ class boss_ji_kun : public CreatureScript
 
             void DoAction(const int32 p_Action)
             {
+                if (p_Action == ACTION_SUMMON_FEED)
+                    m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 300);
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -256,10 +267,12 @@ class boss_ji_kun : public CreatureScript
                         }
 
                         me->CastSpell(bossPlatformPos.m_positionX, bossPlatformPos.m_positionY, bossPlatformPos.m_positionZ, SPELL_DOWN_DRAFT, false);
-                        m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 120000);
+                        //m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 120000);
                         break;
                     }
                     case EVENT_FEED_YOUNG:
+                        me->CastSpell(me, SPELL_SUMMON_FEED, false);
+                        m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 10000);
                         break;
                     default:
                         break;
@@ -346,6 +359,88 @@ class mob_fall_catcher : public CreatureScript
         }
 };
 
+// Hatchling - 68192
+class mob_hatchling : public CreatureScript
+{
+    public:
+        mob_hatchling() : CreatureScript("mob_hatchling") { }
+
+        struct mob_hatchlingAI : public ScriptedAI
+        {
+            mob_hatchlingAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            bool m_IsEating;
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_IsEating = false;
+
+                m_Events.Reset();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                m_Events.Update(diff);
+
+                if (!m_IsEating)
+                {
+                    if (Creature* l_Feed = GetClosestCreatureWithEntry(me, NPC_FEED, 0.1f))
+                    {
+                        m_Events.ScheduleEvent(EVENT_TURN_INTO_FLEDGLING, 10000);
+
+                        m_IsEating = true;
+                    }
+                }
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_TURN_INTO_FLEDGLING:
+                        me->SummonCreature(NPC_FLEDGLING, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        me->DespawnOrUnsummon();
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_hatchlingAI(p_Creature);
+        }
+};
+
+// Feed - 68178
+class mob_feed : public CreatureScript
+{
+    public:
+        mob_feed() : CreatureScript("mob_feed") { }
+
+        struct mob_feedAI : public ScriptedAI
+        {
+            mob_feedAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!me->isMoving())
+                {
+                    me->CastSpell(me, SPELL_FEED_POOL_SPAWN, false);
+                    me->DespawnOrUnsummon();
+                }
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_feedAI(p_Creature);
+        }
+};
+
 // Caw - 138923
 class spell_caw : public SpellScriptLoader
 {
@@ -359,10 +454,8 @@ class spell_caw : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
-                {
                     if (Unit* l_Target = GetHitUnit())
                         l_Caster->CastSpell(l_Target, SPELL_CAW_MISSILE, true);
-                }
             }
 
             void Register()
@@ -421,7 +514,7 @@ class spell_infected_talons : public SpellScriptLoader
 };
 
 // Regurgitate - 134385
-/*class spell_regurgitate : public SpellScriptLoader
+class spell_regurgitate : public SpellScriptLoader
 {
     public:
         spell_regurgitate() : SpellScriptLoader("spell_regurgitate") { }
@@ -438,15 +531,22 @@ class spell_infected_talons : public SpellScriptLoader
                     return;
 
                 std::list<Creature*> l_HatchlingsList;
-                GetCreatureListWithEntryInGrid(l_HatchlingsList, l_Caster, 68192, 200.0f);
+                GetCreatureListWithEntryInGrid(l_HatchlingsList, l_Caster, NPC_HATCHLING, 200.0f);
 
                 if (!l_HatchlingsList.empty())
-                {
                     for (Creature* l_Hatchling : l_HatchlingsList)
                     {
-     //                   l_Caster->SummonCreature()    <------ lost ID T_T
+                        std::list<Creature*> l_EggList;
+                        GetCreatureListWithEntryInGrid(l_EggList, l_Hatchling, NPC_YOUNG_EGG_OF_JI_KUN, 0.1f);
+
+                        if (l_EggList.empty())
+                            l_Caster->SummonCreature(NPC_FEED, l_Hatchling->GetPositionX(), l_Hatchling->GetPositionY(), l_Hatchling->GetPositionZ());
                     }
-                }
+                else
+                    if(Player* l_Player = l_Caster->ToPlayer())
+                        if (Creature* l_JiKun = l_Player->GetMap()->GetCreature(l_Player->GetInstanceScript()->GetData64(NPC_JI_KUN)))
+                            for (uint8 i = 0; i < urand(3, 6); i++)
+                                l_JiKun->AI()->DoAction(ACTION_SUMMON_FEED);
             }
 
             void Register()
@@ -459,14 +559,16 @@ class spell_infected_talons : public SpellScriptLoader
         {
             return new spell_regurgitate_SpellScript();
         }
-};*/
+};
 
 void AddSC_boss_ji_kun()
 {
     new boss_ji_kun();
     new mob_jump_to_boss_platform();
     new mob_fall_catcher();
+    new mob_hatchling();
+    new mob_feed();
     new spell_caw();
     new spell_infected_talons();
-//    new spell_regurgitate();
+    new spell_regurgitate();
 }

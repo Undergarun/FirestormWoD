@@ -72,6 +72,8 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 tribalDoorsGuid[4];
             uint64 warGodJalakGuid;
 
+            uint64 jiKunGuid;
+
             uint64 firstMoguBloodVatGuid;
             uint64 secondMoguBloodVatGuid;
             uint64 thirdMoguBloodVatGuid;
@@ -106,16 +108,18 @@ class instance_throne_of_thunder : public InstanceMapScript
                 ancientMoguBellActivate = 0;
                 megaeraGuid             = 0;
 
-                firstMoguBloodVatGuid = 0;
-                secondMoguBloodVatGuid = 0;
-                thirdMoguBloodVatGuid = 0;
-                fourthMoguBloodVatGuid = 0;
-                fifthMoguBloodVatGuid = 0;
-                sixthMoguBloodVatGuid = 0;
+                jiKunGuid               = 0;
+
+                firstMoguBloodVatGuid   = 0;
+                secondMoguBloodVatGuid  = 0;
+                thirdMoguBloodVatGuid   = 0;
+                fourthMoguBloodVatGuid  = 0;
+                fifthMoguBloodVatGuid   = 0;
+                sixthMoguBloodVatGuid   = 0;
                 seventhMoguBloodVatGuid = 0;
-                eighthMoguBloodVatGuid = 0;
-                ninthMoguBloodVatGuid = 0;
-                tenthMoguBloodVatGuid = 0;
+                eighthMoguBloodVatGuid  = 0;
+                ninthMoguBloodVatGuid   = 0;
+                tenthMoguBloodVatGuid   = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -170,6 +174,9 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case NPC_HIGH_PRIESTRESS_MAR_LI:
                         highPriestressMarLiGuid = creature->GetGUID();
+                        break;
+                    case NPC_JI_KUN:
+                        jiKunGuid = creature->GetGUID();
                         break;
                     case NPC_MEGAERA:
                         megaeraGuid = creature->GetGUID();
@@ -365,6 +372,8 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return forostKingMalakkGuid;
                     case NPC_HIGH_PRIESTRESS_MAR_LI:
                         return highPriestressMarLiGuid;
+                    case NPC_JI_KUN:
+                        return jiKunGuid;
                     case NPC_MEGAERA:
                         return megaeraGuid;
                     default:
