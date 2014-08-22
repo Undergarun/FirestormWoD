@@ -543,7 +543,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// User Router
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOG_STREAMING_ERROR                    = 0x0000,   ///<
+    CMSG_LOG_STREAMING_ERROR                    = 0x1D45,   ///< 6.0.2 18764
     CMSG_QUEUED_MESSAGES_END                    = 0x0000,   ///<
     CMSG_LOG_DISCONNECT                         = 0x1856,   ///< 6.0.2 18764
     CMSG_PING                                   = 0x0A02,   ///< 6.0.2 18764
