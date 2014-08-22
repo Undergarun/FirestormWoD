@@ -373,6 +373,14 @@ class boss_jin_qin_xi : public CreatureScript
                             anc_mogu_machine->RemoveAura(SPELL_TITAN_GAS_HEROIC);
                         me->Kill(anc_mogu_machine->ToUnit());
                     }
+
+                    if (me->GetMap()->IsLFR())
+                    {
+                        me->SetLootRecipient(NULL);
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
 
                 isActive = false;
@@ -393,12 +401,8 @@ class boss_jin_qin_xi : public CreatureScript
 
                 _JustDied();
 
-                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
-                {
-                    if (Player* l_Player = l_Itr->getSource())
-                        me->CastSpell(l_Player, SPELL_WOE_BONUS, true);
-                }
+                if (me->GetMap()->IsLFR())
+                    me->SetLootRecipient(NULL);
             }
 
             void JustSummoned(Creature* summon)
