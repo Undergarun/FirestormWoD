@@ -480,8 +480,8 @@ struct GarrPlotEntry
     uint32      Unk3;                                   // 4
     uint32      Unk4;                                   // 5
     uint32      Unk5;                                   // 6
-    uint32      Unk6;                                   // 7
-    uint32      Unk7;                                   // 8
+    uint32      BuildingGameObjectA;                    // 7
+    uint32      BuildingGameObjectH;                    // 8
 };
 
 struct GarrPlotUICategoryEntry

@@ -2,32 +2,43 @@
 #include "Player.h"
 #include "DatabaseEnv.h"
 
-uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX] = 
+uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
 {
-    229501,     ///< GARRISON_PLOT_TYPE_SMALL
+    /// Horde
+    233083,     ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
+    233081,     ///< GARRISON_PLOT_TYPE_LARGE
+    /// Alliance
+    229501,     ///< GARRISON_PLOT_TYPE_SMALL
+    232283,     ///< GARRISON_PLOT_TYPE_MEDIUM
     232143      ///< GARRISON_PLOT_TYPE_LARGE
 };
 
-uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX] =
+uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
 {
-    233957,     ///< GARRISON_PLOT_TYPE_SMALL
+    /// Horde
+    0,          ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
-    0           ///< GARRISON_PLOT_TYPE_LARGE
+    232410,     ///< GARRISON_PLOT_TYPE_LARGE
+    /// Alliance
+    233957,     ///< GARRISON_PLOT_TYPE_SMALL
+    232409,     ///< GARRISON_PLOT_TYPE_MEDIUM
+    232411      ///< GARRISON_PLOT_TYPE_LARGE
 };
 
 GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = {
     /// SiteLevelID PlotInstanceID      X            Y            Z           O
     /// Alliance Level 1                                                    
-    {       5,          19,         1829.896f,    197.5504f,    72.00920f,   1.884956f   },
-    {       5,          23,         1911.550f,    232.9792f,    76.65489f,   2.795270f   },
+    {       5,          19,         1829.896f,    197.5504f,    72.00920f,   1.8849560f  },
+    {       5,          23,         1911.550f,    232.9792f,    76.65489f,   2.7952700f  },
     /// Alliance Level 2                                                    
-    {     444,          18,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {     444,          19,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {     444,          22,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {     444,          23,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {     444,          59,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {     444,          63,            0.0f,        0.0f,        0.0f,       0.0f        },
+    {     444,          18,         1819.583f,    231.2813f,    72.17403f,  -1.2915440f  },
+    {     444,          19,         1829.896f,    197.5504f,    71.98585f,   1.8849560f  },
+    {     444,          22,         1864.955f,    320.2083f,    81.66048f,  -1.4835300f  },
+    {     444,          23,         1918.637f,    228.7674f,    76.63956f,   2.7750740f  },
+    {     444,          59,         1845.083f,    146.2743f,    53.43811f,   0.3490658f  },
+    {     444,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
+    {     444,          67,         2031.594f,    174.4410f,    84.59409f,   2.8361600f  },
     /// Alliance Level 3                                                  
     {       6,          18,            0.0f,        0.0f,        0.0f,       0.0f        },
     {       6,          19,            0.0f,        0.0f,        0.0f,       0.0f        },
@@ -41,8 +52,8 @@ GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT
     {       6,          67,            0.0f,        0.0f,        0.0f,       0.0f        },
     {       6,          81,            0.0f,        0.0f,        0.0f,       0.0f        },
     /// Horde Level 1                                                       
-    {     258,          18,         5645.124f,   4508.960f,    119.2701f,    2.0423500f  },
-    {     258,          23,         5575.461f,   4459.338f,    130.3681f,    0.9599311f  },
+    {     258,          18,         5645.124f,   4508.9600f,   119.27010f,   2.0423500f  },
+    {     258,          23,         5575.461f,   4459.3380f,   130.36810f,   0.9599311f  },
     /// Horde level 2                                                       
     {     445,          18,            0.0f,        0.0f,        0.0f,       0.0f        },
     {     445,          19,            0.0f,        0.0f,        0.0f,       0.0f        },
@@ -51,7 +62,6 @@ GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT
     {     445,          59,            0.0f,        0.0f,        0.0f,       0.0f        },
     {     445,          63,            0.0f,        0.0f,        0.0f,       0.0f        },
     {     445,          67,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {     444,          67,            0.0f,        0.0f,        0.0f,       0.0f        },
     /// Horde level 3                                                      
     {     259,          18,            0.0f,        0.0f,        0.0f,       0.0f        },
     {     259,          19,            0.0f,        0.0f,        0.0f,       0.0f        },
@@ -123,7 +133,7 @@ void Garrison::Create()
 /// Load
 bool Garrison::Load()
 {
-    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_DB_ID);
+    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON);
 
     uint32 l_Index = 0;
     l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
@@ -546,6 +556,8 @@ GarrisonBuilding Garrison::GetBuilding(uint32 p_PlotInstanceID)
     for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
             return m_Buildings[l_I];
+
+    return GarrisonBuilding();
 }
 /// Get buildings
 std::vector<GarrisonBuilding> Garrison::GetBuildings()
@@ -677,7 +689,7 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
 
     if (PlotIsFree(p_PlotInstanceID))
     {
-        l_GobEntry = gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID)];
+        l_GobEntry = gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
     }
     else
     {
@@ -685,12 +697,12 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
 
         if (l_Building.TimeBuiltEnd > time(0))
         {
-            l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID)];
+            l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
         }
         else
         {
             const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
-
+            
             if (!l_BuildingEntry)
                 return;
 
@@ -701,7 +713,7 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
     if (l_GobEntry != 0)
     {
         GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
-
+        
         if (l_Gob)
             m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
     }

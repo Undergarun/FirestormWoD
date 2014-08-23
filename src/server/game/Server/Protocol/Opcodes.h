@@ -463,15 +463,15 @@ enum Opcodes
     /// Jam Client Garrison
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGarrison
-        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x0000,   ///< 6.0.1
+        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x1459,   ///< 6.0.2 18764
         SMSG_GARRISON_PLOT_PLACED                                       = 0x0000,
-        SMSG_GARRISON_PLOT_REMOVED                                      = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x0000,   ///< 6.0.1
+        SMSG_GARRISON_PLOT_REMOVED                                      = 0x012A,   ///< 6.0.2 18764
+        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x18D4,   ///< 6.0.2 18764
         SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0000,
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
-        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x0000,   ///< 6.0.1
+        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0079,   ///< 6.0.2 18764
+        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x19C7,   ///< 6.0.2 18764
         SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
         SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x0000,
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
@@ -489,7 +489,7 @@ enum Opcodes
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,   ///< 6.0.1
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0000,   ///< 6.0.1
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x09C7,   ///< 6.0.2 18764
     #pragma endregion 
         
     //////////////////////////////////////////////////////////////////////////
@@ -516,10 +516,10 @@ enum Opcodes
     CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
-    CMSG_GET_GARRISON_INFO                                  = 0x0000,   ///< 6.0.1
+    CMSG_GET_GARRISON_INFO                                  = 0x1A97,   ///< 6.0.2 18764
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,   ///< 6.0.1
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,   ///< 6.0.1
+    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x04B8,   ///< 6.0.2 18764
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0A84,   ///< 6.0.2 18764
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
@@ -536,9 +536,9 @@ enum Opcodes
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
     CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.0.1
-    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,   ///< 6.0.1
-    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///< 6.0.1
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x009C,   ///< 6.0.2 18764
+    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x14C2,   ///< 6.0.2 18764
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0C90,   ///< 6.0.2 18764
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

@@ -19443,7 +19443,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
             }
         }
     }
-
+    
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
     {
@@ -19795,13 +19795,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // Set realmID
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, realmID);
-
-    Garrison * l_Garrison = new Garrison(this);
-
-    if (l_Garrison->Load())
-        m_Garrison = l_Garrison;
-    else
-        delete l_Garrison;
 
     return true;
 }
@@ -25630,6 +25623,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     // Hack fix for Sparring - Not applied
     if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
         AddAura(116023, this);
+
+    Garrison * l_Garrison = new Garrison(this);
+
+    if (l_Garrison->Load())
+        m_Garrison = l_Garrison;
+    else
+        delete l_Garrison;
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()

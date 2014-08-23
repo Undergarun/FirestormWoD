@@ -6,7 +6,8 @@
 enum GarrisonFactionIndex
 {
     GARRISON_FACTION_HORDE      = 0,
-    GARRISON_FACTION_ALLIANCE   = 1
+    GARRISON_FACTION_ALLIANCE   = 1,
+    GARRISON_FACTION_COUNT      = 2
 };
 
 enum GarrisonMissionState
@@ -43,8 +44,8 @@ enum GarrisonPurchaseBuildingResult
     GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47,
 };
 
-extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX];
-extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX];
+extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
+extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 
 #define GARRISON_PLOT_INSTANCE_COUNT 40
 
