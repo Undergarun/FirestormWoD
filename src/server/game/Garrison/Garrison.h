@@ -134,7 +134,7 @@ class Garrison
         /// Player fill all condition
         GarrisonPurchaseBuildingResult CanPurchaseBuilding(uint32 p_BuildingRecID);
         /// PurchaseBuilding
-        GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
+        GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered = false);
         /// Get building
         GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID);
         /// Get buildings
@@ -157,6 +157,8 @@ class Garrison
         void InitDataForLevel();
         /// Init Game objects
         void InitGameObjects();
+        /// Init default buildings
+        void InitDefaultBuildings();
 
         /// Update plot gameobject
         void UpdatePlotGameObject(uint32 p_PlotInstanceID);

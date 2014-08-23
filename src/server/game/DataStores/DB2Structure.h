@@ -450,8 +450,8 @@ struct GarrSiteLevelEntry
     float       Unk3;                                   // 6
     uint32      Unk4;                                   // 7
     uint32      Unk5;                                   // 8
-    uint32      Unk6;                                   // 9
-    uint32      Unk7;                                   // 10
+    uint32      UpgradeCost;                            // 9
+    uint32      UpgradeMoneyCost;                       // 10
 };
 
 struct GarrSiteLevelPlotInstEntry
@@ -512,7 +512,7 @@ struct GarrMissionEntry
     uint32 Quality;                                     // 16
     uint32 RewardPlayerExperience;                      // 17
     uint32 Unk6;                                        // 18
-    uint32 Unk7;                                        // 19
+    uint32 BaseBronzeChestChance;                       // 19
 };
 
 struct GarrBuildingEntry

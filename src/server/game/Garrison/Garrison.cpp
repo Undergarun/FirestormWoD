@@ -351,6 +351,15 @@ bool Garrison::PlotIsFree(uint32 p_PlotInstanceID)
 
     return true;
 }
+/// Has plot instance
+bool Garrison::HasPlotInstance(uint32 p_PlotInstanceID)
+{
+    for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
+        if (m_Plots[l_I].PlotInstanceID == p_PlotInstanceID)
+            return true;
+
+    return false;
+}
 /// Get plot location
 GarrisonPlotInstanceInfoLocation Garrison::GetPlot(uint32 p_PlotInstanceID)
 {
@@ -494,7 +503,7 @@ GarrisonPurchaseBuildingResult Garrison::CanPurchaseBuilding(uint32 p_BuildingRe
     return GARRISON_PURCHASE_BUILDING_OK;
 }
 /// PurchaseBuilding
-GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID)
+GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered)
 {
     const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
@@ -505,12 +514,15 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     if (!l_BuildingEntry)
         return l_Building;
 
-    if (l_BuildingEntry->BuildCostCurrencyID != 0)
+    if (l_BuildingEntry->BuildCostCurrencyID != 0 && !p_Triggered)
         m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, -(int32)l_BuildingEntry->BuildCostCurrencyAmount);
 
-    WorldPacket l_PlotRemoved(SMSG_GARRISON_PLOT_REMOVED, 4);
-    l_PlotRemoved << uint32(p_PlotInstanceID);
-    m_Owner->SendDirectMessage(&l_PlotRemoved);
+    if (!p_Triggered)
+    {
+        WorldPacket l_PlotRemoved(SMSG_GARRISON_PLOT_REMOVED, 4);
+        l_PlotRemoved << uint32(p_PlotInstanceID);
+        m_Owner->SendDirectMessage(&l_PlotRemoved);
+    }
 
     l_Building.BuildingID       = p_BuildingRecID;
     l_Building.PlotInstanceID   = p_PlotInstanceID;
@@ -518,6 +530,9 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     l_Building.TimeBuiltEnd     = time(0) + l_BuildingEntry->BuildTime;           ///< 5/5/1905 18:45:05
     l_Building.SpecID           = 0;
     l_Building.Active           = false;
+
+    if (p_Triggered)
+        l_Building.TimeBuiltEnd = l_Building.TimeBuiltStart;
 
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
@@ -669,7 +684,79 @@ void Garrison::InitGameObjects()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-/// Update plot gameobject
+/// Init default buildings
+void Garrison::InitDefaultBuildings()
+{
+    /// Iterate over all plots ID to find default spawned plot
+    for (uint32 l_I = 0; l_I < sGarrPlotStore.GetNumRows(); ++l_I)
+    {
+        const GarrPlotEntry * l_PlotEntry = sGarrPlotStore.LookupEntry(l_I);
+
+        /// Check if the plot doesn't have building gameobjects
+        if (l_PlotEntry && l_PlotEntry->BuildingGameObjectA == 0 && l_PlotEntry->BuildingGameObjectH == 0)
+        {
+            const GarrPlotInstanceEntry * l_PlotInstanceEntry = nullptr;
+
+            for (uint32 l_Y = 0; l_Y < sGarrPlotInstanceStore.GetNumRows(); l_Y++)
+            {
+                const GarrPlotInstanceEntry * l_CurrentEntry = sGarrPlotInstanceStore.LookupEntry(l_Y);
+
+                /// Default spawned plot have only 1 instance
+                if (l_CurrentEntry->PlotID == l_PlotEntry->PlotID)
+                {
+                    l_PlotInstanceEntry = l_CurrentEntry;
+                    break;
+                }
+            }
+
+            if (!l_PlotInstanceEntry)
+                continue;
+
+            /// Player garrison contain this plot
+            if (!HasPlotInstance(l_PlotInstanceEntry->InstanceID))
+                continue;
+
+            /// This slot already contains default building
+            if (!PlotIsFree(l_PlotInstanceEntry->InstanceID))
+                continue;
+
+            std::list<uint32> l_BuildingsIDs;
+
+            for (uint32 l_Y = 0; l_Y < sGarrPlotBuildingStore.GetNumRows(); l_Y++)
+            {
+                const GarrPlotBuildingEntry * l_CurrentEntry = sGarrPlotBuildingStore.LookupEntry(l_Y);
+
+                if (l_CurrentEntry->PlotId == l_PlotEntry->PlotID)
+                    l_BuildingsIDs.push_back(l_CurrentEntry->BuildingID);
+            }
+
+            const GarrBuildingEntry * l_BuildingEntry = nullptr;
+
+            /// Try to find level 1 building
+            for (uint32 l_Y = 0; l_Y < sGarrBuildingStore.GetNumRows(); l_Y++)
+            {
+                const GarrBuildingEntry * l_CurrentEntry = sGarrBuildingStore.LookupEntry(l_Y);
+
+                /// Default spawned plot have only 1 instance
+                if (std::find(l_BuildingsIDs.begin(), l_BuildingsIDs.end(), l_CurrentEntry->BuildingID) != l_BuildingsIDs.end() && l_CurrentEntry->BuildingLevel == 1)
+                {
+                    l_BuildingEntry = l_CurrentEntry;
+                    break;
+                }
+            }
+
+            if (!l_BuildingEntry)
+                continue;
+
+            PurchaseBuilding(l_BuildingEntry->BuildingID, l_PlotInstanceEntry->InstanceID, true);
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Update plot game object
 void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
 {
     GarrisonPlotInstanceInfoLocation l_PlotInfo = GetPlot(p_PlotInstanceID);
