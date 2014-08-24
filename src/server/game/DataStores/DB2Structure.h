@@ -475,7 +475,7 @@ struct GarrPlotEntry
 {
     uint32      PlotID;                                 // 0
     uint32      PlotUiCategoryID;                       // 1
-    uint32      Unk1;                                   // 2
+    uint32      PlotType;                               // 2
     uint32      Unk2;                                   // 3
     uint32      Unk3;                                   // 4
     uint32      Unk4;                                   // 5

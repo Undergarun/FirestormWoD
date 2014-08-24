@@ -16,16 +16,10 @@
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 {
-    /// TEMP
-    if (!m_Player->GetGarrison())
-        m_Player->CreateGarrison();
-    //////////////////////////////////////////////////////////////////////////
-
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
-    l_Garrison->AddMission(44);
     
     std::vector<GarrisonPlotInstanceInfoLocation>   l_Plots             = l_Garrison->GetPlots();
     std::vector<GarrisonMission>                    l_CompletedMission  = l_Garrison->GetCompletedMissions();
@@ -63,24 +57,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         l_Infos << float(l_Plots[l_I].Y);
         l_Infos << float(l_Plots[l_I].Z);
         l_Infos << float(l_Plots[l_I].O);
-
-        const GarrSiteLevelPlotInstEntry * l_Entry = nullptr;
-
-        for (uint32 l_Y = 0; l_Y < sGarrSiteLevelPlotInstStore.GetNumRows(); ++l_Y)
-        {
-            const GarrSiteLevelPlotInstEntry * l_CurrentEntry = sGarrSiteLevelPlotInstStore.LookupEntry(l_Y);
-
-            if (l_CurrentEntry && l_CurrentEntry->SiteLevelID == l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID && l_CurrentEntry->PlotInstanceID == l_Plots[l_I].PlotInstanceID)
-            {
-                l_Entry = l_CurrentEntry;
-                break;
-            }
-        }
-
-        if (l_Entry)
-            l_Infos << uint32(l_Entry->Unk1);
-        else
-            l_Infos << uint32(0);
+        l_Infos << uint32(l_Garrison->GetPlotType(l_Plots[l_I].PlotInstanceID));
     }
 
     for (uint32 l_I = 0; l_I < l_Missions.size(); ++l_I)

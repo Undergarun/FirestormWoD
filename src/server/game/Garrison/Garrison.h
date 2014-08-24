@@ -26,10 +26,14 @@ enum GarrisonLearnBluePrintResult
 
 enum GarrisonPlotType
 {
-    GARRISON_PLOT_TYPE_SMALL    = 0,
-    GARRISON_PLOT_TYPE_MEDIUM   = 1,
-    GARRISON_PLOT_TYPE_LARGE    = 2,
-    GARRISON_PLOT_TYPE_MAX      = 3,
+    GARRISON_PLOT_TYPE_SMALL            = 0,
+    GARRISON_PLOT_TYPE_MEDIUM           = 1,
+    GARRISON_PLOT_TYPE_LARGE            = 2,
+    GARRISON_PLOT_TYPE_FARM             = 3,
+    GARRISON_PLOT_TYPE_MINE             = 4,
+    GARRISON_PLOT_TYPE_FISHING_HUT      = 5,
+    GARRISON_PLOT_TYPE_PET_MENAGERIE    = 6,
+    GARRISON_PLOT_TYPE_MAX              = 7,
 };
 
 enum GarrisonPurchaseBuildingResult
@@ -117,6 +121,8 @@ class Garrison
         uint32 GetPlotType(uint32 p_PlotInstanceID);
         /// Plot is free ?
         bool PlotIsFree(uint32 p_PlotInstanceID);
+        /// Has plot instance
+        bool HasPlotInstance(uint32 p_PlotInstanceID);
         /// Get plot location
         GarrisonPlotInstanceInfoLocation GetPlot(uint32 p_PlotInstanceID);
 
@@ -157,8 +163,6 @@ class Garrison
         void InitDataForLevel();
         /// Init Game objects
         void InitGameObjects();
-        /// Init default buildings
-        void InitDefaultBuildings();
 
         /// Update plot gameobject
         void UpdatePlotGameObject(uint32 p_PlotInstanceID);

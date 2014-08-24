@@ -8,10 +8,18 @@ uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_CO
     233083,     ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
     233081,     ///< GARRISON_PLOT_TYPE_LARGE
+    0,          ///< GARRISON_PLOT_TYPE_FARM
+    0,          ///< GARRISON_PLOT_TYPE_MINE
+    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT
+    0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
     /// Alliance
     229501,     ///< GARRISON_PLOT_TYPE_SMALL
     232283,     ///< GARRISON_PLOT_TYPE_MEDIUM
-    232143      ///< GARRISON_PLOT_TYPE_LARGE
+    232143,     ///< GARRISON_PLOT_TYPE_LARGE
+    232286,     ///< GARRISON_PLOT_TYPE_FARM
+    233485,     ///< GARRISON_PLOT_TYPE_MINE
+    237223,     ///< GARRISON_PLOT_TYPE_FISHING_HUT
+    0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
 };
 
 uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
@@ -20,10 +28,18 @@ uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION
     0,          ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
     232410,     ///< GARRISON_PLOT_TYPE_LARGE
+    0,          ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
     /// Alliance
     233957,     ///< GARRISON_PLOT_TYPE_SMALL
     232409,     ///< GARRISON_PLOT_TYPE_MEDIUM
-    232411      ///< GARRISON_PLOT_TYPE_LARGE
+    232411,     ///< GARRISON_PLOT_TYPE_LARGE
+    232409,     ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
+    232409,     ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
+    233957,     ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    233957,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
 };
 
 GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = {
@@ -136,7 +152,7 @@ bool Garrison::Load()
     PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON);
 
     uint32 l_Index = 0;
-    l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
+    l_Stmt->setUInt32(0, m_Owner->GetGUIDLow());
 
     PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
 
@@ -147,19 +163,26 @@ bool Garrison::Load()
         m_ID            = l_Fields[0].GetUInt32();
         m_GarrisonLevel = l_Fields[1].GetUInt32();
 
-        Tokenizer l_BluePrints(l_Fields[2].GetString(), ' ');
+        if (!l_Fields[2].GetString().empty())
+        {
+            Tokenizer l_BluePrints(l_Fields[2].GetString(), ' ');
 
-        for (Tokenizer::const_iterator l_It = l_BluePrints.begin(); l_It != l_BluePrints.end(); ++l_It)
-            m_KnownBlueprints.push_back(atol(*l_It));
+            for (Tokenizer::const_iterator l_It = l_BluePrints.begin(); l_It != l_BluePrints.end(); ++l_It)
+                m_KnownBlueprints.push_back(atol(*l_It));
+        }
 
-        Tokenizer l_Specializations(l_Fields[3].GetString(), ' ');
+        if (!l_Fields[3].GetString().empty())
+        {
+            Tokenizer l_Specializations(l_Fields[3].GetString(), ' ');
 
-        for (Tokenizer::const_iterator l_It = l_Specializations.begin(); l_It != l_Specializations.end(); ++l_It)
-            m_KnownSpecializations.push_back(atol(*l_It));
+            for (Tokenizer::const_iterator l_It = l_Specializations.begin(); l_It != l_Specializations.end(); ++l_It)
+                m_KnownSpecializations.push_back(atol(*l_It));
+        }
 
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
+        l_Stmt->setUInt32(0, m_ID);
 
-        l_Stmt      = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
-        l_Result    = CharacterDatabase.Query(l_Stmt);
+        l_Result = CharacterDatabase.Query(l_Stmt);
 
         if (l_Result)
         {
@@ -180,8 +203,10 @@ bool Garrison::Load()
             } while (l_Result->NextRow());
         }
 
-        l_Stmt      = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION);
-        l_Result    = CharacterDatabase.Query(l_Stmt);
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION);
+        l_Stmt->setUInt32(0, m_ID);
+
+        l_Result = CharacterDatabase.Query(l_Stmt);
 
         if (l_Result)
         {
@@ -335,12 +360,7 @@ uint32 Garrison::GetPlotType(uint32 p_PlotInstanceID)
     if (!l_PlotEntry)
         return 0;
 
-    const GarrPlotUICategoryEntry * l_PlotUICategoryEntry = sGarrPlotUICategoryStore.LookupEntry(l_PlotEntry->PlotUiCategoryID);
-
-    if (!l_PlotUICategoryEntry)
-        return 0;
-
-    return l_PlotUICategoryEntry->Type;
+    return l_PlotEntry->PlotType;
 }
 /// Plot is free ?
 bool Garrison::PlotIsFree(uint32 p_PlotInstanceID)
@@ -679,78 +699,6 @@ void Garrison::InitGameObjects()
 {
     for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
         UpdatePlotGameObject(m_Plots[l_I].PlotInstanceID);
-}
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-/// Init default buildings
-void Garrison::InitDefaultBuildings()
-{
-    /// Iterate over all plots ID to find default spawned plot
-    for (uint32 l_I = 0; l_I < sGarrPlotStore.GetNumRows(); ++l_I)
-    {
-        const GarrPlotEntry * l_PlotEntry = sGarrPlotStore.LookupEntry(l_I);
-
-        /// Check if the plot doesn't have building gameobjects
-        if (l_PlotEntry && l_PlotEntry->BuildingGameObjectA == 0 && l_PlotEntry->BuildingGameObjectH == 0)
-        {
-            const GarrPlotInstanceEntry * l_PlotInstanceEntry = nullptr;
-
-            for (uint32 l_Y = 0; l_Y < sGarrPlotInstanceStore.GetNumRows(); l_Y++)
-            {
-                const GarrPlotInstanceEntry * l_CurrentEntry = sGarrPlotInstanceStore.LookupEntry(l_Y);
-
-                /// Default spawned plot have only 1 instance
-                if (l_CurrentEntry->PlotID == l_PlotEntry->PlotID)
-                {
-                    l_PlotInstanceEntry = l_CurrentEntry;
-                    break;
-                }
-            }
-
-            if (!l_PlotInstanceEntry)
-                continue;
-
-            /// Player garrison contain this plot
-            if (!HasPlotInstance(l_PlotInstanceEntry->InstanceID))
-                continue;
-
-            /// This slot already contains default building
-            if (!PlotIsFree(l_PlotInstanceEntry->InstanceID))
-                continue;
-
-            std::list<uint32> l_BuildingsIDs;
-
-            for (uint32 l_Y = 0; l_Y < sGarrPlotBuildingStore.GetNumRows(); l_Y++)
-            {
-                const GarrPlotBuildingEntry * l_CurrentEntry = sGarrPlotBuildingStore.LookupEntry(l_Y);
-
-                if (l_CurrentEntry->PlotId == l_PlotEntry->PlotID)
-                    l_BuildingsIDs.push_back(l_CurrentEntry->BuildingID);
-            }
-
-            const GarrBuildingEntry * l_BuildingEntry = nullptr;
-
-            /// Try to find level 1 building
-            for (uint32 l_Y = 0; l_Y < sGarrBuildingStore.GetNumRows(); l_Y++)
-            {
-                const GarrBuildingEntry * l_CurrentEntry = sGarrBuildingStore.LookupEntry(l_Y);
-
-                /// Default spawned plot have only 1 instance
-                if (std::find(l_BuildingsIDs.begin(), l_BuildingsIDs.end(), l_CurrentEntry->BuildingID) != l_BuildingsIDs.end() && l_CurrentEntry->BuildingLevel == 1)
-                {
-                    l_BuildingEntry = l_CurrentEntry;
-                    break;
-                }
-            }
-
-            if (!l_BuildingEntry)
-                continue;
-
-            PurchaseBuilding(l_BuildingEntry->BuildingID, l_PlotInstanceEntry->InstanceID, true);
-        }
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////
