@@ -685,9 +685,6 @@ void Garrison::ActivateBuilding(uint32 p_PlotInstanceID)
 
     l_Building->Active = true;
 
-    if (l_BuildingEntry->BuiltScene[GetGarrisonFactionIndex()] != 0)
-        ;// m_Owner->PlayScene(l_BuildingEntry->BuiltScene[GetGarrisonFactionIndex()], m_Owner);
-
     UpdatePlotGameObject(p_PlotInstanceID);
 
     WorldPacket l_Packet(SMSG_GARRISON_BUILDING_ACTIVATED, 4);
