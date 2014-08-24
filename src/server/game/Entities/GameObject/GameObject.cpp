@@ -537,7 +537,7 @@ void GameObject::Update(uint32 diff)
             if (GetGoType() == GAMEOBJECT_TYPE_GOOBER)
             {
                 uint32 spellId = GetGOInfo()->goober.spellId;
-
+                printf("\a\a2 %u \n", spellId);
                 if (spellId)
                 {
                     for (std::set<uint64>::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
@@ -1314,7 +1314,7 @@ void GameObject::Use(Unit* user)
             // cast this spell later if provided
             spellId = info->goober.spellId;
             spellCaster = NULL;
-
+            
             break;
         }
         case GAMEOBJECT_TYPE_CAMERA:                        //13

@@ -50,6 +50,8 @@ enum GarrisonPurchaseBuildingResult
 
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
+extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
+extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
 #define GARRISON_PLOT_INSTANCE_COUNT 40
 
@@ -88,6 +90,7 @@ struct GarrisonBuilding
     uint32 TimeBuiltEnd;
 
     bool Active;
+    bool BuiltNotified;
 };
 
 class Player;
@@ -110,6 +113,9 @@ class Garrison
         /// Update the garrison
         void Update();
 
+        /// set last used activation gameobject
+        void SetLastUsedActivationGameObject(uint64 p_Guid);
+
         /// Get GarrSiteLevelEntry for current garrison
         const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry();
         /// Get Garrison Faction Index
@@ -125,6 +131,8 @@ class Garrison
         bool HasPlotInstance(uint32 p_PlotInstanceID);
         /// Get plot location
         GarrisonPlotInstanceInfoLocation GetPlot(uint32 p_PlotInstanceID);
+        /// Get plot instance ID by activation game object
+        uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid);
 
         /// Add mission
         bool AddMission(uint32 p_MissionRecID);
@@ -145,6 +153,10 @@ class Garrison
         GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID);
         /// Get buildings
         std::vector<GarrisonBuilding> GetBuildings();
+        /// Activate building
+        void ActivateBuilding(uint32 p_PlotInstanceID);
+        /// Activate building
+        void ActivateBuilding();
 
         /// Get known blueprints
         std::vector<int32> GetKnownBlueprints();
@@ -174,6 +186,8 @@ class Garrison
         uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
         uint32      m_GarrisonSiteID;   ///< Garrison site ID
 
+        uint64      m_LastUsedActivationGameObject;
+
         std::vector<GarrisonPlotInstanceInfoLocation>   m_Plots;
         std::vector<GarrisonMission>                    m_Missions;
         std::vector<GarrisonFollower>                   m_Followers;
@@ -182,6 +196,7 @@ class Garrison
         std::vector<int32>                              m_KnownSpecializations;
 
         std::map<uint32, uint64> m_PlotsGob;
+        std::map<uint32, uint64> m_PlotsActivateGob;
 };
 
 

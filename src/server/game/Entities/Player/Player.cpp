@@ -692,6 +692,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 #endif
 
     m_Garrison = nullptr;
+    m_GarrisonUpdateTimer.SetInterval(2 * IN_MILLISECONDS);
 
     m_speakTime = 0;
     m_speakCount = 0;
@@ -2310,6 +2311,16 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    m_GarrisonUpdateTimer.Update(p_time);
+
+    if (m_GarrisonUpdateTimer.Passed())
+    {
+        if (GetGarrison())
+            GetGarrison()->Update();
+
+        m_GarrisonUpdateTimer.Reset();
+    }
 }
 
 void Player::setDeathState(DeathState s)

@@ -436,6 +436,7 @@ class Spell
         void EffectTeleportToDigsite(SpellEffIndex effIndex);
         void EffectPlaySceneObject(SpellEffIndex effIndex);
         void EffectLearnBluePrint(SpellEffIndex p_EffIndex);
+        void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
 
         typedef std::set<AuraPtr> UsedSpellMods;
 

@@ -534,8 +534,7 @@ struct GarrBuildingEntry
     uint32 Unk6;                                        // 15
     uint32 Unk7;                                        // 16
     uint32 Unk8;                                        // 17
-    uint32 Unk9;                                        // 18
-    uint32 Unk10;                                       // 19
+    uint32 BuiltScene[2];                               // 18 - 19
     uint32 Unk11;                                       // 20
     uint32 Unk12;                                       // 21
     uint32 Unk13;                                       // 22

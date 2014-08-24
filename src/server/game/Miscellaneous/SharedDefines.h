@@ -1258,7 +1258,7 @@ enum SpellEffects
     SPELL_EFFECT_221                                = 221, // Unk 6.0.1
     SPELL_EFFECT_222                                = 222, // Unk 6.0.1
     SPELL_EFFECT_223                                = 223, // Unk 6.0.1
-    SPELL_EFFECT_224                                = 224, // Unk 6.0.1
+    SPELL_EFFECT_GARRISON_FINALIZE_BUILDING         = 224, // Finalize building construction
     SPELL_EFFECT_225                                = 225, // Unk 6.0.1
     SPELL_EFFECT_226                                = 226, // Unk 6.0.1
     SPELL_EFFECT_227                                = 227, // Unk 6.0.1

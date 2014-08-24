@@ -285,6 +285,39 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
+    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214
+    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215
+    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216
+    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217
+    &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
+    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
+    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220
+    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
+    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222
+    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223
+    &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING Finalize building construction
+    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225
+    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
+    &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
+    &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
+    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229
+    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230
+    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231
+    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232
+    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233
+    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
+    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
+    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236
+    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237
+    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238
+    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239
+    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240
+    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
+    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
+    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244
+    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_245
+    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
@@ -3025,6 +3058,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     if (gameObjTarget)
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
+
+        if (goInfo->type == GAMEOBJECT_TYPE_GOOBER && player->GetGarrison())
+            player->GetGarrison()->SetLastUsedActivationGameObject(gameObjTarget->GetGUID());
+
+
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
@@ -8249,4 +8287,23 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
         uint32 l_DestroyCount = 1;
         l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
     }
+}
+
+void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player)
+        return;
+
+    if (!l_Player->GetGarrison())
+        return;
+
+    l_Player->ToPlayer()->GetGarrison()->ActivateBuilding();
 }

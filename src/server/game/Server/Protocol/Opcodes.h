@@ -473,7 +473,7 @@ enum Opcodes
         SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0079,   ///< 6.0.2 18764
         SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x19C7,   ///< 6.0.2 18764
         SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
-        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x0000,
+        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x1898,   ///< 6.0.2 18764
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
         SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
@@ -552,6 +552,7 @@ enum Opcodes
     CMSG_AUTH_SESSION                           = 0x1B05,   ///< 6.0.2 18764
     CMSG_ENABLE_NAGLE                           = 0x1A75,   ///< 6.0.2 18764
     CMSG_SUSPEND_COMMS_ACK                      = 0x0000,   ///<
+    CMSG_KEEP_ALIVE                             = 0x03B4,   ///< 6.0.2 18764
 
     //////////////////////////////////////////////////////////////////////////
     /// Character
@@ -1036,7 +1037,6 @@ enum Opcodes
     CMSG_ITEM_REFUND                                  = 0x0000,
     CMSG_ITEM_REFUND_INFO                             = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
-    CMSG_KEEP_ALIVE                                   = 0x0000,
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x0000,
     CMSG_LEAVE_BATTLEFIELD                            = 0x0000,
     CMSG_LEAVE_CHANNEL                                = 0x0000,

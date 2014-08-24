@@ -42,6 +42,31 @@ uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION
     233957,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
 };
 
+float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+{
+    /// Horde
+    0,          ///< GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_LARGE
+    0,          ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+    /// Alliance
+    10,         ///< GARRISON_PLOT_TYPE_SMALL
+    16,         ///< GARRISON_PLOT_TYPE_MEDIUM
+    24,         ///< GARRISON_PLOT_TYPE_LARGE
+    0,          ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
+    10,         ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    10,         ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+};
+
+uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT] = {
+    0,          ///< Horde
+    233250      ///< Alliance
+};
+
 GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = {
     /// SiteLevelID PlotInstanceID      X            Y            Z           O
     /// Alliance Level 1                                                    
@@ -199,6 +224,9 @@ bool Garrison::Load()
                 l_Building.TimeBuiltEnd     = l_Fields[5].GetUInt32();
                 l_Building.Active           = l_Fields[6].GetBool();
 
+                if (!l_Building.Active && time(0) > l_Buiding.TimeBuiltEnd)
+                    l_Building.BuiltNotified = true;    ///< Auto notify by info packet
+
                 m_Buildings.push_back(l_Building);
             } while (l_Result->NextRow());
         }
@@ -303,6 +331,10 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
     l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
     l_Stmt->setUInt32(0, p_PlayerGUID);
     p_Transation->Append(l_Stmt);
+
+    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON);
+    l_Stmt->setUInt32(0, p_PlayerGUID);
+    p_Transation->Append(l_Stmt);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -311,7 +343,28 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 /// Update the garrison
 void Garrison::Update()
 {
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        GarrisonBuilding * l_Buiding = &m_Buildings[l_I];
 
+        if (!l_Buiding->Active && !l_Buiding->BuiltNotified && time(0) > l_Buiding->TimeBuiltEnd)
+        {
+            l_Buiding->BuiltNotified = true;
+
+            UpdatePlotGameObject(l_Buiding->PlotInstanceID);
+
+            /// @TODO find packet to notify the client
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// set last used activation game  object
+void Garrison::SetLastUsedActivationGameObject(uint64 p_Guid)
+{
+    m_LastUsedActivationGameObject = p_Guid;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -390,6 +443,15 @@ GarrisonPlotInstanceInfoLocation Garrison::GetPlot(uint32 p_PlotInstanceID)
     }
 
     return GarrisonPlotInstanceInfoLocation();
+}
+/// Get plot instance ID by activation game object
+uint32 Garrison::GetPlotInstanceIDByActivationGameObject(uint64 p_Guid)
+{
+    for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
+        if (l_It->second == p_Guid)
+            return l_It->first;
+
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -599,6 +661,48 @@ std::vector<GarrisonBuilding> Garrison::GetBuildings()
 {
     return m_Buildings;
 }
+/// Activate building
+void Garrison::ActivateBuilding(uint32 p_PlotInstanceID)
+{
+    GarrisonBuilding * l_Building = nullptr;
+
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+        {
+            l_Building = &m_Buildings[l_I];
+            break;
+        }
+    }
+
+    if (!l_Building)
+        return;
+
+    const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building->BuildingID);
+
+    if (!l_BuildingEntry)
+        return;
+
+    l_Building->Active = true;
+
+    if (l_BuildingEntry->BuiltScene[GetGarrisonFactionIndex()] != 0)
+        ;// m_Owner->PlayScene(l_BuildingEntry->BuiltScene[GetGarrisonFactionIndex()], m_Owner);
+
+    UpdatePlotGameObject(p_PlotInstanceID);
+
+    WorldPacket l_Packet(SMSG_GARRISON_BUILDING_ACTIVATED, 4);
+    l_Packet << uint32(p_PlotInstanceID);
+    m_Owner->SendDirectMessage(&l_Packet);
+
+}
+/// Activate building
+void Garrison::ActivateBuilding()
+{
+    uint32 l_PlotInstance = GetPlotInstanceIDByActivationGameObject(m_LastUsedActivationGameObject);
+
+    if (l_PlotInstance)
+        ActivateBuilding(l_PlotInstance);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -708,19 +812,21 @@ void Garrison::InitGameObjects()
 void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
 {
     GarrisonPlotInstanceInfoLocation l_PlotInfo = GetPlot(p_PlotInstanceID);
-
+    
     if (m_PlotsGob[p_PlotInstanceID] != 0)
     {
         GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsGob[p_PlotInstanceID]);
 
         if (l_Gob)
         {
+            l_Gob->DestroyForNearbyPlayers();
             l_Gob->CleanupsBeforeDelete();
             delete l_Gob;
         }
     }
 
     uint32 l_GobEntry = 0;
+    bool l_SpanwActivateGob = false;
 
     if (PlotIsFree(p_PlotInstanceID))
     {
@@ -730,9 +836,10 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
     {
         GarrisonBuilding l_Building = GetBuilding(p_PlotInstanceID);
 
-        if (l_Building.TimeBuiltEnd > time(0))
+        if (!l_Building.Active)
         {
-            l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
+            l_GobEntry          = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
+            l_SpanwActivateGob  = true;
         }
         else
         {
@@ -750,6 +857,47 @@ void Garrison::UpdatePlotGameObject(uint32 p_PlotInstanceID)
         GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
         
         if (l_Gob)
+        {
             m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
+
+            if (l_SpanwActivateGob)
+            {
+                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_PlotInfo.O);
+
+                G3D::Vector3 l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
+
+                const GameObjectDisplayInfoEntry * l_GobDispInfo = sGameObjectDisplayInfoStore.LookupEntry(l_Gob->GetDisplayId());
+
+                if (l_GobDispInfo)
+                {
+                    /// Get AABB on X axis
+                    float l_XAxisSize = fabs(l_GobDispInfo->maxX - l_GobDispInfo->minX) * l_Gob->GetFloatValue(OBJECT_FIELD_SCALE);
+
+                    /// We use a "diminish return" on box size for big plots
+                    l_NonRotatedPosition.x += l_XAxisSize * (gGarrisonBuildingPlotAABBDiminishReturnFactor[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)] / l_XAxisSize);
+                }
+
+                l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
+
+                G3D::Vector3 l_FinalPosition = l_Mat * l_NonRotatedPosition;
+
+                GameObject * l_ActivationGob = m_Owner->SummonGameObject(gGarrisonBuildingActivationGameObject[GetGarrisonFactionIndex()], l_FinalPosition.x, l_FinalPosition.y, l_FinalPosition.z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+                
+                if (l_ActivationGob)
+                    m_PlotsActivateGob[p_PlotInstanceID] = l_ActivationGob->GetGUID();
+            }
+            else if (m_PlotsActivateGob[p_PlotInstanceID] != 0)
+            {
+                GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsActivateGob[p_PlotInstanceID]);
+
+                if (l_Gob)
+                {
+                    l_Gob->CleanupsBeforeDelete();
+                    delete l_Gob;
+                }
+            }
+        }
     }
 }
