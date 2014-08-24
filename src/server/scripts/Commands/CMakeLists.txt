@@ -44,6 +44,7 @@ set(scripts_STAT_SRCS
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
   Commands/cs_vip.cpp
+  Commands/cs_garrison.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp
