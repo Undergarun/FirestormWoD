@@ -246,7 +246,7 @@ void Garrison::Save()
     for (uint32 l_I = 0; l_I < m_KnownSpecializations.size(); ++l_I)
         l_KnownSpecializationsStr << m_KnownSpecializations[l_I] << ' ';
 
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTION);
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON);
 
     uint32 l_Index = 0;
     l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
