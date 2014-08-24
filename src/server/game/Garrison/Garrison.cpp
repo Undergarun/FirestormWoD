@@ -224,7 +224,7 @@ bool Garrison::Load()
                 l_Building.TimeBuiltEnd     = l_Fields[5].GetUInt32();
                 l_Building.Active           = l_Fields[6].GetBool();
 
-                if (!l_Building.Active && time(0) > l_Buiding.TimeBuiltEnd)
+                if (!l_Building.Active && time(0) > l_Building.TimeBuiltEnd)
                     l_Building.BuiltNotified = true;    ///< Auto notify by info packet
 
                 m_Buildings.push_back(l_Building);
@@ -345,13 +345,13 @@ void Garrison::Update()
 {
     for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
     {
-        GarrisonBuilding * l_Buiding = &m_Buildings[l_I];
+        GarrisonBuilding * l_Building = &m_Buildings[l_I];
 
-        if (!l_Buiding->Active && !l_Buiding->BuiltNotified && time(0) > l_Buiding->TimeBuiltEnd)
+        if (!l_Building->Active && !l_Building->BuiltNotified && time(0) > l_Building->TimeBuiltEnd)
         {
-            l_Buiding->BuiltNotified = true;
+            l_Building->BuiltNotified = true;
 
-            UpdatePlotGameObject(l_Buiding->PlotInstanceID);
+            UpdatePlotGameObject(l_Building->PlotInstanceID);
 
             /// @TODO find packet to notify the client
         }
