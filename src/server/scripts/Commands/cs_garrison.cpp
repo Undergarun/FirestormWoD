@@ -49,7 +49,7 @@ class garrison_commandscript : public CommandScript
             if (p_Args != 0)
             {
                 std::string l_Args = p_Args;
-
+                printf("Args : [%s]\n", p_Args);
                 if (l_Args == "all")
                 {
                     for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)

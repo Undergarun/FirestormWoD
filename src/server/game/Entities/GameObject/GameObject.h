@@ -310,7 +310,7 @@ struct GameObjectTemplate
         {
             uint32 gameType;                                //0
         } miniGame;
-        //29 GAMEOBJECT_TYPE_CAPTURE_POINT
+        //29 GAMEOBJECT_TYPE_CONTROL_ZONE
         struct
         {
             uint32 radius;                                  //0
@@ -335,7 +335,7 @@ struct GameObjectTemplate
             uint32 highlight;                               //19
             uint32 startingValue;                           //20
             uint32 unidirectional;                          //21
-        } capturePoint;
+        } controlZone;
         //30 GAMEOBJECT_TYPE_AURA_GENERATOR
         struct
         {
@@ -395,6 +395,67 @@ struct GameObjectTemplate
             uint32 startOpen;                               // 1
             uint32 autoClose;                               // 2
         } trapDoor;
+        // 38 GAMEOBJECT_TYPE_GARRISON_BUILD
+        struct
+        {
+            uint32 DefaultMap;                              // 0
+        } garrisonBuild;
+        // 39 GAMEOBJECT_TYPE_GARRISON_PLOT
+        struct  
+        {
+            uint32 PlotInstanceID;                          // 0
+            uint32 DefaultMap;                              // 1
+        } garrisonPlot;
+        // 40 GAMEOBJECT_TYPE_CLIENT_CREATURE
+        struct
+        {
+            uint32 DisplayInfo;                             // 0
+            uint32 AnimKit;                                 // 1
+            uint32 DefaultCreature;                         // 2
+        } clientCreature;
+        // 41 GAMEOBJECT_TYPE_CLIENT_ITEM
+        struct
+        {
+            uint32 MandatoryItem;                           // 0
+        } clientItem;
+        // 42 GAMEOBJECT_TYPE_CAPTURE_POINT
+        struct
+        {
+            uint32 CaptureTime;                             // 0
+            uint32 unk1;                                    // 1
+            uint32 unk2;                                    // 2
+            uint32 LockId;                                  // 3
+            uint32 BroadcastText1;                          // 4
+            uint32 BroadcastText2;                          // 5
+            uint32 BroadcastText3;                          // 6
+            uint32 BroadcastText4;                          // 7
+            uint32 BroadcastText5;                          // 8
+            uint32 BroadcastText6;                          // 9
+            uint32 WorldState;                              // 10
+            uint32 GameEventID1;                            // 11
+            uint32 GameEventID2;                            // 12
+            uint32 GameEventID3;                            // 13
+            uint32 GameEventID4;                            // 14
+            uint32 GameEventID5;                            // 15
+            uint32 GameEventID6;                            // 16
+        } capturePoint;
+        // 43 GAMEOBJECT_TYPE_GARRISON_MONUMENT
+        struct
+        {
+            uint32 TrophyTypeId;                            // 0
+            uint32 InstanceID;                              // 1
+        } garrisonMonument;
+        // 44 GAMEOBJECT_TYPE_PHASEABLE_MO
+        struct
+        {
+            uint32 DefaultMap;                              // 0
+            uint32 Unk1;                                    // 1
+        } phaseableMO;
+        // 45 GAMEOBJECT_TYPE_GARRISON_SHIPMENT
+        struct
+        {
+            uint32 ContainerID;                             // 0
+        } garrisonShipment;
 
         // not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct

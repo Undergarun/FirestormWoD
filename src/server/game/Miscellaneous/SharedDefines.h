@@ -2093,7 +2093,7 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_FLAGDROP               = 26,
     GAMEOBJECT_TYPE_MINI_GAME              = 27,
     GAMEOBJECT_TYPE_DO_NOT_USE_2           = 28,
-    GAMEOBJECT_TYPE_CAPTURE_POINT          = 29,
+    GAMEOBJECT_TYPE_CONTROL_ZONE           = 29,
     GAMEOBJECT_TYPE_AURA_GENERATOR         = 30,
     GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY     = 31,
     GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
@@ -2103,7 +2103,13 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_TRAPDOOR               = 36,
     GAMEOBJECT_TYPE_UNK2                   = 37,
     GAMEOBJECT_TYPE_GARRISON_BUILD         = 38,
-    GAMEOBJECT_TYPE_GARRISON_PLOT          = 39
+    GAMEOBJECT_TYPE_GARRISON_PLOT          = 39,
+    GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
+    GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
+    GAMEOBJECT_TYPE_CAPTURE_POINT          = 42,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 43,
+    GAMEOBJECT_TYPE_PHASEABLE_MO           = 44,
+    GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
 };
 
 #define MAX_GAMEOBJECT_TYPE                  40             // sending to client this or greater value can crash client.
