@@ -657,6 +657,15 @@ struct ResearchLootEntry
     uint8 race;
 };
 
+struct GarrisonPlotBuildingContent
+{
+    uint32 DB_ID;
+    uint32 PlotType;
+    uint32 FactionIndex;
+    int32 CreatureOrGob;
+    float X, Y, Z, O;
+};
+
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
 typedef std::map<uint32, bool> UpdateSkipData;
@@ -706,6 +715,10 @@ class ObjectMgr
 
         void LoadGameObjectTemplate();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
+
+        void LoadGarrisonPlotBuildingContent();
+        void AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
+        std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(uint32 p_PlotType, uint32 p_FactionIndex);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
@@ -1395,6 +1408,8 @@ class ObjectMgr
 
         ResearchZoneMap _researchZoneMap;
         ResearchLootVector _researchLoot;
+
+        std::vector<GarrisonPlotBuildingContent> m_GarrisonPlotBuildingContents;
 
     private:
         void LoadScripts(ScriptsType type);

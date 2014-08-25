@@ -188,7 +188,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     if (!l_Result && !l_Garrison->KnownBlueprint(l_BuildingID))
         l_Result = GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT;
 
-    if (!l_Result && !l_Garrison->PlotIsFree(l_PlotInstanceID))
+    if (!l_Result && l_Garrison->GetBuilding(l_BuildingID).BuildingID != 0)
         l_Result = GARRISON_PURCHASE_BUILDING_BUILDING_EXIST;
 
     if (!l_Result && !l_Garrison->IsBuildingPlotInstanceValid(l_BuildingID, l_PlotInstanceID))
@@ -227,6 +227,30 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     l_PlaceResult.FlushBits();
 
     SendPacket(&l_PlaceResult);
+}
+void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID = 0;
+
+    uint32 l_PlotInstanceID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_PlotInstanceID;
+
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonCancelConstructionOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    l_Garrison->CancelConstruction(l_PlotInstanceID);
 }
 
 //////////////////////////////////////////////////////////////////////////

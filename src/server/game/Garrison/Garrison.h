@@ -123,6 +123,8 @@ class Garrison
 
         /// Get plots for level
         std::vector<GarrisonPlotInstanceInfoLocation> GetPlots();
+        /// Get plot by position
+        GarrisonPlotInstanceInfoLocation GetPlot(float p_X, float p_Y, float p_Z);
         /// Get plot instance plot type
         uint32 GetPlotType(uint32 p_PlotInstanceID);
         /// Plot is free ?
@@ -157,6 +159,10 @@ class Garrison
         void ActivateBuilding(uint32 p_PlotInstanceID);
         /// Activate building
         void ActivateBuilding();
+        /// Cancel construction
+        void CancelConstruction(uint32 p_PlotInstanceID);
+        /// Delete building
+        void DeleteBuilding(uint32 p_PlotInstanceID);
 
         /// Get known blueprints
         std::vector<int32> GetKnownBlueprints();
@@ -174,10 +180,10 @@ class Garrison
         /// Init data for level
         void InitDataForLevel();
         /// Init Game objects
-        void InitGameObjects();
+        void InitPlots();
 
         /// Update plot gameobject
-        void UpdatePlotGameObject(uint32 p_PlotInstanceID);
+        void UpdatePlot(uint32 p_PlotInstanceID);
 
     private:
         Player *    m_Owner;            ///< Garrison owner

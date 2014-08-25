@@ -1085,6 +1085,7 @@ class WorldSession
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonRequestBlueprintAndSpecializationDataOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);

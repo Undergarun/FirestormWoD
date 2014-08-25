@@ -464,10 +464,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGarrison
         SMSG_GET_GARRISON_INFO_RESULT                                   = 0x1459,   ///< 6.0.2 18764
-        SMSG_GARRISON_PLOT_PLACED                                       = 0x0000,
+        SMSG_GARRISON_PLOT_PLACED                                       = 0x001A,   ///< 6.0.2 18764
         SMSG_GARRISON_PLOT_REMOVED                                      = 0x012A,   ///< 6.0.2 18764
         SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x18D4,   ///< 6.0.2 18764
-        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0000,
+        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x012A,   ///< 6.0.2 18764
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
         SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0079,   ///< 6.0.2 18764
@@ -513,12 +513,13 @@ enum Opcodes
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
+    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x1E92,   ///< 6.0.2 18764
     CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
     CMSG_GET_GARRISON_INFO                                  = 0x1A97,   ///< 6.0.2 18764
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x04B8,   ///< 6.0.2 18764
+    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0D84,   ///< 6.0.2 18764
     CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0A84,   ///< 6.0.2 18764
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,

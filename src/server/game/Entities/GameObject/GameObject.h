@@ -719,7 +719,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0, uint32 p_GoHealth = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
@@ -797,12 +797,15 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void Refresh();
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
-        
-        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
-        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
-        
+
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0)); }
         void SetGoState(GOState state);
+
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
+        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
+
+        uint8 GetGoHealth() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
+        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, health); }
 
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1); }
         void SetGoArtKit(uint8 artkit);

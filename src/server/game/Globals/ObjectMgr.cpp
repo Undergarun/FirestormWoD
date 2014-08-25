@@ -6722,6 +6722,70 @@ void ObjectMgr::LoadGameObjectTemplate()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game object templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadGarrisonPlotBuildingContent()
+{
+    uint32 l_StartTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT ID, PlotType, FactionIndex, CreatureOrGob, X, Y, Z, O FROM garrison_plot_building_content");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 garrison plot building content. DB table `garrison_plot_building_content` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        Field * l_Fields = l_Result->Fetch();
+    
+        GarrisonPlotBuildingContent l_Content;
+        l_Content.DB_ID         = l_Fields[0].GetUInt32();
+        l_Content.PlotType      = l_Fields[1].GetUInt32();
+        l_Content.FactionIndex  = l_Fields[2].GetUInt32();
+        l_Content.CreatureOrGob = l_Fields[3].GetInt32();
+        l_Content.X             = l_Fields[4].GetFloat();
+        l_Content.Y             = l_Fields[5].GetFloat();
+        l_Content.Z             = l_Fields[6].GetFloat();
+        l_Content.O             = l_Fields[7].GetFloat();
+
+        m_GarrisonPlotBuildingContents.push_back(l_Content);
+
+        ++l_Count;
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison plot building content in %u ms", l_Count, GetMSTimeDiffToNow(l_StartTime));
+}
+void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
+{
+    WorldDatabase.PQuery("INSERT INTO garrison_plot_building_content(PlotType, FactionIndex, CreatureOrGob, X, Y, Z, O) VALUES "
+        "(%u, %u, %d, %f, %f, %f, %f) ", p_Data.PlotType, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT LAST_INSERT_ID()");
+
+    if (!l_Result)
+        return;
+
+    Field * l_Fields = l_Result->Fetch();
+
+    p_Data.DB_ID = l_Fields[0].GetUInt32();
+
+    m_GarrisonPlotBuildingContents.push_back(p_Data);
+}
+std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingContent(uint32 p_PlotType, uint32 p_FactionIndex)
+{
+    std::vector<GarrisonPlotBuildingContent> l_Data;
+
+    for (uint32 l_I = 0; l_I < m_GarrisonPlotBuildingContents.size(); ++l_I)
+    {
+        if (m_GarrisonPlotBuildingContents[l_I].PlotType == p_PlotType && m_GarrisonPlotBuildingContents[l_I].FactionIndex == p_FactionIndex)
+            l_Data.push_back(m_GarrisonPlotBuildingContents[l_I]);
+    }
+
+    return l_Data;
+}
+
 void ObjectMgr::LoadExplorationBaseXP()
 {
     uint32 oldMSTime = getMSTime();

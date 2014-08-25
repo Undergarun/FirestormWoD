@@ -1503,6 +1503,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
+    sObjectMgr->LoadGarrisonPlotBuildingContent();
+    
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
