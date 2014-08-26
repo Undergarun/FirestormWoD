@@ -1,5 +1,4 @@
-
-REATE TABLE `character_garrison` (
+CREATE TABLE `character_garrison` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `character_guid` int(10) unsigned NOT NULL,
   `level` int(10) NOT NULL DEFAULT '1',
