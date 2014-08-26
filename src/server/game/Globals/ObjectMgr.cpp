@@ -6726,7 +6726,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 {
     uint32 l_StartTime = getMSTime();
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT ID, PlotType, FactionIndex, CreatureOrGob, X, Y, Z, O FROM garrison_plot_building_content");
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, plot_type, faction_index, creature_or_gob, x, y, z, o FROM garrison_plot_building_content");
 
     if (!l_Result)
     {
@@ -6759,7 +6759,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 }
 void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
 {
-    WorldDatabase.PQuery("INSERT INTO garrison_plot_building_content(PlotType, FactionIndex, CreatureOrGob, X, Y, Z, O) VALUES "
+    WorldDatabase.PQuery("INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES "
         "(%u, %u, %d, %f, %f, %f, %f) ", p_Data.PlotType, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
     QueryResult l_Result = WorldDatabase.Query("SELECT LAST_INSERT_ID()");

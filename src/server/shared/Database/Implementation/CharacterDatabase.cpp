@@ -648,30 +648,30 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////
-    PREPARE_STATEMENT(CHAR_INS_GARRISON,        "INSERT INTO character_garrison(CharacterGuid, Level) VALUES (?, ?)", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_DB_ID,  "SELECT ID FROM character_garrison WHERE CharacterGuid = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON,        "SELECT ID, Level, BlueRecipes, Specializations FROM character_garrison WHERE CharacterGuid = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_UPD_GARRISON,        "UPDATE character_garrison SET Level = ?, BlueRecipes = ?, Specializations = ? WHERE ID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON,        "DELETE FROM character_garrison WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_GARRISON,        "INSERT INTO character_garrison(character_guid, level) VALUES (?, ?)", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_DB_ID,  "SELECT id FROM character_garrison WHERE character_guid = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON,        "SELECT id, level, blue_recipes, specializations FROM character_garrison WHERE character_guid = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON,        "UPDATE character_garrison SET level = ?, blue_recipes = ?, specializations = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON,        "DELETE FROM character_garrison WHERE character_guid = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(CHAR_INS_GARRISON_BUILDING,       "INSERT INTO character_garrison_building(GarrisonID, PlotInstanceID, BuildingID) VALUES (?, ?, ?)", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_BUILDING_DB_ID, "SELECT ID FROM character_garrison_building WHERE GarrisonID = ? AND PlotInstanceID = ? AND BuildingID = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_BUILDING,       "SELECT ID, PlotInstanceID, BuildingID, SpecID, TimeBuiltStart, TimeBuiltEnd, Active FROM character_garrison_building WHERE GarrisonID = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_UPD_GARRISON_BUILDING,       "UPDATE character_garrison_building SET PlotInstanceID = ?, BuildingID = ?, SpecID = ?, TimeBuiltStart = ?, TimeBuiltEnd = ?, Active = ? WHERE ID = ? AND GarrisonID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_BUILDING,       "DELETE FROM character_garrison_building WHERE ID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_BUILDINGS,      "DELETE FROM character_garrison_building WHERE GarrisonID = (SELECT b.ID FROM character_garrison b WHERE b.CharacterGuid = ? LIMIT 1)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_GARRISON_BUILDING,       "INSERT INTO character_garrison_building(garrison_id, plot_instance_id, building_id) VALUES (?, ?, ?)", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_BUILDING_DB_ID, "SELECT id FROM character_garrison_building WHERE garrison_id = ? AND plot_instance_id = ? AND building_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_BUILDING,       "SELECT id, plot_instance_id, building_id, spec_id, time_built_start, time_built_end, active FROM character_garrison_building WHERE garrison_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON_BUILDING,       "UPDATE character_garrison_building SET plot_instance_id = ?, building_id = ?, spec_id = ?, time_built_start = ?, time_built_end = ?, active = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_BUILDING,       "DELETE FROM character_garrison_building WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_BUILDINGS,      "DELETE FROM character_garrison_building WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(CHAR_INS_GARRISON_MISSION,        "INSERT INTO character_garrison_mission(GarrisonID, MissionID) VALUES (?, ?)", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_MISSION_DB_ID,  "SELECT ID FROM character_garrison_mission WHERE GarrisonID = ? AND MissionID = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_MISSION,        "SELECT ID, MissionID, OfferTime, OfferMaxDuration, StartTime, State FROM character_garrison_mission WHERE GarrisonID = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_UPD_GARRISON_MISSION,        "UPDATE character_garrison_mission SET MissionID = ?, OfferTime = ?, OfferMaxDuration = ?, StartTime = ?, State = ? WHERE ID = ? AND GarrisonID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_MISSION,        "DELETE FROM character_garrison_mission WHERE ID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_MISSIONS,       "DELETE FROM character_garrison_mission WHERE GarrisonID = (SELECT b.ID FROM character_garrison b WHERE b.CharacterGuid = ? LIMIT 1)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_GARRISON_MISSION,        "INSERT INTO character_garrison_mission(garrison_id, mission_id) VALUES (?, ?)", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_MISSION_DB_ID,  "SELECT id FROM character_garrison_mission WHERE garrison_id = ? AND mission_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_MISSION,        "SELECT id, mission_id, offer_time, offer_max_duration, start_time, state FROM character_garrison_mission WHERE garrison_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON_MISSION,        "UPDATE character_garrison_mission SET mission_id = ?, offer_time = ?, offer_max_duration = ?, start_time = ?, state = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_MISSION,        "DELETE FROM character_garrison_mission WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_MISSIONS,       "DELETE FROM character_garrison_mission WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
     
-    PREPARE_STATEMENT(CHAR_INS_GARRISON_FOLLOWER,        "INSERT INTO character_garrison_follower(GarrisonID, FollowerID) VALUES (?, ?)", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER_DB_ID,  "SELECT ID FROM character_garrison_follower WHERE GarrisonID = ? AND FollowerID = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER,        "SELECT ID, FollowerID, Level, XP, Quality, ItemLevelArmor, ItemLevelWeapon, CurrentMissionID, CurrentMissionID, Abilities FROM character_garrison_follower WHERE GarrisonID = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET FollowerID = ?, Level = ?, XP = ?, Quality = ?, ItemLevelArmor = ?, ItemLevelWeapon = ?, CurrentMissionID = ?, CurrentMissionID = ?, Abilities = ? WHERE ID = ? AND GarrisonID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE ID = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE GarrisonID = (SELECT b.ID FROM character_garrison b WHERE b.CharacterGuid = ? LIMIT 1)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_GARRISON_FOLLOWER,        "INSERT INTO character_garrison_follower(garrison_id, follower_id) VALUES (?, ?)", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER_DB_ID,  "SELECT id FROM character_garrison_follower WHERE garrison_id = ? AND follower_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER,        "SELECT id, follower_id, level, xp, quality, item_level_armor, item_level_weapon, current_mission_id, current_building_id, abilities FROM character_garrison_follower WHERE garrison_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET follower_id = ?, level = ?, xp = ?, quality = ?, item_level_armor = ?, item_level_weapon = ?, current_mission_id = ?, current_building_id = ?, abilities = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
 }
