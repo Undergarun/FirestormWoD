@@ -160,7 +160,7 @@ bool normalizePlayerName(std::string& p_Name)
         return false;
 
     std::string l_NewName = "";
-    for (int l_I = 0; l_I < p_Name.length(); l_I++)
+    for (uint32 l_I = 0; l_I < p_Name.length(); l_I++)
     {
         if (p_Name[l_I] == '-')
             break;

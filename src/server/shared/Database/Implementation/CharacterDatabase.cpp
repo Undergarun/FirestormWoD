@@ -667,4 +667,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_UPD_GARRISON_MISSION,        "UPDATE character_garrison_mission SET MissionID = ?, OfferTime = ?, OfferMaxDuration = ?, StartTime = ?, State = ? WHERE ID = ? AND GarrisonID = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_MISSION,        "DELETE FROM character_garrison_mission WHERE ID = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_MISSIONS,       "DELETE FROM character_garrison_mission WHERE GarrisonID = (SELECT b.ID FROM character_garrison b WHERE b.CharacterGuid = ? LIMIT 1)", CONNECTION_ASYNC);
+    
+    PREPARE_STATEMENT(CHAR_INS_GARRISON_FOLLOWER,        "INSERT INTO character_garrison_follower(GarrisonID, FollowerID) VALUES (?, ?)", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER_DB_ID,  "SELECT ID FROM character_garrison_follower WHERE GarrisonID = ? AND FollowerID = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER,        "SELECT ID, FollowerID, Level, XP, Quality, ItemLevelArmor, ItemLevelWeapon, CurrentMissionID, CurrentMissionID, Abilities FROM character_garrison_follower WHERE GarrisonID = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET FollowerID = ?, Level = ?, XP = ?, Quality = ?, ItemLevelArmor = ?, ItemLevelWeapon = ?, CurrentMissionID = ?, CurrentMissionID = ?, Abilities = ? WHERE ID = ? AND GarrisonID = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE ID = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE GarrisonID = (SELECT b.ID FROM character_garrison b WHERE b.CharacterGuid = ? LIMIT 1)", CONNECTION_ASYNC);
 }

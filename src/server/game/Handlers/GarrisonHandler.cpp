@@ -25,6 +25,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<GarrisonMission>                    l_CompletedMission  = l_Garrison->GetCompletedMissions();
     std::vector<GarrisonMission>                    l_Missions          = l_Garrison->GetMissions();
     std::vector<GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
+    std::vector<GarrisonFollower>                   l_Followers         = l_Garrison->GetFollowers();
 
     WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 200);
 
@@ -34,7 +35,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     
     l_Infos << uint32(l_Buildings.size());
     l_Infos << uint32(l_Plots.size());
-    l_Infos << uint32(0);
+    l_Infos << uint32(l_Followers.size());
     l_Infos << uint32(l_Missions.size());
     l_Infos << uint32(l_CompletedMission.size());
 
@@ -58,6 +59,25 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         l_Infos << float(l_Plots[l_I].Z);
         l_Infos << float(l_Plots[l_I].O);
         l_Infos << uint32(l_Garrison->GetPlotType(l_Plots[l_I].PlotInstanceID));
+    }
+
+    for (uint32 l_I = 0; l_I < l_Followers.size(); ++l_I)
+    {
+        l_Infos << uint64(l_Followers[l_I].DB_ID);
+        l_Infos << uint32(l_Followers[l_I].FollowerID);
+        l_Infos << uint32(l_Followers[l_I].Quality);
+        l_Infos << uint32(l_Followers[l_I].Level);
+        l_Infos << uint32(l_Followers[l_I].ItemLevelWeapon);
+        l_Infos << uint32(l_Followers[l_I].ItemLevelArmor);
+        l_Infos << uint32(l_Followers[l_I].XP);
+        l_Infos << uint32(l_Followers[l_I].CurrentBuildingID);
+        l_Infos << uint32(l_Followers[l_I].CurrentMissionID);
+
+        l_Infos << uint32(l_Followers[l_I].Abilities.size());
+        l_Infos << uint32(0);       ///< Unk
+
+        for (uint32 l_Y = 0; l_Y < l_Followers[l_I].Abilities.size(); ++l_Y)
+            l_Infos << int32(l_Followers[l_I].Abilities[l_Y]);
     }
 
     for (uint32 l_I = 0; l_I < l_Missions.size(); ++l_I)

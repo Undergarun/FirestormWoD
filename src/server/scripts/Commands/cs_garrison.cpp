@@ -27,10 +27,22 @@ class garrison_commandscript : public CommandScript
                 { "info", SEC_GAMEMASTER, true, &HandlePlotInfoCommand, "", NULL },
             };
 
+            static ChatCommand followerCommandTable[] =
+            {
+                { "add", SEC_GAMEMASTER, true, &HandleFollowerAddCommand, "", NULL },
+            };
+
+            static ChatCommand missionCommandTable[] =
+            {
+                { "add", SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
+            };
+
             static ChatCommand garrisonCommandTable[] =
             {
                 { "blueprint", SEC_GAMEMASTER,  true,   NULL, "", blueprintCommandTable },
                 { "plot",      SEC_GAMEMASTER,  true,   NULL, "", plotCommandTable      },
+                { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable  },
+                { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable   },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -117,6 +129,55 @@ class garrison_commandscript : public CommandScript
 
             return true;
         }
+
+        static bool HandleFollowerAddCommand(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Args != 0)
+            {
+                uint32 l_FollowerID = atoi(p_Args);
+
+                if (!l_FollowerID)
+                    return false;
+
+                return l_TargetPlayer->GetGarrison()->AddFollower(l_FollowerID);
+            }
+
+            return false;
+        }
+
+        static bool HandleMissionAddCommand(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Args != 0)
+            {
+                uint32 l_MissionID = atoi(p_Args);
+
+                if (!l_MissionID)
+                    return false;
+
+                return l_TargetPlayer->GetGarrison()->AddMission(l_MissionID);
+            }
+
+            return false;
+        }
+        
 };
 
 void AddSC_garrison_commandscript()

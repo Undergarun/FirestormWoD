@@ -548,6 +548,47 @@ struct GarrPlotBuildingEntry
     uint32 BuildingID;                                  // 2
 };
 
+struct GarrFollowerEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Entry[2];                                    // 1 - 2
+    uint32 Class;                                       // 3
+    uint32 Unk2;                                        // 4
+    uint32 Quality;                                     // 5
+    uint32 Unk4;                                        // 6
+    uint32 Unk5;                                        // 7
+    uint32 Unk6;                                        // 8
+    uint32 Unk7;                                        // 9
+    uint32 Level;                                       // 10
+    uint32 ItemLevelWeapon;                             // 11
+    uint32 ItemLevelArmor;                              // 12
+    uint32 Unk8;                                        // 13
+    uint32 Unk9;                                        // 14
+    char * UnkString1;                                  // 15
+    char * UnkString2;                                  // 16
+    int32  Unk10;                                       // 17
+    int32  Unk11;                                       // 18
+};
+
+struct GarrAbilityEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Unk1;                                        // 1
+    char * Name;                                        // 2
+    char * Description;                                 // 3
+    uint32 Unk2;                                        // 4
+    uint32 Unk3;                                        // 5
+    uint32 Unk4;                                        // 6
+};
+
+struct GarrFollowerXAbilityEntry
+{
+    uint32 ID;                                          // 0
+    uint32 FollowerID;                                  // 1
+    uint32 AbilityID;                                   // 2
+    uint32 FactionIndex;                                // 3
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()

@@ -3487,7 +3487,7 @@ void World::UpdatePhaseDefinitions()
 std::string World::GetNormalizedRealmName() const
 {
     std::string l_NormalizedName = "";
-    for (int l_I = 0; l_I < m_realmName.length(); l_I++)
+    for (uint32 l_I = 0; l_I < m_realmName.length(); l_I++)
     {
         if (m_realmName[l_I] == ' ')
             continue;

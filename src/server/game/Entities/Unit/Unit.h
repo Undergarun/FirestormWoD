@@ -670,7 +670,7 @@ enum UnitFlags2
     UNIT_FLAG2_UNK6                         = 0x00400000,
     UNIT_FLAG2_UNK7                         = 0x00800000,
     UNIT_FLAG2_UNK8                         = 0x01000000,
-    UNIT_FLAG2_UNK9                         = 0x02000000,
+    UNIT_FLAG2_UPDATE_REACTION              = 0x02000000,
     UNIT_FLAG2_UNK10                        = 0x04000000
 };
 

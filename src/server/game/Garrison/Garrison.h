@@ -77,7 +77,17 @@ struct GarrisonMission
 
 struct GarrisonFollower
 {
+    uint32 DB_ID;
+    uint32 FollowerID;
+    uint32 Quality;
+    uint32 Level;
+    uint32 ItemLevelWeapon;
+    uint32 ItemLevelArmor;
+    uint32 XP;
+    uint32 CurrentBuildingID;
     uint32 CurrentMissionID;
+
+    std::vector<uint32> Abilities;
 };
 
 struct GarrisonBuilding
@@ -144,6 +154,13 @@ class Garrison
         std::vector<GarrisonMission> GetMissions();
         /// Get all completed missions
         std::vector<GarrisonMission> GetCompletedMissions();
+
+        /// Add follower
+        bool AddFollower(uint32 p_FollowerID);
+        /// Get followers
+        std::vector<GarrisonFollower> GetFollowers();
+        /// Get follower
+        GarrisonFollower GetFollower(uint32 p_FollowerID);
 
         /// Can build building X at slot instance Y
         bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
