@@ -256,6 +256,8 @@ DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage <WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage <PhaseEntry> sPhaseStores(PhaseEntryfmt);
+DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore(GtBattlePetXPfmt);
+DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -634,6 +636,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     //## TaxiPathNode.dbc ## Loaded only for initialization different structures
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiPathNodeStore,           dbcPath, "TaxiPathNode.dbc");                                                 // 17399
+
     // Calculate path nodes count
     std::vector<uint32> pathLength;
     pathLength.resize(pathCount);                           // 0 and some other indexes not used
@@ -731,6 +734,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc");                                                // 17399
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetXPStore, dbcPath, "gtBattlePetXP.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetTypeDamageModStore, dbcPath, "gtBattlePetTypeDamageMod.dbc");
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)

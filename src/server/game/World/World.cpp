@@ -80,6 +80,7 @@
 #include "CalendarMgr.h"
 #include "BattlefieldMgr.h"
 #include "BlackMarketMgr.h"
+#include "WildBattlePet.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1881,6 +1882,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
+
+
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2015,10 +2019,18 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing item upgrade datas...");
     sSpellMgr->InitializeItemUpgradeDatas();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet template...");
+    sObjectMgr->LoadBattlePetTemplate();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Wild BattlePet pools...");
+    sWildBattlePetMgr->Load();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();
+
+    sWildBattlePetMgr->PopulateAll();
 }
 
 void World::DetectDBCLang()
@@ -2293,6 +2305,9 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_DELETECHARS].Reset();
         Player::DeleteOldCharacters();
     }
+
+    sPetBattleSystem->Update(diff);
+    sWildBattlePetMgr->Update(diff);
 
     sLFGMgr->Update(diff);
     SetRecordDiff(RECORD_DIFF_LFG, getMSTime() - diffTime);

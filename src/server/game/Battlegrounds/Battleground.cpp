@@ -1073,6 +1073,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                     player->RemovePet(NULL, PET_SLOT_ACTUAL_PET_SLOT, false, true);
 
                 player->ResummonPetTemporaryUnSummonedIfAny();
+                player->SummonLastSummonedBattlePet();
 
                 if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
                 {
@@ -1323,6 +1324,7 @@ void Battleground::AddPlayer(Player* player)
 
         player->DestroyConjuredItems(true);
         player->UnsummonPetTemporaryIfAny();
+        player->UnsummonCurrentBattlePetIfAny(true);
 
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {

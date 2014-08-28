@@ -932,13 +932,6 @@ void WorldSession::HandleReportSuggestionOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleRequestBattlePetJournal(WorldPacket& /*recvPacket*/)
-{
-    WorldPacket data;
-    GetPlayer()->GetBattlePetMgr().BuildBattlePetJournal(&data);
-    SendPacket(&data);
-}
-
 void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
 {
     // Notify player if he has a ticket in progress

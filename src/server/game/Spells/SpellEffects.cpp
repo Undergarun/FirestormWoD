@@ -262,7 +262,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
     &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
-    &Spell::EffectNULL,                                     //192 SPELL_EFFECT_192
+    &Spell::EffectUncagePetBattle,                          //192 SPELL_EFFECT_UNCAGE_BATTLE_PET
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193
     &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
     &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
@@ -270,8 +270,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_PLAY_CINEMATIC
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
-    &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
-    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_201
+    &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS
+    &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
     &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204
@@ -8361,4 +8361,31 @@ void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
 
     uint32 sceneId = m_spellInfo->Effects[effIndex].MiscValue;
     target->PlayScene(sceneId, target);
+}
+
+void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
+{
+    if (!m_CastItem && m_caster->ToPlayer())
+    {
+        PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_HEAL_ALL_PETBATTLE_ACCOUNT);
+        l_Stmt->setUInt32(0, m_caster->ToPlayer()->GetSession()->GetAccountId());
+        LoginDatabase.Execute(l_Stmt);
+
+        m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
+    }
+}
+void Spell::EffectUncagePetBattle(SpellEffIndex effIndex)
+{
+
+}
+void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
+{
+    if (!unitTarget)
+        return;
+
+    Player* player = unitTarget->ToPlayer();
+    if (!player)
+        return;
+
+    player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
 }

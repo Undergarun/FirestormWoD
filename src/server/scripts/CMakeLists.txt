@@ -51,6 +51,7 @@ if(SCRIPTS)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
   include(Pandaria/CMakeLists.txt)
+  include(PetBattle/CMakeLists.txt)
 endif()
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -157,6 +158,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
   ${CMAKE_SOURCE_DIR}/src/server/game/Pools
   ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders
+  ${CMAKE_SOURCE_DIR}/src/server/game/PetBattle
   ${CMAKE_SOURCE_DIR}/src/server/game/Quests
   ${CMAKE_SOURCE_DIR}/src/server/game/Reputation
   ${CMAKE_SOURCE_DIR}/src/server/game/Scripting

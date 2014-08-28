@@ -59,6 +59,8 @@ struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
 struct MovementInfo;
+struct PetBattleRequest;
+class PetBattle;
 
 enum AccountDataType
 {
@@ -783,7 +785,6 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
-        void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
         void HandleRequestGmTicket(WorldPacket& recvPakcet);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
@@ -1060,13 +1061,45 @@ class WorldSession
         void HandleBlackMarketBid(WorldPacket& recvData);
         void SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId);
 
+        // Pet Battle System
+        void HandlePetBattleSetAbility(WorldPacket& p_RecvData);
+        void HandlePetBattleRename(WorldPacket& p_RecvData);
+        void HandlePetBattleCagePet(WorldPacket& p_RecvData);
+        void HandlePetBattleQueryName(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestWildCallback(PreparedQueryResult& result, PetBattleRequest* request);
+        void HandleBattlePetSetBattleSlotCallBack(PreparedQueryResult& p_Result, uint8 p_DestSlot);
+        void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
+        void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestUpdate(WorldPacket& p_RecvData);
+        void HandlePetBattleCancelRequestPvPMatchmaking(WorldPacket& p_RecvData);
+        void HandlePetBattleInput(WorldPacket& p_RecvData);
+        void HandlePetBattleInputNewFrontPet(WorldPacket& p_RecvData);
+        void HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData);
+        void HandleSummonCompanion(WorldPacket& p_RecvData);
+        void SendPetBattleRequestFailed(uint8 reason);
+        void SendPetBattleJournal();
+        void SendPetBattleJournalCallback(PreparedQueryResult& result);
+        void SendPetBattleJournalBattleSlotUpdate();
+        void SendPetBattleJournalBattleSlotUpdateCallback(PreparedQueryResult& result);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* request);
+        void SendPetBattleFullUpdate(PetBattle* battle);
+        void SendPetBattleRoundResult(PetBattle* battle);
+        void SendPetBattleFirstRound(PetBattle* battle);
+        void SendPetBattleFinalRound(PetBattle* p_Battle);
+        void SendPetBattleFinished(PetBattle* battle);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture _accountSpellCallback;
+        PreparedQueryResultFuture _accountSpellCallback;        
+        PreparedQueryResultFuture _petBattleJournalCallback;
+        PreparedQueryResultFuture _petBattleJournalBattleSlotCallback;
+        QueryCallback<PreparedQueryResult, uint8> _swapPetBattleSlot;
+        QueryCallback<PreparedQueryResult, PetBattleRequest*> _petBattleRequestWildCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;

@@ -437,6 +437,9 @@ class Spell
         void EffectLootBonus(SpellEffIndex p_EffIndex);
         void EffectTeleportToDigsite(SpellEffIndex effIndex);
         void EffectPlaySceneObject(SpellEffIndex effIndex);
+        void EffectResurectPetBattles(SpellEffIndex effIndex);
+        void EffectUncagePetBattle(SpellEffIndex effIndex);
+        void EffectCanPetBattle(SpellEffIndex effIndex);
 
         typedef std::set<AuraPtr> UsedSpellMods;
 
