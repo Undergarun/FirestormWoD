@@ -735,15 +735,27 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if (caster->GetTypeId() == TYPEID_PLAYER && 
         !caster->ToPlayer()->HasActiveSpell(spellId) &&
          spellId != 101603 && // Hack for Throw Totem, Echo of Baine 
-         spellId != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(targetGuid)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+         spellId != 1843 && !spellInfo->IsRaidMarker()) // Hack for disarm. Client sends the spell instead of gameobjectuse.
     {
-        // not have spell in spellbook 
-        // cheater? kick? ban?
-        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+        // GameObject Use
+        if (IS_GAMEOBJECT_GUID(targetGuid))
         {
-            recvPacket.rfinish(); // prevent spam at ignore packet
-            return;
-        } 
+            if (!spellInfo->HasEffect(SPELL_EFFECT_OPEN_LOCK))
+            {
+                recvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
+        }
+        else
+        {
+            // not have spell in spellbook
+            // cheater? kick? ban?
+            if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+            {
+                recvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
+        }
     }
 
     Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
