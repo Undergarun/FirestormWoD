@@ -1736,6 +1736,10 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         // Create a new group (if needed)
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND);
         Group* grp = pProposal->groupLowGuid ? sGroupMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
+
+        if (dungeon->difficulty == RAID_TOOL_DIFFICULTY && grp != nullptr && !grp->isRaidGroup())
+            grp->ConvertToRaid();
+
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
         {
             Player* player = (*it);
@@ -1844,6 +1848,9 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                     break;
             }
         }
+
+        if (dungeon->difficulty == RAID_TOOL_DIFFICULTY)
+            maxPlayersToTeleport = 25;
 
         // Teleport players
         for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
