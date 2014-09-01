@@ -1552,7 +1552,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     if (!result)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << uint8(CHAR_CREATE_ERROR);
+        BuildCharacterRename(&data, 0, CHAR_CREATE_ERROR, newName);
         SendPacket(&data);
         return;
     }

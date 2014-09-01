@@ -287,6 +287,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     _skipCount = 0;
     _skipDiff = 0;
 
+    _petBattleId = 0;
+
     m_IsInKillingProcess = false;
     m_VisibilityUpdScheduled = false;
 
@@ -14465,6 +14467,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         if (Pet* pet = player->GetPet())
             pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
+        player->UnsummonCurrentBattlePetIfAny(true);
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
 
         if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
@@ -14537,7 +14540,10 @@ void Unit::Dismount()
                 pPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
         else
+        {
             player->ResummonPetTemporaryUnSummonedIfAny();
+            player->SummonLastSummonedBattlePet();
+        }
     }
 }
 
@@ -15504,7 +15510,13 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
             if (!isInCombat())
                 if (Pet* pet = ToPlayer()->GetPet())
-                    pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
+                {
+                    if (Pet* pet = ToPlayer()->GetPet())
+                        pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
+
+                    if (Minion * l_BattlePet = ToPlayer()->GetSummonedBattlePet())
+                        l_BattlePet->SetSpeed(mtype, m_speed_rate[mtype], forced);
+                }
         }
 
         switch (mtype)
@@ -16084,6 +16096,10 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
 
     // Channeled spells does not affected by modifer duration
     if (spellProto->HasAttribute(SPELL_ATTR1_CHANNELED_1))
+        return duration;
+
+    // some auras are not affected by duration modifiers
+    if (spellProto->AttributesEx7 & SPELL_ATTR7_IGNORE_DURATION_MODS)
         return duration;
 
     // cut duration only of negative effects
@@ -21551,7 +21567,10 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     //GetMotionMaster()->MoveFall();            // Enable this once passenger positions are calculater properly (see above)
 
     if (player)
+    {
         player->ResummonPetTemporaryUnSummonedIfAny();
+        player->SummonLastSummonedBattlePet();
+    }
 
     SendMovementFlagUpdate();
 

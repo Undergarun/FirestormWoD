@@ -545,9 +545,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     for (int i = 0; i < archeologyCounter; ++i)
-    {
         archeologyType[i] = recvPacket.ReadBits(2);
-    }
 
     if (hasMovement)
     {
@@ -602,9 +600,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         }
     }
 
+    // Kebab client side
     if (hasMovement)
     {
-        // Kebab client side
     }
 
     if (hasSpellId)
@@ -739,7 +737,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     {
         // not have spell in spellbook 
         // cheater? kick? ban?
-        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell() && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS))
         {
             recvPacket.rfinish(); // prevent spam at ignore packet
             return;

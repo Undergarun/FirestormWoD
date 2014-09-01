@@ -34,6 +34,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "DisableMgr.h"
 #include "Group.h"
+#include "LFGMgr.h"
 
 #include <fstream>
 
@@ -107,6 +108,7 @@ class debug_commandscript : public CommandScript
                 { "log",            SEC_ADMINISTRATOR,  false, &HandleDebugLogCommand,             "", NULL },
                 { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,            "", NULL },
                 { "boss",           SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,            "", NULL },
+                { "lfg",            SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,             "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2111,6 +2113,22 @@ class debug_commandscript : public CommandScript
             else
                 handler->PSendSysMessage("Max creature::update diff limit disable !");
     
+            return true;
+        }
+
+        static bool HandleDebugLfgCommand(ChatHandler* p_Handler, char const * p_Args)
+        {
+            if (sLFGMgr->IsInDebug())
+            {
+                p_Handler->PSendSysMessage("Lfg debug mode is now disable");
+                sLFGMgr->SetDebug(false);
+            }
+            else
+            {
+                sLFGMgr->SetDebug(true);
+                p_Handler->PSendSysMessage("Lfg debug mode is now enable");
+            }
+
             return true;
         }
 };

@@ -2761,24 +2761,73 @@ void ObjectMgr::LoadItemScriptNames()
 
 void ObjectMgr::LoadItemSpecs()
 {
-    uint32 count = 0;
-    uint32 oldMSTime = getMSTime();
+    uint32 l_Count = 0;
+    uint32 l_OldMSTime = getMSTime();
 
-    for (uint32 i = 0; i < sItemSpecOverrideStore.GetNumRows(); i++)
+    for (ItemTemplateContainer::iterator l_Itr = _itemTemplateStore.begin(); l_Itr != _itemTemplateStore.end(); ++l_Itr)
     {
-        ItemSpecOverrideEntry const* specInfo = sItemSpecOverrideStore.LookupEntry(i);
+        ItemTemplate& l_ItemTemplate = l_Itr->second;
+        if (l_ItemTemplate.HasSpec())
+            continue;
+
+        uint32 l_TempStat = 26;
+
+        for (uint32 l_Idx = 0; l_Idx < sItemSpecStore.GetNumRows(); l_Idx++)
+        {
+            ItemSpecEntry const* l_ItemSpec = sItemSpecStore.LookupEntry(l_Idx);
+            if (!l_ItemSpec)
+                continue;
+
+            if (l_ItemTemplate.RequiredLevel >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_ItemSpec->MaxLevel)
+            {
+                if (l_ItemSpec->ItemType == ItemSpecialization::GetItemType(&l_ItemTemplate))
+                {
+                    std::list<uint32> l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
+                    if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->PrimaryStat, l_ItemStats))
+                    {
+                        if (l_ItemSpec->SecondaryStat == 26)
+                        {
+                            if (l_TempStat != l_ItemSpec->PrimaryStat)
+                            {
+                                l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
+                                ++l_Count;
+                            }
+                        }
+                    }
+                    else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
+                    {
+                        l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
+                        ++l_Count;
+                        l_TempStat = l_ItemSpec->PrimaryStat;
+                    }
+                }
+            }
+        }
+    }
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadItemSpecsOverride()
+{
+    uint32 l_Count = 0;
+    uint32 l_OldMSTime = getMSTime();
+
+    for (uint32 l_Idx = 0; l_Idx < sItemSpecOverrideStore.GetNumRows(); l_Idx++)
+    {
+        ItemSpecOverrideEntry const* specInfo = sItemSpecOverrideStore.LookupEntry(l_Idx);
         if (!specInfo)
             continue;
 
-        if (_itemTemplateStore.find(specInfo->itemEntry) != _itemTemplateStore.end())
+        if (_itemTemplateStore.find(specInfo->ItemID) == _itemTemplateStore.end())
             continue;
 
-        ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->itemEntry];
-        itemTemplate.AddSpec((SpecIndex)specInfo->specID);
-        count++;
+        ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->ItemID];
+        itemTemplate.AddSpec((SpecIndex)specInfo->SpecID);
+        l_Count++;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs override in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
@@ -9122,6 +9171,35 @@ void ObjectMgr::LoadSpellPhaseInfo()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell dbc infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadBattlePetTemplate()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _battlePetTemplateStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT species, breed, quality, level FROM battlepet_template");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battlepet template. DB table `battlepet_template` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        BattlePetTemplate temp;
+        temp.Species = fields[0].GetUInt32();
+        temp.Breed = fields[1].GetUInt32();
+        temp.Quality = fields[2].GetUInt32();
+        temp.Level = fields[3].GetUInt32();
+        _battlePetTemplateStore[temp.Species] = temp;
+        count += 1;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet template in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {

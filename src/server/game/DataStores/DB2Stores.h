@@ -29,12 +29,22 @@ extern DB2Storage <ItemEntry> sItemStore;
 extern DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry> sItemSparseStore;
-extern DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore;
 extern DB2Storage <SpellReagentsEntry> sSpellReagentsStore;
 extern DB2Storage <ItemUpgradeEntry> sItemUpgradeStore;
 extern DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore;
 extern DB2Storage<SceneScriptEntry> sSceneScriptStore;
 extern DB2Storage<SceneScriptPackageEntry> sSceneScriptPackageStore;
+extern DB2Storage<BattlePetAbilityEntry> sBattlePetAbilityStore;
+extern DB2Storage<BattlePetAbilityEffectEntry> sBattlePetAbilityEffectStore;
+extern DB2Storage<BattlePetAbilityTurnEntry> sBattlePetAbilityTurnStore;
+extern DB2Storage<BattlePetAbilityStateEntry> sBattlePetAbilityStateStore;
+extern DB2Storage<BattlePetStateEntry> sBattlePetStateStore;
+extern DB2Storage<BattlePetEffectPropertiesEntry> sBattlePetEffectPropertiesStore;
+extern DB2Storage<BattlePetBreedQualityEntry> sBattlePetBreedQualityStore;
+extern DB2Storage<BattlePetBreedStateEntry> sBattlePetBreedStateStore;
+extern DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore;
+extern DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore;
+extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 

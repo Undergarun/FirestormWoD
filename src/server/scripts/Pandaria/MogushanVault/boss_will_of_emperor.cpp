@@ -71,6 +71,7 @@ enum eSpells
     SPELL_TERRACOTTA_SKYBEAM_S  = 118063,
     SPELL_TERRACOTTA_SKYBEAM_M  = 118060,
     SPELL_TERRACOTTA_SPAWN      = 118165,
+    SPELL_WOE_BONUS             = 132193,
 
     // Visual
     SPELL_COSMETIC_LIGHTNING    = 127732
@@ -355,7 +356,7 @@ class boss_jin_qin_xi : public CreatureScript
                         killer->Kill(otherBoss);
 
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
-                        cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
+                    cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
 
                 if (pInstance)
                 {
@@ -371,6 +372,14 @@ class boss_jin_qin_xi : public CreatureScript
                         if (IsHeroic())
                             anc_mogu_machine->RemoveAura(SPELL_TITAN_GAS_HEROIC);
                         me->Kill(anc_mogu_machine->ToUnit());
+                    }
+
+                    if (me->GetMap()->IsLFR())
+                    {
+                        me->SetLootRecipient(NULL);
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                     }
                 }
 
@@ -391,6 +400,9 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_QIN);
 
                 _JustDied();
+
+                if (me->GetMap()->IsLFR())
+                    me->SetLootRecipient(NULL);
             }
 
             void JustSummoned(Creature* summon)

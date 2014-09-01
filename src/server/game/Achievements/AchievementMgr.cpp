@@ -2217,6 +2217,10 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement
         if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
             guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), referencePlayer->GetGUID(), achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, achievement->ID);*/
 
+    /// Slot unlocked
+    if (achievement->ID == 7433 /* Newbie */ || achievement->ID == 6566 /* Just a Pup */)
+        GetOwner()->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+
     if (!GetOwner()->GetSession()->PlayerLoading())
         SendAchievementEarned(achievement);
 

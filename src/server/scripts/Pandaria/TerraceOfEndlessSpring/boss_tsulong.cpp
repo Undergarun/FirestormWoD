@@ -66,7 +66,6 @@ enum eTsulongSpells
     // The light of the day
     SPELL_BUFF_LIGHT_OF_DAY    = 123716,
 
-
     // The embodied terror
     SPELL_TERRORIZE_PLAYER     = 123011,
     SPELL_TERRORIZE_TSULONG    = 123012,
@@ -78,6 +77,8 @@ enum eTsulongSpells
     // Unstable sha
     SPELL_BOLT                 = 122881,
     SPELL_INSTABILITY          = 123697,
+
+    SPELL_TSULONG_BONUS        = 132201
 };
 
 enum eTsulongTimers
@@ -182,6 +183,7 @@ class boss_tsulong : public CreatureScript
                 berserkTimer = 60000 * 8;
 
                 me->SetDisableGravity(true);
+                me->ReenableEvadeMode();
                 me->SetCanFly(true);
                 me->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS);
                 me->RemoveAurasDueToSpell(SPELL_DAY_PHASE);
@@ -209,6 +211,7 @@ class boss_tsulong : public CreatureScript
                         me->setFaction(2104);
                         phase = PHASE_NONE;
                         events.SetPhase(PHASE_NONE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else if (pInstance->GetBossState(DATA_PROTECTORS) == DONE)
                     {
@@ -278,20 +281,6 @@ class boss_tsulong : public CreatureScript
                     Talk(VO_TES_SERPENT_SLAY_DAY);
             }
 
-            void JustDied(Unit* killer)
-            {
-                if (pInstance)
-                {
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    pInstance->SetBossState(DATA_TSULONG, DONE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_BREATH);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
-                }
-
-                _JustDied();
-            }
-
             void DoAction(const int32 action)
             {
                 if (action == ACTION_START_TSULONG_WAYPOINT)
@@ -336,6 +325,12 @@ class boss_tsulong : public CreatureScript
 
             void DamageTaken(Unit* doneBy, uint32 &damage)
             {
+                if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
+                {
+                    damage = 0;
+                    return;
+                }
+
                 if (phase == PHASE_DAY)
                 {
                     uint32 health = me->GetHealth();
@@ -346,7 +341,7 @@ class boss_tsulong : public CreatureScript
                     }
 
                     if (damage >= me->GetHealth())
-                        damage = me->GetHealth()-1;
+                        damage = me->GetHealth() - 1;
                 }
                 
                 if (phase == PHASE_NIGHT)
@@ -357,14 +352,12 @@ class boss_tsulong : public CreatureScript
                         EndOfFight();
                     }
                 }
-
-                if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
-                    damage = 0;
             }
 
             void EndOfFight()
             {
                 Talk(VO_TES_SERPENT_DEATH);
+
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -373,11 +366,22 @@ class boss_tsulong : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                 }
-                me->ReenableEvadeMode();
+
+                me->RemoveAllAreasTrigger();
+                me->RemoveAllAuras();
                 me->ReenableHealthRegen();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->ReenableEvadeMode();
+                me->ReenableHealthRegen();
                 me->CombatStop();
                 EnterEvadeMode();
+                me->GetMotionMaster()->MoveTargetedHome();
+                _Reset();
+
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    if (Player* player = itr->getSource())
+                        player->CombatStop();
 
                 switch (me->GetMap()->GetSpawnMode())
                 {
@@ -396,6 +400,21 @@ class boss_tsulong : public CreatureScript
                     default:
                         break;
                 }
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_TSULONG_BONUS, true);
+                }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void CheckCombatState()
@@ -407,12 +426,6 @@ class boss_tsulong : public CreatureScript
                     me->CombatStop();
                     EnterEvadeMode();
                 }
-            }
-
-            void EnterEvadeMode()
-            {
-                if (pInstance)
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
             }
 
             void DespawnAllTinyTerror()

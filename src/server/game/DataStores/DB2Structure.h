@@ -172,12 +172,6 @@ struct ItemExtendedCostEntry
     //uint32    RequiredAchievement;                                    // 30
 };
 
-struct BattlePetSpeciesEntry
-{
-    uint32 ID;
-    uint32 CreatureEntry;
-};
-
 struct SceneScriptEntry
 {
     uint32 Entry;
@@ -202,6 +196,8 @@ struct SpellReagentsEntry
     //uint32    Id;                                         // 0        m_ID
     int32     Reagent[MAX_SPELL_REAGENTS];                  // 1-9      m_reagent
     uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 10-18    m_reagentCount
+    uint32    CurrencyID;                                   // 19       m_CurrencyID
+    uint32    CurrencyCount;                                // 20       m_CurrencyCount
 };
 
 struct SpellReagent
@@ -221,6 +217,154 @@ struct SpellReagent
 };
 
 typedef std::map<uint32, SpellReagent> SpellReagentMap;
+
+#define MAX_BATTLEPET_PROPERTIES 6
+
+// BattlePetAbility.dbc
+struct BattlePetAbilityEntry
+{
+    uint32 id;
+    uint32 petType;
+    uint32 family;
+    uint32 cooldown;
+    uint32 visualId; // BattlePetVisual.dbc
+    uint32 flags;
+    const char * name;
+    const char * description;
+};
+
+// BattlePetAbilityEffect.dbc
+struct BattlePetAbilityEffectEntry
+{
+    uint32 id;
+    uint32 abilityTurnId; // BattlePetAbilityTurn.dbc
+    uint32 visualId; // BattlePetVisual.dbc
+    uint32 triggerAbility;
+    uint32 effect;
+    uint32 effectIndex;
+    int32 prop[MAX_BATTLEPET_PROPERTIES]; // See BattlePetEffectProperties.dbc with effect
+};
+
+// BattlePetAbilityTurn.dbc
+struct BattlePetAbilityTurnEntry
+{
+    uint32 id;
+    uint32 abilityId; // BattlePetAbility.dbc
+    uint32 visualId; // BattlePetVisual.dbc
+    uint32 turn;
+    uint32 hasProcType; // if 1 then value <> -1
+    int32 procType;
+};
+
+// BattlePetAbilityState.dbc
+struct BattlePetAbilityStateEntry
+{
+    uint32 id;
+    uint32 abilityId; // BattlePetAbility.dbc
+    uint32 stateId; // BattlePetState.dbc
+    int32 value;
+};
+
+// BattlePetState.dbc
+struct BattlePetStateEntry
+{
+    uint32 id;
+    uint32 parent; // BattlePetState.dbc
+    const char * name;
+    uint32 flags;
+};
+
+enum BattlePetEffectFlags
+{
+    BATTLEPET_EFFECT_FLAG_POSITIVE = 1 << 0,
+    BATTLEPET_EFFECT_FLAG_NEGATIVE = 1 << 1,
+    /*
+    BATTLEPET_EFFECT_CATEGORY_HEAL = 37,
+    BATTLEPET_EFFECT_CATEGORY_DAMAGE = 38,
+    BATTLEPET_EFFECT_CATEGORY_PERIODIC_POSITIVE_BUFF = 47,
+    BATTLEPET_EFFECT_CATEGORY_POSITIVE_BUFF = 49,
+    BATTLEPET_EFFECT_CATEGORY_CONTROL_BUFF = 50,
+    BATTLEPET_EFFECT_CATEGORY_PERIODIC_NEGATIVE_BUFF = 51,
+    BATTLEPET_EFFECT_CATEGORY_NEGATIVE_BUFF = 94,
+    */
+};
+
+enum BattlePetEffectCategory
+{
+    BATTLEPET_EFFECT_CATEGORY_DEAL = 9,
+    BATTLEPET_EFFECT_CATEGORY_PERIODIC = 11,
+    BATTLEPET_EFFECT_CATEGORY_BUFF = 12,
+    BATTLEPET_EFFECT_CATEGORY_AURA = 23,
+};
+
+// BattlePetEffectProperties.dbc
+struct BattlePetEffectPropertiesEntry
+{
+    uint32 effect;
+    uint32 flags;
+    const char * propName[MAX_BATTLEPET_PROPERTIES];
+    uint32 propIsId[MAX_BATTLEPET_PROPERTIES]; // Only set to 1 for AuraID
+};
+
+// BattlePetBreedQuality.dbc
+struct BattlePetBreedQualityEntry
+{
+    uint32 id;
+    uint32 quality;
+    float factor;
+};
+
+// BattlePetBreedState.dbc
+struct BattlePetBreedStateEntry
+{
+    uint32 id;
+    uint32 breed;
+    uint32 stateId; // BattlePetState.dbc
+    int32 value;
+};
+
+enum BattlePetSpeciesFlags
+{
+    BATTLEPET_SPECIES_FLAG_CONDITIONAL  = 0x002,
+    BATTLEPET_SPECIES_FLAG_CAGEABLE     = 0x010,
+    BATTLEPET_SPECIES_FLAG_UNTAMEABLE   = 0x020,
+    BATTLEPET_SPECIES_FLAG_UNIQUE       = 0x040,
+    BATTLEPET_SPECIES_FLAG_COMPANION    = 0x080,
+    BATTLEPET_SPECIES_FLAG_ELITE        = 0x400,
+};
+
+// BattlePetSpecies.dbc
+struct BattlePetSpeciesEntry
+{
+    uint32 id;
+    uint32 entry;
+    uint32 iconId;
+    uint32 spellId; // Spell.dbc
+    uint32 type;
+    uint32 obtainmentCategoryDescription;
+    uint32 flags;
+    const char * source;
+    const char * description;
+};
+
+// BattlePetSpeciesState.dbc
+struct BattlePetSpeciesStateEntry
+{
+    uint32 id;
+    uint32 speciesId; // BattlePetSpecies.dbc
+    uint32 stateId; // BattlePetState.dbc
+    int32 value;
+};
+
+// BattlePetSpeciesXAbility.dbc
+struct BattlePetSpeciesXAbilityEntry
+{
+    uint32 id;
+    uint32 speciesId; // BattlePetSpecies.dbc
+    uint32 abilityId; // BattlePetAbility.dbc
+    uint32 level;
+    uint32 tier;
+};
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)

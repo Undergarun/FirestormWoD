@@ -33,6 +33,7 @@
 #include "LFGMgr.h"
 #include "DynamicTree.h"
 #include "Vehicle.h"
+#include "WildBattlePet.h"
 
 union u_map_magic
 {
@@ -55,6 +56,10 @@ GridState* si_GridStates[MAX_GRID_STATE];
 Map::~Map()
 {
     sScriptMgr->OnDestroyMap(this);
+
+    // We need to depopulate WildBattlePet for respawn replaced creatures next time
+    // Because respawn time is saved in database
+    sWildBattlePetMgr->DepopulateMap(GetId());
 
     UnloadAll();
 
@@ -460,6 +465,10 @@ bool Map::AddToMap(T *obj)
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
     obj->UpdateObjectVisibility(true);
+
+    if (obj->ToCreature())
+        sWildBattlePetMgr->OnAddToMap(obj->ToCreature());
+
     return true;
 }
 
@@ -582,6 +591,9 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 template<class T>
 void Map::RemoveFromMap(T *obj, bool remove)
 {
+    if (Creature* creature = obj->ToCreature())
+        sWildBattlePetMgr->OnRemoveToMap(creature);
+
     obj->RemoveFromWorld();
     if (obj->isActiveObject())
         RemoveFromActive(obj);

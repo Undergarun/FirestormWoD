@@ -150,6 +150,7 @@ extern DBCStorage <ItemLimitCategoryEntry>       sItemLimitCategoryStore;
 extern DBCStorage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore;
 extern DBCStorage <ItemRandomSuffixEntry>        sItemRandomSuffixStore;
 extern DBCStorage <ItemSetEntry>                 sItemSetStore;
+extern DBCStorage <ItemSpecEntry>                sItemSpecStore;
 extern DBCStorage <ItemSpecOverrideEntry>        sItemSpecOverrideStore;
 extern DBCStorage <LFGDungeonEntry>              sLFGDungeonStore;
 extern DBCStorage <LiquidTypeEntry>              sLiquidTypeStore;
@@ -230,6 +231,8 @@ extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
 extern DBCStorage <WorldMapAreaEntry>            sWorldMapAreaStore; //-- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
+extern DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
+extern DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore;
 
 void LoadDBCStores(const std::string& dataPath);
 

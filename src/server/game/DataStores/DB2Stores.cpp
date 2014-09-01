@@ -27,12 +27,22 @@ DB2Storage <ItemEntry> sItemStore(Itemfmt);
 DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage <ItemSparseEntry> sItemSparseStore (ItemSparsefmt);
-DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
 DB2Storage <SpellReagentsEntry> sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage <ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradeEntryfmt);
 DB2Storage <RulesetItemUpgradeEntry> sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
 DB2Storage<SceneScriptEntry> sSceneScriptStore(SceneScriptEntryfmt);
 DB2Storage<SceneScriptPackageEntry> sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
+DB2Storage<BattlePetAbilityEntry> sBattlePetAbilityStore(BattlePetAbilityfmt);
+DB2Storage<BattlePetAbilityEffectEntry> sBattlePetAbilityEffectStore(BattlePetAbilityEffectfmt);
+DB2Storage<BattlePetAbilityTurnEntry> sBattlePetAbilityTurnStore(BattlePetAbilityTurnfmt);
+DB2Storage<BattlePetAbilityStateEntry> sBattlePetAbilityStateStore(BattlePetAbilityStatefmt);
+DB2Storage<BattlePetStateEntry> sBattlePetStateStore(BattlePetStatefmt);
+DB2Storage<BattlePetEffectPropertiesEntry> sBattlePetEffectPropertiesStore(BattlePetEffectPropertiesfmt);
+DB2Storage<BattlePetBreedQualityEntry> sBattlePetBreedQualityStore(BattlePetBreedQualityfmt);
+DB2Storage<BattlePetBreedStateEntry> sBattlePetBreedStateStore(BattlePetBreedStatefmt);
+DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesfmt);
+DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore(BattlePetSpeciesStatefmt);
+DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
 
 typedef std::list<std::string> StoreProblemList1;
 
@@ -96,6 +106,17 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore, db2Path, "RulesetItemUpgrade.db2");                                    // 17399
     LoadDB2(bad_db2_files, sSceneScriptStore, db2Path, "SceneScript.db2");                                                  // 17399
     LoadDB2(bad_db2_files, sSceneScriptPackageStore, db2Path, "SceneScriptPackage.db2");                                    // 17399
+    LoadDB2(bad_db2_files, sBattlePetAbilityStore, db2Path, "BattlePetAbility.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityEffectStore, db2Path, "BattlePetAbilityEffect.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityTurnStore, db2Path, "BattlePetAbilityTurn.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityStateStore, db2Path, "BattlePetAbilityState.db2");
+    LoadDB2(bad_db2_files, sBattlePetStateStore, db2Path, "BattlePetState.db2");
+    LoadDB2(bad_db2_files, sBattlePetEffectPropertiesStore, db2Path, "BattlePetEffectProperties.db2");
+    LoadDB2(bad_db2_files, sBattlePetBreedQualityStore, db2Path, "BattlePetBreedQuality.db2");
+    LoadDB2(bad_db2_files, sBattlePetBreedStateStore, db2Path, "BattlePetBreedState.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStore, db2Path, "BattlePetSpecies.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore, db2Path, "BattlePetSpeciesState.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore, db2Path, "BattlePetSpeciesXAbility.db2");
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)

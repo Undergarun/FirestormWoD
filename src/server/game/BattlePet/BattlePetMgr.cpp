@@ -48,34 +48,7 @@ BattlePetMgr::BattlePetMgr(Player* owner) : m_player(owner)
 
 void BattlePetMgr::GetBattlePetList(PetBattleDataList &battlePetList) const
 {
-    auto spellMap = m_player->GetSpellMap();
-    for (auto itr : spellMap)
-    {
-        if (itr.second->state == PLAYERSPELL_REMOVED)
-            continue;
 
-        if (!itr.second->active || itr.second->disabled)
-            continue;
-
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
-            continue;
-
-        // Is summon pet spell
-        if ((spell->Effects[0].Effect == SPELL_EFFECT_SUMMON && spell->Effects[0].MiscValueB == 3221) == 0)
-            continue;
-
-        const CreatureTemplate* creature = sObjectMgr->GetCreatureTemplate(spell->Effects[0].MiscValue);
-        if (!creature)
-            continue;
-
-        const BattlePetSpeciesEntry* species = sBattlePetSpeciesStore.LookupEntry(creature->Entry);
-        if (!species)
-            continue;
-
-        PetBattleData pet(creature->Entry, creature->Modelid1, species->ID, spell->Id);
-        battlePetList.push_back(pet);
-    }
 }
 
 void BattlePetMgr::BuildBattlePetJournal(WorldPacket *data)
@@ -136,22 +109,4 @@ void BattlePetMgr::BuildBattlePetJournal(WorldPacket *data)
         data->append(dataBuffer);
 
     *data << uint16(0);                         // Unk
-}
-
-void WorldSession::HandleSummonBattlePet(WorldPacket& recvData)
-{
-    ObjectGuid battlePetGuid;
-
-    uint8 bitsOrder[8] = { 7, 5, 0, 2, 4, 6, 3, 1 };
-    recvData.ReadBitInOrder(battlePetGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 1, 0, 2, 6, 3, 7, 5 };
-    recvData.ReadBytesSeq(battlePetGuid, bytesOrder);
-
-    if (!_player->HasSpell(uint32(battlePetGuid)))
-        return;
-
-    _player->CastSpell(_player, uint32(battlePetGuid), true);
 }

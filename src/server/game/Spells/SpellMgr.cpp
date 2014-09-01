@@ -3427,12 +3427,24 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 65075: // Tower of Flames
+            case 65077: // Tower of Frost
+            case 64482: // Tower of Life
+            case 55076: // Sun Scope
+            case 60023: // Scourge Banner Aura
+            case 137502:// Growing Fury
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
+                break;
+            case 132205:// Sha of Anger Bonus
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 137200:// Blessed Loa Spirit
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
             case 136339:// Lightning Tether
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 136350:// Lightning Tether (periodic)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;

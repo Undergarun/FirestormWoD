@@ -908,6 +908,39 @@ class mob_lolo_lio : public CreatureScript
         }
 };
 
+// Nomi - 64337
+
+#define NPC_NOMI 64337
+
+class mob_nomi : public CreatureScript
+{
+    public:
+        mob_nomi() : CreatureScript("mob_nomi")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_nomiAI(p_Creature);
+        }
+
+        struct mob_nomiAI : public ScriptedAI
+        {
+            mob_nomiAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+            }
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                std::list<Creature*> l_CreatureList;
+                GetClosestCreatureWithEntry(p_Summoner, NPC_NOMI, 20.0f, true);
+
+                if (!l_CreatureList.empty())
+                    me->DespawnOrUnsummon();
+            }
+        };
+};
+
 void AddSC_valley_of_the_four_winds()
 {
     // Rare Mobs
@@ -931,4 +964,5 @@ void AddSC_valley_of_the_four_winds()
     new mob_jambeezi();
     new mob_lei_lan();
     new mob_lolo_lio();
+    new mob_nomi();
 }

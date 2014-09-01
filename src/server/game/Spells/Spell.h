@@ -434,8 +434,12 @@ class Spell
         void EffectCreateAreatrigger(SpellEffIndex effIndex);
         int32 CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier);
         void EffectResurrectWithAura(SpellEffIndex effIndex);
+        void EffectLootBonus(SpellEffIndex p_EffIndex);
         void EffectTeleportToDigsite(SpellEffIndex effIndex);
         void EffectPlaySceneObject(SpellEffIndex effIndex);
+        void EffectResurectPetBattles(SpellEffIndex effIndex);
+        void EffectUncagePetBattle(SpellEffIndex effIndex);
+        void EffectCanPetBattle(SpellEffIndex effIndex);
 
         typedef std::set<AuraPtr> UsedSpellMods;
 

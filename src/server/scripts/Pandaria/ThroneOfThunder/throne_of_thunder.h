@@ -168,6 +168,15 @@ enum eCreatures
     NPC_NETHER_WYRM                 = 70507,
 
     NPC_JI_KUN                      = 69712,
+    NPC_FEED_POOL                   = 70216,
+    NPC_FEED                        = 68178,
+    NPC_KI_KUN_FLEDGLING_S_EGG      = 68202,
+    NPC_HATCHLING                   = 68192,
+    NPC_FLEDGLING                   = 68193, // Hatchling evolution or spawned by Fledgling egg
+    NPC_YOUNG_EGG_OF_JI_KUN         = 68194, // Is spawned above hatchlings
+    NPC_MATURE_EGG_OF_JI_KUN        = 69628, // Spawned by Fledgling
+    NPC_JUVENILE                    = 69836, // Spawned by Mature Egg
+    NPC_JI_KUN_FLEDGING_S_EGG       = 68202,
 
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
 

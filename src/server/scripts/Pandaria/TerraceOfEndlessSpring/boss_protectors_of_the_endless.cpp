@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
+#include "LFGMgr.h"
 
 #define ENTRANCE_ORIENTATION 4.723f
 
@@ -30,6 +31,8 @@ enum eProtectorsSpells
     // Shared
     SPELL_SHA_CORRUPTION                = 117052,
     SPELL_SHA_MASK                      = 118221,
+    SPELL_PROTECTORS_BONUS              = 132200,
+    SPELL_PROTECTORS_BONUS_ELITE        = 132204,
 
     // Protector Kaolan
     SPELL_TOUCH_OF_SHA                  = 117519,
@@ -425,6 +428,21 @@ class boss_ancient_regail : public CreatureScript
                             if (asani)
                                 asani->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
 
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                    me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
+
                             break;
                         }
                         default:
@@ -765,6 +783,21 @@ class boss_ancient_asani : public CreatureScript
                             if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_COUNCILS_VORTEX))
                                 vortex->SetGoState(GO_STATE_READY);
 
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                    me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
+
                             break;
                         }
                         default:
@@ -1097,6 +1130,21 @@ class boss_protector_kaolan : public CreatureScript
                                 asani->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
                                 regail->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
+
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                    me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
 
                             break;
                         }

@@ -50,6 +50,7 @@
 #include "Group.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "WildBattlePet.h"
 // apply implementation of the singletons
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
@@ -1491,6 +1492,8 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
+
+    sWildBattlePetMgr->OnAddToMap(this);
 
     return true;
 }

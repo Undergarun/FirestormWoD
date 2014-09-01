@@ -496,6 +496,14 @@ class boss_king_malakk : public CreatureScript
                     if (creature->isAlive())
                         return;
 
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
+
                 if (pInstance)
                     pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
 
@@ -796,6 +804,14 @@ class boss_kazra_jin : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
 
                 Talk(7);
             }
@@ -1219,6 +1235,14 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
 
                 Talk(7);
             }
@@ -1746,6 +1770,14 @@ class boss_high_priestress_mar_li : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
 
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
+
                 Talk(8);
             }
 
@@ -2155,6 +2187,7 @@ class mob_shadowed_lua_spirit : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 events.Update(diff);
+
                 if (Player* player = Player::GetPlayer(*me, targetGuid))
                 {
                     if (despawnTimer <= diff)
@@ -2193,6 +2226,8 @@ class mob_shadowed_lua_spirit : public CreatureScript
                                 SetGUID(target->GetGUID(), 0);
                                 despawnTimer = 20000;
                             }
+                            else
+                                events.ScheduleEvent(EVENT_OS_PLAYER, 500);
                             break;
                         }
                     default:
