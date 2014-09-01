@@ -2411,6 +2411,9 @@ class Unit : public WorldObject
         void DisableEvadeMode() { m_disableEnterEvadeMode = true; }
         void ReenableEvadeMode() { m_disableEnterEvadeMode = false; }
         bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
+        
+    public:
+        uint64 _petBattleId;
 
     protected:
         explicit Unit (bool isWorldObject);

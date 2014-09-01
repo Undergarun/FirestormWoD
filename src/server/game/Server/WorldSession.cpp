@@ -614,6 +614,8 @@ void WorldSession::LogoutPlayer(bool Save)
         if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
             guild->HandleMemberLogout(this);
 
+        _player->UnsummonCurrentBattlePetIfAny(true);
+
         ///- Remove pet
         if (_player->getClass() != CLASS_WARLOCK)
         {
@@ -1203,6 +1205,40 @@ void WorldSession::ProcessQueryCallbacks()
         _setPetSlotCallback.GetResult(result);
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
+    }
+
+    //- SendPetBattleJournal
+    if (_petBattleJournalCallback.ready())
+    {
+        _petBattleJournalCallback.get(result);
+        SendPetBattleJournalCallback(result);
+        _petBattleJournalCallback.cancel();
+    }
+
+    //- SendPetBattleJournalBattleSlot
+    if (_petBattleJournalBattleSlotCallback.ready())
+    {
+        _petBattleJournalBattleSlotCallback.get(result);
+        SendPetBattleJournalBattleSlotUpdateCallback(result);
+        _petBattleJournalBattleSlotCallback.cancel();
+    }
+
+    //- HandlePetBattleRequestWild
+    if (_petBattleRequestWildCallback.IsReady())
+    {
+        PetBattleRequest* param = _petBattleRequestWildCallback.GetParam();
+        _petBattleRequestWildCallback.GetResult(result);
+        HandlePetBattleRequestWildCallback(result, param);
+        _petBattleRequestWildCallback.FreeResult();
+    }
+
+    //- HandleStableSwapPet
+    if (_swapPetBattleSlot.IsReady())
+    {
+        uint8 param = _swapPetBattleSlot.GetParam();
+        _swapPetBattleSlot.GetResult(result);
+        HandleBattlePetSetBattleSlotCallBack(result, param);
+        _swapPetBattleSlot.FreeResult();
     }
 }
 

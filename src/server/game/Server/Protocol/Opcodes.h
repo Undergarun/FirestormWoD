@@ -42,6 +42,24 @@ enum Opcodes
     COMPRESSED_OPCODE_MASK                            = 0x8000,
 
     // CMSG
+    //////////////////////////////////////////////////////////////////////////
+    /// Battle pet opcodes
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_SUMMON_COMPANION                             = 0x1A1F, // 5.4.0 17399
+    CMSG_PETBATTLE_QUERY_JOURNAL                      = 0x1203, // 5.4.0 17399
+    CMSG_PETBATTLE_SET_ABILITY                        = 0x1292, // 5.4.0 17399
+    CMSG_PETBATTLE_RENAME                             = 0x124B, // 5.4.0 17399
+    CMSG_PETBATTLE_CAGE_PET                           = 0x0000,
+    CMSG_PETBATTLE_QUERY_NAME                         = 0x11AC, // 5.4.0 17399
+    CMSG_PETBATTLE_REQUEST_WILD                       = 0x102D, // 5.4.0 17399
+    CMSG_PETBATTLE_REQUEST_PVP                        = 0x0000,
+    CMSG_PETBATTLE_JOIN_QUEUE                         = 0x0000,
+    CMSG_PETBATTLE_REQUEST_UPDATE                     = 0x0000,
+    CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING     = 0x0000,
+    CMSG_PETBATTLE_INPUT                              = 0x1302, // 5.4.0 17399
+    CMSG_PETBATTLE_INPUT_NEW_FRONT_PET                = 0x1ADE, // 5.4.0 17399
+    CMSG_BATTLEPET_SET_BATTLESLOT                     = 0x1712, // 5.4.0 17399
+
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x000,  // 5.0.5 16048
     CMSG_ACCEPT_TRADE                                 = 0x1501, // 5.4.0 17399
     CMSG_ACTIVATETAXI                                 = 0x1B6E, // 5.4.0 17399
@@ -450,7 +468,6 @@ enum Opcodes
     CMSG_REPORT_PVP_AFK                               = 0x1327, // 5.4.0 17399
     CMSG_REPORT_SUGGESTION                            = 0x1A8A, // 5.4.0 17399
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x1686, // 5.4.0 17399
-    CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x1203, // 5.4.0 17399
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x1183, // 5.4.0 17399
     CMSG_REQUEST_CEMETERY_LIST                        = 0x18AE, // 5.4.0 17399
     CMSG_REQUEST_FORCED_REACTIONS                     = 0x14A0, // 5.4.0 17399
@@ -535,7 +552,6 @@ enum Opcodes
     CMSG_SUBMIT_BUG                                   = 0x000,  // 5.0.5 16048
     CMSG_SUBMIT_COMPLAIN                              = 0x000,  // 5.0.5 16048 Deprecated ? 0x2512 4.3.4
     CMSG_SUGGESTION_SUBMIT                            = 0x000,  // 5.0.5 16048
-    CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x1A1F, // 5.4.0 17399
     CMSG_SUMMON_RESPONSE                              = 0x138F, // 5.4.0 17399
     CMSG_SUSPEND_TOKEN                                = 0x286,  // 5.4.0 17399
     CMSG_SAVE_GUILD_EMBLEM                            = 0x150C, // 5.4.0 17399
@@ -645,6 +661,22 @@ enum Opcodes
     MSG_VERIFY_CONNECTIVITY                           = 0x4F57, // 5.4.0 17399
 
     // SMSG
+    //////////////////////////////////////////////////////////////////////////
+    /// Pet Battle opcodes
+    //////////////////////////////////////////////////////////////////////////
+    SMSG_PETBATTLE_FULL_JOURNAL                       = 0x05B5,  // 5.4.0 17399,
+    SMSG_PETBATTLE_QUERY_NAME_RESPONSE                = 0x089D,  // 5.4.0 17399,
+    SMSG_PETBATTLE_REQUEST_FAILED                     = 0x080D,  // 5.4.0 17399,
+    SMSG_PETBATTLE_FIRST_ROUND                        = 0x010B,  // 5.4.0 17399,
+    SMSG_PETBATTLE_FULL_UPDATE                        = 0x0596,  // 5.4.0 17399,
+    SMSG_PETBATTLE_FINALIZE_LOCATION                  = 0x00A4,  // 5.4.0 17399,
+    SMSG_PETBATTLE_PVP_CHALLENGE                      = 0x0000,
+    SMSG_PETBATTLE_ROUND_RESULT                       = 0x0019,  // 5.4.0 17399,
+    SMSG_PETBATTLE_REPLACEMENTS_MADE                  = 0x0000,
+    SMSG_PETBATTLE_FINAL_ROUND                        = 0x00AE,  // 5.4.0 17399,
+    SMSG_PETBATTLE_FINISHED                           = 0x0593,  // 5.4.0 17399,
+    SMSG_PETBATTLE_UPDATE_BATTLESLOT                  = 0x00AF,  // 5.4.0 17399,
+
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x82C,  // 5.4.0 17399
     SMSG_ACCOUNT_CRITERIA_UPDATE_ALL                  = 0x112,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_ACCOUNT_DATA_TIMES                           = 0x890,  // 5.4.0 17399

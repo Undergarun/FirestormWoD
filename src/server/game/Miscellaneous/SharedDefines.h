@@ -1221,7 +1221,7 @@ enum SpellEffects
     SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
     SPELL_EFFECT_190                                = 190, // internal spell
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
-    SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
+    SPELL_EFFECT_UNCAGE_BATTLE_PET                  = 192, // Battle pet exchange (123302)
     SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
     SPELL_EFFECT_194                                = 194, // Unused (5.0.5)
     SPELL_EFFECT_195                                = 195, // Scene related
@@ -1229,8 +1229,8 @@ enum SpellEffects
     SPELL_EFFECT_197                                = 197, // 130243 only
     SPELL_EFFECT_PLAY_CINEMATIC                     = 198,
     SPELL_EFFECT_199                                = 199, //
-    SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
-    SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
+    SPELL_EFFECT_RESURECT_BATTLE_PETS               = 200, // Battle pet Healing  125439, 125801
+    SPELL_EFFECT_CAN_PETBATTLE                      = 201, // Battle pet first slot and track
     SPELL_EFFECT_202                                = 202, // Unk 5.4.0
     SPELL_EFFECT_203                                = 203, // Unk 5.4.0
     SPELL_EFFECT_UPGRADE_BATTLEPET                  = 204, // BATTLEPET System 5.4.0

@@ -49,6 +49,7 @@ void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
 
 void AddSC_SmartSCripts();
+void AddSC_petbattle_abilities();
 
 //Commands
 void AddSC_anticheat_commandscript();

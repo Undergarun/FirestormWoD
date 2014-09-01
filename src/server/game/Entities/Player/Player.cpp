@@ -82,6 +82,7 @@
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
+#include "PetBattle.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -964,6 +965,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_PersonnalXpRate = 0;
 
     m_knockBackTimer = 0;
+
+    m_BattlePetSummon = NULL;
 
     m_ignoreMovementCount = 0;
 
@@ -2035,6 +2038,34 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
     if (now > m_Last_tick + 1000)
         UpdateSoulboundTradeItems();
 
+    if (_SummonBattlePetCallback.ready())
+    {
+        PreparedQueryResult l_Result;
+        _SummonBattlePetCallback.get(l_Result);
+
+        SummonBattlePetCallback(l_Result);
+
+        _SummonBattlePetCallback.cancel();
+    }
+    if (_SummonLastBattlePetSummonedCallback.ready())
+    {
+        PreparedQueryResult l_Result;
+        _SummonLastBattlePetSummonedCallback.get(l_Result);
+
+        SummonLastBattlePetSummonedCallback(l_Result);
+
+        _SummonLastBattlePetSummonedCallback.cancel();
+    }
+    if (_PetBattleCountBattleSpeciesCallback.ready())
+    {
+        PreparedQueryResult l_Result;
+        _PetBattleCountBattleSpeciesCallback.get(l_Result);
+
+        PetBattleCountBattleSpeciesCallback(l_Result);
+
+        _PetBattleCountBattleSpeciesCallback.cancel();
+    }
+
     if (!m_timedquests.empty())
     {
         QuestSet::iterator iter = m_timedquests.begin();
@@ -2786,7 +2817,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             //same map, only remove pet if out of range for new position
             if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityRange()))
+            {
                 UnsummonPetTemporaryIfAny();
+                UnsummonCurrentBattlePetIfAny(true);
+            }
         }
 
         if (!(options & TELE_TO_NOT_LEAVE_COMBAT))
@@ -2884,7 +2918,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             // remove pet on map change
             if (pet)
+            {
                 UnsummonPetTemporaryIfAny();
+            }
+            UnsummonCurrentBattlePetIfAny(true);
 
             // remove stealth on map change
             if (HasAuraType(SPELL_AURA_MOD_STEALTH))
@@ -3078,6 +3115,7 @@ void Player::RemoveFromWorld()
         StopCastingCharm();
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
+        UnsummonCurrentBattlePetIfAny(true);
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
@@ -4999,14 +5037,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
-    // If is summon companion spell, send update of battle pet journal
-    if (learning && spellInfo->Effects[0].Effect == SPELL_EFFECT_SUMMON && spellInfo->Effects[0].MiscValueB == 3221)
-    {
-        WorldPacket data;
-        GetBattlePetMgr().BuildBattlePetJournal(&data);
-        GetSession()->SendPacket(&data);
-    }
-
     // update used talent points count
     if (sSpellMgr->IsTalent(spellInfo->Id))
     {
@@ -5020,6 +5050,50 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         if (spellInfo->IsPrimaryProfessionFirstRank())
             SetFreePrimaryProfessions(freeProfs-1);
+    }
+
+    // Add BattlePet
+    if (learning && !dependent)
+    {
+        for (uint32 speciesId = 0; speciesId != sBattlePetSpeciesStore.GetNumRows(); ++speciesId)
+        {
+            BattlePetSpeciesEntry const* speciesInfo = sBattlePetSpeciesStore.LookupEntry(speciesId);
+            if (!speciesInfo || speciesInfo->spellId != spellId)
+                continue;
+
+            BattlePet pet;
+            pet.Slot = PETBATTLE_NULL_SLOT;
+            pet.NameTimeStamp = 0;
+            pet.Species = speciesInfo->id;
+            pet.DisplayModelID = 0;
+            pet.Flags = 0;
+
+            if (BattlePetTemplate const* temp = sObjectMgr->GetBattlePetTemplate(speciesInfo->id))
+            {
+                pet.Breed = temp->Breed;
+                pet.Quality = temp->Quality;
+                pet.Level = temp->Level;
+            }
+            else
+            {
+                pet.Breed = 3;
+                pet.Quality = BATTLEPET_QUALITY_COMMON;
+                pet.Level = 1;
+            }
+
+            // Calculate XP for level
+            pet.XP = 0;
+            if (pet.Level > 1 && pet.Level < 100)
+                pet.XP = sGtBattlePetXPStore.LookupEntry(pet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + pet.Level - 2)->value;
+
+            // Calculate stats
+            pet.UpdateStats();
+            pet.Health = pet.InfoMaxHealth;
+
+            pet.AddToPlayer(this);
+            GetSession()->SendPetBattleJournal();
+            break;
+        }
     }
 
     // add dependent skills
@@ -6519,6 +6593,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
             }
         }
     }
+
+    SummonLastSummonedBattlePet();
 }
 
 void Player::KillPlayer()
@@ -6546,6 +6622,8 @@ void Player::KillPlayer()
 
     // update visibility
     UpdateObjectVisibility();
+
+    UnsummonCurrentBattlePetIfAny(true);
 }
 
 void Player::CreateCorpse()
@@ -26063,6 +26141,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
         SendRaidDifficulty(GetGroup() != NULL);
 
+    GetSession()->SendPetBattleJournal();
+
     if (GetSkillValue(SKILL_ARCHAEOLOGY))
     {
         m_archaeologyMgr.ShowResearchSites();
@@ -30842,4 +30922,174 @@ void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
 
     if (m_LastPlayedScene)
         m_LastPlayedScene->SendUpdateToPlayer(this);
+}
+
+/// Compute the unlocked pet battle slot
+uint32 Player::GetUnlockedPetBattleSlot()
+{
+    uint32 l_SlotCount = 0;
+
+    /// battle pet training
+    if (HasSpell(119467))
+        l_SlotCount++;
+
+    /// Newbie
+    if (GetAchievementMgr().HasAchieved(7433))
+        l_SlotCount++;
+
+    /// Just a Pup
+    if (GetAchievementMgr().HasAchieved(6566))
+        l_SlotCount++;
+
+    return l_SlotCount;
+}
+/// Summon current pet if any active
+void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
+{
+    if (!m_BattlePetSummon)
+        return;
+
+    if (!p_Unvolontary)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LAST_BATTLEPET);
+        l_Statement->setUInt64(0, 0);
+        l_Statement->setUInt32(1, GetGUIDLow());
+        CharacterDatabase.Execute(l_Statement);
+    }
+
+    m_BattlePetSummon->DespawnOrUnsummon();
+    m_BattlePetSummon->AddObjectToRemoveList();
+    m_BattlePetSummon = NULL;
+
+    SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
+    SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
+}
+/// Summon new pet 
+void Player::SummonBattlePet(uint64 p_JournalID)
+{
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE);
+    l_Statement->setUInt64(0, p_JournalID);
+
+    _SummonBattlePetCallback = LoginDatabase.AsyncQuery(l_Statement);
+}
+/// Summon new pet (call back)
+void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
+{
+    if (!p_Result)
+        return;
+
+    if (!IsInWorld())
+        return;
+
+    BattlePet l_Pet;
+    l_Pet.Load(p_Result->Fetch());
+
+    if (l_Pet.Health <= 0)
+    {
+        UnsummonCurrentBattlePetIfAny(false);
+        return;
+    }
+
+    BattlePetSpeciesEntry const* l_SpeciesInfo = sBattlePetSpeciesStore.LookupEntry(l_Pet.Species);
+    SummonPropertiesEntry const* l_SummonProperties = sSummonPropertiesStore.LookupEntry(3221);
+
+    if (!l_SpeciesInfo || !l_SummonProperties)
+        return;
+
+    uint32 l_Team = GetTeam();
+    uint32 l_Phase = GetPhaseMask();
+
+    WorldLocation l_Position;
+    GetClosePoint(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE);
+
+    TempSummon * l_CurrentPet = new Minion(l_SummonProperties, this, false);
+
+    if (!l_CurrentPet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), GetMap(), l_Phase, l_SpeciesInfo->entry, 0, l_Team, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, GetOrientation()))
+    {
+        delete l_CurrentPet;
+        l_CurrentPet = 0;
+        return;
+    }
+
+    l_CurrentPet->SetHomePosition(l_Position);
+    l_CurrentPet->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
+    l_CurrentPet->InitStats(0);
+    l_CurrentPet->SetOwnerGUID(GetGUID());
+
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LAST_BATTLEPET);
+    l_Statement->setUInt64(0, l_Pet.JournalID);
+    l_Statement->setUInt32(1, GetGUIDLow());
+    CharacterDatabase.Execute(l_Statement);
+
+    SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, l_Pet.JournalID);
+    SetUInt64Value(UNIT_FIELD_CRITTER, l_CurrentPet->GetGUID());
+    SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, l_Pet.Breed);
+
+    l_CurrentPet->SetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, l_Pet.JournalID);
+    l_CurrentPet->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
+
+    if (!l_Pet.Name.empty())
+        l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, l_Pet.NameTimeStamp);
+
+    l_CurrentPet->SetUInt32Value(UNIT_FIELD_BYTES_2, !l_Pet.Name.empty());
+    l_CurrentPet->SetUInt32Value(UNIT_CREATED_BY_SPELL, l_SpeciesInfo->spellId);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+    l_CurrentPet->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
+
+    GetMap()->AddToMap(l_CurrentPet->ToCreature());
+
+    l_CurrentPet->InitSummon();
+    l_CurrentPet->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, (3 * M_PI) / 2);
+    l_CurrentPet->SetSpeed(MOVE_WALK, GetSpeedRate(MOVE_WALK), true);
+    l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
+}
+/// Get current summoned battle pet
+Minion * Player::GetSummonedBattlePet()
+{
+    return m_BattlePetSummon;
+}
+/// Summon last summoned battle pet
+void Player::SummonLastSummonedBattlePet()
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_LAST_BATTLEPET);
+    l_Statement->setUInt32(0, GetGUIDLow());
+
+    _SummonLastBattlePetSummonedCallback = CharacterDatabase.AsyncQuery(l_Statement);
+}
+
+/// Summon last summoned battle pet
+void Player::SummonLastBattlePetSummonedCallback(PreparedQueryResult& p_Result)
+{
+    if (!p_Result || p_Result->GetRowCount() == 0)
+        return;
+
+    Field * p_Fields = p_Result->Fetch();
+    SummonBattlePet(p_Fields[0].GetUInt64());
+}
+
+/// PetBattleCountBattleSpeciesCallback
+void Player::PetBattleCountBattleSpeciesCallback(PreparedQueryResult& p_Result)
+{
+    if (!p_Result)
+        return;
+
+    PetBattle * l_Battle = sPetBattleSystem->GetBattle(_petBattleId);
+
+    if (!l_Battle)
+        return;
+
+    uint32 l_ThisTeamID = l_Battle->Teams[PETBATTLE_TEAM_1]->PlayerGuid == GetGUID() ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
+
+    do
+    {
+        Field * p_Fields = p_Result->Fetch();
+
+        l_Battle->Teams[l_ThisTeamID]->CapturedSpeciesCount[p_Fields[0].GetUInt32()] = p_Fields[1].GetUInt32();
+
+    } while (p_Result->NextRow());
 }

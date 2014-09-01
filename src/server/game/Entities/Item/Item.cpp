@@ -308,7 +308,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
                 SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
         }
 
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x4);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
     }
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
@@ -504,7 +504,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         if (CanUpgrade())
         {
              SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x4);
+             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
         }
     }
     else
@@ -529,7 +529,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
                     SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
             }
 
-            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x4);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
         }
     }
 

@@ -9171,6 +9171,35 @@ void ObjectMgr::LoadSpellPhaseInfo()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell dbc infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadBattlePetTemplate()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _battlePetTemplateStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT species, breed, quality, level FROM battlepet_template");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battlepet template. DB table `battlepet_template` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        BattlePetTemplate temp;
+        temp.Species = fields[0].GetUInt32();
+        temp.Breed = fields[1].GetUInt32();
+        temp.Quality = fields[2].GetUInt32();
+        temp.Level = fields[3].GetUInt32();
+        _battlePetTemplateStore[temp.Species] = temp;
+        count += 1;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet template in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {

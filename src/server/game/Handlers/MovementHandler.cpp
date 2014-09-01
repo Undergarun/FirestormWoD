@@ -198,6 +198,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+    GetPlayer()->SummonLastSummonedBattlePet();
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
@@ -255,6 +256,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     // resummon pet
     plMover->ResummonPetTemporaryUnSummonedIfAny();
+    plMover->SummonLastSummonedBattlePet();
 
     //lets process all delayed operations on successful teleport
     plMover->ProcessDelayedOperations();

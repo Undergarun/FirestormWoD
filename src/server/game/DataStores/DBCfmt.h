@@ -173,5 +173,7 @@ const char WMOAreaTableEntryfmt[]             = "niiixxxxxiixxxx";
 const char WorldMapAreaEntryfmt[]             = "xinxffffixxxii";
 const char WorldMapOverlayEntryfmt[]          = "nxiiiixxxxxxxxxx";
 const char WorldSafeLocsEntryfmt[]            = "nifffxx";
+const char GtBattlePetTypeDamageModfmt[]      = "xf";
+const char GtBattlePetXPfmt[]                 = "xf";
 
 #endif

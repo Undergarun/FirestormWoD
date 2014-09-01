@@ -648,4 +648,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_BLACKMARKET_AUCTION, "DELETE FROM blackmarket WHERE id = ?",                                                         CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_BLACKMARKET_AUCTION, "UPDATE blackmarket SET bid = ?, bidder = ?, bidderCount = ? WHERE id = ?",                     CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_BLACKMARKET_AUCTIONS,"SELECT id, templateId, startTime, bid, bidder, bidderCount FROM blackmarket",                  CONNECTION_SYNCH);
+
+    // Battle pets
+    PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_LAST_BATTLEPET, "SELECT lastbattlepet FROM characters WHERE guid = ? AND lastbattlepet != 0", CONNECTION_ASYNC);
+
 }

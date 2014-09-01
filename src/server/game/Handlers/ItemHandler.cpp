@@ -2380,7 +2380,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     }
 
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
-    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x4);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
     item->SetState(ITEM_CHANGED, player);
 
     // Don't forget to remove currency cost

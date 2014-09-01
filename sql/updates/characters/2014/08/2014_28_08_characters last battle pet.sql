@@ -1,0 +1,1 @@
+ALTER TABLE `characters` ADD COLUMN `lastbattlepet` BIGINT(20) UNSIGNED DEFAULT '0' NOT NULL AFTER `resetspecialization_time`;

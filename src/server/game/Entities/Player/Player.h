@@ -461,7 +461,7 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK21                  = 0x00200000,
     PLAYER_FLAGS_COMMENTATOR2           = 0x00400000,
     PLAYER_ALLOW_ONLY_ABILITY           = 0x00800000,       // used by bladestorm and killing spree, allowed only spells with SPELL_ATTR0_REQ_AMMO, SPELL_EFFECT_ATTACK, checked only for active player
-    PLAYER_FLAGS_BATTLE_PET             = 0x01000000,       // Unlock battle pet slot
+    PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING= 0x01000000,       // allowed to use battle pet combat system
     PLAYER_FLAGS_NO_XP_GAIN             = 0x02000000,
     PLAYER_FLAGS_UNK26                  = 0x04000000,
     PLAYER_FLAGS_AUTO_DECLINE_GUILD     = 0x08000000,       // Automatically declines guild invites
@@ -3048,15 +3048,6 @@ class Player : public Unit, public GridObject<Player>
         void SendTokenResponse();
         void SendRefreshSpellMods();
 
-        /*********************************************************/
-        /***              BATTLE PET SYSTEM                    ***/
-        /*********************************************************/
-
-        BattlePetMgr& GetBattlePetMgr() { return m_battlePetMgr; }
-        BattlePetMgr const& GetBattlePetMgr() const { return m_battlePetMgr; }
-
-        void SendBattlePetJournal();
-
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
@@ -3064,6 +3055,33 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         void PlayScene(uint32 sceneId, WorldObject* spectator);
+
+        /// Compute the unlocked pet battle slot
+        uint32 GetUnlockedPetBattleSlot();
+        /// Summon current pet if any active
+        void UnsummonCurrentBattlePetIfAny(bool p_Unvolontary);
+        /// Summon new pet 
+        void SummonBattlePet(uint64 p_JournalID);
+        /// Get current summoned battle pet
+        Minion * GetSummonedBattlePet();
+        /// Summon last summoned battle pet
+        void SummonLastSummonedBattlePet();
+
+        PreparedQueryResultFuture _PetBattleCountBattleSpeciesCallback;
+
+    protected:
+        /// Summon new pet (call back)
+        void SummonBattlePetCallback(PreparedQueryResult& p_Result);
+        /// Summon last summoned battle pet
+        void SummonLastBattlePetSummonedCallback(PreparedQueryResult& p_Result);
+
+        /// PetBattleCountBattleSpeciesCallback
+        void PetBattleCountBattleSpeciesCallback(PreparedQueryResult& p_Result);
+
+        PreparedQueryResultFuture _SummonBattlePetCallback;
+        PreparedQueryResultFuture _SummonLastBattlePetSummonedCallback;
+
+        Minion * m_BattlePetSummon;
 
     private:
         // Gamemaster whisper whitelist

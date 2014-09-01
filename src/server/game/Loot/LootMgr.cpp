@@ -1647,6 +1647,8 @@ void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_Ite
             else
             {
                 LootTemplate const* l_LootTemplate = LootTemplates_Reference.GetLootFor(-l_Ia->mincountOrRef);
+                if (l_LootTemplate == nullptr)
+                    continue;
 
                 if (!l_LootTemplate->Entries.empty())
                 {
