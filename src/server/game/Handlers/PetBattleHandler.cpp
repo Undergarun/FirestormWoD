@@ -18,7 +18,7 @@ void WorldSession::SendPetBattleJournal()
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
 }
 
-void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
+bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 {
     if (!p_Result)
     {
@@ -57,8 +57,7 @@ void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
         }
 
         _player->OldPetBattleSpellToMerge.clear();
-        SendPetBattleJournal();
-        return;
+        return false;
     }
 
     if (!_player || !_player->IsInWorld())
@@ -128,10 +127,7 @@ void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     _player->OldPetBattleSpellToMerge.clear();
 
     if (l_OldPetAdded)
-    {
-        SendPetBattleJournal();
-        return;
-    }
+        return false;
 
     if (l_UnlockedSlotCount > 0)
         _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
@@ -279,6 +275,7 @@ void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     l_Packet << uint16(0); // unk
 
     SendPacket(&l_Packet);
+    return true;
 }
 void WorldSession::SendPetBattleJournalBattleSlotUpdate()
 {

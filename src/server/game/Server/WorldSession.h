@@ -1079,7 +1079,7 @@ class WorldSession
         void HandleSummonCompanion(WorldPacket& p_RecvData);
         void SendPetBattleRequestFailed(uint8 reason);
         void SendPetBattleJournal();
-        void SendPetBattleJournalCallback(PreparedQueryResult& result);
+        bool SendPetBattleJournalCallback(PreparedQueryResult& result);
         void SendPetBattleJournalBattleSlotUpdate();
         void SendPetBattleJournalBattleSlotUpdateCallback(PreparedQueryResult& result);
         void SendPetBattleFinalizeLocation(PetBattleRequest* request);
