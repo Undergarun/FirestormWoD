@@ -21,7 +21,45 @@ void WorldSession::SendPetBattleJournal()
 void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 {
     if (!p_Result)
+    {
+        for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
+        {
+            BattlePet pet;
+            pet.Slot = PETBATTLE_NULL_SLOT;
+            pet.NameTimeStamp = 0;
+            pet.Species = _player->OldPetBattleSpellToMerge[l_I];
+            pet.DisplayModelID = 0;
+            pet.Flags = 0;
+
+            if (BattlePetTemplate const* temp = sObjectMgr->GetBattlePetTemplate(_player->OldPetBattleSpellToMerge[l_I]))
+            {
+                pet.Breed = temp->Breed;
+                pet.Quality = temp->Quality;
+                pet.Level = temp->Level;
+            }
+            else
+            {
+                pet.Breed = 3;
+                pet.Quality = BATTLEPET_QUALITY_COMMON;
+                pet.Level = 1;
+            }
+
+            // Calculate XP for level
+            pet.XP = 0;
+            if (pet.Level > 1 && pet.Level < 100)
+                pet.XP = sGtBattlePetXPStore.LookupEntry(pet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + pet.Level - 2)->value;
+
+            // Calculate stats
+            pet.UpdateStats();
+            pet.Health = pet.InfoMaxHealth;
+
+            pet.AddToPlayer(_player);
+        }
+
+        _player->OldPetBattleSpellToMerge.clear();
+        SendPetBattleJournal();
         return;
+    }
 
     if (!_player || !_player->IsInWorld())
         return;
@@ -46,10 +84,13 @@ void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     }
     while (p_Result->NextRow());
 
+    bool l_OldPetAdded = false;
     for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
     {
         if (std::find(l_AlreadyKnownPet.begin(), l_AlreadyKnownPet.end(), _player->OldPetBattleSpellToMerge[l_I]) != l_AlreadyKnownPet.end())
             continue;
+
+        l_OldPetAdded = true;
 
         BattlePet pet;
         pet.Slot = PETBATTLE_NULL_SLOT;
@@ -85,6 +126,12 @@ void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     }
 
     _player->OldPetBattleSpellToMerge.clear();
+
+    if (l_OldPetAdded)
+    {
+        SendPetBattleJournal();
+        return;
+    }
 
     if (l_UnlockedSlotCount > 0)
         _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
