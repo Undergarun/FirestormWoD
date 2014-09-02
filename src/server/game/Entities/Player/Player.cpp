@@ -20031,7 +20031,22 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     if (accountResult)
     {
         do
+        {
+            uint32 l_SpellID = (*accountResult)[0].GetUInt32();
+            for (uint32 l_I = 0; l_I < sBattlePetSpeciesStore.GetNumRows(); l_I++)
+            {
+                BattlePetSpeciesEntry const* speciesInfo = sBattlePetSpeciesStore.LookupEntry(l_I);
+
+                if (speciesInfo && speciesInfo->spellId == l_SpellID)
+                {
+                    OldPetBattleSpellToMerge.push_back(speciesInfo->id);
+                    break;
+                }
+
+            }
+
             addSpell((*accountResult)[0].GetUInt32(), (*accountResult)[1].GetBool(), false, false, (*accountResult)[2].GetBool(), true);
+        }
         while (accountResult->NextRow());
     }
 
