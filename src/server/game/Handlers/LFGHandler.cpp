@@ -66,14 +66,14 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
     std::string comment = recvData.ReadString(length);
 
     const LFGDungeonEntry* entry = sLFGDungeonStore.LookupEntry(*newDungeons.begin() & 0xFFFFFF);
-    uint8 type = TYPEID_DUNGEON;
+    uint8 l_Category = LFG_CATEGORIE_DUNGEON;
     uint8 maxGroupSize = 5;
     if (entry != NULL)
-        type = entry->type;
+        l_Category = entry->category;
 
-    if (type == LFG_SUBTYPEID_RAID)
+    if (l_Category == LFG_CATEGORIE_RAID)
         maxGroupSize = 25;
-    if (type == LFG_SUBTYPEID_SCENARIO)
+    if (l_Category == LFG_CATEGORIE_SCENARIO)
         maxGroupSize = 3;
 
     if (!sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE) ||
