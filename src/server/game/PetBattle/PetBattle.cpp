@@ -113,6 +113,8 @@ void BattlePet::AddToPlayer(Player * p_Player)
     l_Statement->setInt32(13, InfoSpeed);
     l_Statement->setInt32(14, InfoGender);
     l_Statement->setInt32(15, p_Player->GetSession()->GetAccountId());
+
+    // We need to execute it sync to be sure we will have it at next async select
     LoginDatabase.Execute(l_Statement);
 }
 

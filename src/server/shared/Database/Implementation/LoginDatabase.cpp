@@ -110,7 +110,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_BATTLESLOT_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND slot >= 0", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_TEAM, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND slot >= 0 AND health > 0 ORDER BY slot ASC", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
     PREPARE_STATEMENT(LOGIN_UPD_PETBATTLE_TOGGLE_FLAGS, "UPDATE account_battlepet SET flags = IF(flags & ?, flags & ~ ?, flags | ?) WHERE id=?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_PETBATTLE_RENAME, "UPDATE account_battlepet SET name = ?, nameTimeStamp = ? WHERE account = ? AND id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_UNSET_BATTLESLOT, "UPDATE account_battlepet SET slot = -1 WHERE account = ? AND slot = ?", CONNECTION_ASYNC);

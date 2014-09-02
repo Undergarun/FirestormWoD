@@ -17,6 +17,7 @@ void WorldSession::SendPetBattleJournal()
     stmt->setUInt32(0, GetAccountId());
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
 }
+
 void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 {
     if (!p_Result)
