@@ -20,11 +20,11 @@ void WorldSession::SendPetBattleJournal()
 
 bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 {
+    if (!_player || !_player->IsInWorld())
+        return true;
+
     if (!p_Result)
     {
-        if (!_player)
-            return true;
-
         for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
         {
             BattlePet pet;
@@ -62,9 +62,6 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
         _player->OldPetBattleSpellToMerge.clear();
         return false;
     }
-
-    if (!_player || !_player->IsInWorld())
-        return true;
 
     std::vector<BattlePet>  l_Pets(p_Result->GetRowCount());
     uint32                  l_UnlockedSlotCount = _player->GetUnlockedPetBattleSlot();
