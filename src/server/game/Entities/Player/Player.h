@@ -3069,6 +3069,8 @@ class Player : public Unit, public GridObject<Player>
 
         PreparedQueryResultFuture _PetBattleCountBattleSpeciesCallback;
 
+        std::vector<uint32> OldPetBattleSpellToMerge;
+
     protected:
         /// Summon new pet (call back)
         void SummonBattlePetCallback(PreparedQueryResult& p_Result);
