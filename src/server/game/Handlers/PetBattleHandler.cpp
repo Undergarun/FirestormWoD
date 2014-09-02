@@ -22,6 +22,9 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 {
     if (!p_Result)
     {
+        if (!_player)
+            return true;
+
         for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
         {
             BattlePet pet;
