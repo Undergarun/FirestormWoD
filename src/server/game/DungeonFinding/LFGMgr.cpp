@@ -1176,6 +1176,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
         LfgQueueInfoMap::const_iterator itOther = itFirst;
         if (itOther != pqInfoMap.end() && itOther->second->category != p_Categorie )
             continue;
+
         ++itOther;
         while (itOther != pqInfoMap.end() && itOther->second->dungeons.find(*itDungeon) != itOther->second->dungeons.end())
             ++itOther;
@@ -1214,9 +1215,9 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
                 Tanks_Needed = 2;
                 break;
             case LFG_CATEGORIE_SCENARIO:
-                Dps_Needed = 3;
-                Healers_Needed = 0;
-                Tanks_Needed = 0;
+                Dps_Needed = 1;
+                Healers_Needed = 1;
+                Tanks_Needed = 1;
                 break;
             default:
                 Dps_Needed = 3;
@@ -1227,9 +1228,9 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
 
         if (IsInDebug())
         {
-            Dps_Needed     = 2;
-            Healers_Needed = 0;
-            Tanks_Needed   = 0;
+            Dps_Needed     = 1;
+            Healers_Needed = 1;
+            Tanks_Needed   = 1;
         }
 
         for (LfgQueueInfoMap::const_iterator itQueue = pqInfoMap.begin(); itQueue != pqInfoMap.end(); ++itQueue)
@@ -1422,6 +1423,7 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
             pqInfo->dps = entry->dpsNeeded;
             pqInfo->healers = entry->healerNeeded;
             pqInfo->tanks = entry->tankNeeded;
+            pqInfo->category = entry->category;
         }
 
         // Set queue roles needed - As we are using check_roles will not have more that 1 tank, 1 healer, 3 dps
@@ -1546,7 +1548,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& pla
    @param[in]     removeLeaderFlag Determines if we have to remove leader flag (only used first call, Default = true)
    @return True if roles are compatible
 */
-bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeLeaderFlag /*= true*/)
+bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory p_Category, bool removeLeaderFlag /*= true*/)
 {
     if (groles.empty())
         return false;
@@ -1559,7 +1561,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeL
     uint8 healerNeeded = 0;
     uint8 tankNeeded = 0;
 
-    switch (type)
+    switch (p_Category)
     {
         case LFG_CATEGORIE_DUNGEON:
             dpsNeeded = 3;
@@ -1572,9 +1574,9 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeL
             tankNeeded = 2;
             break;
         case LFG_CATEGORIE_SCENARIO:
-            dpsNeeded = 3;
-            healerNeeded = 0;
-            tankNeeded = 0;
+            dpsNeeded = 1;
+            healerNeeded = 1;
+            tankNeeded = 1;
             break;
         default:
             dpsNeeded = 3;
@@ -1585,9 +1587,9 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeL
 
     if (IsInDebug())
     {
-        dpsNeeded    = 2;
-        healerNeeded = 0;
-        tankNeeded   = 0;
+        dpsNeeded    = 1;
+        healerNeeded = 1;
+        tankNeeded   = 1;
     }
 
     if (removeLeaderFlag)
@@ -1604,7 +1606,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeL
             if (it->second != ROLE_TANK)
             {
                 it->second -= ROLE_TANK;
-                if (CheckGroupRoles(groles, type, false))
+                if (CheckGroupRoles(groles, p_Category, false))
                     return true;
                 it->second += ROLE_TANK;
             }
@@ -1619,7 +1621,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeL
             if (it->second != ROLE_HEALER)
             {
                 it->second -= ROLE_HEALER;
-                if (CheckGroupRoles(groles, type, false))
+                if (CheckGroupRoles(groles, p_Category, false))
                     return true;
                 it->second += ROLE_HEALER;
             }
@@ -1634,7 +1636,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgCategory type, bool removeL
             if (it->second != ROLE_DAMAGE)
             {
                 it->second -= ROLE_DAMAGE;
-                if (CheckGroupRoles(groles, type, false))
+                if (CheckGroupRoles(groles, p_Category, false))
                     return true;
                 it->second += ROLE_DAMAGE;
             }
