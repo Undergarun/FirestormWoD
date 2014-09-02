@@ -21153,6 +21153,21 @@ void Player::_LoadSpells(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
+
+            uint32 l_SpellID = fields[0].GetUInt32();
+
+            for (uint32 l_I = 0; l_I < sBattlePetSpeciesStore.GetNumRows(); l_I++)
+            {
+                BattlePetSpeciesEntry const* speciesInfo = sBattlePetSpeciesStore.LookupEntry(l_I);
+
+                if (speciesInfo && speciesInfo->spellId == l_SpellID)
+                {
+                    OldPetBattleSpellToMerge.push_back(speciesInfo->id);
+                    break;
+                }
+
+            }
+
             addSpell(fields[0].GetUInt32(), fields[1].GetBool(), false, false, fields[2].GetBool(), true);
         }
         while (result->NextRow());

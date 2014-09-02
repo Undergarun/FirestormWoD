@@ -31,17 +31,60 @@ void WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     BattlePet           *   l_PetSlots[3]       = { 0, 0, 0 };
     size_t                  l_PetID             = 0;
 
+    std::vector<uint32> l_AlreadyKnownPet;
+
     uint32 l_MaxLevelCount = 0;
     do
     {
         l_Pets[l_PetID].Load(p_Result->Fetch());
-
+        l_AlreadyKnownPet.push_back(l_Pets[l_PetID].Species);
+             
         if (l_Pets[l_PetID].Slot >= 0 && l_Pets[l_PetID].Slot < (int32)l_UnlockedSlotCount)
             l_PetSlots[l_Pets[l_PetID].Slot] = &l_Pets[l_PetID];
 
         ++l_PetID;
     }
     while (p_Result->NextRow());
+
+    for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
+    {
+        if (std::find(l_AlreadyKnownPet.begin(), l_AlreadyKnownPet.end(), _player->OldPetBattleSpellToMerge[l_I]) != l_AlreadyKnownPet.end())
+            continue;
+
+        BattlePet pet;
+        pet.Slot = PETBATTLE_NULL_SLOT;
+        pet.NameTimeStamp = 0;
+        pet.Species = _player->OldPetBattleSpellToMerge[l_I];
+        pet.DisplayModelID = 0;
+        pet.Flags = 0;
+
+        if (BattlePetTemplate const* temp = sObjectMgr->GetBattlePetTemplate(_player->OldPetBattleSpellToMerge[l_I]))
+        {
+            pet.Breed = temp->Breed;
+            pet.Quality = temp->Quality;
+            pet.Level = temp->Level;
+        }
+        else
+        {
+            pet.Breed = 3;
+            pet.Quality = BATTLEPET_QUALITY_COMMON;
+            pet.Level = 1;
+        }
+
+        // Calculate XP for level
+        pet.XP = 0;
+        if (pet.Level > 1 && pet.Level < 100)
+            pet.XP = sGtBattlePetXPStore.LookupEntry(pet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + pet.Level - 2)->value;
+
+        // Calculate stats
+        pet.UpdateStats();
+        pet.Health = pet.InfoMaxHealth;
+
+        pet.AddToPlayer(_player);
+        l_Pets.push_back(pet);
+    }
+
+    _player->OldPetBattleSpellToMerge.clear();
 
     if (l_UnlockedSlotCount > 0)
         _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
