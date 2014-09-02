@@ -806,13 +806,6 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
         return;
     }
 
-    // FIXME - Raid browser not supported yet
-    if (isRaid)
-    {
-        sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::Join: [" UI64FMTD "] trying to join raid browser and it's disabled.", guid);
-        return;
-    }
-
     SetComment(guid, comment);
 
     if (grp)                                               // Begin rolecheck
