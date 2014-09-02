@@ -61,7 +61,7 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     }
 
     if (!_player || !_player->IsInWorld())
-        return;
+        return true;
 
     std::vector<BattlePet>  l_Pets(p_Result->GetRowCount());
     uint32                  l_UnlockedSlotCount = _player->GetUnlockedPetBattleSlot();
