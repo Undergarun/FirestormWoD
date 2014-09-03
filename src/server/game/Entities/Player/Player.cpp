@@ -31077,9 +31077,11 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, (3 * M_PI) / 2);
     l_CurrentPet->SetSpeed(MOVE_WALK, GetSpeedRate(MOVE_WALK), true);
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
+
+    m_BattlePetSummon = l_CurrentPet;
 }
 /// Get current summoned battle pet
-Minion * Player::GetSummonedBattlePet()
+TempSummon * Player::GetSummonedBattlePet()
 {
     return m_BattlePetSummon;
 }
