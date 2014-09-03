@@ -3063,7 +3063,7 @@ class Player : public Unit, public GridObject<Player>
         /// Summon new pet 
         void SummonBattlePet(uint64 p_JournalID);
         /// Get current summoned battle pet
-        TempSummon * GetSummonedBattlePet();
+        Creature * GetSummonedBattlePet();
         /// Summon last summoned battle pet
         void SummonLastSummonedBattlePet();
 
@@ -3083,7 +3083,7 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _SummonBattlePetCallback;
         PreparedQueryResultFuture _SummonLastBattlePetSummonedCallback;
 
-        TempSummon * m_BattlePetSummon;
+        uint64 m_BattlePetSummon;
 
     private:
         // Gamemaster whisper whitelist

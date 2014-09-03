@@ -30986,9 +30986,11 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
         CharacterDatabase.Execute(l_Statement);
     }
 
-    m_BattlePetSummon->DespawnOrUnsummon();
-    m_BattlePetSummon->AddObjectToRemoveList();
-    m_BattlePetSummon = NULL;
+    Creature * l_Pet = GetSummonedBattlePet();
+
+    l_Pet->DespawnOrUnsummon();
+    l_Pet->AddObjectToRemoveList();
+    m_BattlePetSummon = 0;
 
     SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
@@ -31082,12 +31084,12 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->SetSpeed(MOVE_WALK, GetSpeedRate(MOVE_WALK), true);
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
 
-    m_BattlePetSummon = l_CurrentPet;
+    m_BattlePetSummon = l_CurrentPet->GetGUID();
 }
 /// Get current summoned battle pet
-TempSummon * Player::GetSummonedBattlePet()
+Creature * Player::GetSummonedBattlePet()
 {
-    return m_BattlePetSummon;
+    return sObjectAccessor->FindCreature(m_BattlePetSummon);
 }
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
