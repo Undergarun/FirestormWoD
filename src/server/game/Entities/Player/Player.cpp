@@ -31095,7 +31095,7 @@ Creature * Player::GetSummonedBattlePet()
 {
     Unit * l_Pet = sObjectAccessor->FindUnit(m_BattlePetSummon);
 
-    return l_Pet ? l_Pet->ToCreature : NULL;
+    return l_Pet ? l_Pet->ToCreature() : NULL;
 }
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
