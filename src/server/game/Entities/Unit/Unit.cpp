@@ -15514,7 +15514,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                     if (Pet* pet = ToPlayer()->GetPet())
                         pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
 
-                    if (Minion * l_BattlePet = ToPlayer()->GetSummonedBattlePet())
+                    if (TempSummon * l_BattlePet = ToPlayer()->GetSummonedBattlePet())
                         l_BattlePet->SetSpeed(mtype, m_speed_rate[mtype], forced);
                 }
         }

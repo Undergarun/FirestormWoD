@@ -31059,7 +31059,12 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
 
     if (!l_Pet.Name.empty())
+    {
         l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, l_Pet.NameTimeStamp);
+        l_CurrentPet->SetName(l_Pet.Name);
+    }
+    else
+        l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, 0);
 
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_BYTES_2, !l_Pet.Name.empty());
     l_CurrentPet->SetUInt32Value(UNIT_CREATED_BY_SPELL, l_SpeciesInfo->spellId);
@@ -31076,9 +31081,11 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, (3 * M_PI) / 2);
     l_CurrentPet->SetSpeed(MOVE_WALK, GetSpeedRate(MOVE_WALK), true);
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
+
+    m_BattlePetSummon = l_CurrentPet;
 }
 /// Get current summoned battle pet
-Minion * Player::GetSummonedBattlePet()
+TempSummon * Player::GetSummonedBattlePet()
 {
     return m_BattlePetSummon;
 }

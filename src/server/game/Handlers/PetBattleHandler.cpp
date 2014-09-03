@@ -20,6 +20,9 @@ void WorldSession::SendPetBattleJournal()
 
 bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 {
+    if (!_player || !_player->IsInWorld())
+        return true;
+
     if (!p_Result)
     {
         for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
@@ -59,9 +62,6 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
         _player->OldPetBattleSpellToMerge.clear();
         return false;
     }
-
-    if (!_player || !_player->IsInWorld())
-        return true;
 
     std::vector<BattlePet>  l_Pets(p_Result->GetRowCount());
     uint32                  l_UnlockedSlotCount = _player->GetUnlockedPetBattleSlot();
@@ -1171,11 +1171,12 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
 
     l_Packet.FlushBits();
 
-    l_Packet.WriteString(l_Creature->GetName());
+    if (l_Creature->GetName())
+        l_Packet.WriteString(l_Creature->GetName());
 
     l_Packet << uint64(l_JournalGuid);
-    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
     l_Packet << uint32(l_Creature->GetEntry());
+    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
 
     _player->GetSession()->SendPacket(&l_Packet);
 }
