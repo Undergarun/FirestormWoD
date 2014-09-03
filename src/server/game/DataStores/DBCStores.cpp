@@ -457,8 +457,15 @@ void LoadDBCStores(const std::string& dataPath)
     // Fill data
     sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, false);                                                                                      // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
     for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
+    {
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
+        {
+            uint32 l_ResetTime = entry->resetTime;
+            if (entry->Difficulty == RAID_TOOL_DIFFICULTY)
+                l_ResetTime = 0x93A80; // 7 days
+            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(l_ResetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
+        }
+    }
     sMapDifficultyStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");                                              // 17399

@@ -676,9 +676,8 @@ void KillRewarder::Reward()
     // 6. Update guild achievements.
     if (Creature* victim = _victim->ToCreature())
     {
-        if (victim->IsDungeonBoss())
-            if (InstanceScript* instance = _victim->GetInstanceScript())
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
+        if (InstanceScript* instance = _victim->GetInstanceScript())
+            instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
 
         if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
