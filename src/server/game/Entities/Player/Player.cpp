@@ -31093,7 +31093,7 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
 /// Get current summoned battle pet
 Creature * Player::GetSummonedBattlePet()
 {
-    return ObjectAccessor::FindCreature(m_BattlePetSummon);
+    return sObjectAccessor->FindUnit(m_BattlePetSummon);
 }
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
