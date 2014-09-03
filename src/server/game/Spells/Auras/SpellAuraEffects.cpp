@@ -1066,6 +1066,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             {
                 case 120954:// Fortifying Brew
                 {
+                    if (!caster)
+                        break;
                     // Glyph of Fortifying Brew
                     if (caster->HasAura(124997))
                         amount = 10;
@@ -1084,6 +1086,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             {
                 case 120954:// Fortifying Brew
                 {
+                    if (!caster)
+                        break;
                     // Glyph of Fortifying Brew
                     if (caster->HasAura(124997))
                         amount = 25;
@@ -1101,6 +1105,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             switch (GetId())
             {
                 case 6262:  // Healthstone
+                    if (!caster)
+                        break;
                     if (!caster->HasAura(56224)) // Glyph of Healthstone
                         amount = 0;
                     break;
