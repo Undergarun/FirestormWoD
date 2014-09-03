@@ -1171,11 +1171,12 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
 
     l_Packet.FlushBits();
 
-    l_Packet.WriteString(l_Creature->GetName());
+    if (l_Creature->GetName())
+        l_Packet.WriteString(l_Creature->GetName());
 
     l_Packet << uint64(l_JournalGuid);
-    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
     l_Packet << uint32(l_Creature->GetEntry());
+    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
 
     _player->GetSession()->SendPacket(&l_Packet);
 }

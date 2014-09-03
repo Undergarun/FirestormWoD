@@ -31060,7 +31060,12 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
 
     if (!l_Pet.Name.empty())
+    {
         l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, l_Pet.NameTimeStamp);
+        l_CurrentPet->SetName(l_Pet.Name);
+    }
+    else
+        l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, 0);
 
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_BYTES_2, !l_Pet.Name.empty());
     l_CurrentPet->SetUInt32Value(UNIT_CREATED_BY_SPELL, l_SpeciesInfo->spellId);
