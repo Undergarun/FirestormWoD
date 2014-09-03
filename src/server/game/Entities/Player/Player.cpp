@@ -965,7 +965,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_knockBackTimer = 0;
 
-    m_BattlePetSummon = NULL;
+    m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
 
@@ -30988,8 +30988,12 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 
     Creature * l_Pet = GetSummonedBattlePet();
 
-    l_Pet->DespawnOrUnsummon();
-    l_Pet->AddObjectToRemoveList();
+    if (l_Pet)
+    {
+        l_Pet->DespawnOrUnsummon();
+        l_Pet->AddObjectToRemoveList();
+    }
+
     m_BattlePetSummon = 0;
 
     SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
