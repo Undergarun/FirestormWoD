@@ -3427,6 +3427,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 125634: // Call for Nomi (spawn spammed, usebug)
+                spellInfo->RecoveryTime = 9000000;
+                break;
             case 65075: // Tower of Flames
             case 65077: // Tower of Frost
             case 64482: // Tower of Life
