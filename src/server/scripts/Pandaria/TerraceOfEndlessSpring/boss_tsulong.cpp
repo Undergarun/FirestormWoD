@@ -376,7 +376,9 @@ class boss_tsulong : public CreatureScript
                 me->CombatStop();
                 EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
-                _Reset();
+                me->ResetLootMode();
+                events.Reset();
+                summons.DespawnAll();
 
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
