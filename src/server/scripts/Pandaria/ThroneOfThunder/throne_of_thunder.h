@@ -144,6 +144,7 @@ enum eCreatures
     NPC_SECOND_TWISTED_FATE         = 69746,
     NPC_RECKLESS_CHARGE             = 69453,
     NPC_GARA_JAL                    = 69135,
+    NPC_SHADOWED_LOA_SPIRIT         = 69548,
 
     // Tortos
     NPC_TORTOS                      = 67977,
