@@ -230,9 +230,14 @@ void ProtectorsWipe(InstanceScript* pInstance)
             protector->SetReactState(REACT_DEFENSIVE);
             protector->AI()->SetData(TYPE_SET_WIPE, 0);
             protector->GetMotionMaster()->MoveTargetedHome();
+            protector->SetFullHealth();
             pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, protector);
         }
     }
+
+    if (pInstance->instance->IsHeroic())
+        if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+            minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
 
     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
 }
@@ -413,7 +418,6 @@ class boss_ancient_regail : public CreatureScript
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->ToPlayer());
                             else if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetOwner() && killer->GetOwner()->ToPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->GetOwner()->ToPlayer());
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
@@ -762,7 +766,6 @@ class boss_ancient_asani : public CreatureScript
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->ToPlayer());
                             else if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetOwner() && killer->GetOwner()->ToPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->GetOwner()->ToPlayer());
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
@@ -1061,6 +1064,7 @@ class boss_protector_kaolan : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
 
                     Creature* regail = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_REGAIL));
                     Creature* asani = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_ASANI));
@@ -1116,7 +1120,6 @@ class boss_protector_kaolan : public CreatureScript
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->ToPlayer());
                             else if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetOwner() && killer->GetOwner()->ToPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->GetOwner()->ToPlayer());
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
@@ -1475,6 +1478,8 @@ class mob_minion_of_fear : public CreatureScript
             void JustDied(Unit* killer)
             {
                 me->CastSpell(me, SPELL_CORRUPTED_ESSENCE, true);
+                me->DespawnOrUnsummon(3000);
+                me->GetMotionMaster()->Clear();
             }
 
             void UpdateAI(const uint32 diff)
