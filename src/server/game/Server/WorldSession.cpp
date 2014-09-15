@@ -1211,8 +1211,11 @@ void WorldSession::ProcessQueryCallbacks()
     if (_petBattleJournalCallback.ready())
     {
         _petBattleJournalCallback.get(result);
-        SendPetBattleJournalCallback(result);
+        bool l_Result = SendPetBattleJournalCallback(result);
         _petBattleJournalCallback.cancel();
+
+        if (!l_Result)
+            SendPetBattleJournal();
     }
 
     //- SendPetBattleJournalBattleSlot

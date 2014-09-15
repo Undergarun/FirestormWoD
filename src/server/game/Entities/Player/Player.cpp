@@ -676,9 +676,8 @@ void KillRewarder::Reward()
     // 6. Update guild achievements.
     if (Creature* victim = _victim->ToCreature())
     {
-        if (victim->IsDungeonBoss())
-            if (InstanceScript* instance = _victim->GetInstanceScript())
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
+        if (InstanceScript* instance = _victim->GetInstanceScript())
+            instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
 
         if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
@@ -966,7 +965,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_knockBackTimer = 0;
 
-    m_BattlePetSummon = NULL;
+    m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
 
@@ -20031,7 +20030,22 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     if (accountResult)
     {
         do
+        {
+            uint32 l_SpellID = (*accountResult)[0].GetUInt32();
+            for (uint32 l_I = 0; l_I < sBattlePetSpeciesStore.GetNumRows(); l_I++)
+            {
+                BattlePetSpeciesEntry const* speciesInfo = sBattlePetSpeciesStore.LookupEntry(l_I);
+
+                if (speciesInfo && speciesInfo->spellId == l_SpellID)
+                {
+                    OldPetBattleSpellToMerge.push_back(speciesInfo->id);
+                    break;
+                }
+
+            }
+
             addSpell((*accountResult)[0].GetUInt32(), (*accountResult)[1].GetBool(), false, false, (*accountResult)[2].GetBool(), true);
+        }
         while (accountResult->NextRow());
     }
 
@@ -21153,6 +21167,21 @@ void Player::_LoadSpells(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
+
+            uint32 l_SpellID = fields[0].GetUInt32();
+
+            for (uint32 l_I = 0; l_I < sBattlePetSpeciesStore.GetNumRows(); l_I++)
+            {
+                BattlePetSpeciesEntry const* speciesInfo = sBattlePetSpeciesStore.LookupEntry(l_I);
+
+                if (speciesInfo && speciesInfo->spellId == l_SpellID)
+                {
+                    OldPetBattleSpellToMerge.push_back(speciesInfo->id);
+                    break;
+                }
+
+            }
+
             addSpell(fields[0].GetUInt32(), fields[1].GetBool(), false, false, fields[2].GetBool(), true);
         }
         while (result->NextRow());
@@ -30957,9 +30986,15 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
         CharacterDatabase.Execute(l_Statement);
     }
 
-    m_BattlePetSummon->DespawnOrUnsummon();
-    m_BattlePetSummon->AddObjectToRemoveList();
-    m_BattlePetSummon = NULL;
+    Creature * l_Pet = GetSummonedBattlePet();
+
+    if (l_Pet)
+    {
+        l_Pet->DespawnOrUnsummon();
+        l_Pet->AddObjectToRemoveList();
+    }
+
+    m_BattlePetSummon = 0;
 
     SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
@@ -31030,7 +31065,12 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
 
     if (!l_Pet.Name.empty())
+    {
         l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, l_Pet.NameTimeStamp);
+        l_CurrentPet->SetName(l_Pet.Name);
+    }
+    else
+        l_CurrentPet->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, 0);
 
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_BYTES_2, !l_Pet.Name.empty());
     l_CurrentPet->SetUInt32Value(UNIT_CREATED_BY_SPELL, l_SpeciesInfo->spellId);
@@ -31047,11 +31087,15 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_CurrentPet->GetMotionMaster()->MoveFollow(this, PET_FOLLOW_DIST, (3 * M_PI) / 2);
     l_CurrentPet->SetSpeed(MOVE_WALK, GetSpeedRate(MOVE_WALK), true);
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
+
+    m_BattlePetSummon = l_CurrentPet->GetGUID();
 }
 /// Get current summoned battle pet
-Minion * Player::GetSummonedBattlePet()
+Creature * Player::GetSummonedBattlePet()
 {
-    return m_BattlePetSummon;
+    Unit * l_Pet = sObjectAccessor->FindUnit(m_BattlePetSummon);
+
+    return l_Pet ? l_Pet->ToCreature() : NULL;
 }
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
