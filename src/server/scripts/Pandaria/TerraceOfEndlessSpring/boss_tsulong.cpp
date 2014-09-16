@@ -276,7 +276,10 @@ class boss_tsulong : public CreatureScript
                     return;
 
                 if (phase == PHASE_NIGHT)
+                {
+                    who->RemoveAura(SPELL_NIGHT_PHASE_EFFECT);
                     Talk(VO_TES_SERPENT_SLAY_NIGHT);
+                }
                 else
                     Talk(VO_TES_SERPENT_SLAY_DAY);
             }
@@ -427,6 +430,7 @@ class boss_tsulong : public CreatureScript
                     me->ReenableHealthRegen();
                     me->CombatStop();
                     EnterEvadeMode();
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                 }
             }
 
@@ -520,6 +524,13 @@ class boss_tsulong : public CreatureScript
                 if (phase == PHASE_NIGHT)
                 {
                     CheckCombatState();
+                    // Check if all players have night visual aura
+                    Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        if (Player* player = itr->getSource())
+                            if (!player->HasAura(SPELL_NIGHT_PHASE_EFFECT) && player->isAlive())
+                                me->AddAura(SPELL_NIGHT_PHASE_EFFECT, player);
+
                     switch (events.ExecuteEvent())
                     {
                         case EVENT_SWITCH_TO_NIGHT_PHASE:
