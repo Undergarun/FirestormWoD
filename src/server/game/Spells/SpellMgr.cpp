@@ -5283,6 +5283,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 106334:// Wash Away
                 spellInfo->AttributesEx3 &= ~ SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_24;
+                spellInfo->Effects[0].TargetB = 0;
                 break;
             case 120552:// Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
