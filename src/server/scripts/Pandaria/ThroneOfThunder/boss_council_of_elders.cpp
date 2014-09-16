@@ -1615,6 +1615,12 @@ class boss_high_priestress_mar_li : public CreatureScript
 
                 if (pInstance)
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+
+                std::list<Creature*> l_ShadowedSpiritList;
+                GetCreatureListWithEntryInGrid(l_ShadowedSpiritList, me, NPC_SHADOWED_LOA_SPIRIT, 200.0f);
+
+                for (Creature* l_ShadowedSpirit : l_ShadowedSpiritList)
+                    l_ShadowedSpirit->DespawnOrUnsummon();
             }
 
             void JustSummoned(Creature* summon)
@@ -1857,27 +1863,27 @@ class boss_high_priestress_mar_li : public CreatureScript
                 {
                     case EVENT_WRATH_OF_THE_LOA_BLESSED:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, SPELL_WRATH_OF_THE_LOA_BLESSED, true);
+                            me->CastSpell(target, SPELL_WRATH_OF_THE_LOA_BLESSED, false);
                         events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_BLESSED, 10000);
                         break;
                     case EVENT_WRATH_OF_THE_LOA_SHADOW:
                         if (me->HasAura(SPELL_POSSESSED))
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                                me->CastSpell(target, SPELL_WRATH_OF_THE_LOA_SHADOW, true);
+                                me->CastSpell(target, SPELL_WRATH_OF_THE_LOA_SHADOW, false);
                             events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_SHADOW, 10000);
                         }
                         break;
                     case EVENT_BLESSED_LOA_SPIRIT_SUMMON:
                         {
                             if (!GetClosestCreatureWithEntry(me, NPC_BLESSED_LOA_SPIRIT, 200.0f))
-                                me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, false);
+                                me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, true);
                         }
                         events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 35000);
                         break;
                     case EVENT_SHADOWED_LOA_SPIRIT_SUMMON:
                         if (me->HasAura(SPELL_POSSESSED))
-                            me->CastSpell(me, SPELL_SHADOWED_LOA_SPIRIT_SUMMONED, false);
+                            me->CastSpell(me, SPELL_SHADOWED_LOA_SPIRIT_SUMMONED, true);
 
                         Talk(urand(2, 5));
                         events.ScheduleEvent(EVENT_SHADOWED_LOA_SPIRIT_SUMMON, 37000);
@@ -1886,7 +1892,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         {
                             counter++;
-                            me->CastSpell(me, SPELL_DARK_POWER, true);
+                            me->CastSpell(me, SPELL_DARK_POWER, false);
                             events.ScheduleEvent(EVENT_DARK_POWER, 10000);
                         }
                         break;
@@ -1993,6 +1999,9 @@ class mob_living_sand : public CreatureScript
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveAura(SPELL_SAND_VISUAL);
                     me->SetReactState(REACT_AGGRESSIVE);
+
+                    if (Player* l_Player = me->SelectNearestPlayer(30.0f))
+                        me->Attack(l_Player, true);
                 }
                 else if (action == ACTION_TREACHEROUS_GROUND)
                 {
