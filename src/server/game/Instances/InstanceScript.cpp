@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "Map.h"
 #include "Player.h"
+#include "Group.h"
 #include "GameObject.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -541,20 +542,34 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     if (!encounters)
         return;
 
+    int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
     {
-        if ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry)
+        if ((*itr)->dbcEntry->OrderIndex > l_MaxIndex && (*itr)->dbcEntry->DifficultyID == NONE_DIFFICULTY)
+            l_MaxIndex = (*itr)->dbcEntry->OrderIndex;
+    }
+
+    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    {
+        if ((*itr)->dbcEntry->CreatureDisplayID == source->GetDisplayId() || ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry))
         {
-            completedEncounters |= 1 << (*itr)->dbcEntry->encounterIndex;
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance %s (instanceId %u) completed encounter %s", instance->GetMapName(), instance->GetInstanceId(), (*itr)->dbcEntry->encounterName);
-            if (uint32 dungeonId = (*itr)->lastEncounterDungeon)
+            completedEncounters |= 1 << (*itr)->dbcEntry->Bit;
+            sLog->outDebug(LOG_FILTER_TSCR, "Instance %s (instanceId %u) completed encounter %s", instance->GetMapName(), instance->GetInstanceId(), (*itr)->dbcEntry->NameLang);
+            if ((*itr)->dbcEntry->OrderIndex == l_MaxIndex)
             {
-                Map::PlayerList const& players = instance->GetPlayers();
-                if (!players.isEmpty())
-                    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                        if (Player* player = i->getSource())
-                            if (!source || player->IsAtGroupRewardDistance(source))
-                                sLFGMgr->RewardDungeonDoneFor(dungeonId, player);
+                Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+                if (l_PlayerList.isEmpty())
+                    return;
+
+                for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                    {
+                        uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                        if (!source || l_Player->IsAtGroupRewardDistance(source))
+                            sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                    }
+                }
             }
             return;
         }

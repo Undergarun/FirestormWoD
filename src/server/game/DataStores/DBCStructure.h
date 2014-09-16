@@ -1055,15 +1055,15 @@ struct DestructibleModelDataEntry
 // @author Selenium: 5.4 valid
 struct DungeonEncounterEntry
 {
-    uint32 id;                                              // 0        unique id
-    uint32 mapId;                                           // 1        map id
-    uint32 difficulty;                                      // 2        instance mode
-    //int32 unk_1;                                          // 3
-    uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
-    char* encounterName;                                    // 5        encounter name
-    //uint32 nameFlags;                                     // 6
-    //uint32 unk_1;                                         // 7
-    //uint32 unk_3
+    uint32 ID;                                              // 0        unique id
+    uint32 MapID;                                           // 1        map id
+    uint32 DifficultyID;                                    // 2        instance mode
+    int32 OrderIndex;                                       // 3
+    uint32 Bit;                                             // 4        encounter index for creating completed mask
+    char* NameLang;                                         // 5        encounter name
+    uint32 CreatureDisplayID;                               // 6
+    uint32 SpellIconID;                                     // 7
+    uint32 Flags;                                           // 8
 };
 
 // @author Selenium: 5.4 valid
