@@ -3070,24 +3070,30 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     return &bind;
 }
 
-void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
+void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 {
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
+    if (m_boundInstances[p_DifficultyID].empty())
+        return;
+
+    if (m_boundInstances[p_DifficultyID].find(p_MapID) == m_boundInstances[p_DifficultyID].end())
+        return;
+
+    BoundInstancesMap::iterator l_Instance = m_boundInstances[p_DifficultyID].find(p_MapID);
+    if (!l_Instance->second.save)
+        return;
+
+    if (!p_Unload)
     {
-        if (!unload)
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
 
-            stmt->setUInt32(0, m_dbStoreId);
-            stmt->setUInt32(1, itr->second.save->GetInstanceId());
+        stmt->setUInt32(0, m_dbStoreId);
+        stmt->setUInt32(1, l_Instance->second.save->GetInstanceId());
 
-            CharacterDatabase.Execute(stmt);
-        }
-
-        itr->second.save->RemoveGroup(this);                // save can become invalid
-        m_boundInstances[difficulty].erase(itr);
+        CharacterDatabase.Execute(stmt);
     }
+
+    l_Instance->second.save->RemoveGroup(this);                // save can become invalid
+    m_boundInstances[p_DifficultyID].erase(l_Instance);
 }
 
 void Group::_homebindIfInstance(Player* player)

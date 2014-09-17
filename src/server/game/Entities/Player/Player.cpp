@@ -8486,6 +8486,9 @@ Expansion Player::GetExpByLevel()
 
 void Player::RewardGuildReputation(Quest const* quest)
 {
+    if (!GetGuild())
+        return;
+
     uint32 rep = 0;
 
     switch (GetExpByLevel())
