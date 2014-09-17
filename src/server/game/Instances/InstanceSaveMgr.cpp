@@ -498,6 +498,9 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
     while (!pList.empty())
     {
         Player* player = *(pList.begin());
+        if (!player)
+            continue;
+
         player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
     }
 
@@ -505,6 +508,9 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
     while (!gList.empty())
     {
         Group* group = *(gList.begin());
+        if (!group)
+            continue;
+
         group->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
     }
 

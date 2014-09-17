@@ -92,9 +92,9 @@ Group::~Group()
     // it is undefined whether objectmgr (which stores the groups) or instancesavemgr
     // will be unloaded first so we must be prepared for both cases
     // this may unload some instance saves
-    /*for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
-            itr2->second.save->RemoveGroup(this);*/
+            itr2->second.save->RemoveGroup(this);
 
     // Sub group counters clean up
     delete[] m_subGroupsCounts;
@@ -1028,8 +1028,8 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         CharacterDatabase.CommitTransaction(trans);
 
-        //ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
-        //ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
+        ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
+        ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
         stmt->setUInt32(0, m_dbStoreId);
@@ -3070,24 +3070,33 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     return &bind;
 }
 
-void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
+void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 {
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
+    if (p_DifficultyID >= MAX_DIFFICULTY)
+        return;
+
+    if (m_boundInstances[p_DifficultyID].empty())
+        return;
+
+    if (m_boundInstances[p_DifficultyID].find(p_MapID) == m_boundInstances[p_DifficultyID].end())
+        return;
+
+    BoundInstancesMap::iterator l_Instance = m_boundInstances[p_DifficultyID].find(p_MapID);
+    if (!l_Instance->second.save)
+        return;
+
+    if (!p_Unload)
     {
-        if (!unload)
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
 
-            stmt->setUInt32(0, m_dbStoreId);
-            stmt->setUInt32(1, itr->second.save->GetInstanceId());
+        stmt->setUInt32(0, m_dbStoreId);
+        stmt->setUInt32(1, l_Instance->second.save->GetInstanceId());
 
-            CharacterDatabase.Execute(stmt);
-        }
-
-        itr->second.save->RemoveGroup(this);                // save can become invalid
-        m_boundInstances[difficulty].erase(itr);
+        CharacterDatabase.Execute(stmt);
     }
+
+    l_Instance->second.save->RemoveGroup(this);                // save can become invalid
+    m_boundInstances[p_DifficultyID].erase(l_Instance);
 }
 
 void Group::_homebindIfInstance(Player* player)

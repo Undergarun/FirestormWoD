@@ -539,7 +539,7 @@ bool InstanceScript::IsWipe()
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source)
 {
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficulty());
-    if (!encounters)
+    if (!encounters || encounters->empty())
         return;
 
     int32 l_MaxIndex = -100000;
@@ -551,7 +551,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
     for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
     {
-        if ((*itr)->dbcEntry->CreatureDisplayID == source->GetDisplayId() || ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry))
+        if ((source && (*itr)->dbcEntry->CreatureDisplayID == source->GetDisplayId()) || ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry))
         {
             completedEncounters |= 1 << (*itr)->dbcEntry->Bit;
             sLog->outDebug(LOG_FILTER_TSCR, "Instance %s (instanceId %u) completed encounter %s", instance->GetMapName(), instance->GetInstanceId(), (*itr)->dbcEntry->NameLang);
