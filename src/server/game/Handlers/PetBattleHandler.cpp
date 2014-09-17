@@ -464,9 +464,9 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* battle)
     packet.WriteBit(l_Guid[1]);
     packet.WriteBit(l_Guid[4]);
     packet.WriteBit(l_Guid[6]);
-    packet.WriteBit(l_IsPVP);
-    packet.WriteBit(!l_CurPetBattleState);
     packet.WriteBit(l_CanAwardXP);
+    packet.WriteBit(!l_CurPetBattleState);
+    packet.WriteBit(l_IsPVP);
     packet.WriteBit(!l_NpcDisplayID);
     packet.WriteBit(!l_NpcCreatureID);
     packet.WriteBit(!l_PvpMaxRoundTime);
@@ -597,6 +597,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* battle)
 }
 void WorldSession::SendPetBattleFirstRound(PetBattle* p_Battle)
 {
+    printf("SendPetBattleFirstRound\n");
     WorldPacket l_Packet(SMSG_PETBATTLE_FIRST_ROUND, 100);
 
     l_Packet << uint32(p_Battle->Turn);
@@ -604,8 +605,8 @@ void WorldSession::SendPetBattleFirstRound(PetBattle* p_Battle)
     for (uint32 l_TeamID = 0; l_TeamID < MAX_PETBATTLE_TEAM; l_TeamID++)
     {
         l_Packet << uint16(0);                                              ///< RoundTimeSecs
-        l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamInputFlags());  ///< NextInputFlags
         l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamTrapFlags());   ///< NextTrapStatus
+        l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamInputFlags());  ///< NextInputFlags
     }
 
     l_Packet.WriteBits((uint32)p_Battle->RoundEvents.size(), 22);
@@ -732,11 +733,11 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
             if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1)
                 l_CooldownCount++;
     }
-
+    
     for (uint32 l_TeamID = 0; l_TeamID < MAX_PETBATTLE_TEAM; l_TeamID++)
     {
-        l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamInputFlags());
         l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamTrapFlags());
+        l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamInputFlags());
         l_Packet << uint16(0);
     }
 
@@ -771,7 +772,7 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
                 l_Packet.WriteBit(!l_UpdateIt->Buff.Duration);
             }
 
-            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_UNK2)
+            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE)
             {
                 l_Packet.WriteBit(!0);
                 l_Packet.WriteBit(!0);
@@ -792,8 +793,8 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
             if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_SPEED)
                 l_Packet.WriteBit(!l_UpdateIt->Speed);
 
-            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_UNK)
-                l_Packet.WriteBit(!0);
+            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_NPC_EMOTE)
+                l_Packet.WriteBit(!l_UpdateIt->NpcEmote.BroadcastTextID);
         }
 
         l_Packet.WriteBit(!l_EventIt->RoundTurn);
@@ -840,7 +841,7 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
                     l_Packet << uint32(l_UpdateIt->State.ID);
             }
 
-            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_UNK2)
+            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE)
             {
                 if (false)
                     l_Packet << uint32(0);
@@ -876,8 +877,8 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
             if (l_UpdateIt->TargetPetID != -1)
                 l_Packet << uint8(l_UpdateIt->TargetPetID);
 
-            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_UNK && false)
-                l_Packet << int32(0);
+            if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_NPC_EMOTE)
+                l_Packet << int32(l_UpdateIt->NpcEmote.BroadcastTextID);
 
             if (l_UpdateIt->UpdateType == PETBATTLE_EVENT_UPDATE_HEALTH && l_UpdateIt->Health)
                 l_Packet << int32(l_UpdateIt->Health);
@@ -1601,7 +1602,7 @@ void WorldSession::HandlePetBattleInput(WorldPacket& p_RecvData)
         {
             uint32 l_CatchAbilityID = l_PetBattle->Teams[l_PlayerTeamID]->GetCatchAbilityID();
 
-            if (l_PetBattle->Teams[l_PlayerTeamID]->CanCatchOpponentTeamFrontPet())
+            if (l_PetBattle->Teams[l_PlayerTeamID]->CanCatchOpponentTeamFrontPet() == PETBATTLE_TEAM_CATCH_FLAG_ENABLE_TRAP)
                 l_PetBattle->PrepareCast(l_PlayerTeamID, l_CatchAbilityID);
         }
         else if (l_Action == PETBATTLE_ACTION_SWAP_OR_PASS)

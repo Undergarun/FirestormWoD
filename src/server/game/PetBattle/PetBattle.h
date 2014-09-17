@@ -332,14 +332,14 @@ class BattlePetInstance : public BattlePet
 /// Pet battle event type
 enum PetBattleEventType
 {
-    PETBATTLE_EVENT_UPDATE_STATE        = 6,    // 3 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_BUFF         = 7,    // 1 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_TRIGGER      = 0,    // 0 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_UNK          = 1,    // 7 on 5.4.7 
-    PETBATTLE_EVENT_UPDATE_SPEED        = 4,    // 4 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_HEALTH       = 3,    // 5 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_UNK2         = 5,    // 2 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_FRONTPET     = 2,    // 6 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_TRIGGER          = 0,    // 0 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 1,    // 7 on 5.4.7 
+    PETBATTLE_EVENT_UPDATE_FRONTPET         = 2,    // 6 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_HEALTH           = 3,    // 5 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_SPEED            = 4,    // 4 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE   = 5,    // 2 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_STATE            = 6,    // 3 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_BUFF             = 7,    // 1 on 5.4.7
 };
 
 /// Pet battle event
@@ -362,18 +362,24 @@ struct PetBattleEventUpdate
         /// Buff update data
         struct
         {
-            uint32  ID;         ///< Aura display slot
-            uint32  AbilityID;  ///< Aura ability ID
-            int32   Duration;   ///< Remaining duration
-            uint32  Turn;       ///< Aura turn
+            uint32  ID;                     ///< Aura display slot
+            uint32  AbilityID;              ///< Aura ability ID
+            int32   Duration;               ///< Remaining duration
+            uint32  Turn;                   ///< Aura turn
         } Buff;
 
-        /// State update data
+        /// State npc emote
         struct
         {
-            uint32  ID;         ///< State ID
-            int32   Value;      ///< State value
+            uint32  ID;                     ///< State ID
+            int32   Value;                  ///< State value
         } State;
+
+        /// State npc emote
+        struct
+        {
+            uint32  BroadcastTextID;        ///< State ID
+        } NpcEmote;
     };
 };
 typedef std::list<PetBattleEventUpdate> PetBattleEventUpdateList;
@@ -500,20 +506,21 @@ class PetBattleAura
 typedef std::list<PetBattleAura*> PetBattleAuraList;
 
 /// Team flags 1
-enum PetBattleTeamFlags1
+enum PetBattleTeamInputFlags
 {
-    PETBATTLE_TEAM_FLAG_1_LOCK_ABILITIES_1  = 0x01,
-    PETBATTLE_TEAM_FLAG_1_LOCK_ABILITIES_2  = 0x02,
-    PETBATTLE_TEAM_FLAG_1_LOCK_PET_SWAP     = 0x04,
-    PETBATTLE_TEAM_FLAG_1_SELECT_NEW_PET    = 0x08,
+    PETBATTLE_TEAM_INPUT_FLAG_LOCK_ABILITIES_1  = 0x01,
+    PETBATTLE_TEAM_INPUT_FLAG_LOCK_ABILITIES_2  = 0x02,
+    PETBATTLE_TEAM_INPUT_FLAG_LOCK_PET_SWAP     = 0x04,
+    PETBATTLE_TEAM_INPUT_FLAG_SELECT_NEW_PET    = 0x08,
 };
 
 /// Team flags 2
-enum PetBattleTeamFlags2
+enum PetBattleTeamCatchFlags
 {
-    PETBATTLE_TEAM_FLAG_2_ENABLE_TRAP   = 0x01,
-    PETBATTLE_TEAM_FLAG_2_UNK2          = 0x02,
-    PETBATTLE_TEAM_FLAG_2_UNK4          = 0x04,
+    PETBATTLE_TEAM_CATCH_FLAG_ENABLE_TRAP           = 0x01,
+    PETBATTLE_TEAM_CATCH_FLAG_NEED_LVL3_PET         = 0x02,
+    PETBATTLE_TEAM_CATCH_FLAG_TOO_MUCH_HP           = 0x04,
+    PETBATTLE_TEAM_CATCH_FLAG_ONE_CATCH_PER_FIGHT   = 0x08,
 };
 
 /// Pet battle team
@@ -534,7 +541,7 @@ class PetBattleTeam
         /// Can swap
         bool CanSwap(int8 p_ReplacementPet = PETBATTLE_NULL_ID);
         /// Can catch opponent pet
-        bool CanCatchOpponentTeamFrontPet();
+        uint8 CanCatchOpponentTeamFrontPet();
 
         /// Get team flags 1
         uint32 GetTeamInputFlags();
@@ -559,7 +566,7 @@ class PetBattleTeam
 
         uint32 ActivePetID;                                 ///< Team active pet
 
-        uint32 activeAbilityId;
+        uint32 ActiveAbilityId;
         uint32 activeAbilityTurn;
         uint32 activeAbilityTurnMax;
 
