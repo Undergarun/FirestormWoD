@@ -327,6 +327,7 @@ class BattlePetInstance : public BattlePet
 
         /// Get stats
         int32 GetMaxHealth();
+        /// Get pet speed
         int32 GetSpeed();
         /// Get max xp for current level
         uint32 GetMaxXPForCurrentLevel();
@@ -340,7 +341,7 @@ class BattlePetInstance : public BattlePet
         int32       Cooldowns[MAX_PETBATTLE_ABILITIES];     ///< Pet cool downs
         int32       States[NUM_BATTLEPET_STATES];           ///< Pet states
 
-        PetBattle*  PetBattleInstance;                      ///< Pet battle instance helper
+        PetBattle * PetBattleInstance;                      ///< Pet battle instance helper
 
         uint32      OldLevel;
 };
@@ -351,14 +352,14 @@ class BattlePetInstance : public BattlePet
 /// Pet battle event type
 enum PetBattleEventType
 {
-    PETBATTLE_EVENT_UPDATE_STATE        = 6,    // 3 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_BUFF         = 7,    // 1 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_TRIGGER      = 0,    // 0 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_UNK          = 1,    // 7 on 5.4.7 
-    PETBATTLE_EVENT_UPDATE_SPEED        = 4,    // 4 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_HEALTH       = 3,    // 5 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_UNK2         = 5,    // 2 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_FRONTPET     = 2     // 6 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_TRIGGER          = 0,    // 0 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 1,    // 7 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_FRONTPET         = 2,    // 6 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_HEALTH           = 3,    // 5 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_SPEED            = 4,    // 4 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE   = 5,    // 2 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_STATE            = 6,    // 3 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_BUFF             = 7,    // 1 on 5.4.7
 };
 
 /// Pet battle event
@@ -381,20 +382,24 @@ struct PetBattleEventUpdate
         /// Buff update data
         struct
         {
-            uint32  ID;         ///< Aura display slot
-            uint32  AbilityID;  ///< Aura ability ID
-            int32   Duration;   ///< Remaining duration
-            uint32  Turn;       ///< Aura turn
-        }
-        Buff;
+            uint32  ID;                     ///< Aura display slot
+            uint32  AbilityID;              ///< Aura ability ID
+            int32   Duration;               ///< Remaining duration
+            uint32  Turn;                   ///< Aura turn
+        } Buff;
 
-        /// State update data
+        /// State npc emote
         struct
         {
-            uint32  ID;         ///< State ID
-            int32   Value;      ///< State value
-        }
-        State;
+            uint32  ID;                     ///< State ID
+            int32   Value;                  ///< State value
+        } State;
+
+        /// State npc emote
+        struct
+        {
+            uint32  BroadcastTextID;        ///< State ID
+        } NpcEmote;
     };
 };
 
@@ -443,7 +448,7 @@ enum ePetBattleEventFlags
 struct PetBattleEvent
 {
     /// Constructor
-    PetBattleEvent(uint32 p_EventType = 0, int32 p_SourcePetID = PETBATTLE_NULL_ID, uint32 p_Flags = 0, uint32 p_AbilityEffectID = 0, uint32 p_RoundTurn = 0, uint32 p_BuffTurn = 0, uint32 p_Byte4 = 0);
+    PetBattleEvent(uint32 p_EventType = 0, int32 p_SourcePetID = PETBATTLE_NULL_ID, uint32 p_Flags = 0, uint32 p_AbilityEffectID = 0, uint32 p_RoundTurn = 0, uint32 p_BuffTurn = 0, uint32 p_StackDepth = 0);
 
     /// Make an health update
     PetBattleEvent& UpdateHealth(int8 p_TargetPetID, int32 p_Health);
@@ -464,7 +469,7 @@ struct PetBattleEvent
     uint32 AbilityEffectID;         ///< Id of an ability effect (used for client animation)
     uint32 BuffTurn;                ///< Buff rel turn count/id
     uint32 RoundTurn;               ///< Turn in round turn see  PetBattle::RoundTurn (used for order sync)
-    uint32 byte4;                   ///< unk
+    uint32 StackDepth;                   ///< unk
 
     PetBattleEventUpdateList Updates;   ///< Event updates, client support more than 1 update pet event, but never seen more than 1 update per event on retails
 };
@@ -522,20 +527,21 @@ class PetBattleAura
 typedef std::list<PetBattleAura*> PetBattleAuraList;
 
 /// Team flags 1
-enum PetBattleTeamFlags1
+enum PetBattleTeamInputFlags
 {
-    PETBATTLE_TEAM_FLAG_1_LOCK_ABILITIES_1  = 0x01,
-    PETBATTLE_TEAM_FLAG_1_LOCK_ABILITIES_2  = 0x02,
-    PETBATTLE_TEAM_FLAG_1_LOCK_PET_SWAP     = 0x04,
-    PETBATTLE_TEAM_FLAG_1_SELECT_NEW_PET    = 0x08
+    PETBATTLE_TEAM_INPUT_FLAG_LOCK_ABILITIES_1  = 0x01,
+    PETBATTLE_TEAM_INPUT_FLAG_LOCK_ABILITIES_2  = 0x02,
+    PETBATTLE_TEAM_INPUT_FLAG_LOCK_PET_SWAP     = 0x04,
+    PETBATTLE_TEAM_INPUT_FLAG_SELECT_NEW_PET    = 0x08,
 };
 
 /// Team flags 2
-enum PetBattleTeamFlags2
+enum PetBattleTeamCatchFlags
 {
-    PETBATTLE_TEAM_FLAG_2_ENABLE_TRAP   = 0x01,
-    PETBATTLE_TEAM_FLAG_2_UNK2          = 0x02,
-    PETBATTLE_TEAM_FLAG_2_UNK4          = 0x04
+    PETBATTLE_TEAM_CATCH_FLAG_ENABLE_TRAP           = 0x01,
+    PETBATTLE_TEAM_CATCH_FLAG_NEED_LVL3_PET         = 0x02,
+    PETBATTLE_TEAM_CATCH_FLAG_TOO_MUCH_HP           = 0x04,
+    PETBATTLE_TEAM_CATCH_FLAG_ONE_CATCH_PER_FIGHT   = 0x08,
 };
 
 /// Pet battle team
@@ -556,7 +562,7 @@ class PetBattleTeam
         /// Can swap
         bool CanSwap(int8 p_ReplacementPet = PETBATTLE_NULL_ID);
         /// Can catch opponent pet
-        bool CanCatchOpponentTeamFrontPet();
+        uint8 CanCatchOpponentTeamFrontPet();
 
         /// Get team flags 1
         uint32 GetTeamInputFlags();
@@ -572,16 +578,16 @@ class PetBattleTeam
         uint64 OwnerGuid;                                   ///< Team owner guid
         uint64 PlayerGuid;                                  ///< Team player owner guid
 
-        PetBattle* PetBattleInstance;                      ///< Pet battle instance
+        PetBattle * PetBattleInstance;                      ///< Pet battle instance
 
-        BattlePetInstance* TeamPets[MAX_PETBATTLE_SLOTS];  ///< Team pets
+        BattlePetInstance * TeamPets[MAX_PETBATTLE_SLOTS];  ///< Team pets
         uint32 TeamPetCount;                                ///< Team pet count
 
         std::map<uint32, uint32> CapturedSpeciesCount;      ///< Captured species count
 
         uint32 ActivePetID;                                 ///< Team active pet
 
-        uint32 activeAbilityId;
+        uint32 ActiveAbilityId;
         uint32 activeAbilityTurn;
         uint32 activeAbilityTurnMax;
 
@@ -648,12 +654,12 @@ class PetBattle
         uint32 RoundStatus;                                                     ///< Current round status (PETBATTLE_ROUND_RUNNING / PETBATTLE_ROUND_FINISHED)
         uint32 RoundTurn;                                                       ///< Current round turn for spells cast (independant of PetBattle::Turn)
         PetBattleRoundResult RoundResult;                                       ///< Current round result
-        uint32 RoundFirstTeamCasting;                                            ///< Team id who has the priority in ProceedRound (base on active pets speed)
+        uint32 RoundFirstTeamCasting;                                           ///< Team id who has the priority in ProceedRound (base on active pets speed)
         PetBattleEventList RoundEvents;                                         ///< Current round event queue (for client update)
         std::vector<uint32> RoundDeadPets;                                      ///< Pets who died during this round
         std::vector<std::pair<uint32, uint32>> RoundPetSpeedUpdate;             ///< Round pet speed update <petid, abilityeffectid>
 
-        PetBattleTeam* Teams[MAX_PETBATTLE_TEAM];                              ///< Battle teams
+        PetBattleTeam * Teams[MAX_PETBATTLE_TEAM];                              ///< Battle teams
         BattlePetInstance* Pets[MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS];      ///< All pets involved in the battle
         uint32 TotalPetCount;                                                   ///< Battle total pet count
 
@@ -666,6 +672,7 @@ class PetBattle
 
     private:
         IntervalTimer m_UpdateTimer;
+
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -254,34 +254,37 @@ uint32 PetBattleAbilityEffect::GetPetType()
     return BATTLEPET_PETTYPE_HUMANOID;
 }
 
-bool PetBattleAbilityEffect::Damage(uint32 target, int32 damage)
+bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage)
 {
-    if (!(Flags & FailFlags) && damage <= 0)
+    if (!(Flags & FailFlags) && l_Damage <= 0)
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
 
     if (!(Flags & FailFlags))
     {
-        for (uint32 petId = 0; petId < 6; ++petId)
+        for (uint32 l_PetID = 0; l_PetID < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_PetID)
         {
-            if (!PetBattleInstance->Pets[petId])
+            if (!PetBattleInstance->Pets[l_PetID])
                 continue;
 
-            if (GetState(petId, BATTLEPET_STATE_Mechanic_IsWall))
+            if (GetState(l_PetID, BATTLEPET_STATE_Mechanic_IsWall))
             {
-                if (PetBattleInstance->Pets[petId]->TeamID == PetBattleInstance->Pets[Caster]->TeamID
-                    && !GetState(petId, BATTLEPET_STATE_Special_BlockedFriendlyMode))
+                if (PetBattleInstance->Pets[l_PetID]->TeamID == PetBattleInstance->Pets[Caster]->TeamID
+                    && !GetState(l_PetID, BATTLEPET_STATE_Special_BlockedFriendlyMode))
                     continue;
 
-                int32 blockedAttackCount = GetState(petId, BATTLEPET_STATE_Special_BlockedAttackCount);
-                if (blockedAttackCount > 0)
+                int32 l_BlockedAttackCount = GetState(l_PetID, BATTLEPET_STATE_Special_BlockedAttackCount);
+
+                if (l_BlockedAttackCount > 0)
                 {
-                    blockedAttackCount -= 1;
-                    SetState(petId, BATTLEPET_STATE_Special_BlockedAttackCount, blockedAttackCount);
+                    l_BlockedAttackCount -= 1;
+
+                    SetState(l_PetID, BATTLEPET_STATE_Special_BlockedAttackCount, l_BlockedAttackCount);
+
                     Flags |= PETBATTLE_EVENT_FLAG_BLOCKED;
 
-                    if (!blockedAttackCount)
-                        if (PetBattleAura* aura = GetAura(petId, GetState(petId, BATTLEPET_STATE_Special_ObjectRedirectionAuraID)))
-                            aura->Expire(PetBattleInstance);
+                    if (!l_BlockedAttackCount)
+                        if (PetBattleAura* l_Aura = GetAura(l_PetID, GetState(l_PetID, BATTLEPET_STATE_Special_ObjectRedirectionAuraID)))
+                            l_Aura->Expire(PetBattleInstance);
 
                     break;
                 }
@@ -291,31 +294,32 @@ bool PetBattleAbilityEffect::Damage(uint32 target, int32 damage)
 
     if (Flags & FailFlags)
     {
-        damage = 0;
+        l_Damage = 0;
+
         if (ReportFailAsImmune)
             Flags = (Flags & ~FailFlags) | PETBATTLE_EVENT_FLAG_IMMUNE;
     }
 
-    // Passive: aquatic
-    if (GetState(target, BATTLEPET_STATE_Passive_Aquatic) && (Flags & PETBATTLE_EVENT_FLAG_PERIODIC))
-        damage /= 2;
+    /// Passive: aquatic
+    if (GetState(l_Target, BATTLEPET_STATE_Passive_Aquatic) && (Flags & PETBATTLE_EVENT_FLAG_PERIODIC))
+        l_Damage /= 2;
 
-    // Passive: magic
-    if (GetState(target, BATTLEPET_STATE_Passive_Magic))
-        if (damage * 100 / GetMaxHealth(target) >= 35)
-            damage = CalculatePct(GetMaxHealth(target), 35);
+    /// Passive: magic
+    if (GetState(l_Target, BATTLEPET_STATE_Passive_Magic))
+        if (l_Damage * 100 / GetMaxHealth(l_Target) >= 35)
+            l_Damage = CalculatePct(GetMaxHealth(l_Target), 35);
 
-    int32 health = PetBattleInstance->Pets[target]->Health;
-    health -= damage;
+    int32 l_Health = PetBattleInstance->Pets[l_Target]->Health;
+    l_Health -= l_Damage;
 
-    SetHealth(target, health);
+    SetHealth(l_Target, l_Health);
 
-    if (damage > 0)
+    if (l_Damage > 0)
     {
         PetBattleInstance->SetPetState(Caster, Caster, EffectInfo->id, BATTLEPET_STATE_Condition_DidDamageThisRound, 1);
-        PetBattleInstance->SetPetState(Caster, target, EffectInfo->id, BATTLEPET_STATE_Condition_WasDamagedThisTurn, 1);
-        PetBattleInstance->SetPetState(Caster, target, EffectInfo->id, BATTLEPET_STATE_Last_HitTaken, damage);
-        PetBattleInstance->SetPetState(Caster, Caster, EffectInfo->id, BATTLEPET_STATE_Last_HitDealt, damage);
+        PetBattleInstance->SetPetState(Caster, l_Target, EffectInfo->id, BATTLEPET_STATE_Condition_WasDamagedThisTurn, 1);
+        PetBattleInstance->SetPetState(Caster, l_Target, EffectInfo->id, BATTLEPET_STATE_Last_HitTaken, l_Damage);
+        PetBattleInstance->SetPetState(Caster, Caster, EffectInfo->id, BATTLEPET_STATE_Last_HitDealt, l_Damage);
     }
 
     if (!IsTriggered)
@@ -327,37 +331,39 @@ bool PetBattleAbilityEffect::Damage(uint32 target, int32 damage)
 
             if ((*l_It)->CasterPetID == Caster)
                 PetBattleInstance->Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_DAMAGE_DEALT, PETBATTLE_CAST_TRIGGER_ALL);
-            else if ((*l_It)->CasterPetID == target)
+            else if ((*l_It)->CasterPetID == l_Target)
                 PetBattleInstance->Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_DAMAGE_TAKEN, PETBATTLE_CAST_TRIGGER_ALL);
         }
     }
 
-    return damage > 0;
+    return l_Damage > 0;
 }
 
-bool PetBattleAbilityEffect::Heal(uint32 target, int32 heal)
+bool PetBattleAbilityEffect::Heal(uint32 p_Target, int32 p_Heal)
 {
-    int32 health = PetBattleInstance->Pets[target]->Health;
-    int32 maxHealth = PetBattleInstance->Pets[target]->GetMaxHealth();
-    if (health + heal > maxHealth)
-        heal = maxHealth - health;
+    int32 l_Health = PetBattleInstance->Pets[p_Target]->Health;
+    int32 l_MaxHealth = PetBattleInstance->Pets[p_Target]->GetMaxHealth();
 
-    if (heal <= 0)
+    if (l_Health + p_Heal > l_MaxHealth)
+        p_Heal = l_MaxHealth - l_Health;
+
+    if (p_Heal <= 0)
     {
-        heal = 0;
+        p_Heal = 0;
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
     }
 
     if (Flags & FailFlags)
     {
-        heal = 0;
+        p_Heal = 0;
+
         if (ReportFailAsImmune)
             Flags = (Flags & ~FailFlags) | PETBATTLE_EVENT_FLAG_IMMUNE;
     }
 
-    health += heal;
+    l_Health += p_Heal;
 
-    SetHealth(target, health);
+    SetHealth(p_Target, l_Health);
 
     if (!IsTriggered)
     {
@@ -368,12 +374,12 @@ bool PetBattleAbilityEffect::Heal(uint32 target, int32 heal)
 
             if ((*l_It)->CasterPetID == Caster)
                 PetBattleInstance->Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_HEAL_DEALT, PETBATTLE_CAST_TRIGGER_ALL);
-            else if ((*l_It)->CasterPetID == target)
+            else if ((*l_It)->CasterPetID == p_Target)
                 PetBattleInstance->Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_HEAL_TAKEN, PETBATTLE_CAST_TRIGGER_ALL);
         }
     }
 
-    return heal > 0;
+    return p_Heal > 0;
 }
 
 void PetBattleAbilityEffect::ModState(uint32 target, uint32 state, int32 value, bool apply)
@@ -381,206 +387,221 @@ void PetBattleAbilityEffect::ModState(uint32 target, uint32 state, int32 value, 
     SetState(Target, state, PetBattleInstance->Pets[Target]->States[state] + (apply ? value : -value));
 }
 
-int32 PetBattleAbilityEffect::CalculateDamage(int32 damage)
+int32 PetBattleAbilityEffect::CalculateDamage(int32 p_Damage)
 {
-    // Modifiers
-    damage += GetState(Caster, BATTLEPET_STATE_Add_FlatDamageDealt);
-    damage += GetState(Target, BATTLEPET_STATE_Add_FlatDamageTaken);
+    /// Modifiers
+    p_Damage += GetState(Caster, BATTLEPET_STATE_Add_FlatDamageDealt);
+    p_Damage += GetState(Target, BATTLEPET_STATE_Add_FlatDamageTaken);
 
-    // Power
-    int32 modPercent = CalculatePct(GetState(Caster, BATTLEPET_STATE_Stat_Power), 5);
+    /// Power
+    int32 l_ModPercent = CalculatePct(GetState(Caster, BATTLEPET_STATE_Stat_Power), 5);
 
-    // Mod Dealt / Taken
-    modPercent += GetState(Caster, BATTLEPET_STATE_Mod_DamageDealtPercent);
-    modPercent += GetState(Target, BATTLEPET_STATE_Mod_DamageTakenPercent);
+    /// Mod Dealt / Taken
+    l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_DamageDealtPercent);
+    l_ModPercent += GetState(Target, BATTLEPET_STATE_Mod_DamageTakenPercent);
 
-    // Pet type damage mod
-    uint32 abilityPetType = GetPetType();
-    uint32 targetPetType = BATTLEPET_PETTYPE_HUMANOID;
+    /// Pet type damage mod
+    uint32 l_AbilityPetType = GetPetType();
+    uint32 l_TargetPetType = BATTLEPET_PETTYPE_HUMANOID;
+
     if (BattlePetSpeciesEntry const* targetSpeciesInfo = sBattlePetSpeciesStore.LookupEntry(PetBattleInstance->Pets[Target]->Species))
-        targetPetType = targetSpeciesInfo->type;
+        l_TargetPetType = targetSpeciesInfo->type;
 
-    int32 modPetTypeDamagePercent = -100;
-    if (GtBattlePetTypeDamageModEntry const* damageModInfo = sGtBattlePetTypeDamageModStore.LookupEntry(targetPetType * NUM_BATTLEPET_PETTYPES + abilityPetType))
-        modPetTypeDamagePercent += damageModInfo->mod * 100;
+    int32 l_ModPetTypeDamagePercent = -100;
 
-    if (GetState(Caster, BATTLEPET_STATE_Mod_PetType_ID) == abilityPetType)
-        modPetTypeDamagePercent += GetState(Caster, BATTLEPET_STATE_Mod_PetTypeDamageDealtPercent);
+    if (GtBattlePetTypeDamageModEntry const* l_DamageModInfo = sGtBattlePetTypeDamageModStore.LookupEntry(l_TargetPetType * NUM_BATTLEPET_PETTYPES + l_AbilityPetType))
+        l_ModPetTypeDamagePercent += l_DamageModInfo->mod * 100;
 
-    if (GetState(Target, BATTLEPET_STATE_Mod_PetType_ID) == abilityPetType)
-        modPetTypeDamagePercent += GetState(Target, BATTLEPET_STATE_Mod_PetTypeDamageTakenPercent);
+    if (GetState(Caster, BATTLEPET_STATE_Mod_PetType_ID) == l_AbilityPetType)
+        l_ModPetTypeDamagePercent += GetState(Caster, BATTLEPET_STATE_Mod_PetTypeDamageDealtPercent);
 
-    if (modPetTypeDamagePercent > 0)
+    if (GetState(Target, BATTLEPET_STATE_Mod_PetType_ID) == l_AbilityPetType)
+        l_ModPetTypeDamagePercent += GetState(Target, BATTLEPET_STATE_Mod_PetTypeDamageTakenPercent);
+
+    if (l_ModPetTypeDamagePercent > 0)
         Flags |= PETBATTLE_EVENT_FLAG_STRONG;
-    else if (modPetTypeDamagePercent < 0)
+    else if (l_ModPetTypeDamagePercent < 0)
         Flags |= PETBATTLE_EVENT_FLAG_WEAK;
 
     // Critical
     if (roll_chance_i(GetState(Target, BATTLEPET_STATE_Stat_CritChance)))
     {
-        modPercent += 100;
+        l_ModPercent += 100;
         Flags |= PETBATTLE_EVENT_FLAG_CRITICAL;
     }
 
     // Passive: beast
     if (GetState(Caster, BATTLEPET_STATE_Passive_Beast))
         if (GetHealth(Caster) * 100 / GetMaxHealth(Caster) < 50)
-            modPetTypeDamagePercent += 25;
+            l_ModPetTypeDamagePercent += 25;
 
     // Calculate result
-    damage += CalculatePct(damage, modPercent + modPetTypeDamagePercent);
+    p_Damage += CalculatePct(p_Damage, l_ModPercent + l_ModPetTypeDamagePercent);
 
     // Passive: magic
     if (GetState(Target, BATTLEPET_STATE_Passive_Magic))
-        if (damage * 100 / GetMaxHealth(Target) >= 35)
-            damage = CalculatePct(GetMaxHealth(Target), 35);
+        if (p_Damage * 100 / GetMaxHealth(Target) >= 35)
+            p_Damage = CalculatePct(GetMaxHealth(Target), 35);
 
-    return damage;
+    return p_Damage;
 }
 
 int32 PetBattleAbilityEffect::CalculateHeal(int32 heal)
 {
     // Add power
-    int32 modPercent = CalculatePct(GetState(Caster, BATTLEPET_STATE_Stat_Power), 5);
+    int32 l_ModPercent = CalculatePct(GetState(Caster, BATTLEPET_STATE_Stat_Power), 5);
 
     // Modifiers Dealt / Taken
-    modPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
-    modPercent += GetState(Target, BATTLEPET_STATE_Mod_HealingTakenPercent);
+    l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
+    l_ModPercent += GetState(Target, BATTLEPET_STATE_Mod_HealingTakenPercent);
 
-    return heal + CalculatePct(heal, modPercent);
+    return heal + CalculatePct(heal, l_ModPercent);
 }
 
-int32 PetBattleAbilityEffect::CalculateHit(int32 accuracy)
+int32 PetBattleAbilityEffect::CalculateHit(int32 p_Accuracy)
 {
     // Add stat
-    accuracy += GetState(Caster, BATTLEPET_STATE_Stat_Accuracy);
-    accuracy -= GetState(Target, BATTLEPET_STATE_Stat_Dodge);
+    p_Accuracy += GetState(Caster, BATTLEPET_STATE_Stat_Accuracy);
+    p_Accuracy -= GetState(Target, BATTLEPET_STATE_Stat_Dodge);
 
     // Calculate
-    if (accuracy < 100 && !roll_chance_i(accuracy))
+    if (p_Accuracy < 100 && !roll_chance_i(p_Accuracy))
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
 
-    return accuracy;
+    return p_Accuracy;
 }
 
-bool PetBattleAbilityEffect::SetState(uint32 target, uint32 state, int32 value)
+bool PetBattleAbilityEffect::SetState(uint32 p_Target, uint32 p_State, int32 p_Value)
 {
     if (!(Flags & FailFlags))
     {
-        PetBattleInstance->Pets[target]->States[state] = value;
+        PetBattleInstance->Pets[p_Target]->States[p_State] = p_Value;
     }
 
-    BattlePetStateEntry const* stateInfo = sBattlePetStateStore.LookupEntry(state);
-    if (stateInfo && stateInfo->flags)
+    BattlePetStateEntry const* l_StateInfo = sBattlePetStateStore.LookupEntry(p_State);
+
+    if (l_StateInfo && l_StateInfo->flags)
     {
         PetBattleEvent l_Event(PETBATTLE_EVENT_SET_STATE, Caster, Flags, EffectInfo->id, PetBattleInstance->RoundTurn++, 0, 1);
-        l_Event.UpdateState(target, state, PetBattleInstance->Pets[target]->States[state]);
+
+        l_Event.UpdateState(p_Target, p_State, PetBattleInstance->Pets[p_Target]->States[p_State]);
+
         PetBattleInstance->RoundEvents.push_back(l_Event);
     }
 
     return !(Flags & FailFlags);
 }
 
-int32 PetBattleAbilityEffect::GetState(uint32 target, uint32 state)
+int32 PetBattleAbilityEffect::GetState(uint32 p_Target, uint32 p_State)
 {
-    return PetBattleInstance->Pets[target]->States[state];
+    return PetBattleInstance->Pets[p_Target]->States[p_State];
 }
 
-int32 PetBattleAbilityEffect::GetHealth(uint32 target)
+int32 PetBattleAbilityEffect::GetHealth(uint32 p_Target)
 {
-    return PetBattleInstance->Pets[target]->Health;
+    return PetBattleInstance->Pets[p_Target]->Health;
 }
 
-int32 PetBattleAbilityEffect::GetSpeed(uint32 target)
+int32 PetBattleAbilityEffect::GetSpeed(uint32 p_Target)
 {
-    return PetBattleInstance->Pets[target]->GetSpeed();
+    return PetBattleInstance->Pets[p_Target]->GetSpeed();
 }
 
-int32 PetBattleAbilityEffect::GetMaxHealth(uint32 target)
+int32 PetBattleAbilityEffect::GetMaxHealth(uint32 p_Target)
 {
-    return PetBattleInstance->Pets[target]->GetMaxHealth();
+    return PetBattleInstance->Pets[p_Target]->GetMaxHealth();
 }
 
-bool PetBattleAbilityEffect::SetHealth(uint32 target, int32 value)
+bool PetBattleAbilityEffect::SetHealth(uint32 p_Target, int32 p_Value)
 {
-    int32 maxHealth = GetMaxHealth(target);
-    if (value > maxHealth)
-        value = maxHealth;
+    int32 l_MaxHealth = GetMaxHealth(p_Target);
 
-    if (!(Flags & FailFlags) && value == PetBattleInstance->Pets[target]->Health)
+    if (p_Value > l_MaxHealth)
+        p_Value = l_MaxHealth;
+
+    if (!(Flags & FailFlags) && p_Value == PetBattleInstance->Pets[p_Target]->Health)
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
 
     if (!(Flags & FailFlags))
     {
-        if (value <= 0)
+        if (p_Value <= 0)
         {
             Flags |= PETBATTLE_EVENT_FLAG_UNK_KILL;
-            if (!GetState(target, BATTLEPET_STATE_Is_Dead))
-                PetBattleInstance->SetPetState(Caster, target, EffectInfo->id, BATTLEPET_STATE_Internal_HealthBeforeInstakill, PetBattleInstance->Pets[target]->Health);
+
+            if (!GetState(p_Target, BATTLEPET_STATE_Is_Dead))
+                PetBattleInstance->SetPetState(Caster, p_Target, EffectInfo->id, BATTLEPET_STATE_Internal_HealthBeforeInstakill, PetBattleInstance->Pets[p_Target]->Health);
         }
 
-        PetBattleInstance->Pets[target]->Health = value;
+        PetBattleInstance->Pets[p_Target]->Health = p_Value;
     }
 
     PetBattleEvent l_Event(PETBATTLE_EVENT_SET_HEALTH, Caster, Flags, EffectInfo->id, PetBattleInstance->RoundTurn++, 0, 1);
-    l_Event.UpdateHealth(target, PetBattleInstance->Pets[target]->Health);
+
+    l_Event.UpdateHealth(p_Target, PetBattleInstance->Pets[p_Target]->Health);
+
     PetBattleInstance->RoundEvents.push_back(l_Event);
 
-    if (!(Flags & FailFlags) && PetBattleInstance->Pets[target]->Health <= 0 && !GetState(target, BATTLEPET_STATE_Is_Dead) && !GetState(target, BATTLEPET_STATE_unkillable))
-        Kill(target);
+    if (!(Flags & FailFlags) && PetBattleInstance->Pets[p_Target]->Health <= 0 && !GetState(p_Target, BATTLEPET_STATE_Is_Dead) && !GetState(p_Target, BATTLEPET_STATE_unkillable))
+        Kill(p_Target);
 
     return !(Flags & FailFlags);
 }
 
-void PetBattleAbilityEffect::Trigger(uint32 target, uint32 ability)
+void PetBattleAbilityEffect::Trigger(uint32 p_Target, uint32 p_Ability)
 {
     PetBattleEvent l_Event(PETBATTLE_EVENT_SET_HEALTH, Caster, Flags, EffectInfo->id, PetBattleInstance->RoundTurn++, 0, 1);
-    l_Event.Trigger(target, ability);
+
+    l_Event.Trigger(p_Target, p_Ability);
+
     PetBattleInstance->RoundEvents.push_back(l_Event);
 
-    PetBattleInstance->Cast(Caster, ability, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_NONE, PETBATTLE_CAST_TRIGGER_NONE);
+    PetBattleInstance->Cast(Caster, p_Ability, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_NONE, PETBATTLE_CAST_TRIGGER_NONE);
 }
 
-PetBattleAura* PetBattleAbilityEffect::GetAura(uint32 target, uint32 ability)
+PetBattleAura* PetBattleAbilityEffect::GetAura(uint32 p_Target, uint32 p_Ability)
 {
-    for (PetBattleAuraList::iterator auraIter = PetBattleInstance->PetAuras.begin(); auraIter != PetBattleInstance->PetAuras.end(); ++auraIter)
+    for (PetBattleAuraList::iterator l_AuraIT = PetBattleInstance->PetAuras.begin(); l_AuraIT != PetBattleInstance->PetAuras.end(); ++l_AuraIT)
     {
-        PetBattleAura* aura = *auraIter;
-        if (!aura->Expired && aura->TargetPetID == target && aura->AbilityID == ability)
-            return aura;
+        PetBattleAura * l_Aura = *l_AuraIT;
+
+        if (!l_Aura->Expired && l_Aura->TargetPetID == p_Target && l_Aura->AbilityID == p_Ability)
+            return l_Aura;
     }
+
     return NULL;
 }
 
-void PetBattleAbilityEffect::Kill(uint32 target)
+void PetBattleAbilityEffect::Kill(uint32 p_Target)
 {
     if (Flags & FailFlags)
     {
-        SetState(target, BATTLEPET_STATE_Is_Dead, 1);
+        SetState(p_Target, BATTLEPET_STATE_Is_Dead, 1);
         return;
     }
 
-    PetBattleInstance->Kill(Caster, target, EffectInfo->id, false, Flags);
+    PetBattleInstance->Kill(Caster, p_Target, EffectInfo->id, false, Flags);
 
-    // Passive: mechanical
-    if (GetState(target, BATTLEPET_STATE_Passive_Mechanical))
+    /// Passive: mechanical
+    if (GetState(p_Target, BATTLEPET_STATE_Passive_Mechanical))
     {
-        Trigger(target, 723);
-        SetState(target, BATTLEPET_STATE_Passive_Mechanical, 0);
+        Trigger(p_Target, 723);
+        SetState(p_Target, BATTLEPET_STATE_Passive_Mechanical, 0);
         return;
     }
 
-    // Passive: undead
-    if (GetState(target, BATTLEPET_STATE_Passive_Undead))
+    /// Passive: undead
+    if (GetState(p_Target, BATTLEPET_STATE_Passive_Undead))
     {
-        Trigger(target, 242);
-        SetState(target, BATTLEPET_STATE_Passive_Undead, 0);
+        Trigger(p_Target, 242);
+        SetState(p_Target, BATTLEPET_STATE_Passive_Undead, 0);
         return;
     }
 
-    SetState(target, BATTLEPET_STATE_Special_ConsumedCorpse, 1);
-    PetBattleInstance->RoundDeadPets.push_back(target);
-    PetBattleInstance->Kill(Caster, target, EffectInfo->id);
+    SetState(p_Target, BATTLEPET_STATE_Special_ConsumedCorpse, 1);
+
+    PetBattleInstance->RoundDeadPets.push_back(p_Target);
+    PetBattleInstance->Kill(Caster, p_Target, EffectInfo->id);
+
     StopChain = true;
 }
 
@@ -683,6 +704,7 @@ bool PetBattleAbilityEffect::Execute()
 
     StopChain = false;
     bool result = true;
+
     for (size_t i = 0; i < Targets.size(); ++i)
     {
         Target = Targets[i];
@@ -730,13 +752,13 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
     if (EffectInfo->prop[2])
         Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
 
-    // Witching
-    int32 damage = EffectInfo->prop[0];
+    /// Witching
+    int32 l_Damage = EffectInfo->prop[0];
 
     if (GetHealth(Caster) * 100 / GetMaxHealth(Caster) < EffectInfo->prop[2])
-        damage *= 2;
+        l_Damage *= 2;
 
-    return Damage(Target, CalculateDamage(damage));
+    return Damage(Target, CalculateDamage(l_Damage));
 }
 
 bool PetBattleAbilityEffect::HandleStateDamage()
@@ -1393,7 +1415,7 @@ bool PetBattleAbilityEffect::HandleSetHealthPercent()
 bool PetBattleAbilityEffect::HandleLockActiveAbility()
 {
     BattlePetInstance* target = PetBattleInstance->Pets[Target];
-    uint32 activeAbilityId = PetBattleInstance->Teams[target->TeamID]->activeAbilityId;
+    uint32 activeAbilityId = PetBattleInstance->Teams[target->TeamID]->ActiveAbilityId;
 
     uint32 abilitySlot;
     for (abilitySlot = 0; abilitySlot < MAX_PETBATTLE_ABILITIES; ++abilitySlot)
