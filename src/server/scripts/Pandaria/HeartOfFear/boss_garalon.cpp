@@ -594,11 +594,13 @@ public:
         npc_garalon_legAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            isInDoAction = false;
         }
 
         InstanceScript* instance;
         bool died;
         bool wipe;
+        bool isInDoAction;
 
         void Reset()
         {
@@ -612,7 +614,7 @@ public:
 
             if (instance)
             {
-                if (instance->GetBossState(DATA_GARALON) == DONE)
+                if (instance->GetBossState(DATA_GARALON) == DONE && !isInDoAction)
                     DoAction(ACTION_LEG_WIPE);
                 else
                 {
@@ -681,7 +683,11 @@ public:
                             me->RemoveAurasDueToSpell(SPELL_BROKEN_LEG_VIS);
                         }
                         else
+                        {
+                            isInDoAction = true;
                             Reset();
+                            isInDoAction = false;
+                        }
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     }
                     break;
