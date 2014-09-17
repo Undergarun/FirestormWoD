@@ -1,3 +1,22 @@
+/*
+* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 #ifndef __BATTLE_PET_ABILITY_EFFECT_HEADER__
 #define __BATTLE_PET_ABILITY_EFFECT_HEADER__
@@ -10,11 +29,11 @@ class PetBattleAura;
 
 enum BattlePetAbilityFlags
 {
-    BATTLEPET_ABILITY_FLAG_TRIGGER = 1 << 0,
-    BATTLEPET_ABILITY_FLAG_BUFF = 1 << 1,
-    BATTLEPET_ABILITY_TYPE_PASSIF = 1 << 2,
-    BATTLEPET_ABILITY_TYPE_SPECIAL_PASSIF = 1 << 3,
-    BATTLEPET_ABILITY_TYPE_DISPEL = 1 << 4,
+    BATTLEPET_ABILITY_FLAG_TRIGGER          = 1 << 0,
+    BATTLEPET_ABILITY_FLAG_BUFF             = 1 << 1,
+    BATTLEPET_ABILITY_TYPE_PASSIF           = 1 << 2,
+    BATTLEPET_ABILITY_TYPE_SPECIAL_PASSIF   = 1 << 3,
+    BATTLEPET_ABILITY_TYPE_DISPEL           = 1 << 4
 };
 
 enum PetBattleAbilityImplicitTarget
@@ -32,7 +51,7 @@ enum PetBattleAbilityImplicitTarget
     PETBATTLE_TARGET_TARGET_TEAM_2,
     PETBATTLE_TARGET_ALL,
     PETBATTLE_TARGET_CASTER_TEAM_UNCONDITIONAL,
-    PETBATTLE_TARGET_HEAD,
+    PETBATTLE_TARGET_HEAD
 };
 
 struct PetBattleAbilityTurn

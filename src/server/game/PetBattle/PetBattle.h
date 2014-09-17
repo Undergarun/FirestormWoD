@@ -1,3 +1,22 @@
+/*
+* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 #ifndef __PETBATTLE_HEADER__
 #define __PETBATTLE_HEADER__
@@ -29,51 +48,51 @@ enum PetBattleType
 {
     PETBATTLE_TYPE_PVE,
     PETBATTLE_TYPE_PVP_DUEL,
-    PETBATTLE_TYPE_PVP_MATCHMAKING,
+    PETBATTLE_TYPE_PVP_MATCHMAKING
 };
 
-enum
+enum ePetBattleStatus
 {
     PETBATTLE_STATUS_CREATION,
     PETBATTLE_STATUS_RUNNING,
     PETBATTLE_STATUS_FINISHED,
-    PETBATTLE_STATUS_PENDING_DELETE,
+    PETBATTLE_STATUS_PENDING_DELETE
 };
 
-enum
+enum ePetBattleQualities
 {
-    BATTLEPET_QUALITY_POOR = 0,
-    BATTLEPET_QUALITY_COMMON = 1,
-    BATTLEPET_QUALITY_UNCOMMON = 2,
-    BATTLEPET_QUALITY_RARE = 3,
-    BATTLEPET_QUALITY_EPIC = 4,
-    BATTLEPET_QUALITY_LEGENDARY = 5,
+    BATTLEPET_QUALITY_POOR      = 0,
+    BATTLEPET_QUALITY_COMMON    = 1,
+    BATTLEPET_QUALITY_UNCOMMON  = 2,
+    BATTLEPET_QUALITY_RARE      = 3,
+    BATTLEPET_QUALITY_EPIC      = 4,
+    BATTLEPET_QUALITY_LEGENDARY = 5
 };
 
-enum
+enum eBattlePetTypes
 {
-    BATTLEPET_PETTYPE_HUMANOID = 0,
-    BATTLEPET_PETTYPE_DRAGONKIN = 1,
-    BATTLEPET_PETTYPE_FLYING = 2,
-    BATTLEPET_PETTYPE_UNDEAD = 3,
-    BATTLEPET_PETTYPE_CRITTER = 4,
-    BATTLEPET_PETTYPE_MAGIC = 5,
-    BATTLEPET_PETTYPE_ELEMENTAL = 6,
-    BATTLEPET_PETTYPE_BEAST = 7,
-    BATTLEPET_PETTYPE_AQUATIC = 8,
-    BATTLEPET_PETTYPE_MECHANICAL = 9,
+    BATTLEPET_PETTYPE_HUMANOID      = 0,
+    BATTLEPET_PETTYPE_DRAGONKIN     = 1,
+    BATTLEPET_PETTYPE_FLYING        = 2,
+    BATTLEPET_PETTYPE_UNDEAD        = 3,
+    BATTLEPET_PETTYPE_CRITTER       = 4,
+    BATTLEPET_PETTYPE_MAGIC         = 5,
+    BATTLEPET_PETTYPE_ELEMENTAL     = 6,
+    BATTLEPET_PETTYPE_BEAST         = 7,
+    BATTLEPET_PETTYPE_AQUATIC       = 8,
+    BATTLEPET_PETTYPE_MECHANICAL    = 9
 };
 
-enum
+enum eBattlePetFlags
 {
-    BATTLEPET_FLAG_FAVORITE = 0x01,
-    PETBATTLE_FLAG_CAPTURED = 0x01,
+    BATTLEPET_FLAG_FAVORITE         = 0x01,
+    PETBATTLE_FLAG_CAPTURED         = 0x01,
     BATTLEPET_FLAG_ABILITY_1_SECOND = 0x10,
     BATTLEPET_FLAG_ABILITY_2_SECOND = 0x20,
-    BATTLEPET_FLAG_ABILITY_3_SECOND = 0x40,
+    BATTLEPET_FLAG_ABILITY_3_SECOND = 0x40
 };
 
-enum
+enum eBattlePetRequests
 {
     PETBATTLE_REQUEST_FAILED                            = 0,
     PETBATTLE_REQUEST_NOT_HERE                          = 1,
@@ -211,24 +230,24 @@ enum PetBattleCastTriggerFlag
     PETBATTLE_CAST_TRIGGER_NONE             = 0x00,
     PETBATTLE_CAST_TRIGGER_IGNORE_COOLDOWN  = 0x01,
 
-    PETBATTLE_CAST_TRIGGER_ALL              = 0xFFFFFFFF,
+    PETBATTLE_CAST_TRIGGER_ALL              = 0xFFFFFFFF
 };
 
 enum PetBattleCastResult
 {
     PETBATTLE_CAST_OK,
     PETBATTLE_CAST_INVALID_ID,
-    PETBATTLE_CAST_INTERNAL_ERROR,
+    PETBATTLE_CAST_INTERNAL_ERROR
 };
 
 enum PetBattleResult
 {
     PETBATTLE_RESULT_WON,
     PETBATTLE_RESULT_LOOSE,
-    PETBATTLE_RESULT_ABANDON,
+    PETBATTLE_RESULT_ABANDON
 };
 
-enum
+enum ePetBattleRounds
 {
     PETBATTLE_ROUND_RUNNING,
     PETBATTLE_ROUND_FINISHED
@@ -238,11 +257,11 @@ enum PetBattleRoundResult
 {
     PETBATTLE_ROUND_RESULT_NONE             = 0,
     PETBATTLE_ROUND_RESULT_NORMAL           = 2,
-    PETBATTLE_ROUND_RESULT_CATCH_OR_KILL    = 3,
+    PETBATTLE_ROUND_RESULT_CATCH_OR_KILL    = 3
 };
 
 /// Extracted from file FrameXML/SharedPetBattleTemplates.lua
-enum
+enum ePetBattleAbilities
 {
     PETBATTLE_ABILITY_TURN0_PROC_ON_APPLY           = 0,
     PETBATTLE_ABILITY_TURN0_PROC_ON_DAMAGE_TAKEN    = 1,        /// implemented
@@ -264,12 +283,12 @@ class BattlePet
 {
     public:
         /// Load
-        void Load(Field * p_Fields);
+        void Load(Field* p_Fields);
         /// Save
         void Save();
 
         /// When a player earn a pet it will insert into his account
-        void AddToPlayer(Player * p_Player);
+        void AddToPlayer(Player* p_Player);
 
         /// Update pet stats
         void UpdateStats();
@@ -308,6 +327,7 @@ class BattlePetInstance : public BattlePet
 
         /// Get stats
         int32 GetMaxHealth();
+        /// Get pet speed
         int32 GetSpeed();
         /// Get max xp for current level
         uint32 GetMaxXPForCurrentLevel();
@@ -382,10 +402,11 @@ struct PetBattleEventUpdate
         } NpcEmote;
     };
 };
+
 typedef std::list<PetBattleEventUpdate> PetBattleEventUpdateList;
 
 /// Event types
-enum
+enum ePetBattleEvents
 {
     PETBATTLE_EVENT_SET_HEALTH              = 0,
     PETBATTLE_EVENT_BUFF_APPLY              = 1,
@@ -401,10 +422,11 @@ enum
     PETBATTLE_EVENT_ABILITY_CHANGE          = 11,
     PETBATTLE_EVENT_NPC_EMOTE               = 12,
     PETBATTLE_EVENT_AURA_PROCESSING_BEGIN   = 13,
-    PETBATTLE_EVENT_AURA_PROCESSING_END     = 14,
+    PETBATTLE_EVENT_AURA_PROCESSING_END     = 14
 };
+
 /// Event flags
-enum
+enum ePetBattleEventFlags
 {
     PETBATTLE_EVENT_FLAG_SKIP_TURN  = 0x0001,
     PETBATTLE_EVENT_FLAG_MISS       = 0x0002,
@@ -419,27 +441,27 @@ enum
     PETBATTLE_EVENT_FLAG_WEAK       = 0x0800,
     PETBATTLE_EVENT_FLAG_UNK_KILL   = 0x1000,
 
-    PETBATTLE_EVENT_FLAG_PERIODIC   = 0x00010000, // Not exist in client, flags field is actually on 16 bits
+    PETBATTLE_EVENT_FLAG_PERIODIC   = 0x00010000 // Not exist in client, flags field is actually on 16 bits
 };
 
 /// PetBattleEvent for client sync
 struct PetBattleEvent
 {
     /// Constructor
-    PetBattleEvent(uint32 p_EventType = 0, int32 p_SourcePetID = PETBATTLE_NULL_ID, uint32 p_Flags = 0, uint32 p_AbilityEffectID = 0, uint32 p_RoundTurn = 0, uint32 p_BuffTurn = 0, uint32 p_Byte4 = 0);
+    PetBattleEvent(uint32 p_EventType = 0, int32 p_SourcePetID = PETBATTLE_NULL_ID, uint32 p_Flags = 0, uint32 p_AbilityEffectID = 0, uint32 p_RoundTurn = 0, uint32 p_BuffTurn = 0, uint32 p_StackDepth = 0);
 
     /// Make an health update
-    PetBattleEvent & UpdateHealth(int8 p_TargetPetID, int32 p_Health);
+    PetBattleEvent& UpdateHealth(int8 p_TargetPetID, int32 p_Health);
     /// Make an state update
-    PetBattleEvent & UpdateState(int8 p_TargetPetID, uint32 p_StateID, int32 p_Value);
+    PetBattleEvent& UpdateState(int8 p_TargetPetID, uint32 p_StateID, int32 p_Value);
     /// Make an front pet change
-    PetBattleEvent & UpdateFrontPet(int8 p_NewFrontPet = PETBATTLE_NULL_ID);
+    PetBattleEvent& UpdateFrontPet(int8 p_NewFrontPet = PETBATTLE_NULL_ID);
     /// Make an buff update
-    PetBattleEvent & UpdateBuff(int8 p_TargetPetID, uint32 p_ID, uint32 p_AbilityID, int32 p_Duration, uint32 p_Turn);
+    PetBattleEvent& UpdateBuff(int8 p_TargetPetID, uint32 p_ID, uint32 p_AbilityID, int32 p_Duration, uint32 p_Turn);
     /// Make an speed update
-    PetBattleEvent & UpdateSpeed(int8 p_TargetPetID, int32 p_Speed);
+    PetBattleEvent& UpdateSpeed(int8 p_TargetPetID, int32 p_Speed);
     /// Make an trigger
-    PetBattleEvent & Trigger(int8 p_TargetPetID, uint32 p_AbilityId);
+    PetBattleEvent& Trigger(int8 p_TargetPetID, uint32 p_AbilityId);
 
     uint32 EventType;               ///< Type of event (PETBATTLE_EVENT_SET_HEALTH, PETBATTLE_EVENT_BUFF_APPLY, PETBATTLE_EVENT_BUFF_CANCEL,PETBATTLE_EVENT_BUFF_CHANGE, PETBATTLE_EVENT_PET_SWAP, ...)
     uint32 Flags;                   ///< Event flags (PETBATTLE_EVENT_FLAG_SKIP_TURN,PETBATTLE_EVENT_FLAG_MISS, PETBATTLE_EVENT_FLAG_CRITICAL, PETBATTLE_EVENT_FLAG_BLOCKED, ...)
@@ -447,15 +469,15 @@ struct PetBattleEvent
     uint32 AbilityEffectID;         ///< Id of an ability effect (used for client animation)
     uint32 BuffTurn;                ///< Buff rel turn count/id
     uint32 RoundTurn;               ///< Turn in round turn see  PetBattle::RoundTurn (used for order sync)
-    uint32 byte4;                   ///< unk
+    uint32 StackDepth;                   ///< unk
 
     PetBattleEventUpdateList Updates;   ///< Event updates, client support more than 1 update pet event, but never seen more than 1 update per event on retails
 };
+
 typedef std::list<PetBattleEvent> PetBattleEventList;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-
 /// Pet battle request
 struct PetBattleRequest
 {
@@ -476,20 +498,19 @@ struct PetBattleRequest
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-
 /// Pet aura
 class PetBattleAura
 {
     public:
         /// Apply
-        void Apply(PetBattle * p_Battle);
+        void Apply(PetBattle* p_Battle);
         /// Remove
-        void Remove(PetBattle * p_Battle);
+        void Remove(PetBattle* p_Battle);
 
         /// Process all aura effects
-        void Process(PetBattle * p_Battle);
+        void Process(PetBattle* p_Battle);
         /// Make aura expire
-        void Expire(PetBattle * p_Battle);
+        void Expire(PetBattle* p_Battle);
 
     public:
         uint32  AbilityID;              ///< Ability ID
@@ -573,7 +594,6 @@ class PetBattleTeam
         int8 CapturedPet;                                   ///< Captured pet id
 
         bool Ready;                                         ///< Team is ready to process next round
-
 };
 
 /// Pet battle instance
@@ -620,7 +640,7 @@ class PetBattle
         /// Get first attacking team
         uint32 GetFirstAttackingTeam();
 
-        /// Get forfeit health penality pct
+        /// Get forfeit health penalty pct
         int32 GetForfeitHealthPenalityPct();
 
     public:
@@ -634,7 +654,7 @@ class PetBattle
         uint32 RoundStatus;                                                     ///< Current round status (PETBATTLE_ROUND_RUNNING / PETBATTLE_ROUND_FINISHED)
         uint32 RoundTurn;                                                       ///< Current round turn for spells cast (independant of PetBattle::Turn)
         PetBattleRoundResult RoundResult;                                       ///< Current round result
-        uint32 RoundFirstTeamCasting;                                            ///< Team id who has the priority in ProceedRound (base on active pets speed)
+        uint32 RoundFirstTeamCasting;                                           ///< Team id who has the priority in ProceedRound (base on active pets speed)
         PetBattleEventList RoundEvents;                                         ///< Current round event queue (for client update)
         std::vector<uint32> RoundDeadPets;                                      ///< Pets who died during this round
         std::vector<std::pair<uint32, uint32>> RoundPetSpeedUpdate;             ///< Round pet speed update <petid, abilityeffectid>
@@ -657,7 +677,6 @@ class PetBattle
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-
 /// Pet battle system main class (singleton)
 class PetBattleSystem
 {
@@ -699,7 +718,6 @@ class PetBattleSystem
 
         IntervalTimer                               m_DeleteUpdateTimer;        ///< Deletion queue update timer
         std::queue<std::pair<uint64, PetBattle*>>   m_PetBbattlesDeleteQueue;   ///< Deletion queue
-
 };
 
 /// Pet battle system class singleton init

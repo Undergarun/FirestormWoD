@@ -1084,6 +1084,13 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
                     SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
                     break;
+                case ENTRY_WATER_ELEMENTAL:
+                {
+                    SetCreateHealth(m_owner->CountPctFromMaxHealth(50));
+                    SetCreateMana(m_owner->GetMaxPower(POWER_MANA));
+                    SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST)));
+                    break;
+                }
                 default:
                     break;
             }
@@ -1136,13 +1143,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
                     SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
                     SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
-                    break;
-                }
-                case ENTRY_WATER_ELEMENTAL:
-                {
-                    SetCreateHealth(m_owner->CountPctFromMaxHealth(50));
-                    SetCreateMana(m_owner->GetMaxPower(POWER_MANA));
-                    SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST)));
                     break;
                 }
                 case ENTRY_TREANT_GUARDIAN:

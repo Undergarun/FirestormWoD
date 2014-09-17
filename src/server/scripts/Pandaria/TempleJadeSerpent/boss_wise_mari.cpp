@@ -58,7 +58,7 @@ enum eTimers
     TIMER_HYDROLANCE_START      = 10000,
     TIMER_HYDROLANCE            =  5500,
     TIMER_SWITCH_PHASE_TWO      = 15000,
-    TIMER_WASH_AWAY             =   125,
+    TIMER_WASH_AWAY             =   300,
 };
 
 enum hydrolancePhase
@@ -335,6 +335,9 @@ class boss_wase_mari : public CreatureScript
                                 break;
 
                             Talk(TEXT_PHASE_SWITCH);
+                            std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
+                            threatlist.empty();
+                            me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
 
                             me->RemoveAurasDueToSpell(SPELL_WATER_BUBBLE);
                             float facing = me->GetOrientation();

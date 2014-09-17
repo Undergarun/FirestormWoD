@@ -2549,40 +2549,42 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player* source)
+void InstanceMap::PermBindAllPlayers(Player* p_Source)
 {
-    if (!IsDungeon())
+    if (!IsRaidOrHeroicDungeon())
         return;
 
-    InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
-    if (!save)
+    InstanceSave* l_Save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
+    if (!l_Save)
     {
-        sLog->outError(LOG_FILTER_MAPS, "Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUIDLow(), source->GetName(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
+        sLog->outError(LOG_FILTER_MAPS, "Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!",
+            p_Source->GetGUIDLow(), p_Source->GetName(), p_Source->GetMap()->GetMapName(), p_Source->GetMapId(), GetInstanceId());
         return;
     }
 
-    Group* group = source->GetGroup();
+    Group* l_Group = p_Source->GetGroup();
 
     // group members outside the instance group don't get bound
-    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+    for (MapRefManager::iterator l_Itr = m_mapRefManager.begin(); l_Itr != m_mapRefManager.end(); ++l_Itr)
     {
-        Player* player = itr->getSource();
+        Player* l_Player = l_Itr->getSource();
         // players inside an instance cannot be bound to other instances
         // some players may already be permanently bound, in this case nothing happens
-        InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficulty());
-        if (!bind || !bind->perm)
+        InstancePlayerBind* l_Bind = l_Player->GetBoundInstance(l_Save->GetMapId(), l_Save->GetDifficulty());
+        if (!l_Bind || !l_Bind->perm)
         {
-            player->BindToInstance(save, true);
-            WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-            data << uint32(0);
-            player->GetSession()->SendPacket(&data);
+            l_Player->BindToInstance(l_Save, true);
 
-            player->GetSession()->SendCalendarRaidLockout(save, true);
+            WorldPacket l_Data(SMSG_INSTANCE_SAVE_CREATED, 4);
+            l_Data << uint32(0);
+            l_Player->GetSession()->SendPacket(&l_Data);
+
+            l_Player->GetSession()->SendCalendarRaidLockout(l_Save, true);
         }
 
         // if the leader is not in the instance the group will not get a perm bind
-        if (group && group->GetLeaderGUID() == player->GetGUID())
-            group->BindToInstance(save, true);
+        if (l_Group && l_Group->GetLeaderGUID() == l_Player->GetGUID())
+            l_Group->BindToInstance(l_Save, true);
     }
 }
 
