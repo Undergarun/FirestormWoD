@@ -3072,6 +3072,9 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
 
 void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 {
+    if (p_DifficultyID >= MAX_DIFFICULTY)
+        return;
+
     if (m_boundInstances[p_DifficultyID].empty())
         return;
 
