@@ -262,7 +262,7 @@ PetBattleEventUpdate::PetBattleEventUpdate()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 /// Constructor
-PetBattleEvent::PetBattleEvent(uint32 p_EventType, int32 p_SourcePetID, uint32 p_Flags, uint32 p_AbilityEffectID, uint32 p_RoundTurn, uint32 p_BuffTurn, uint32 p_Byte4)
+PetBattleEvent::PetBattleEvent(uint32 p_EventType, int32 p_SourcePetID, uint32 p_Flags, uint32 p_AbilityEffectID, uint32 p_RoundTurn, uint32 p_BuffTurn, uint32 p_StackDepth)
 {
     Flags           = p_Flags;
     SourcePetID     = p_SourcePetID;
@@ -270,7 +270,7 @@ PetBattleEvent::PetBattleEvent(uint32 p_EventType, int32 p_SourcePetID, uint32 p
     EventType       = p_EventType;
     BuffTurn        = p_BuffTurn;
     RoundTurn       = p_RoundTurn;
-    byte4           = p_Byte4;
+    StackDepth      = p_StackDepth;
 }
 
 //////////////////////////////////////////////////////////////////////////

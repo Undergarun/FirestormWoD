@@ -618,7 +618,6 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* battle)
 
 void WorldSession::SendPetBattleFirstRound(PetBattle* p_Battle)
 {
-    printf("SendPetBattleFirstRound\n");
     WorldPacket l_Packet(SMSG_PETBATTLE_FIRST_ROUND, 100);
 
     l_Packet << uint32(p_Battle->Turn);
@@ -756,7 +755,7 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
             if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1)
                 l_CooldownCount++;
     }
-    
+
     for (uint32 l_TeamID = 0; l_TeamID < MAX_PETBATTLE_TEAM; l_TeamID++)
     {
         l_Packet << uint8(p_Battle->Teams[l_TeamID]->GetTeamTrapFlags());
@@ -776,7 +775,7 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
         l_Packet.WriteBit(!l_EventIt->AbilityEffectID);
         l_Packet.WriteBit(!l_EventIt->BuffTurn);
         l_Packet.WriteBits((uint32)l_EventIt->Updates.size(), 25);
-        l_Packet.WriteBit(!l_EventIt->byte4);
+        l_Packet.WriteBit(!l_EventIt->StackDepth);
         l_Packet.WriteBit(!(l_EventIt->Flags & 0xFFFF));
         l_Packet.WriteBit(!l_EventIt->EventType);
 
@@ -907,8 +906,8 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
                 l_Packet << int32(l_UpdateIt->Health);
         }
 
-        if (l_EventIt->byte4)
-            l_Packet << uint8(l_EventIt->byte4);
+        if (l_EventIt->StackDepth)
+            l_Packet << uint8(l_EventIt->StackDepth);
 
         if (l_EventIt->RoundTurn)
             l_Packet << uint16(l_EventIt->RoundTurn);

@@ -353,7 +353,7 @@ class BattlePetInstance : public BattlePet
 enum PetBattleEventType
 {
     PETBATTLE_EVENT_UPDATE_TRIGGER          = 0,    // 0 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 1,    // 7 on 5.4.7 
+    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 1,    // 7 on 5.4.7
     PETBATTLE_EVENT_UPDATE_FRONTPET         = 2,    // 6 on 5.4.7
     PETBATTLE_EVENT_UPDATE_HEALTH           = 3,    // 5 on 5.4.7
     PETBATTLE_EVENT_UPDATE_SPEED            = 4,    // 4 on 5.4.7
