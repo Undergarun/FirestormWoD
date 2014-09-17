@@ -1615,6 +1615,8 @@ class boss_high_priestress_mar_li : public CreatureScript
 
                 if (pInstance)
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_FRAGMENT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(137650);
 
                 std::list<Creature*> l_ShadowedSpiritList;
                 GetCreatureListWithEntryInGrid(l_ShadowedSpiritList, me, NPC_SHADOWED_LOA_SPIRIT, 200.0f);
@@ -1758,6 +1760,8 @@ class boss_high_priestress_mar_li : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_FRAGMENT);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(137650);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
