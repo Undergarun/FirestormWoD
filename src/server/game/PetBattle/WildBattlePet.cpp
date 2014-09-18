@@ -26,6 +26,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include <stdexcept>
+#include <algorithm>
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -156,7 +157,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     l_BattlePetInstance->Health         = 20000;
 
     // Select level
-    l_BattlePetInstance->Level = urand(p_Template->MinLevel, p_Template->MaxLevel);
+    l_BattlePetInstance->Level = std::max(urand(p_Template->MinLevel, p_Template->MaxLevel), (uint32)1);
 
     // Select breed
     static const uint32 breedQualityWeights[4] = { 100, 50, 20, 8 };
@@ -219,6 +220,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     l_ReplacementCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
     l_ReplacementCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_ReplacementCreature->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_BattlePetInstance->Level);
+    l_ReplacementCreature->GetMotionMaster()->MoveRandom(5);
 
     p_Creature->GetMap()->AddToMap(l_ReplacementCreature);
 
@@ -247,6 +249,7 @@ void WildBattlePetZonePools::UnreplaceCreature(Creature* p_Creature, WildBattleP
     l_ReplacementCreature->AddObjectToRemoveList();
 
     p_Creature->SetRespawnTime(p_Creature->GetCreatureData() ? p_Creature->GetCreatureData()->spawntimesecs : 15);
+    p_Creature->Respawn();
 
     p_Template->ReplacedRelation.erase(p_Template->ReplacedRelation.find(p_Creature));
 }
