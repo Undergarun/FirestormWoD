@@ -598,7 +598,7 @@ void PetBattleTeam::DoCasts(uint32 p_Turn0ProcCond)
 /// Has pending multi turn cast
 bool PetBattleTeam::HasPendingMultiTurnCast()
 {
-    if (ActiveAbilityId && activeAbilityTurn <= activeAbilityTurnMax)
+    if (ActiveAbilityId && activeAbilityTurn < activeAbilityTurnMax)
         return true;
 
     return false;
