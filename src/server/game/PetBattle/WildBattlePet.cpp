@@ -220,7 +220,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     l_ReplacementCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
     l_ReplacementCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_ReplacementCreature->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_BattlePetInstance->Level);
-    l_ReplacementCreature->GetMotionMaster()->MoveRandom(5);
+    l_ReplacementCreature->GetMotionMaster()->MoveRandom(1.5f);
 
     p_Creature->GetMap()->AddToMap(l_ReplacementCreature);
 
