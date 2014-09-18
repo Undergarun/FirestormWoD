@@ -41,6 +41,8 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 
     if (!p_Result)
     {
+        bool l_Add = false;
+
         for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
         {
             BattlePet pet;
@@ -73,13 +75,16 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
             pet.Health = pet.InfoMaxHealth;
 
             pet.AddToPlayer(_player);
+            l_Add = true;
         }
 
         _player->OldPetBattleSpellToMerge.clear();
-        return false;
+
+        if (l_Add)
+            return false;
     }
 
-    std::vector<BattlePet>  l_Pets(p_Result->GetRowCount());
+    std::vector<BattlePet>  l_Pets(p_Result ? p_Result->GetRowCount() : 0);
     uint32                  l_UnlockedSlotCount = _player->GetUnlockedPetBattleSlot();
     BattlePet*              l_PetSlots[3]       = { 0, 0, 0 };
     size_t                  l_PetID             = 0;
@@ -87,17 +92,20 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
     std::vector<uint32> l_AlreadyKnownPet;
 
     uint32 l_MaxLevelCount = 0;
-    do
-    {
-        l_Pets[l_PetID].Load(p_Result->Fetch());
-        l_AlreadyKnownPet.push_back(l_Pets[l_PetID].Species);
-             
-        if (l_Pets[l_PetID].Slot >= 0 && l_Pets[l_PetID].Slot < (int32)l_UnlockedSlotCount)
-            l_PetSlots[l_Pets[l_PetID].Slot] = &l_Pets[l_PetID];
 
-        ++l_PetID;
+    if (p_Result)
+    {
+        do
+        {
+            l_Pets[l_PetID].Load(p_Result->Fetch());
+            l_AlreadyKnownPet.push_back(l_Pets[l_PetID].Species);
+
+            if (l_Pets[l_PetID].Slot >= 0 && l_Pets[l_PetID].Slot < (int32)l_UnlockedSlotCount)
+                l_PetSlots[l_Pets[l_PetID].Slot] = &l_Pets[l_PetID];
+
+            ++l_PetID;
+        } while (p_Result->NextRow());
     }
-    while (p_Result->NextRow());
 
     bool l_OldPetAdded = false;
     for (uint32 l_I = 0; l_I < _player->OldPetBattleSpellToMerge.size(); l_I++)
