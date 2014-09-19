@@ -93,10 +93,13 @@ bool WorldSession::SendPetBattleJournalCallback(PreparedQueryResult& p_Result)
 
     uint32 l_MaxLevelCount = 0;
 
-    if (p_Result)
+    if (p_Result && p_Result->GetRowCount())
     {
         do
         {
+            if (l_PetID > l_Pets.size())
+                continue;
+
             l_Pets[l_PetID].Load(p_Result->Fetch());
             l_AlreadyKnownPet.push_back(l_Pets[l_PetID].Species);
 

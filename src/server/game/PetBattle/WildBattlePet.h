@@ -42,12 +42,12 @@ struct WildBattlePetPoolTemplate
     uint32 MaxLevel;
     uint32 Breeds[10];
 
-    std::list<Creature*>            ToBeReplaced;
-    std::list<Creature*>            Replaced;
+    std::list<uint64>            ToBeReplaced;
+    std::list<uint64>            Replaced;
 
     /// @TODO: replace this
-    std::map<Creature*, Creature*>          ReplacedRelation;
-    std::map<Creature*, BattlePetInstance>  ReplacedBattlePetInstances;
+    std::map<uint64, uint64>             ReplacedRelation;
+    std::map<uint64, BattlePetInstance>  ReplacedBattlePetInstances;
 };
 
 class WildBattlePetZonePools

@@ -71,10 +71,15 @@ void WildBattlePetZonePools::Populate()
 
         std::vector<Creature*> l_AvailableForReplacement;
 
-        for (std::list<Creature*>::iterator l_It = l_Template->ToBeReplaced.begin(); l_It != l_Template->ToBeReplaced.end(); l_It++)
+        for (std::list<uint64>::iterator l_It = l_Template->ToBeReplaced.begin(); l_It != l_Template->ToBeReplaced.end(); l_It++)
         {
             if (l_Template->ReplacedRelation.find((*l_It)) == l_Template->ReplacedRelation.end())
-                l_AvailableForReplacement.push_back((*l_It));
+            {
+                Unit * l_Unit = sObjectAccessor->FindUnit((*l_It));
+
+                if (l_Unit && l_Unit->ToCreature())
+                    l_AvailableForReplacement.push_back(l_Unit->ToCreature());
+            }
         }
         
         if (!l_AvailableForReplacement.size())
@@ -93,33 +98,44 @@ void WildBattlePetZonePools::Depopulate()
     {
         WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
-        std::map<Creature*, Creature*> l_Creatures = l_Template->ReplacedRelation;
+        std::map<uint64, uint64> l_Creatures = l_Template->ReplacedRelation;
 
-        for (std::map<Creature*, Creature*>::iterator l_It = l_Creatures.begin(); l_It != l_Creatures.end(); l_It++)
-            UnreplaceCreature((*l_It).first, l_Template);
+        for (std::map<uint64, uint64>::iterator l_It = l_Creatures.begin(); l_It != l_Creatures.end(); l_It++)
+        {
+            Unit * l_Unit = sObjectAccessor->FindUnit((*l_It).first);
+
+            if (l_Unit && l_Unit->ToCreature())
+                UnreplaceCreature(l_Unit->ToCreature(), l_Template);
+        }
     }
 }
 
 //////////////////////////////////////////////////////////////////////////
 void WildBattlePetZonePools::OnAddToMap(Creature* p_Creature)
 {
+    if (!p_Creature)
+        return;
+
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
         WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
-        if (l_Template->Replace == p_Creature->GetEntry() && std::find(l_Template->ToBeReplaced.begin(), l_Template->ToBeReplaced.end(), p_Creature) == l_Template->ToBeReplaced.end())
-            l_Template->ToBeReplaced.push_back(p_Creature);
+        if (l_Template->Replace == p_Creature->GetEntry() && std::find(l_Template->ToBeReplaced.begin(), l_Template->ToBeReplaced.end(), p_Creature->GetGUID()) == l_Template->ToBeReplaced.end())
+            l_Template->ToBeReplaced.push_back(p_Creature->GetGUID());
     }
 }
 
 void WildBattlePetZonePools::OnRemoveToMap(Creature* p_Creature)
 {
+    if (!p_Creature)
+        return;
+
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
         WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
         if (l_Template->Replace == p_Creature->GetEntry())
-            l_Template->ToBeReplaced.remove(p_Creature);
+            l_Template->ToBeReplaced.remove(p_Creature->GetGUID());
     }
 }
 
@@ -144,8 +160,8 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     }
 
     // BattlePet fill data
-    p_Template->ReplacedBattlePetInstances[l_ReplacementCreature] = BattlePetInstance();
-    BattlePetInstance* l_BattlePetInstance = &p_Template->ReplacedBattlePetInstances[l_ReplacementCreature];
+    p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()] = BattlePetInstance();
+    BattlePetInstance* l_BattlePetInstance = &p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()];
 
     l_BattlePetInstance->JournalID      = 0;
     l_BattlePetInstance->Slot           = 0;
@@ -229,21 +245,26 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     p_Creature->SetRespawnTime(MONTH);
     p_Creature->RemoveCorpse(false);
 
-    p_Template->ReplacedRelation[p_Creature] = l_ReplacementCreature;
-    p_Template->Replaced.push_back(l_ReplacementCreature);
+    p_Template->ReplacedRelation[p_Creature->GetGUID()] = l_ReplacementCreature->GetGUID();
+    p_Template->Replaced.push_back(l_ReplacementCreature->GetGUID());
 }
 
 void WildBattlePetZonePools::UnreplaceCreature(Creature* p_Creature, WildBattlePetPoolTemplate* p_Template)
 {
-    if (p_Template->ReplacedRelation.find(p_Creature) == p_Template->ReplacedRelation.end())
+    if (!p_Creature || p_Template->ReplacedRelation.find(p_Creature->GetGUID()) == p_Template->ReplacedRelation.end())
         return;
 
-    Creature* l_ReplacementCreature = p_Template->ReplacedRelation[p_Creature];
+    Unit * l_Unit = sObjectAccessor->FindUnit(p_Template->ReplacedRelation[p_Creature->GetGUID()]);
 
-    if (p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature) != p_Template->ReplacedBattlePetInstances.end())
-        p_Template->ReplacedBattlePetInstances.erase(p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature));
+    if (!l_Unit || !l_Unit->ToCreature())
+        return;
 
-    p_Template->Replaced.remove(l_ReplacementCreature);
+    Creature* l_ReplacementCreature = l_Unit->ToCreature();
+
+    if (p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature->GetGUID()) != p_Template->ReplacedBattlePetInstances.end())
+        p_Template->ReplacedBattlePetInstances.erase(p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature->GetGUID()));
+
+    p_Template->Replaced.remove(l_ReplacementCreature->GetGUID());
 
     l_ReplacementCreature->RemoveFromWorld();
     l_ReplacementCreature->AddObjectToRemoveList();
@@ -251,7 +272,7 @@ void WildBattlePetZonePools::UnreplaceCreature(Creature* p_Creature, WildBattleP
     p_Creature->SetRespawnTime(p_Creature->GetCreatureData() ? p_Creature->GetCreatureData()->spawntimesecs : 15);
     p_Creature->Respawn();
 
-    p_Template->ReplacedRelation.erase(p_Template->ReplacedRelation.find(p_Creature));
+    p_Template->ReplacedRelation.erase(p_Template->ReplacedRelation.find(p_Creature->GetGUID()));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -404,7 +425,7 @@ bool WildBattlePetMgr::IsWildPet(Creature* p_Creature)
 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
-        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
+        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature->GetGUID()) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
             return true;
     }
 
@@ -413,7 +434,7 @@ bool WildBattlePetMgr::IsWildPet(Creature* p_Creature)
 
 BattlePetInstance * WildBattlePetMgr::GetWildBattlePet(Creature* p_Creature)
 {
-    if (!IsWildPet(p_Creature))
+    if (!IsWildPet(p_Creature) || !p_Creature)
         return NULL;
 
     uint32 l_ZoneID = p_Creature->GetZoneId();
@@ -423,8 +444,8 @@ BattlePetInstance * WildBattlePetMgr::GetWildBattlePet(Creature* p_Creature)
 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
-        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
-            return &l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature];
+        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature->GetGUID()) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
+            return &l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature->GetGUID()];
     }
 
     return NULL;
@@ -457,11 +478,17 @@ void WildBattlePetMgr::LeaveBattle(Creature* p_Creature, bool p_Defeated)
     {
         WildBattlePetPoolTemplate* l_Template = &l_Pools->m_Templates[l_I];
 
-        for (std::map<Creature*, Creature*>::iterator l_It = l_Template->ReplacedRelation.begin(); l_It != l_Template->ReplacedRelation.end(); ++l_It)
+        for (std::map<uint64, uint64>::iterator l_It = l_Template->ReplacedRelation.begin(); l_It != l_Template->ReplacedRelation.end(); ++l_It)
         {
-            if (l_It->second == p_Creature)
+            if (l_It->second == p_Creature->GetGUID())
             {
-                l_Pools->UnreplaceCreature(l_It->first, l_Template);
+                Unit * l_Unit = sObjectAccessor->FindUnit(l_It->first);
+
+                if (!l_Unit || !l_Unit->ToCreature())
+                    continue;
+
+                l_Pools->UnreplaceCreature(l_Unit->ToCreature(), l_Template);
+
                 return;
             }
         }
