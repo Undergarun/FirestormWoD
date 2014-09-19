@@ -221,6 +221,28 @@ class vehicle_artillery_to_wall : public VehicleScript
         }
 };
 
+class go_setting_sun_elevator : public GameObjectScript
+{
+    public:
+        go_setting_sun_elevator() : GameObjectScript("go_setting_sun_elevator") { }
+
+        InstanceScript* m_Instance;
+
+        bool OnGossipHello(Player* p_Player, GameObject* /*go*/)
+        {
+            if (!p_Player)
+                return false;
+
+            std::list<Player*> l_PlayerList;
+            GetPlayerListInGrid(l_PlayerList, p_Player, 45.0f);
+
+            for (Player* player : l_PlayerList)
+                player->TeleportTo(962, 1193.399f, 2290.80f, 430.87f, 1.52f);
+
+            return false;
+        }
+};
+
 void AddSC_gate_setting_sun()
 {
     new mob_serpent_spine_defender();
@@ -229,4 +251,5 @@ void AddSC_gate_setting_sun()
     new go_setting_sun_brasier();
     new go_setting_sun_temp_portal();
     new vehicle_artillery_to_wall();
+    new go_setting_sun_elevator();
 }
