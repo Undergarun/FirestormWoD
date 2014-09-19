@@ -512,8 +512,8 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* battle)
         if (battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID)
             l_OwnerGuid = 0;
 
-        packet.WriteByteSeq(l_OwnerGuid[6]);
         packet.WriteByteSeq(l_OwnerGuid[1]);
+        packet.WriteByteSeq(l_OwnerGuid[6]);
 
         for (uint32 l_PetID = 0; l_PetID < battle->Teams[l_TeamID]->TeamPetCount; l_PetID++)
         {
