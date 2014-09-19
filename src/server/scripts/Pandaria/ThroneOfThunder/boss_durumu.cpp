@@ -69,7 +69,7 @@ class boss_durumu : public CreatureScript
                 summons.DespawnAll();
 
                 std::list<AreaTrigger*> l_AreatriggerList;
-                me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
+                me->GetAreaTriggerList(l_AreatriggerList, 134040);
 
                 if (!l_AreatriggerList.empty())
                     for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
@@ -95,7 +95,7 @@ class boss_durumu : public CreatureScript
                 _JustDied();
 
                 std::list<AreaTrigger*> l_AreatriggerList;
-                me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
+                me->GetAreaTriggerList(l_AreatriggerList, 134040);
 
                 if (!l_AreatriggerList.empty())
                     for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)

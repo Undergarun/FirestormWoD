@@ -453,11 +453,8 @@ void AreaTrigger::Update(uint32 p_time)
             GetPlayerListInGrid(playerList, 60.0f);
 
             for (auto player : playerList)
-            {
-                if (player->HasAura(134040 ))
+                if (player->HasAura(134040))
                     player->AddAura(134040, player);
-            }
-
             break;
         }
         default:
