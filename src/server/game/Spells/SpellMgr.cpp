@@ -3427,6 +3427,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 136413:
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 125634: // Call for Nomi (spawn spammed, usebug)
                 spellInfo->RecoveryTime = 9000000;
                 break;

@@ -25,14 +25,18 @@
 
 enum eSpells
 {
-    SPELL_HARD_STARE        = 133765,
-    SPELL_FORCE_OF_WILL     = 136413
+    SPELL_HARD_STARE             = 133765,
+    SPELL_FORCE_OF_WILL          = 136413, // May be too much powerful, to check with players
+    SPELL_LINGERING_GAZE_MAIN    = 138467, // Script Effect
+    SPELL_LINGERING_GAZE_MISSILE = 133792,
+    SPELL_LINGERING_GAZE_AT      = 133793
 };
 
 enum eEvents
 {
     EVENT_HARD_STARE        = 1,
-    EVENT_FORCE_OF_WILL     = 2
+    EVENT_FORCE_OF_WILL     = 2,
+    EVENT_LINGERING_GAZE    = 3
 };
 
 // Durumu the forgotten - 68036
@@ -59,8 +63,17 @@ class boss_durumu : public CreatureScript
 
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
+                me->ClearUnitState(UNIT_STATE_ROOT);
+                me->AddUnitState(UNIT_STATE_ROOT);
 
                 summons.DespawnAll();
+
+                std::list<AreaTrigger*> l_AreatriggerList;
+                me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
+
+                if (!l_AreatriggerList.empty())
+                    for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
+                        l_AreaTrigger->Remove();
 
                 if (m_Instance)
                 {
@@ -72,12 +85,21 @@ class boss_durumu : public CreatureScript
             void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.Reset();
-                m_Events.ScheduleEvent(EVENT_HARD_STARE, 10000);
-                m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 20000);
+                // m_Events.ScheduleEvent(EVENT_HARD_STARE, 10000);
+                // m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 18000);
+                m_Events.ScheduleEvent(EVENT_LINGERING_GAZE, 10000);
             }
 
             void JustDied(Unit* /*p_Killer*/)
             {
+                _JustDied();
+
+                std::list<AreaTrigger*> l_AreatriggerList;
+                me->GetAreaTriggerList(l_AreatriggerList, SPELL_MUTAGENIC_POOL);
+
+                if (!l_AreatriggerList.empty())
+                    for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
+                        l_AreaTrigger->Remove();
             }
 
             void DoAction(const int32 /*p_Action*/)
@@ -106,6 +128,11 @@ class boss_durumu : public CreatureScript
                             me->CastSpell(l_Target, SPELL_FORCE_OF_WILL, false);
                         m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 6000);
                         break;
+                    case EVENT_LINGERING_GAZE:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_LINGERING_GAZE_MAIN, false);
+                        m_Events.ScheduleEvent(EVENT_LINGERING_GAZE, 12000);
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -121,39 +148,84 @@ class boss_durumu : public CreatureScript
 // Arterial Cut (aura) - 133768
 class spell_arterial_cut : public SpellScriptLoader
 {
-public:
-    spell_arterial_cut() : SpellScriptLoader("spell_arterial_cut") { }
+    public:
+        spell_arterial_cut() : SpellScriptLoader("spell_arterial_cut") { }
 
-    class spell_arterial_cut_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_arterial_cut_AuraScript);
-
-        void OnTick(constAuraEffectPtr /*aurEff*/)
+        class spell_arterial_cut_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareAuraScript(spell_arterial_cut_AuraScript);
 
-            if (!l_Caster)
-                return;
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
 
-            if (Player* l_Player = l_Caster->ToPlayer())
-                if (l_Player->GetHealth() == l_Player->GetMaxHealth())
-                    this->Remove();
-        }
+                if (!l_Caster)
+                    return;
 
-        void Register()
+                if (Player* l_Player = l_Caster->ToPlayer())
+                    if (l_Player->GetHealth() == l_Player->GetMaxHealth())
+                        this->Remove();
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_arterial_cut_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_arterial_cut_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            return new spell_arterial_cut_AuraScript();
         }
-    };
+};
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_arterial_cut_AuraScript();
-    }
+/// Lingering Gaze - 138467
+class spell_lingering_gaze_main : public SpellScriptLoader
+{
+    public:
+        spell_lingering_gaze_main() : SpellScriptLoader("spell_lingering_gaze_main") { }
+
+        class spell_lingering_gaze_main_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_lingering_gaze_main_SpellScript);
+
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                std::list<Player*> l_PlayerList;
+                GetPlayerListInGrid(l_PlayerList, l_Caster, 100.0f);
+
+                if (l_Caster->GetMap()->IsHeroic())
+                    JadeCore::RandomResizeList(l_PlayerList, 5);
+                else
+                    JadeCore::RandomResizeList(l_PlayerList, 2);
+
+                for (Player* l_Player: l_PlayerList)
+                {
+                    l_Caster->CastSpell(l_Player, SPELL_LINGERING_GAZE_MISSILE, true);
+                    l_Caster->CastSpell(l_Player, SPELL_LINGERING_GAZE_AT, true);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_lingering_gaze_main_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_lingering_gaze_main_SpellScript();
+        }
 };
 
 void AddSC_boss_durumu()
 {
     new boss_durumu();
     new spell_arterial_cut();
+    new spell_lingering_gaze_main();
 }
