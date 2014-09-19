@@ -53,20 +53,24 @@ bool UpdateData::BuildPacket(WorldPacket* p_Packet)
     if (!HasData())
         return false;
 
-    *p_Packet << uint32(m_blockCount + (m_outOfRangeGUIDs.empty() ? 0 : 1));
+    *p_Packet << uint32(m_blockCount);
     *p_Packet << uint16(m_map);
 
-    uint32_t l_Pos = p_Packet->wpos();
-    *p_Packet << uint32(0);
-
-    if (!m_outOfRangeGUIDs.empty())
+    if (p_Packet->WriteBit(!m_outOfRangeGUIDs.empty()))
     {
-        *p_Packet << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
+        p_Packet->FlushBits();
+
+        *p_Packet << uint16(0);
         *p_Packet << uint32(m_outOfRangeGUIDs.size());
 
         for (std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
             p_Packet->appendPackGUID(*i);
     }
+    else
+        p_Packet->FlushBits();
+
+    uint32_t l_Pos = p_Packet->wpos();
+    *p_Packet << uint32(0);
 
     p_Packet->append(m_data);
 

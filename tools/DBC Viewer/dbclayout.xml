@@ -2655,4 +2655,13 @@
     <field type="int" name="field1" />
     <field type="int" name="field2" />
   </GarrFollowerLevelXP>
+  <BattlePetState build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="string" name="field2" />
+    <field type="int" name="field3" />
+  </BattlePetState>
 </DBFilesClient>

@@ -108,8 +108,8 @@ namespace ClientPatcher
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Adding host rewrite...");
 
-                var host = args.Length == 2 ? args[1] : "127.0.0.1";
-                var hostName = args.Length == 3 ? (" " + args[2] + ".logon.battle.net") : " garrosh.logon.battle.net";
+                var host = "127.0.0.1";
+                var hostName = "garrosh.logon.battle.net";
                 var exists = false;
 
                 using (var sr = new StreamReader(hostsPath))
