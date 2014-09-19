@@ -1,0 +1,23 @@
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','10676','0','754','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','10707','0','126','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','10711','0','753','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','35907','0','760','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','119467','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','122026','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','123214','0','789','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','125439','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','125610','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63596','127816','0','899','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','10688','0','220','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','10709','0','124','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','10714','0','125','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','36027','0','756','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','119467','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','122026','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','123212','0','790','5','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','125439','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','125610','0','0','0','15');
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values('63626','127816','0','899','5','15');
+
+DELETE FROM creature WHERE guid=333961;
+UPDATE creature_template SET npcflag=23 WHERE entry IN (63596, 63626);

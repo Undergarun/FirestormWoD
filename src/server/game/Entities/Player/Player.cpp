@@ -5242,6 +5242,22 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         data.WriteBits(1, 22);  // count of spell_id to send.
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
+
+        switch (spell_id)
+        {
+            case 119467:
+            case 122026:
+            case 125439:
+            case 125610:
+                if (!HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING))
+                {
+                    SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
+                    GetSession()->SendPetBattleJournal();
+                }
+
+                break;
+
+        }
     }
 
     // learn all disabled higher ranks and required spells (recursive)
