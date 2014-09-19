@@ -54,7 +54,7 @@ struct AchievementEntry
     //char* reward;                                         // 11
     uint32 count;                                           // 12 - need this count of completed criterias (own or referenced achievement criterias)
     uint32 refAchievement;                                  // 13 - referenced achievement (counting of all completed criterias)
-    //uint32 unk_505                                        // 14
+    uint32 CriteriaTreeID;                                  // 14
 };
 
 struct AchievementCategoryEntry
@@ -992,15 +992,353 @@ struct CreatureTypeEntry
     //uint32    no_experience;                              // 2        m_flags no exp (non-combat pets, battlepet, gas cloud.)
 };
 
-/* Unused
-struct CurrencyCategoryEntry
+struct CriteriaEntry
 {
-    uint32    ID;                                           // 0
-    uint32    Unk1;                                         // 1
-    char*     Name;                                         // 2
+    uint32 ID;                                              // 0
+    uint32 Type;                                            // 1
+    union
+    {
+        // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE                  = 0
+        struct
+        {
+            uint32 CreatureID;
+        } kill_creature;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                         = 1
+        struct
+        {
+            uint32 MapID;
+        } win_bg;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL              = 7
+        struct
+        {
+            uint32  skillID;
+        } reach_skill_level;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT           = 8
+        struct
+        {
+            uint32  linkedAchievement;
+        } complete_achievement;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE        = 11
+        struct
+        {
+            uint32  zoneID;
+        } complete_quests_in_zone;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY                       = 12
+        struct
+        {
+            uint32 currency;
+        } currencyGain;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND          = 15
+        struct
+        {
+            uint32  mapID;
+        } complete_battleground;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP                   = 16
+        struct
+        {
+            uint32  mapID;
+        } death_at_map;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON               = 18
+        struct
+        {
+            uint32  manLimit;
+        } death_in_dungeon;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID                  = 19
+        struct
+        {
+            uint32  groupSize;
+        } complete_raid;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE             = 20
+        struct
+        {
+            uint32  creatureEntry;
+        } killed_by_creature;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM                    = 26
+        struct
+        {
+            uint32 type;
+        } death_from;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST                 = 27
+        struct
+        {
+            uint32  questID;
+        } complete_quest;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET                = 28
+        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2               = 69
+        struct
+        {
+            uint32  spellID;
+        } be_spell_target;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL                     = 29
+        // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2                    = 110
+        struct
+        {
+            uint32  spellID;
+        } cast_spell;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE           = 30
+        struct
+        {
+            uint32 objectiveId;
+        } bg_objective;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA         = 31
+        struct
+        {
+            uint32  areaID;
+        } honorable_kill_at_area;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA                      = 32
+        struct
+        {
+            uint32 mapID;
+        } win_arena;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA                     = 33
+        struct
+        {
+            uint32  mapID;
+        } play_arena;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL                    = 34
+        struct
+        {
+            uint32  spellID;
+        } learn_spell;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM                       = 36
+        struct
+        {
+            uint32  itemID;
+        } own_item;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING            = 38
+        struct
+        {
+            uint32  teamtype;
+        } highest_team_rating;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING              = 39
+        struct
+        {
+            uint32  teamtype;
+        } reach_team_rating;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING        = 39
+        struct
+        {
+            uint32 teamtype;
+        } highest_personal_rating;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL              = 40
+        struct
+        {
+            uint32  skillID;
+        } learn_skill_level;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM                       = 41
+        struct
+        {
+            uint32  itemID;
+        } use_item;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM                      = 42
+        struct
+        {
+            uint32  itemID;
+        } loot_item;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA                   = 43
+        struct
+        {
+            uint32  areaReference;
+        } explore_area;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK                       = 44
+        struct
+        {
+            uint32  rank;
+        } own_rank;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION                = 46
+        struct
+        {
+            uint32  factionID;
+        } gain_reputation;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM                = 49
+        struct
+        {
+            uint32  itemSlot;
+        } equip_epic_item;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT              = 50
+        struct
+        {
+            uint32  rollValue;
+        } roll_need_on_loot;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT             = 51
+        struct
+        {
+            uint32  rollValue;
+        } roll_greed_on_loot;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS                       = 52
+        struct
+        {
+            uint32  classID;
+        } hk_class;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HK_RACE                        = 53
+        struct
+        {
+            uint32  raceID;
+        } hk_race;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE                       = 54
+        struct
+        {
+            uint32  emoteID;
+        } do_emote;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM                     = 57
+        struct
+        {
+            uint32  itemID;
+        } equip_item;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT                 = 68
+        struct
+        {
+            uint32  goEntry;
+        } use_gameobject;
+
+        // ACHIEVEMENT_CRITERIA_WIN_CHALLENGE_DUNGEON               = 71
+        struct
+        {
+            uint32 MapID;
+        } ChallengeDungeon;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT             = 72
+        struct
+        {
+            uint32  goEntry;
+        } fish_in_gameobject;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS         = 75
+        struct
+        {
+            uint32  skillLine;
+        } learn_skillline_spell;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET              = 96
+        struct
+        {
+            uint32 BattlePetEntry;
+        } CaptureBattlePet;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT                   = 97
+        struct
+        {
+            uint32  statType;
+        } highest_stat;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER             = 98
+        struct
+        {
+            uint32  spellSchool;
+        } highest_spellpower;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_RATING                 = 100
+        struct
+        {
+            uint32  ratingType;
+        } highest_rating;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE                      = 109
+        struct
+        {
+            uint32  lootType;
+        } loot_type;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE               = 112
+        struct
+        {
+            uint32  skillLine;
+        } learn_skill_line;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE  = 138
+        struct
+        {
+            uint32 ChallengeTypeID;
+        } GuildChallengeType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO_ID           = 152
+        struct
+        {
+            uint32 ScenarioID;
+        } CompleteScenario;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET              = 160
+        struct
+        {
+            uint32 RequiredLevel;
+        } BattlePetLevelUp;
+
+        struct
+        {
+            uint32 criteriaArg1;
+        } raw;
+    };
+
+    uint32 StartEvent;                                      // 3
+    uint32 StartAsset;                                      // 4
+    uint32 StartTimer;                                      // 5
+    uint32 FailEvent;                                       // 6
+    uint32 FailAsset;                                       // 7
+    uint32 ModifierTreeId;                                  // 8
+    uint32 Flags;                                           // 9
+    uint32 EligibilityWorldStateID;                         // 10
+    uint32 EligibilityWorldStateValue;                      // 11
 };
-*/
+
+struct CriteriaTreeEntry
+{
+    uint32 ID;                                              // 0
+    uint32 CriteriaID;                                      // 1
+    uint32 Amount;                                          // 2
+    uint32 OrderIndex;                                      // 3
+    uint32 Operator;                                        // 4
+    uint32 Parent;                                          // 5
+    uint32 Flags;                                           // 6
+    char*  DescriptionLang;                                 // 7
+};
+
+struct ModifierTreeEntry
+{
+    uint32 ID;                                              // 0
+    uint32 Type;                                            // 1
+    uint32 Asset;                                           // 2
+    uint32 SecondaryAsset;                                  // 3
+    uint32 Operator;                                        // 4
+    uint32 Amount;                                          // 5
+    uint32 Parent;                                          // 6
+};
 
 // @author Selenium: 5.4 valid
 struct CurrencyTypesEntry
