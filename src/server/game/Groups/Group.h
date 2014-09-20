@@ -259,7 +259,6 @@ class Group
         bool isBGGroup()   const;
         bool isBFGroup()   const;
         bool IsCreated()   const;
-        bool IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID);
         uint64 GetLeaderGUID() const;
         uint64 GetGUID() const;
         uint32 GetLowGUID() const;
