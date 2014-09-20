@@ -549,7 +549,7 @@ class PetBattleTeam
 {
     public:
         /// Update team
-        void Update();
+        bool Update();
 
         /// Do casts for front pet
         void DoCasts(uint32 p_Turn0ProcCond = PETBATTLE_ABILITY_TURN0_PROC_ON_NONE);
