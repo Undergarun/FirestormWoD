@@ -670,6 +670,8 @@ class PetBattle
         std::map<uint8, bool> FightedPets;
         int8 CatchedPetId;
 
+        std::shared_ptr<BattlePetInstance> CrashPlaceHolder;
+
     private:
         IntervalTimer m_UpdateTimer;
 

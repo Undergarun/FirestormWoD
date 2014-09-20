@@ -1385,11 +1385,11 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePetBattleRequestWildCallback(PreparedQueryResult& p_Result, PetBattleRequest* p_Request)
 {
-    BattlePetInstance*  l_PlayerPets[MAX_PETBATTLE_SLOTS];
-    BattlePetInstance*  l_WildBattlePet;
-    size_t              l_PlayerPetCount = 0;
-    PetBattle*          l_Battle;
-    uint32              l_ErrorCode = PETBATTLE_REQUEST_FAILED;
+    BattlePetInstance                 * l_PlayerPets[MAX_PETBATTLE_SLOTS];
+    std::shared_ptr<BattlePetInstance>  l_WildBattlePet;
+    size_t                              l_PlayerPetCount = 0;
+    PetBattle*                          l_Battle;
+    uint32                              l_ErrorCode = PETBATTLE_REQUEST_FAILED;
 
     if (!_player || !_player->IsInWorld())
         return;
@@ -1467,7 +1467,8 @@ void WorldSession::HandlePetBattleRequestWildCallback(PreparedQueryResult& p_Res
     l_Battle->Teams[PETBATTLE_TEAM_2]->OwnerGuid = l_Wild->GetGUID();
 
     l_Battle->BattleType = p_Request->RequestType;
-    l_Battle->AddPet(PETBATTLE_TEAM_2, l_WildBattlePet);
+    l_Battle->AddPet(PETBATTLE_TEAM_2, l_WildBattlePet.get());
+    l_Battle->CrashPlaceHolder = l_WildBattlePet;
 
     // Launch battle
     _player->_petBattleId = l_Battle->ID;

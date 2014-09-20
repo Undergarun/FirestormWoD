@@ -46,8 +46,8 @@ struct WildBattlePetPoolTemplate
     std::list<uint64>            Replaced;
 
     /// @TODO: replace this
-    std::map<uint64, uint64>             ReplacedRelation;
-    std::map<uint64, BattlePetInstance>  ReplacedBattlePetInstances;
+    std::map<uint64, uint64>                                ReplacedRelation;
+    std::map<uint64, std::shared_ptr<BattlePetInstance>>    ReplacedBattlePetInstances;
 };
 
 class WildBattlePetZonePools
@@ -89,7 +89,7 @@ class WildBattlePetMgr
         void OnRemoveToMap(Creature* p_Creature);
 
         bool IsWildPet(Creature* p_Creature);
-        BattlePetInstance* GetWildBattlePet(Creature* p_Creature);
+        std::shared_ptr<BattlePetInstance> GetWildBattlePet(Creature* p_Creature);
         
         void EnterInBattle(Creature* p_Creature);
         void LeaveBattle(Creature* p_Creature, bool p_Defeated);

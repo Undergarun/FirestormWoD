@@ -162,8 +162,8 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     }
 
     // BattlePet fill data
-    p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()] = BattlePetInstance();
-    BattlePetInstance* l_BattlePetInstance = &p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()];
+    p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()] = std::shared_ptr<BattlePetInstance>(new BattlePetInstance());
+    std::shared_ptr<BattlePetInstance> l_BattlePetInstance = p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()];
 
     l_BattlePetInstance->JournalID      = 0;
     l_BattlePetInstance->Slot           = 0;
@@ -438,7 +438,7 @@ bool WildBattlePetMgr::IsWildPet(Creature* p_Creature)
     return false;
 }
 
-BattlePetInstance * WildBattlePetMgr::GetWildBattlePet(Creature* p_Creature)
+std::shared_ptr<BattlePetInstance> WildBattlePetMgr::GetWildBattlePet(Creature* p_Creature)
 {
     if (!IsWildPet(p_Creature) || !p_Creature)
         return NULL;
@@ -451,7 +451,7 @@ BattlePetInstance * WildBattlePetMgr::GetWildBattlePet(Creature* p_Creature)
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
         if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature->GetGUID()) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
-            return &l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature->GetGUID()];
+            return l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature->GetGUID()];
     }
 
     return NULL;
