@@ -525,7 +525,7 @@ void PetBattleAura::Expire(PetBattle* p_Battle)
 bool PetBattleTeam::Update()
 {
     if (Ready)
-        return;
+        return false;
 
     if (PetBattleInstance->BattleStatus == PETBATTLE_STATUS_FINISHED)
     {
