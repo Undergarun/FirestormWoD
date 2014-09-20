@@ -248,8 +248,11 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
                     if (AuraEffectPtr aura = caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                     {
                         if (aura->GetAmount() > 4)
+                        {
                             caster->RemoveAura(GetSpellInfo()->Id);
-
+                            return;
+                        }
+                        
                         // Maybe not the good target selection ...
                         if (Unit* target = ObjectAccessor::FindUnit(caster->GetIciclesTarget()))
                         {
