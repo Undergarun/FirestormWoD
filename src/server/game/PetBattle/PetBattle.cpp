@@ -527,7 +527,7 @@ void PetBattleTeam::Update()
     if (Ready)
         return;
 
-	if (PetBattleInstance->BattleStatus == PETBATTLE_STATUS_FINISHED;)
+	if (PetBattleInstance->BattleStatus == PETBATTLE_STATUS_FINISHED)
 	{
 		Ready = false;
 		return;
