@@ -256,9 +256,12 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
                             if (AuraPtr icicleCurrentAura = caster->GetAura(IcicleAuras[aura->GetAmount()]))
                             {
                                 int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                                caster->CastSpell(target, IcicleHits[aura->GetAmount()], true);
+                                
+                                if (aura->GetAmount() < 5)
+                                    caster->CastSpell(target, IcicleHits[aura->GetAmount()], true);
                                 caster->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                                caster->RemoveAura(IcicleAuras[aura->GetAmount()]);
+                                if (aura->GetAmount() < 5)
+                                    caster->RemoveAura(IcicleAuras[aura->GetAmount()]);
                                 aura->SetAmount(aura->GetAmount() + 1);
                             }
 
