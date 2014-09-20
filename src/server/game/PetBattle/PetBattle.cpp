@@ -527,6 +527,12 @@ void PetBattleTeam::Update()
     if (Ready)
         return;
 
+	if (PetBattleInstance->BattleStatus == PETBATTLE_STATUS_FINISHED;)
+	{
+		Ready = false;
+		return;
+	}
+		
     BattlePetInstance*  l_FrontPet          = PetBattleInstance->Pets[ActivePetID];
     bool                l_IsFrontPetAlive   = l_FrontPet->IsAlive();
     uint32              l_ThisTeamID        = PetBattleInstance->Teams[0] == this ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
