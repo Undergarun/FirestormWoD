@@ -522,16 +522,16 @@ void PetBattleAura::Expire(PetBattle* p_Battle)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 /// Update team
-void PetBattleTeam::Update()
+bool PetBattleTeam::Update()
 {
     if (Ready)
         return;
 
-	if (PetBattleInstance->BattleStatus == PETBATTLE_STATUS_FINISHED)
-	{
-		Ready = false;
-		return;
-	}
+    if (PetBattleInstance->BattleStatus == PETBATTLE_STATUS_FINISHED)
+    {
+	Ready = false;
+	return false;
+    }
 		
     BattlePetInstance*  l_FrontPet          = PetBattleInstance->Pets[ActivePetID];
     bool                l_IsFrontPetAlive   = l_FrontPet->IsAlive();
@@ -544,7 +544,7 @@ void PetBattleTeam::Update()
         if (!l_AvailablesPets.size())
         {
             PetBattleInstance->Finish(!l_ThisTeamID, false);
-            return;
+            return true;
         }
         if (l_AvailablesPets.size() == 1)
         {
@@ -581,6 +581,7 @@ void PetBattleTeam::Update()
             Ready = true;
         }
     }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1238,7 +1239,15 @@ void PetBattle::Update(uint32 p_TimeDiff)
         m_UpdateTimer.Reset();
 
         Teams[PETBATTLE_TEAM_1]->Update();
-        Teams[PETBATTLE_TEAM_2]->Update();
+        bool l_BattleIsFinish = Teams[PETBATTLE_TEAM_2]->Update();
+
+        // if the first update return battle finish state, it's handle in the second update
+        if (l_BattleIsFinish)
+        {
+            Teams[PETBATTLE_TEAM_1]->Ready = false;
+            Teams[PETBATTLE_TEAM_2]->Ready = false;
+            return;
+        }
 
         if (Teams[PETBATTLE_TEAM_1]->Ready && Teams[PETBATTLE_TEAM_2]->Ready)
         {
