@@ -580,7 +580,7 @@ class PetBattleTeam
 
         PetBattle * PetBattleInstance;                      ///< Pet battle instance
 
-        BattlePetInstance * TeamPets[MAX_PETBATTLE_SLOTS];  ///< Team pets
+        std::shared_ptr<BattlePetInstance> TeamPets[MAX_PETBATTLE_SLOTS];  ///< Team pets
         uint32 TeamPetCount;                                ///< Team pet count
 
         std::map<uint32, uint32> CapturedSpeciesCount;      ///< Captured species count
@@ -606,7 +606,7 @@ class PetBattle
         ~PetBattle();
 
         /// Add pet to the battle
-        void AddPet(uint32 p_TeamID, BattlePetInstance * p_Pet);
+        void AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet);
 
         /// Start the battle
         void Begin();
@@ -660,7 +660,7 @@ class PetBattle
         std::vector<std::pair<uint32, uint32>> RoundPetSpeedUpdate;             ///< Round pet speed update <petid, abilityeffectid>
 
         PetBattleTeam * Teams[MAX_PETBATTLE_TEAM];                              ///< Battle teams
-        BattlePetInstance* Pets[MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS];      ///< All pets involved in the battle
+        std::shared_ptr<BattlePetInstance> Pets[MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS];      ///< All pets involved in the battle
         uint32 TotalPetCount;                                                   ///< Battle total pet count
 
         PetBattleAuraList PetAuras;                                             ///< Current battle pets auras
@@ -669,8 +669,6 @@ class PetBattle
         int32 WinnerTeamId;
         std::map<uint8, bool> FightedPets;
         int8 CatchedPetId;
-
-        std::shared_ptr<BattlePetInstance> CrashPlaceHolder;
 
     private:
         IntervalTimer m_UpdateTimer;

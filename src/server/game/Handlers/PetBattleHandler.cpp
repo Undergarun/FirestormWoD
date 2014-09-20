@@ -438,7 +438,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* battle)
 
         for (uint32 l_PetID = 0; l_PetID < battle->Teams[l_TeamID]->TeamPetCount; l_PetID++)
         {
-            BattlePetInstance* l_Pet = battle->Teams[l_TeamID]->TeamPets[l_PetID];
+            std::shared_ptr<BattlePetInstance> l_Pet = battle->Teams[l_TeamID]->TeamPets[l_PetID];
 
             ObjectGuid l_JournalID = (battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID) ? 0 : l_Pet->JournalID;
 
@@ -520,7 +520,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* battle)
 
         for (uint32 l_PetID = 0; l_PetID < battle->Teams[l_TeamID]->TeamPetCount; l_PetID++)
         {
-            BattlePetInstance* l_Pet = battle->Teams[l_TeamID]->TeamPets[l_PetID];
+            std::shared_ptr<BattlePetInstance> l_Pet = battle->Teams[l_TeamID]->TeamPets[l_PetID];
 
             ObjectGuid l_JournalID = (battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID) ? 0 : l_Pet->JournalID;
 
@@ -1385,7 +1385,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePetBattleRequestWildCallback(PreparedQueryResult& p_Result, PetBattleRequest* p_Request)
 {
-    BattlePetInstance                 * l_PlayerPets[MAX_PETBATTLE_SLOTS];
+    std::shared_ptr<BattlePetInstance>  l_PlayerPets[MAX_PETBATTLE_SLOTS];
     std::shared_ptr<BattlePetInstance>  l_WildBattlePet;
     size_t                              l_PlayerPetCount = 0;
     PetBattle*                          l_Battle;
@@ -1420,7 +1420,7 @@ void WorldSession::HandlePetBattleRequestWildCallback(PreparedQueryResult& p_Res
 
         Field* l_Fields = p_Result->Fetch();
 
-        l_PlayerPets[l_PlayerPetCount] = new BattlePetInstance();
+        l_PlayerPets[l_PlayerPetCount] = std::shared_ptr<BattlePetInstance>(new BattlePetInstance());
         l_PlayerPets[l_PlayerPetCount]->Load(l_Fields);
         l_PlayerPets[l_PlayerPetCount]->Slot = l_PlayerPetCount;
 
@@ -1467,8 +1467,7 @@ void WorldSession::HandlePetBattleRequestWildCallback(PreparedQueryResult& p_Res
     l_Battle->Teams[PETBATTLE_TEAM_2]->OwnerGuid = l_Wild->GetGUID();
 
     l_Battle->BattleType = p_Request->RequestType;
-    l_Battle->AddPet(PETBATTLE_TEAM_2, l_WildBattlePet.get());
-    l_Battle->CrashPlaceHolder = l_WildBattlePet;
+    l_Battle->AddPet(PETBATTLE_TEAM_2, l_WildBattlePet);
 
     // Launch battle
     _player->_petBattleId = l_Battle->ID;
@@ -1491,7 +1490,7 @@ WILD_BATTLE_FAILED:
 
     for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
         if (l_PlayerPets[l_CurrentPetID])
-            delete l_PlayerPets[l_CurrentPetID];
+            l_PlayerPets[l_CurrentPetID] = std::shared_ptr<BattlePetInstance>();
 
     SendPetBattleRequestFailed(l_ErrorCode);
     delete p_Request;

@@ -1414,7 +1414,7 @@ bool PetBattleAbilityEffect::HandleSetHealthPercent()
 
 bool PetBattleAbilityEffect::HandleLockActiveAbility()
 {
-    BattlePetInstance* target = PetBattleInstance->Pets[Target];
+    std::shared_ptr<BattlePetInstance> target = PetBattleInstance->Pets[Target];
     uint32 activeAbilityId = PetBattleInstance->Teams[target->TeamID]->ActiveAbilityId;
 
     uint32 abilitySlot;

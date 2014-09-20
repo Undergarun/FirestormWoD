@@ -236,7 +236,7 @@ uint32 BattlePetInstance::GetMaxXPForCurrentLevel()
 /// Get xp earn
 uint32 BattlePetInstance::GetXPEarn(uint32 p_TargetPetID)
 {
-    BattlePetInstance* l_TargetPet = PetBattleInstance->Pets[p_TargetPetID];
+    std::shared_ptr<BattlePetInstance> l_TargetPet = PetBattleInstance->Pets[p_TargetPetID];
 
     int32 l_LevelDiff = l_TargetPet->Level - Level;
 
@@ -533,9 +533,9 @@ bool PetBattleTeam::Update()
 	return false;
     }
 		
-    BattlePetInstance*  l_FrontPet          = PetBattleInstance->Pets[ActivePetID];
-    bool                l_IsFrontPetAlive   = l_FrontPet->IsAlive();
-    uint32              l_ThisTeamID        = PetBattleInstance->Teams[0] == this ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
+    std::shared_ptr<BattlePetInstance>  l_FrontPet          = PetBattleInstance->Pets[ActivePetID];
+    bool                                l_IsFrontPetAlive   = l_FrontPet->IsAlive();
+    uint32                              l_ThisTeamID        = PetBattleInstance->Teams[0] == this ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
 
     if (!l_IsFrontPetAlive)
     {
@@ -663,7 +663,7 @@ uint8 PetBattleTeam::CanCatchOpponentTeamFrontPet()
     if (CapturedPet != PETBATTLE_NULL_ID)
         return PETBATTLE_TEAM_CATCH_FLAG_ONE_CATCH_PER_FIGHT;
 
-    BattlePetInstance* l_TargetPet = PetBattleInstance->Pets[PetBattleInstance->Teams[!l_ThisTeamID]->ActivePetID];
+    std::shared_ptr<BattlePetInstance> l_TargetPet = PetBattleInstance->Pets[PetBattleInstance->Teams[!l_ThisTeamID]->ActivePetID];
 
     if (!l_TargetPet->IsAlive())
         return 0;
@@ -808,7 +808,7 @@ PetBattle::~PetBattle()
         if ((BattleType == PETBATTLE_TYPE_PVE && l_CurrentTeamID != PETBATTLE_PVE_TEAM_ID) || BattleType != PETBATTLE_TYPE_PVE)
             for (uint32 l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; l_CurrentPetID++)
                 if (Pets[l_CurrentPetID])
-                    delete Pets[l_CurrentPetID];
+                    Pets[l_CurrentPetID] = std::shared_ptr<BattlePetInstance>();
 
         delete Teams[l_CurrentTeamID];
     }
@@ -816,7 +816,7 @@ PetBattle::~PetBattle()
 
 //////////////////////////////////////////////////////////////////////////
 /// Add pet to the battle
-void PetBattle::AddPet(uint32 p_TeamID, BattlePetInstance* p_Pet)
+void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet)
 {
     if (p_Pet == 0 || p_Pet->Slot < 0 || p_Pet->Slot >= MAX_PETBATTLE_SLOTS)
         return;
@@ -1118,7 +1118,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
 
             for (size_t l_CurrentPetID = 0; l_CurrentPetID < Teams[l_CurrentTeamID]->TeamPetCount; ++l_CurrentPetID)
             {
-                BattlePetInstance* l_CurrentPet = Teams[l_CurrentTeamID]->TeamPets[l_CurrentPetID];
+                std::shared_ptr<BattlePetInstance> l_CurrentPet = Teams[l_CurrentTeamID]->TeamPets[l_CurrentPetID];
 
                 if (l_CurrentPet->Health < 0)
                     l_CurrentPet->Health = 0;
@@ -1574,7 +1574,7 @@ void PetBattle::Catch(int8 p_Catcher, int8 p_CatchedTarget, uint32 p_FromAbility
 /// Get first attacking team
 uint32 PetBattle::GetFirstAttackingTeam()
 {
-    BattlePetInstance* l_ActivePets[2];
+    std::shared_ptr<BattlePetInstance> l_ActivePets[2];
     l_ActivePets[0] = Pets[Teams[0]->ActivePetID];
     l_ActivePets[1] = Pets[Teams[1]->ActivePetID];
 
