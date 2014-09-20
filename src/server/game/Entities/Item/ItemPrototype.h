@@ -963,7 +963,7 @@ namespace ItemSpecialization
 
         if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
         {
-            if (p_ItemTemplate->SubClass <= ITEM_SUBCLASS_WEAPON_WAND)
+            if (p_ItemTemplate->SubClass < ITEM_SUBCLASS_WEAPON_WAND)
             {
                 l_ItemSpecStats.push_back(s_ItemSubClassSpec[p_ItemTemplate->SubClass]);
                 if (GetItemType(p_ItemTemplate) == 6)
