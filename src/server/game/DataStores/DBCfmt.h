@@ -22,7 +22,7 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-const char Achievementfmt[]                   = "niixsxiixixxiix";
+const char Achievementfmt[]                   = "niixsxiixixxiii";
 const std::string CustomAchievementfmt        = "pppaaaapapaappa";
 const std::string CustomAchievementIndex      = "ID";
 const char AchievementCriteriafmt[]           = "niiiixiiiisiiiiixxiiiii";
@@ -49,6 +49,8 @@ const char CreatureFamilyfmt[]                = "nfifiiiiixsx";
 const char CreatureSpellDatafmt[]             = "niiiixxxx";
 const char CreatureTypefmt[]                  = "nxx";
 const char CurrencyTypesfmt[]                 = "nixxxxiiiixx";
+const char Criteriafmt[]                      = "niiiiiiiiiii";
+const char CriteriaTreefmt[]                  = "niiiiiis";
 const char DestructibleModelDatafmt[]         = "ixxixxxixxxixxxixxxxxxxx";
 const char DungeonEncounterfmt[]              = "niiiisiii";
 const char DurabilityCostsfmt[]               = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
@@ -104,6 +106,7 @@ const char PhaseEntryfmt[]                    = "nsi";
 const char MailTemplateEntryfmt[]             = "nxs";
 const char MapEntryfmt[]                      = "nxixxsixxixiffxiiii";
 const char MapDifficultyEntryfmt[]            = "diisiix";
+const char ModifierTreefmt[]                  = "niiiiii";
 const char MovieEntryfmt[]                    = "nxxxx";
 const char MountCapabilityfmt[]               = "niiiiiii";
 const char MountTypefmt[]                     = "niiiiiiiiiiiiiiiiiiiiiiii";

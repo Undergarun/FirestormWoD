@@ -132,6 +132,8 @@ void BattlePet::AddToPlayer(Player* p_Player)
 
     // We need to execute it sync to be sure we will have it at next async select
     LoginDatabase.Query(l_Statement);
+
+    p_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_BATTLEPET, 1);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1153,16 +1155,14 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                         if (l_CurrentPet->Level == BATTLEPET_MAX_LEVEL)
                             l_CurrentPet->XP = 0;
 
-                        if (l_CurrentPet->Level == 3 && !l_Player->GetAchievementMgr().HasAchieved(7433))
-                            if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(7433))
-                                l_Player->CompletedAchievement(achievementEntry);
-
-                        if (l_CurrentPet->Level == 5 && !l_Player->GetAchievementMgr().HasAchieved(6566))
-                            if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(6566))
-                                l_Player->CompletedAchievement(achievementEntry);
+                        BattlePetSpeciesEntry const* l_SpeciesInfo = sBattlePetSpeciesStore.LookupEntry(l_CurrentPet->Species);
+                        if (l_SpeciesInfo)
+                            l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET, l_CurrentPet->Level, l_SpeciesInfo->type);
                     }
                     else
                         l_CurrentPet->XP += l_XpEarn;
+
+                    l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_PETBATTLE, 1);
                 }
 
                 l_CurrentPet->Save();
@@ -1175,10 +1175,24 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                 else if (Pets[Teams[l_CurrentTeamID]->CapturedPet]->Level >= 21 && Pets[Teams[l_CurrentTeamID]->CapturedPet]->Level <= 25)
                     Pets[Teams[l_CurrentTeamID]->CapturedPet]->Level -= 2;
 
+                if (Pets[Teams[l_CurrentTeamID]->CapturedPet]->Health <= CalculatePct(Pets[Teams[l_CurrentTeamID]->CapturedPet]->InfoMaxHealth, 5))
+                {
+                    if (AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievement(6571))
+                        l_Player->CompletedAchievement(l_Achievement);
+                }
+
                 Pets[Teams[l_CurrentTeamID]->CapturedPet]->UpdateStats();
                 Pets[Teams[l_CurrentTeamID]->CapturedPet]->Health = Pets[Teams[l_CurrentTeamID]->CapturedPet]->InfoMaxHealth;
                 Pets[Teams[l_CurrentTeamID]->CapturedPet]->Slot = PETBATTLE_NULL_SLOT;
                 Pets[Teams[l_CurrentTeamID]->CapturedPet]->AddToPlayer(l_Player);
+
+                BattlePetSpeciesEntry const* l_SpeciesInfo = sBattlePetSpeciesStore.LookupEntry(Pets[Teams[l_CurrentTeamID]->CapturedPet]->Species);
+                if (l_SpeciesInfo)
+                {
+                    l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET, l_SpeciesInfo->entry);
+                    l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_SPECIFIC_BATTLEPET, l_SpeciesInfo->id);
+                    l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT, 1, Pets[Teams[l_CurrentTeamID]->CapturedPet]->Quality);
+                }
             }
         }
     }
