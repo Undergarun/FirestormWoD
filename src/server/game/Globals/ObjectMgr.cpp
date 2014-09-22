@@ -2455,6 +2455,10 @@ void ObjectMgr::LoadItemTemplates()
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             itemTemplate.Spells[i].SpellId = sparse->SpellId[i];
+
+            for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+                sSpellMgr->TryLinkItemToSpell(Difficulty(difficulty), sparse->SpellId[i], itemId);
+
             itemTemplate.Spells[i].SpellTrigger = sparse->SpellTrigger[i];
             itemTemplate.Spells[i].SpellCharges = sparse->SpellCharges[i];
             itemTemplate.Spells[i].SpellCooldown = sparse->SpellCooldown[i];
@@ -2678,10 +2682,10 @@ void ObjectMgr::LoadItemTemplates()
 
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
-            if (entry->ItemId[j] <= 0)
+            if (entry->ItemID[j] <= 0)
                 continue;
 
-            uint32 item_id = entry->ItemId[j];
+            uint32 item_id = entry->ItemID[j];
 
             if (!GetItemTemplate(item_id))
                 notFoundOutfit.insert(item_id);
@@ -3050,21 +3054,20 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
         if (count < -1)
             sLog->outError(LOG_FILTER_SQL, "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
-        uint32 RaceClass = (race_) | (class_ << 8);
         bool doneOne = false;
         for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
         {
             if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
             {
-                if (entry->RaceClassGender == RaceClass || entry->RaceClassGender == (RaceClass | (1 << 16)))
+                if ((entry->RaceID == race_ && entry->ClassID == class_) || (entry->RaceID == race_ && entry->ClassID == class_ && entry->SexID == 1))
                 {
                     bool found = false;
                     for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
                     {
-                        if (entry->ItemId[x] > 0 && uint32(entry->ItemId[x]) == itemId)
+                        if (entry->ItemID[x] > 0 && uint32(entry->ItemID[x]) == itemId)
                         {
                             found = true;
-                            const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
+                            const_cast<CharStartOutfitEntry*>(entry)->ItemID[x] = 0;
                             break;
                         }
                     }
@@ -5790,7 +5793,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if (areaEntry->zone != 0 && zoneId != 33 && zoneId != 5287 && zoneId != 6170 && zoneId != 6176 && zoneId != 6450 && zoneId != 6451
+        if (areaEntry->ParentAreaID != 0 && zoneId != 33 && zoneId != 5287 && zoneId != 6170 && zoneId != 6176 && zoneId != 6450 && zoneId != 6451
                              && zoneId != 6452 && zoneId != 6453 && zoneId != 6454 && zoneId != 6455 && zoneId != 6456 && zoneId != 6450) 
         {
             sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
@@ -6233,7 +6236,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry && atEntry->mapid == Map)
+            if (atEntry && atEntry->ContinentID == Map)
                 return &itr->second;
         }
     return NULL;
@@ -9198,9 +9201,9 @@ void ObjectMgr::LoadResearchSiteZones()
                     if (!area)
                         continue;
 
-                    if (area->mapid == ptr.map && area->zone == ptr.zone)
+                    if (area->ContinentID == ptr.map && area->ParentAreaID == ptr.zone)
                     {
-                        ptr.level = area->area_level;
+                        ptr.level = area->ExplorationLevel;
                         break;
                     }
                 }

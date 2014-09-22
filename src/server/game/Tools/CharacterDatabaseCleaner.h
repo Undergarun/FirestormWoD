@@ -34,12 +34,10 @@ namespace CharacterDatabaseCleaner
 
     void CheckUnique(const char* column, const char* table, bool (*check)(uint32));
 
-    bool AchievementProgressCheck(uint32 criteria);
     bool SkillCheck(uint32 skill);
     bool SpellCheck(uint32 spell_id);
     bool TalentCheck(uint32 talent_id);
 
-    void CleanCharacterAchievementProgress();
     void CleanCharacterSkills();
     void CleanCharacterSpell();
     void CleanCharacterTalent();

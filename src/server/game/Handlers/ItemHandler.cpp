@@ -1187,7 +1187,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint32 price = slotEntry->price;
+    uint32 price = slotEntry->Cost;
 
     if (!_player->HasEnoughMoney(uint64(price)))
     {
@@ -2378,6 +2378,10 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
         SendItemUpgradeResult(false);
         return;
     }
+
+    // Must remove stats before applying the new one
+    if (item->IsEquipped())
+        player->ApplyItemUpgrade(item, false);
 
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
     item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);

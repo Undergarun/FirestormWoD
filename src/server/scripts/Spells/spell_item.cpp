@@ -2609,6 +2609,36 @@ class spell_item_slap_n_chop : public SpellScriptLoader
     }
 };
 
+#define SPELL_JARD_PECULIAR 139176
+
+// Jard's Peculiar Energy Source - 143743
+class spell_item_chief_engineer_jard_journal : public SpellScriptLoader
+{
+    public:
+        spell_item_chief_engineer_jard_journal() : SpellScriptLoader("spell_item_chief_engineer_jard_journal") { }
+
+        class spell_item_chief_engineer_jard_journal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_chief_engineer_jard_journal_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->learnSpell(SPELL_JARD_PECULIAR, false);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_chief_engineer_jard_journal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_chief_engineer_jard_journal_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2672,4 +2702,5 @@ void AddSC_item_spell_scripts()
     new spell_item_throw_mantra();
     new spell_item_sonic_disruption();
     new spell_item_slap_n_chop();
+    new spell_item_chief_engineer_jard_journal();
 }

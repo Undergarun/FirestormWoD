@@ -185,15 +185,18 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
     SPELL_ATTR0_CU_NONE2                         = 0x00000020,   // UNUSED
     SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
+    SPELL_ATTR0_CU_UNK80                         = 0x00000080,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
+    SPELL_ATTR0_CU_UNK800                        = 0x00000800,
     SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 0x00001000,
     SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 0x00002000,
     SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 0x00004000,
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
+    SPELL_ATTR0_CU_UNK40000                      = 0x00040000,
     SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER     = 0x00080000,  // Periodic auras with this flag keep old periodic timer when refreshing
     SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000, // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
     // @todo: 4.3.4 core
@@ -241,6 +244,7 @@ class SpellEffectInfo
     SpellInfo const* _spellInfo;
     uint8 _effIndex;
 public:
+    uint32    Id;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    Amplitude;
@@ -250,7 +254,7 @@ public:
     float     PointsPerComboPoint;
     float     ValueMultiplier;
     float     DamageMultiplier;
-    float     BonusMultiplier;
+    float     EffectSpellPowerBonus;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
@@ -282,13 +286,16 @@ public:
     bool IsUnitOwnedAuraEffect() const;
     bool IsPeriodicEffect() const;
 
-    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL) const;
+    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL, uint32 auraId = 0) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
 
     bool HasRadius() const;
     float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
+
+    SpellEffectScalingEntry const* GetEffectScaling() const;
+    bool CanScale() const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -359,10 +366,7 @@ public:
     uint32 BaseLevel;
     uint32 SpellLevel;
     SpellDurationEntry const* DurationEntry;
-    uint32 PowerType;
-    uint32 ManaCost;
-    uint32 ManaPerSecond;
-    float ManaCostPercentage;
+    std::list<SpellPowerEntry const*> SpellPowers;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
     float  Speed;
@@ -413,13 +417,16 @@ public:
     int32  CastTimeMax;
     int32  CastTimeMaxLevel;
     int32  ScalingClass;
-    float  CoefBase;
-    int32  CoefLevelBase;
+    float  NerfFactor;
+    int32  NerfMaxLevel;
+    uint32 MaxScalingLevel;
+    uint32 ScalesFromItemLevel;
+    std::list<uint32> SpellFromItems;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
-    SpellPowerEntry* spellPower;
     uint32 ResearchProject;
+    float AttackPowerBonus;
 
     // SpecializationSpellEntry
     std::list<uint32> SpecializationIdList;
@@ -550,7 +557,14 @@ public:
     uint32 CalcCastTime(Unit* caster = NULL, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
 
-    uint32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, SpellPowerEntry const* spellPower) const;
+    void CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, int32* m_powerCost) const;
+    Powers GetMainPower() const
+    {
+        for (auto itr : SpellPowers)
+            return Powers(itr->PowerType);
+
+        return POWER_MANA;
+    }
 
     bool IsRanked() const;
     uint8 GetRank() const;
@@ -580,7 +594,7 @@ public:
     bool IsPeriodicHeal() const;
     float GetCastTimeReduction() const;
     bool CanTriggerBladeFlurry() const;
-    bool IsCustomCharged(SpellInfo const* procSpell, Unit* caster = NULL) const;
+    bool IsCustomCharged(SpellInfo const* procSpell, Unit* caster) const;
     bool IsCustomCastCanceled(Unit* caster) const;
     bool IsWrongPrecastSpell(SpellInfo const* m_preCastSpell) const;
     bool IsPoisonOrBleedSpell() const;

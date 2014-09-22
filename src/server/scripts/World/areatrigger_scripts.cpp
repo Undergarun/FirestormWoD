@@ -199,7 +199,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
 
             WorldLocation pPosition;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case 5332:
                 case 5338:
@@ -251,7 +251,7 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
             if (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && !player->isDead() &&
                 player->GetQuestStatus(QUEST_THE_MAKERS_PERCH)    == QUEST_STATUS_REWARDED)
             {
-                switch (trigger->id)
+                switch (trigger->ID)
                 {
                     case AT_SHOLAZAR:
                         player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false);
@@ -340,7 +340,7 @@ class AreaTrigger_at_bring_your_orphan_to : public AreaTriggerScript
             if (player->isDead() || !player->HasAura(AURA_ORPHAN_OUT))
                 return false;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_DOWN_AT_THE_DOCKS:
                     questId = QUEST_DOWN_AT_THE_DOCKS;
@@ -400,7 +400,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
-            uint32 triggerId = trigger->id;
+            uint32 triggerId = trigger->ID;
             // Second trigger happened too early after first, skip for now
             if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
@@ -458,8 +458,8 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
             if (!player->isAlive())
                 return false;
 
-            uint32 triggerId = trigger->id;
-            if (sWorld->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
+            uint32 triggerId = trigger->ID;
+            if (sWorld->GetGameTime() - _triggerTimes[triggerId] < SUMMON_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -488,7 +488,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
             player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[trigger->id] = sWorld->GetGameTime();
+            _triggerTimes[triggerId] = sWorld->GetGameTime();
             return false;
         }
 

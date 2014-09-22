@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "Chat.h"
 #include "ScriptMgr.h"
@@ -43,89 +43,89 @@ class misc_commandscript : public CommandScript
         {
             static ChatCommand groupCommandTable[] =
             {
-                { "leader",         SEC_ADMINISTRATOR,          false,  &HandleGroupLeaderCommand,          "", NULL },
-                { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         "", NULL },
-                { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          "", NULL },
-                { NULL,             0,                          false,  NULL,                               "", NULL }
+                { "leader",             SEC_ADMINISTRATOR,  false, &HandleGroupLeaderCommand,   "", NULL },
+                { "disband",            SEC_ADMINISTRATOR,  false, &HandleGroupDisbandCommand,  "", NULL },
+                { "remove",             SEC_ADMINISTRATOR,  false, &HandleGroupRemoveCommand,   "", NULL },
+                { NULL,                 0,                  false, NULL,                        "", NULL }
             };
             static ChatCommand petCommandTable[] =
             {
-                { "create",             SEC_GAMEMASTER,         false, &HandleCreatePetCommand,             "", NULL },
-                { "learn",              SEC_GAMEMASTER,         false, &HandlePetLearnCommand,              "", NULL },
-                { "unlearn",            SEC_GAMEMASTER,         false, &HandlePetUnlearnCommand,            "", NULL },
-                { NULL,                 0,                      false, NULL,                                "", NULL }
+                { "create",             SEC_GAMEMASTER,     false, &HandleCreatePetCommand,         "", NULL },
+                { "learn",              SEC_GAMEMASTER,     false, &HandlePetLearnCommand,          "", NULL },
+                { "unlearn",            SEC_GAMEMASTER,     false, &HandlePetUnlearnCommand,        "", NULL },
+                { NULL,                 0,                  false, NULL,                            "", NULL }
             };
             static ChatCommand sendCommandTable[] =
             {
-                { "items",              SEC_ADMINISTRATOR,      true,  &HandleSendItemsCommand,             "", NULL },
-                { "mail",               SEC_MODERATOR,          true,  &HandleSendMailCommand,              "", NULL },
-                { "message",            SEC_ADMINISTRATOR,      true,  &HandleSendMessageCommand,           "", NULL },
-                { "money",              SEC_ADMINISTRATOR,      true,  &HandleSendMoneyCommand,             "", NULL },
-                { NULL,                 0,                      false, NULL,                                "", NULL }
+                { "items",              SEC_ADMINISTRATOR,  true, &HandleSendItemsCommand,          "", NULL },
+                { "mail",               SEC_MODERATOR,      true, &HandleSendMailCommand,           "", NULL },
+                { "message",            SEC_ADMINISTRATOR,  true, &HandleSendMessageCommand,        "", NULL },
+                { "money",              SEC_ADMINISTRATOR,  true, &HandleSendMoneyCommand,          "", NULL },
+                { NULL,                 0,                  false, NULL,                            "", NULL }
             };
             static ChatCommand auraCommandTable[] =
             {
-                { "duration",           SEC_ADMINISTRATOR,      true,  &HandleAuraDurationCommand,          "", NULL },
-                { "charges",            SEC_ADMINISTRATOR,      true,  &HandleAuraChargesCommand,           "", NULL },
-                { "",                   SEC_ADMINISTRATOR,      true,  &HandleAuraCommand,                  "", NULL },
-                { NULL,                 0,                      false, NULL,                                "", NULL }
+                { "duration",           SEC_ADMINISTRATOR,  true,   &HandleAuraDurationCommand,     "", NULL },
+                { "charges",            SEC_ADMINISTRATOR,  true,   &HandleAuraChargesCommand,      "", NULL },
+                { "",                   SEC_ADMINISTRATOR,  true,   &HandleAuraCommand,             "", NULL },
+                { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             static ChatCommand commandTable[] =
             {
-                { "dev",                SEC_ADMINISTRATOR,      false, &HandleDevCommand,                   "", NULL },
-                { "gps",                SEC_ADMINISTRATOR,      false, &HandleGPSCommand,                   "", NULL },
-                { "aura",               SEC_ADMINISTRATOR,      false, NULL,                                "", auraCommandTable },
-                { "unaura",             SEC_ADMINISTRATOR,      false, &HandleUnAuraCommand,                "", NULL },
-                { "appear",             SEC_MODERATOR,          false, &HandleAppearCommand,                "", NULL },
-                { "summon",             SEC_MODERATOR,          false, &HandleSummonCommand,                "", NULL },
-                { "groupsummon",        SEC_MODERATOR,          false, &HandleGroupSummonCommand,           "", NULL },
-                { "commands",           SEC_PLAYER,             true,  &HandleCommandsCommand,              "", NULL },
-                { "die",                SEC_ADMINISTRATOR,      false, &HandleDieCommand,                   "", NULL },
-                { "revive",             SEC_ADMINISTRATOR,      true,  &HandleReviveCommand,                "", NULL },
-                { "dismount",           SEC_PLAYER,             false, &HandleDismountCommand,              "", NULL },
-                { "guid",               SEC_GAMEMASTER,         false, &HandleGUIDCommand,                  "", NULL },
-                { "help",               SEC_PLAYER,             true,  &HandleHelpCommand,                  "", NULL },
-                { "itemmove",           SEC_GAMEMASTER,         false, &HandleItemMoveCommand,              "", NULL },
-                { "cooldown",           SEC_ADMINISTRATOR,      false, &HandleCooldownCommand,              "", NULL },
-                { "distance",           SEC_ADMINISTRATOR,      false, &HandleGetDistanceCommand,           "", NULL },
-                { "recall",             SEC_MODERATOR,          false, &HandleRecallCommand,                "", NULL },
-                { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  "", NULL },
-                { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               "", NULL },
-                { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
-                { "start",              SEC_PLAYER,             false, &HandleStartCommand,                 "", NULL },
-                { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
-                { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             "", NULL },
-                { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              "", NULL },
-                { "hidearea",           SEC_ADMINISTRATOR,      false, &HandleHideAreaCommand,              "", NULL },
-                { "additem",            SEC_ADMINISTRATOR,      false, &HandleAddItemCommand,               "", NULL },
-                { "additemset",         SEC_ADMINISTRATOR,      false, &HandleAddItemSetCommand,            "", NULL },
-                { "bank",               SEC_ADMINISTRATOR,      false, &HandleBankCommand,                  "", NULL },
-                { "wchange",            SEC_ADMINISTRATOR,      false, &HandleChangeWeather,                "", NULL },
-                { "setskill",           SEC_ADMINISTRATOR,      false, &HandleSetSkillCommand,              "", NULL },
-                { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 "", NULL },
-                { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               "", NULL },
-                { "send",               SEC_MODERATOR,          true,  NULL,                                "", sendCommandTable },
-                { "pet",                SEC_GAMEMASTER,         false, NULL,                                "", petCommandTable },
-                { "mute",               SEC_MODERATOR,          true,  &HandleMuteCommand,                  "", NULL },
-                { "unmute",             SEC_MODERATOR,          true,  &HandleUnmuteCommand,                "", NULL },
-                { "movegens",           SEC_ADMINISTRATOR,      false, &HandleMovegensCommand,              "", NULL },
-                { "cometome",           SEC_ADMINISTRATOR,      false, &HandleComeToMeCommand,              "", NULL },
-                { "damage",             SEC_ADMINISTRATOR,      false, &HandleDamageCommand,                "", NULL },
-                { "combatstop",         SEC_GAMEMASTER,         true,  &HandleCombatStopCommand,            "", NULL },
-                { "flusharenapoints",   SEC_ADMINISTRATOR,      false, &HandleFlushArenaPointsCommand,      "", NULL },
-                { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
-                { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                "", NULL },
-                { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
-                { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            "", NULL },
-                { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
-                { "possess",            SEC_ADMINISTRATOR,      false, &HandlePossessCommand,               "", NULL },
-                { "unpossess",          SEC_ADMINISTRATOR,      false, &HandleUnPossessCommand,             "", NULL },
-                { "bindsight",          SEC_ADMINISTRATOR,      false, &HandleBindSightCommand,             "", NULL },
-                { "unbindsight",        SEC_ADMINISTRATOR,      false, &HandleUnbindSightCommand,           "", NULL },
-                { "playall",            SEC_GAMEMASTER,         false, &HandlePlayAllCommand,               "", NULL },
-                { "selectfaction",      SEC_ADMINISTRATOR,      false, &HandleSelectFactionCommand,         "", NULL },
-                { "wargame",            SEC_GAMEMASTER,         false, &HandleWargameCommand,               "", NULL },
-                { NULL,                 0,                      false, NULL,                                "", NULL }
+                { "dev",                SEC_ADMINISTRATOR,  false,  &HandleDevCommand,              "", NULL },
+                { "gps",                SEC_ADMINISTRATOR,  false,  &HandleGPSCommand,              "", NULL },
+                { "aura",               SEC_ADMINISTRATOR,  false,  NULL,                           "", auraCommandTable },
+                { "unaura",             SEC_ADMINISTRATOR,  false,  &HandleUnAuraCommand,           "", NULL },
+                { "appear",             SEC_MODERATOR,      false,  &HandleAppearCommand,           "", NULL },
+                { "summon",             SEC_MODERATOR,      false,  &HandleSummonCommand,           "", NULL },
+                { "groupsummon",        SEC_MODERATOR,      false,  &HandleGroupSummonCommand,      "", NULL },
+                { "commands",           SEC_PLAYER,         true,   &HandleCommandsCommand,         "", NULL },
+                { "die",                SEC_ADMINISTRATOR,  false,  &HandleDieCommand,              "", NULL },
+                { "revive",             SEC_ADMINISTRATOR,  true,   &HandleReviveCommand,           "", NULL },
+                { "dismount",           SEC_PLAYER,         false,  &HandleDismountCommand,         "", NULL },
+                { "guid",               SEC_GAMEMASTER,     false,  &HandleGUIDCommand,             "", NULL },
+                { "help",               SEC_PLAYER,         true,   &HandleHelpCommand,             "", NULL },
+                { "itemmove",           SEC_GAMEMASTER,     false,  &HandleItemMoveCommand,         "", NULL },
+                { "cooldown",           SEC_ADMINISTRATOR,  false,  &HandleCooldownCommand,         "", NULL },
+                { "distance",           SEC_ADMINISTRATOR,  false,  &HandleGetDistanceCommand,      "", NULL },
+                { "recall",             SEC_MODERATOR,      false,  &HandleRecallCommand,           "", NULL },
+                { "save",               SEC_PLAYER,         false,  &HandleSaveCommand,             "", NULL },
+                { "saveall",            SEC_MODERATOR,      true,   &HandleSaveAllCommand,          "", NULL },
+                { "kick",               SEC_GAMEMASTER,     true,   &HandleKickPlayerCommand,       "", NULL },
+                { "start",              SEC_PLAYER,         false,  &HandleStartCommand,            "", NULL },
+                { "linkgrave",          SEC_ADMINISTRATOR,  false,  &HandleLinkGraveCommand,        "", NULL },
+                { "neargrave",          SEC_ADMINISTRATOR,  false,  &HandleNearGraveCommand,        "", NULL },
+                { "showarea",           SEC_ADMINISTRATOR,  false,  &HandleShowAreaCommand,         "", NULL },
+                { "hidearea",           SEC_ADMINISTRATOR,  false,  &HandleHideAreaCommand,         "", NULL },
+                { "additem",            SEC_ADMINISTRATOR,  false,  &HandleAddItemCommand,          "", NULL },
+                { "additemset",         SEC_ADMINISTRATOR,  false,  &HandleAddItemSetCommand,       "", NULL },
+                { "bank",               SEC_ADMINISTRATOR,  false,  &HandleBankCommand,             "", NULL },
+                { "wchange",            SEC_ADMINISTRATOR,  false,  &HandleChangeWeather,           "", NULL },
+                { "setskill",           SEC_ADMINISTRATOR,  false,  &HandleSetSkillCommand,         "", NULL },
+                { "pinfo",              SEC_GAMEMASTER,     true,   &HandlePInfoCommand,            "", NULL },
+                { "respawn",            SEC_ADMINISTRATOR,  false,  &HandleRespawnCommand,          "", NULL },
+                { "send",               SEC_MODERATOR,      true,   NULL,                           "", sendCommandTable },
+                { "pet",                SEC_GAMEMASTER,     false,  NULL,                           "", petCommandTable },
+                { "mute",               SEC_MODERATOR,      true,   &HandleMuteCommand,             "", NULL },
+                { "unmute",             SEC_MODERATOR,      true,   &HandleUnmuteCommand,           "", NULL },
+                { "movegens",           SEC_ADMINISTRATOR,  false,  &HandleMovegensCommand,         "", NULL },
+                { "cometome",           SEC_ADMINISTRATOR,  false,  &HandleComeToMeCommand,         "", NULL },
+                { "damage",             SEC_ADMINISTRATOR,  false,  &HandleDamageCommand,           "", NULL },
+                { "combatstop",         SEC_GAMEMASTER,     true,   &HandleCombatStopCommand,       "", NULL },
+                { "flusharenapoints",   SEC_ADMINISTRATOR,  false,  &HandleFlushArenaPointsCommand, "", NULL },
+                { "repairitems",        SEC_GAMEMASTER,     true,   &HandleRepairitemsCommand,      "", NULL },
+                { "freeze",             SEC_MODERATOR,      false,  &HandleFreezeCommand,           "", NULL },
+                { "unfreeze",           SEC_MODERATOR,      false,  &HandleUnFreezeCommand,         "", NULL },
+                { "listfreeze",         SEC_MODERATOR,      false,  &HandleListFreezeCommand,       "", NULL },
+                { "group",              SEC_ADMINISTRATOR,  false,  NULL,                           "", groupCommandTable },
+                { "possess",            SEC_ADMINISTRATOR,  false,  &HandlePossessCommand,          "", NULL },
+                { "unpossess",          SEC_ADMINISTRATOR,  false,  &HandleUnPossessCommand,        "", NULL },
+                { "bindsight",          SEC_ADMINISTRATOR,  false,  &HandleBindSightCommand,        "", NULL },
+                { "unbindsight",        SEC_ADMINISTRATOR,  false,  &HandleUnbindSightCommand,      "", NULL },
+                { "playall",            SEC_GAMEMASTER,     false,  &HandlePlayAllCommand,          "", NULL },
+                { "selectfaction",      SEC_ADMINISTRATOR,  false,  &HandleSelectFactionCommand,    "", NULL },
+                { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
+                { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
         }
@@ -189,18 +189,18 @@ class misc_commandscript : public CommandScript
             uint8 l_ArenaType = 0;
             switch (l_GroupSize)
             {
-                case 2:
-                    l_ArenaType = ARENA_TYPE_2v2;
-                    break;
-                case 3:
-                    l_ArenaType = ARENA_TYPE_3v3;
-                    break;
-                case 5:
-                    l_ArenaType = ARENA_TYPE_5v5;
-                    break;
-                default:
-                    p_Handler->PSendSysMessage("Groups are invalid.");
-                    return true;
+            case 2:
+                l_ArenaType = ARENA_TYPE_2v2;
+                break;
+            case 3:
+                l_ArenaType = ARENA_TYPE_3v3;
+                break;
+            case 5:
+                l_ArenaType = ARENA_TYPE_5v5;
+                break;
+            default:
+                p_Handler->PSendSysMessage("Groups are invalid.");
+                return true;
             }
 
             Battleground* l_BG = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
@@ -368,8 +368,8 @@ class misc_commandscript : public CommandScript
 
             handler->PSendSysMessage(LANG_MAP_POSITION,
                 object->GetMapId(), (mapEntry ? mapEntry->name : "<unknown>"),
-                zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
-                areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
+                zoneId, (zoneEntry ? zoneEntry->AreaNameLang : "<unknown>"),
+                areaId, (areaEntry ? areaEntry->AreaNameLang : "<unknown>"),
                 object->GetPhaseMask(),
                 object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
                 cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -398,7 +398,7 @@ class misc_commandscript : public CommandScript
             uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target, spellInfo->spellPower);
+                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
 
             return true;
         }
@@ -580,8 +580,8 @@ class misc_commandscript : public CommandScript
                         // if no bind exists, create a solo bind
                         InstanceGroupBind* gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
                         if (!gBind)
-                            if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
-                                _player->BindToInstance(save, !save->CanReset());
+                        if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(target->GetInstanceId()))
+                            _player->BindToInstance(save, !save->CanReset());
                     }
 
                     if (map->IsRaid())
@@ -1035,7 +1035,7 @@ class misc_commandscript : public CommandScript
             {
                 uint64 guid = handler->extractGuidFromLink((char*)args);
                 if (guid)
-                    obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+                    obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
 
                 if (!obj)
                 {
@@ -1216,7 +1216,7 @@ class misc_commandscript : public CommandScript
             uint32 zoneId = player->GetZoneId();
 
             AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(zoneId);
-            if (!areaEntry || areaEntry->zone !=0)
+            if (!areaEntry || areaEntry->ParentAreaID != 0)
             {
                 handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
                 handler->SetSentErrorMessage(true);
@@ -1372,7 +1372,7 @@ class misc_commandscript : public CommandScript
 
                 if (itemNameStr && itemNameStr[0])
                 {
-                    std::string itemName = itemNameStr+1;
+                    std::string itemName = itemNameStr + 1;
                     WorldDatabase.EscapeString(itemName);
 
                     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
@@ -1381,7 +1381,7 @@ class misc_commandscript : public CommandScript
 
                     if (!result)
                     {
-                        handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
+                        handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
                         handler->SetSentErrorMessage(true);
                         return false;
                     }
@@ -1451,9 +1451,9 @@ class misc_commandscript : public CommandScript
 
             // remove binding (let GM give it to another player later)
             if (player == playerTarget)
-                for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
-                    if (Item* item1 = player->GetItemByPos(itr->pos))
-                        item1->SetBinding(false);
+            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+            if (Item* item1 = player->GetItemByPos(itr->pos))
+                item1->SetBinding(false);
 
             if (count > 0 && item)
             {
@@ -1629,7 +1629,7 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            uint16 max = maxPureSkill ? atol (maxPureSkill) : target->GetPureMaxSkillValue(skill);
+            uint16 max = maxPureSkill ? atol(maxPureSkill) : target->GetPureMaxSkillValue(skill);
 
             if (level <= 0 || level > max || max <= 0)
                 return false;
@@ -1656,18 +1656,18 @@ class misc_commandscript : public CommandScript
             else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
                 return false;
 
-            uint32 accId            = 0;
-            uint64 money            = 0;
-            uint32 totalPlayerTime  = 0;
-            uint8 level             = 0;
-            uint32 latency          = 0;
+            uint32 accId = 0;
+            uint64 money = 0;
+            uint32 totalPlayerTime = 0;
+            uint8 level = 0;
+            uint32 latency = 0;
             uint8 race;
             uint8 Class;
-            int64 muteTime          = 0;
-            int64 banTime           = -1;
+            int64 muteTime = 0;
+            int64 banTime = -1;
             uint32 mapId;
             uint32 areaId;
-            uint32 phase            = 0;
+            uint32 phase = 0;
 
             // get additional information from Player object
             if (target)
@@ -1676,17 +1676,17 @@ class misc_commandscript : public CommandScript
                 if (handler->HasLowerSecurity(target, 0))
                     return false;
 
-                accId             = target->GetSession()->GetAccountId();
-                money             = target->GetMoney();
-                totalPlayerTime   = target->GetTotalPlayedTime();
-                level             = target->getLevel();
-                latency           = target->GetSession()->GetLatency();
-                race              = target->getRace();
-                Class             = target->getClass();
-                muteTime          = target->GetSession()->m_muteTime;
-                mapId             = target->GetMapId();
-                areaId            = target->GetAreaId();
-                phase             = target->GetPhaseMask();
+                accId = target->GetSession()->GetAccountId();
+                money = target->GetMoney();
+                totalPlayerTime = target->GetTotalPlayedTime();
+                level = target->getLevel();
+                latency = target->GetSession()->GetLatency();
+                race = target->getRace();
+                Class = target->getClass();
+                muteTime = target->GetSession()->m_muteTime;
+                mapId = target->GetMapId();
+                areaId = target->GetAreaId();
+                phase = target->GetPhaseMask();
             }
             // get additional information from DB
             else
@@ -1702,22 +1702,22 @@ class misc_commandscript : public CommandScript
                 if (!result)
                     return false;
 
-                Field* fields     = result->Fetch();
+                Field* fields = result->Fetch();
                 totalPlayerTime = fields[0].GetUInt32();
-                level             = fields[1].GetUInt8();
-                money             = fields[2].GetUInt64();
-                accId             = fields[3].GetUInt32();
-                race              = fields[4].GetUInt8();
-                Class             = fields[5].GetUInt8();
-                mapId             = fields[6].GetUInt16();
-                areaId            = fields[7].GetUInt16();
+                level = fields[1].GetUInt8();
+                money = fields[2].GetUInt64();
+                accId = fields[3].GetUInt32();
+                race = fields[4].GetUInt8();
+                Class = fields[5].GetUInt8();
+                mapId = fields[6].GetUInt16();
+                areaId = fields[7].GetUInt16();
             }
 
-            std::string userName    = handler->GetTrinityString(LANG_ERROR);
-            std::string eMail       = handler->GetTrinityString(LANG_ERROR);
-            std::string lastIp      = handler->GetTrinityString(LANG_ERROR);
-            uint32 security         = 0;
-            std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
+            std::string userName = handler->GetTrinityString(LANG_ERROR);
+            std::string eMail = handler->GetTrinityString(LANG_ERROR);
+            std::string lastIp = handler->GetTrinityString(LANG_ERROR);
+            uint32 security = 0;
+            std::string lastLogin = handler->GetTrinityString(LANG_ERROR);
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
             stmt->setInt32(0, int32(realmID));
@@ -1727,10 +1727,10 @@ class misc_commandscript : public CommandScript
             if (result)
             {
                 Field* fields = result->Fetch();
-                userName      = fields[0].GetString();
-                security      = fields[1].GetUInt8();
-                eMail         = fields[2].GetString();
-                muteTime      = fields[5].GetUInt64();
+                userName = fields[0].GetString();
+                security = fields[1].GetUInt8();
+                eMail = fields[2].GetString();
+                muteTime = fields[5].GetUInt64();
 
                 if (eMail.empty())
                     eMail = "-";
@@ -1786,9 +1786,9 @@ class misc_commandscript : public CommandScript
             if (result2)
             {
                 Field* fields = result2->Fetch();
-                banTime       = int64(fields[1].GetBool() ? 0 : fields[0].GetUInt32());
-                bannedby      = fields[2].GetString();
-                banreason     = fields[3].GetString();
+                banTime = int64(fields[1].GetBool() ? 0 : fields[0].GetUInt32());
+                bannedby = fields[2].GetString();
+                banreason = fields[3].GetString();
             }
 
             if (muteTime > 0)
@@ -1800,92 +1800,92 @@ class misc_commandscript : public CommandScript
             std::string raceStr, ClassStr;
             switch (race)
             {
-                case RACE_HUMAN:
-                    raceStr = "Human";
-                    break;
-                case RACE_ORC:
-                    raceStr = "Orc";
-                    break;
-                case RACE_DWARF:
-                    raceStr = "Dwarf";
-                    break;
-                case RACE_NIGHTELF:
-                    raceStr = "Night Elf";
-                    break;
-                case RACE_UNDEAD_PLAYER:
-                    raceStr = "Undead";
-                    break;
-                case RACE_TAUREN:
-                    raceStr = "Tauren";
-                    break;
-                case RACE_GNOME:
-                    raceStr = "Gnome";
-                    break;
-                case RACE_TROLL:
-                    raceStr = "Troll";
-                    break;
-                case RACE_BLOODELF:
-                    raceStr = "Blood Elf";
-                    break;
-                case RACE_DRAENEI:
-                    raceStr = "Draenei";
-                    break;
-                case RACE_GOBLIN:
-                    raceStr = "Goblin";
-                    break;
-                case RACE_WORGEN:
-                    raceStr = "Worgen";
-                    break;
-                case RACE_PANDAREN_ALLI:
-                    raceStr = "Pandaren alliance";
-                    break;
-                case RACE_PANDAREN_HORDE:
-                    raceStr = "Pandaren horde";
-                    break;
-                case RACE_PANDAREN_NEUTRAL:
-                    raceStr = "Pandaren neutral";
-                    break;
+            case RACE_HUMAN:
+                raceStr = "Human";
+                break;
+            case RACE_ORC:
+                raceStr = "Orc";
+                break;
+            case RACE_DWARF:
+                raceStr = "Dwarf";
+                break;
+            case RACE_NIGHTELF:
+                raceStr = "Night Elf";
+                break;
+            case RACE_UNDEAD_PLAYER:
+                raceStr = "Undead";
+                break;
+            case RACE_TAUREN:
+                raceStr = "Tauren";
+                break;
+            case RACE_GNOME:
+                raceStr = "Gnome";
+                break;
+            case RACE_TROLL:
+                raceStr = "Troll";
+                break;
+            case RACE_BLOODELF:
+                raceStr = "Blood Elf";
+                break;
+            case RACE_DRAENEI:
+                raceStr = "Draenei";
+                break;
+            case RACE_GOBLIN:
+                raceStr = "Goblin";
+                break;
+            case RACE_WORGEN:
+                raceStr = "Worgen";
+                break;
+            case RACE_PANDAREN_ALLI:
+                raceStr = "Pandaren alliance";
+                break;
+            case RACE_PANDAREN_HORDE:
+                raceStr = "Pandaren horde";
+                break;
+            case RACE_PANDAREN_NEUTRAL:
+                raceStr = "Pandaren neutral";
+                break;
             }
 
             switch (Class)
             {
-                case CLASS_WARRIOR:
-                    ClassStr = "Warrior";
-                    break;
-                case CLASS_PALADIN:
-                    ClassStr = "Paladin";
-                    break;
-                case CLASS_HUNTER:
-                    ClassStr = "Hunter";
-                    break;
-                case CLASS_ROGUE:
-                    ClassStr = "Rogue";
-                    break;
-                case CLASS_PRIEST:
-                    ClassStr = "Priest";
-                    break;
-                case CLASS_DEATH_KNIGHT:
-                    ClassStr = "Death Knight";
-                    break;
-                case CLASS_SHAMAN:
-                    ClassStr = "Shaman";
-                    break;
-                case CLASS_MAGE:
-                    ClassStr = "Mage";
-                    break;
-                case CLASS_WARLOCK:
-                    ClassStr = "Warlock";
-                    break;
-                case CLASS_MONK:
-                    ClassStr = "Monk";
-                    break;
-                case CLASS_DRUID:
-                    ClassStr = "Druid";
-                    break;
+            case CLASS_WARRIOR:
+                ClassStr = "Warrior";
+                break;
+            case CLASS_PALADIN:
+                ClassStr = "Paladin";
+                break;
+            case CLASS_HUNTER:
+                ClassStr = "Hunter";
+                break;
+            case CLASS_ROGUE:
+                ClassStr = "Rogue";
+                break;
+            case CLASS_PRIEST:
+                ClassStr = "Priest";
+                break;
+            case CLASS_DEATH_KNIGHT:
+                ClassStr = "Death Knight";
+                break;
+            case CLASS_SHAMAN:
+                ClassStr = "Shaman";
+                break;
+            case CLASS_MAGE:
+                ClassStr = "Mage";
+                break;
+            case CLASS_WARLOCK:
+                ClassStr = "Warlock";
+                break;
+            case CLASS_MONK:
+                ClassStr = "Monk";
+                break;
+            case CLASS_DRUID:
+                ClassStr = "Druid";
+                break;
             }
 
             std::string timeStr = secsToTimeString(totalPlayerTime, true, true);
-            uint32 gold = money /GOLD;
+            uint32 gold = money / GOLD;
             uint32 silv = (money % GOLD) / SILVER;
             uint32 copp = (money % GOLD) % SILVER;
             handler->PSendSysMessage(LANG_PINFO_LEVEL, raceStr.c_str(), ClassStr.c_str(), timeStr.c_str(), level, gold, silv, copp);
@@ -1899,11 +1899,11 @@ class misc_commandscript : public CommandScript
             AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
             if (area)
             {
-                areaName = area->area_name;
+                areaName = area->AreaNameLang;
 
-                AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+                AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
                 if (zone)
-                    zoneName = zone->area_name;
+                    zoneName = zone->AreaNameLang;
             }
 
             if (target)
@@ -1914,7 +1914,7 @@ class misc_commandscript : public CommandScript
                     handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, areaName.c_str(), "<unknown>", phase);
             }
             else
-               handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());
+                handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());
 
             return true;
         }
@@ -1975,13 +1975,13 @@ class misc_commandscript : public CommandScript
 
             // find only player from same account if any
             if (!target)
-                if (WorldSession* session = sWorld->FindSession(accountId))
-                    target = session->GetPlayer();
+            if (WorldSession* session = sWorld->FindSession(accountId))
+                target = session->GetPlayer();
 
             uint32 notSpeakTime = uint32(atoi(delayStr));
 
             // must have strong lesser security level
-            if (handler->HasLowerSecurity (target, targetGuid, true))
+            if (handler->HasLowerSecurity(target, targetGuid, true))
                 return false;
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
@@ -2016,7 +2016,7 @@ class misc_commandscript : public CommandScript
                 announce += "' was muted for ";
                 if (delayStr) announce += delayStr;
                 announce += " minutes by the character '";
-                announce += handler->GetSession()? handler->GetSession()->GetPlayerName(): "";
+                announce += handler->GetSession() ? handler->GetSession()->GetPlayerName() : "";
                 announce += "'. The reason is: ";
                 announce += muteReasonStr;
 
@@ -2040,11 +2040,11 @@ class misc_commandscript : public CommandScript
 
             // find only player from same account if any
             if (!target)
-                if (WorldSession* session = sWorld->FindSession(accountId))
-                    target = session->GetPlayer();
+            if (WorldSession* session = sWorld->FindSession(accountId))
+                target = session->GetPlayer();
 
             // must have strong lesser security level
-            if (handler->HasLowerSecurity (target, targetGuid, true))
+            if (handler->HasLowerSecurity(target, targetGuid, true))
                 return false;
 
             if (target)
@@ -2074,6 +2074,7 @@ class misc_commandscript : public CommandScript
             return true;
         }
 
+
         static bool HandleMovegensCommand(ChatHandler* handler, char const* /*args*/)
         {
             Unit* unit = handler->getSelectedUnit();
@@ -2101,81 +2102,81 @@ class misc_commandscript : public CommandScript
 
                 switch (movementGenerator->GetMovementGeneratorType())
                 {
-                    case IDLE_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_IDLE);
-                        break;
-                    case RANDOM_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_RANDOM);
-                        break;
-                    case WAYPOINT_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_WAYPOINT);
-                        break;
-                    case ANIMAL_RANDOM_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_ANIMAL_RANDOM);
-                        break;
-                    case CONFUSED_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
-                        break;
-                    case CHASE_MOTION_TYPE:
-                    {
-                        Unit* target = NULL;
-                        if (unit->GetTypeId() == TYPEID_PLAYER)
-                            target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
-                        else
-                            target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
+                case IDLE_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_IDLE);
+                    break;
+                case RANDOM_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_RANDOM);
+                    break;
+                case WAYPOINT_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_WAYPOINT);
+                    break;
+                case ANIMAL_RANDOM_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_ANIMAL_RANDOM);
+                    break;
+                case CONFUSED_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
+                    break;
+                case CHASE_MOTION_TYPE:
+                {
+                                          Unit* target = NULL;
+                                          if (unit->GetTypeId() == TYPEID_PLAYER)
+                                              target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
+                                          else
+                                              target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
-                        if (!target)
-                            handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                        else if (target->GetTypeId() == TYPEID_PLAYER)
-                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUIDLow());
-                        else
-                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUIDLow());
-                        break;
-                    }
-                    case FOLLOW_MOTION_TYPE:
-                    {
-                        Unit* target = NULL;
-                        if (unit->GetTypeId() == TYPEID_PLAYER)
-                            target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
-                        else
-                            target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
+                                          if (!target)
+                                              handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
+                                          else if (target->GetTypeId() == TYPEID_PLAYER)
+                                              handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUIDLow());
+                                          else
+                                              handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUIDLow());
+                                          break;
+                }
+                case FOLLOW_MOTION_TYPE:
+                {
+                                           Unit* target = NULL;
+                                           if (unit->GetTypeId() == TYPEID_PLAYER)
+                                               target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
+                                           else
+                                               target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
-                        if (!target)
-                            handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                        else if (target->GetTypeId() == TYPEID_PLAYER)
-                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUIDLow());
-                        else
-                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUIDLow());
-                        break;
-                    }
-                    case HOME_MOTION_TYPE:
-                    {
-                        if (unit->GetTypeId() == TYPEID_UNIT)
-                            handler->PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE, x, y, z);
-                        else
-                            handler->SendSysMessage(LANG_MOVEGENS_HOME_PLAYER);
-                        break;
-                    }
-                    case FLIGHT_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_FLIGHT);
-                        break;
-                    case POINT_MOTION_TYPE:
-                    {
-                        handler->PSendSysMessage(LANG_MOVEGENS_POINT, x, y, z);
-                        break;
-                    }
-                    case FLEEING_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_FEAR);
-                        break;
-                    case DISTRACT_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_DISTRACT);
-                        break;
-                    case EFFECT_MOTION_TYPE:
-                        handler->SendSysMessage(LANG_MOVEGENS_EFFECT);
-                        break;
-                    default:
-                        handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, movementGenerator->GetMovementGeneratorType());
-                        break;
+                                           if (!target)
+                                               handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
+                                           else if (target->GetTypeId() == TYPEID_PLAYER)
+                                               handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUIDLow());
+                                           else
+                                               handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUIDLow());
+                                           break;
+                }
+                case HOME_MOTION_TYPE:
+                {
+                                         if (unit->GetTypeId() == TYPEID_UNIT)
+                                             handler->PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE, x, y, z);
+                                         else
+                                             handler->SendSysMessage(LANG_MOVEGENS_HOME_PLAYER);
+                                         break;
+                }
+                case FLIGHT_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_FLIGHT);
+                    break;
+                case POINT_MOTION_TYPE:
+                {
+                                          handler->PSendSysMessage(LANG_MOVEGENS_POINT, x, y, z);
+                                          break;
+                }
+                case FLEEING_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_FEAR);
+                    break;
+                case DISTRACT_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_DISTRACT);
+                    break;
+                case EFFECT_MOTION_TYPE:
+                    handler->SendSysMessage(LANG_MOVEGENS_EFFECT);
+                    break;
+                default:
+                    handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, movementGenerator->GetMovementGeneratorType());
+                    break;
                 }
             }
             return true;
@@ -2214,7 +2215,7 @@ class misc_commandscript : public CommandScript
             char* str = strtok((char*)args, " ");
 
             if (strcmp(str, "go") == 0)
-           {
+            {
                 char* guidStr = strtok(NULL, " ");
                 if (!guidStr)
                 {
@@ -2227,7 +2228,7 @@ class misc_commandscript : public CommandScript
                 if (!guid)
                 {
                     handler->SendSysMessage(LANG_BAD_VALUE);
-                   handler->SetSentErrorMessage(true);
+                    handler->SetSentErrorMessage(true);
                     return false;
                 }
 
@@ -2239,13 +2240,13 @@ class misc_commandscript : public CommandScript
                     return false;
                 }
 
-               int32 damage = atoi(damageStr);
+                int32 damage = atoi(damageStr);
                 if (!damage)
                 {
                     handler->SendSysMessage(LANG_BAD_VALUE);
                     handler->SetSentErrorMessage(true);
                     return false;
-               }
+                }
 
                 if (Player* player = handler->GetSession()->GetPlayer())
                 {
@@ -2309,7 +2310,7 @@ class misc_commandscript : public CommandScript
             {
                 handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 if (target != handler->GetSession()->GetPlayer())
-                    handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
+                    handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
                 return true;
             }
 
@@ -2339,7 +2340,7 @@ class misc_commandscript : public CommandScript
 
                 handler->GetSession()->GetPlayer()->DealDamageMods(target, damage, &absorb);
                 handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
-                handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
+                handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
                 return true;
             }
 
@@ -2438,7 +2439,7 @@ class misc_commandscript : public CommandScript
 
             // msgSubject, msgText isn't NUL after prev. check
             std::string subject = msgSubject;
-            std::string text    = msgText;
+            std::string text = msgText;
 
             // from console show not existed sender
             MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
@@ -2482,7 +2483,7 @@ class misc_commandscript : public CommandScript
 
             // msgSubject, msgText isn't NUL after prev. check
             std::string subject = msgSubject;
-            std::string text    = msgText;
+            std::string text = msgText;
 
             // extract items
             typedef std::pair<uint32, uint32> ItemPair;
@@ -2596,7 +2597,7 @@ class misc_commandscript : public CommandScript
 
             // msgSubject, msgText isn't NUL after prev. check
             std::string subject = msgSubject;
-            std::string text    = msgText;
+            std::string text = msgText;
 
             // from console show not existed sender
             MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
@@ -2698,7 +2699,7 @@ class misc_commandscript : public CommandScript
             }
 
             // prepare visual effect for levelup
-            pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel()-1);
+            pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel() - 1);
 
             pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
             // this enables pet details window (Shift+P)
@@ -2835,14 +2836,14 @@ class misc_commandscript : public CommandScript
                     if (Pet* pet = player->GetPet())
                     {
                         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
-                     // not let dismiss dead pet
-                     if (pet && pet->isAlive())
-                        player->RemovePet(pet, PET_SLOT_HUNTER_FIRST, false, pet->m_Stampeded);
+                        // not let dismiss dead pet
+                        if (pet && pet->isAlive())
+                            player->RemovePet(pet, PET_SLOT_HUNTER_FIRST, false, pet->m_Stampeded);
                     }
                 }
 
                 if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
-                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player, spellInfo->spellPower);
+                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
                 // save player
                 player->SaveToDB();
@@ -2940,8 +2941,7 @@ class misc_commandscript : public CommandScript
                 Field* fields = result->Fetch();
                 std::string player = fields[0].GetString();
                 handler->PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player.c_str());
-            }
-            while (result->NextRow());
+            } while (result->NextRow());
 
             return true;
         }
@@ -2954,13 +2954,13 @@ class misc_commandscript : public CommandScript
             char* nameStr = strtok((char*)args, " ");
 
             if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
-                if (group && group->GetLeaderGUID() != guid)
-                {
-                    group->ChangeLeader(guid);
-                    group->SendUpdate();
-                }
+            if (group && group->GetLeaderGUID() != guid)
+            {
+                group->ChangeLeader(guid);
+                group->SendUpdate();
+            }
 
-                return true;
+            return true;
         }
 
         static bool HandleGroupDisbandCommand(ChatHandler* handler, char const* args)
@@ -2971,8 +2971,8 @@ class misc_commandscript : public CommandScript
             char* nameStr = strtok((char*)args, " ");
 
             if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
-                if (group)
-                    group->Disband();
+            if (group)
+                group->Disband();
 
             return true;
         }
@@ -2985,8 +2985,8 @@ class misc_commandscript : public CommandScript
             char* nameStr = strtok((char*)args, " ");
 
             if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid, true))
-                if (group)
-                    group->RemoveMember(guid);
+            if (group)
+                group->RemoveMember(guid);
 
             return true;
         }

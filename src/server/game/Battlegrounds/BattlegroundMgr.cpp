@@ -1224,7 +1224,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
         CreateBattlegroundData data;
         data.bgTypeId = BattlegroundTypeId(bgTypeID_);
-        data.IsArena = (bl->type == TYPE_ARENA);
+        data.IsArena = (bl->InstanceType == TYPE_ARENA);
         data.MinPlayersPerTeam = fields[1].GetUInt16();
         data.MaxPlayersPerTeam = fields[2].GetUInt16();
         data.LevelMin = fields[3].GetUInt8();
@@ -1294,7 +1294,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         data.scriptId = sObjectMgr->GetScriptId(fields[12].GetCString());
 
         //data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
-        data.MapID = bl->mapid[0];
+        data.MapID = bl->MapID[0];
 
         if (!CreateBattleground(data))
             continue;
@@ -1308,8 +1308,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             && data.bgTypeId != BATTLEGROUND_RATED_15_VS_15 && data.bgTypeId != BATTLEGROUND_RATED_25_VS_25)
             m_BGSelectionWeights[data.bgTypeId] = selectionWeight;
 
-        for (int i = 0; i < 11; ++i)
-            if (rated_bl->mapid[i] == bl->mapid[0] && bl->mapid[1] == -1)
+        for (int i = 0; i < 16; ++i)
+            if (rated_bl->MapID[i] == bl->MapID[0] && bl->MapID[1] == -1)
                 m_RatedBGSelectionWeights[data.bgTypeId] = selectionWeight;
 
         ++count;

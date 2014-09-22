@@ -135,17 +135,6 @@ public:
                 disableTypeStr = "battleground";
                 break;
             }
-            case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
-            {
-                if (!sAchievementCriteriaStore.LookupEntry(entry))
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-                disableTypeStr = "achievement criteria";
-                break;
-            }
             case DISABLE_TYPE_OUTDOORPVP:
             {
                 if (entry > MAX_OUTDOORPVP_TYPES)
