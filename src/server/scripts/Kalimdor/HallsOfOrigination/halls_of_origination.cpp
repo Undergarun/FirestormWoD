@@ -475,7 +475,7 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
 
             if (uiAction == (GOSSIP_ACTION_INFO_DEF + 1))
             {
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 pCreature->AI()->DoAction(ACTION_START_EVENT);
             }
 

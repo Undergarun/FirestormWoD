@@ -280,7 +280,7 @@ public:
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoScriptText(SAY_INTRO, me);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
                     AggroTargetGUID = who->GetGUID();
                     Intro = true;
                 }
@@ -389,7 +389,7 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     DoScriptText(SAY_AGGRO, me);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
                     Done = true;
                     if (AggroTargetGUID)
                     {

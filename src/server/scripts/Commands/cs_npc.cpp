@@ -1635,7 +1635,7 @@ public:
             return true;
         }
 
-        uint32 idname = sObjectMgr->AddCreatureSubName(creature->GetName(), args, creature->GetUInt32Value(UNIT_FIELD_DISPLAYID));
+        uint32 idname = sObjectMgr->AddCreatureSubName(creature->GetName(), args, creature->GetUInt32Value(UNIT_FIELD_DISPLAY_ID));
         creature->SetUInt32Value(OBJECT_FIELD_ENTRY, idname);
 
         creature->SaveToDB();

@@ -513,7 +513,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
             pPlayer->CLOSE_GOSSIP_MENU();
 
             pCreature->AI()->Talk(SAY_ILLIDAN_1_MOVE);
-            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             pCreature->SetSpeed(MOVE_RUN, 1.0f, true);
             pCreature->GetMotionMaster()->MovePoint(POINT_ILLIDAN_1_2, illidan1Pos[1]);
 
@@ -529,7 +529,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                 me->setActive(true);
                 bTalk = false;
                 curPoint = 0;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 pInstance = me->GetInstanceScript();
             }
 
@@ -574,7 +574,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                     {
                         case POINT_ILLIDAN_1_1:
                             curPoint = 1;
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
                         case POINT_ILLIDAN_1_2:
                             curPoint = 2;

@@ -95,7 +95,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case NPC_BRANN_BRONZEBEARD:
                         uiBrannGUID = pCreature->GetGUID();
                         if (GetBossState(DATA_ANRAPHET) == DONE)
-                            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                 }
             }

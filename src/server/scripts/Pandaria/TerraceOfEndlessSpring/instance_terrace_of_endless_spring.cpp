@@ -159,7 +159,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                         c->AI()->DoAction(ACTION_START_TSULONG_WAYPOINT);
 
                     if (Creature* shaOfFear = instance->GetCreature(shaOfFearGuid))
-                        shaOfFear->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        shaOfFear->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 }
                 else if (id == DATA_TSULONG && state == DONE && GetBossState(DATA_LEI_SHI) != DONE)
                 {

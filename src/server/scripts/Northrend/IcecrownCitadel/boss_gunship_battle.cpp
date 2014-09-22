@@ -344,10 +344,10 @@ Player* SelectRandomPlayerInTheMaps(Map* map)
 //Function start motion of the ship
 void StartFlyShip(Transport* ship)
 {
-    ship->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    ship->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     ship->SetGoState(GO_STATE_ACTIVE);
-    ship->SetUInt32Value(GAMEOBJECT_FIELD_ANIM_PROGRESS, 0x10830010); // Seen in sniffs
-    ship->SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, 1.0f);
+    ship->SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0x10830010); // Seen in sniffs
+    ship->SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 3, 1.0f);
 
     Map* map = ship->GetMap();
     std::set<uint32> mapsUsed;
@@ -429,7 +429,7 @@ void StopFlyShip(Transport* ship)
     Map* map = ship->GetMap();
     ship->m_WayPoints.clear();
     RelocateTransport(ship);
-    ship->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    ship->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     ship->SetGoState(GO_STATE_READY);
 
     Map::PlayerList const &lPlayers = map->GetPlayers();
@@ -472,7 +472,7 @@ void TeleportPlayers(Map* map, uint64 teamInInstance)
     {
         if (Player* player = itr->getSource())
         {
-            if (player->isDead() && !player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            if (player->isDead() && !player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
                 player->ResurrectPlayer(1.0f);
 
             player->TeleportTo(631, -437.498505f, teamInInstance == ALLIANCE ? 2425.954f : 1997.954f, 192.997f, 2.247f);
@@ -813,7 +813,7 @@ class npc_muradin_gunship : public CreatureScript
             if (action == 1001)
             {
                 //creature->AI()->DoAction(ACTION_INTRO_START);
-                //creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                //creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             return true;
         }
@@ -839,7 +839,7 @@ class npc_muradin_gunship : public CreatureScript
                 RiflCount = RAID_MODE(4, 6, 4, 6);
                 RocketerDieCount = 0;
                 RiflDieCount = 0;
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 EventScheduled = false;
                 events.ScheduleEvent(EVENT_SEND_UPDATE, 3000);
             }
@@ -2022,7 +2022,7 @@ class npc_saurfang_gunship : public CreatureScript
             if (action == 1001)
             {
                 //creature->AI()->DoAction(ACTION_INTRO_START);
-                //creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                //creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             return true;
         }

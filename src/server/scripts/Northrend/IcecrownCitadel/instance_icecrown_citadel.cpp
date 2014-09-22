@@ -500,7 +500,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
                         {
-                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                            go->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, 0);
                             go->SetGoState(GO_STATE_READY);
                         }
                         break;
@@ -570,7 +570,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_CACHE_OF_THE_DREAMWALKER_25H:
                         if (Creature* valithria = instance->GetCreature(ValithriaDreamwalkerGUID))
                             go->SetLootRecipient(valithria->GetLootRecipient());
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                        go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         break;
                     case GO_SCOURGE_TRANSPORTER_LK:
                         TheLichKingTeleportGUID = go->GetGUID();
@@ -580,11 +580,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_ARTHAS_PLATFORM:
                         // this enables movement at The Frozen Throne, when printed this value is 0.000000f
                         // however, when represented as integer client will accept only this value
-                        //go->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 5535469);
+                        //go->SetUInt32Value(GAMEOBJECT_FIELD_PARENT_ROTATION, 5535469);
                         ArthasPlatformGUID = go->GetGUID();
                         break;
                     case GO_ARTHAS_PRECIPICE:
-                        //go->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 4178312);
+                        //go->SetUInt32Value(GAMEOBJECT_FIELD_PARENT_ROTATION, 4178312);
                         ArthasPrecipiceGUID = go->GetGUID();
                         break;
                     case GO_DOODAD_ICECROWN_THRONEFROSTYEDGE01:
@@ -773,7 +773,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
                             {
-                                elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                elevator->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, 0);
                                 elevator->SetGoState(GO_STATE_READY);
                             }
                         }
@@ -786,14 +786,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 {
                                     if (Creature* deathbringer = instance->GetCreature(DeathbringerSaurfangGUID))
                                         loot->SetLootRecipient(deathbringer->GetLootRecipient());
-                                    loot->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                                    loot->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                                 }
                                 // no break
                             case NOT_STARTED:
                                 if (GameObject* teleporter = instance->GetGameObject(SaurfangTeleportGUID))
                                 {
                                     HandleGameObject(SaurfangTeleportGUID, true, teleporter);
-                                    teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                                    teleporter->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
                                 }
                                 break;
                             default:

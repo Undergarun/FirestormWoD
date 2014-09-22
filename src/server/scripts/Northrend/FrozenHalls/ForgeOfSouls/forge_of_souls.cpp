@@ -157,7 +157,7 @@ public:
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
         InstanceScript* instance;
@@ -178,7 +178,7 @@ public:
                 case ACTION_INTRO:
                 {
                     phase = PHASE_INTRO;
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     events.Reset();
                     events.ScheduleEvent(EVENT_INTRO_1, 1000);
                 }
@@ -283,7 +283,7 @@ public:
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
         InstanceScript* instance;
@@ -304,7 +304,7 @@ public:
                 case ACTION_INTRO:
                 {
                     phase = PHASE_INTRO;
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     events.Reset();
                     events.ScheduleEvent(EVENT_INTRO_1, 1000);
                 }

@@ -515,7 +515,7 @@ public:
 
         void StartWP()
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->setFaction(113);
             SetEscortPaused(false);
             uiStep = 1;
@@ -683,7 +683,7 @@ public:
                         me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
 
                         if (GameObject* go = me->SummonGameObject(IsHeroic() ? GO_TRIBUNAL_CHEST_HERO : GO_TRIBUNAL_CHEST, 880.406f, 345.164f, 203.706f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, DAY))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
                         instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), true);
                         instance->SetData(DATA_BRANN_EVENT, DONE);
@@ -698,7 +698,7 @@ public:
                     case 30:
                         if (Creature* pTemp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
                             DoScriptText(SAY_EVENT_END_03_ABED, pTemp);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         JumpToNextStep(8500);
                         break;
                     case 31:

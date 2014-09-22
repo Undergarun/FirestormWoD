@@ -125,7 +125,7 @@ public:
         {
             if (who->GetEntry() == NPC_SMEED)
             {
-                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                if (me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                     return;
 
                 if (me->IsWithinDistInMap(who, 10.0f))
@@ -142,7 +142,7 @@ public:
         {
             if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
             {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 DespawnTimer = 60000;
             }
         }

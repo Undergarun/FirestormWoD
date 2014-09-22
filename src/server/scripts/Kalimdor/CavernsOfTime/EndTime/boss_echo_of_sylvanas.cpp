@@ -355,8 +355,8 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
             {
                 events.Reset();
                 _guid = 0;
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5.0f);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5.0f);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5.0f);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5.0f);
             }
  
             void JustDied(Unit* /*killer*/)

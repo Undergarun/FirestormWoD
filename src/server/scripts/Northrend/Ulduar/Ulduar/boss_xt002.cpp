@@ -715,8 +715,8 @@ class mob_boombot : public CreatureScript
                 // HACK/workaround:
                 // these values aren't confirmed - lack of data - and the values in DB are incorrect
                 // these values are needed for correct damage of Boom spell
-                me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
-                me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
+                me->SetFloatValue(UNIT_FIELD_MIN_DAMAGE, 15000.0f);
+                me->SetFloatValue(UNIT_FIELD_MAX_DAMAGE, 18000.0f);
                 me->SetDisplayId(19139);
                 me->SetSpeed(MOVE_RUN, 0.5f, true);
 
@@ -1187,7 +1187,7 @@ class spell_xt002_stand : public SpellScriptLoader
                     return;
 
                 target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
+                target->SetStandState(UNIT_STAND_STATE_STAND);
             }
 
             void Register()

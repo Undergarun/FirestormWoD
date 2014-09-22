@@ -419,11 +419,11 @@ public:
             switch (criteria_id)
             {
                 case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
-                    if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                    if (Difficulty(instance->GetSpawnMode()) == LEGACY_MAN10_DIFFICULTY && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                         return true;
                     return false;
                 case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
-                    if (Difficulty(instance->GetSpawnMode()) == MAN25_DIFFICULTY && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                    if (Difficulty(instance->GetSpawnMode()) == LEGACY_MAN25_DIFFICULTY && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                         return true;
                     return false;
                 // Difficulty checks are done on DB.

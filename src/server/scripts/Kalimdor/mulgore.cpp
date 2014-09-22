@@ -132,7 +132,7 @@ public:
 
                 EventActive = true;
                 DoScriptText(EMOTE_SEE_LUNCH, me);
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
             }
         }
 
@@ -171,7 +171,7 @@ public:
                             break;
                         case 2:
                             DoScriptText(EMOTE_EAT_LUNCH, me);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
                             if (Player* unit = Unit::GetPlayer(*me, PlayerGUID))
@@ -182,10 +182,10 @@ public:
                         case 4:
                             EventTimer = 30000;
                             DoScriptText(EMOTE_DANCE, me);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_DANCESPECIAL);
                             break;
                         case 5:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
                             Reset();
                             me->GetMotionMaster()->Clear();
                             break;

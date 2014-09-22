@@ -134,9 +134,9 @@ class boss_daakara : public CreatureScript
                 bAchieve = true;
 
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 33975);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 33975);
                 //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 218172674);
-                //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                //me->SetSheath(SHEATH_STATE_MELEE);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -183,7 +183,7 @@ class boss_daakara : public CreatureScript
             void EnterPhase(uint8 form)
             {
                 DoResetThreat();
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
                 
                 switch (form)
                 {

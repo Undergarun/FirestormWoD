@@ -15,8 +15,8 @@ class mob_master_shang_xi : public CreatureScript
             if (quest->GetQuestId() == 29408) // La lecon du parchemin brulant
             {
                 creature->AddAura(114610, creature);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             return true;
@@ -32,7 +32,7 @@ class mob_master_shang_xi : public CreatureScript
             mob_master_shang_xi_AI(Creature* creature) : ScriptedAI(creature)
             {
                 checkPlayersTime = 2000;
-                creature->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
+                creature->SetStandState(UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
             }
 
             uint32 checkPlayersTime;
@@ -47,8 +47,8 @@ class mob_master_shang_xi : public CreatureScript
                         {
                             me->CastSpell(caster, 114611, true);
                             me->RemoveAurasDueToSpell(114610);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         }
                     }
                 }
@@ -57,7 +57,7 @@ class mob_master_shang_xi : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 if (me->GetPositionX() != 1462.0f && me->GetPositionY() != 3465.590088f && me->GetPositionZ() != 181.597f)
-                    me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
+                    me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
 
                 if (checkPlayersTime <= diff)
                 {
@@ -68,20 +68,20 @@ class mob_master_shang_xi : public CreatureScript
 
                     for (auto player: playerList)
                         if (player->GetQuestStatus(29408) == QUEST_STATUS_INCOMPLETE)
-                            if (!player->HasItemCount(80212))// Flamme du maitre
+                            if (!player->HasItemCount(80212)) // Master's flame
                                 playerWithQuestNear = true;
 
                     if (playerWithQuestNear && !me->HasAura(114610))
                     {
                         me->AddAura(114610, me);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     }
                     else if (!playerWithQuestNear && me->HasAura(114610))
                     {
                         me->RemoveAurasDueToSpell(114610);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     }
 
                     checkPlayersTime = 2000;

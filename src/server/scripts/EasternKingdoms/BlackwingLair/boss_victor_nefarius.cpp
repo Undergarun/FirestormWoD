@@ -230,7 +230,7 @@ public:
             NefarianGUID = 0;
             NefCheckTime = 2000;
 
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+            me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 1);
             me->setFaction(35);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -248,7 +248,7 @@ public:
             AttackStart((*i));
             }
             */
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+            me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
             me->setFaction(103);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             AttackStart(target);

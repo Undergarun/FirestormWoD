@@ -81,7 +81,7 @@ class npc_wrathion_mason : public CreatureScript
                     {
                         SetDespawnAtFar(false);
                         SetDespawnAtEnd(false);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         events.ScheduleEvent(EVENT_FIRST_MOVE, 2000);
                         playerGuid = player->GetGUID();
                     }
@@ -163,7 +163,7 @@ class npc_wrathion_mason : public CreatureScript
                                 break;
                             case EVENT_FINAL:
                                 player->KilledMonsterCredit(64664);
-                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                                 break;
                             default:
                                 break;

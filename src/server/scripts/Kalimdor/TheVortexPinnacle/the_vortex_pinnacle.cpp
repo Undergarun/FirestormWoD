@@ -203,7 +203,7 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
 
             void Reset()
             {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 DoCast(me, SPELL_SLIPSTREAM_AURA);
             }
 

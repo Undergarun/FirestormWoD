@@ -89,7 +89,7 @@ class instance_oculus : public InstanceMapScript
                         BelgaristraszGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
                         {
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             creature->Relocate(BelgaristraszMove);
                         }
                         break;
@@ -97,7 +97,7 @@ class instance_oculus : public InstanceMapScript
                         EternosGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
                         {
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             creature->Relocate(EternosMove);
                         }
                         break;
@@ -105,7 +105,7 @@ class instance_oculus : public InstanceMapScript
                         VerdisaGUID = creature->GetGUID();
                         if (GetBossState(DATA_DRAKOS) == DONE)
                         {
-                            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             creature->Relocate(VerdisaMove);
                         }
                         break;
@@ -228,7 +228,7 @@ class instance_oculus : public InstanceMapScript
                             if (GameObject* cache = instance->GetGameObject(EregosCacheGUID))
                             {
                                 cache->SetRespawnTime(cache->GetRespawnDelay());
-                                cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                cache->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             }
                         }
                         break;

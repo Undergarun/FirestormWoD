@@ -331,8 +331,8 @@ class boss_feludius : public CreatureScript
 
                 bPhaseTwo  = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 me->SetReactState(REACT_AGGRESSIVE);
                 summons.DespawnAll();
                 events.Reset();
@@ -550,8 +550,8 @@ class boss_ignacious : public CreatureScript
 
                 bPhaseTwo = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 me->SetReactState(REACT_AGGRESSIVE);
                 //summons.DespawnAll();
                 events.Reset();
@@ -829,8 +829,8 @@ class boss_arion : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 summons.DespawnAll();
                 events.Reset();
             }
@@ -1022,8 +1022,8 @@ class boss_terrastra: public CreatureScript
                 SetCombatMovement(false);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 summons.DespawnAll();
                 events.Reset();
             }
@@ -1187,8 +1187,8 @@ class boss_elementium_monstrosity : public CreatureScript
 
             void Reset()
             {
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
 
                 summons.DespawnAll();
                 events.Reset();

@@ -100,7 +100,7 @@ class instance_zulaman : public InstanceMapScript
                     case GO_STRANGE_GONG:
                         StrangeGongGUID = pGo->GetGUID();
                         if (uiMainGate == 1)
-                            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                         break;
                     case GO_MAIN_GATE:
                         MainGateGUID = pGo->GetGUID();
@@ -249,7 +249,7 @@ class instance_zulaman : public InstanceMapScript
                         {
                             HandleGameObject(MainGateGUID, true);
                             if (GameObject* pGo = instance->GetGameObject(StrangeGongGUID))
-                                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                                pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                             SaveToDB();
                         }
                         break;

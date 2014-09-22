@@ -443,7 +443,7 @@ public:
                         return;
                     summoner->AddAura(SPELL_FIGMENT_OF_DOUBT_2, creature);
                     creature->SetDisplayId(summoner->GetDisplayId());
-                    creature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
                     summoner->CastSpell(creature, SPELL_COPY_WEAPON, false);
                     summoner->CastSpell(creature, SPELL_COPY_WEAPON_2, false);
 
@@ -452,36 +452,36 @@ public:
 
                     if (!caster)
                         return;
-                    uint32 prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID);
+                    uint32 prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
                     if (Player* player = caster->ToPlayer())
 
                     {
                         if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
 
                     }
                     else
-                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
 
-                    prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1);
+                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
 
                     if (Player* player = caster->ToPlayer())
                     {
                         if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
                     }
                     else
-                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
 
-                    prevItem = target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2);
+                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
 
                     if (Player* player = caster->ToPlayer())
                     {
                         if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
                     }
                     else
-                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
                 }
                 break;
             }
@@ -586,7 +586,7 @@ public:
                     if (!creature)
                         continue;
 
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     if (creature->GetAI())
                         creature->GetAI()->DoAction(TYPE_SET_SUNS_SELECTABLE);
                 }
@@ -666,7 +666,7 @@ public:
                 sun_triggers.push_back(creature->GetGUID());
                 break;
             case CREATURE_SUN:
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 suns.push_back(creature->GetGUID());
                 break;
             case CREATURE_ZAO_SUNSEEKER:
@@ -678,7 +678,7 @@ public:
                 break;
             case CREATURE_SCROLL:
                 scroll = creature->GetGUID();
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 creature->CastSpell(creature, SPELL_SCROLL_FLOOR, false);
                 creature->CastSpell(creature, SPELL_JADE_ENERGY_2, false);
                 creature->CastSpell(creature, SPELL_GROW_LOW, false);
@@ -850,7 +850,7 @@ public:
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         c->CastSpell(unit, SPELL_DRAW_SHA_3, false);
                         c->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, scroll);
-                        c->SetUInt32Value(UNIT_CHANNEL_SPELL, 42808);
+                        c->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 42808);
                         c->ForcedDespawn(2000);
                     }
 
@@ -925,7 +925,7 @@ public:
                 creature->Respawn();
                 if (creature->GetAI())
                     creature->GetAI()->Reset();
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 creature->CastSpell(creature, SPELL_SCROLL_FLOOR, false);
                 creature->CastSpell(creature, SPELL_JADE_ENERGY_2, false);
                 creature->CastSpell(creature, SPELL_GROW_LOW, false);

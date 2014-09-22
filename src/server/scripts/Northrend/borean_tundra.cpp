@@ -103,7 +103,7 @@ public:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         DoCast(me, SPELL_SUMMON_CART, true);
                         if (GameObject* cart = me->FindNearestGameObject(188160, 3))
-                            cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
+                            cart->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, 14);
                         uiPhaseTimer = 3000;
                         Phase = 2;
                         break;
@@ -1211,7 +1211,7 @@ public:
                     break;
 
                 case 16:
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     uiPhaseTimer = 20000;
                     ++uiPhase;
                     break;
@@ -2397,8 +2397,8 @@ public:
     {
         npc_hidden_cultistAI(Creature* creature) : ScriptedAI(creature)
         {
-           uiEmoteState = creature->GetUInt32Value(UNIT_NPC_EMOTESTATE);
-           uiNpcFlags = creature->GetUInt32Value(UNIT_NPC_FLAGS);
+           uiEmoteState = creature->GetUInt32Value(UNIT_FIELD_EMOTE_STATE);
+           uiNpcFlags = creature->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
         }
 
         uint32 uiEmoteState;
@@ -2412,10 +2412,10 @@ public:
         void Reset()
         {
             if (uiEmoteState)
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, uiEmoteState);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, uiEmoteState);
 
             if (uiNpcFlags)
-                me->SetUInt32Value(UNIT_NPC_FLAGS, uiNpcFlags);
+                me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, uiNpcFlags);
 
             uiEventTimer = 0;
             uiEventPhase = 0;
@@ -2430,7 +2430,7 @@ public:
         void DoAction(const int32 /*iParam*/)
         {
             me->StopMoving();
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+            me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
                 me->SetInFront(player);
@@ -2462,7 +2462,7 @@ public:
                         switch (me->GetEntry())
                         {
                             case NPC_SALTY_JOHN_THORPE:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                                 DoScriptText(SAY_HIDDEN_CULTIST_1, me);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;

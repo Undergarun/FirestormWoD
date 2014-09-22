@@ -225,8 +225,8 @@ class boss_hex_lord_malacrass : public CreatureScript
                         break;
                 }       
 
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 46916);
-                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 46916);
+                me->SetSheath(SHEATH_STATE_MELEE);
             }
 
             void EnterCombat(Unit* /*who*/)

@@ -338,7 +338,7 @@ class npc_chicken_cluck : public CreatureScript
             {
                 ResetFlagTimer = 120000;
                 me->setFaction(FACTION_CHICKEN);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             }
 
             void EnterCombat(Unit* /*who*/) {}
@@ -346,7 +346,7 @@ class npc_chicken_cluck : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 // Reset flags after a certain time has passed so that the next player has to start the 'event' again
-                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+                if (me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
                 {
                     if (ResetFlagTimer <= diff)
                     {
@@ -368,7 +368,7 @@ class npc_chicken_cluck : public CreatureScript
                     case TEXT_EMOTE_CHICKEN:
                         if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
                         {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                             me->setFaction(FACTION_FRIENDLY);
                             DoScriptText(EMOTE_HELLO, me);
                         }
@@ -376,7 +376,7 @@ class npc_chicken_cluck : public CreatureScript
                     case TEXT_EMOTE_CHEER:
                         if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                         {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                             me->setFaction(FACTION_FRIENDLY);
                             DoScriptText(EMOTE_CLUCK_TEXT, me);
                         }
@@ -736,7 +736,7 @@ class npc_injured_patient : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
                 //to make them lay with face down
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                 uint32 mobId = me->GetEntry();
 
@@ -775,7 +775,7 @@ class npc_injured_patient : public CreatureScript
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
                     //stand up
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
 
                     DoScriptText(RAND(SAY_DOC1, SAY_DOC2, SAY_DOC3), me);
 
@@ -1648,7 +1648,7 @@ class npc_snake_trap : public CreatureScript
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 //Add delta to make them not all hit the same time
                 uint32 delta = (rand() % 7) * 100;
-                me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, float(Info->baseattacktime + delta));
+                me->SetStatFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, float(Info->baseattacktime + delta));
                 me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
                 // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
@@ -1882,9 +1882,9 @@ class npc_mirror_image : public CreatureScript
                 }
 
                 me->UpdateAttackPowerAndDamage();
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) ? plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)->GetEntry() : 0);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) ? plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)->GetEntry() : 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, 0);
             }
 
             void EnterCombat(Unit* who)
@@ -2808,7 +2808,7 @@ class npc_experience : public CreatureScript
         bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+            bool noXPGain = player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             bool doSwitch = false;
 
             switch (action)
@@ -2833,12 +2833,12 @@ class npc_experience : public CreatureScript
                 else if (noXPGain)
                 {
                     player->ModifyMoney(-int64(EXP_COST));
-                    player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                    player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
                 else if (!noXPGain)
                 {
                     player->ModifyMoney(-EXP_COST);
-                    player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                    player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
             }
             player->PlayerTalkClass->SendCloseGossip();
@@ -3729,7 +3729,7 @@ class npc_demonic_gateway_purple : public CreatureScript
                 me->CastSpell(me, 113931, true); // 0 Purple Charge
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             void OnSpellClick(Unit* clicker)
@@ -3820,7 +3820,7 @@ class npc_demonic_gateway_green : public CreatureScript
                 me->CastSpell(me, 113900, true); // Portal Visual
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, 113902);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             void OnSpellClick(Unit* clicker)
@@ -4606,7 +4606,7 @@ class npc_transcendence_spirit : public CreatureScript
             {
                 me->CastSpell(me, SPELL_MEDITATE, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* owner)
@@ -5178,7 +5178,7 @@ class npc_rogue_decoy : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_RENAME);
             }
 

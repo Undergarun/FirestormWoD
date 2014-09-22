@@ -181,7 +181,7 @@ class boss_tsulong : public CreatureScript
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 phase = PHASE_NONE;
                 events.SetPhase(PHASE_NONE);
 
@@ -200,7 +200,7 @@ class boss_tsulong : public CreatureScript
                     {
                         me->SetDisplayId(DISPLAY_TSULON_NIGHT);
                         me->setFaction(14);
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         me->SetHomePosition(-1017.841f, -3049.621f, 12.823f, 4.72f);
                         me->GetMotionMaster()->MoveTargetedHome();
                     }
@@ -208,7 +208,7 @@ class boss_tsulong : public CreatureScript
                     {
                         me->SetDisplayId(DISPLAY_TSULON_DAY);
                         me->setFaction(2104);
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 35);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 35);
                     }
                 }
             }
@@ -357,16 +357,16 @@ class boss_tsulong : public CreatureScript
 
                 switch (me->GetMap()->GetSpawnMode())
                 {
-                    case MAN10_DIFFICULTY:
+                    case LEGACY_MAN10_DIFFICULTY:
                          me->SummonGameObject(CACHE_OF_TSULONG_10_NM, -1018.64f, -2996.85f, 12.30f, 4.75f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                         break;
-                    case MAN25_DIFFICULTY:
+                    case LEGACY_MAN25_DIFFICULTY:
                          me->SummonGameObject(CACHE_OF_TSULONG_25_NM, -1018.64f, -2996.85f, 12.30f, 4.75f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                         break;
-                    case MAN10_HEROIC_DIFFICULTY:
+                    case LEGACY_MAN10_HEROIC_DIFFICULTY:
                          me->SummonGameObject(CACHE_OF_TSULONG_10_HM, -1018.64f, -2996.85f, 12.30f, 4.75f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                         break;
-                    case MAN25_HEROIC_DIFFICULTY:
+                    case LEGACY_MAN25_HEROIC_DIFFICULTY:
                          me->SummonGameObject(CACHE_OF_TSULONG_25_HM, -1018.64f, -2996.85f, 12.30f, 4.75f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                         break;
                     default:
@@ -446,7 +446,7 @@ class boss_tsulong : public CreatureScript
                                 me->setFaction(14);
                                 me->SetReactState(REACT_PASSIVE);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                                 me->SetDisplayId(DISPLAY_TSULON_NIGHT);
                                 me->GetMotionMaster()->MovePoint(WAYPOINT_FIRST, -1018.10f, -2947.431f, 50.12f);
                                 inFly = true;
@@ -651,7 +651,7 @@ class npc_sunbeam : public CreatureScript
                 if (despawn)
                     return;
 
-                float scale = me->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                float scale = me->GetFloatValue(OBJECT_FIELD_SCALE);
                 if (scale <= 1.0f)
                     Despawn();
             }
@@ -727,7 +727,7 @@ class npc_dark_of_night : public CreatureScript
                         return;
 
                     float dist = tmp->GetDistance(me);
-                    if (dist <= tmp->GetFloatValue(OBJECT_FIELD_SCALE_X))
+                    if (dist <= tmp->GetFloatValue(OBJECT_FIELD_SCALE))
                     {
                         me->CastSpell(me, SPELL_BUMP_DARK_OF_NIGHT, false);
                         me->Kill(tmp);
@@ -1025,7 +1025,7 @@ class spell_sunbeam : public SpellScriptLoader
                     if (!plr)
                         continue;
 
-                    float scale = GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                    float scale = GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE);
                     if (plr->GetExactDist2d(GetCaster()) <= scale)
                         targets.push_back(plr);
                 }
@@ -1054,7 +1054,7 @@ class spell_sunbeam : public SpellScriptLoader
                     if (Pet* pet = GetTarget()->ToPlayer()->GetPet())
                         pet->AddAura(SPELL_SUNBEAM_PROTECTION, pet);
 
-                    float scale = GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                    float scale = GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE);
                     if (scale > 0.2f)
                         GetCaster()->SetObjectScale(scale - 0.2f);
                 }

@@ -465,7 +465,7 @@ class boss_thorim : public CreatureScript
                         MiniBoss->Respawn(true);
 
                 if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (Creature* sif = me->FindNearestCreature(NPC_SIF, 100.0f))
                     sif->DespawnOrUnsummon();
@@ -509,7 +509,7 @@ class boss_thorim : public CreatureScript
                 else
                 {
                     if (GameObject* go = me->SummonGameObject(RAID_MODE(GO_CACHE_OF_STORMS_10, GO_CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 1, 1, WEEK))
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_CELERITY);
@@ -550,7 +550,7 @@ class boss_thorim : public CreatureScript
                 }
 
                 if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 me->SetFacingToObject(who);
             }
@@ -882,7 +882,7 @@ class PrePhaseAddHelper
 
         PrePhaseAddHelper(Difficulty raidDifficulty)
         {
-            if (raidDifficulty == MAN25_DIFFICULTY) // should not be heroic, just for the case
+            if (raidDifficulty == LEGACY_MAN25_DIFFICULTY) // should not be heroic, just for the case
                 diffi = In10Man;
             else
                 diffi = In25Man;
@@ -1104,7 +1104,7 @@ class ArenaPhaseAddHelper
 
         ArenaPhaseAddHelper(Difficulty raidDifficulty)
         {
-            if (raidDifficulty == MAN25_DIFFICULTY) // should not be heroic, just for the case
+            if (raidDifficulty == LEGACY_MAN25_DIFFICULTY) // should not be heroic, just for the case
                 diffi = In10Man;
             else
                 diffi = In25Man;

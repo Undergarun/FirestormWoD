@@ -491,7 +491,7 @@ public:
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->SetDisplayId(me->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
+                    me->SetDisplayId(me->GetUInt32Value(UNIT_FIELD_NATIVE_DISPLAY_ID));
                     CanMove = true;
                     if (instance)
                     {
@@ -696,7 +696,7 @@ public:
             }
             if (waypointId == LastOverronPos && IsOverrun)
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK_UNARMED);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_ATTACK_UNARMED);
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
                 {
                     me->setDeathState(DEAD);

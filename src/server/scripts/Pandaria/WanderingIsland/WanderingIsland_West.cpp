@@ -519,7 +519,7 @@ public:
         void Reset()
         {
             cooldown = 0;
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void OnSpellClick(Unit* Clicker)
@@ -531,7 +531,7 @@ public:
                 me->CastSpell(zhao, SPELL_ROCKET_LAUNCH, false);
 
             cooldown = 5000;
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -545,7 +545,7 @@ public:
             {
                 if (cooldown <= diff)
                 {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     cooldown = 0;
                 }
                 else

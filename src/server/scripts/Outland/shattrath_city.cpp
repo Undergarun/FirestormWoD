@@ -493,11 +493,11 @@ public:
             case 0:{ me->SetInFront(player);
                 Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
                 if (Creepjack)
-                    Creepjack->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    Creepjack->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
                 Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
                 if (Malone)
-                    Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
+                    Malone->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
             case 1: DoScriptText(SAY_1, me, player); return 3000;
             case 2: DoScriptText(SAY_2, me, player); return 5000;
             case 3: DoScriptText(SAY_3, me, player); return 2000;

@@ -252,7 +252,7 @@ public:
 
             if (Creature* Akama = Unit::GetCreature(*me, AkamaGUID))
             {
-                Akama->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);//turn gossip on so players can restart the event
+                Akama->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);//turn gossip on so players can restart the event
                 if (Akama->isDead())
                 {
                     Akama->Respawn();//respawn akama if dead
@@ -275,7 +275,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             //me->GetMotionMaster()->Clear();
             //me->GetMotionMaster()->MoveIdle();
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STUN);
 
             if (instance)
                 instance->SetData(DATA_SHADE_OF_AKAMA_EVENT, NOT_STARTED);
@@ -631,8 +631,8 @@ public:
 
             if (!EventBegun)
             {
-                me->SetUInt32Value(UNIT_NPC_FLAGS, 0);      // Database sometimes has very very strange values
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);      // Database sometimes has very very strange values
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             summons.DespawnAll();
         }
@@ -664,12 +664,12 @@ public:
             {
                 instance->SetData(DATA_SHADE_OF_AKAMA_EVENT, IN_PROGRESS);
                 // Prevent players from trying to restart event
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetAkamaGUID(me->GetGUID());
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetSelectableChannelers();
                 Shade->AddThreat(me, 1000000.0f);
                 me->CombatStart(Shade);
-                Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                Shade->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
                 Shade->SetTarget(me->GetGUID());
                 if (player)
                     Shade->AddThreat(player, 1.0f);

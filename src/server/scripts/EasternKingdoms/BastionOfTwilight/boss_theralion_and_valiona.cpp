@@ -382,8 +382,8 @@ class boss_theralion : public CreatureScript
                 summons.DespawnAll();
                 me->SetSpeed(MOVE_FLIGHT, 3.0f);
                 me->SetCanFly(false);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetHealth(me->GetMaxHealth());
@@ -691,8 +691,8 @@ class boss_valiona : public CreatureScript
                 summons.DespawnAll();
                 me->SetSpeed(MOVE_FLIGHT, 3.0f);
                 me->SetCanFly(false);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);

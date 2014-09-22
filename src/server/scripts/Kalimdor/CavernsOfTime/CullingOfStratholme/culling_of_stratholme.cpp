@@ -291,7 +291,7 @@ public:
         }
         player->CLOSE_GOSSIP_MENU();
         pAI->SetDespawnAtFar(false);
-        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         return true;
     }
 
@@ -410,7 +410,7 @@ public:
                     case NOT_STARTED:
                         bStepping = true;
                         uiStep = 0;
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         uiBossEvent = DATA_MEATHOOK_EVENT;
                         uiGossipStep = 0;
                         break;
@@ -506,7 +506,7 @@ public:
                     break;
                 case 8:
                     uiGossipStep = 1;
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
                     break;
                 case 12:
@@ -531,7 +531,7 @@ public:
                     break;
                 case 20:
                     uiGossipStep = 2;
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetRun(false);
                     SetHoldState(true);
                     break;
@@ -578,7 +578,7 @@ public:
                     SetRun(true);
                     SetDespawnAtFar(false);
                     uiGossipStep = 4;
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
                     break;
                 case 47:
@@ -594,7 +594,7 @@ public:
                     break;
                 case 54:
                     uiGossipStep = 5;
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
                     break;
              }
@@ -1151,7 +1151,7 @@ public:
                                 if (instance->GetData(DATA_EPOCH_EVENT) == DONE)
                                 {
                                     uiGossipStep = 3;
-                                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                     bStepping = false;
                                     uiBossEvent = DATA_MAL_GANIS_EVENT;
                                     JumpToNextStep(15000);
@@ -1257,7 +1257,7 @@ public:
                 case 0:
                     respawned = true;
                     uiGossipStep = data;
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     break;
                 case 1:
                     SetNextWaypoint(19, true);

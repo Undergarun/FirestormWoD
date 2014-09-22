@@ -23,7 +23,7 @@ class gatewatcher_gyro_kill : public CreatureScript
                 if (pInstance)
                 {
                     if (GameObject* pGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CACHE_LEGION)))
-                        pGob->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        pGob->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
 
@@ -31,7 +31,7 @@ class gatewatcher_gyro_kill : public CreatureScript
             {
                 if (pInstance)
                     if (GameObject* pGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CACHE_LEGION)))
-                            pGob->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                            pGob->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
 
             void UpdateAI(const uint32 diff)

@@ -371,7 +371,7 @@ public:
 
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+            me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
             // TO DO: find what in core is making boss slower than in retail (when correct speed data) or find missing movement flag update or forced spline change
             me->SetSpeed(MOVE_FLIGHT, _flySpeed * 0.25f);
             if (_despawned)
@@ -402,7 +402,7 @@ public:
             {
                 _summonDeaths = value;
 
-                if (GetDifficulty() == MAN10_DIFFICULTY)
+                if (GetDifficulty() == LEGACY_MAN10_DIFFICULTY)
                 {
                     if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_10MAN)
                     {
@@ -410,7 +410,7 @@ public:
                         DoAction(ACTION_HANDLE_P_THREE_INTRO);
                     }
                 }
-                else if (GetDifficulty() == MAN25_DIFFICULTY)
+                else if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                 {
                     if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_25MAN)
                     {
@@ -859,7 +859,7 @@ public:
 
                         if (_arcaneReinforcements && instance)
                         {
-                            for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == MAN10_DIFFICULTY ? 4 : 5); rangeDisks++)
+                            for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == LEGACY_MAN10_DIFFICULTY ? 4 : 5); rangeDisks++)
                             {
                                 Creature* casterDiskSummon = me->SummonCreature(NPC_HOVER_DISK_CASTER, RangeHoverDisksSpawnPositions[rangeDisks]);
 
@@ -875,7 +875,7 @@ public:
 
                             _arcaneReinforcements = false;
 
-                            if (GetDifficulty() == MAN25_DIFFICULTY)
+                            if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                                 events.ScheduleEvent(EVENT_DELAYED_REINFORCEMENTS, 1*IN_MILLISECONDS, 0, PHASE_TWO);
                         }
                         break;
@@ -955,7 +955,7 @@ public:
                         SetPhase(PHASE_THREE, true);
                         break;
                     case EVENT_SURGE_OF_POWER_P_THREE:
-                        if (GetDifficulty() == MAN10_DIFFICULTY)
+                        if (GetDifficulty() == LEGACY_MAN10_DIFFICULTY)
                         {
                             if (Unit* tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY))
                             {
@@ -972,7 +972,7 @@ public:
                                 }
                             }
                         }
-                        else if (GetDifficulty() == MAN25_DIFFICULTY)
+                        else if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                         {
                             memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
@@ -1004,10 +1004,10 @@ public:
             Talk(SAY_DEATH);
             if (Creature* alexstraszaGiftBoxBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_GIFT_BOX_BUNNY_GUID)))
             {
-                if (GetDifficulty() == MAN10_DIFFICULTY)
+                if (GetDifficulty() == LEGACY_MAN10_DIFFICULTY)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
                         HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
-                else if (GetDifficulty() == MAN25_DIFFICULTY)
+                else if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
                         HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
             }
@@ -1800,10 +1800,10 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
                 {
                     // Resize list only to objects that are vehicles.
                     IsCreatureVehicleCheck check(true);
-                    JadeCore::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == MAN10_DIFFICULTY ? 4 : 10));
+                    JadeCore::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == LEGACY_MAN10_DIFFICULTY ? 4 : 10));
                 }
                 else
-                    JadeCore::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == MAN10_DIFFICULTY ? 4 : 10));
+                    JadeCore::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == LEGACY_MAN10_DIFFICULTY ? 4 : 10));
             }
 
             void HandleVisual(SpellEffIndex /*effIndex*/)
@@ -1962,7 +1962,7 @@ class spell_arcane_overload : public SpellScriptLoader
             {
                 Creature* arcaneOverload = GetCaster()->ToCreature();
                 targets.remove_if(ExactDistanceCheck(arcaneOverload,
-                    GetSpellInfo()->Effects[EFFECT_0].CalcRadius(arcaneOverload) * arcaneOverload->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                    GetSpellInfo()->Effects[EFFECT_0].CalcRadius(arcaneOverload) * arcaneOverload->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()
@@ -2213,7 +2213,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
                 Creature* caster = GetCaster()->ToCreature();
                 if (InstanceScript* instance = caster->GetInstanceScript())
                     if (GameObject* platform = caster->GetMap()->GetGameObject(instance->GetData64(DATA_PLATFORM)))
-                        platform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                        platform->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2484,9 +2484,9 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (target->GetMap()->GetDifficulty() == MAN10_DIFFICULTY)
+                    if (target->GetMap()->GetDifficulty() == LEGACY_MAN10_DIFFICULTY)
                         _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                    else if (target->GetMap()->GetDifficulty() == MAN25_DIFFICULTY)
+                    else if (target->GetMap()->GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                         _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
                 }
             }
@@ -2496,13 +2496,13 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     {
-                        _alexstraszaGift->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        _alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetData64(DATA_HEART_OF_MAGIC_GUID)))
                         {
-                            heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             // TO DO: This is hack, core doesn't have support for these flags,
                             // remove line below if it ever gets supported otherwise object won't be accessible.
-                            heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                         }
                     }
             }

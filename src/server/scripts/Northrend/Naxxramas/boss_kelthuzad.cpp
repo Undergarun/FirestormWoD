@@ -371,8 +371,8 @@ public:
             DoScriptText(SAY_SUMMON_MINIONS, me);
             Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
-            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
+            me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 4);
+            me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 4);
             events.ScheduleEvent(EVENT_TRIGGER, 5000);
             events.ScheduleEvent(EVENT_WASTE, 15000);
             events.ScheduleEvent(EVENT_ABOMIN, 30000);
@@ -444,7 +444,7 @@ public:
                             events.ScheduleEvent(EVENT_DETONATE, urand(30000, 40000));
                             events.ScheduleEvent(EVENT_FISSURE, urand(10000, 30000));
                             events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
-                            if (GetDifficulty() == MAN25_DIFFICULTY)
+                            if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                                 events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
                             Phase = 2;
                             break;
@@ -483,7 +483,7 @@ public:
                     {
                         // TODO : Add missing text
                         if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
-                            pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
+                            pGuardian->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 2);
                         ++nGuardiansOfIcecrownCount;
                         uiGuardiansOfIcecrownTimer = 5000;
                     }
@@ -514,7 +514,7 @@ public:
                                 if (target && !target->isCharmed() && (chained.find(target->GetGUID()) == chained.end()))
                                 {
                                     DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
-                                    float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                                    float scale = target->GetFloatValue(OBJECT_FIELD_SCALE);
                                     chained.insert(std::make_pair(target->GetGUID(), scale));
                                     target->SetObjectScale(scale * 2);
                                     events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm

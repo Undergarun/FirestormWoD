@@ -292,8 +292,8 @@ class boss_chogall : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
                 SetEquipmentSlots(false, EQUIPMENT_ID_WEAPON, 0, 0);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 DoCorruption(CORRUPTION_CLEAR);
                 bPhase2 = false;
                 uiOrder = 0;

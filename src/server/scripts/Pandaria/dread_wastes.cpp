@@ -1810,7 +1810,7 @@ class mob_hisek_the_swarmkeeper_two : public CreatureScript
             void IsSummonedBy(Unit* owner)
             {
                 if (owner->ToCreature()->GetEntry() == MOB_SECOND_HISEK_THE_SWARMKEEPER)
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             }
 
             void MovementInform (uint32 type, uint32 id)
@@ -2190,7 +2190,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
                         player->KilledMonsterCredit(MOB_KAZ_TIK_THE_MANIPULATOR);
                         player->KilledMonsterCredit(MOB_KOVOK);
 
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     }
                         break;
                 }

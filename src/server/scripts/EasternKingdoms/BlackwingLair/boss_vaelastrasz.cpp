@@ -91,7 +91,7 @@ public:
     {
         boss_vaelAI(Creature* creature) : ScriptedAI(creature)
         {
-            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             creature->setFaction(35);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -135,7 +135,7 @@ public:
             SpeechNum = 0;
             DoingSpeech = true;
 
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
         void KilledUnit(Unit* victim)

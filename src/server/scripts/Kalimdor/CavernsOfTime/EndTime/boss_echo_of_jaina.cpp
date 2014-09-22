@@ -360,7 +360,7 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
             if (Creature* pJaina = ObjectAccessor::GetCreature(*pGo, pInstance->GetData64(DATA_ECHO_OF_JAINA)))
                 pJaina->AI()->DoAction(ACTION_FRAGMENTS);
  
-            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
             pGo->SetGoState(GO_STATE_ACTIVE);
             return true;
         }

@@ -248,7 +248,7 @@ class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
             pCreature->SummonCreature(NPC_VANESSA_SITTING, vanessaPos);
             pInstance->SetData(DATA_VANESSA_EVENT, IN_PROGRESS);
 
-            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             pCreature->DespawnOrUnsummon(1000);
             return true;
         }

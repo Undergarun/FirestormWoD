@@ -215,7 +215,7 @@ public:
                                          {
                                             ObjectGuid guid = i->getSource()->GetGUID();
 
-                                            WorldPacket packet(SMSG_MESSAGE_CHAT, 200);
+                                            WorldPacket packet(SMSG_CHAT, 200);
                                             unit->BuildMonsterChat(&packet, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, guid);
                                             i->getSource()->GetSession()->SendPacket(&packet);
 

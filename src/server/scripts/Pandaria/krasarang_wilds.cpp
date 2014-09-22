@@ -304,7 +304,7 @@ class mob_go_kan : public CreatureScript
 
             void Reset()
             {
-                me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT);
+                me->SetStandState(UNIT_STAND_STATE_SIT);
                 events.Reset();
                 events.ScheduleEvent(EVENT_BELLOWING_RAGE,       8000);
                 events.ScheduleEvent(EVENT_RUSHING_CHARGE,      17000);
@@ -313,7 +313,7 @@ class mob_go_kan : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_SIT);
+                me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_SIT);
             }
 
             void UpdateAI(const uint32 diff)

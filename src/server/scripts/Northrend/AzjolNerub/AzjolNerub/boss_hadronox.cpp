@@ -107,8 +107,8 @@ class boss_hadronox : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 9.0f);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 9.0f);
 				me->GetMotionMaster()->Clear();
 				me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
 

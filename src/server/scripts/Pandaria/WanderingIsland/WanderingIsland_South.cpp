@@ -341,14 +341,14 @@ public:
         {
             checkSavedTimer = 2500;
             HasBeenSaved = false;
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void OnSpellClick(Unit* Clicker)
         {
             me->RemoveAurasDueToSpell(130966); // Feign Death
             me->EnterVehicle(Clicker);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             HasBeenSaved = true;
         }
 

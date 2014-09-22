@@ -671,7 +671,7 @@ public:
                 instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
                 if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                    pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
 
@@ -856,7 +856,7 @@ public:
                 instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
                 if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                    pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
 
@@ -1103,7 +1103,7 @@ public:
                 instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
                 instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
                 if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                    pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
 
@@ -1259,7 +1259,7 @@ public:
                 instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
                 if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                    pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                    pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
 

@@ -179,16 +179,16 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 _Reset();
 
                 SetEquipmentSlots(false, EQUIPMENT_ONE, 0, 0);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                 bRoar = false;
                 bWhelps = false;
                 events.Reset();
                 summons.DespawnAll();
                 if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_WHELP_CAGE)))
                 {
-                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
+                    pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
                     pGo->SetGoState(GO_STATE_READY);
                 }
                 for (uint8 i = 0; i < 8; i++)
@@ -322,7 +322,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
 
                 if (bWhelps)
                     if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_WHELP_CAGE)))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
                 if (me->HasAura(SPELL_SHADOW_WARPED))
                     events.ScheduleEvent(EVENT_SHADOW_NOVA, 7000);
@@ -606,7 +606,7 @@ class go_whelp_cage : public GameObjectScript
             if (Creature* halfus = ObjectAccessor::GetCreature(*pGo, pInstance->GetData64(DATA_HALFUS)))
             {
                 halfus->AI()->DoAction(ACTION_WHELPS_RELEASE);
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
             }
             return false;
         }
@@ -700,7 +700,7 @@ class npc_halfus_dragon : public CreatureScript
                 me->setFaction(35);
                 me->SetCanFly(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
             void DoAction(const int32 action)
@@ -709,7 +709,7 @@ class npc_halfus_dragon : public CreatureScript
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 

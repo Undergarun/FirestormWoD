@@ -123,20 +123,20 @@ public:
                     if (spheres[0] == IN_PROGRESS)
                     {
                         go->SetGoState(GO_STATE_ACTIVE);
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     else
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case 193094:
                     Prince_TaldaramSpheres[1] = go->GetGUID();
                     if (spheres[1] == IN_PROGRESS)
                     {
                         go->SetGoState(GO_STATE_ACTIVE);
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     else
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case 192236:
                     Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram

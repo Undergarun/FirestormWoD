@@ -111,8 +111,8 @@ class boss_anub_arak : public CreatureScript
                 _summons.DespawnAll();
                 _events.Reset();
 
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5.0f);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5.0f);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5.0f);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5.0f);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAura(SPELL_SUBMERGE);
 

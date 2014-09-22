@@ -604,11 +604,11 @@ public:
         {
             if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
             {
-                if (!me->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
+                if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID))
                     SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 else
                     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                me->SetSheath(SHEATH_STATE_MELEE);
             }
         }
 
@@ -899,7 +899,7 @@ public:
             case 10: // attack
                 DoResetThreat();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                me->SetSheath(SHEATH_STATE_MELEE);
                 EnterPhase(PHASE_NORMAL_2);
                 break;
             default:
@@ -923,7 +923,7 @@ public:
             {
                 // Requip warglaives if needed
                 SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                me->SetSheath(SHEATH_STATE_MELEE);
             }
             else
             {
@@ -1187,7 +1187,7 @@ public:
             Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
             Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
             SetEquipmentSlots(false, 44850, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, 45738);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -1460,8 +1460,8 @@ public:
 
             KillAllElites();
 
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 0); // Database sometimes has strange values..
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0); // Database sometimes has strange values..
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->setActive(false);
             me->SetVisible(false);
         }
@@ -1527,7 +1527,7 @@ public:
         void BeginChannel()
         {
             me->setActive(true);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             if (!JustCreated)
                 return;
             float x, y, z;
@@ -1948,7 +1948,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     case 8:
         // Equip our warglaives!
         SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-        me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+        me->SetSheath(SHEATH_STATE_MELEE);
         me->SetWalk(false);
         break;
     case 9:
@@ -2010,7 +2010,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         {
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true);
             Maiev->setDeathState(JUST_DIED);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
         break;
     case 21: // Kill ourself.

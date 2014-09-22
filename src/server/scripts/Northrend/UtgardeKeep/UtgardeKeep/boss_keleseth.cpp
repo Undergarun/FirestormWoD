@@ -277,7 +277,7 @@ public:
                 {
                     // from sniffs
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->SetFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                    me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                     events.Reset();
                     events.ScheduleEvent(EVENT_RESURRECT, urand(18,22)*IN_MILLISECONDS);
@@ -323,7 +323,7 @@ public:
                             }
                         }
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->RemoveFlag(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                        me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
                         me->GetMotionMaster()->MoveChase(me->getVictim());
                         events.ScheduleEvent(EVENT_DECREPIFY, urand(4,6)*IN_MILLISECONDS);
                         break;

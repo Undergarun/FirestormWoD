@@ -758,7 +758,7 @@ class mob_pandriarch_windfur : public CreatureScript
                     creature->SetReactState(REACT_DEFENSIVE);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     creature->AI()->Reset();
                     creature->CombatStart(player, true);
                 }
@@ -804,7 +804,7 @@ class mob_pandriarch_windfur : public CreatureScript
                         me->SetFullHealth();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         player->KilledMonsterCredit(NPC_PANDRIARCH_WINDFUR);
                     }
 
@@ -894,7 +894,7 @@ class mob_pandriarch_bramblestaff : public CreatureScript
                     creature->SetReactState(REACT_DEFENSIVE);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     creature->AI()->Reset();
                     creature->CombatStart(player, true);
                 }
@@ -942,7 +942,7 @@ class mob_pandriarch_bramblestaff : public CreatureScript
                         me->SetFullHealth();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         player->KilledMonsterCredit(NPC_PANDRIARCH_BRAMBLESTAFF);
                     }
                 }
@@ -1039,7 +1039,7 @@ class mob_pandriarch_goldendraft : public CreatureScript
                     creature->SetReactState(REACT_DEFENSIVE);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     creature->AI()->Reset();
                     creature->CombatStart(player, true);
                 }
@@ -1084,7 +1084,7 @@ class mob_pandriarch_goldendraft : public CreatureScript
                         me->SetFullHealth();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         player->KilledMonsterCredit(NPC_PANDRIARCH_GOLDENDRAFT);
                     }
                 }
@@ -1166,7 +1166,7 @@ class mob_big_bao : public CreatureScript
                 {
                     creature->setFaction(14);
                     creature->SetReactState(REACT_DEFENSIVE);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     creature->AI()->Reset();
                     creature->CombatStart(player, true);
                 }
@@ -1224,7 +1224,7 @@ class mob_big_bao : public CreatureScript
                         me->GetMotionMaster()->MovePoint(0, 1604.75f, -2562.139893f, 153.134003f);
                         me->setFaction(35);
                         me->SetFullHealth();
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         player->KilledMonsterCredit(MOB_BIG_BAO);
                     }
                 }

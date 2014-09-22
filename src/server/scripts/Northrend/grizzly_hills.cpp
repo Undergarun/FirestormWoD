@@ -418,7 +418,7 @@ public:
             // call this each update tick?
             if (me->FindNearestCreature(TALLHORN_STAG, 0.2f))
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_USE_STANDING);
             }
             else
                 if (m_uiPhase)
@@ -428,12 +428,12 @@ public:
                         switch (m_uiPhase)
                         {
                             case 1:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
+                                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_LOOT);
                                 m_uiTimer = 3000;
                                 m_uiPhase = 2;
                                 break;
                             case 2:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK1H);
+                                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_ATTACK1H);
                                 m_uiTimer = 4000;
                                 m_uiPhase = 1;
                                 break;

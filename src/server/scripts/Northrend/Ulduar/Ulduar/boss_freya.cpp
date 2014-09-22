@@ -756,7 +756,7 @@ class boss_freya : public CreatureScript
                         // DO NOT BREAK!!!
                     case NPC_DETONATING_LASHER:
                         summoned->SetReactState(REACT_PASSIVE);
-                        summoned->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
+                        summoned->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SUBMERGED);
                         summoned->m_Events.AddEvent(new StartMovementEvent(me, summoned), summoned->m_Events.CalculateTime(5000));
                         return;
                     case NPC_ANCIENT_CONSERVATOR:
@@ -1314,7 +1314,7 @@ class npc_detonating_lasher : public CreatureScript
                 switch (action)
                 {
                     case ACTION_BEGIN_ATTACK:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* target = me->SelectNearestPlayer(100.0f))
                             me->AI()->AttackStart(target);
@@ -1407,7 +1407,7 @@ class npc_ancient_water_spirit : public CreatureScript
                 switch (action)
                 {
                     case ACTION_BEGIN_ATTACK:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* target = me->SelectNearestPlayer(100.0f))
                             me->AI()->AttackStart(target);
@@ -1490,7 +1490,7 @@ class npc_storm_lasher : public CreatureScript
                 switch (action)
                 {
                     case ACTION_BEGIN_ATTACK:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* target = me->SelectNearestPlayer(100.0f))
                             me->AI()->AttackStart(target);
@@ -1579,7 +1579,7 @@ class npc_snaplasher : public CreatureScript
                 switch (action)
                 {
                     case ACTION_BEGIN_ATTACK:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* target = me->SelectNearestPlayer(100.0f))
                             me->AI()->AttackStart(target);
@@ -1870,7 +1870,7 @@ class npc_nature_bomb : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 if (GameObject* go = me->FindNearestGameObject(GO_NATURE_BOMB, 5.0f))
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (_bombTimer <= diff)
                 {

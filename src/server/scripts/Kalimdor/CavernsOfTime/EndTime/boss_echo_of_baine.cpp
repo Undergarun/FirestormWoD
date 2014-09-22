@@ -80,8 +80,8 @@ class boss_echo_of_baine : public CreatureScript
             void Reset()
             {
                 _Reset();
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5.0f);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5.0f);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5.0f);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5.0f);
             }
 
             void EnterCombat(Unit* /*who*/)

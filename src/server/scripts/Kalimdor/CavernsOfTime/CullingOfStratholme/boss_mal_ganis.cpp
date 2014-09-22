@@ -243,7 +243,7 @@ public:
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_CREDIT);
 
                 if (GameObject* go = me->SummonGameObject(IsHeroic() ? GO_MALGANIS_CHEST_H : GO_MALGANIS_CHEST_N, 2288.35f, 1498.73f, 128.414f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, DAY))
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
             }
         }
 

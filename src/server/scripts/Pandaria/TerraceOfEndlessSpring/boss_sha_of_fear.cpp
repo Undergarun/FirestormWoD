@@ -209,7 +209,7 @@ class boss_sha_of_fear : public CreatureScript
             void Reset()
             {
                 if (pInstance && pInstance->GetBossState(DATA_PROTECTORS) != DONE)
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 35);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 35);
 
                 if (pInstance && pInstance->GetBossState(DATA_LEI_SHI) != DONE)
                 {
@@ -222,10 +222,10 @@ class boss_sha_of_fear : public CreatureScript
 
                 me->ReenableEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 me->CastSpell(me, SPELL_ENERGY_TO_ZERO, true);
  
                 summons.DespawnAll();
@@ -549,7 +549,7 @@ class boss_sha_of_fear : public CreatureScript
                                 me->CastSpell(pureLight, SPELL_BREATH_OF_FEAR, false);
                             Talk(TALK_BREATH_OF_FEAR);
                             me->SetPower(POWER_ENERGY, 0);
-                            me->SetInt32Value(UNIT_FIELD_POWER1, 0);
+                            me->SetInt32Value(UNIT_FIELD_POWER, 0);
                         }
 
                         events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
@@ -664,7 +664,7 @@ class mob_pure_light_terrace : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_LIGHT_WALL, true);
                 me->CastSpell(me, SPELL_LIGHT_WALL_READY, true);
             }
@@ -778,7 +778,7 @@ class mob_return_to_the_terrace : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHECK_GUARDIAN, 1000);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->RemoveFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
                 me->RemoveAura(SPELL_PURE_LIGHT_VISUAL);
             }
@@ -834,14 +834,14 @@ class mob_return_to_the_terrace : public CreatureScript
                         {
                             events.ScheduleEvent(EVENT_CHECK_GUARDIAN, 1000);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
                             me->CastSpell(me, SPELL_PURE_LIGHT_VISUAL, true);
                             me->DespawnOrUnsummon(10000);
                         }
                         else
                         {
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             me->RemoveFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->RemoveAura(SPELL_PURE_LIGHT_VISUAL);
@@ -885,7 +885,7 @@ class mob_terror_spawn : public CreatureScript
                         me->SetFacingToObject(pureLight);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
 
                 me->CastSpell(me, SPELL_DARK_BULWARK, true);
 
@@ -954,8 +954,8 @@ class mob_shrine_guardian : public CreatureScript
                 events.ScheduleEvent(EVENT_DEATH_BLOSSOM, 10000);
                 events.ScheduleEvent(EVENT_DREAD_SPRAY, 20000);
 
-                me->SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, me->GetFloatValue(UNIT_FIELD_MINDAMAGE));
-                me->SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, me->GetFloatValue(UNIT_FIELD_MAXDAMAGE));
+                me->SetFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, me->GetFloatValue(UNIT_FIELD_MIN_DAMAGE));
+                me->SetFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, me->GetFloatValue(UNIT_FIELD_MAX_DAMAGE));
 
                 nextGlobePct = 95;
 

@@ -511,7 +511,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_KOLOGARN_DOOR:
                         KologarnDoorGUID = gameObject->GetGUID();
                         HandleGameObject(0, GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE, gameObject);
-                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        gameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
 
                     // Thorim
@@ -551,7 +551,7 @@ class instance_ulduar : public InstanceMapScript
                             gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                         break;
                     case GO_XT_002_DOOR:
-                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        gameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         AddDoor(gameObject, true);
                         break;
                     case GO_VEZAX_DOOR:
@@ -577,7 +577,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_RAZOR_BROKEN_HARPOON:
                     case GO_MOLE_MACHINE:
-                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        gameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_HODIR_DOOR:
                         HodirDoorGUID = gameObject->GetGUID();
@@ -601,7 +601,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_IRON_COUNCIL_ENTRANCE:
                         IronCouncilEntranceGUID = gameObject->GetGUID();
-                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        gameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_ARCHIVUM_DOOR:
                         ArchivumDoorGUID = gameObject->GetGUID();
@@ -613,7 +613,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_CELESTIAL_PLANETARIUM_ACCESS_10:
                     case GO_CELESTIAL_PLANETARIUM_ACCESS_25:
                         if (_algalonSummoned)
-                            gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                            gameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
                         break;
                     case GO_DOODAD_UL_SIGILDOOR_01:
                         AlgalonSigilDoorGUID[0] = gameObject->GetGUID();
@@ -745,7 +745,7 @@ class instance_ulduar : public InstanceMapScript
                             HandleGameObject(WayToYoggGUID, state == DONE);
                         if (state == DONE)
                             if (GameObject* train = instance->GetGameObject(MimironTrainGUID))
-                                train->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                train->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case BOSS_MIMIRON:
                         for (std::list<uint64>::iterator i = MimironDoorGUIDList.begin(); i != MimironDoorGUIDList.end(); ++i)
@@ -774,7 +774,7 @@ class instance_ulduar : public InstanceMapScript
                             if (GameObject* gameObject = instance->GetGameObject(KologarnChestGUID))
                             {
                                 gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
-                                gameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                gameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             }
                             HandleGameObject(KologarnBridgeGUID, false);
                             HandleGameObject(TeleporterShatteredGUID, true);
@@ -789,14 +789,14 @@ class instance_ulduar : public InstanceMapScript
                                 {
                                     if (Creature* hodir = instance->GetCreature(HodirGUID))
                                         HodirRareCache->SetLootRecipient(hodir->GetLootRecipient());
-                                    HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                                    HodirRareCache->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                                 }
 
                             if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
                             {
                                 if (Creature* hodir = instance->GetCreature(HodirGUID))
                                     HodirChest->SetLootRecipient(hodir->GetLootRecipient());
-                                HodirChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                                HodirChest->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                             }
 
                             HandleGameObject(HodirDoorGUID, true);

@@ -586,7 +586,7 @@ public:
                 case 3:
                     if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                         me->SetFacingToObject(wugou);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READYUNARMED);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READYUNARMED);
                     eventTimer = 2000;
                     ++eventProgress;
                     break;
@@ -618,7 +618,7 @@ public:
                         case 3:
                             if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                                 wugou->CastSpell(wugou, 118027, false);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
                             eventTimer = 3000;
                             ++eventProgress;
                             break;

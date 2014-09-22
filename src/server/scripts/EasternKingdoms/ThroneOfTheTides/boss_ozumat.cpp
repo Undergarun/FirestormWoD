@@ -136,7 +136,7 @@ class npc_neptulon : public CreatureScript
 
                 pPlayer->PlayerTalkClass->ClearMenus();
                 pPlayer->CLOSE_GOSSIP_MENU();
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 pInstance->SetBossState(DATA_OZUMAT, IN_PROGRESS);
                 pCreature->AI()->DoAction(ACTION_NEPTULON_START);
             }
@@ -167,7 +167,7 @@ class npc_neptulon : public CreatureScript
                 b25 = false;
                 uiMindLasherCount = 0;
                 uiSapperCount = 0;
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
                 summons.DespawnAll();
                 me->SetHealth(me->GetMaxHealth());

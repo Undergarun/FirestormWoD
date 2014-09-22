@@ -244,7 +244,7 @@ public:
                         for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                         {
                             //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(
-                            pGrp->SetTargetIcon(ico, 0, 0);
+                            pGrp->SetTargetIcon(ico, 0, 0, pGrp->GetPartyIndex());
                         }
 
                     break;

@@ -106,7 +106,7 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
                     if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                         Cage->SetGoState(GO_STATE_ACTIVE);
                     DoScriptText(SAY_START, me, player);

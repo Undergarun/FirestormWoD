@@ -577,7 +577,7 @@ class spell_venoxis_pool_of_acid_tears_dmg : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 2.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 2.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()

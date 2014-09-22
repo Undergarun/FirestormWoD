@@ -130,7 +130,7 @@ public:
           questPhase = 0;
           summonerGuid = 0;
 
-          me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
+          me->SetStandState(UNIT_STAND_STATE_KNEEL);
           me->setFaction(FACTION_FRIENDLY);
 
           spellFlashLight = false;
@@ -171,7 +171,7 @@ public:
             {
                 if (timer <= diff)
                 {
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     me->setFaction(FACTION_HOSTILE);
                     questPhase = 0;
 

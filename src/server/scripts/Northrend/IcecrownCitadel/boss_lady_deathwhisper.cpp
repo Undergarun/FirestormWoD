@@ -286,7 +286,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, 7000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_P1_SHADOW_BOLT, urand(5500, 6000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_P1_EMPOWER_CULTIST, urand(20000, 30000), 0, PHASE_ONE);
-                if (GetDifficulty() != MAN10_DIFFICULTY)
+                if (GetDifficulty() != LEGACY_MAN10_DIFFICULTY)
                     events.ScheduleEvent(EVENT_DOMINATE_MIND_H, 30000);
 
                 Talk(SAY_AGGRO);

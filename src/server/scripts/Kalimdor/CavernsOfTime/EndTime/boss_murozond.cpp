@@ -207,7 +207,7 @@ class boss_murozond : public CreatureScript
                     instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_KILL_MUROZOND, me); 
                 
                     if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_HOURGLASS)))
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
                     instance->DoKilledMonsterKredit(QUEST_MUROZOND, 54432, 0);
                 }

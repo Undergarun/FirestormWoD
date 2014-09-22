@@ -216,12 +216,12 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                 case 0:
                     player->CLOSE_GOSSIP_MENU();
                     _events.ScheduleEvent(EVENT_START_INTRO, 1000);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
                     break;
                 case 1:
                     player->CLOSE_GOSSIP_MENU();
                     _events.ScheduleEvent(EVENT_SKIP_INTRO, 1000);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
                     break;
             }
         }
@@ -233,7 +233,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
             _utherGUID = 0;
             _lichkingGUID = 0;
 
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             _events.ScheduleEvent(EVENT_WALK_INTRO1, 3000);
         }
@@ -257,7 +257,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     }
                     break;
                 case EVENT_WALK_INTRO2:
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
                     break;
                 case EVENT_START_INTRO:
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
@@ -444,7 +444,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     {
                         lichking->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                         lichking->GetMotionMaster()->MovePoint(0, LichKingMoveThronePos);
-                        lichking->SetFlag(UNIT_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                        lichking->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
                         lichking->SetReactState(REACT_PASSIVE);
                         _lichkingGUID = lichking->GetGUID();
                         _events.ScheduleEvent(EVENT_OPEN_FROSTWORN_DOOR, 0);
@@ -452,7 +452,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     }
                     if (Creature* uther = me->GetCreature(*me, _utherGUID))
                     {
-                        uther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+                        uther->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_COWER);
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             uther->AI()->Talk(SAY_UTHER_INTRO_A2_9);
                         else
@@ -495,13 +495,13 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     // summon Falric and Marwyn. then go back to the door
                     if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FALRIC_EVENT)))
                     {
-                        falric->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        falric->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
                         falric->SetVisible(true);
                     }
                     if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MARWYN_EVENT)))
                     {
-                        marwyn->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        marwyn->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
                         marwyn->SetVisible(true);
                     }
@@ -535,11 +535,11 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                 case EVENT_INTRO_LK_9:
                     if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FALRIC_EVENT)))
                     {
-                        falric->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                        falric->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
                         falric->AI()->Talk(SAY_FALRIC_INTRO_2);
                     }
                     if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MARWYN_EVENT)))
-                        marwyn->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                        marwyn->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
                     _instance->ProcessEvent(0, EVENT_SPAWN_WAVES); 
                     _events.ScheduleEvent(EVENT_INTRO_LK_10, 4000);
                     break;
@@ -1414,7 +1414,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                 {
                     player->CLOSE_GOSSIP_MENU();
                     ((npc_jaina_and_sylvana_hor_part2AI*)creature->AI())->Start(false, true);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER|UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER|UNIT_NPC_FLAG_GOSSIP);
                     creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                     creature->setActive(true);
 
@@ -1483,13 +1483,13 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                 Step = 0;
                 StepTimer = 500;
                 Fight = true;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER|UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER|UNIT_NPC_FLAG_GOSSIP);
                 wallTargetGUID = 0;
 
                 if (me->GetEntry() == NPC_JAINA_PART2)
                 {
                     me->CastSpell(me, SPELL_JAINA_ICEBARRIER, false);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2HL);
                 }
                 else
                     me->CastSpell(me, SPELL_SYLVANAS_CLOAKOFDARKNESS, false);
@@ -1658,9 +1658,9 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                         }
                         SetEscortPaused(true);
                         if (me->GetEntry() == NPC_JAINA_PART2)
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2HL);
                         else
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
                         break;
                 }
             }
@@ -1787,7 +1787,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                             if (!lichking->HasAura(SPELL_JAINA_ICEPRISON) && !lichking->HasAura(SPELL_SYLVANAS_DARKBINDING))
                                 lichking->AddAura(me->GetEntry() == NPC_JAINA_PART2 ? SPELL_JAINA_ICEPRISON : SPELL_SYLVANAS_DARKBINDING, lichking);
 
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                         me->AttackStop();
 
                         if (me->GetEntry() == NPC_JAINA_PART2)
@@ -1824,7 +1824,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                             }
                         }
                         me->RemoveAllAuras();
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         Count = 1;
                         JumpNextStep(100);
                         break;
@@ -1849,7 +1849,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                         {
                             if (Creature* caveTarget = me->SummonCreature(NPC_ICE_WALL, cave->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 10.0f, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 720000))
                             {
-                                caveTarget->SetFloatValue(OBJECT_FIELD_SCALE_X, 4);
+                                caveTarget->SetFloatValue(OBJECT_FIELD_SCALE, 4);
 
                                 for (uint8 i = 0; i < 4; ++i)
                                 {
@@ -1893,7 +1893,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                         JumpNextStep(10000);
                         break;
                     case 13:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                         _instance->SetData(DATA_LICHKING_EVENT, DONE);
                         Talk(me->GetEntry() == NPC_JAINA_PART2 ? SAY_JAINA_FINAL_1 : SAY_SYLVANA_FINAL_1);
                         //me->SummonGameObject(me->GetEntry() == NPC_JAINA_PART2 ? GO_STAIRS_SKYBREAKER : GO_STAIRS_ORGRIM_HAMMER, 5247.45f, 1627.72f, 784.302f, 5.88208f, 0, 0, 0.199211f, -0.979957f, 1*DAY);
@@ -1907,7 +1907,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                         break;
                     case 16:
                         me->SetOrientation(0.68f);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         JumpNextStep(5000);
                         break;
                 }

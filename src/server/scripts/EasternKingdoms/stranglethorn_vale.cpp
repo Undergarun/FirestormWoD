@@ -58,7 +58,7 @@ public:
         void Reset()
         {
             Reset_Timer = 0;
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -68,7 +68,7 @@ public:
                                                                 //Yenniku's Release
                 if (!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
                 {
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STUN);
                     me->CombatStop();                   //stop combat
                     me->DeleteThreatList();             //unsure of this
                     me->setFaction(83);                 //horde generic

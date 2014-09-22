@@ -389,7 +389,7 @@ class mob_garajal_ghost : public CreatureScript
                 me->AddAura(SPELL_GHOST_VISUAL, me);
                 me->AddAura(SPELL_STRONG_MOJO, me);
                 me->AddAura(SPELL_SPIRIT_HOVER, me);
-                ghostScale = me->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                ghostScale = me->GetFloatValue(OBJECT_FIELD_SCALE);
                 me->SetObjectScale(ghostScale / 10.0f);
 
                 events.ScheduleEvent(EVENT_GROWTH,          200);
@@ -420,9 +420,9 @@ class mob_garajal_ghost : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GROWTH:
-                            if (me->GetFloatValue(OBJECT_FIELD_SCALE_X) < ghostScale)
+                            if (me->GetFloatValue(OBJECT_FIELD_SCALE) < ghostScale)
                             {
-                                me->SetObjectScale(me->GetFloatValue(OBJECT_FIELD_SCALE_X) + (ghostScale / 10.0f));
+                                me->SetObjectScale(me->GetFloatValue(OBJECT_FIELD_SCALE) + (ghostScale / 10.0f));
                                 events.ScheduleEvent(EVENT_GROWTH, 200);
                             }
                             break;

@@ -233,7 +233,7 @@ public:
         npc_engineer_spark_overgrindAI(Creature* creature) : ScriptedAI(creature)
         {
             NormFaction = creature->getFaction();
-            NpcFlags = creature->GetUInt32Value(UNIT_NPC_FLAGS);
+            NpcFlags = creature->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
 
             if (creature->GetAreaId() == AREA_COVE || creature->GetAreaId() == AREA_ISLE)
                 IsTreeEvent = true;
@@ -253,7 +253,7 @@ public:
             EmoteTimer = urand(120000, 150000);
 
             me->setFaction(NormFaction);
-            me->SetUInt32Value(UNIT_NPC_FLAGS, NpcFlags);
+            me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, NpcFlags);
 
             IsTreeEvent = false;
         }

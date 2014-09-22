@@ -254,7 +254,7 @@ class boss_razorscale_controller : public CreatureScript
                 {
                     case ACTION_HARPOON_BUILD:
                         events.ScheduleEvent(EVENT_BUILD_HARPOON_1, 50000);
-                        if (me->GetMap()->GetSpawnMode() == MAN25_DIFFICULTY)
+                        if (me->GetMap()->GetSpawnMode() == LEGACY_MAN25_DIFFICULTY)
                             events.ScheduleEvent(EVENT_BUILD_HARPOON_3, 90000);
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
@@ -360,12 +360,12 @@ class go_razorscale_harpoon : public GameObjectScript
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+            if (go->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
                 return true;
 
             InstanceScript* instance = go->GetInstanceScript();
             if (ObjectAccessor::GetCreature(*go, instance->GetData64(BOSS_RAZORSCALE)))
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
             return false;
         }
 };
@@ -724,7 +724,7 @@ class npc_expedition_commander : public CreatureScript
                         break;
                     case ACTION_COMMANDER_RESET:
                         summons.DespawnAll();
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case ACTION_FIRE_OUT:
                         Engineer[0]->AI()->Talk(SAY_TURRETS);
@@ -769,9 +769,9 @@ class npc_expedition_commander : public CreatureScript
                             break;
                         case 4:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                                Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                                Engineer[n]->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_USE_STANDING);
                             for (uint8 n = 0; n < 4; ++n)
-                                Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                Defender[n]->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
                             AttackStartTimer = 16000;
                             Phase = 5;
                             break;

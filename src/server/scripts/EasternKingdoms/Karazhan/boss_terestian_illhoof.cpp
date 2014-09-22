@@ -333,7 +333,7 @@ public:
                 PortalGUID[PortalsCount] = summoned->GetGUID();
                 ++PortalsCount;
 
-                if (summoned->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_FIENDISH_PORTAL_1)
+                if (summoned->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) == SPELL_FIENDISH_PORTAL_1)
                 {
                     DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
                     SummonedPortals = true;

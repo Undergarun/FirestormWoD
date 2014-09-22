@@ -1446,7 +1446,7 @@ and teleporting and unmounting them after defeating the mounted waves.
                 if (creature->AI()->GetData(EVENT_INTRO) != IN_PROGRESS)
                 {
                     creature->AI()->SetData(EVENT_INTRO, IN_PROGRESS);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     player->CLOSE_GOSSIP_MENU();
                 }
                 break;
@@ -1454,7 +1454,7 @@ and teleporting and unmounting them after defeating the mounted waves.
                 if (creature->AI()->GetData(EVENT_INTRO_ARGENT) != IN_PROGRESS)
                 {
                     creature->AI()->SetData(EVENT_INTRO_ARGENT, IN_PROGRESS);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     player->CLOSE_GOSSIP_MENU();
                 }
                 break;
@@ -1462,7 +1462,7 @@ and teleporting and unmounting them after defeating the mounted waves.
                 if (creature->AI()->GetData(EVENT_BLACK_KNIGHT_INTRO) != IN_PROGRESS)
                 {
                     creature->AI()->SetData(EVENT_BLACK_KNIGHT_INTRO, IN_PROGRESS);
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     player->CLOSE_GOSSIP_MENU();
                 }
                 break;

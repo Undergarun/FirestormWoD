@@ -191,8 +191,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         player->RewardPlayerAndGroupAtEvent(NPC_INFILTRATOR_MINCHAR_BQ, player);
                     if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
                     {
-                        minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                        minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                        minchar->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                        minchar->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                         minchar->SetCanFly(false);
 
                         minchar->RemoveAllAuras();
@@ -224,7 +224,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 else
                 {
                     me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                    me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                     me->SetCanFly(true);
                     me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
                 }
@@ -238,7 +238,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 {
                     _killMinchar = false;
                     me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                    me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                     me->SetCanFly(true);
                     me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
                 }
@@ -252,7 +252,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void JustReachedHome()
             {
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                 me->SetCanFly(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _JustReachedHome();
@@ -303,7 +303,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         break;
                     case POINT_GROUND:
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                        me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                         me->SetCanFly(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
@@ -380,7 +380,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
-                            if (_offtank && !me->HasByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03))
+                            if (_offtank && !me->HasByteFlag(UNIT_FIELD_ANIM_TIER, 3, 0x03))
                                 DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
                             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
                             break;
@@ -433,7 +433,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             break;
                         case EVENT_AIR_START_FLYING:
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                            me->SetStandState(UNIT_BYTE1_FLAG_ALWAYS_STAND);
                             me->SetCanFly(true);
                             me->GetMotionMaster()->MoveTakeoff(POINT_AIR, airPos);
                             break;
@@ -826,7 +826,7 @@ class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == MAN10_DIFFICULTY)
+                if (lanaThelAI->GetDifficulty() == LEGACY_MAN10_DIFFICULTY)
                     return !lanaThelAI->WasVampire(source->GetGUID());
 
             return false;
@@ -844,7 +844,7 @@ class achievement_once_bitten_twice_shy_v : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == MAN10_DIFFICULTY)
+                if (lanaThelAI->GetDifficulty() == LEGACY_MAN10_DIFFICULTY)
                     return lanaThelAI->WasVampire(source->GetGUID());
 
             return false;
@@ -862,7 +862,7 @@ class achievement_once_bitten_twice_shy_n25 : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == MAN25_DIFFICULTY)
+                if (lanaThelAI->GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                     return !lanaThelAI->WasVampire(source->GetGUID());
 
             return false;
@@ -880,7 +880,7 @@ class achievement_once_bitten_twice_shy_v25 : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == MAN25_DIFFICULTY)
+                if (lanaThelAI->GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                     return lanaThelAI->WasVampire(source->GetGUID());
 
              return false;

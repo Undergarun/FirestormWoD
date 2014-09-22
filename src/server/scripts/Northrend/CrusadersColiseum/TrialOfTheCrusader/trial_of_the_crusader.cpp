@@ -212,7 +212,7 @@ class npc_announcer_toc10 : public CreatureScript
                 if (creature->IsVisible())
                     creature->SetVisible(false);
             }
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             return true;
         }
 
@@ -287,12 +287,12 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                         case 5030:
                             Talk(SAY_STAGE_4_04);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
                             _updateTimer = 10*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 5040);
                             break;
                         case 5040:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
                             me->GetMotionMaster()->MovePoint(1, LichKingLoc[1]);
                             _updateTimer = 1*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 0);
@@ -317,7 +317,7 @@ class boss_lich_king_toc : public CreatureScript
                             if (GameObject* go = _instance->instance->GetGameObject(_instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
                                 go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
-                                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+                                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
                                 go->SetGoState(GO_STATE_ACTIVE);
                                 go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                             }
@@ -561,19 +561,19 @@ class npc_tirion_toc : public CreatureScript
                     switch (_instance->GetData(TYPE_EVENT))
                     {
                         case 110:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
                             Talk(SAY_STAGE_0_01);
                             _updateTimer = 22*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 120);
                             break;
                         case 140:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
                             Talk(SAY_STAGE_0_02);
                             _updateTimer = 5*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 150);
                             break;
                         case 150:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
                             if (_instance->GetBossState(BOSS_BEASTS) != DONE)
                             {
                                 _instance->DoUseDoorOrButton(_instance->GetData64(GO_MAIN_GATE_DOOR));
@@ -849,13 +849,13 @@ class npc_garrosh_toc : public CreatureScript
                     switch (_instance->GetData(TYPE_EVENT))
                     {
                         case 130:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
                             Talk(SAY_STAGE_0_03h);
                             _updateTimer = 10*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 132);
                             break;
                         case 132:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
                             _updateTimer = 5*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 140);
                             break;
@@ -933,13 +933,13 @@ class npc_varian_toc : public CreatureScript
                     switch (_instance->GetData(TYPE_EVENT))
                     {
                         case 120:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
                             Talk(SAY_STAGE_0_03a);
                             _updateTimer = 2*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 122);
                             break;
                         case 122:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
                             _updateTimer = 3*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 130);
                             break;

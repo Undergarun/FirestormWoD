@@ -141,7 +141,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 phase = 0;
                 eventphase = 0;
                 curPool = NULL;
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
                 me->AddAura(SPELL_IN_SHADOW, me);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -163,7 +163,7 @@ class boss_echo_of_tyrande : public CreatureScript
 
                 if (instance->GetData(DATA_TYRANDE_EVENT) == DONE)
                 {
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveAura(SPELL_IN_SHADOW);
                     if (Creature* pStalker = me->SummonCreature(NPC_STALKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f))
@@ -381,7 +381,7 @@ class boss_echo_of_tyrande : public CreatureScript
                             Talk(SAY_LIGHT_6);
                             DoCastAOE(SPELL_ACHIEVEMENT);
                             events.CancelEvent(EVENT_CHECK_PLAYERS);
-                            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                            me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                             me->RemoveAura(SPELL_IN_SHADOW);
                             if (Creature* pStalker = me->SummonCreature(NPC_STALKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f))

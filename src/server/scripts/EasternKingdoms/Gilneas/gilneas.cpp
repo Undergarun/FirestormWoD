@@ -2888,7 +2888,7 @@ public:
             {
                 if (!Move)
                 {
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE , EMOTE_ONESHOT_NONE); // Change our emote state to allow flight
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE , EMOTE_ONESHOT_NONE); // Change our emote state to allow flight
                     me->SetDisableGravity(true);
                     Move = true;
                 }

@@ -542,7 +542,7 @@ class mob_zerekethvoidzone : public CreatureScript
 
             void Reset()
             {
-                me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
                 me->setFaction(16);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 

@@ -107,7 +107,7 @@ public:
                 events.ScheduleEvent(EVENT_BALCONY, 110000);
                 events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
                 events.ScheduleEvent(EVENT_WARRIOR, 30000);
-                if (GetDifficulty() == MAN25_DIFFICULTY)
+                if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
                     events.ScheduleEvent(EVENT_BLINK, urand(20000, 40000));
             }
         }

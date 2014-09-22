@@ -1966,7 +1966,7 @@ class spell_halion_mark_damage_aura : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()
@@ -1992,7 +1992,7 @@ class spell_halion_mark_damage_aura_heroic : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()

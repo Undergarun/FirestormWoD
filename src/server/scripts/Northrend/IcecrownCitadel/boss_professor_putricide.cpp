@@ -567,7 +567,7 @@ class boss_professor_putricide : public CreatureScript
                                 if (Creature* stalker = DoSummon(NPC_MALLEABLE_GOO, *target, 11000, TEMPSUMMON_TIMED_DESPAWN))
                                 {
                                     stalker->setFaction(35);
-                                    stalker->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.1f);
+                                    stalker->SetFloatValue(OBJECT_FIELD_SCALE, 0.1f);
                                     events.ScheduleEvent(EVENT_FESTERGUT_GOO_VISUAL, 2000, 0, PHASE_FESTERGUT);
                                 }
 
@@ -972,7 +972,7 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 2.5f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 2.5f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()

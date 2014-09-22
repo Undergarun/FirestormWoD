@@ -332,8 +332,8 @@ class boss_spirit_kings_controler : public CreatureScript
                     flankingGuid[moguNumber] = flankingMogu->GetGUID();
                     flankingMogu->SetReactState(REACT_PASSIVE);
                     flankingMogu->AddAura(SPELL_GHOST_VISUAL, flankingMogu);
-                    flankingMogu->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_FLANKING_MOGU_SWORD));
-                    flankingMogu->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_FLANKING_MOGU_SHIELD));
+                    flankingMogu->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_FLANKING_MOGU_SWORD));
+                    flankingMogu->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, uint32(EQUIP_FLANKING_MOGU_SHIELD));
                 }
             }
 
@@ -1313,7 +1313,7 @@ class mob_undying_shadow : public CreatureScript
                 }
 
                 switchPhaseTimer = 0;
-                scale = me->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                scale = me->GetFloatValue(OBJECT_FIELD_SCALE);
 
                 phase = PHASE_UNDYING_SHADOW;
             }
@@ -1720,7 +1720,7 @@ class spell_coalescing_shadow : public SpellScriptLoader
             {
                 targets.clear();
 
-                float MaxDist = 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                float MaxDist = 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE);
 
                 Map::PlayerList const& players = GetCaster()->GetMap()->GetPlayers();
                     if (!players.isEmpty())

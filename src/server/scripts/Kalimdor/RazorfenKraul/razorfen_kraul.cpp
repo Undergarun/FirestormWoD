@@ -114,7 +114,7 @@ public:
                     break;
                 case 45:
                     DoScriptText(SAY_WIN, me, player);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     if (player->GetTypeId() == TYPEID_PLAYER)
                         CAST_PLR(player)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, me);
                     break;

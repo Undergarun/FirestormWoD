@@ -535,7 +535,7 @@ class boss_the_lich_king : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_SOUL_BARRAGE);
                 
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->GetMotionMaster()->MoveFall();
                 DoCastAOE(SPELL_PLAY_MOVIE, false);
                 if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 50.0f))
@@ -1193,7 +1193,7 @@ class boss_the_lich_king : public CreatureScript
                             sCreatureTextMgr->SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
                             // set flight
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->GetMotionMaster()->MovePoint(POINT_LK_OUTRO_2, OutroFlying);
                             break;
                         case EVENT_OUTRO_TALK_7:
@@ -1278,7 +1278,7 @@ class npc_tirion_fordring_tft : public CreatureScript
             {
                 _events.Reset();
                 if (_instance->GetBossState(DATA_THE_LICH_KING) == DONE)
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -1289,7 +1289,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 switch (id)
                 {
                     case POINT_TIRION_INTRO:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
                         if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                             theLichKing->AI()->DoAction(ACTION_START_ENCOUNTER);
                         break;
@@ -1333,7 +1333,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
                 {
                     _events.SetPhase(PHASE_INTRO);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_TIRION_INTRO, TirionIntro);
                 }
@@ -1341,12 +1341,12 @@ class npc_tirion_fordring_tft : public CreatureScript
 
             void JustReachedHome()
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
 
                 if (_instance->GetBossState(DATA_THE_LICH_KING) == DONE)
                     return;
 
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
             void UpdateAI(uint32 const diff)
@@ -2759,12 +2759,12 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void ChangeDamageAndGrow()
             {
-                SetHitDamage(int32(GetHitDamage() * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                SetHitDamage(int32(GetHitDamage() * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
                 // HACK: target player should cast this spell on defile
                 // however with current aura handling auras cast by different units
                 // cannot stack on the same aura object increasing the stack count

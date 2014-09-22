@@ -207,7 +207,7 @@ public:
                     break;
                 case ENTRY_GIANT_PORTCULLIS_3:
                 case ENTRY_GIANT_PORTCULLIS_4:
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 default:
                     break;

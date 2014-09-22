@@ -215,9 +215,9 @@ class boss_temple_guardian_anhuur : public CreatureScript
                         me->SummonCreature(NPC_PIT_SNAKE,SpawnPosition[i],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                     
                     if (GameObject* pGo = me->FindNearestGameObject(GO_BEACON_LEFT, 100.0f))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     if (GameObject* pGo = me->FindNearestGameObject(GO_BEACON_RIGHT, 100.0f))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                        pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
                     Talk(SAY_EVENT);
                     
@@ -328,7 +328,7 @@ public:
     {
         if (Creature* pAnhuur = pGO->FindNearestCreature(NPC_TEMPLE_GUARDIAN_ANHUUR, 100.0f))
             pAnhuur->GetAI()->DoAction(ACTION_ACTIVATE);
-        pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+        pGO->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
         return false;
     }
 };

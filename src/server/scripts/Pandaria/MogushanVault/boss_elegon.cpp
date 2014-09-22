@@ -1673,7 +1673,7 @@ class go_celestial_control_console : public GameObjectScript
                             if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
                                 titanDisk->SetGoState(GO_STATE_READY);
 
-                            // go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            // go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                             return;
                         }
@@ -2048,7 +2048,7 @@ class spell_total_annihilation : public SpellScriptLoader
 
                     uint8 diffic = caster->GetMap()->GetDifficulty();
 
-                    if ((!targetCount &&  diffic == MAN10_DIFFICULTY) || (targetCount < 3 && diffic == MAN25_DIFFICULTY))
+                    if ((!targetCount &&  diffic == LEGACY_MAN10_DIFFICULTY) || (targetCount < 3 && diffic == LEGACY_MAN25_DIFFICULTY))
                         caster->CastSpell(caster, SPELL_CATASTROPHIC_ANOMALY, false);
                 }
             }
