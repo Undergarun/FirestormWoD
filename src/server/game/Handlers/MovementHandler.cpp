@@ -423,7 +423,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
         AreaTableEntry const* zone = GetAreaEntryByAreaID(plrMover->GetAreaId());
-        float depth = zone ? zone->MaxDepth : -500.0f;
+        float depth = zone ? zone->MinElevation : -500.0f;
 
         // Eye of the Cyclone
         if (plrMover->GetMapId() == 566)

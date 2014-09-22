@@ -2190,7 +2190,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
                             caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
                             if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(86121, 0, time(NULL) + 30);
+                                caster->ToPlayer()->AddSpellCooldown(86121, 0, 30000);
                         }
                     }
                 }
@@ -2856,7 +2856,7 @@ class spell_warl_fear : public SpellScriptLoader
                         if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
                         {
                             _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, time(NULL) + 5);
+                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5000);
                         }
                         else
                             _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);

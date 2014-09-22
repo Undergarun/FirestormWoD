@@ -1548,7 +1548,7 @@ class spell_diffusion : public SpellScriptLoader
                 bp /= ratio;
 
                 target->CastCustomSpell(target, SPELL_DIFFUSION_HEAL, &bp, NULL, NULL, true);
-                target->ToPlayer()->AddSpellCooldown(SPELL_DIFFUSION_HEAL, 0, time(NULL) + 1);
+                target->ToPlayer()->AddSpellCooldown(SPELL_DIFFUSION_HEAL, 0, 1000);
             }
 
             void Register()

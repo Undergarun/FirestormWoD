@@ -53,7 +53,7 @@ class AreaTrigger_at_bassin_curse : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
-            switch(trigger->id)
+            switch (trigger->ID)
             {
                 case AREA_CRANE:     AddOrRemoveSpell(player, SPELL_CRANE);     break;
                 case AREA_SKUNK:     AddOrRemoveSpell(player, SPELL_SKUNK);     break;

@@ -307,10 +307,9 @@ void WildBattlePetMgr::Load()
         for (uint32 l_I = 0; l_I < sAreaStore.GetNumRows(); l_I++)
         {
             AreaTableEntry const* l_AreaInfo = sAreaStore.LookupEntry(l_I);
-
             if (l_AreaInfo && l_AreaInfo->ID == l_ZoneID)
             {
-                l_MapID = l_AreaInfo->mapid;
+                l_MapID = l_AreaInfo->ContinentID;
                 break;
             }
         }

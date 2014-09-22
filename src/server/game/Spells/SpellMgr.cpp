@@ -1403,7 +1403,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
 
             AreaTableEntry const* pArea = GetAreaEntryByAreaID(player->GetAreaId());
-            if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
+            if (!(pArea && pArea->Flags & AREA_FLAG_NO_FLY_ZONE))
                 return false;
             if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
                 return false;
@@ -2071,27 +2071,6 @@ void SpellMgr::LoadForbiddenSpells()
 
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u forbidden spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void SpellMgr::InitializeItemUpgradeDatas()
-{
-    uint32 oldMSTime = getMSTime();
-
-    uint16 spTable[71][2] =
-    {
-        {458, 4914}, {463, 5152}, {466, 5293}, {470, 5497}, {471, 5552}, {474, 5704}, {476, 5812}, {478, 5920}, {480, 6037}, {483, 6206},
-        {484, 6262}, {487, 6445}, {489, 6564}, {490, 6628}, {491, 6684}, {493, 6810}, {494, 6874}, {496, 7007}, {497, 7070}, {498, 7140},
-        {500, 7272}, {501, 7337}, {502, 7410}, {503, 7478}, {504, 7548}, {505, 7619}, {506, 7690}, {507, 7759}, {508, 7836}, {509, 7907},
-        {510, 7982}, {511, 8054}, {512, 8132}, {513, 8209}, {514, 8286}, {515, 8364}, {516, 8441}, {517, 8521}, {518, 8603}, {519, 8680},
-        {520, 8764}, {521, 8841}, {522, 8925}, {524, 9093}, {525, 9179}, {526, 9265}, {528, 9440}, {530, 9618}, {532, 9797}, {535, 10078},
-        {536, 10169}, {539, 10458}, {540, 10557}, {541, 10655}, {543, 10859}, {544, 10957}, {545, 11060}, {548, 11372}, {549, 11479}, {553, 11916},
-        {557, 12370}, {559, 12602}, {561, 12841}, {563, 13079}, {566, 13452}, {567, 13578}, {570, 13961}, {572, 14225}, {574, 14492}, {576, 14766}, {580, 15321}
-    };
-
-    for (uint8 i = 0; i < 71; ++i)
-        mItemUpgradeDatas.insert(std::make_pair(spTable[i][0], spTable[i][1]));
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 71 item upgrade datas in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellProcEvents()
@@ -3076,18 +3055,15 @@ void SpellMgr::LoadSpellClassInfo()
             mSpellClassInfo[ClassID].insert(79327);
 
         // Opening gameobject
-        if (ClassID == CLASS_MONK)
-        {
-            mSpellClassInfo[ClassID].insert(3365);
-            mSpellClassInfo[ClassID].insert(6247);
-            mSpellClassInfo[ClassID].insert(6477);
-            mSpellClassInfo[ClassID].insert(6478);
-            mSpellClassInfo[ClassID].insert(21651);
-            mSpellClassInfo[ClassID].insert(22810);
-            mSpellClassInfo[ClassID].insert(61437);
-            mSpellClassInfo[ClassID].insert(68398);
-            mSpellClassInfo[ClassID].insert(96220);
-        }
+        mSpellClassInfo[ClassID].insert(3365);
+        mSpellClassInfo[ClassID].insert(6247);
+        mSpellClassInfo[ClassID].insert(6477);
+        mSpellClassInfo[ClassID].insert(6478);
+        mSpellClassInfo[ClassID].insert(21651);
+        mSpellClassInfo[ClassID].insert(22810);
+        mSpellClassInfo[ClassID].insert(61437);
+        mSpellClassInfo[ClassID].insert(68398);
+        mSpellClassInfo[ClassID].insert(96220);
 
         for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
         {
@@ -3126,7 +3102,7 @@ void SpellMgr::LoadSpellClassInfo()
             if (!chrSpec)
                 continue;
 
-            mSpellClassInfo[chrSpec->classId].insert(specializationInfo->LearnSpell);
+            mSpellClassInfo[chrSpec->ClassID].insert(specializationInfo->LearnSpell);
         }
     }
 }
@@ -3162,14 +3138,10 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-    std::set<uint32> alreadySet;
     for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); i++)
     {
         SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(i);
         if (!spellPower)
-            continue;
-
-        if (alreadySet.find(spellPower->SpellId) != alreadySet.end())
             continue;
 
         for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
@@ -3178,18 +3150,8 @@ void SpellMgr::LoadSpellInfoStore()
             if (!spell)
                 continue;
 
-            spell->ManaCost = spellPower->manaCost;
-            spell->ManaCostPercentage = spellPower->ManaCostPercentage;
-            spell->ManaPerSecond = spellPower->manaPerSecond;
-            spell->PowerType = spellPower->powerType;
-
-            spell->spellPower->manaCost = spellPower->manaCost;
-            spell->spellPower->ManaCostPercentage = spellPower->ManaCostPercentage;
-            spell->spellPower->manaPerSecond = spellPower->manaPerSecond;
-            spell->spellPower->powerType = spellPower->powerType;
+            spell->SpellPowers.push_back(spellPower);
         }
-
-        alreadySet.insert(spellPower->SpellId);
     }
 
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
@@ -4512,9 +4474,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].SpellClassMask[1] = 0x48022DF0;
                 spellInfo->Effects[1].SpellClassMask[2] = 0x04000010;
                 break;
-            case 119049:// Kil'Jaeden's Cunning
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
             case 121039:// Mana Attunement (400%)
                 spellInfo->Effects[0].BasePoints = 50;
                 break;
@@ -4884,8 +4843,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 20066: // Repentence
             case 115175:// Soothing Mists
             case 116694:// Surging Mists
+                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->AttackPowerBonus = 2.316f;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -6237,10 +6199,18 @@ SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Power
         if (!spellPower)
             continue;
 
-        if (spellPower->powerType == power)
+        if (spellPower->PowerType == power)
             return spellPower;
     }
 
-    SpellInfo const* spell = sSpellMgr->GetSpellInfo(id);
-    return spell->spellPower;
+    return NULL;
+}
+
+void SpellMgr::TryLinkItemToSpell(Difficulty difficulty, uint32 spellId, uint32 itemId)
+{
+    if (difficulty >= MAX_DIFFICULTY)
+        return;
+
+    if (mSpellInfoMap[difficulty][spellId])
+        mSpellInfoMap[difficulty][spellId]->SpellFromItems.push_back(itemId);
 }

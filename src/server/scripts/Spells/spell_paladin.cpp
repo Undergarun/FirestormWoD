@@ -443,48 +443,23 @@ class spell_pal_unbreakable_spirit : public SpellScriptLoader
 
                     if (_player->HasSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD))
                     {
-                        uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PALADIN_SPELL_DIVINE_SHIELD) * IN_MILLISECONDS;
                         uint32 totalCooldown = sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_SHIELD)->RecoveryTime;
                         int32 lessCooldown = CalculatePct(totalCooldown, holyPowerConsumed);
-                        uint32 maxCooldownReduction = CalculatePct(totalCooldown, 50); // Maximum 50% cooldown reduction
-
-                        newCooldownDelay -= lessCooldown;
-
-                        if (newCooldownDelay > maxCooldownReduction)
-                        {
-                            _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, -lessCooldown);
-                        }
+                        _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, lessCooldown);
                     }
+
                     if (_player->HasSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS))
                     {
-                        uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PALADIN_SPELL_LAY_ON_HANDS) * IN_MILLISECONDS;
                         uint32 totalCooldown = sSpellMgr->GetSpellInfo(PALADIN_SPELL_LAY_ON_HANDS)->CategoryRecoveryTime;
                         int32 lessCooldown = CalculatePct(totalCooldown, holyPowerConsumed);
-                        uint32 maxCooldownReduction = CalculatePct(totalCooldown, 50); // Maximum 50% cooldown reduction
-
-                        newCooldownDelay -= lessCooldown;
-
-                        if (newCooldownDelay > maxCooldownReduction)
-                        {
-                            _player->AddSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-                            _player->ReduceSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, -lessCooldown);
-                        }
+                        _player->ReduceSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, lessCooldown);
                     }
+
                     if (_player->HasSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION))
                     {
-                        uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PALADIN_SPELL_DIVINE_PROTECTION) * IN_MILLISECONDS;
                         uint32 totalCooldown = sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PROTECTION)->RecoveryTime;
                         int32 lessCooldown = CalculatePct(totalCooldown, holyPowerConsumed);
-                        uint32 maxCooldownReduction = CalculatePct(totalCooldown, 50); // Maximum 50% cooldown reduction
-
-                        newCooldownDelay -= lessCooldown;
-
-                        if (newCooldownDelay > maxCooldownReduction)
-                        {
-                            _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, -lessCooldown);
-                        }
+                        _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, lessCooldown);
                     }
                 }
             }
@@ -1457,7 +1432,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
                     int32 healAmount = int32(victim->CountPctFromMaxHealth(healPct));
                     victim->CastCustomSpell(victim, PALADIN_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
-                    victim->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL, 0, time(NULL) + 120);
+                    victim->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL, 0, 120000);
                 }
                 else
                     absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
@@ -1639,17 +1614,17 @@ class spell_pal_holy_shock : public SpellScriptLoader
                         {
                             caster->CastSpell(unitTarget, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
                             if (!caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 6);
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 6000);
                             else
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 3);
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 3000);
                         }
                         else
                         {
                             caster->CastSpell(unitTarget, PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, true);
                             if (!caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 6);
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 6000);
                             else
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, time(NULL) + 3);
+                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 3000);
                         }
 
                         if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))

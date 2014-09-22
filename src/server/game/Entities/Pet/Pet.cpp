@@ -1730,7 +1730,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 }
             }
 
-            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, spellInfo->spellPower, &baseDamage[0], NULL, caster_guid);
+            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
             if (aura != NULLAURA)
             {
                 if (!aura->CanBeSaved())
@@ -2152,9 +2152,9 @@ bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint3
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);
-    Object::_Create(guidlow, Entry, HIGHGUID_PET);
+    Object::_Create(pet_number, Entry, HIGHGUID_PET);
 
-    m_DBTableGuid = guidlow;
+    m_DBTableGuid = pet_number;
     m_originalEntry = Entry;
 
     if (!InitEntry(Entry))
