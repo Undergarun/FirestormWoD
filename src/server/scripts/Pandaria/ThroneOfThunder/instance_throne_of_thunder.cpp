@@ -138,6 +138,7 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case NPC_GARA_JAL_SOUL:
                         garaJalGuid = creature->GetGUID();
+                        break;
                     case NPC_HORRIDON:
                         horridonGuid = creature->GetGUID();
                         break;
@@ -328,34 +329,24 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return tribalDoorsGuid[3];
                     case GOB_FIRST_MOGU_BLOOD_VAT:
                         return firstMoguBloodVatGuid;
-                        break;
                     case GOB_SECOND_MOGU_BLOOD_VAT:
                         return secondMoguBloodVatGuid;
-                        break;
                     case GOB_THIRD_MOGU_BLOOD_VAT:
                         return thirdMoguBloodVatGuid;
-                        break;
                     case GOB_FOURTH_MOGU_BLOOD_VAT:
                         return fourthMoguBloodVatGuid;
-                        break;
                     case GOB_FIFTH_MOGU_BLOOD_VAT:
                         return fifthMoguBloodVatGuid;
-                        break;
                     case GOB_SIXTH_MOGU_BLOOD_VAT:
                         return sixthMoguBloodVatGuid;
-                        break;
                     case GOB_SEVENTH_MOGU_BLOOD_VAT:
                         return seventhMoguBloodVatGuid;
-                        break;
                     case GOB_EIGHTH_MOGU_BLOOD_VAT:
                         return eighthMoguBloodVatGuid;
-                        break;
                     case GOB_NINTH_MOGU_BLOOD_VAT:
                         return ninthMoguBloodVatGuid;
-                        break;
                     case GOB_TENTH_MOGU_BLOOD_VAT:
                         return tenthMoguBloodVatGuid;
-                        break;
                     case DATA_STATUE_0:
                         return moguStatuesGuids[0];
                     case DATA_STATUE_1:

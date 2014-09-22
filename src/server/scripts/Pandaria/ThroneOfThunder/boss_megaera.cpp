@@ -195,62 +195,61 @@ class boss_megaera : public CreatureScript
         {
             boss_megaeraAI(Creature* creature) : BossAI(creature, DATA_MEGAERA)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
+                m_Activated = false;
             }
 
-            EventMap events;
-            InstanceScript* pInstance;
+            EventMap m_Events;
+            InstanceScript* m_Instance;
 
-            uint8 lastHeadKilled;
-            uint8 activesHeads;
-            uint8 backHead;
+            uint8 m_LastHeadKilled;
+            uint8 m_ActivesHeads;
+            uint8 m_BackHead;
+            bool  m_Activated;
 
             void Reset()
             {
-                events.Reset();
+                _Reset();
+
+                m_Events.Reset();
 
                 DisableActualHeads();
                 summons.DespawnAll();
 
                 // Raid needs to kill 7 heads to defeat Megaera
-                backHead        = HEAD_NONE;
-                lastHeadKilled  = HEAD_NONE;
-                activesHeads    = HEAD_NONE;
+                m_BackHead        = HEAD_NONE;
+                m_LastHeadKilled  = HEAD_NONE;
+                m_ActivesHeads    = HEAD_NONE;
 
                 me->ReenableEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->ReenableEvadeMode();
 
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->SetBossState(DATA_MEGAERA, NOT_STARTED);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CINDERS);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_STUN);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ROT_ARMOR_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DIFFUSION_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICY_GROUND_DMG_SNARE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IGNITE_FLESH_AURA);
+                    m_Instance->SetBossState(DATA_MEGAERA, NOT_STARTED);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CINDERS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_STUN);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ROT_ARMOR_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DIFFUSION_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICY_GROUND_DMG_SNARE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IGNITE_FLESH_AURA);
+
+                    if (m_Activated)
+                        SummonInitialHeads();
                 }
-
-                SummonInitialHeads();
-
-                _Reset();
             }
 
             void EnterCombat(Unit* attacker)
             {
                 _EnterCombat();
 
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->SetBossState(DATA_MEGAERA, IN_PROGRESS);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                }
+                    m_Instance->SetBossState(DATA_MEGAERA, IN_PROGRESS);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                if (pInstance)
-                {
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         std::list<Creature*> headList;
@@ -262,42 +261,42 @@ class boss_megaera : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* p_Killer)
             {
                 _JustDied();
 
                 DisableActualHeads(true);
 
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->SetBossState(DATA_MEGAERA, DONE);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CINDERS);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_STUN);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ROT_ARMOR_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DIFFUSION_AURA);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICY_GROUND_DMG_SNARE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IGNITE_FLESH_AURA);
+                    m_Instance->SetBossState(DATA_MEGAERA, DONE);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CINDERS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ARCTIC_FREEZE_STUN);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ROT_ARMOR_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DIFFUSION_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICY_GROUND_DMG_SNARE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IGNITE_FLESH_AURA);
 
                     BindPlayersToInstance(me);
                 }
 
-                if (Creature* genericMoP = me->FindNearestCreature(NPC_SLG_GENERIC_MOP, 120.0f))
+                if (p_Killer)
                 {
                     switch (me->GetMap()->GetSpawnMode())
                     {
                         case MAN10_DIFFICULTY:
-                            genericMoP->SummonGameObject(GOB_MEGAERA_CHEST_10_NORMAL, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_10_NORMAL, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
                         case MAN25_DIFFICULTY:
-                            genericMoP->SummonGameObject(GOB_MEGAERA_CHEST_25_NORMAL, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_25_NORMAL, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
                         case MAN10_HEROIC_DIFFICULTY:
-                            genericMoP->SummonGameObject(GOB_MEGAERA_CHEST_10_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                            break; 
+                            p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_10_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            break;
                         case MAN25_HEROIC_DIFFICULTY:
-                            genericMoP->SummonGameObject(GOB_MEGAERA_CHEST_25_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                            p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_25_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
                         default:
                             break;
@@ -327,10 +326,10 @@ class boss_megaera : public CreatureScript
             {
                 _JustReachedHome();
 
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->SetBossState(DATA_MEGAERA, FAIL);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    m_Instance->SetBossState(DATA_MEGAERA, FAIL);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
             }
 
@@ -340,33 +339,34 @@ class boss_megaera : public CreatureScript
                 {
                     case ACTION_MEGAERA_SPAWN:
                         SummonInitialHeads();
+                        m_Activated = true;
                         break;
                     case ACTION_KILL_VENOMOUS_HEAD:
-                        activesHeads    &= ~HEAD_VENOMOUS;
-                        activesHeads    |= backHead;
-                        backHead        = HEAD_VENOMOUS;
-                        lastHeadKilled  = HEAD_VENOMOUS;
+                        m_ActivesHeads    &= ~HEAD_VENOMOUS;
+                        m_ActivesHeads    |= m_BackHead;
+                        m_BackHead        = HEAD_VENOMOUS;
+                        m_LastHeadKilled  = HEAD_VENOMOUS;
                         HandleNextHeadSpawn();
                         break;
                     case ACTION_KILL_FROZEN_HEAD:
-                        activesHeads    &= ~HEAD_FROZEN;
-                        activesHeads    |= backHead;
-                        backHead        = HEAD_FROZEN;
-                        lastHeadKilled  = HEAD_FROZEN;
+                        m_ActivesHeads    &= ~HEAD_FROZEN;
+                        m_ActivesHeads    |= m_BackHead;
+                        m_BackHead        = HEAD_FROZEN;
+                        m_LastHeadKilled  = HEAD_FROZEN;
                         HandleNextHeadSpawn();
                         break;
                     case ACTION_KILL_FLAMING_HEAD:
-                        activesHeads    &= ~HEAD_FLAMING;
-                        activesHeads    |= backHead;
-                        backHead        = HEAD_FLAMING;
-                        lastHeadKilled  = HEAD_FLAMING;
+                        m_ActivesHeads    &= ~HEAD_FLAMING;
+                        m_ActivesHeads    |= m_BackHead;
+                        m_BackHead        = HEAD_FLAMING;
+                        m_LastHeadKilled  = HEAD_FLAMING;
                         HandleNextHeadSpawn();
                         break;
                     case ACTION_KILL_ARCANE_HEAD:
-                        activesHeads    &= ~HEAD_ARCANE;
-                        activesHeads    |= backHead;
-                        backHead        = HEAD_ARCANE;
-                        lastHeadKilled  = HEAD_ARCANE;
+                        m_ActivesHeads    &= ~HEAD_ARCANE;
+                        m_ActivesHeads    |= m_BackHead;
+                        m_BackHead        = HEAD_ARCANE;
+                        m_LastHeadKilled  = HEAD_ARCANE;
                         HandleNextHeadSpawn();
                         break;
                     default:
@@ -374,14 +374,15 @@ class boss_megaera : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 p_Diff)
             {
-                events.Update(diff);
+                m_Events.Update(p_Diff);
 
-                switch (events.ExecuteEvent())
+                switch (m_Events.ExecuteEvent())
                 {
                     case EVENT_END_OF_RAMPAGE:
-                        me->MonsterTextEmote("Megaera''s rage subsides.", 0, true);
+                        if (Creature* l_GenericMop = me->FindNearestCreature(NPC_SLG_GENERIC_MOP, 200.0f))
+                            l_GenericMop->MonsterTextEmote("Megaera's rage subsides.", 0, true);
                         me->RemoveAura(SPELL_RAMPAGE_PERIODIC);
                         break;
                     default:
@@ -389,36 +390,30 @@ class boss_megaera : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 id)
+            uint32 GetData(uint32 p_ID)
             {
-                if (id == DATA_LAST_HEAD_KILLED)
-                    return lastHeadKilled;
+                if (p_ID == DATA_LAST_HEAD_KILLED)
+                    return m_LastHeadKilled;
 
                 return HEAD_NONE;
             }
 
             void SummonInitialHeads()
             {
-                if (pInstance)
-                {
-                    if (pInstance->GetData(DATA_ANCIENT_MOGU_BELL) >= 3)
-                    {
-                        Position pos = spawnPositions[0];
-                        if (Creature* head = me->SummonCreature(NPC_VENOMOUS_HEAD, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation))
-                            head->AI()->DoAction(ACTION_ENABLE_HEAD);
+                Position l_Pos = spawnPositions[0];
+                if (Creature* l_Head = me->SummonCreature(NPC_VENOMOUS_HEAD, l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, l_Pos.m_orientation))
+                    l_Head->AI()->DoAction(ACTION_ENABLE_HEAD);
 
-                        pos = spawnPositions[1];
-                        if (Creature* head = me->SummonCreature(NPC_FROZEN_HEAD, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation))
-                            head->AI()->DoAction(ACTION_ENABLE_HEAD);
+                l_Pos = spawnPositions[1];
+                if (Creature* l_Head = me->SummonCreature(NPC_FROZEN_HEAD, l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, l_Pos.m_orientation))
+                    l_Head->AI()->DoAction(ACTION_ENABLE_HEAD);
 
-                        pos = spawnPositions[2];
-                        if (Creature* backHead = me->SummonCreature(NPC_BACK_FLAMING_HEAD, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation))
-                            backHead->AI()->DoAction(ACTION_ENABLE_HEAD);
+                l_Pos = spawnPositions[2];
+                if (Creature* l_BackHead = me->SummonCreature(NPC_BACK_FLAMING_HEAD, l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, l_Pos.m_orientation))
+                    l_BackHead->AI()->DoAction(ACTION_ENABLE_HEAD);
 
-                        activesHeads = HEAD_VENOMOUS | HEAD_FROZEN;
-                        backHead = HEAD_FLAMING;
-                    }
-                }
+                m_ActivesHeads = HEAD_VENOMOUS | HEAD_FROZEN;
+                m_BackHead = HEAD_FLAMING;
             }
 
             void HandleNextHeadSpawn()
@@ -428,7 +423,7 @@ class boss_megaera : public CreatureScript
                 TriggerElementalBlood();
             }
 
-            void DisableActualHeads(bool endCombat = false)
+            void DisableActualHeads(bool p_EndCombat = false)
             {
                 std::list<Creature*> headList;
                 for (uint8 i = 0; i < 4; ++i)
@@ -438,7 +433,7 @@ class boss_megaera : public CreatureScript
 
                     for (Creature* head : headList)
                     {
-                        if (endCombat)
+                        if (p_EndCombat)
                         {
                             head->AI()->EnterEvadeMode();
                             continue;
@@ -455,7 +450,7 @@ class boss_megaera : public CreatureScript
 
                     for (Creature* backHead : headList)
                     {
-                        if (endCombat)
+                        if (p_EndCombat)
                         {
                             backHead->AI()->EnterEvadeMode();
                             continue;
@@ -468,7 +463,7 @@ class boss_megaera : public CreatureScript
 
             void ActivateNextHeads()
             {
-                if (activesHeads & HEAD_NONE)
+                if (m_ActivesHeads & HEAD_NONE)
                 {
                     EnterEvadeMode();
                     return;
@@ -476,39 +471,41 @@ class boss_megaera : public CreatureScript
                 else
                 {
                     me->CastSpell(me, SPELL_RAMPAGE_PERIODIC, true);
-                    events.ScheduleEvent(EVENT_END_OF_RAMPAGE, 20000);
-                    me->MonsterTextEmote("Megaera begins to |cFFF00000|Hspell:139458|h[Rampage]|h|r !", 0, true);
+                    m_Events.ScheduleEvent(EVENT_END_OF_RAMPAGE, 20000);
+
+                    if (Creature* l_GenericMop = me->FindNearestCreature(NPC_SLG_GENERIC_MOP, 200.0f))
+                        l_GenericMop->MonsterTextEmote("Megaera begins to |cFFF00000|Hspell:139458|h[Rampage]|h|r !", 0, true);
 
                     std::list<Creature*> headList;
-                    if (activesHeads & HEAD_VENOMOUS)
+                    if (m_ActivesHeads & HEAD_VENOMOUS)
                     {
                         me->GetCreatureListWithEntryInGrid(headList, NPC_VENOMOUS_HEAD, 250.0f);
                         EnableActivesHeads(headList, false);
                     }
 
                     headList.clear();
-                    if (activesHeads & HEAD_FROZEN)
+                    if (m_ActivesHeads & HEAD_FROZEN)
                     {
                         me->GetCreatureListWithEntryInGrid(headList, NPC_FROZEN_HEAD, 250.0f);
                         EnableActivesHeads(headList, false);
                     }
 
                     headList.clear();
-                    if (activesHeads & HEAD_FLAMING)
+                    if (m_ActivesHeads & HEAD_FLAMING)
                     {
                         me->GetCreatureListWithEntryInGrid(headList, NPC_FLAMING_HEAD, 250.0f);
                         EnableActivesHeads(headList, false);
                     }
 
                     headList.clear();
-                    if (activesHeads & HEAD_ARCANE)
+                    if (m_ActivesHeads & HEAD_ARCANE)
                     {
                         me->GetCreatureListWithEntryInGrid(headList, NPC_ARCANE_HEAD, 250.0f);
                         EnableActivesHeads(headList, false);
                     }
 
                     headList.clear();
-                    switch (backHead)
+                    switch (m_BackHead)
                     {
                         case HEAD_VENOMOUS:
                             me->GetCreatureListWithEntryInGrid(headList, NPC_BACK_VENOMOUS_HEAD, 250.0f);
@@ -543,7 +540,7 @@ class boss_megaera : public CreatureScript
             void TriggerElementalBlood()
             {
                 std::list<Creature*> headList;
-                switch (lastHeadKilled)
+                switch (m_LastHeadKilled)
                 {
                     case HEAD_FLAMING:
                     {
@@ -908,6 +905,14 @@ class boss_megaera_head : public CreatureScript
                 {
                     if (me->isInCombat())
                         pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                    else
+                    {
+                        if (Player* l_Player = me->FindNearestPlayer(50.0f))
+                        {
+                            AttackStart(l_Player);
+                            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                        }
+                    }
 
                     if (Creature* megaera = Creature::GetCreature(*me, pInstance->GetData64(NPC_MEGAERA)))
                     {
