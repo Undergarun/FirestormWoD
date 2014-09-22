@@ -1025,7 +1025,7 @@ public:
             return false;
         }
 
-        if (player->isDead() || player->HasFlag(PLAYER_FLAGS_DEVELOPER, PLAYER_FLAGS_GHOST))
+        if (player->isDead() || player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         {
             // if player is dead and stuck, send ghost to graveyard
             player->RepopAtGraveyard();
