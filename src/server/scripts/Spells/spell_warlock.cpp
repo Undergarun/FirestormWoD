@@ -1409,19 +1409,9 @@ class spell_warl_soul_link : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (!target->HasAura(WARLOCK_SOUL_LINK_DUMMY_AURA))
-                        {
-                            uint32 health = target->CountPctFromMaxHealth(50);
-
-                            if (target->GetHealth() > health)
-                                target->SetHealth(health);
-                            target->SetMaxHealth(health);
-
                             caster->CastSpell(caster, WARLOCK_SOUL_LINK_DUMMY_AURA, true);
-                        }
                         else
                         {
-                            target->SetMaxHealth(target->GetMaxHealth() * 2);
-                            target->SetHealth(target->GetHealth() * 2);
                             caster->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
                             target->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
                         }
