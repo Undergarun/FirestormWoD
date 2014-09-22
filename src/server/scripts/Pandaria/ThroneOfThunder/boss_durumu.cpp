@@ -199,16 +199,16 @@ class spell_lingering_gaze_main : public SpellScriptLoader
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, l_Caster, 100.0f);
 
+                if (l_PlayerList.empty())
+                    return;
+
                 if (l_Caster->GetMap()->IsHeroic())
                     JadeCore::RandomResizeList(l_PlayerList, 5);
                 else
                     JadeCore::RandomResizeList(l_PlayerList, 2);
 
                 for (Player* l_Player: l_PlayerList)
-                {
                     l_Caster->CastSpell(l_Player, SPELL_LINGERING_GAZE_MISSILE, true);
-                    l_Caster->CastSpell(l_Player, SPELL_LINGERING_GAZE_AT, true);
-                }
             }
 
             void Register()

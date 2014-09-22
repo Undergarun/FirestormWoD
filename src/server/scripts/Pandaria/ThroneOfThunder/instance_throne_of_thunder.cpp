@@ -87,6 +87,7 @@ class instance_throne_of_thunder : public InstanceMapScript
 
             uint8 ancientMoguBellActivate;
             uint64 megaeraGuid;
+            uint64 durumuGuid;
 
             void Initialize()
             {
@@ -120,6 +121,7 @@ class instance_throne_of_thunder : public InstanceMapScript
                 eighthMoguBloodVatGuid  = 0;
                 ninthMoguBloodVatGuid   = 0;
                 tenthMoguBloodVatGuid   = 0;
+                durumuGuid              = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -180,6 +182,9 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case NPC_MEGAERA:
                         megaeraGuid = creature->GetGUID();
+                        break;
+                    case NPC_DURUMU_THE_FORGOTTEN:
+                        durumuGuid = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -376,6 +381,8 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return jiKunGuid;
                     case NPC_MEGAERA:
                         return megaeraGuid;
+                    case NPC_DURUMU_THE_FORGOTTEN:
+                        return durumuGuid;
                     default:
                         break;
                 }
