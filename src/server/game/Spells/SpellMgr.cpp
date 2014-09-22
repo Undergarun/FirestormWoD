@@ -3389,6 +3389,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 140495:
+                spellInfo->Effects[0].BasePoints *= 2.9f;
+                break;
             case 136413:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[0].TargetB = 0;
