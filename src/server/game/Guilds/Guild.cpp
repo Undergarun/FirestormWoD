@@ -1564,7 +1564,7 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
 
         HandleQuery(session);
 
-        m_achievementMgr.UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD, 1, 0, 0, player);
+        m_achievementMgr.UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD, 1, 0, 0, NULL, player);
     }
 }
 
@@ -1691,7 +1691,7 @@ void Guild::HandleSpellEffectBuyBankTab(WorldSession* session, uint8 tabId)
     SendBankList(session, tabId, false, true);
     HandleGuildRanks(session);
 
-    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, tabId + 1, 0, 0, player);
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, tabId + 1, 0, 0, NULL, player);
 }
 
 void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
