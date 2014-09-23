@@ -620,7 +620,6 @@ class Quest;
 class Spell;
 class Item;
 class WorldSession;
-class BattlePet;
 
 enum PlayerSlots
 {
@@ -3066,34 +3065,23 @@ class Player : public Unit, public GridObject<Player>
         /// Summon last summoned battle pet
         void SummonLastSummonedBattlePet();
 
-        /// Get pet battles
-        std::vector<std::shared_ptr<BattlePet>> GetBattlePets();
-        /// Get pet battles
-        std::shared_ptr<BattlePet> GetBattlePet(uint64 p_JournalID);
-        /// Get pet battle combat team
-        std::shared_ptr<BattlePet> * GetBattlePetCombatTeam();
-        /// Get pet battle combat team size
-        uint32 GetBattlePetCombatSize();
+        PreparedQueryResultFuture _PetBattleCountBattleSpeciesCallback;
 
-        /// Reload pet battles
-        void ReloadPetBattles();
-        /// PetBattleCountBattleSpeciesCallback
-        void PetBattleCountBattleSpecies();
-        /// Update battle pet combat team
-        void UpdateBattlePetCombatTeam();
+        std::vector<uint32> OldPetBattleSpellToMerge;
 
     protected:
-        /// Load pet battle async callback
-        bool _LoadPetBattles(PreparedQueryResult & p_Result);
+        /// Summon new pet (call back)
+        void SummonBattlePetCallback(PreparedQueryResult& p_Result);
+        /// Summon last summoned battle pet
+        void SummonLastBattlePetSummonedCallback(PreparedQueryResult& p_Result);
+
+        /// PetBattleCountBattleSpeciesCallback
+        void PetBattleCountBattleSpeciesCallback(PreparedQueryResult& p_Result);
+
+        PreparedQueryResultFuture _SummonBattlePetCallback;
+        PreparedQueryResultFuture _SummonLastBattlePetSummonedCallback;
 
         uint64 m_BattlePetSummon;
-        uint32 m_LastSummonedBattlePet;
-
-        std::vector<std::shared_ptr<BattlePet>> m_BattlePets;
-        std::shared_ptr<BattlePet> m_BattlePetCombatTeam[3];
-        std::vector<std::pair<uint32, uint32>> m_OldPetBattleSpellToMerge;
-
-        PreparedQueryResultFuture _petBattleJournalCallback;
 
     private:
         // Gamemaster whisper whitelist

@@ -312,9 +312,6 @@ bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage)
     int32 l_Health = PetBattleInstance->Pets[l_Target]->Health;
     l_Health -= l_Damage;
 
-    if (l_Health <= 0 && PetBattleInstance->Pets[l_Target]->Health <= 0)
-        return l_Damage > 0;
-
     SetHealth(l_Target, l_Health);
 
     if (l_Damage > 0)
@@ -706,38 +703,36 @@ bool PetBattleAbilityEffect::Execute()
         return false;
 
     StopChain = false;
-    bool l_Result = true;
+    bool result = true;
 
-    for (size_t l_I = 0; l_I < Targets.size(); ++l_I)
+    for (size_t i = 0; i < Targets.size(); ++i)
     {
-        Target = Targets[l_I];
+        Target = Targets[i];
         Flags = 0;
 
         if (PetBattleInstance->Pets[Caster]->TeamID != PetBattleInstance->Pets[Target]->TeamID && PetBattleInstance->Pets[Target]->States[BATTLEPET_STATE_untargettable])
             Flags |= PETBATTLE_EVENT_FLAG_DODGE;
 
-        bool l_iResult = (this->*Handlers[EffectInfo->effect].Handle)();
-        l_Result &= l_iResult;
+        bool iResult = (this->*Handlers[EffectInfo->effect].Handle)();
+        result &= iResult;
 
-        if (!l_iResult)
+        if (!iResult)
             continue;
 
-        BattlePetEffectPropertiesEntry const* l_PropertyEntry = sBattlePetEffectPropertiesStore.LookupEntry(EffectInfo->effect);
-
-        if (!l_PropertyEntry)
+        BattlePetEffectPropertiesEntry const* propInfo = sBattlePetEffectPropertiesStore.LookupEntry(EffectInfo->effect);
+        if (!propInfo)
             continue;
 
-        //if ((l_PropertyEntry->flags >> 2) == BATTLEPET_EFFECT_CATEGORY_DEAL)
+        //if ((propInfo->flags >> 2) == BATTLEPET_EFFECT_CATEGORY_DEAL)
         //{
-        //    if (l_PropertyEntry->flags & BATTLEPET_EFFECT_FLAG_POSITIVE)
+        //    if (propInfo->flags & BATTLEPET_EFFECT_FLAG_POSITIVE)
         //        Heal(Target, Value);
 
-        //    if (l_PropertyEntry->flags & BATTLEPET_EFFECT_FLAG_NEGATIVE)
+        //    if (propInfo->flags & BATTLEPET_EFFECT_FLAG_NEGATIVE)
         //        Damage(Target, Value);
         //}
     }
-
-    return l_Result;
+    return result;
 }
 
 bool PetBattleAbilityEffect::HandleDamage()
@@ -795,7 +790,6 @@ bool PetBattleAbilityEffect::HandleSetState()
             case BATTLEPET_STATE_turnLock:
                 Flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
                 break;
-
             default:
                 break;
         }

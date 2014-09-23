@@ -1206,6 +1206,43 @@ void WorldSession::ProcessQueryCallbacks()
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
     }
+
+    //- SendPetBattleJournal
+    if (_petBattleJournalCallback.ready())
+    {
+        _petBattleJournalCallback.get(result);
+        bool l_Result = SendPetBattleJournalCallback(result);
+        _petBattleJournalCallback.cancel();
+
+        if (!l_Result)
+            SendPetBattleJournal();
+    }
+
+    //- SendPetBattleJournalBattleSlot
+    if (_petBattleJournalBattleSlotCallback.ready())
+    {
+        _petBattleJournalBattleSlotCallback.get(result);
+        SendPetBattleJournalBattleSlotUpdateCallback(result);
+        _petBattleJournalBattleSlotCallback.cancel();
+    }
+
+    //- HandlePetBattleRequestWild
+    if (_petBattleRequestWildCallback.IsReady())
+    {
+        PetBattleRequest* param = _petBattleRequestWildCallback.GetParam();
+        _petBattleRequestWildCallback.GetResult(result);
+        HandlePetBattleRequestWildCallback(result, param);
+        _petBattleRequestWildCallback.FreeResult();
+    }
+
+    //- HandleStableSwapPet
+    if (_swapPetBattleSlot.IsReady())
+    {
+        uint8 param = _swapPetBattleSlot.GetParam();
+        _swapPetBattleSlot.GetResult(result);
+        HandleBattlePetSetBattleSlotCallBack(result, param);
+        _swapPetBattleSlot.FreeResult();
+    }
 }
 
 void WorldSession::InitWarden(BigNumber* k, std::string os)

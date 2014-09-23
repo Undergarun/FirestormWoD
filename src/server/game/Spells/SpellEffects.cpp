@@ -67,7 +67,6 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ArchaeologyMgr.h"
-#include "PetBattle.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -8376,20 +8375,11 @@ void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
 
 void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
     if (!m_CastItem && m_caster->ToPlayer())
     {
-        std::vector<BattlePet::Ptr> l_Pets = m_caster->ToPlayer()->GetBattlePets();
-
-        for (std::vector<BattlePet::Ptr>::iterator l_It = l_Pets.begin(); l_It != l_Pets.end(); ++l_It)
-        {
-            BattlePet::Ptr l_Pet = (*l_It);
-
-            l_Pet->UpdateStats();
-            l_Pet->Health = l_Pet->InfoMaxHealth;
-        }
+        PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_HEAL_ALL_PETBATTLE_ACCOUNT);
+        l_Stmt->setUInt32(0, m_caster->ToPlayer()->GetSession()->GetAccountId());
+        LoginDatabase.Execute(l_Stmt);
 
         m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
     }
@@ -8400,14 +8390,10 @@ void Spell::EffectUncagePetBattle(SpellEffIndex effIndex)
 }
 void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
     if (!unitTarget)
         return;
 
     Player* player = unitTarget->ToPlayer();
-
     if (!player)
         return;
 
