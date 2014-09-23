@@ -3409,9 +3409,6 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
         case 117640:// Spinning Crane Kick (Heal)
             scale = 0.1f;
             break;
-        case 115151:// Renewing Mist
-        case 115310:// Revival
-        case 119611:// Renewing Mist (HoT)
         case 124040:// Chi Torpedo
         case 124101:// Zen Sphere : Detonate
         case 130654:// Chi Burst (Heal)
@@ -3421,6 +3418,8 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
         case 132120:// Enveloping Mist
             scale = 0.2f;
             break;
+        case 115151:// Renewing Mist
+        case 119611:// Renewing Mist (HoT)
         case 116670:// Uplift
         case 124081:// Zen Sphere (HoT)
         case 132463:// Chi Wave (Heal)
