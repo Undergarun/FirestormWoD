@@ -6013,6 +6013,12 @@ void Spell::TakeCastItem()
     if (!m_CastItem || m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    if (!m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID))
+    {
+        m_CastItem = NULL;
+        return;
+    }
+
     // not remove cast item at triggered spell (equipping, weapon damage, etc)
     if (_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM)
         return;
