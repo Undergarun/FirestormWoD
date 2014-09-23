@@ -1170,7 +1170,6 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     if (_player->_petBattleId)
     {
         SendPetBattleRequestFailed(PETBATTLE_REQUEST_ALREADY_IN_PETBATTLE);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
     }
 
@@ -1178,7 +1177,6 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     if (_player->isInCombat())
     {
         SendPetBattleRequestFailed(PETBATTLE_REQUEST_ALREADY_IN_COMBAT);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
     }
 
@@ -1190,7 +1188,6 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
                                                                         l_BattleRequest->TeamPosition[l_CurrentTeamID][0],  l_BattleRequest->TeamPosition[l_CurrentTeamID][1],  l_BattleRequest->TeamPosition[l_CurrentTeamID][2], 0.0f))
         {
             SendPetBattleRequestFailed(PETBATTLE_REQUEST_GROUND_NOT_ENOUGHT_SMOOTH);
-            sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
             return;
         }
     }
@@ -1200,7 +1197,6 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     if (!l_WildPet)
     {
         SendPetBattleRequestFailed(PETBATTLE_REQUEST_INVALID_TARGET);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
     }
 
@@ -1227,25 +1223,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     if (!l_Wild)
     {
         l_ErrorCode = PETBATTLE_REQUEST_INVALID_TARGET;
-
-        _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
-        _player->SetRooted(false);
-
-        if (l_Wild)
-        {
-            l_Wild->SetTarget(0);
-            l_Wild->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
-            l_Wild->SetControlled(false, UNIT_STATE_ROOT);
-        }
-
-        for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
-
-        l_WildBattlePet = BattlePetInstance::Ptr();
-
-        SendPetBattleRequestFailed(l_ErrorCode);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
+        goto WILD_BATTLE_FAILED;
     }
 
 
@@ -1272,75 +1250,19 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     if (!l_PlayerPetCount)
     {
         l_ErrorCode = PETBATTLE_REQUEST_NEED_AT_LEAST_1_PET_IN_SLOT;
-
-        _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
-        _player->SetRooted(false);
-
-        if (l_Wild)
-        {
-            l_Wild->SetTarget(0);
-            l_Wild->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
-            l_Wild->SetControlled(false, UNIT_STATE_ROOT);
-        }
-
-        for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
-
-        l_WildBattlePet = BattlePetInstance::Ptr();
-
-        SendPetBattleRequestFailed(l_ErrorCode);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
+        goto WILD_BATTLE_FAILED;
     }
 
     ////////////////////////////////
     ////////////////////////////////
     // Wild should be wild
     if (!sWildBattlePetMgr->IsWildPet(l_Wild))
-    {
-        _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
-        _player->SetRooted(false);
-
-        if (l_Wild)
-        {
-            l_Wild->SetTarget(0);
-            l_Wild->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
-            l_Wild->SetControlled(false, UNIT_STATE_ROOT);
-        }
-
-        for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
-
-        l_WildBattlePet = BattlePetInstance::Ptr();
-
-        SendPetBattleRequestFailed(l_ErrorCode);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
-    }
+        goto WILD_BATTLE_FAILED;
 
     l_WildBattlePet = sWildBattlePetMgr->GetWildBattlePet(l_Wild);
 
     if (!l_WildBattlePet)
-    {
-        _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
-        _player->SetRooted(false);
-
-        if (l_Wild)
-        {
-            l_Wild->SetTarget(0);
-            l_Wild->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
-            l_Wild->SetControlled(false, UNIT_STATE_ROOT);
-        }
-
-        for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
-
-        l_WildBattlePet = BattlePetInstance::Ptr();
-
-        SendPetBattleRequestFailed(l_ErrorCode);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
-    }
+        goto WILD_BATTLE_FAILED;
 
     SendPetBattleFinalizeLocation(l_BattleRequest);
 
@@ -1379,6 +1301,28 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
             l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
     l_WildBattlePet = BattlePetInstance::Ptr();
+
+    return;
+
+WILD_BATTLE_FAILED:
+    _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
+    _player->SetRooted(false);
+
+    if (l_Wild)
+    {
+        l_Wild->SetTarget(0);
+        l_Wild->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
+        l_Wild->SetControlled(false, UNIT_STATE_ROOT);
+    }
+
+    for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
+        if (l_PlayerPets[l_CurrentPetID])
+            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+
+    l_WildBattlePet = BattlePetInstance::Ptr();
+
+    SendPetBattleRequestFailed(l_ErrorCode);
+    sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
 }
 
 void WorldSession::HandlePetBattleRequestPvP(WorldPacket& p_RecvData)
