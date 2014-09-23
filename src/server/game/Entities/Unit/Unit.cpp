@@ -9596,6 +9596,18 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
                         target = victim;
                         break;
+                    case 5227:  // Touch of the Grave
+                    {
+                        if (GetTypeId() != TYPEID_PLAYER)
+                            return false;
+
+                        if (ToPlayer()->HasSpellCooldown(127802))
+                            return false;
+
+                        trigger_spell_id = 127802;
+                        ToPlayer()->AddSpellCooldown(127802, 0, 10 * IN_MILLISECONDS);
+                        break;
+                    }
                     case 57345:             // Darkmoon Card: Greatness
                     {
                         float stat = 0.0f;
