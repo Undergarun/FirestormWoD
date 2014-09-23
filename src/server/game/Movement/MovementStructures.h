@@ -156,45 +156,36 @@ MovementStatusElements PlayerMoveSequence[] =
 
 MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 {
-    switch (opcode)
-    {
-        case CMSG_CAST_SPELL:       // Cast spell has movement data part when castflags & 0x10, patched ClientSide to have same data of CMSG_PLAYER_MOVE
+    // Cast spell has movement data part when castflags & 0x10, patched ClientSide to have same data of CMSG_PLAYER_MOVE
+    if (opcode == CMSG_CAST_SPELL
+        || opcode == CMSG_MOVE_START_FORWARD
+        || opcode == CMSG_MOVE_START_TURN_LEFT
+        || opcode == CMSG_MOVE_START_TURN_RIGHT
+        || opcode == CMSG_MOVE_START_BACKWARD
+        || opcode == CMSG_MOVE_START_STRAFE_LEFT
+        || opcode == CMSG_MOVE_START_STRAFE_RIGHT
+        || opcode == CMSG_MOVE_JUMP
+        || opcode == CMSG_MOVE_FALL_LAND
+        || opcode == CMSG_MOVE_HEARTBEAT
+        || opcode == CMSG_MOVE_SET_FACING
+        || opcode == CMSG_MOVE_STOP
+        || opcode == CMSG_MOVE_STOP_TURN
+        || opcode == CMSG_MOVE_STOP_STRAFE)
+        return MovementGlobalSequence;
 
-        case CMSG_MOVE_START_FORWARD:
-        case CMSG_MOVE_START_TURN_LEFT:
-        case CMSG_MOVE_START_TURN_RIGHT:
-        case CMSG_MOVE_START_BACKWARD:
-        case CMSG_MOVE_START_STRAFE_LEFT:
-        case CMSG_MOVE_START_STRAFE_RIGHT:
-
-        case CMSG_MOVE_JUMP:
-        case CMSG_MOVE_FALL_LAND:
-
-        case CMSG_MOVE_HEARTBEAT:
-        case CMSG_MOVE_SET_FACING:
-
-        case CMSG_MOVE_STOP:
-        case CMSG_MOVE_STOP_TURN:
-        case CMSG_MOVE_STOP_STRAFE:
-            return MovementGlobalSequence;
-
-        case SMSG_MOVE_UPDATE:
-        case SMSG_MOVE_UPDATE_TELEPORT:
-        case SMSG_MOVE_UPDATE_RUN_SPEED:
-        case SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED:
-        case SMSG_MOVE_UPDATE_FLIGHT_SPEED:
-        case SMSG_MOVE_UPDATE_PITCH_RATE:
-        case SMSG_MOVE_UPDATE_RUN_BACK_SPEED:
-        case SMSG_MOVE_UPDATE_SWIM_BACK_SPEED:
-        case SMSG_MOVE_UPDATE_SWIM_SPEED:
-        case SMSG_MOVE_UPDATE_TURN_RATE:
-        case SMSG_MOVE_UPDATE_WALK_SPEED:
-        case SMSG_MOVE_UPDATE_KNOCK_BACK:
-            return PlayerMoveSequence;
-
-        default:
-            break;
-    }
+    if (opcode == SMSG_MOVE_UPDATE
+        || opcode ==  SMSG_MOVE_UPDATE_TELEPORT
+        || opcode ==  SMSG_MOVE_UPDATE_RUN_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_FLIGHT_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_PITCH_RATE
+        || opcode ==  SMSG_MOVE_UPDATE_RUN_BACK_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_SWIM_BACK_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_SWIM_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_TURN_RATE
+        || opcode ==  SMSG_MOVE_UPDATE_WALK_SPEED
+        || opcode ==  SMSG_MOVE_UPDATE_KNOCK_BACK)
+        return PlayerMoveSequence;
 
     return NULL;
 }

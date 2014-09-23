@@ -264,6 +264,8 @@ class WorldSession
 
         void ReadAddonsInfo(WorldPacket& data);
         void SendAddonsInfo();
+        void SendFeatureSystemStatus();
+        void SendTimeZoneInformations();
         bool IsAddonRegistered(const std::string& prefix) const;
 
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);

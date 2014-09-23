@@ -1059,6 +1059,92 @@ void WorldSession::SendAddonsInfo()
     SendPacket(&l_Data);
 }
 
+void WorldSession::SendFeatureSystemStatus()
+{
+    bool l_EuropaTicketSystemEnabled            = true;
+    bool l_PlayTimeAlert                        = false;
+    bool l_ScrollOfResurrectionEnabled          = false;
+    bool l_VoiceChatSystemEnabled               = false;
+    bool l_ItemRestorationButtonEnbaled         = false;
+    bool l_RecruitAFriendSystem                 = false;
+    bool l_HasTravelPass                        = false;
+    bool l_WebTicketSystemStatus                = false;
+    bool l_StoreEnabled                         = true;
+    bool l_StoreIsDisabledByParentalControls    = false;
+    bool l_StoreIsAvailable                     = true;
+
+    uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
+    uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
+    uint32 l_PlayTimeAlertDisplayAlertPeriod    = 0;
+
+    uint32 l_SORRemaining = 1;
+    uint32 l_SORMaxPerDay = 1;
+
+    uint32 l_ConfigRealmRecordID    = 640;
+    uint32 l_ConfigRealmID          = realmID;
+
+    uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
+
+    WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 50);
+
+    l_Data << uint8(l_ComplainSystemStatus);                        ///< Complaints System Status
+    l_Data << uint32(l_SORMaxPerDay);                               ///< Max SOR Per day
+    l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
+    l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
+    l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
+
+    l_Data.WriteBit(l_VoiceChatSystemEnabled);                      ///< voice Chat System Status
+    l_Data.WriteBit(l_EuropaTicketSystemEnabled);                   ///< Europa Ticket System Enabled
+    l_Data.WriteBit(l_ScrollOfResurrectionEnabled);                 ///< Scroll Of Resurrection Enabled
+    l_Data.WriteBit(l_StoreEnabled);                                ///< Store system status
+    l_Data.WriteBit(l_StoreIsAvailable);                            ///< Can purchase in store
+    l_Data.WriteBit(l_StoreIsDisabledByParentalControls);           ///< Is store disabled by parental controls
+    l_Data.WriteBit(l_ItemRestorationButtonEnbaled);                ///< Item Restoration Button Enabled
+    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled
+    l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
+    l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
+    l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.)
+    l_Data.FlushBits();
+
+    if (l_EuropaTicketSystemEnabled)
+    {
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.FlushBits();
+
+        l_Data << uint32(0);                                        ///< Max Tries
+        l_Data << uint32(60);                                       ///< Per Milliseconds
+        l_Data << uint32(10);                                       ///< Try Count
+        l_Data << uint32(1);                                        ///< Last Reset Time Before Now
+    }
+
+    if (l_PlayTimeAlert)
+    {
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertDelay);         ///< Alert delay
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertPeriod);        ///< Alert period
+        l_Data << uint32(l_PlayTimeAlertDisplayAlertTime);          ///< Alert display time
+    }
+
+    SendPacket(&l_Data);
+}
+
+void WorldSession::SendTimeZoneInformations()
+{
+    const static std::string l_TimeZoneName = "Europe/Paris";
+
+    WorldPacket l_Data(SMSG_SET_TIME_ZONE_INFORMATION, 26);
+    l_Data.WriteBits(l_TimeZoneName.size(), 7);
+    l_Data.WriteBits(l_TimeZoneName.size(), 7);
+    l_Data.FlushBits();
+
+    l_Data.WriteString(l_TimeZoneName);
+    l_Data.WriteString(l_TimeZoneName);
+
+    SendPacket(&l_Data);
+}
+
 bool WorldSession::IsAddonRegistered(const std::string& prefix) const
 {
     if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered

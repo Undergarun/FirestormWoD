@@ -1013,74 +1013,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(pCurrChar->GetGUID());
-
-    bool l_EuropaTicketSystemEnabled            = true;
-    bool l_PlayTimeAlert                        = false;
-    bool l_ScrollOfResurrectionEnabled          = false;
-    bool l_VoiceChatSystemEnabled               = false;
-    bool l_ItemRestorationButtonEnbaled         = false;
-    bool l_RecruitAFriendSystem                 = false;
-    bool l_HasTravelPass                        = false;
-    bool l_WebTicketSystemStatus                = false;
-    bool l_StoreEnabled                         = true;
-    bool l_StoreIsDisabledByParentalControls    = false;
-    bool l_StoreIsAvailable                     = true;
-
-    uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
-    uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
-    uint32 l_PlayTimeAlertDisplayAlertPeriod    = 0;
-
-    uint32 l_SORRemaining = 1;
-    uint32 l_SORMaxPerDay = 1;
-
-    uint32 l_ConfigRealmRecordID    = 640;
-    uint32 l_ConfigRealmID          = realmID;
-
-    uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
-
-    l_Data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);
-
-    l_Data << uint8(l_ComplainSystemStatus);                        ///< Complaints System Status
-    l_Data << uint32(l_SORMaxPerDay);                               ///< Max SOR Per day
-    l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
-    l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
-    l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
-
-    l_Data.WriteBit(l_VoiceChatSystemEnabled);                      ///< voice Chat System Status
-    l_Data.WriteBit(l_EuropaTicketSystemEnabled);                   ///< Europa Ticket System Enabled
-    l_Data.WriteBit(l_ScrollOfResurrectionEnabled);                 ///< Scroll Of Resurrection Enabled
-    l_Data.WriteBit(l_StoreEnabled);                                ///< Store system status
-    l_Data.WriteBit(l_StoreIsAvailable);                            ///< Can purchase in store
-    l_Data.WriteBit(l_StoreIsDisabledByParentalControls);           ///< Is store disabled by parental controls
-    l_Data.WriteBit(l_ItemRestorationButtonEnbaled);                ///< Item Restoration Button Enabled
-    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled
-    l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
-    l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
-    l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.)
-    l_Data.FlushBits();
-
-    if (l_EuropaTicketSystemEnabled)
-    {
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.FlushBits();
-
-        l_Data << uint32(0);                                        ///< Max Tries
-        l_Data << uint32(60);                                       ///< Per Milliseconds
-        l_Data << uint32(10);                                       ///< Try Count
-        l_Data << uint32(1);                                        ///< Last Reset Time Before Now
-    }
-
-    if (l_PlayTimeAlert)
-    {
-        l_Data << uint32(l_PlayTimeAlertDisplayAlertDelay);         ///< Alert delay
-        l_Data << uint32(l_PlayTimeAlertDisplayAlertPeriod);        ///< Alert period
-        l_Data << uint32(l_PlayTimeAlertDisplayAlertTime);          ///< Alert display time
-    }
-
-    SendPacket(&l_Data);
+    SendFeatureSystemStatus();
 
     uint32 time2 = getMSTime() - time1;
 
@@ -1132,17 +1065,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
 
-    const static std::string l_TimeZoneName = "Europe/Paris";
-
-    l_Data.Initialize(SMSG_SET_TIME_ZONE_INFORMATION, 26);
-    l_Data.WriteBits(l_TimeZoneName.size(), 7);
-    l_Data.WriteBits(l_TimeZoneName.size(), 7);
-    l_Data.FlushBits();
-
-    l_Data.WriteString(l_TimeZoneName);
-    l_Data.WriteString(l_TimeZoneName);
-
-    SendPacket(&l_Data);
+    SendTimeZoneInformations();
 
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
     {
@@ -2904,43 +2827,29 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
+void WorldSession::HandleReorderCharacters(WorldPacket& p_Packet)
 {
-    uint32 charactersCount = recvData.ReadBits(9);
+    uint32 l_CharactersCount = p_Packet.ReadBits(9);
 
-    std::vector<ObjectGuid> guids(charactersCount);
-    uint8 position;
+    std::vector<uint64> l_Guids(l_CharactersCount);
+    uint8 l_Position;
 
-    for (uint8 i = 0; i < charactersCount; ++i)
+    p_Packet.FlushBits();
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+    for (uint8 l_I = 0; l_I < l_CharactersCount; ++l_I)
     {
-        uint8 bitOrder[8] = { 7, 1, 5, 6, 4, 3, 0, 2 };
-        recvData.ReadBitInOrder(guids[i], bitOrder);
+        p_Packet.readPackGUID(l_Guids[l_I]);
+        p_Packet >> l_Position;
+
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
+        l_Stmt->setUInt8(0, l_Position);
+        l_Stmt->setUInt32(1, GUID_LOPART(l_Guids[l_I]));
+        l_Transaction->Append(l_Stmt);
     }
 
-    recvData.FlushBits();
-
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    for (uint8 i = 0; i < charactersCount; ++i)
-    {
-        recvData.ReadByteSeq(guids[i][0]);
-
-        recvData >> position;
-
-        recvData.ReadByteSeq(guids[i][6]);
-        recvData.ReadByteSeq(guids[i][2]);
-        recvData.ReadByteSeq(guids[i][3]);
-        recvData.ReadByteSeq(guids[i][1]);
-        recvData.ReadByteSeq(guids[i][7]);
-        recvData.ReadByteSeq(guids[i][4]);
-        recvData.ReadByteSeq(guids[i][5]);
-
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
-        stmt->setUInt8(0, position);
-        stmt->setUInt32(1, GUID_LOPART(guids[i]));
-        trans->Append(stmt);
-    }
-
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
 void WorldSession::HandleSuspendToken(WorldPacket& recvData)

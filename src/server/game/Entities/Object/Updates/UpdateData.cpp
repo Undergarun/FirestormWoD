@@ -62,7 +62,7 @@ bool UpdateData::BuildPacket(WorldPacket* p_Packet)
 
         *p_Packet << uint16(0);
         *p_Packet << uint32(m_outOfRangeGUIDs.size());
-
+        
         for (std::set<uint64>::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
             p_Packet->appendPackGUID(*i);
     }

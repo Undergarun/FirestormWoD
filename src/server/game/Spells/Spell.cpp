@@ -5080,6 +5080,9 @@ void Spell::SendSpellGo()
         data << uint32(0); // Projectile Visual 2
     }
 
+    data.WriteBit(false);
+    data.FlushBits();
+
     //bool hasSrc = m_targets.HasSrc();
     //bool hasDest = m_targets.HasDst();
     //bool hasBit48 = false;

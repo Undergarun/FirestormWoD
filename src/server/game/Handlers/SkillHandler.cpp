@@ -26,38 +26,42 @@
 #include "ObjectAccessor.h"
 #include "UpdateMask.h"
 
-void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
+void WorldSession::HandleSetSpecialization(WorldPacket& p_Packet)
 {
-    uint32 tab = recvData.read<uint32>();
-    uint8 classId = m_Player->getClass();
+    uint32  l_TabIndex  = p_Packet.read<uint32>();
+    uint8   l_ClassID   = m_Player->getClass();
 
     // Avoid cheat - hack
     if (m_Player->GetSpecializationId(m_Player->GetActiveSpec()))
         return;
 
-    uint32 specializationId = 0;
-    uint32 specializationSpell = 0;
+    uint32 l_SpecializationID       = 0;
+    uint32 l_SpecializationSpell    = 0;
 
-    for (uint32 i = 0; i < sChrSpecializationsStore.GetNumRows(); i++)
+    for (uint32 l_I = 0; l_I < sChrSpecializationsStore.GetNumRows(); l_I++)
     {
-        ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(i);
-        if (!specialization)
+        ChrSpecializationsEntry const * l_Specialization = sChrSpecializationsStore.LookupEntry(l_I);
+
+        if (!l_Specialization)
             continue;
 
-        if (specialization->classId == classId && specialization->tabId == tab)
+        if (l_Specialization->classId == l_ClassID && l_Specialization->tabId == l_TabIndex)
         {
-            specializationId = specialization->entry;
-            specializationSpell = specialization->specializationSpell;
+            l_SpecializationID      = l_Specialization->entry;
+            l_SpecializationSpell   = l_Specialization->specializationSpell;
+
             break;
         }
     }
 
-    if (specializationId)
+    if (l_SpecializationID)
     {
-        m_Player->SetSpecializationId(m_Player->GetActiveSpec(), specializationId);
+        m_Player->SetSpecializationId(m_Player->GetActiveSpec(), l_SpecializationID);
         m_Player->SendTalentsInfoData(false);
-        if (specializationSpell)
-            m_Player->learnSpell(specializationSpell, false);
+
+        if (l_SpecializationSpell)
+            m_Player->learnSpell(l_SpecializationSpell, false);
+
         m_Player->InitSpellForLevel();
         m_Player->UpdateMasteryPercentage();
     }

@@ -304,7 +304,9 @@ void World::AddSession_(WorldSession* s)
     }
 
     s->SendAuthResponse(AUTH_OK, false);
+    s->SendTimeZoneInformations();
     s->SendAddonsInfo();
+    s->SendFeatureSystemStatus();
     s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     s->SendTutorialsData();
 
@@ -399,7 +401,9 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         pop_sess->SetInQueue(false);
         pop_sess->ResetTimeOutTime();
         pop_sess->SendAuthWaitQue(0);
+        pop_sess->SendTimeZoneInformations();
         pop_sess->SendAddonsInfo();
+        pop_sess->SendFeatureSystemStatus();
 
         pop_sess->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
         pop_sess->SendAccountDataTimes(GLOBAL_CACHE_MASK);

@@ -1213,47 +1213,48 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     SetAccountData(AccountDataType(type), timestamp, adata);
 }
 
-void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
+void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
 
-    uint32 type = recvData.ReadBits(3);
-    recvData.FlushBits();
+    uint64 l_CharacterGuid = 0;
+    uint32 l_Type;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", type);
+    p_Packet.readPackGUID(l_CharacterGuid);
+    l_Type = p_Packet.ReadBits(3);
 
-    if (type > NUM_ACCOUNT_DATA_TYPES)
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", l_Type);
+
+    if (l_Type > NUM_ACCOUNT_DATA_TYPES)
         return;
 
-    AccountData* adata = GetAccountData(AccountDataType(type));
+    AccountData* l_AccountData = GetAccountData(AccountDataType(l_Type));
 
-    uint32 size = adata->Data.size();
+    uint32 l_Size       = l_AccountData->Data.size();
+    uLongf l_DestSize   = compressBound(l_Size);
 
-    uLongf destSize = compressBound(size);
+    ByteBuffer l_CompressedData;
+    l_CompressedData.resize(l_DestSize);
 
-    ByteBuffer dest;
-    dest.resize(destSize);
-
-    if (size && compress(const_cast<uint8*>(dest.contents()), &destSize, (uint8*)adata->Data.c_str(), size) != Z_OK)
+    if (l_Size && compress(const_cast<uint8*>(l_CompressedData.contents()), &l_DestSize, (uint8*)l_AccountData->Data.c_str(), l_Size) != Z_OK)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
         return;
     }
 
-    dest.resize(destSize);
+    l_CompressedData.resize(l_DestSize);
 
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+destSize);
-    ObjectGuid playerGuid = m_Player ? m_Player->GetGUID() : 0;
+    WorldPacket l_Response(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+l_DestSize);
 
-    data.appendPackGUID(playerGuid);
-    data << uint32(adata->Time);                            // unix time
-    data << uint32(destSize);                               // compressed length
-    data.WriteBits(type, 3);
-    data.FlushBits();
-    data.append(dest);                                      // compressed data
-    data << uint32(size);                                   // decompressed length
+    l_Response.appendPackGUID(l_CharacterGuid);
+    l_Response << uint32(l_AccountData->Time);      /// unix time
+    l_Response << uint32(l_DestSize);               /// compressed length
+    l_Response.WriteBits(l_Type, 3);
+    l_Response.FlushBits();
+    l_Response.append(l_CompressedData);            /// compressed data
+    l_Response << uint32(l_Size);                   /// decompressed length
 
-    SendPacket(&data);
+    SendPacket(&l_Response);
 }
 
 int32 WorldSession::HandleEnableNagleAlgorithm()
