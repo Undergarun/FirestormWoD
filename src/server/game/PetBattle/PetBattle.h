@@ -36,7 +36,7 @@ class Field;
 #define PETBATTLE_NULL_ID -1
 #define PETBATTLE_NULL_SLOT -1
 #define PETBATTLE_UPDATE_INTERVAL 300
-#define PETBATTLE_DELETE_INTERVAL (1 * 30 * IN_MILLISECONDS)
+#define PETBATTLE_DELETE_INTERVAL (2 * 60 * IN_MILLISECONDS)
 
 #define PETBATTLE_TEAM_1 0
 #define PETBATTLE_TEAM_2 1
@@ -282,13 +282,8 @@ enum ePetBattleAbilities
 class BattlePet
 {
     public:
-        typedef std::shared_ptr<BattlePet> Ptr;
-
-    public:
         /// Load
         void Load(Field* p_Fields);
-        /// Load
-        void CloneFrom(BattlePet::Ptr & p_BattlePet);
         /// Save
         void Save();
 
@@ -326,12 +321,6 @@ class PetBattle;
 class BattlePetInstance : public BattlePet
 {
     public:
-        typedef std::shared_ptr<BattlePetInstance> Ptr;
-
-    public:
-        /// Constructor
-        BattlePetInstance();
-
         /// Is alive ?
         bool IsAlive();
         bool CanAttack();
@@ -345,9 +334,6 @@ class BattlePetInstance : public BattlePet
         /// Get xp earn
         uint32 GetXPEarn(uint32 p_TargetPetID);
 
-        /// Update original instance
-        void UpdateOriginalInstance();
-
     public:
         uint32      TeamID;                                 ///< Team ID
         uint32      ID;                                     ///< Rel id for battle (0 - 1 - 2 - 3 - 4 - 5)
@@ -358,8 +344,6 @@ class BattlePetInstance : public BattlePet
         PetBattle * PetBattleInstance;                      ///< Pet battle instance helper
 
         uint32      OldLevel;
-
-        BattlePet::Ptr  OriginalBattlePet;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -591,25 +575,25 @@ class PetBattleTeam
         uint32 GetCatchAbilityID();
 
     public:
-        uint64 OwnerGuid;                                       ///< Team owner guid
-        uint64 PlayerGuid;                                      ///< Team player owner guid
+        uint64 OwnerGuid;                                   ///< Team owner guid
+        uint64 PlayerGuid;                                  ///< Team player owner guid
 
-        PetBattle * PetBattleInstance;                          ///< Pet battle instance
+        PetBattle * PetBattleInstance;                      ///< Pet battle instance
 
-        BattlePetInstance::Ptr TeamPets[MAX_PETBATTLE_SLOTS];   ///< Team pets
-        uint32 TeamPetCount;                                    ///< Team pet count
+        std::shared_ptr<BattlePetInstance> TeamPets[MAX_PETBATTLE_SLOTS];  ///< Team pets
+        uint32 TeamPetCount;                                ///< Team pet count
 
-        std::map<uint32, uint32> CapturedSpeciesCount;          ///< Captured species count
+        std::map<uint32, uint32> CapturedSpeciesCount;      ///< Captured species count
 
-        uint32 ActivePetID;                                     ///< Team active pet
+        uint32 ActivePetID;                                 ///< Team active pet
 
         uint32 ActiveAbilityId;
         uint32 activeAbilityTurn;
         uint32 activeAbilityTurnMax;
 
-        int8 CapturedPet;                                       ///< Captured pet id
+        int8 CapturedPet;                                   ///< Captured pet id
 
-        bool Ready;                                             ///< Team is ready to process next round
+        bool Ready;                                         ///< Team is ready to process next round
 };
 
 /// Pet battle instance
