@@ -691,8 +691,8 @@ public:
                     }
 					case EVENT_BERSERK_MELJARAK:
                     {
-						DoCast(me, SPELL_BERSERK_MELJARAK);
-						break;
+                        me->AddAura(SPELL_BERSERK_MELJARAK, me);
+                        break;
                     }
                     default:
                         break;
