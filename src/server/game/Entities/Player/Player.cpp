@@ -5591,7 +5591,8 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 
     if (result)
     {
-        uint64 curTime = ACE_OS::gettimeofday().msec();
+        uint64 curTime = 0;
+        ACE_OS::gettimeofday().msec(curTime);
 
         do
         {
@@ -5624,7 +5625,8 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
-    uint64 curTime = ACE_OS::gettimeofday().msec();
+    uint64 curTime = 0;
+    ACE_OS::gettimeofday().msec(curTime);
     uint64 infTime = curTime + infinityCooldownDelayCheck;
 
     bool first_round = true;
@@ -25220,12 +25222,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
     {
         int days = catrec / 1000;
-        time_t cooldown = curTime + (86400 * days);
-        tm *ltm = localtime(&cooldown);
-        ltm->tm_hour = 0;
-        ltm->tm_min = 0;
-        ltm->tm_sec = 0;
-        recTime = mktime(ltm);
+        recTime = (86400 * days) * IN_MILLISECONDS;
     }
 
     // self spell cooldown
