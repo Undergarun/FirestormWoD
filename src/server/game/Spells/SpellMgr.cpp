@@ -3389,6 +3389,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 133795: // Life Drain
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133798: // Life Drain
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133796: // Life Drain
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 1.632f;
                 break;
@@ -3398,6 +3408,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 117667:// Legacy of the Emperor (buff)
                 spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                break;
+            case 45477: // Icy Touch
+                spellInfo->AttackPowerBonus = 0.319f;
+                break;
+            case 49184: // Howling Blast
+                spellInfo->AttackPowerBonus = 0.428f;
                 break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;

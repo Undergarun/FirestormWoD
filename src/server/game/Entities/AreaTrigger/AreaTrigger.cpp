@@ -453,7 +453,7 @@ void AreaTrigger::Update(uint32 p_time)
         }
         case 133793: // Lingering Gaze
         {
-            float l_BiggestRadius = m_visualRadius + 1.0f;
+            float l_BiggestRadius = m_visualRadius + 2.0f;
             bool l_MergeCheck = false;
 
             std::list<Player*> playerList;
@@ -473,10 +473,11 @@ void AreaTrigger::Update(uint32 p_time)
                         {
                             for (AreaTrigger* l_AreaTrigger : l_AreaTriggerList)
                             {
-                                if (l_AreaTrigger->GetDistance(this) < 2.5f)
+                                if (l_AreaTrigger != this && l_AreaTrigger->GetDistance(this) < 2.5f)
                                 {
                                     l_AreaTrigger->Remove();
-                                    //this->SetObjectScale(m_visualRadius * 1.5f);
+                                    SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 1.5f);
+                                    this->SetObjectScale(m_visualRadius * 1.5f);
                                     this->SetVisualRadius(m_visualRadius * 1.5f);
                                     l_MergeCheck = true;
                                 }
@@ -487,7 +488,7 @@ void AreaTrigger::Update(uint32 p_time)
                     if (player->GetDistance(this) > m_visualRadius && player->HasAura(134040))
                         player->RemoveAura(134040);
 
-                    if (player->GetDistance(this) <= l_BiggestRadius && !player->HasAura(134040))
+                    if (player->GetDistance(this) <= m_visualRadius && !player->HasAura(134040))
                         player->AddAura(134040, player);
                 }
             }

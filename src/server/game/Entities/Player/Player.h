@@ -3608,7 +3608,10 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                     pyroblast = true;
             }
 
-            totalmul += CalculatePct(1.0f, value);
+            if (value > 0)
+                totalmul = CalculatePct(totalmul, 100 + value);
+            else
+                totalmul = CalculatePct(totalmul, 100 + value);
         }
 
         if (removestacks && !m_isMoltenCored)

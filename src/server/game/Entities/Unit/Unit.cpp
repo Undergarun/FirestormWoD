@@ -12845,6 +12845,66 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         }
     }
 
+    if (!spellProto->IsScaled())
+    {
+        // Done fixed damage bonus auras
+        int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
+        // Pets just add their bonus damage to their spell damage
+        // note that their spell damage is just gain of their own auras
+        if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+            DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
+
+        // Check for table values
+        float coeff = 0;
+        SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
+        if (bonus)
+        {
+            if (damagetype == DOT)
+            {
+                coeff = bonus->dot_damage;
+                if (bonus->ap_dot_bonus > 0)
+                {
+                    WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+                    float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+                    if (ToPlayer() && ToPlayer()->getClass() == CLASS_MONK)
+                    attType = BASE_ATTACK;
+                    APbonus += GetTotalAttackPowerValue(attType);
+                    DoneTotal += int32(bonus->ap_dot_bonus * stack * ApCoeffMod * APbonus);
+                }
+            }
+            else
+            {
+                coeff = bonus->direct_damage;
+                if (bonus->ap_bonus > 0)
+                {
+                    WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+                    float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+                    APbonus += GetTotalAttackPowerValue(attType);
+                    if (spellProto && spellProto->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
+                        APbonus += GetTotalAttackPowerValue(BASE_ATTACK);
+                    DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
+                }
+            }
+        }
+        // Default calculation
+        if (DoneAdvertisedBenefit)
+        {
+            if (!bonus || coeff < 0)
+                coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack);
+
+            float factorMod = CalculateLevelPenalty(spellProto) * stack;
+
+            if (Player* modOwner = GetSpellModOwner())
+            {
+                coeff *= 100.0f;
+                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
+                coeff /= 100.0f;
+            }
+
+            DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
+        }
+    }
+
     float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
     if (Player* modOwner = GetSpellModOwner())
@@ -12934,20 +12994,30 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
 
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
 
-    // Default calculation
-    if (TakenAdvertisedBenefit)
+    // Check for table values
+    if (!spellProto->IsScaled())
     {
-        float coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack);
+        float coeff = 0;
+        SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
+        if (bonus)
+            coeff = (damagetype == DOT) ? bonus->dot_damage : bonus->direct_damage;
 
-        float factorMod = CalculateLevelPenalty(spellProto) * stack;
-        // level penalty still applied on Taken bonus - is it blizzlike?
-        if (Player* modOwner = GetSpellModOwner())
+        // Default calculation
+        if (TakenAdvertisedBenefit)
         {
-            coeff *= 100.0f;
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
-            coeff /= 100.0f;
+            float coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack);
+
+            float factorMod = CalculateLevelPenalty(spellProto) * stack;
+            // level penalty still applied on Taken bonus - is it blizzlike?
+            if (Player* modOwner = GetSpellModOwner())
+            {
+                coeff *= 100.0f;
+                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
+                coeff /= 100.0f;
+            }
+
+            TakenTotal += int32(TakenAdvertisedBenefit * coeff * factorMod);
         }
-        TakenTotal+= int32(TakenAdvertisedBenefit * coeff * factorMod);
     }
 
     float tmpDamage = 0.0f;
