@@ -3402,6 +3402,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 1.632f;
                 break;
+            case 45477: // Icy Touch
+                spellInfo->AttackPowerBonus = 0.319f;
+                break;
+            case 49184: // Howling Blast
+                spellInfo->AttackPowerBonus = 0.428f;
+                break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
                 break;
