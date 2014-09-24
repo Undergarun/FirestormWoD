@@ -3392,6 +3392,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 1.632f;
                 break;
+            case 115921:// Legacy of the Emperor
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
+                break;
+            case 117667:// Legacy of the Emperor (buff)
+                spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
                 break;
@@ -5031,6 +5038,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
+                spellInfo->Effects[1].BasePoints = -70;
                 break;
             case 49821: // Mind Sear
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CHANNEL_TARGET;
