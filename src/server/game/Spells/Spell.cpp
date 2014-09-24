@@ -4403,102 +4403,72 @@ void Spell::SendCastResult(SpellCastResult result)
     SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_spellPowerData, m_cast_count, result, m_customError);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellPowerEntry const* powerData, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, SpellPowerEntry const* powerData, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
 {
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket data(SMSG_CAST_FAILED, 1+4+4);
-    data << uint8(cast_count);                              // single cast or multi 2.3 (0/1)
-    data << uint32(result);                                 // problem
-    data << uint32(spellInfo->Id);                          // spellId
+    WorldPacket l_Data(SMSG_CAST_FAILED, 1+4+4);
+    l_Data << uint32(p_SpellInfo->Id);                                  /// spellId
+    l_Data << uint32(result);                                           /// problem
 
     switch (result)
     {
         case SPELL_FAILED_NO_POWER:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(powerData->powerType);
+            l_Data << uint32(powerData->powerType);                     /// Power type
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_NOT_READY:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(0);                              // unknown (value 1 update cooldowns on client flag)
+            l_Data.WriteBit(0);
+            l_Data.WriteBit(1);
+            l_Data << uint32(0);                                        /// unknown (value 1 update cooldowns on client flag)
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(spellInfo->RequiresSpellFocus);  // SpellFocusObject.dbc id
+            l_Data << uint32(p_SpellInfo->RequiresSpellFocus);          /// SpellFocusObject.dbc id
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
-        case SPELL_FAILED_REQUIRES_AREA:                    // AreaTable.dbc id
+        case SPELL_FAILED_REQUIRES_AREA:                                /// AreaTable.dbc id
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-
             // hardcode areas limitation case
-            switch (spellInfo->Id)
+            switch (p_SpellInfo->Id)
             {
-                case 41617:                                 // Cenarion Mana Salve
-                case 41619:                                 // Cenarion Healing Salve
-                    data << uint32(3905);
+                case 41617:                                             /// Cenarion Mana Salve
+                case 41619:                                             /// Cenarion Healing Salve
+                    l_Data << uint32(3905);
                     break;
-                case 41618:                                 // Bottled Nethergon Energy
-                case 41620:                                 // Bottled Nethergon Vapor
-                    data << uint32(3842);
+                case 41618:                                             /// Bottled Nethergon Energy
+                case 41620:                                             /// Bottled Nethergon Vapor
+                    l_Data << uint32(3842);
                     break;
-                case 45373:                                 // Bloodberry Elixir
-                    data << uint32(4075);
+                case 45373:                                             /// Bloodberry Elixir
+                    l_Data << uint32(4075);
                     break;
-                default:                                    // default case (don't must be)
-                    data << uint32(0);
+                default:                                                /// default case (don't must be)
+                    l_Data << uint32(0);
                     break;
             }
+            l_Data << uint32(0);                                        /// Arg2 => NULL
 
             break;
         }
         case SPELL_FAILED_TOTEMS:
         {
-            if (spellInfo->Totem[0] && spellInfo->Totem[1])
-            {
-                data.WriteBit(0);
-                data.WriteBit(0);
-            }
-            else
-            {
-                data.WriteBit(0);
-                data.WriteBit(1);
-            }
-
-            if (spellInfo->Totem[0])
-                data << uint32(spellInfo->Totem[0]);
-            if (spellInfo->Totem[1])
-                data << uint32(spellInfo->Totem[1]);
+            l_Data << uint32(p_SpellInfo->Totem[0]);
+            l_Data << uint32(p_SpellInfo->Totem[1]);
 
             break;
         }
         case SPELL_FAILED_TOTEM_CATEGORY:
         {
-            if (spellInfo->TotemCategory[0] && spellInfo->TotemCategory[1])
-            {
-                data.WriteBit(0);
-                data.WriteBit(0);
-            }
-            else
-            {
-                data.WriteBit(0);
-                data.WriteBit(1);
-            }
-
-            if (spellInfo->TotemCategory[0])
-                data << uint32(spellInfo->TotemCategory[0]);
-            if (spellInfo->TotemCategory[1])
-                data << uint32(spellInfo->TotemCategory[1]);
+            l_Data << uint32(p_SpellInfo->TotemCategory[0]);
+            l_Data << uint32(p_SpellInfo->TotemCategory[1]);
 
             break;
         }
@@ -4506,116 +4476,108 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellPowe
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND:
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND:
         {
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data << uint32(spellInfo->EquippedItemClass);
-            data << uint32(spellInfo->EquippedItemSubClassMask);
+            l_Data << uint32(p_SpellInfo->EquippedItemClass);           /// Arg1 => NULL
+            l_Data << uint32(p_SpellInfo->EquippedItemSubClassMask);    /// Arg2 => NULL
 
             break;
         }
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
-            uint32 item = 0;
-            for (int8 eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
-                if (spellInfo->Effects[eff].ItemType)
-                    item = spellInfo->Effects[eff].ItemType;
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
-            if (proto && proto->ItemLimitCategory)
+            uint32 l_ItemID = 0;
+
+            for (int8 l_EffectIndex = 0; l_EffectIndex < MAX_SPELL_EFFECTS; l_EffectIndex++)
             {
-                data.WriteBit(0);
-                data.WriteBit(1);
-                data << uint32(proto->ItemLimitCategory);
+                if (p_SpellInfo->Effects[l_EffectIndex].ItemType)
+                    l_ItemID = p_SpellInfo->Effects[l_EffectIndex].ItemType;
             }
+
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
+
+            if (l_ItemTemplate)
+                l_Data << uint32(l_ItemTemplate->ItemLimitCategory);    /// Arg1 => ItemLimitCategory
             else
-            {
-                data.WriteBit(1);
-                data.WriteBit(1);
-            }
+                l_Data << uint32(0);                                    /// Arg1 => NULL
+
+            l_Data << uint32(0);                                        /// Arg2 => NULL
 
             break;
         }
         case SPELL_FAILED_PREVENTED_BY_MECHANIC:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(spellInfo->GetAllEffectsMechanicMask());  // SpellMechanic.dbc id
+            l_Data << uint32(p_SpellInfo->GetAllEffectsMechanicMask()); /// Arg1 => required fishing skill
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_NEED_EXOTIC_AMMO:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(spellInfo->EquippedItemSubClassMask); // seems correct...
+            l_Data << uint32(p_SpellInfo->EquippedItemSubClassMask);    /// Arg1 => required fishing skill
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_NEED_MORE_ITEMS:
         {
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data << uint32(0);                              // Item id
-            data << uint32(0);                              // Item count?
+            l_Data << uint32(0);                                        /// Arg1 => Item id
+            l_Data << uint32(0);                                        /// Arg2 => Item count?
             break;
         }
         case SPELL_FAILED_MIN_SKILL:
         {
-            data.WriteBit(0);
-            data.WriteBit(0);
-            data << uint32(0);                              // SkillLine.dbc id
-            data << uint32(0);                              // required skill value
+            l_Data << uint32(0);                                        /// Arg1 => SkillLine.dbc id
+            l_Data << uint32(0);                                        /// Arg2 => required skill value
             break;
         }
         case SPELL_FAILED_FISHING_TOO_LOW:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(0);                              // required fishing skill
+            l_Data << uint32(0);                                        /// Arg1 => required fishing skill
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_CUSTOM_ERROR:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(customError);
+            l_Data << uint32(customError);                              /// Arg1 => Custom error code
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_SILENCED:
         {
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(0);                              // Unknown
+            l_Data << uint32(0);                                        /// Arg1 => Unknown
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
         case SPELL_FAILED_REAGENTS:
         {
-            uint32 missingItem = 0;
-            for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
+            uint32 l_MissingItem = 0;
+
+            for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; l_I++)
             {
-                if (spellInfo->Reagent[i] <= 0)
+                if (p_SpellInfo->Reagent[l_I] <= 0)
                     continue;
 
-                uint32 itemid    = spellInfo->Reagent[i];
-                uint32 itemcount = spellInfo->ReagentCount[i];
+                uint32 l_ItemID    = p_SpellInfo->Reagent[l_I];
+                uint32 l_ItemCount = p_SpellInfo->ReagentCount[l_I];
 
-                if (!caster->HasItemCount(itemid, itemcount))
+                if (!caster->HasItemCount(l_ItemID, l_ItemCount))
                 {
-                    missingItem = itemid;
+                    l_MissingItem = l_ItemID;
                     break;
                 }
             }
 
-            data.WriteBit(0);
-            data.WriteBit(1);
-            data << uint32(missingItem);  // first missing item
-            break;
-        }
-        // TODO: SPELL_FAILED_NOT_STANDING
-        default:
-            data.WriteBit(1);
-            data.WriteBit(1);
+            l_Data << uint32(l_MissingItem);                            /// Arg1 => first missing item
+            l_Data << uint32(0);                                        /// Arg2 => NULL
+            break;                                                      
+        }                                                               
+                                                                        
+        // TODO: SPELL_FAILED_NOT_STANDING                              
+        default:                                                        
+            l_Data << uint32(0);                                        /// Arg1 => NULL
+            l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
     }
 
-    caster->GetSession()->SendPacket(&data);
+    l_Data << uint8(cast_count);                              /// single cast or multi 2.3 (0/1)
+
+    caster->GetSession()->SendPacket(&l_Data);
 }
 
 void Spell::SendSpellStart()
@@ -5389,106 +5351,87 @@ void Spell::ExecuteLogEffectResurrect(uint8 effIndex, Unit* target)
     m_effectExecuteData[effIndex].AddTarget(target->GetGUID());
 }
 
-void Spell::SendInterrupted(uint8 result)
+void Spell::SendInterrupted(uint8 p_Result)
 {
-    ObjectGuid casterGuid = m_caster->GetGUID();
+    WorldPacket l_Data(SMSG_SPELL_FAILURE, (8+4+1));
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint8(m_cast_count);
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint16(p_Result);
 
-    WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
-    uint8 bitsOtherOrder[8] = { 2, 1, 7, 0, 5, 3, 4, 6 };
-    data.WriteBitInOrder(casterGuid, bitsOtherOrder);
+    m_caster->SendMessageToSet(&l_Data, true);
 
-    data << uint8(m_cast_count);
-    data.WriteByteSeq(casterGuid[7]);
-    data.WriteByteSeq(casterGuid[4]);
-    data.WriteByteSeq(casterGuid[5]);
-    data << uint8(result);
-    data << uint32(m_spellInfo->Id);
-    data.WriteByteSeq(casterGuid[3]);
-    data.WriteByteSeq(casterGuid[6]);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(casterGuid[2]);
+    l_Data.Initialize(SMSG_SPELL_FAILED_OTHER, (8 + 4));
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint8(m_cast_count);
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint8(p_Result);
 
-    m_caster->SendMessageToSet(&data, true);
-
-    data.Initialize(SMSG_SPELL_FAILED_OTHER, (8+4));
-
-    uint8 bitsOtherOrder1[8] = { 5, 6, 7, 0, 4, 3, 1, 2 };
-    data.WriteBitInOrder(casterGuid, bitsOtherOrder1);
-
-    data.WriteByteSeq(casterGuid[4]);
-    data.WriteByteSeq(casterGuid[6]);
-    data << uint8(result);
-    data << uint8(m_cast_count);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(casterGuid[7]);
-    data.WriteByteSeq(casterGuid[2]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(casterGuid[3]);
-    data << uint32(m_spellInfo->Id);
-    data.WriteByteSeq(casterGuid[5]);
-
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(&l_Data, true);
 }
 
-void Spell::SendChannelUpdate(uint32 time)
+void Spell::SendChannelUpdate(uint32 p_Time)
 {
-    if (time == 0)
+    if (p_Time == 0)
     {
         //m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8+4);
-    ObjectGuid guid = m_caster->GetGUID();
-    uint8 bitOrder[8] = {2, 7, 0, 6, 5, 3, 1, 4};
-    data.WriteBitInOrder(guid, bitOrder);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data << uint32(time);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
+    WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 8 + 4);
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(p_Time);
 
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(&l_Data, true);
 }
 
-void Spell::SendChannelStart(uint32 duration)
+void Spell::SendChannelStart(uint32 p_Duration)
 {
-    uint64 channelTarget = m_targets.GetObjectTargetGUID();
+    uint64 l_ChannelTarget = m_targets.GetObjectTargetGUID();
 
-    if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
-        if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
+    if (!l_ChannelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
+    {
+        /// this is for TARGET_SELECT_CATEGORY_NEARBY
+        if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   
+        {
             if (!m_UniqueTargetInfo.empty())
-                channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
+                l_ChannelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
+        }
+    }
 
-    WorldPacket data(SMSG_SPELL_CHANNEL_START, (8+4+4));
-    ObjectGuid guid = m_caster->GetGUID();
-    uint8 bitOrder[8] = {6, 0, 4, 1, 2, 3, 5, 7};
+    bool l_HaveSpellTargetedHealPrediction = false;
+    bool l_HaveSpellChannelStartInterruptImmunities = false;
 
-    data.WriteBit(false); // hasHealPrediction
-    data.WriteBit(false); // hasCastFlagImmunity
-    data.WriteBitInOrder(guid, bitOrder);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data << uint32(m_spellInfo->Id);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-    data << uint32(duration);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
+    WorldPacket l_Data(SMSG_SPELL_CHANNEL_START, (16 + 4 + 4 + 1) + (l_HaveSpellTargetedHealPrediction ? 4 + 1 + 16 + 16 : 0) + (l_HaveSpellChannelStartInterruptImmunities ? 4 + 4 : 0));
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(p_Duration);
+    l_Data.WriteBit(l_HaveSpellChannelStartInterruptImmunities);
+    l_Data.WriteBit(l_HaveSpellTargetedHealPrediction);
+    l_Data.FlushBits();
 
-    m_caster->SendMessageToSet(&data, true);
+    if (l_HaveSpellChannelStartInterruptImmunities)
+    {
+        l_Data << uint32(0);                  ///< SchoolImmunities
+        l_Data << uint32(0);                  ///< Immunities
+    }
 
-    m_timer = duration;
-    if (channelTarget)
-        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
+    if (l_HaveSpellTargetedHealPrediction)
+    {
+        l_Data.appendPackGUID(0);             ///< TargetGUID
+        l_Data << uint32(0);                  ///< Points
+        l_Data << uint8(0);                   ///< Type
+        l_Data.appendPackGUID(0);             ///< BeaconGUID
+    }
 
+    m_caster->SendMessageToSet(&l_Data, true);
+
+    m_timer = p_Duration;
+
+    if (l_ChannelTarget)
+        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, l_ChannelTarget);
+
+    /// 101546 Spinning Crane Kick
     if (m_spellInfo->Id != 101546)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
 }
@@ -7829,54 +7772,46 @@ SpellCastResult Spell::CheckItems()
     return SPELL_CAST_OK;
 }
 
-// Called only in Unit::DealDamage
+/// Called only in Unit::DealDamage
 void Spell::Delayed()
 {
-    // Spell is active and can't be time-backed
+    /// Spell is active and can't be time-backed
     if (!m_caster)
         return;
 
-    // Spells may only be delayed twice
+    /// Spells may only be delayed twice
     if (isDelayableNoMore())
         return;
 
-    // Check pushback reduce
-    // Spellcasting delay is normally 500ms
-    int32 delaytime = 150;
-    // Must be initialized to 100 for percent modifiers
-    int32 delayReduce = 100;
-    m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
-    delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
-    if (delayReduce >= 100)
+    /// Check pushback reduce
+    /// Spellcasting delay is normally 500ms
+    int32 l_DelayTime = 150;
+
+    /// Must be initialized to 100 for percent modifiers
+    int32 l_DelayReduce = 100;
+
+    m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, l_DelayReduce, this);
+
+    l_DelayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
+
+    if (l_DelayReduce >= 100)
         return;
 
-    AddPct(delaytime, -delayReduce);
+    AddPct(l_DelayTime, -l_DelayReduce);
 
-    if (m_timer + delaytime > m_casttime)
+    if (m_timer + l_DelayTime > m_casttime)
     {
-        delaytime = m_casttime - m_timer;
+        l_DelayTime = m_casttime - m_timer;
         m_timer = m_casttime;
     }
     else
-        m_timer += delaytime;
+        m_timer += l_DelayTime;
 
-    WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    ObjectGuid casterGuid = m_caster->GetGUID();
+    WorldPacket l_Data(SMSG_SPELL_DELAYED, 8 + 4);
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(l_DelayTime);
 
-    uint8 bits[8] = { 4, 6, 3, 7, 2, 5, 0, 1 };
-    data.WriteBitInOrder(casterGuid, bits);
-
-    data.WriteByteSeq(casterGuid[7]);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(casterGuid[4]);
-    data.WriteByteSeq(casterGuid[6]);
-    data.WriteByteSeq(casterGuid[2]);
-    data.WriteByteSeq(casterGuid[5]);
-    data << uint32(delaytime);
-    data.WriteByteSeq(casterGuid[3]);
-
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(&l_Data, true);
 }
 
 void Spell::DelayedChannel()

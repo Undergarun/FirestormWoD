@@ -6725,24 +6725,24 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
 
     ObjectGuid guid = target->GetGUID();
 
-    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, target->GetPackGUID().size()+4);
+    WorldPacket l_Data(SMSG_PLAYER_VEHICLE_DATA, target->GetPackGUID().size()+4);
     uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
-    data.WriteBitInOrder(guid, bitOrder);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(apply ? vehicleId : 0);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    target->SendMessageToSet(&data, true);
+    l_Data.WriteBitInOrder(guid, bitOrder);
+    l_Data.WriteByteSeq(guid[4]);
+    l_Data.WriteByteSeq(guid[3]);
+    l_Data.WriteByteSeq(guid[1]);
+    l_Data << uint32(apply ? vehicleId : 0);
+    l_Data.WriteByteSeq(guid[6]);
+    l_Data.WriteByteSeq(guid[7]);
+    l_Data.WriteByteSeq(guid[5]);
+    l_Data.WriteByteSeq(guid[2]);
+    l_Data.WriteByteSeq(guid[0]);
+    target->SendMessageToSet(&l_Data, true);
 
     if (apply)
     {
-        data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        target->ToPlayer()->GetSession()->SendPacket(&data);
+        l_Data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        target->ToPlayer()->GetSession()->SendPacket(&l_Data);
     }
 
     // Form of Stag

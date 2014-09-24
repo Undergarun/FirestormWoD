@@ -14210,22 +14210,22 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 
                 // Send others that we now have a vehicle
                 ObjectGuid guid = GetGUID();
-                WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
+                WorldPacket l_Data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
                 uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
-                data.WriteBitInOrder(guid, bitOrder);
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[1]);
-                data << uint32(VehicleId);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[0]);
-                SendMessageToSet(&data, true);
+                l_Data.WriteBitInOrder(guid, bitOrder);
+                l_Data.WriteByteSeq(guid[4]);
+                l_Data.WriteByteSeq(guid[3]);
+                l_Data.WriteByteSeq(guid[1]);
+                l_Data << uint32(VehicleId);
+                l_Data.WriteByteSeq(guid[6]);
+                l_Data.WriteByteSeq(guid[7]);
+                l_Data.WriteByteSeq(guid[5]);
+                l_Data.WriteByteSeq(guid[2]);
+                l_Data.WriteByteSeq(guid[0]);
+                SendMessageToSet(&l_Data, true);
 
-                data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-                player->GetSession()->SendPacket(&data);
+                l_Data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+                player->GetSession()->SendPacket(&l_Data);
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -17887,22 +17887,25 @@ Player* Unit::GetSpellModOwner() const
 }
 
 ///----------Pet responses methods-----------------
-void Unit::SendPetCastFail(uint32 spellid, SpellCastResult result)
+
+void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
 {
-    if (result == SPELL_CAST_OK)
+    if (p_Result == SPELL_CAST_OK)
         return;
 
-    Unit* owner = GetCharmerOrOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    Unit * l_Owner = GetCharmerOrOwner();
+
+    if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_CAST_FAILED, 1 + 4 + 1);
-    data.WriteBit(false);
-    data.WriteBit(false);
-    data << uint32(0);                                      // cast count
-    data << uint32(spellid);
-    data << uint8(result);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PET_CAST_FAILED, 4 + 4 + 4 + 4 + 1);
+    l_Data << uint32(p_SpellID);                            ///< SpellID
+    l_Data << uint32(p_Result);                             ///< Reason
+    l_Data << uint32(0);                                    ///< FailedArg1
+    l_Data << uint32(0);                                    ///< FailedArg2
+    l_Data << uint8(0);                                     ///< CastID
+
+    l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 void Unit::SendPetActionFeedback(uint8 msg)
@@ -19813,29 +19816,15 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
+void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType)
 {
-    ObjectGuid guid = GetGUID();
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
+    l_Data << uint32(p_KitType);
+    l_Data << uint32(0);
 
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-
-    uint8 bitOrder[8] = { 3, 0, 6, 7, 4, 1, 5, 2 };
-    data.WriteBitInOrder(guid, bitOrder);
-
-    data.FlushBits();
-
-    data << uint32(id); // SpellVisualKit.dbc index
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data << uint32(unkParam);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[3]);
-    data << uint32(0);
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&l_Data, false);
 }
 
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const
@@ -21145,8 +21134,8 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         if (Battleground* bg = player->GetBattleground())
             bg->EventPlayerDroppedFlag(player);
 
-        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        player->GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        player->GetSession()->SendPacket(&l_Data);
 
         switch (vehicle->GetVehicleInfo()->m_ID)
         {

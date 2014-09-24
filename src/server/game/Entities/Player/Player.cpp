@@ -5335,30 +5335,23 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 }
 
-void Player::ReduceSpellCooldown(uint32 spell_id, time_t modifyTime)
+void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 {
-    int32 newCooldown = GetSpellCooldownDelay(spell_id) * 1000;
-    if (newCooldown < 0)
-        newCooldown = 0;
+    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID) * 1000;
+
+    if (l_NewCooldown < 0)
+        l_NewCooldown = 0;
     else
-        newCooldown -= modifyTime;
+        l_NewCooldown -= p_ModifyTime;
 
-    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + newCooldown / 1000));
+    AddSpellCooldown(p_SpellID, 0, uint32(time(NULL) + l_NewCooldown / 1000));
 
-    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-    ObjectGuid guid = GetGUID();
+    WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
+    l_Data << uint32(p_SpellID);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(-p_ModifyTime);
 
-    uint8 bits[8] = { 1, 5, 3, 0, 6, 4, 7, 2 };
-    data.WriteBitInOrder(guid, bits);
-
-    data << uint32(spell_id);
-
-    uint8 bytes[8] = { 0, 5, 1, 7, 2, 4, 6, 3 };
-    data.WriteBytesSeq(guid, bytes);
-
-    data << int32(-modifyTime);
-
-    SendDirectMessage(&data);
+    SendDirectMessage(&l_Data);
 }
 
 void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
@@ -5432,8 +5425,14 @@ void Player::RemoveAllSpellCooldown()
 {
     if (!m_spellCooldowns.empty())
     {
-        for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
-            SendClearCooldown(itr->first, this);
+        WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4 + 8);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(GetSpellCooldownMap().size());
+
+        for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
+            l_Data << uint32(itr->first);             ///< Spell ID
+
+        SendDirectMessage(&l_Data);
 
         m_spellCooldowns.clear();
     }
@@ -13846,25 +13845,11 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
                     GetGlobalCooldownMgr().AddGlobalCooldown(spellProto, m_weaponChangeTimer);
 
                     WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-                    ObjectGuid guid = GetGUID();
-
-                    data.WriteBits(1, 21);
-                    data.WriteBit(0);
-
-                    uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-                    data.WriteBitInOrder(guid, bitsOrder);
-
+                    data.appendPackGUID(GetGUID());
+                    data << uint8(1);
+                    data << uint32(1);
                     data << uint32(cooldownSpell);
                     data << uint32(0);
-                    data.WriteByteSeq(guid[4]);
-                    data << uint8(1);
-                    data.WriteByteSeq(guid[1]);
-                    data.WriteByteSeq(guid[5]);
-                    data.WriteByteSeq(guid[7]);
-                    data.WriteByteSeq(guid[6]);
-                    data.WriteByteSeq(guid[0]);
-                    data.WriteByteSeq(guid[2]);
-                    data.WriteByteSeq(guid[3]);
 
                     GetSession()->SendPacket(&data);
                 }
@@ -23260,85 +23245,76 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
     return spellInfo->IsAffectedBySpellMod(mod);
 }
 
-void Player::AddSpellMod(SpellModifier* mod, bool apply)
+void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 {
-    Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+    Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
 
-    int i = 0;
-    flag128 _mask = 0;
-    uint32 modTypeCount = 0; // count of mods per one mod->op
+    flag128 l_Mask = 0;
+    uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
+    uint32 l_MaskIndex = 0;
 
-    ByteBuffer dataBuffer;
-    WorldPacket data(opcode);
-    data.WriteBits(1, 22);  // count of different mod->op's in packet
+    WorldPacket l_Packet(l_Opcode);
+    ByteBuffer l_Buffer;
 
-    for (int eff = 0; eff < 128; ++eff)
+    for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
     {
-        if (eff != 0 && (eff % 32) == 0)
-            _mask[i++] = 0;
+        if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+            l_Mask[l_MaskIndex++] = 0;
 
-        _mask[i] = uint32(1) << (eff - (32 * i));
-        if (mod->mask & _mask)
+        l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+
+        if (p_Modifier->mask & l_Mask)
         {
-            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
             {
-                float val = 1;
-                for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                    if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                        val += float((*itr)->value)/100;
+                float l_Value = 1;
 
-                if (mod->value)
-                    val += apply ? float(mod->value)/100 : -(float(mod->value)/100);
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                        l_Value += float((*l_It)->value)/100;
 
-                dataBuffer << float(val);
-                dataBuffer << uint8(eff);
-                ++modTypeCount;
+                if (p_Modifier->value)
+                    l_Value += p_Apply ? float(p_Modifier->value)/100 : -(float(p_Modifier->value)/100);
+
+                l_Buffer << float(l_Value);
+                l_Buffer << uint8(l_EffectIndex);
+
+                ++l_ModifierTypeCount;
+
                 continue;
             }
 
-            int32 val = 0;
-            for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    val += float((*itr)->value);
+            int32 l_Value = 0;
 
-            val += apply ? float(mod->value) : -float(mod->value);
+            for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
+                if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
+                    l_Value += float((*itr)->value);
 
-            dataBuffer << float(val);
-            dataBuffer << uint8(eff);
-            ++modTypeCount;
+            l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
+
+            l_Buffer << float(l_Value);
+            l_Buffer << uint8(l_EffectIndex);
+
+            ++l_ModifierTypeCount;
         }
     }
 
-    data.WriteBits(modTypeCount, 21);
+    l_Packet << uint32(1);
+    l_Packet << uint8(p_Modifier->op);
+    l_Packet << uint32(l_ModifierTypeCount);
+    l_Packet.append(l_Buffer);
 
-    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-    {
-        data << uint8(mod->op);
+    SendDirectMessage(&l_Packet);
 
-        if (dataBuffer.size())
-            data.append(dataBuffer);
-    }
+    if (p_Apply)
+        m_spellMods[p_Modifier->op].push_back(p_Modifier);
     else
     {
-        if (dataBuffer.size())
-        {
-            data.FlushBits();
-            data.append(dataBuffer);
-        }
+        m_spellMods[p_Modifier->op].remove(p_Modifier);
 
-        data << uint8(mod->op);
-    }
-
-    SendDirectMessage(&data);
-
-    if (apply)
-        m_spellMods[mod->op].push_back(mod);
-    else
-    {
-        m_spellMods[mod->op].remove(mod);
         // mods bound to aura will be removed in AuraEffect::~AuraEffect
-        if (!mod->ownerAura)
-            delete mod;
+        if (!p_Modifier->ownerAura)
+            delete p_Modifier;
     }
 }
 
@@ -23927,25 +23903,10 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         }
     }
 
-    data.WriteBits(counter, 21);
-    data.WriteBit(0);
-
-    uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    data.FlushBits();
-    if (dataBuffer.size())
-        data.append(dataBuffer);
-
-    data.WriteByteSeq(playerGuid[4]);
-    data << uint8(6);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[3]);
+    data.appendPackGUID(playerGuid);
+    data << uint8(1);
+    data << uint32(counter);
+    data.append(dataBuffer);
 
     GetSession()->SendPacket(&data);
 }
@@ -24704,33 +24665,27 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
     m_spellCooldowns[spellid] = sc;
 }
 
-void Player::SendCategoryCooldown(uint32 categoryId, int32 cooldown)
+void Player::SendCategoryCooldown(uint32 p_CategoryID, int32 p_CoolDown)
 {
-    WorldPacket data(SMSG_CATEGORY_COOLDOWN, 12);
-    data.WriteBits(1, 21);
-    data << uint32(categoryId);
-    data << uint32(cooldown);
-    SendDirectMessage(&data);
+    WorldPacket l_Packet(SMSG_CATEGORY_COOLDOWN, 12);
+    l_Packet << uint32(1);
+    l_Packet << uint32(p_CategoryID);
+    l_Packet << uint32(p_CoolDown);
+    SendDirectMessage(&l_Packet);
 }
 
-void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
+void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, Spell * p_Spell, bool p_SetCooldown)
 {
-    // start cooldowns at server side, if any
-    if (setCooldown)
-        AddSpellAndCategoryCooldowns(spellInfo, itemId, spell);
+    /// start cooldowns at server side, if any
+    if (p_SetCooldown)
+        AddSpellAndCategoryCooldowns(p_SpellInfo, p_ItemID, p_Spell);
 
-    // Send activate cooldown timer (possible 0) at client side
-    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-    ObjectGuid playerGuid = GetGUID();
+    /// Send activate cooldown timer (possible 0) at client side
+    WorldPacket l_Data(SMSG_COOLDOWN_EVENT, 4 + 8);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_SpellInfo->Id);
 
-    uint8 bitsOrder[8] = { 5, 1, 4, 2, 3, 0, 6, 7 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 5, 2, 0, 6, 3, 1, 4, 7 };
-    data.WriteBytesSeq(playerGuid, bytesOrder);
-
-    data << uint32(spellInfo->Id);
-    SendDirectMessage(&data);
+    SendDirectMessage(&l_Data);
 }
 
 void Player::UpdatePotionCooldown(Spell* spell)
@@ -25529,25 +25484,11 @@ void Player::SendCooldownAtLogin()
     for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
     {
         WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-        ObjectGuid playerGuid = GetGUID();
-
-        data.WriteBits(1, 21);
-        data.WriteBit(0);
-
-        uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-        data.WriteBitInOrder(playerGuid, bitsOrder);
-
-        data << uint32(itr->first);
-        data << uint32(0);
-        data.WriteByteSeq(playerGuid[4]);
+        data.appendPackGUID(GetGUID());
         data << uint8(1);
-        data.WriteByteSeq(playerGuid[1]);
-        data.WriteByteSeq(playerGuid[5]);
-        data.WriteByteSeq(playerGuid[7]);
-        data.WriteByteSeq(playerGuid[6]);
-        data.WriteByteSeq(playerGuid[0]);
-        data.WriteByteSeq(playerGuid[2]);
-        data.WriteByteSeq(playerGuid[3]);
+        data << uint32(1);
+        data << uint32(itr->first);
+        data << uint32(itr->second.end - curTime);
 
         GetSession()->SendPacket(&data);
     }
@@ -25691,34 +25632,35 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     GetSession()->SendPacket(&data);
 }
 
-void Player::ApplyEquipCooldown(Item* pItem)
+void Player::ApplyEquipCooldown(Item* p_Item)
 {
-    if (pItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
+    if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
         return;
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
     {
-        _Spell const& spellData = pItem->GetTemplate()->Spells[i];
+        _Spell const& l_SpellData = p_Item->GetTemplate()->Spells[l_I];
 
         // no spell
-        if (!spellData.SpellId)
+        if (!l_SpellData.SpellId)
             continue;
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (l_SpellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
         //! Don't replace longer cooldowns by equi cooldown if we have any.
-        SpellCooldowns::iterator itr = m_spellCooldowns.find(spellData.SpellId);
-        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > time(NULL) + 30)
+        SpellCooldowns::iterator l_It = m_spellCooldowns.find(l_SpellData.SpellId);
+
+        if (l_It != m_spellCooldowns.end() && l_It->second.itemid == p_Item->GetEntry() && l_It->second.end > time(NULL) + 30)
             break;
 
-        AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), time(NULL) + 30);
+        AddSpellCooldown(l_SpellData.SpellId, p_Item->GetEntry(), time(NULL) + 30);
 
-        WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
-        data << pItem->GetGUID();
-        data << uint32(spellData.SpellId);
-        GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_ITEM_COOLDOWN, 12);
+        l_Data.appendPackGUID(p_Item->GetGUID());
+        l_Data << uint32(l_SpellData.SpellId);
+        GetSession()->SendPacket(&l_Data);
     }
 }
 
@@ -28440,26 +28382,16 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
     }
 }
 
-void Player::SendClearCooldown(uint32 spell_id, Unit* target)
+void Player::SendClearCooldown(uint32 p_SpellID, Unit * p_Target, bool p_ClearOnHold)
 {
-    WorldPacket data(SMSG_CLEAR_COOLDOWN);
-    ObjectGuid guid = target->GetGUID();
+    WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
 
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(0);
-    data.WriteBit(guid[1]);
+    l_Data.appendPackGUID(p_Target->GetGUID());
+    l_Data << p_SpellID;
+    l_Data.WriteBit(p_ClearOnHold);
+    l_Data.FlushBits();
 
-    uint8 bytesOrder[8] = { 5, 2, 6, 3, 1, 0, 4, 7 };
-    data.WriteBytesSeq(guid, bytesOrder);
-    data << spell_id;
-
-    SendDirectMessage(&data);
+    SendDirectMessage(&l_Data);
 }
 
 void Player::ResetMap()
@@ -29214,11 +29146,12 @@ void Player::SwitchForm()
         SwitchToWorgenForm();
 }
 
-void Player::SendPetTameResult(PetTameResult result)
+void Player::SendPetTameResult(PetTameResult p_Result)
 {
-    WorldPacket data(SMSG_PET_TAME_FAILURE, 4);
-    data << uint8(result);
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PET_TAME_FAILURE, 4);
+    l_Data << uint8(p_Result);
+
+    GetSession()->SendPacket(&l_Data);
 }
 
 uint8 Player::GetNextVoidStorageFreeSlot() const

@@ -1504,23 +1504,11 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
                 continue;
 
             WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-            data.WriteBits(1, 21);
-            data.WriteBit(0);
-
-            uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-            data.WriteBitInOrder(petGuid, bitsOrder);
-
-            data << uint32(spell_id);
-            data << uint32(uint32(db_time-curTime)*IN_MILLISECONDS);
-            data.WriteByteSeq(petGuid[4]);
+            data.appendPackGUID(petGuid);
             data << uint8(1);
-            data.WriteByteSeq(petGuid[1]);
-            data.WriteByteSeq(petGuid[5]);
-            data.WriteByteSeq(petGuid[7]);
-            data.WriteByteSeq(petGuid[6]);
-            data.WriteByteSeq(petGuid[0]);
-            data.WriteByteSeq(petGuid[2]);
-            data.WriteByteSeq(petGuid[3]);
+            data << uint32(1);
+            data << uint32(spell_id);
+            data << uint32(uint32(db_time - curTime) * IN_MILLISECONDS);
 
             if (owner)
                 owner->GetSession()->SendPacket(&data);
@@ -2315,26 +2303,11 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
         {
             WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-            ObjectGuid guid = GetGUID();
-
-            data.WriteBits(1, 21);
-            data.WriteBit(0);
-
-            uint8 bits[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-            data.WriteBitInOrder(guid, bits);
-
+            data.appendPackGUID(GetGUID());
+            data << uint8(1);
+            data << uint32(1);
             data << uint32(unSpellId);
-            data << uint32(unTimeMs);                       // in m.secs
-
-            data.WriteByteSeq(guid[4]);
-            data << uint8(0);
-            data.WriteByteSeq(guid[1]);
-            data.WriteByteSeq(guid[5]);
-            data.WriteByteSeq(guid[7]);
-            data.WriteByteSeq(guid[6]);
-            data.WriteByteSeq(guid[0]);
-            data.WriteByteSeq(guid[2]);
-            data.WriteByteSeq(guid[3]);
+            data << uint32(uint32(unTimeMs));
 
             if (owner)
                 owner->GetSession()->SendPacket(&data);
