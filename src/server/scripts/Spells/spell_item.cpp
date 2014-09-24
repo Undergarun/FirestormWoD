@@ -2609,7 +2609,14 @@ class spell_item_slap_n_chop : public SpellScriptLoader
     }
 };
 
-#define SPELL_JARD_PECULIAR 139176
+enum eJardJournal
+{
+    SPELL_JARD_PECULIAR              = 139176,
+    SPELL_SKY_GOLEM                  = 139192,
+    SPELL_ADVANCED_REFRIGERATION     = 139197,
+    SPELL_PIERRE                     = 139196,
+    SPELL_RASCAT_BOT                 = 143714
+};
 
 // Jard's Peculiar Energy Source - 143743
 class spell_item_chief_engineer_jard_journal : public SpellScriptLoader
@@ -2624,9 +2631,14 @@ class spell_item_chief_engineer_jard_journal : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     l_Player->learnSpell(SPELL_JARD_PECULIAR, false);
+                    l_Player->learnSpell(SPELL_SKY_GOLEM, false);
+                    l_Player->learnSpell(SPELL_ADVANCED_REFRIGERATION, false);
+                    l_Player->learnSpell(SPELL_PIERRE, false);
+                    l_Player->learnSpell(SPELL_RASCAT_BOT, false);
+                }
             }
-
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_item_chief_engineer_jard_journal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
