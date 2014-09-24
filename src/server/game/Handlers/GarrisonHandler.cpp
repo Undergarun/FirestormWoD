@@ -31,13 +31,15 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteID);          ///< Site ID
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);     ///< Site Level ID
-    l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
+    l_Infos << int32(1);                                                        ///< Unk
     
     l_Infos << uint32(l_Buildings.size());
     l_Infos << uint32(l_Plots.size());
     l_Infos << uint32(l_Followers.size());
     l_Infos << uint32(l_Missions.size());
     l_Infos << uint32(l_CompletedMission.size());
+
+    l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
 
     for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
     {

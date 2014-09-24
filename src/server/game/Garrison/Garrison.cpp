@@ -28,17 +28,17 @@ uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION
     0,          ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
     232410,     ///< GARRISON_PLOT_TYPE_LARGE
-    0,          ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
     /// Alliance
     233957,     ///< GARRISON_PLOT_TYPE_SMALL
     232409,     ///< GARRISON_PLOT_TYPE_MEDIUM
     232411,     ///< GARRISON_PLOT_TYPE_LARGE
-    232409,     ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
-    232409,     ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
-    233957,     ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    232409,     ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
+    232409,     ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
+    233957,     ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
     233957,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
 };
 
@@ -48,17 +48,17 @@ float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GAR
     0,          ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
     0,          ///< GARRISON_PLOT_TYPE_LARGE
-    0,          ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    0,          ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
+    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
     /// Alliance
     10,         ///< GARRISON_PLOT_TYPE_SMALL
     16,         ///< GARRISON_PLOT_TYPE_MEDIUM
     24,         ///< GARRISON_PLOT_TYPE_LARGE
-    16,         ///< GARRISON_PLOT_TYPE_FARM same as GARRISON_PLOT_TYPE_MEDIUM
-    16,         ///< GARRISON_PLOT_TYPE_MINE same as GARRISON_PLOT_TYPE_MEDIUM
-    10,         ///< GARRISON_PLOT_TYPE_FISHING_HUT same as GARRISON_PLOT_TYPE_SMALL
+    16,         ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
+    16,         ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
+    10,         ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
     10,         ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
 };
 
@@ -67,7 +67,8 @@ uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT] = {
     233250      ///< Alliance
 };
 
-GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = {
+GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = 
+{
     /// SiteLevelID PlotInstanceID      X            Y            Z           O
     /// Alliance Level 1                                                    
     {       5,          19,         1829.896f,    197.5504f,    72.00920f,   1.8849560f  },
@@ -81,17 +82,17 @@ GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT
     {     444,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
     {     444,          67,         2031.594f,    174.4410f,    84.59409f,   2.8361600f  },
     /// Alliance Level 3                                                  
-    {       6,          18,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          19,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          20,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          22,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          23,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          24,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          25,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          59,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          63,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          67,            0.0f,        0.0f,        0.0f,       0.0f        },
-    {       6,          81,            0.0f,        0.0f,        0.0f,       0.0f        },
+    {       6,          18,         1819.583f,    231.2813f,    72.17403f,  -1.2915440f  },
+    {       6,          19,         1830.528f,    196.7465f,    71.98586f,   1.9024090f  },
+    {       6,          20,         1804.333f,    189.1458f,    70.07482f,   1.9634950f  },
+    {       6,          22,         1864.955f,    320.2083f,    81.66045f,  -1.4835300f  },
+    {       6,          23,         1918.637f,    228.7674f,    76.63956f,   2.7750740f  },
+    {       6,          24,         1814.323f,    286.3941f,    76.62489f,  -0.6544983f  },
+    {       6,          25,         1893.337f,    185.1684f,    78.05621f,   2.5307280f  },
+    {       6,          59,         1845.083f,    146.2743f,    53.41686f,   0.3490658f  },
+    {       6,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
+    {       6,          67,         2031.594f,    174.4410f,    84.36597f,   2.8361600f  },
+    {       6,          81,         1914.083f,    354.1875f,    88.96585f,  -1.8763060f  },
     /// Horde Level 1                                                       
     {     258,          18,         5645.124f,   4508.9600f,   119.27010f,   2.0423500f  },
     {     258,          23,         5575.461f,   4459.3380f,   130.36810f,   0.9599311f  },

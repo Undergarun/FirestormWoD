@@ -346,7 +346,7 @@ enum Opcodes
         SMSG_MOVE_SET_ACTIVE_MOVER                  = 0x06D2,   ///< 6.0.2 18922
 
         /// Creature
-        SMSG_MONSTER_MOVE                           = 0x04A4,   ///< 6.0.2 18764
+        SMSG_MONSTER_MOVE                           = 0x04A4,   ///< 6.0.2 18922
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -436,39 +436,39 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamQuest
         /// Quest log
-        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_UPDATE_FAILED                    = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_UPDATE_COMPLETE                  = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_PUSH_RESULT                      = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_POIQUERY_RESPONSE                = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_LOG_FULL                         = 0x0000,   ///< 6.0.2 
+        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x00D5,   ///< 6.0.2 18922
+        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x02D6,   ///< 6.0.2 18922
+        SMSG_QUEST_UPDATE_FAILED                    = 0x00A2,   ///< 6.0.2 18922
+        SMSG_QUEST_UPDATE_COMPLETE                  = 0x00A5,   ///< 6.0.2 18922
+        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x03C1,   ///< 6.0.2 18922
+        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x03B5,   ///< 6.0.2 18922
+        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x00F2,   ///< 6.0.2 18922
+        SMSG_QUEST_PUSH_RESULT                      = 0x0891,   ///< 6.0.2 18922
+        SMSG_QUEST_POIQUERY_RESPONSE                = 0x03DE,   ///< 6.0.2 18922
+        SMSG_QUEST_LOG_FULL                         = 0x0085,   ///< 6.0.2 18922
         SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000,
         SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000,
         SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000,
         SMSG_DAILY_QUESTS_RESET                     = 0x0000,
-        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0000,   ///< 6.0.1
-        SMSG_QUEST_FORCE_REMOVED                    = 0x0000,   ///< 6.0.1
-        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000,   ///< 6.0.1
+        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0000,   ///< 6.0.2
+        SMSG_QUEST_FORCE_REMOVED                    = 0x0000,   ///< 6.0.2
+        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000,   ///< 6.0.2
         SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0000,
 
         /// Quest giver
-        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_STATUS                     = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x0000,   ///< 6.0.2 
-        SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0000,   ///< 6.0.2 
+        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x01CA,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_STATUS                     = 0x02A1,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x01C5,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0186,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x00AE,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x02B6,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x08BE,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x02A5,   ///< 6.0.2 18922
+        SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0392,   ///< 6.0.2 18922
 
         /// Gossip
-        SMSG_GOSSIP_MESSAGE                         = 0x0000,   ///< 6.0.2 
-        SMSG_GOSSIP_COMPLETE                        = 0x0000,   ///< 6.0.2 
+        SMSG_GOSSIP_MESSAGE                         = 0x01EE,   ///< 6.0.2 18922
+        SMSG_GOSSIP_COMPLETE                        = 0x0292,   ///< 6.0.2 18922
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -646,8 +646,8 @@ enum Opcodes
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0223,   ///< 6.0.2 18922
     CMSG_SET_SELECTION                          = 0x1038,   ///< 6.0.2 18922
     CMSG_SETSHEATHED                            = 0x1213,   ///< 6.0.2 18922
-    CMSG_GOSSIP_HELLO                           = 0x0000,   ///< 6.0.2 
-    CMSG_GOSSIP_SELECT_OPTION                   = 0x0000,   ///< 6.0.2 
+    CMSG_GOSSIP_HELLO                           = 0x0647,   ///< 6.0.2 18922
+    CMSG_GOSSIP_SELECT_OPTION                   = 0x1143,   ///< 6.0.2 18922
     CMSG_TOGGLE_PVP                             = 0x04E9,   ///< 6.0.2 18922
     CMSG_TUTORIAL                               = 0x13B8,   ///< 6.0.2 18922
     CMSG_SET_SPECIALIZATION                     = 0x1ADF,   ///< 6.0.2 18922
