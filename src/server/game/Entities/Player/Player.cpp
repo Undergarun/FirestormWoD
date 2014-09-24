@@ -4542,7 +4542,7 @@ void Player::SendKnownSpells()
 
 void Player::SendInitialSpells()
 {
-    uint32 curTime = getMSTime();
+    uint32 curTime = time(NULL);
 
     uint16 spellCount = 0;
 
@@ -4582,7 +4582,7 @@ void Player::SendInitialSpells()
         data << uint32(itr->second.itemid);                 // cast item id
         data << uint16(sEntry->Category);                   // spell category
 
-        time_t cooldown = itr->second.end > curTime ? (itr->second.end - curTime) : 0;
+        time_t cooldown = (itr->second.end / IN_MILLISECONDS) > curTime ? ((itr->second.end / IN_MILLISECONDS) - curTime) : 0;
 
         if (sEntry->Category)                                // may be wrong, but anyway better than nothing...
         {
@@ -5591,14 +5591,14 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 
     if (result)
     {
-        time_t curTime = time(NULL);
+        uint64 curTime = ACE_OS::gettimeofday().msec();
 
         do
         {
             Field* fields = result->Fetch();
             uint32 spell_id = fields[0].GetUInt32();
             uint32 item_id  = fields[1].GetUInt32();
-            time_t db_time  = time_t(fields[2].GetUInt32());
+            uint64 db_time = uint64(fields[2].GetUInt32()) * IN_MILLISECONDS;
 
             if (!sSpellMgr->GetSpellInfo(spell_id))
             {
@@ -5610,7 +5610,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
             if (db_time <= curTime)
                 continue;
 
-            AddSpellCooldown(spell_id, item_id, (db_time - curTime) * IN_MILLISECONDS);
+            AddSpellCooldown(spell_id, item_id, (db_time - curTime));
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, item %u cooldown loaded (%u secs).", GetGUIDLow(), spell_id, item_id, uint32(db_time-curTime));
         }
@@ -5624,7 +5624,7 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
-    uint64 curTime = time(NULL) * IN_MILLISECONDS + getMSTime();
+    uint64 curTime = ACE_OS::gettimeofday().msec();
     uint64 infTime = curTime + infinityCooldownDelayCheck;
 
     bool first_round = true;
