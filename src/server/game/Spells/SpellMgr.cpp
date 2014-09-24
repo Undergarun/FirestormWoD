@@ -3389,6 +3389,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 133795: // Life Drain
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133798: // Life Drain
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133796: // Life Drain
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 1.632f;
                 break;
