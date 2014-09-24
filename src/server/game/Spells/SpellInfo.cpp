@@ -656,6 +656,11 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         float ap = caster->GetTotalAttackPowerValue(attType);
         float sp = float(((Unit*)caster)->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask()));
 
+        if (sp == 0.0f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
+            sp = caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
+        if (ap == 0.0f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
+            ap = caster->GetTotalAttackPowerValue(attType);
+
         float apdamage = ap * _spellInfo->AttackPowerBonus;
         float spdamage = sp * EffectSpellPowerBonus;
 

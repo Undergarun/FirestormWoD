@@ -3389,20 +3389,23 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 133795:
+            case 133795: // Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133798:
+            case 133798: // Life Drain
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133796:
+            case 133796: // Life Drain
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 140495:
+            case 83381: // Kill Command
+                spellInfo->AttackPowerBonus = 1.632f;
+                break;
+            case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
                 break;
-            case 136413:
+            case 136413:// Force of Will
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
@@ -5089,14 +5092,22 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SCALE;
                 spellInfo->Effects[2].BasePoints = 30;
                 break;
-            case 111546:
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
+            case 33745: // Lacerate
+                spellInfo->AttackPowerBonus = 0.616f;
                 break;
-            case 113890:
+            case 20167: // Seal of Insight (heal)
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->AttackPowerBonus = 0.15f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.15f;
+                break;
+            case 132467:// Chi Wave (damage)
+            case 132463:// Chi Wave (heal)
+                spellInfo->AttackPowerBonus = 0.45f;
+                break;
+            case 113890:// Demonic Gateway (purple)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
-            case 113886:
+            case 113886:// Demonic Gateway (green)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 122292:// Intervene (Symbiosis)
@@ -5134,7 +5145,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
             case 52042: // Healing Stream - Totem
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
             case 324:   // Lightning Shield
