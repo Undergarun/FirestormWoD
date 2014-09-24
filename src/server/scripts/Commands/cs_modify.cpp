@@ -37,10 +37,15 @@ public:
         static ChatCommand modifyspeedCommandTable[] =
         {
             { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
+            { "flyback",        SEC_MODERATOR,      false, &HandleModifyFlyBackCommand,       "", NULL },
+            { "turn",           SEC_MODERATOR,      false, &HandleModifyTurnCommand,          "", NULL },
+            { "pitch",          SEC_MODERATOR,      false, &HandleModifyPitchCommand,         "", NULL },
             { "all",            SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
             { "walk",           SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
+            { "run",            SEC_MODERATOR,      false, &HandleModifyRunCommand,           "", NULL },
             { "backwalk",       SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
             { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
+            { "swimback",       SEC_MODERATOR,      false, &HandleModifySwimBackCommand,      "", NULL },
             { "",               SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
@@ -555,7 +560,51 @@ public:
         if (handler->needReportToTarget(target))
             (ChatHandler(target)).PSendSysMessage(LANG_YOURS_SPEED_CHANGED, handler->GetNameLink().c_str(), Speed);
 
-        target->SetSpeed(MOVE_RUN, Speed, true);
+        target->SetSpeed(MOVE_WALK, Speed, true);
+
+        return true;
+    }
+
+    static bool HandleModifyRunCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float Swim = (float)atof((char*)args);
+
+        if (Swim > 50.0f || Swim < 0.1f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // check online security
+        if (handler->HasLowerSecurity(target, 0))
+            return false;
+
+        std::string targetNameLink = handler->GetNameLink(target);
+
+        if (target->isInFlight())
+        {
+            handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_YOU_CHANGE_SPEED, Swim, targetNameLink.c_str());
+        if (handler->needReportToTarget(target))
+            (ChatHandler(target)).PSendSysMessage(LANG_YOURS_SWIM_SPEED_CHANGED, handler->GetNameLink().c_str(), Swim);
+
+        target->SetSpeed(MOVE_RUN, Swim, true);
 
         return true;
     }
@@ -601,6 +650,50 @@ public:
             (ChatHandler(target)).PSendSysMessage(LANG_YOURS_SWIM_SPEED_CHANGED, handler->GetNameLink().c_str(), Swim);
 
         target->SetSpeed(MOVE_SWIM, Swim, true);
+
+        return true;
+    }
+
+    static bool HandleModifySwimBackCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float Swim = (float)atof((char*)args);
+
+        if (Swim > 50.0f || Swim < 0.1f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // check online security
+        if (handler->HasLowerSecurity(target, 0))
+            return false;
+
+        std::string targetNameLink = handler->GetNameLink(target);
+
+        if (target->isInFlight())
+        {
+            handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_YOU_CHANGE_SWIM_SPEED, Swim, targetNameLink.c_str());
+        if (handler->needReportToTarget(target))
+            (ChatHandler(target)).PSendSysMessage(LANG_YOURS_SWIM_SPEED_CHANGED, handler->GetNameLink().c_str(), Swim);
+
+        target->SetSpeed(MOVE_SWIM_BACK, Swim, true);
 
         return true;
     }
@@ -682,6 +775,111 @@ public:
             (ChatHandler(target)).PSendSysMessage(LANG_YOURS_FLY_SPEED_CHANGED, handler->GetNameLink().c_str(), FSpeed);
 
         target->SetSpeed(MOVE_FLIGHT, FSpeed, true);
+
+        return true;
+    }
+
+    static bool HandleModifyFlyBackCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float FSpeed = (float)atof((char*)args);
+
+        if (FSpeed > 50.0f || FSpeed < 0.1f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // check online security
+        if (handler->HasLowerSecurity(target, 0))
+            return false;
+
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FLY_SPEED, FSpeed, handler->GetNameLink(target).c_str());
+        if (handler->needReportToTarget(target))
+            (ChatHandler(target)).PSendSysMessage(LANG_YOURS_FLY_SPEED_CHANGED, handler->GetNameLink().c_str(), FSpeed);
+
+        target->SetSpeed(MOVE_FLIGHT_BACK, FSpeed, true);
+
+        return true;
+    }
+
+    static bool HandleModifyTurnCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float FSpeed = (float)atof((char*)args);
+
+        if (FSpeed > 50.0f || FSpeed < 0.1f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // check online security
+        if (handler->HasLowerSecurity(target, 0))
+            return false;
+
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FLY_SPEED, FSpeed, handler->GetNameLink(target).c_str());
+        if (handler->needReportToTarget(target))
+            (ChatHandler(target)).PSendSysMessage(LANG_YOURS_FLY_SPEED_CHANGED, handler->GetNameLink().c_str(), FSpeed);
+
+        target->SetSpeed(MOVE_TURN_RATE, FSpeed, true);
+
+        return true;
+    }
+
+    static bool HandleModifyPitchCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float FSpeed = (float)atof((char*)args);
+
+        if (FSpeed > 50.0f || FSpeed < 0.1f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // check online security
+        if (handler->HasLowerSecurity(target, 0))
+            return false;
+
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FLY_SPEED, FSpeed, handler->GetNameLink(target).c_str());
+        if (handler->needReportToTarget(target))
+            (ChatHandler(target)).PSendSysMessage(LANG_YOURS_FLY_SPEED_CHANGED, handler->GetNameLink().c_str(), FSpeed);
+
+        target->SetSpeed(MOVE_PITCH_RATE, FSpeed, true);
 
         return true;
     }

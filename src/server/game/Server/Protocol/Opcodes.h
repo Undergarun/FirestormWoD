@@ -750,10 +750,15 @@ enum Opcodes
     CMSG_MOVE_STOP_STRAFE                       = 0x0F15,   ///< 6.0.2 18922
 
     /// ACK
-    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0000,   ///< 6.0.2
-    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x0000,   ///< 6.0.2
-    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x0000,   ///< 6.0.2
-    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0000,   ///< 6.0.2
+    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0890,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x08D8,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x0C66,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0965,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x0C15,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x0F55,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x1888,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x0A75,   ///< 6.0.2 18922
+    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x08D4,   ///< 6.0.2 18922
     CMSG_MOVE_KNOCK_BACK_ACK                    = 0x0000,   ///< 6.0.2
 
     //////////////////////////////////////////////////////////////////////////

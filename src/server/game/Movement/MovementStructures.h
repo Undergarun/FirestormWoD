@@ -170,7 +170,16 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_SET_FACING
         || opcode == CMSG_MOVE_STOP
         || opcode == CMSG_MOVE_STOP_TURN
-        || opcode == CMSG_MOVE_STOP_STRAFE)
+        || opcode == CMSG_MOVE_STOP_STRAFE
+        || opcode == CMSG_MOVE_SET_RUN_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_WALK_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_SWIM_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_TURN_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT)
         return MovementGlobalSequence;
 
     if (opcode == SMSG_MOVE_UPDATE

@@ -799,10 +799,15 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_STOP_STRAFE,                                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
 
     /// Ack
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_SWIM_SPEED_CHEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT,                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_SPEED_CHEAT,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_SPEED_CHEAT,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_WALK_SPEED_CHEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_SWIM_SPEED_CHEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT,                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT,                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT,                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_TURN_SPEED_CHEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_PITCH_SPEED_CHEAT,                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMoveKnockBackAck           );
 
     //////////////////////////////////////////////////////////////////////////

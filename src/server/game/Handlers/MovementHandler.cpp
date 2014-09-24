@@ -257,183 +257,197 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     l_MoverPlayer->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
+void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 {
-    uint16 opcode = recvPacket.GetOpcode();
+    uint16 l_OpCode = p_Packet.GetOpcode();
 
-    Unit* mover = m_Player->m_mover;
+    Unit * l_Mover = m_Player->m_mover;
 
-    ASSERT(mover != NULL);                      // there must always be a mover
+    ASSERT(l_Mover != NULL);                      // there must always be a mover
 
-    Player* plrMover = mover->ToPlayer();
+    Player* l_PlayerMover = l_Mover->ToPlayer();
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
-    if (plrMover && plrMover->IsBeingTeleported())
+    if (l_PlayerMover && l_PlayerMover->IsBeingTeleported())
     {
-        recvPacket.rfinish();                     // prevent warnings spam
+        p_Packet.rfinish();                     // prevent warnings spam
         return;
     }
 
     // Sometime, client send movement packet after teleporation with position before teleportation, so we ignore 3 first movement packet after teleporation
     // TODO: find a better way to check that, may be a new CMSG send by client ?
-    if (plrMover && plrMover->GetIgnoreMovementCount() && opcode != CMSG_CAST_SPELL)
+    if (l_PlayerMover && l_PlayerMover->GetIgnoreMovementCount() && l_OpCode != CMSG_CAST_SPELL)
     {
-        plrMover->SetIgnoreMovementCount(plrMover->GetIgnoreMovementCount() - 1);
-        recvPacket.rfinish();                     // prevent warnings spam
+        l_PlayerMover->SetIgnoreMovementCount(l_PlayerMover->GetIgnoreMovementCount() - 1);
+        p_Packet.rfinish();                     // prevent warnings spam
         return;
     }
 
     /* extract packet */
-    MovementInfo movementInfo;
-    ReadMovementInfo(recvPacket, &movementInfo);
+    MovementInfo l_MovementInfo;
+    ReadMovementInfo(p_Packet, &l_MovementInfo);
+
+    if (l_OpCode == CMSG_MOVE_SET_RUN_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_WALK_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_SWIM_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_TURN_SPEED_CHEAT
+        || l_OpCode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT)
+    {
+        uint32 l_AckIndex   = p_Packet.read<uint32>();
+        float  l_Speed      = p_Packet.read<float>();
+    }
 
     // prevent tampered movement data
-    if (movementInfo.guid != mover->GetGUID())
+    if (l_MovementInfo.guid != l_Mover->GetGUID())
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: guid error");
         return;
     }
-    if (!movementInfo.pos.IsPositionValid())
+    if (!l_MovementInfo.pos.IsPositionValid())
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: Invalid Position");
         return;
     }
 
     /* handle special cases */
-    if (movementInfo.t_guid)
+    if (l_MovementInfo.t_guid)
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
-        if (movementInfo.t_pos.GetPositionX() > 50 || movementInfo.t_pos.GetPositionY() > 50 || movementInfo.t_pos.GetPositionZ() > 50)
+        if (l_MovementInfo.t_pos.GetPositionX() > 50 || l_MovementInfo.t_pos.GetPositionY() > 50 || l_MovementInfo.t_pos.GetPositionZ() > 50)
         {
-            recvPacket.rfinish();                 // prevent warnings spam
+            p_Packet.rfinish();                 // prevent warnings spam
             return;
         }
 
-        if (!JadeCore::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.t_pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.t_pos.GetPositionY(),
-            movementInfo.pos.GetPositionZ() + movementInfo.t_pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.t_pos.GetOrientation()))
+        if (!JadeCore::IsValidMapCoord(l_MovementInfo.pos.GetPositionX() + l_MovementInfo.t_pos.GetPositionX(), l_MovementInfo.pos.GetPositionY() + l_MovementInfo.t_pos.GetPositionY(),
+            l_MovementInfo.pos.GetPositionZ() + l_MovementInfo.t_pos.GetPositionZ(), l_MovementInfo.pos.GetOrientation() + l_MovementInfo.t_pos.GetOrientation()))
         {
-            recvPacket.rfinish();                 // prevent warnings spam
+            p_Packet.rfinish();                 // prevent warnings spam
             return;
         }
 
         // if we boarded a transport, add us to it
-        if (plrMover)
+        if (l_PlayerMover)
         {
-            if (!plrMover->GetTransport())
+            if (!l_PlayerMover->GetTransport())
             {
                 // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
                 for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
                 {
-                    if ((*iter)->GetGUID() == movementInfo.t_guid)
+                    if ((*iter)->GetGUID() == l_MovementInfo.t_guid)
                     {
-                        plrMover->m_transport = *iter;
-                        (*iter)->AddPassenger(plrMover);
+                        l_PlayerMover->m_transport = *iter;
+                        (*iter)->AddPassenger(l_PlayerMover);
                         break;
                     }
                 }
             }
-            else if (plrMover->GetTransport()->GetGUID() != movementInfo.t_guid)
+            else if (l_PlayerMover->GetTransport()->GetGUID() != l_MovementInfo.t_guid)
             {
                 bool foundNewTransport = false;
-                plrMover->m_transport->RemovePassenger(plrMover);
+                l_PlayerMover->m_transport->RemovePassenger(l_PlayerMover);
                 for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
                 {
-                    if ((*iter)->GetGUID() == movementInfo.t_guid)
+                    if ((*iter)->GetGUID() == l_MovementInfo.t_guid)
                     {
                         foundNewTransport = true;
-                        plrMover->m_transport = *iter;
-                        (*iter)->AddPassenger(plrMover);
+                        l_PlayerMover->m_transport = *iter;
+                        (*iter)->AddPassenger(l_PlayerMover);
                         break;
                     }
                 }
 
                 if (!foundNewTransport)
                 {
-                    plrMover->m_transport = NULL;
-                    movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-                    movementInfo.t_time = 0;
-                    movementInfo.t_seat = -1;
+                    l_PlayerMover->m_transport = NULL;
+                    l_MovementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+                    l_MovementInfo.t_time = 0;
+                    l_MovementInfo.t_seat = -1;
                 }
             }
         }
 
-        if (!mover->GetTransport() && !mover->GetVehicle())
+        if (!l_Mover->GetTransport() && !l_Mover->GetVehicle())
         {
-            GameObject* go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
+            GameObject* go = l_Mover->GetMap()->GetGameObject(l_MovementInfo.t_guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.t_guid = 0;
+                l_MovementInfo.t_guid = 0;
         }
     }
-    else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
+    else if (l_PlayerMover && l_PlayerMover->GetTransport())                // if we were on a transport, leave
     {
-        plrMover->m_transport->RemovePassenger(plrMover);
-        plrMover->m_transport = NULL;
-        movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        movementInfo.t_time = 0;
-        movementInfo.t_seat = -1;
+        l_PlayerMover->m_transport->RemovePassenger(l_PlayerMover);
+        l_PlayerMover->m_transport = NULL;
+        l_MovementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+        l_MovementInfo.t_time = 0;
+        l_MovementInfo.t_seat = -1;
     }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (plrMover && plrMover->m_movementInfo.GetMovementFlags() & MOVEMENTFLAG_FALLING && (movementInfo.GetMovementFlags() & MOVEMENTFLAG_FALLING) == 0 && (movementInfo.GetMovementFlags() & MOVEMENTFLAG_SWIMMING) == 0 && plrMover && !plrMover->isInFlight())
+    if (l_PlayerMover && l_PlayerMover->m_movementInfo.GetMovementFlags() & MOVEMENTFLAG_FALLING && (l_MovementInfo.GetMovementFlags() & MOVEMENTFLAG_FALLING) == 0 && (l_MovementInfo.GetMovementFlags() & MOVEMENTFLAG_SWIMMING) == 0 && l_PlayerMover && !l_PlayerMover->isInFlight())
     {
-        plrMover->HandleFall(movementInfo);
+        l_PlayerMover->HandleFall(l_MovementInfo);
     }
 
-    if (plrMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plrMover->IsInWater())
+    if (l_PlayerMover && ((l_MovementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != l_PlayerMover->IsInWater())
     {
         // now client not include swimming flag in case jumping under water
-        plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
+        l_PlayerMover->SetInWater(!l_PlayerMover->IsInWater() || l_PlayerMover->GetBaseMap()->IsUnderWater(l_MovementInfo.pos.GetPositionX(), l_MovementInfo.pos.GetPositionY(), l_MovementInfo.pos.GetPositionZ()));
     }
 
     // Hack Fix, clean emotes when moving
-    if (plrMover && plrMover->GetLastPlayedEmote())
-        plrMover->HandleEmoteCommand(0);
+    if (l_PlayerMover && l_PlayerMover->GetLastPlayedEmote())
+        l_PlayerMover->HandleEmoteCommand(0);
 
    //if (plrMover)
     //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
     /*----------------------*/
 
     /* process position-change */
-    WorldPacket data(SMSG_MOVE_UPDATE, recvPacket.size());
-    movementInfo.Alive32 = movementInfo.time; // hack, but it's work in 505 in this way ...
-    movementInfo.time = getMSTime();
-    movementInfo.guid = mover->GetGUID();
-    WorldSession::WriteMovementInfo(data, &movementInfo);
-    mover->SendMessageToSet(&data, m_Player);
+    WorldPacket data(SMSG_MOVE_UPDATE, p_Packet.size());
+    l_MovementInfo.Alive32 = l_MovementInfo.time; // hack, but it's work in 505 in this way ...
+    l_MovementInfo.time = getMSTime();
+    l_MovementInfo.guid = l_Mover->GetGUID();
+    WorldSession::WriteMovementInfo(data, &l_MovementInfo);
+    l_Mover->SendMessageToSet(&data, m_Player);
 
-    mover->m_movementInfo = movementInfo;
+    l_Mover->m_movementInfo = l_MovementInfo;
 
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
-    if (mover->GetVehicle())
+    if (l_Mover->GetVehicle())
     {
-        mover->SetOrientation(movementInfo.pos.GetOrientation());
+        l_Mover->SetOrientation(l_MovementInfo.pos.GetOrientation());
         return;
     }
 
-    mover->UpdatePosition(movementInfo.pos);
+    l_Mover->UpdatePosition(l_MovementInfo.pos);
 
-    if (plrMover)                                            // nothing is charmed, or player charmed
+    if (l_PlayerMover)                                            // nothing is charmed, or player charmed
     {
-        plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
+        l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        AreaTableEntry const* zone = GetAreaEntryByAreaID(plrMover->GetAreaId());
+        AreaTableEntry const* zone = GetAreaEntryByAreaID(l_PlayerMover->GetAreaId());
         float depth = zone ? zone->MaxDepth : -500.0f;
-        if (movementInfo.pos.GetPositionZ() < depth)
+        if (l_MovementInfo.pos.GetPositionZ() < depth)
         {
-            if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
+            if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
             {
                 // NOTE: this is actually called many times while falling
                 // even after the player has been teleported away
                 // TODO: discard movement packets after the player is rooted
-                if (plrMover->isAlive())
+                if (l_PlayerMover->isAlive())
                 {
-                    plrMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
+                    l_PlayerMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from
                     // starting in the next player update
-                    if (!plrMover->isAlive())
-                        plrMover->KillPlayer();
+                    if (!l_PlayerMover->isAlive())
+                        l_PlayerMover->KillPlayer();
                 }
             }
         }
