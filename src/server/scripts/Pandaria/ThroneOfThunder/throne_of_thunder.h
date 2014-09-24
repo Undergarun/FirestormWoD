@@ -178,6 +178,7 @@ enum eCreatures
     NPC_MATURE_EGG_OF_JI_KUN        = 69628, // Spawned by Fledgling
     NPC_JUVENILE                    = 69836, // Spawned by Mature Egg
     NPC_JI_KUN_FLEDGING_S_EGG       = 68202,
+    NPC_FALL_CATCHER                = 69839, // Catch falling players and resend them on Ji-kun platform
 
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
 
