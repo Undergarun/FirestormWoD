@@ -18011,7 +18011,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             SetCantProc(false);
 
         if (cooldown && ToPlayer())
-            ToPlayer()->AddSpellCooldown(spellInfo->Id, 0, cooldown);
+            ToPlayer()->AddSpellCooldown(spellInfo->Id, 0, cooldown * IN_MILLISECONDS);
     }
 
     // Cleanup proc requirements
