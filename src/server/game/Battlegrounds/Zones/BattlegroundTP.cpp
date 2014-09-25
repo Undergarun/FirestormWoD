@@ -721,28 +721,28 @@ bool BattlegroundTP::SetupBattleground()
     }
 
     WorldSafeLocsEntry const *sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, sg->o, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Alliance spirit guides! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_ALLIANCE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, sg->o, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Alliance start spirit guides! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->x, sg->y, sg->z, 3.641396f, HORDE))
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->x, sg->y, sg->z, sg->o, HORDE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Horde spirit guides! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_HORDE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, HORDE))
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, sg->o, HORDE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Horde start spirit guides! Battleground not created!");
         return false;

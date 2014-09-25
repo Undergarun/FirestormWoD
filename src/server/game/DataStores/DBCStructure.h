@@ -2787,7 +2787,7 @@ struct WorldSafeLocsEntry
     float     x;                                            // 2
     float     y;                                            // 3
     float     z;                                            // 4
-    //float   unk;                                          // 5
+    float     o;                                            // 5
     //char*   name;                                         // 6 m_AreaName_lang
 };
 
