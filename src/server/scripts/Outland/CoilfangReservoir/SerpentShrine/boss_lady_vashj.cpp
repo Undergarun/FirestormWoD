@@ -871,6 +871,9 @@ public:
 
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets)
     {
+        if (!player)
+            return false;
+
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance)
         {
@@ -878,7 +881,7 @@ public:
             return true;
         }
 
-        Creature* vashj = Unit::GetCreature((*player), instance->GetData64(DATA_LADYVASHJ));
+        Creature* vashj = Unit::GetCreature(*player, instance->GetData64(DATA_LADYVASHJ));
         if (vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
         {
             if (GameObject* gObj = targets.GetGOTarget())
