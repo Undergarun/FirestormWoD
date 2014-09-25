@@ -12910,6 +12910,10 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
 
+    // Hack fix for Kill Command - 50% bonus coefficient
+    if (spellProto->Id == 83381)
+        tmpDamage *= 1.5f;
+
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
