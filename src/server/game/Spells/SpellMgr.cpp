@@ -4259,7 +4259,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].BasePoints = 215;
                 break;
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
-                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[0].Effect = 0;
                 break;
             case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 35;
