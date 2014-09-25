@@ -1910,6 +1910,8 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(MINUTE * IN_MILLISECONDS);
 
+    m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
+
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
@@ -2141,8 +2143,6 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), realmID);
-            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u. Queue : %u", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount(), GetQueuedSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2209,6 +2209,12 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr->Update();
+    }
+
+    if (m_timers[WUPDATE_REALM_STATS].Passed())
+    {
+        m_timers[WUPDATE_REALM_STATS].Reset();
+        LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), realmID);
     }
 
     uint32 diffTime = getMSTime();
