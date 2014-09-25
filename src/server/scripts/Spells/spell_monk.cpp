@@ -29,7 +29,6 @@
 
 enum MonkSpells
 {
-    SPELL_MONK_LEGACY_OF_THE_EMPEROR            = 117667,
     SPELL_MONK_FORTIFYING_BREW                  = 120954,
     SPELL_MONK_PROVOKE                          = 118635,
     SPELL_MONK_BLACKOUT_KICK_DOT                = 128531,
@@ -1777,7 +1776,7 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
                         if (!_player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP))
                         {
                             _player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
-                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, time(NULL) + 8);
+                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8000);
                         }
                     }
                 }
@@ -2784,7 +2783,7 @@ class spell_monk_spear_hand_strike : public SpellScriptLoader
                         if (target->isInFront(_player))
                         {
                             _player->CastSpell(target, SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE, true);
-                            _player->AddSpellCooldown(116705, 0, time(NULL) + 15);
+                            _player->AddSpellCooldown(116705, 0, 15000);
                         }
                     }
                 }
@@ -3111,7 +3110,7 @@ class spell_monk_keg_smash : public SpellScriptLoader
                             _player->CastSpell(target, SPELL_MONK_WEAKENED_BLOWS, true);
                             _player->CastSpell(_player, SPELL_MONK_KEG_SMASH_ENERGIZE, true);
                             // Prevent to receive 2 CHI more than once time per cast
-                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, time(NULL) + 1);
+                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, 1000);
                             _player->CastSpell(target, SPELL_MONK_DIZZYING_HAZE, true);
                         }
                     }
@@ -3743,41 +3742,6 @@ class spell_monk_fortifying_brew : public SpellScriptLoader
         }
 };
 
-// Legacy of the Emperor - 115921
-class spell_monk_legacy_of_the_emperor : public SpellScriptLoader
-{
-    public:
-        spell_monk_legacy_of_the_emperor() : SpellScriptLoader("spell_monk_legacy_of_the_emperor") { }
-
-        class spell_monk_legacy_of_the_emperor_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_legacy_of_the_emperor_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
-                    std::list<Unit*> groupList;
-
-                    plr->GetPartyMembers(groupList);
-                    if (!groupList.empty())
-                        for (auto itr : groupList)
-                            plr->CastSpell(itr, SPELL_MONK_LEGACY_OF_THE_EMPEROR, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_legacy_of_the_emperor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_legacy_of_the_emperor_SpellScript();
-        }
-};
-
 // Roll - 109132 or Roll (3 charges) - 121827
 class spell_monk_roll : public SpellScriptLoader
 {
@@ -3945,7 +3909,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_disable();
     new spell_monk_zen_pilgrimage();
     new spell_monk_blackout_kick();
-    new spell_monk_legacy_of_the_emperor();
     new spell_monk_fortifying_brew();
     new spell_monk_touch_of_death();
     new spell_monk_paralysis();

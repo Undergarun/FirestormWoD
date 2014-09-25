@@ -1399,11 +1399,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     break;
                 }
-                case 59764: // Healing Tide Totem
-                {
-                    SetCreateHealth(m_owner->CountPctFromMaxHealth(10));
-                    break;
-                }
                 // Guardian of Ancient Kings
                 case 46506:
                 {
@@ -1730,7 +1725,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 }
             }
 
-            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, spellInfo->spellPower, &baseDamage[0], NULL, caster_guid);
+            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
             if (aura != NULLAURA)
             {
                 if (!aura->CanBeSaved())

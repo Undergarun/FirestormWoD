@@ -2018,9 +2018,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading area skip update...");
     sObjectMgr->LoadSkipUpdateZone();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Initializing item upgrade datas...");
-    sSpellMgr->InitializeItemUpgradeDatas();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet template...");
     sObjectMgr->LoadBattlePetTemplate();
 

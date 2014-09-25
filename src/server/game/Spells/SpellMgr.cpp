@@ -1403,7 +1403,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
 
             AreaTableEntry const* pArea = GetAreaEntryByAreaID(player->GetAreaId());
-            if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
+            if (!(pArea && pArea->Flags & AREA_FLAG_NO_FLY_ZONE))
                 return false;
             if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
                 return false;
@@ -2071,27 +2071,6 @@ void SpellMgr::LoadForbiddenSpells()
 
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u forbidden spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void SpellMgr::InitializeItemUpgradeDatas()
-{
-    uint32 oldMSTime = getMSTime();
-
-    uint16 spTable[71][2] =
-    {
-        {458, 4914}, {463, 5152}, {466, 5293}, {470, 5497}, {471, 5552}, {474, 5704}, {476, 5812}, {478, 5920}, {480, 6037}, {483, 6206},
-        {484, 6262}, {487, 6445}, {489, 6564}, {490, 6628}, {491, 6684}, {493, 6810}, {494, 6874}, {496, 7007}, {497, 7070}, {498, 7140},
-        {500, 7272}, {501, 7337}, {502, 7410}, {503, 7478}, {504, 7548}, {505, 7619}, {506, 7690}, {507, 7759}, {508, 7836}, {509, 7907},
-        {510, 7982}, {511, 8054}, {512, 8132}, {513, 8209}, {514, 8286}, {515, 8364}, {516, 8441}, {517, 8521}, {518, 8603}, {519, 8680},
-        {520, 8764}, {521, 8841}, {522, 8925}, {524, 9093}, {525, 9179}, {526, 9265}, {528, 9440}, {530, 9618}, {532, 9797}, {535, 10078},
-        {536, 10169}, {539, 10458}, {540, 10557}, {541, 10655}, {543, 10859}, {544, 10957}, {545, 11060}, {548, 11372}, {549, 11479}, {553, 11916},
-        {557, 12370}, {559, 12602}, {561, 12841}, {563, 13079}, {566, 13452}, {567, 13578}, {570, 13961}, {572, 14225}, {574, 14492}, {576, 14766}, {580, 15321}
-    };
-
-    for (uint8 i = 0; i < 71; ++i)
-        mItemUpgradeDatas.insert(std::make_pair(spTable[i][0], spTable[i][1]));
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 71 item upgrade datas in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellProcEvents()
@@ -3076,18 +3055,15 @@ void SpellMgr::LoadSpellClassInfo()
             mSpellClassInfo[ClassID].insert(79327);
 
         // Opening gameobject
-        if (ClassID == CLASS_MONK)
-        {
-            mSpellClassInfo[ClassID].insert(3365);
-            mSpellClassInfo[ClassID].insert(6247);
-            mSpellClassInfo[ClassID].insert(6477);
-            mSpellClassInfo[ClassID].insert(6478);
-            mSpellClassInfo[ClassID].insert(21651);
-            mSpellClassInfo[ClassID].insert(22810);
-            mSpellClassInfo[ClassID].insert(61437);
-            mSpellClassInfo[ClassID].insert(68398);
-            mSpellClassInfo[ClassID].insert(96220);
-        }
+        mSpellClassInfo[ClassID].insert(3365);
+        mSpellClassInfo[ClassID].insert(6247);
+        mSpellClassInfo[ClassID].insert(6477);
+        mSpellClassInfo[ClassID].insert(6478);
+        mSpellClassInfo[ClassID].insert(21651);
+        mSpellClassInfo[ClassID].insert(22810);
+        mSpellClassInfo[ClassID].insert(61437);
+        mSpellClassInfo[ClassID].insert(68398);
+        mSpellClassInfo[ClassID].insert(96220);
 
         for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
         {
@@ -3126,7 +3102,7 @@ void SpellMgr::LoadSpellClassInfo()
             if (!chrSpec)
                 continue;
 
-            mSpellClassInfo[chrSpec->classId].insert(specializationInfo->LearnSpell);
+            mSpellClassInfo[chrSpec->ClassID].insert(specializationInfo->LearnSpell);
         }
     }
 }
@@ -3162,14 +3138,10 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-    std::set<uint32> alreadySet;
     for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); i++)
     {
         SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(i);
         if (!spellPower)
-            continue;
-
-        if (alreadySet.find(spellPower->SpellId) != alreadySet.end())
             continue;
 
         for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
@@ -3178,18 +3150,8 @@ void SpellMgr::LoadSpellInfoStore()
             if (!spell)
                 continue;
 
-            spell->ManaCost = spellPower->manaCost;
-            spell->ManaCostPercentage = spellPower->ManaCostPercentage;
-            spell->ManaPerSecond = spellPower->manaPerSecond;
-            spell->PowerType = spellPower->powerType;
-
-            spell->spellPower->manaCost = spellPower->manaCost;
-            spell->spellPower->ManaCostPercentage = spellPower->ManaCostPercentage;
-            spell->spellPower->manaPerSecond = spellPower->manaPerSecond;
-            spell->spellPower->powerType = spellPower->powerType;
+            spell->SpellPowers.push_back(spellPower);
         }
-
-        alreadySet.insert(spellPower->SpellId);
     }
 
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
@@ -3427,6 +3389,39 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 133795: // Life Drain
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133798: // Life Drain
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133796: // Life Drain
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 83381: // Kill Command
+                spellInfo->AttackPowerBonus = 1.632f;
+                break;
+            case 115921:// Legacy of the Emperor
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
+                break;
+            case 117667:// Legacy of the Emperor (buff)
+                spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                break;
+            case 45477: // Icy Touch
+                spellInfo->AttackPowerBonus = 0.319f;
+                break;
+            case 49184: // Howling Blast
+                spellInfo->AttackPowerBonus = 0.428f;
+                break;
+            case 140495:// Lingering Gaze
+                spellInfo->Effects[0].BasePoints *= 2.9f;
+                break;
+            case 136413:// Force of Will
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 125634: // Call for Nomi (spawn spammed, usebug)
                 spellInfo->RecoveryTime = 9000000;
                 break;
@@ -4508,9 +4503,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].SpellClassMask[1] = 0x48022DF0;
                 spellInfo->Effects[1].SpellClassMask[2] = 0x04000010;
                 break;
-            case 119049:// Kil'Jaeden's Cunning
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
             case 121039:// Mana Attunement (400%)
                 spellInfo->Effects[0].BasePoints = 50;
                 break;
@@ -4880,8 +4872,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 20066: // Repentence
             case 115175:// Soothing Mists
             case 116694:// Surging Mists
+                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->AttackPowerBonus = 2.316f;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -5059,6 +5054,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
+                spellInfo->Effects[1].BasePoints = -70;
                 break;
             case 49821: // Mind Sear
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CHANNEL_TARGET;
@@ -5110,14 +5106,22 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SCALE;
                 spellInfo->Effects[2].BasePoints = 30;
                 break;
-            case 111546:
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
+            case 33745: // Lacerate
+                spellInfo->AttackPowerBonus = 0.616f;
                 break;
-            case 113890:
+            case 20167: // Seal of Insight (heal)
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->AttackPowerBonus = 0.15f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.15f;
+                break;
+            case 132467:// Chi Wave (damage)
+            case 132463:// Chi Wave (heal)
+                spellInfo->AttackPowerBonus = 0.45f;
+                break;
+            case 113890:// Demonic Gateway (purple)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
-            case 113886:
+            case 113886:// Demonic Gateway (green)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 122292:// Intervene (Symbiosis)
@@ -5155,7 +5159,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
             case 52042: // Healing Stream - Totem
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
             case 324:   // Lightning Shield
@@ -6233,10 +6236,18 @@ SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Power
         if (!spellPower)
             continue;
 
-        if (spellPower->powerType == power)
+        if (spellPower->PowerType == power)
             return spellPower;
     }
 
-    SpellInfo const* spell = sSpellMgr->GetSpellInfo(id);
-    return spell->spellPower;
+    return NULL;
+}
+
+void SpellMgr::TryLinkItemToSpell(Difficulty difficulty, uint32 spellId, uint32 itemId)
+{
+    if (difficulty >= MAX_DIFFICULTY)
+        return;
+
+    if (mSpellInfoMap[difficulty][spellId])
+        mSpellInfoMap[difficulty][spellId]->SpellFromItems.push_back(itemId);
 }

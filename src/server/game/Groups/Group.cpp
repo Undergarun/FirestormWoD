@@ -2773,7 +2773,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
 
-    if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
+    if (memberscount > bgEntry->MaxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
@@ -3186,6 +3186,94 @@ bool Group::isBFGroup() const
 bool Group::IsCreated() const
 {
     return GetMembersCount() > 0;
+}
+
+bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID)
+{
+    uint32 l_MapID = 0;
+    uint32 l_InstanceID = 0;
+    uint32 l_Counter = 0;
+
+    std::vector<Player*> l_Members;
+
+    // First we populate the array
+    for (GroupReference* l_Iter = GetFirstMember(); l_Iter != NULL; l_Iter = l_Iter->next()) // Loop trough all members
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (l_Player->GetGuildId() == p_GuildID) // Check if it has a guild
+                l_Members.push_back(l_Player);
+        }
+    }
+
+    bool l_IsOkay = false;
+    l_Counter = l_Members.size();
+    for (std::vector<Player*>::iterator l_Iter = l_Members.begin(); l_Iter != l_Members.end(); ++l_Iter) // Iterate through players
+    {
+        if (Player* l_Player = (*l_Iter))
+        {
+            if (l_MapID == 0)
+                l_MapID = l_Player->GetMapId();
+
+            if (l_InstanceID == 0)
+                l_InstanceID = l_Player->GetInstanceId();
+
+            if (l_Player->GetMap()->IsNonRaidDungeon() && !l_IsOkay)
+            {
+                if (l_Counter >= 3)
+                    l_IsOkay = true;
+            }
+
+            if (l_Player->GetMap()->IsRaid() && !l_IsOkay)
+            {
+                switch (l_Player->GetMap()->GetDifficulty())
+                {
+                    case MAN10_DIFFICULTY:
+                    case MAN10_HEROIC_DIFFICULTY:
+                        if (l_Counter >= 8)
+                            l_IsOkay = true;
+                        break;
+                    case MAN25_DIFFICULTY:
+                    case MAN25_HEROIC_DIFFICULTY:
+                    case RAID_TOOL_DIFFICULTY:
+                        if (l_Counter >= 20)
+                            l_IsOkay = true;
+                        break;
+                    case MAN40_DIFFICULTY:
+                    case DYNAMIC_DIFFICULTY:
+                        if (l_Counter >= 30)
+                            l_IsOkay = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (l_Player->GetMap()->IsBattleArena() && !l_IsOkay)
+            {
+                if (l_Counter == GetMembersCount())
+                    l_IsOkay = true;
+            }
+
+            if (l_Player->GetMap()->IsBattleground() && !l_IsOkay)
+            {
+                if (Battleground* l_Battleground = l_Player->GetBattleground())
+                {
+                    if (l_Counter >= uint32(l_Battleground->GetMaxPlayers() * 0.8f))
+                        l_IsOkay = true;
+                }
+            }
+
+            // ToDo: Check 40-player raids: 10/40
+            if (p_SameMap && (l_MapID != l_Player->GetMapId()))
+                return false;
+
+            if (p_SameInstanceID && (l_InstanceID != l_Player->GetInstanceId()))
+                return false;
+        }
+    }
+
+    return l_IsOkay;
 }
 
 uint64 Group::GetLeaderGUID() const

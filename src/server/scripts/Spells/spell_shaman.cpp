@@ -285,7 +285,7 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                         if (bp > 0)
                             _player->CastCustomSpell((*alliesList.begin()), SPELL_SHA_RESTORATIVE_MISTS, &bp, NULL, NULL, true);   // Restorative Mists
 
-                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, time(NULL) + 1);               // This prevent from multiple procs
+                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 1000);               // This prevent from multiple procs
                     }
                 }
             }
@@ -571,7 +571,7 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                     bp = int32(bp * 0.40f);
 
                     _player->CastCustomSpell(target, SPELL_SHA_ANCESTRAL_GUIDANCE, &bp, NULL, NULL, true);
-                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, time(NULL) + 1);
+                    _player->AddSpellCooldown(SPELL_SHA_ANCESTRAL_GUIDANCE, 0, 1000);
                 }
             }
 
@@ -644,7 +644,7 @@ class spell_sha_echo_of_the_elements : public SpellScriptLoader
                 if (!roll_chance_i(chance))
                     return;
 
-                _player->AddSpellCooldown(SPELL_SHA_ECHO_OF_THE_ELEMENTS, 0, time(NULL) + 2); // This prevent from multiple procs
+                _player->AddSpellCooldown(SPELL_SHA_ECHO_OF_THE_ELEMENTS, 0, 2000); // This prevent from multiple procs
                 _player->CastSpell(target, procSpell->Id, true);
             }
 
@@ -1456,9 +1456,12 @@ class spell_sha_elemental_blast : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Player* caster = GetCaster()->ToPlayer())
                 {
-                    int32 randomEffect = irand(0, 2);
+                    int32 randomEffect = irand(0, 3);
+
+                    if (caster->GetSpecializationId(caster->GetActiveSpec()) != SPEC_SHAMAN_ENHANCEMENT)
+                        randomEffect = irand(0, 2);
 
                     caster->CastSpell(caster, SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, true);
 
@@ -1470,18 +1473,28 @@ class spell_sha_elemental_blast : public SpellScriptLoader
                             {
                                 aura->GetBase()->GetEffect(1)->ChangeAmount(0);
                                 aura->GetBase()->GetEffect(2)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(3)->ChangeAmount(0);
                                 break;
                             }
                             case 1:
                             {
                                 aura->GetBase()->GetEffect(0)->ChangeAmount(0);
                                 aura->GetBase()->GetEffect(2)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(3)->ChangeAmount(0);
                                 break;
                             }
                             case 2:
                             {
                                 aura->GetBase()->GetEffect(0)->ChangeAmount(0);
                                 aura->GetBase()->GetEffect(1)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(3)->ChangeAmount(0);
+                                break;
+                            }
+                            case 3:
+                            {
+                                aura->GetBase()->GetEffect(0)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(1)->ChangeAmount(0);
+                                aura->GetBase()->GetEffect(2)->ChangeAmount(0);
                                 break;
                             }
                             default:
@@ -1753,6 +1766,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
@@ -1798,6 +1812,7 @@ class spell_sha_heroism : public SpellScriptLoader
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
             }
@@ -1946,7 +1961,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                                             _player->RemoveSpellCooldown(SPELL_SHA_FLAME_SHOCK, true);
 
                                         _player->CastSpell(itr, SPELL_SHA_FLAME_SHOCK, true);
-                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, time(NULL) + cooldownDelay);
+                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, cooldownDelay * IN_MILLISECONDS);
                                         hitTargets++;
                                     }
                                 }

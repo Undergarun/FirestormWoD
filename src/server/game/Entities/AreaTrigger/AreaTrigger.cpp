@@ -24,6 +24,10 @@
 #include "SpellInfo.h"
 #include "Log.h"
 #include "AreaTrigger.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), m_caster(NULL), m_visualRadius(0.0f)
 {
@@ -445,6 +449,49 @@ void AreaTrigger::Update(uint32 p_time)
                     player->SendApplyMovementForce(false, pos);
             }
 
+            break;
+        }
+        case 133793: // Lingering Gaze
+        {
+            float l_BiggestRadius = m_visualRadius + 2.0f;
+            bool l_MergeCheck = false;
+
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, l_BiggestRadius);
+
+            if (!playerList.empty())
+            {
+                for (Player* player : playerList)
+                {
+                    if (!l_MergeCheck)
+                    {
+                        std::list<AreaTrigger*> l_AreaTriggerList;
+                        if (Creature* boss = player->GetMap()->GetCreature(this->GetInstanceScript()->GetData64(68036)))
+                            boss->GetAreaTriggerList(l_AreaTriggerList, 133793);
+
+                        if (!l_AreaTriggerList.empty())
+                        {
+                            for (AreaTrigger* l_AreaTrigger : l_AreaTriggerList)
+                            {
+                                if (l_AreaTrigger != this && l_AreaTrigger->GetDistance(this) < 2.5f)
+                                {
+                                    l_AreaTrigger->Remove();
+                                    SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 1.5f);
+                                    this->SetObjectScale(m_visualRadius * 1.5f);
+                                    this->SetVisualRadius(m_visualRadius * 1.5f);
+                                    l_MergeCheck = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (player->GetDistance(this) > m_visualRadius && player->HasAura(134040))
+                        player->RemoveAura(134040);
+
+                    if (player->GetDistance(this) <= m_visualRadius && !player->HasAura(134040))
+                        player->AddAura(134040, player);
+                }
+            }
             break;
         }
         default:

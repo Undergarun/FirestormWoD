@@ -26,7 +26,7 @@
 #include "Timer.h"
 #include "PetBattle.h"
 
-#define WILDBATTLEPETMGR_UPDATE_INTERVAL 2000
+#define WILDBATTLEPETMGR_UPDATE_INTERVAL 6000
 #define WILDBATTLEPET_RESPAWN_WHEN_NOT_DEFEATED 10
 
 class Creature;
@@ -42,12 +42,12 @@ struct WildBattlePetPoolTemplate
     uint32 MaxLevel;
     uint32 Breeds[10];
 
-    std::list<Creature*>            ToBeReplaced;
-    std::list<Creature*>            Replaced;
+    std::list<uint64>            ToBeReplaced;
+    std::list<uint64>            Replaced;
 
     /// @TODO: replace this
-    std::map<Creature*, Creature*>          ReplacedRelation;
-    std::map<Creature*, BattlePetInstance>  ReplacedBattlePetInstances;
+    std::map<uint64, uint64>                                ReplacedRelation;
+    std::map<uint64, std::shared_ptr<BattlePetInstance>>    ReplacedBattlePetInstances;
 };
 
 class WildBattlePetZonePools
@@ -89,7 +89,7 @@ class WildBattlePetMgr
         void OnRemoveToMap(Creature* p_Creature);
 
         bool IsWildPet(Creature* p_Creature);
-        BattlePetInstance* GetWildBattlePet(Creature* p_Creature);
+        std::shared_ptr<BattlePetInstance> GetWildBattlePet(Creature* p_Creature);
         
         void EnterInBattle(Creature* p_Creature);
         void LeaveBattle(Creature* p_Creature, bool p_Defeated);

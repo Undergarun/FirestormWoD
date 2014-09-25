@@ -25,14 +25,22 @@
 
 enum eSpells
 {
-    SPELL_HARD_STARE        = 133765,
-    SPELL_FORCE_OF_WILL     = 136413
+    SPELL_HARD_STARE             = 133765,
+    SPELL_FORCE_OF_WILL          = 136413, // May be too much powerful, to check with players
+    SPELL_LINGERING_GAZE_MAIN    = 138467, // Script Effect
+    SPELL_LINGERING_GAZE_MISSILE = 133792,
+    SPELL_LINGERING_GAZE_AT      = 133793,
+    SPELL_LIFE_DRAIN_DUMMY       = 133795,
+    SPELL_LIFE_DRAIN_AURA        = 133796,
+    SPELL_LIFE_DRAIN_DMG         = 133798
 };
 
 enum eEvents
 {
     EVENT_HARD_STARE        = 1,
-    EVENT_FORCE_OF_WILL     = 2
+    EVENT_FORCE_OF_WILL     = 2,
+    EVENT_LINGERING_GAZE    = 3,
+    EVENT_DRAIN_LIFE        = 4
 };
 
 // Durumu the forgotten - 68036
@@ -59,8 +67,17 @@ class boss_durumu : public CreatureScript
 
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
+                me->ClearUnitState(UNIT_STATE_ROOT);
+                me->AddUnitState(UNIT_STATE_ROOT);
 
                 summons.DespawnAll();
+
+                std::list<AreaTrigger*> l_AreatriggerList;
+                me->GetAreaTriggerList(l_AreatriggerList, 133793);
+
+                if (!l_AreatriggerList.empty())
+                    for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
+                        l_AreaTrigger->Remove();
 
                 if (m_Instance)
                 {
@@ -72,12 +89,38 @@ class boss_durumu : public CreatureScript
             void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.Reset();
-                m_Events.ScheduleEvent(EVENT_HARD_STARE, 10000);
-                m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 20000);
+                // m_Events.ScheduleEvent(EVENT_HARD_STARE, 10000);
+                // m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 18000);
+                // m_Events.ScheduleEvent(EVENT_LINGERING_GAZE, 10000);
+                m_Events.ScheduleEvent(EVENT_DRAIN_LIFE, 10000);
             }
 
             void JustDied(Unit* /*p_Killer*/)
             {
+                _JustDied();
+
+                summons.DespawnAll();
+
+                std::list<AreaTrigger*> l_AreatriggerList;
+                me->GetAreaTriggerList(l_AreatriggerList, 133793);
+
+                if (!l_AreatriggerList.empty())
+                    for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
+                        l_AreaTrigger->Remove();
+
+                if (m_Instance)
+                {
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    m_Instance->SetBossState(DATA_DURUMU_THE_FORGOTTEN, DONE);
+                }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                }
             }
 
             void DoAction(const int32 /*p_Action*/)
@@ -106,6 +149,15 @@ class boss_durumu : public CreatureScript
                             me->CastSpell(l_Target, SPELL_FORCE_OF_WILL, false);
                         m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 6000);
                         break;
+                    case EVENT_LINGERING_GAZE:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_LINGERING_GAZE_MAIN, false);
+                        m_Events.ScheduleEvent(EVENT_LINGERING_GAZE, 12000);
+                        break;
+                    case EVENT_DRAIN_LIFE:
+                        me->SummonCreature(NPC_HUNGRY_EYE, me->GetPositionX() + 1.0f, me->GetPositionY() + 1.0f, me->GetPositionZ() + 1.0f);
+                    default:
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -121,39 +173,176 @@ class boss_durumu : public CreatureScript
 // Arterial Cut (aura) - 133768
 class spell_arterial_cut : public SpellScriptLoader
 {
-public:
-    spell_arterial_cut() : SpellScriptLoader("spell_arterial_cut") { }
+    public:
+        spell_arterial_cut() : SpellScriptLoader("spell_arterial_cut") { }
 
-    class spell_arterial_cut_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_arterial_cut_AuraScript);
-
-        void OnTick(constAuraEffectPtr /*aurEff*/)
+        class spell_arterial_cut_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareAuraScript(spell_arterial_cut_AuraScript);
 
-            if (!l_Caster)
-                return;
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
 
-            if (Player* l_Player = l_Caster->ToPlayer())
-                if (l_Player->GetHealth() == l_Player->GetMaxHealth())
-                    this->Remove();
-        }
+                if (!l_Caster)
+                    return;
 
-        void Register()
+                if (Player* l_Player = l_Caster->ToPlayer())
+                    if (l_Player->GetHealth() == l_Player->GetMaxHealth())
+                        this->Remove();
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_arterial_cut_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_arterial_cut_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            return new spell_arterial_cut_AuraScript();
         }
-    };
+};
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_arterial_cut_AuraScript();
-    }
+// Lingering Gaze - 138467
+class spell_lingering_gaze_main : public SpellScriptLoader
+{
+    public:
+        spell_lingering_gaze_main() : SpellScriptLoader("spell_lingering_gaze_main") { }
+
+        class spell_lingering_gaze_main_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_lingering_gaze_main_SpellScript);
+
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                std::list<Player*> l_PlayerList;
+                GetPlayerListInGrid(l_PlayerList, l_Caster, 100.0f);
+
+                if (l_PlayerList.empty())
+                    return;
+
+                if (l_Caster->GetMap()->IsHeroic())
+                    JadeCore::RandomResizeList(l_PlayerList, 5);
+                else
+                    JadeCore::RandomResizeList(l_PlayerList, 2);
+
+                for (Player* l_Player: l_PlayerList)
+                    l_Caster->CastSpell(l_Player, SPELL_LINGERING_GAZE_MISSILE, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_lingering_gaze_main_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_lingering_gaze_main_SpellScript();
+        }
+};
+
+// Hungry Eye - 67859
+class mob_hungry_eye : public CreatureScript
+{
+    public:
+        mob_hungry_eye() : CreatureScript("mob_hungry_eye") { }
+
+        struct mob_hungry_eyeAI : public ScriptedAI
+        {
+            mob_hungry_eyeAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+            }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+            }
+
+            void IsSummonedBy(Unit* /*p_Summoner*/)
+            {
+                m_Events.Reset();
+
+                m_Events.ScheduleEvent(EVENT_DRAIN_LIFE, 3000);
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_DRAIN_LIFE:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_LIFE_DRAIN_DUMMY, false);
+                        m_Events.ScheduleEvent(EVENT_DRAIN_LIFE, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_hungry_eyeAI(p_Creature);
+        }
+};
+
+
+// Life drain (aura) - 133796
+class spell_life_drain_dummy : public SpellScriptLoader
+{
+    public:
+        spell_life_drain_dummy() : SpellScriptLoader("spell_life_drain_dummy") { }
+
+        class spell_life_drain_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_life_drain_dummy_AuraScript);
+
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (!l_Caster->GetInstanceScript())
+                    return;
+
+                if (Creature* l_Boss = l_Caster->GetCreature(*l_Caster, l_Caster->GetInstanceScript()->GetData64(NPC_DURUMU_THE_FORGOTTEN)))
+                    l_Boss->ModifyHealth(urand(47500, 52500));
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_life_drain_dummy_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_life_drain_dummy_AuraScript();
+        }
 };
 
 void AddSC_boss_durumu()
 {
     new boss_durumu();
     new spell_arterial_cut();
+    new spell_lingering_gaze_main();
+    new mob_hungry_eye();
+    new spell_life_drain_dummy();
 }

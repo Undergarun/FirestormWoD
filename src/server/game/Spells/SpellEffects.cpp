@@ -67,6 +67,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ArchaeologyMgr.h"
+#include "PetBattle.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -607,7 +608,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (m_caster->HasAura(114237) && m_caster->GetTypeId() == TYPEID_PLAYER)
                         {
                             m_caster->CastSpell(unitTarget, 114238, true);
-                            m_caster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, time(NULL) + 15);
+                            m_caster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 15000);
                         }
 
                         break;
@@ -1268,7 +1269,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (Pet* pet = m_caster->ToPlayer()->GetPet())
                         {
                             pet->CastSpell(unitTarget, 119899, true);
-                            m_caster->ToPlayer()->AddSpellCooldown(119905, 0, time(NULL) + 30);
+                            m_caster->ToPlayer()->AddSpellCooldown(119905, 0, 30000);
                         }
 
                     break;
@@ -1280,7 +1281,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, time(NULL) + 60);
+                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, 60000);
                             }
                     break;
                 }
@@ -1291,7 +1292,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119910, 0, time(NULL) + 24);
+                                m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24000);
                             }
                     break;
                 }
@@ -1305,7 +1306,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119911, 0, time(NULL) + 24);
+                                m_caster->ToPlayer()->AddSpellCooldown(119911, 0, 24000);
                             }
                     break;
                 }
@@ -1316,7 +1317,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, time(NULL) + 25);
+                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25000);
                             }
 
                     break;
@@ -1328,7 +1329,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119913, 0, time(NULL) + 25);
+                                m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25000);
                             }
 
                     break;
@@ -2226,7 +2227,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                         AddPct(addhealth, 25);
                 break;
             case 85222: // Light of Dawn
-                addhealth *= GetPowerCost();
+                addhealth *= GetPowerCost(POWER_HOLY_POWER);
 
                 if (!caster)
                     break;
@@ -2765,7 +2766,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        AuraPtr aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, m_spellPowerData, &m_spellValue->EffectBasePoints[0]);
+        AuraPtr aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]);
         if (aura != NULLAURA)
         {
             m_spellAura = aura;
@@ -3260,7 +3261,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     {
         case 124927:// Call Dog
             if (m_originalCaster->ToPlayer())
-                m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, time(NULL) + 60);
+                m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60000);
             break;
         case 123040:// Mindbender
             // Glyph of the Sha
@@ -3425,9 +3426,15 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!summon || !summon->isTotem())
                         return;
 
-                    // Mana Tide Totem
-                    if (m_spellInfo->Id == 16190)
-                        damage = m_caster->CountPctFromMaxHealth(10);
+                    switch (m_spellInfo->Id)
+                    {
+                        case 16190:
+                        case 108280:
+                            damage = m_caster->CountPctFromMaxHealth(10);
+                            break;
+                        default:
+                            break;
+                    }
 
                     if (damage)                                            // if not spell info, DB values used
                     {
@@ -5762,14 +5769,14 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     // Players can only fight a duel in zones with this flag
     AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetAreaId());
-    if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    if (casterAreaEntry && !(casterAreaEntry->Flags & AREA_FLAG_ALLOW_DUELS))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
 
     AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetAreaId());
-    if (targetAreaEntry && !(targetAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    if (targetAreaEntry && !(targetAreaEntry->Flags & AREA_FLAG_ALLOW_DUELS))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
@@ -6875,7 +6882,6 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
         return;
 
     int32 mana = 0;
-    float manaCostPercentage = 0.00f;
     for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
@@ -6885,15 +6891,23 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
         if (totem && totem->isTotem())
         {
             uint32 spell_id = totem->GetUInt32Value(UNIT_CREATED_BY_SPELL);
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-            if (spellInfo)
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
             {
-                manaCostPercentage = spellInfo->ManaCostPercentage;
-                mana += m_caster->CountPctFromMaxMana(int32(manaCostPercentage));
+                for (auto itr : spellInfo->SpellPowers)
+                {
+                    if (itr->PowerType == POWER_MANA)
+                    {
+                        mana += itr->Cost;
+                        mana += m_caster->CountPctFromMaxMana(int32(itr->CostBasePercentage));
+                        break;
+                    }
+                }
             }
+
             totem->ToTotem()->UnSummon();
         }
     }
+
     ApplyPct(mana, damage);
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
@@ -7801,8 +7815,10 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_TOTEM))
             continue;
 
-        int32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask(), m_spellPowerData);
-        if (m_caster->GetPower(POWER_MANA) < cost)
+        int32 cost[MAX_POWERS];
+        memset(cost, 0, sizeof(cost));
+        spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask(), cost);
+        if (m_caster->GetPower(POWER_MANA) < cost[POWER_MANA])
             continue;
 
         TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
@@ -8366,11 +8382,20 @@ void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
 
 void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
 {
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
     if (!m_CastItem && m_caster->ToPlayer())
     {
-        PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_HEAL_ALL_PETBATTLE_ACCOUNT);
-        l_Stmt->setUInt32(0, m_caster->ToPlayer()->GetSession()->GetAccountId());
-        LoginDatabase.Execute(l_Stmt);
+        std::vector<BattlePet::Ptr> l_Pets = m_caster->ToPlayer()->GetBattlePets();
+
+        for (std::vector<BattlePet::Ptr>::iterator l_It = l_Pets.begin(); l_It != l_Pets.end(); ++l_It)
+        {
+            BattlePet::Ptr l_Pet = (*l_It);
+
+            l_Pet->UpdateStats();
+            l_Pet->Health = l_Pet->InfoMaxHealth;
+        }
 
         m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
     }
@@ -8381,10 +8406,14 @@ void Spell::EffectUncagePetBattle(SpellEffIndex effIndex)
 }
 void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
 {
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
     if (!unitTarget)
         return;
 
     Player* player = unitTarget->ToPlayer();
+
     if (!player)
         return;
 
