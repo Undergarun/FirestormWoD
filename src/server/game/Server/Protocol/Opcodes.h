@@ -123,11 +123,11 @@ enum Opcodes
         SMSG_TUTORIAL_FLAGS                         = 0x0617,   ///< 6.0.2 18934
 
         /// Combat
-        SMSG_ATTACKER_STATE_UPDATE                  = 0x0000,   ///< 6.0.2 
-        SMSG_ATTACK_START                           = 0x0000,   ///< 6.0.2 
-        SMSG_ATTACK_STOP                            = 0x0000,   ///< 6.0.2 
+        SMSG_ATTACKER_STATE_UPDATE                  = 0x11BC,   ///< 6.0.2 18934
+        SMSG_ATTACK_START                           = 0x13E4,   ///< 6.0.2 18934
+        SMSG_ATTACK_STOP                            = 0x10E7,   ///< 6.0.2 18934
         SMSG_AI_REACTION                            = 0x0000,   ///< 6.0.2 
-        SMSG_ATTACK_SWING_ERROR                     = 0x0000,   ///< 6.0.2 
+        SMSG_ATTACK_SWING_ERROR                     = 0x0603,   ///< 6.0.2 18934
 
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0103,   ///< 6.0.2 18934 
@@ -595,6 +595,7 @@ enum Opcodes
     CMSG_SWAP_INV_ITEM                          = 0x0000,   ///< 6.0.2 
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 6.0.1
     CMSG_STAND_STATE_CHANGE                     = 0x0000,   ///< 6.0.2 
+    CMSG_BINDER_ACTIVATE                        = 0x0663,   ///< 6.0.2 18934
     
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -616,8 +617,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ATTACKSTOP                             = 0x0000,   ///< 6.0.2
-    CMSG_ATTACKSWING                            = 0x0000,   ///< 6.0.2
+    CMSG_ATTACKSTOP                             = 0x1B94,   ///< 6.0.2 18934
+    CMSG_ATTACKSWING                            = 0x1C97,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell
@@ -625,6 +626,7 @@ enum Opcodes
     CMSG_CAST_SPELL                             = 0x10C8,   ///< 6.0.2 18934
     CMSG_CANCEL_CAST                            = 0x159B,   ///< 6.0.2 18934
     CMSG_USE_ITEM                               = 0x118F,   ///< 6.0.2 18934
+    CMSG_CANCEL_AURA                            = 0x1A9F,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
@@ -656,8 +658,8 @@ enum Opcodes
     CMSG_SET_WATCHED_FACTION                    = 0x0000,   ///< 6.0.2 
     CMSG_SET_FACTION_INACTIVE                   = 0x0000,   ///< 6.0.2 
     CMSG_AREATRIGGER                            = 0x14D7,   ///< 6.0.2 18934
-    CMSG_GAMEOBJECT_REPORT_USE                  = 0x0274,   ///< 6.0.2 18934
-    CMSG_GAMEOBJECT_USE                         = 0x0473,   ///< 6.0.2 18934
+    CMSG_GAMEOBJECT_REPORT_USE                  = 0x0343,   ///< 6.0.2 18934
+    CMSG_GAMEOBJECT_USE                         = 0x0274,   ///< 6.0.2 18934
     CMSG_SAVE_CUF_PROFILES                      = 0x0000,   ///< 6.0.2 
 
     //////////////////////////////////////////////////////////////////////////
@@ -681,15 +683,15 @@ enum Opcodes
     /// Quest
     //////////////////////////////////////////////////////////////////////////
     CMSG_QUESTGIVER_HELLO                       = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_STATUS_QUERY                = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_CHOOSE_REWARD               = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_ACCEPT_QUEST                = 0x0000,   ///< 6.0.2
-    CMSG_QUESTGIVER_REQUEST_REWARD              = 0x0000,   ///< 6.0.2
-    CMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000,   ///< 6.0.2
-    CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0000,   ///< 6.0.2
+    CMSG_QUESTGIVER_STATUS_QUERY                = 0x0704,   ///< 6.0.2 18934
+    CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0633,   ///< 6.0.2 18934
+    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0358,   ///< 6.0.2 18934
+    CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x1243,   ///< 6.0.2 18934
+    CMSG_QUESTGIVER_CHOOSE_REWARD               = 0x0708,   ///< 6.0.2 18934
+    CMSG_QUESTGIVER_ACCEPT_QUEST                = 0x0678,   ///< 6.0.2 18934
+    CMSG_QUESTGIVER_REQUEST_REWARD              = 0x0214,   ///< 6.0.2 18934
+    CMSG_QUEST_CONFIRM_ACCEPT                   = 0x0444,   ///< 6.0.2 18934
+    CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0467,   ///< 6.0.2 18934
     CMSG_PUSHQUESTTOPARTY                       = 0x0000,   ///< 6.0.2
 
     //////////////////////////////////////////////////////////////////////////
@@ -802,9 +804,9 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Friend
     //////////////////////////////////////////////////////////////////////////
-    CMSG_SEND_CONTACT_LIST                      = 0x0000,   ///< 6.0.2
-    CMSG_ADD_FRIEND                             = 0x0000,   ///< 6.0.2
-    CMSG_ADD_IGNORE                             = 0x0000,   ///< 6.0.2
+    CMSG_SEND_CONTACT_LIST                      = 0x08AF,   ///< 6.0.2 18934
+    CMSG_ADD_FRIEND                             = 0x09FF,   ///< 6.0.2 18934
+    CMSG_ADD_IGNORE                             = 0x00F7,   ///< 6.0.2 18934
     CMSG_SET_CONTACT_NOTES                      = 0x0000,   ///< 6.0.2
     CMSG_DEL_FRIEND                             = 0x0000,   ///< 6.0.2
     CMSG_DEL_IGNORE                             = 0x0000,   ///< 6.0.2
@@ -909,7 +911,6 @@ enum Opcodes
     CMSG_BATTLEMASTER_JOIN_ARENA                      = 0x0000,
     CMSG_BATTLEMASTER_JOIN_RATED                      = 0x0000,
     CMSG_BEGIN_TRADE                                  = 0x0000,
-    CMSG_BINDER_ACTIVATE                              = 0x0000,
     CMSG_BLACK_MARKET_HELLO                           = 0x0000,
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x0000,
     CMSG_BLACK_MARKET_PLACE_BID                       = 0x0000,
@@ -931,7 +932,6 @@ enum Opcodes
     CMSG_CALENDAR_GUILD_FILTER                        = 0x0000,
     CMSG_CALENDAR_REMOVE_EVENT                        = 0x0000,
     CMSG_CALENDAR_UPDATE_EVENT                        = 0x0000,
-    CMSG_CANCEL_AURA                                  = 0x0000,
     CMSG_CANCEL_AUTO_REPEAT_SPELL                     = 0x0000,
     CMSG_CANCEL_CHANNELLING                           = 0x0000,
     CMSG_CANCEL_GROWTH_AURA                           = 0x0000,

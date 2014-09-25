@@ -874,48 +874,39 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
         m_Player->InterruptNonMeleeSpells(false, spellId, false);
 }
 
-void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCancelAuraOpcode(WorldPacket& p_Packet)
 {
-    uint32 spellId;
-    ObjectGuid casterGuid;
-    bool unk;
+    uint32 l_SpellID;
+    uint64 l_CasterGUID;
 
-    recvPacket >> spellId;
+    p_Packet >> l_SpellID;
+    p_Packet.readPackGUID(l_CasterGUID);
 
-    unk = recvPacket.ReadBit();
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
 
-    uint8 bitsOrder[8] = { 0, 2, 4, 1, 3, 7, 5, 6 };
-    recvPacket.ReadBitInOrder(casterGuid, bitsOrder);
-
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 5, 1, 4, 6, 0, 7, 3, 2 };
-    recvPacket.ReadBytesSeq(casterGuid, bytesOrder);
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
+    if (!l_SpellInfo)
         return;
 
-    // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
-    if (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
+    /// not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
+    if (l_SpellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
         return;
 
-    // channeled spell case (it currently casted then)
-    if (spellInfo->IsChanneled())
+    /// channeled spell case (it currently casted then)
+    if (l_SpellInfo->IsChanneled())
     {
         if (Spell* curSpell = m_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-            if (curSpell->m_spellInfo->Id == spellId)
+            if (curSpell->m_spellInfo->Id == l_SpellID)
                 m_Player->InterruptSpell(CURRENT_CHANNELED_SPELL);
         return;
     }
 
-    // non channeled case:
-    // don't allow remove non positive spells
-    // don't allow cancelling passive auras (some of them are visible)
-    if (!spellInfo->IsPositive() || spellInfo->IsPassive())
+    /// non channeled case:
+    /// don't allow remove non positive spells
+    /// don't allow cancelling passive auras (some of them are visible)
+    if (!l_SpellInfo->IsPositive() || l_SpellInfo->IsPassive())
         return;
 
-    m_Player->RemoveOwnedAura(spellId, casterGuid, 0, AURA_REMOVE_BY_CANCEL);
+    m_Player->RemoveOwnedAura(l_SpellID, l_CasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 }
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)

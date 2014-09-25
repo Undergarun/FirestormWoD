@@ -645,6 +645,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PET_INFO,                                STATUS_UNHANDLED,   PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestPetInfoOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_SAVE_CUF_PROFILES,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSaveCUFProfiles            );
     DEFINE_OPCODE_HANDLER(CMSG_STAND_STATE_CHANGE,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleStandStateChangeOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_BINDER_ACTIVATE,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBinderActivateOpcode       );
     
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -675,6 +676,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CAST_SPELL,                                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleCastSpellOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CAST,                                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleCancelCastOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_USE_ITEM,                                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleUseItemOpcode              );
+    DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AURA,                                     STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCancelAuraOpcode           );
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
@@ -918,7 +920,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_JOIN_ARENA,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinArena     );
     //DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_JOIN_RATED,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_BEGIN_TRADE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBeginTradeOpcode          );
-    //DEFINE_OPCODE_HANDLER(CMSG_BINDER_ACTIVATE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBinderActivateOpcode      );
     //DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_HELLO,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketHello          );
     //DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_REQUEST_ITEMS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketRequestItems   );
     //DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_PLACE_BID,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketBid            );
@@ -938,7 +939,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GUILD_FILTER,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGuildFilter       );
     //DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_REMOVE_EVENT,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarRemoveEvent       );
     //DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_UPDATE_EVENT,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarUpdateEvent       );
-    //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AURA,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAuraOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_AUTO_REPEAT_SPELL,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAutoRepeatSpellOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_CHANNELLING,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelChanneling          );
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelMountAuraOpcode     );

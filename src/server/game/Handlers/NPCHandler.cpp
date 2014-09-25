@@ -496,25 +496,20 @@ void WorldSession::SendSpiritResurrect()
         m_Player->UpdateObjectVisibility();
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBinderActivateOpcode(WorldPacket& p_RecvData)
 {
-    ObjectGuid npcGUID;
+    uint64 l_NpcGUID;
 
-    uint8 bitsOrder[8] = { 6, 4, 2, 0, 3, 7, 5, 1 };
-    recvData.ReadBitInOrder(npcGUID, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 6, 0, 5, 3, 1, 7, 4 };
-    recvData.ReadBytesSeq(npcGUID, bytesOrder);
+    p_RecvData.readPackGUID(l_NpcGUID);
 
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->isAlive())
         return;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_INNKEEPER);
-    if (!unit)
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_INNKEEPER);
+
+    if (!l_Unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
         return;
     }
 
@@ -522,7 +517,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendBindPoint(unit);
+    SendBindPoint(l_Unit);
 }
 
 void WorldSession::SendBindPoint(Creature* npc)
