@@ -158,19 +158,36 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     // Cast spell has movement data part when castflags & 0x10, patched ClientSide to have same data of CMSG_PLAYER_MOVE
     if (opcode == CMSG_CAST_SPELL
+
         || opcode == CMSG_MOVE_START_FORWARD
         || opcode == CMSG_MOVE_START_TURN_LEFT
         || opcode == CMSG_MOVE_START_TURN_RIGHT
         || opcode == CMSG_MOVE_START_BACKWARD
         || opcode == CMSG_MOVE_START_STRAFE_LEFT
         || opcode == CMSG_MOVE_START_STRAFE_RIGHT
+        || opcode == CMSG_MOVE_START_ASCEND
+        || opcode == CMSG_MOVE_START_DESCEND
+        || opcode == CMSG_MOVE_START_PITCH_UP
+        || opcode == CMSG_MOVE_START_PITCH_DOWN
+        || opcode == CMSG_MOVE_START_SWIM
+
         || opcode == CMSG_MOVE_JUMP
         || opcode == CMSG_MOVE_FALL_LAND
+
         || opcode == CMSG_MOVE_HEARTBEAT
         || opcode == CMSG_MOVE_SET_FACING
+        || opcode == CMSG_MOVE_SET_PITCH
+        || opcode == CMSG_MOVE_SET_RUN_MODE
+        || opcode == CMSG_MOVE_SET_WALK_MODE
+        || opcode == CMSG_MOVE_CHNG_TRANSPORT
+
         || opcode == CMSG_MOVE_STOP
         || opcode == CMSG_MOVE_STOP_TURN
         || opcode == CMSG_MOVE_STOP_STRAFE
+        || opcode == CMSG_MOVE_STOP_SWIM
+        || opcode == CMSG_MOVE_STOP_ASCEND
+        || opcode == CMSG_MOVE_STOP_PITCH
+
         || opcode == CMSG_MOVE_SET_RUN_SPEED_CHEAT
         || opcode == CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT
         || opcode == CMSG_MOVE_SET_WALK_SPEED_CHEAT
@@ -179,7 +196,11 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT
         || opcode == CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT
         || opcode == CMSG_MOVE_SET_TURN_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT)
+        || opcode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT
+        || opcode == CMSG_MOVE_SET_CAN_FLY_ACK
+        || opcode == CMSG_MOVE_FEATHER_FALL_ACK
+        || opcode == CMSG_MOVE_WATER_WALK_ACK
+        || opcode == CMSG_MOVE_HOVER_ACK)
         return MovementGlobalSequence;
 
     if (opcode == SMSG_MOVE_UPDATE

@@ -301,6 +301,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         float  l_Speed      = p_Packet.read<float>();
     }
 
+    if (l_OpCode == CMSG_MOVE_FEATHER_FALL_ACK
+     || l_OpCode == CMSG_MOVE_WATER_WALK_ACK)
+    {
+        uint32 l_AckIndex = p_Packet.read<uint32>();
+    }
+
     // prevent tampered movement data
     if (l_MovementInfo.guid != l_Mover->GetGUID())
     {
@@ -404,7 +410,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     if (l_PlayerMover && l_PlayerMover->GetLastPlayedEmote())
         l_PlayerMover->HandleEmoteCommand(0);
 
-   //if (plrMover)
+    //if (plrMover)
     //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
     /*----------------------*/
 
@@ -413,6 +419,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     l_MovementInfo.Alive32 = l_MovementInfo.time; // hack, but it's work in 505 in this way ...
     l_MovementInfo.time = getMSTime();
     l_MovementInfo.guid = l_Mover->GetGUID();
+
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
     l_Mover->SendMessageToSet(&data, m_Player);
 
