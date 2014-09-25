@@ -1152,6 +1152,36 @@ enum TrinityStrings
     LANG_BG_SA_H_GY_WEST                    = 10072, //The Horde captured the West Graveyard!
     LANG_BG_SA_H_GY_EAST                    = 10073, //The Horde captured the East Graveyard!
 
+    // Deepwind Gorge
+    LANG_BG_DG_START_TWO_MINUTES            = 10074,
+    LANG_BG_DG_START_ONE_MINUTE             = 10075,
+    LANG_BG_DG_START_HALF_MINUTE            = 10076,
+    LANG_BG_DG_HAS_BEGUN                    = 10077,
+
+    LANG_BG_DG_ALLIANCE_NEAR_VICTORY        = 10078,
+    LANG_BG_TK_HORDE_NEAR_VICTORY           = 10079,
+
+    LANG_BG_DG_ALLY                         = 10080,
+    LANG_BG_DG_HORDE                        = 10081,
+    LANG_BG_DG_NODE_SOUTH_MINE              = 10082,
+    LANG_BG_DG_NODE_CENTER                  = 10083,
+    LANG_BG_DG_NODE_NORTH_MINE              = 10084,
+    LANG_BG_DG_NODE_TAKEN                   = 10085,
+    LANG_BG_DG_NODE_DEFENDED                = 10086,
+    LANG_BG_DG_NODE_ASSAULTED               = 10087,
+    LANG_BG_DG_NODE_CLAIMED                 = 10088,
+
+    LANG_BG_DG_CAPTURED_HORDE_CART          = 10089,
+    LANG_BG_DG_CAPTURED_ALLIANCE_CART       = 10090,
+    LANG_BG_DG_DROPPED_HORDE_CART           = 10091,
+    LANG_BG_DG_DROPPED_ALLIANCE_CART        = 10092,
+    LANG_BG_DG_RETURNED_HORDE_CART          = 10093,
+    LANG_BG_DG_RETURNED_ALLIANCE_CART       = 10094,
+    LANG_BG_DG_PICKEDUP_HORDE_CART          = 10095,
+    LANG_BG_DG_PICKEDUP_ALLIANCE_CART       = 10096,
+    LANG_BG_DG_ALLIANCE_FLAG_RESPAWNED      = 10097,
+    LANG_BG_DG_HORDE_FLAG_RESPAWNED         = 10098,
+
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
