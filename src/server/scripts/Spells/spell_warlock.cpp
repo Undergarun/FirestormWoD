@@ -2453,41 +2453,6 @@ class spell_warl_ember_tap : public SpellScriptLoader
         }
 };
 
-// Called By : Incinerate (Fire and Brimstone) - 114654, Conflagrate (Fire and Brimstone) - 108685
-// Curse of the Elements (Fire and Brimstone) - 104225, Curse of Enfeeblement (Fire and Brimstone) - 109468
-// Immolate (Fire and Brimstone) - 108686
-// Fire and Brimstone - 108683
-class spell_warl_fire_and_brimstone : public SpellScriptLoader
-{
-    public:
-        spell_warl_fire_and_brimstone() : SpellScriptLoader("spell_warl_fire_and_brimstone") { }
-
-        class spell_warl_fire_and_brimstone_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_fire_and_brimstone_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetHitUnit())
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_FIRE_AND_BRIMSTONE))
-                        caster->RemoveAura(WARLOCK_FIRE_AND_BRIMSTONE);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_fire_and_brimstone_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_fire_and_brimstone_SpellScript();
-        }
-};
-
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura : public SpellScriptLoader
 {
@@ -2562,6 +2527,7 @@ class spell_warl_shadowburn : public SpellScriptLoader
 
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
+// Immolation - 348 and Immolation (Fire and Brimstone) - 108686
 // Burning Embers generate
 class spell_warl_burning_embers : public SpellScriptLoader
 {
@@ -2595,6 +2561,30 @@ class spell_warl_burning_embers : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_burning_embers_SpellScript();
+        }
+
+        class spell_warl_burning_embers_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_burning_embers_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->SetPower(POWER_BURNING_EMBERS, l_Caster->GetPower(POWER_BURNING_EMBERS) + 1);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_embers_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_burning_embers_AuraScript();
         }
 };
 
@@ -3286,7 +3276,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_rain_of_fire_despawn();
     new spell_warl_chaos_bolt();
     new spell_warl_ember_tap();
-    new spell_warl_fire_and_brimstone();
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();

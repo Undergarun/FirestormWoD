@@ -1399,11 +1399,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     break;
                 }
-                case 59764: // Healing Tide Totem
-                {
-                    SetCreateHealth(m_owner->CountPctFromMaxHealth(10));
-                    break;
-                }
                 // Guardian of Ancient Kings
                 case 46506:
                 {

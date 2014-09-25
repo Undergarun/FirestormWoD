@@ -3426,9 +3426,15 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!summon || !summon->isTotem())
                         return;
 
-                    // Mana Tide Totem
-                    if (m_spellInfo->Id == 16190)
-                        damage = m_caster->CountPctFromMaxHealth(10);
+                    switch (m_spellInfo->Id)
+                    {
+                        case 16190:
+                        case 108280:
+                            damage = m_caster->CountPctFromMaxHealth(10);
+                            break;
+                        default:
+                            break;
+                    }
 
                     if (damage)                                            // if not spell info, DB values used
                     {

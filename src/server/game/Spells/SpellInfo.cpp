@@ -649,16 +649,19 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             value = float(basePoints);
     }
 
-    if (caster && CanScale() && (_spellInfo->AttackPowerBonus > 0.0f || EffectSpellPowerBonus > 0.0f))
+    if (caster && CanScale())
     {
         bool rangedDamageClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
         WeaponAttackType attType = (_spellInfo->IsRangedWeaponSpell() && rangedDamageClass) ? RANGED_ATTACK : BASE_ATTACK;
         float ap = caster->GetTotalAttackPowerValue(attType);
+        if (ap == 0.f)
+            ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+
         float sp = float(((Unit*)caster)->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask()));
 
-        if (sp == 0.0f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
+        if (sp == 0.f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
             sp = caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
-        if (ap == 0.0f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
+        if (ap == 0.f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
             ap = caster->GetTotalAttackPowerValue(attType);
 
         float apdamage = ap * _spellInfo->AttackPowerBonus;
@@ -937,6 +940,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     Id = spellEntry->Id;
     AttributesCu = 0;
 
+    m_IsScaled = false;
+
     SpellName = spellEntry->SpellName;
     Rank = spellEntry->Rank;
     RuneCostID = spellEntry->runeCostID;
@@ -958,9 +963,17 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     SpellMiscId = spellEntry->SpellMiscId;
     AttackPowerBonus = spellEntry->AttackPowerBonus;
 
+    if (AttackPowerBonus != 0.f)
+        m_IsScaled = true;
+
     // SpellDifficultyEntry
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
         Effects[i] = SpellEffectInfo(spellEntry, this, i, difficulty);
+
+        if (Effects[i].EffectSpellPowerBonus != 0.f && !m_IsScaled)
+            m_IsScaled = true;
+    }
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
@@ -3247,6 +3260,9 @@ SpellEffectScalingEntry const* SpellEffectInfo::GetEffectScaling() const
 
 bool SpellEffectInfo::CanScale() const
 {
+    if (_spellInfo->AttackPowerBonus == 0.f && EffectSpellPowerBonus == 0.f)
+        return false;
+
     switch (Effect)
     {
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
