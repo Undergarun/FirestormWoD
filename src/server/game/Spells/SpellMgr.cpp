@@ -3400,7 +3400,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 83381: // Kill Command
-                spellInfo->AttackPowerBonus = 1.632f;
+                spellInfo->AttackPowerBonus = 0.938f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 115921:// Legacy of the Emperor
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
@@ -3411,9 +3412,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 45477: // Icy Touch
                 spellInfo->AttackPowerBonus = 0.319f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 49184: // Howling Blast
-                spellInfo->AttackPowerBonus = 0.428f;
+                spellInfo->AttackPowerBonus = 0.369f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
@@ -4876,7 +4879,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                spellInfo->AttackPowerBonus = 2.316f;
+                spellInfo->AttackPowerBonus = 0.386f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -5108,15 +5112,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 33745: // Lacerate
                 spellInfo->AttackPowerBonus = 0.616f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 20167: // Seal of Insight (heal)
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->AttackPowerBonus = 0.15f;
                 spellInfo->Effects[0].EffectSpellPowerBonus = 0.15f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 132467:// Chi Wave (damage)
             case 132463:// Chi Wave (heal)
                 spellInfo->AttackPowerBonus = 0.45f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 113890:// Demonic Gateway (purple)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
