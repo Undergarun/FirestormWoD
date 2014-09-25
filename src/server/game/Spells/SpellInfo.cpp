@@ -668,9 +668,6 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         float spdamage = sp * EffectSpellPowerBonus;
 
         value += apdamage + spdamage;
-
-        if (_spellInfo->IsPeriodic() && apdamage)
-            value /= _spellInfo->GetMaxTicks();
     }
 
     return int32(value);
