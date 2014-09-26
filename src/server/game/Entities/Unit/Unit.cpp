@@ -698,6 +698,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
         plr->ReduceSpellCooldown(5484, 1000);
 
+    if (victim && victim->HasAura(104242))
+        victim->RemoveAura(104242);
+
     // Log damage > 1 000 000 on worldboss
     if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
         sLog->OutPandashan("World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
@@ -7407,21 +7410,34 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell)
                         return false;
 
-                    // Nourish, Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
-                    if (procSpell->Id == 50464 || procSpell->Id == 5185 || procSpell->Id == 8936)
+                    Player* l_Player = ToPlayer();
+                    switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                     {
-                        triggered_spell_id = 108381;
-                        target = this;
+                        case SPEC_DROOD_BALANCE:
+                            if (procSpell->Id != 5185)
+                                break;
+                            triggered_spell_id = 145151;
+                            break;
+                        case SPEC_DROOD_CAT:
+                            if (procSpell->Id != 5185)
+                                break;
+                            triggered_spell_id = 145152;
+                            break;
+                        case SPEC_DROOD_BEAR:
+                            if (procSpell->Id != 33878)
+                                break;
+                            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                                break;
+                            triggered_spell_id = 145162;
+                            break;
+                        case SPEC_DROOD_RESTORATION:
+                            if (procSpell->Id != 5176)
+                                break;
+                            triggered_spell_id = 145153;
+                            break;
+                        default:
+                            return false;
                     }
-                    // Wrath, Starfire, Starsurge, and melee abilities increase healing done by your next healing spell by 30%. Tranquility is not affected.
-                    else if ((procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS) || (procSpell->Id == 5176 || procSpell->Id == 2912 || procSpell->Id == 78674))
-                    {
-                        triggered_spell_id = 108382;
-                        target = this;
-                    }
-                    else
-                        return false;
-
                     break;
                 }
                 case 46832: // Sudden Eclipse (S12 - 2P Balance)

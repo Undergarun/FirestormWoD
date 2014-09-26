@@ -1881,6 +1881,26 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                 break;
             }
+            case SPELLFAMILY_WARLOCK:
+            {
+                if (!caster)
+                    break;
+
+                switch (m_spellInfo->Id)
+                {
+                    case 5697:
+                        if (caster->HasAura(74434))
+                        {
+                            caster->CastSpell(caster, 104242, true);
+                            caster->RemoveAura(74434);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                break;
+            }
             default:
                 break;
         }

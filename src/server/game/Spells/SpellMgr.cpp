@@ -4621,6 +4621,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 52610: // Savage Roar (basic)
+                spellInfo->Effects[2].BasePoints = 40;
+                break;
             case 119905:// Cauterize (Command Demon)
             case 119907:// Disarm (Command Demon)
             case 119909:// Whiplash (Command Demon)
@@ -5812,6 +5815,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 69198: // Raging Spirit Visual
                 spellInfo->SetRangeIndex(13); // 50000yd
+                break;
+            case 77758: // Trash (bear)
+            case 106830:// Trash (cat)
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
                 break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls

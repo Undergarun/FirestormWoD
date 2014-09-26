@@ -4686,8 +4686,6 @@ class npc_void_tendrils : public CreatureScript
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
-
-                me->setFaction(14);
             }
 
             void JustDied(Unit* killer)
