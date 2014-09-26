@@ -4618,6 +4618,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 52610: // Savage Roar (basic)
+                spellInfo->Effects[2].BasePoints = 40;
+                break;
             case 119905:// Cauterize (Command Demon)
             case 119907:// Disarm (Command Demon)
             case 119909:// Whiplash (Command Demon)
