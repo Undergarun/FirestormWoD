@@ -5813,6 +5813,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 69198: // Raging Spirit Visual
                 spellInfo->SetRangeIndex(13); // 50000yd
                 break;
+            case 77758: // Trash (bear)
+            case 106830:// Trash (cat)
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls
             case 74296: // Harvest Souls
