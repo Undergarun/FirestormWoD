@@ -17626,7 +17626,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
+    {
+        SendPlaySpellVisual(33584, target, 6.f);
         CastSpell(target, 147193, true);
+    }
 
     Unit* actor = isVictim ? target : this;
     Unit* actionTarget = !isVictim ? target : this;
@@ -20086,8 +20089,8 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
 {
     ObjectGuid guid = GetGUID();
 
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    
+    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4 + 4 + 8);
+
     uint8 bitOrder[8] = { 3, 0, 6, 7, 4, 1, 5, 2 };
     data.WriteBitInOrder(guid, bitOrder);
 
@@ -20105,6 +20108,61 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     data.WriteByteSeq(guid[3]);
     data << uint32(0);
     SendMessageToSet(&data, false);
+}
+
+void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed)
+{
+    ObjectGuid l_Guid = GetGUID();
+    ObjectGuid l_Target = p_Target->GetGUID();
+
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
+
+    l_Data.WriteBit(l_Guid[7]);
+    l_Data.WriteBit(l_Target[6]);
+    l_Data.WriteBit(l_Target[5]);
+    l_Data.WriteBit(l_Guid[3]);
+    l_Data.WriteBit(l_Guid[0]);
+    l_Data.WriteBit(l_Guid[6]);
+    l_Data.WriteBit(l_Target[2]);
+    l_Data.WriteBit(false);         // speedAsTime
+    l_Data.WriteBit(l_Guid[5]);
+    l_Data.WriteBit(l_Target[1]);
+    l_Data.WriteBit(l_Target[0]);
+    l_Data.WriteBit(l_Guid[1]);
+    l_Data.WriteBit(l_Guid[4]);
+    l_Data.WriteBit(l_Target[4]);
+    l_Data.WriteBit(l_Target[7]);
+    l_Data.WriteBit(l_Target[3]);
+    l_Data.WriteBit(l_Guid[2]);
+
+    l_Data.WriteByteSeq(l_Guid[4]);
+    l_Data.WriteByteSeq(l_Target[0]);
+    l_Data << float(p_Target->GetPositionY());
+    l_Data.WriteByteSeq(l_Target[6]);
+    l_Data << float(p_Target->GetPositionZ());
+    l_Data << float(p_Speed);
+    l_Data.WriteByteSeq(l_Guid[0]);
+    l_Data << uint32(p_ID);         // spellVisualID
+    l_Data.WriteByteSeq(l_Guid[3]);
+    l_Data.WriteByteSeq(l_Target[3]);
+    l_Data << uint16(0);            // missReason
+    l_Data.WriteByteSeq(l_Guid[7]);
+    l_Data << uint16(0);            // reflectStatus
+    l_Data.WriteByteSeq(l_Target[5]);
+    l_Data.WriteByteSeq(l_Target[2]);
+    l_Data << float(p_Target->GetPositionX());
+    l_Data.WriteByteSeq(l_Target[4]);
+    l_Data.WriteByteSeq(l_Target[1]);
+    l_Data.WriteByteSeq(l_Guid[2]);
+    l_Data.WriteByteSeq(l_Target[7]);
+    l_Data.WriteByteSeq(l_Guid[5]);
+    l_Data.WriteByteSeq(l_Guid[6]);
+    l_Data.WriteByteSeq(l_Guid[1]);
+
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession())
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
+    else
+        SendMessageToSet(&l_Data, false);
 }
 
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const
@@ -22557,7 +22615,7 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
 
 void Unit::RemoveSoulSwapDOT(Unit* target)
 {
-    _SoulSwapDOTList.clear();
+    m_SoulSwapDOTList.clear();
 
     AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
     for (AuraEffectList::const_iterator iter = mPeriodic.begin(); iter != mPeriodic.end(); ++iter)
@@ -22569,16 +22627,34 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             (*iter)->GetCasterGUID() != GetGUID()) // only warlock spells
             continue;
 
-        _SoulSwapDOTList.push_back((*iter)->GetId());
+        m_SoulSwapDOTList.push_back((*iter)->GetBase());
     }
 }
 
 void Unit::ApplySoulSwapDOT(Unit* target)
 {
-    for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
-        CastSpell(target, (*iter), true);
+    for (AuraPtr l_Aura : m_SoulSwapDOTList)
+    {
+        if (AuraPtr l_NewAura = AddAura(l_Aura->GetId(), target))
+        {
+            l_NewAura->SetMaxDuration(l_Aura->GetMaxDuration());
+            l_NewAura->SetDuration(l_Aura->GetDuration());
 
-    _SoulSwapDOTList.clear();
+            for (uint32 l_Index = 0; l_Index < MAX_SPELL_EFFECTS; ++l_Index)
+            {
+                if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_Index))
+                {
+                    l_NewAura->SetStackAmount(l_Aura->GetStackAmount());
+                    l_NewAura->SetCharges(l_Aura->GetCharges());
+                    l_NewAura->GetEffect(l_Index)->m_fixed_periodic.SetCriticalChance(l_Effect->m_fixed_periodic.GetCriticalChance());
+                    l_NewAura->GetEffect(l_Index)->m_fixed_periodic.SetFixedDamage(l_Effect->m_fixed_periodic.GetFixedDamage());
+                    l_NewAura->GetEffect(l_Index)->m_fixed_periodic.SetFixedTotalDamage(l_Effect->m_fixed_periodic.GetFixedTotalDamage());
+                }
+            }
+        }
+    }
+
+    m_SoulSwapDOTList.clear();
 }
 
 Unit* Unit::GetSimulacrumTarget()

@@ -1388,7 +1388,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
                     caster->ModSpellCastTime(m_spellInfo, m_amplitude);
             }
             else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                m_amplitude = int32(m_amplitude * std::max<float>(caster->GetFloatValue(UNIT_MOD_CAST_SPEED), 0.5f));
+                m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
 
@@ -7539,6 +7539,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         {
             int32 afflictionDamage;
             SpellInfo const* afflictionSpell;
+
+            caster->SendPlaySpellVisual(25955, target, 20.f);
 
             // Soul Leech
             if (caster->HasAura(108370) && caster->GetTypeId() == TYPEID_PLAYER)

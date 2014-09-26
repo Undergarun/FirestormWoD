@@ -3403,6 +3403,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttackPowerBonus = 0.938f;
                 spellInfo->m_IsScaled = true;
                 break;
+            case 86121: // Soul Swap
+                spellInfo->OverrideSpellList.push_back(86213);
+                break;
             case 115921:// Legacy of the Emperor
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
                 spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
