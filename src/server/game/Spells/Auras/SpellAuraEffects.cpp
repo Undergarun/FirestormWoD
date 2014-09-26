@@ -4513,6 +4513,10 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
 
     switch (GetId())
     {
+        case 1953: // Blink
+            if (target->HasAura(146659)) // Glyph of Rapid Displacement
+                return;
+            break;
         case 42292: // PvP trinket
         case 59752: // Every Man for Himself
         case 65547: // PvP trinket (Trial of Crusader)
@@ -6956,7 +6960,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 // Hysteria
                 case 49016:
                 {
-                    uint32 damage = uint32(target->CountPctFromMaxHealth(1));
+                    uint32 damage = uint32(target->CountPctFromMaxHealth(2));
                     target->DealDamage(target, damage, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo(), false);
                     break;
                 }

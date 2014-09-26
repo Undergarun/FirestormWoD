@@ -623,8 +623,8 @@ inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 
 inline void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
 {
-    // Why don't we check for casting unit_state and existing target as we do in DoCast(.. ?
-    me->CastSpell(me->getVictim(), spellId, triggered);
+    if (Unit* l_Target = me->getVictim())
+        me->CastSpell(l_Target, spellId, triggered);
 }
 
 inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)

@@ -1124,7 +1124,7 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 {
-    if (!_player || !_player->IsInWorld())
+    if (!_player || !_player->IsInWorld() || realmID != 5)
         return;
 
     PetBattleRequest* l_BattleRequest = sPetBattleSystem->CreateRequest(_player->GetGUID());

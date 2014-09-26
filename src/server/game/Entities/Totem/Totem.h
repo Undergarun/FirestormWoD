@@ -33,6 +33,7 @@ enum TotemType
 
 #define SENTRY_TOTEM_ENTRY    3968
 #define STONECLAW_TOTEM_ENTRY 59712
+#define HEALING_TIDE_TOTEM_ENTRY 59764
 
 class Totem : public Minion
 {
