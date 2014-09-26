@@ -3389,10 +3389,39 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 140495:
+            case 133795: // Life Drain
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133798: // Life Drain
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133796: // Life Drain
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 83381: // Kill Command
+                spellInfo->AttackPowerBonus = 0.938f;
+                spellInfo->m_IsScaled = true;
+                break;
+            case 115921:// Legacy of the Emperor
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
+                break;
+            case 117667:// Legacy of the Emperor (buff)
+                spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                break;
+            case 45477: // Icy Touch
+                spellInfo->AttackPowerBonus = 0.319f;
+                spellInfo->m_IsScaled = true;
+                break;
+            case 49184: // Howling Blast
+                spellInfo->AttackPowerBonus = 0.369f;
+                spellInfo->m_IsScaled = true;
+                break;
+            case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
                 break;
-            case 136413:
+            case 136413:// Force of Will
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
@@ -4233,7 +4262,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].BasePoints = 215;
                 break;
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
-                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[0].Effect = 0;
                 break;
             case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 35;
@@ -4850,7 +4879,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                spellInfo->AttackPowerBonus = 2.316f;
+                spellInfo->AttackPowerBonus = 0.386f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -5028,6 +5058,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
+                spellInfo->Effects[1].BasePoints = -70;
                 break;
             case 49821: // Mind Sear
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CHANNEL_TARGET;
@@ -5079,14 +5110,25 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SCALE;
                 spellInfo->Effects[2].BasePoints = 30;
                 break;
-            case 111546:
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
+            case 33745: // Lacerate
+                spellInfo->AttackPowerBonus = 0.616f;
+                spellInfo->m_IsScaled = true;
                 break;
-            case 113890:
+            case 20167: // Seal of Insight (heal)
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->AttackPowerBonus = 0.15f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.15f;
+                spellInfo->m_IsScaled = true;
+                break;
+            case 132467:// Chi Wave (damage)
+            case 132463:// Chi Wave (heal)
+                spellInfo->AttackPowerBonus = 0.45f;
+                spellInfo->m_IsScaled = true;
+                break;
+            case 113890:// Demonic Gateway (purple)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
-            case 113886:
+            case 113886:// Demonic Gateway (green)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 122292:// Intervene (Symbiosis)
@@ -5124,7 +5166,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
             case 52042: // Healing Stream - Totem
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
             case 324:   // Lightning Shield

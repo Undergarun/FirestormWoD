@@ -428,6 +428,8 @@ public:
     uint32 ResearchProject;
     float AttackPowerBonus;
 
+    bool m_IsScaled;
+
     // SpecializationSpellEntry
     std::list<uint32> SpecializationIdList;
     std::list<uint32> OverrideSpellList;
@@ -471,6 +473,7 @@ public:
     bool IsPrimaryProfessionFirstRank() const;
     bool IsAbilityLearnedWithProfession() const;
     bool IsAbilityOfSkillType(uint32 skillType) const;
+    bool IsScaled() const { return m_IsScaled; }
 
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
