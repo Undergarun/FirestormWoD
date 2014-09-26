@@ -4390,7 +4390,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
     BATTLEGROUND_KT                 = 699,  // Valley of Power
     BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
-    BATTLEGROUND_SSM                = 708,  // Silver shard Mine
+    BATTLEGROUND_SM                 = 708,  // Silvershard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
     BATTLEGROUND_TTP                = 757   // The Tiger's Peak

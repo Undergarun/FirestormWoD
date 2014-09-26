@@ -924,7 +924,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         m_caster->CastSpell(m_caster, 131476, true);
 
     // Capture point
-    if (m_spellInfo->Id == 97388 && m_caster->ToPlayer() && m_caster->ToPlayer()->GetBattleground())
+    if ((m_spellInfo->Id == 97388 || m_spellInfo->Id == 97372) && m_caster->ToPlayer() && m_caster->ToPlayer()->GetBattleground())
         m_caster->ToPlayer()->GetBattleground()->EventPlayerClickedOnFlag(m_caster->ToPlayer(), unitTarget);
 
     // selection by spell family

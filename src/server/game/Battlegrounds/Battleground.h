@@ -191,7 +191,7 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_5v5            = 12,
     BATTLEGROUND_QUEUE_KT             = 13,
     BATTLEGROUND_QUEUE_CTF3           = 14,
-    BATTLEGROUND_QUEUE_SSM            = 15,
+    BATTLEGROUND_QUEUE_SM             = 15,
     BATTLEGROUND_QUEUE_TV             = 16,
     BATTLEGROUND_QUEUE_DG             = 17,
     BATTLEGROUND_QUEUE_RATED_10_VS_10 = 18,

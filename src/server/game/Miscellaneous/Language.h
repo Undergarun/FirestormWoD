@@ -951,20 +951,6 @@ enum TrinityStrings
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
 
-    // Silvershard Mines
-    LANG_BG_SM_CART_1                   = 1334,
-    LANG_BG_SM_CART_2                   = 1335,
-    LANG_BG_SM_CART_3                   = 1336,
-    LANG_BG_SM_CART_TAKEN               = 1337,
-    LANG_BG_SM_CART_DEFENDED            = 1338,
-    LANG_BG_SM_CART_ASSAULTED           = 1339,
-    LANG_BG_SM_CART_CLAIMED             = 1340,
-    LANG_BG_SM_START_ONE_MINUTE         = 1341,
-    LANG_BG_SM_START_HALF_MINUTE        = 1342,
-    LANG_BG_SM_HAS_BEGUN                = 1343,
-    LANG_BG_SM_A_NEAR_VICTORY           = 1344,
-    LANG_BG_SM_H_NEAR_VICTORY           = 1345,
-
     // Temple of Kotmogu
     LANG_BG_KT_START_ONE_MINUTE         = 1346,
     LANG_BG_KT_START_HALF_MINUTE        = 1347,
@@ -972,7 +958,22 @@ enum TrinityStrings
     LANG_BG_KT_DROPPED                  = 1349,
     LANG_BG_KT_PICKEDUP                 = 1350,
     LANG_BG_KT_O_PLACED                 = 1351,
-    // FREE IDS                           1352-1999
+
+    // Silvershard Mines
+    LANG_BG_SM_START_TWO_MINUTES                = 1352,
+    LANG_BG_SM_START_ONE_MINUTE                 = 1353,
+    LANG_BG_SM_START_HALF_MINUTE                = 1354,
+    LANG_BG_SM_HAS_BEGUN                        = 1355,
+    LANG_BG_SM_ALLIANCE_CONTROLLED_MINE_CART    = 1356,
+    LANG_BG_SM_HORDE_CONTROLLED_MINE_CART       = 1357,
+    LANG_BG_SM_MINE_CART_SPAWNED                = 1358,
+    LANG_BG_SM_ALLIANCE_CAPTURED_MINE_CART      = 1359,
+    LANG_BG_SM_HORDE_CAPTURED_MINE_CART         = 1360,
+    LANG_BG_SM_EAST_DIRECTION_CHANGED           = 1361,
+    LANG_BG_SM_NORTH_DIRECTION_CHANGED          = 1362,
+    LANG_BG_SM_A_NEAR_VICTORY                   = 1363,
+    LANG_BG_SM_H_NEAR_VICTORY                   = 1364,
+    // FREE IDS                           1365-1999
 
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
