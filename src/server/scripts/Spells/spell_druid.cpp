@@ -2318,18 +2318,11 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
 
                         if (player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && GetSpellInfo()->Id == SPELL_DRUID_HEALING_TOUCH)
                         {
-                            int32 damage = GetHitDamage();
-                            AddPct(damage, 20);
-                            SetHitDamage(damage);
-
-                            switch (player->GetSpecializationId(player->GetActiveSpec()))
+                            if (player->GetSpecializationId(player->GetActiveSpec()) != SPEC_DROOD_RESTORATION)
                             {
-                                case SPEC_DROOD_BALANCE:
-                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_BALANCE, true);
-                                    break;
-                                case SPEC_DROOD_CAT:
-                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_FERAL, true);
-                                    break;
+                                int32 heal = GetHitHeal();
+                                AddPct(heal, 20);
+                                SetHitHeal(heal);
                             }
                         }
                     }
