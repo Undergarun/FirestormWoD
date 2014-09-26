@@ -11664,9 +11664,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             data << uint32(0x1959) << uint32(0x4);
             break;
         // Silvershard Mines
-        /*case 6126:
+        case 6126:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_SM)
-                bg->FillInitialWorldStates(TempData);
+                bg->FillInitialWorldStates(data);
             else
             {
                 data << uint32(0x1924) << uint32(1);            // SM_MINE_CARTS_DISPLAY
@@ -11681,7 +11681,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0x1adc) << uint32(0);            // SM_PROGRESS_BAR_STATUS
                 data << uint32(0x1add) << uint32(0);            // SM_UNK
             }
-            break;*/
+            break;
         // Tol'Viron Arena
         case 6296:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_TV)
