@@ -1,0 +1,1 @@
+INSERT INTO `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`) VALUES('218437','1064','6507','6507','1','1','7588.05','5590.67','30.5157','2.81418','0','0','0.98663','0.162978','300','0','1','0');

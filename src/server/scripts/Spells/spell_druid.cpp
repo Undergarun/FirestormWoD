@@ -112,6 +112,7 @@ enum DruidSpells
     SPELL_DRUID_TIGERS_FURY                 = 5217,
     SPELL_DRUID_SOUL_OF_THE_FOREST          = 114107,
     SPELL_DRUID_SOUL_OF_THE_FOREST_HASTE    = 114108,
+    SPELL_DRUID_ASTRAL_INSIGHT              = 145138,
     SPELL_DRUID_SWIPE_CAT                   = 62078,
     SPELL_DRUID_MANGLE_BEAR                 = 33878,
     SPELL_DRUID_STAMPEDE                    = 81022,
@@ -724,43 +725,35 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
         }
 };
 
-// Called by Lunar Eclipse - 48518 and Solar Eclipse - 48517
+// Called by Wrath - 5176, Starfire - 2916 and Starsurge - 78674
 // Soul of the Forest - 114107
-class spell_dru_soul_of_the_forest_eclipse : public SpellScriptLoader
+class spell_dru_soul_of_the_forest_balance : public SpellScriptLoader
 {
     public:
-        spell_dru_soul_of_the_forest_eclipse() : SpellScriptLoader("spell_dru_soul_of_the_forest_eclipse") { }
+        spell_dru_soul_of_the_forest_balance() : SpellScriptLoader("spell_dru_soul_of_the_forest_balance") { }
 
-        class spell_dru_soul_of_the_forest_eclipse_AuraScript : public AuraScript
+        class spell_dru_soul_of_the_forest_balance_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_dru_soul_of_the_forest_eclipse_AuraScript);
+            PrepareSpellScript(spell_dru_soul_of_the_forest_balance_SpellScript);
 
-            void HandleEffectRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleOnHit()
             {
-                if (!GetTarget())
-                    return;
-
-                if (Player* _player = GetTarget()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (_player->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_HASTE))
-                    {
-                        if (aurEff->GetSpellInfo()->Id == SPELL_DRUID_SOLAR_ECLIPSE)
-                            _player->SetEclipsePower(int32(_player->GetEclipsePower() - 20));
-                        else if (aurEff->GetSpellInfo()->Id == SPELL_DRUID_LUNAR_ECLIPSE)
-                            _player->SetEclipsePower(int32(_player->GetEclipsePower() + 20));
-                    }
+                    if (l_Player->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST) && roll_chance_i(8))
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_ASTRAL_INSIGHT, true);
                 }
             }
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_soul_of_the_forest_eclipse_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnHit += SpellHitFn(spell_dru_soul_of_the_forest_balance_SpellScript::HandleOnHit);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_dru_soul_of_the_forest_eclipse_AuraScript();
+            return new spell_dru_soul_of_the_forest_balance_SpellScript();
         }
 };
 
@@ -2318,18 +2311,11 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
 
                         if (player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && GetSpellInfo()->Id == SPELL_DRUID_HEALING_TOUCH)
                         {
-                            int32 damage = GetHitDamage();
-                            AddPct(damage, 20);
-                            SetHitDamage(damage);
-
-                            switch (player->GetSpecializationId(player->GetActiveSpec()))
+                            if (player->GetSpecializationId(player->GetActiveSpec()) != SPEC_DROOD_RESTORATION)
                             {
-                                case SPEC_DROOD_BALANCE:
-                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_BALANCE, true);
-                                    break;
-                                case SPEC_DROOD_CAT:
-                                    player->CastSpell(player, SPELL_DRUID_DREAM_OF_CENARIUS_FERAL, true);
-                                    break;
+                                int32 heal = GetHitHeal();
+                                AddPct(heal, 20);
+                                SetHitHeal(heal);
                             }
                         }
                     }
@@ -3219,6 +3205,53 @@ class spell_dru_astral_communion : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_astral_communion_AuraScript);
 
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (!GetCaster() || !GetCaster()->HasAura(SPELL_DRUID_ASTRAL_INSIGHT))
+                    return;
+
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    switch (l_Player->m_lastEclipseState)
+                    {
+                        case ECLIPSE_NONE:
+                        case ECLIPSE_SOLAR:
+                            // If last eclipse is solar, set lunar power ...
+                            // ... or if no eclipse since login, set lunar power too
+                            l_Player->SetEclipsePower(-100);
+                            break;
+                        case ECLIPSE_LUNAR:
+                            // If last eclipse is lunar, set solar power
+                            l_Player->SetEclipsePower(100);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_Player->GetEclipsePower() == 100 && !l_Player->HasAura(SPELL_DRUID_SOLAR_ECLIPSE))
+                    {
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_SOLAR_ECLIPSE, true, 0); // Cast Solar Eclipse
+                        l_Player->m_lastEclipseState = ECLIPSE_SOLAR;
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_NATURES_GRACE, true); // Cast Nature's Grace
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE, true); // Cast Eclipse - Give 35% of POWER_MANA
+                    }
+                    else if (l_Player->GetEclipsePower() == -100 && !l_Player->HasAura(SPELL_DRUID_LUNAR_ECLIPSE))
+                    {
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_LUNAR_ECLIPSE, true, 0); // Cast Lunar Eclipse
+                        l_Player->m_lastEclipseState = ECLIPSE_LUNAR;
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_NATURES_GRACE, true); // Cast Nature's Grace
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE, true); // Cast Eclipse - Give 35% of POWER_MANA
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_LUNAR_ECLIPSE_OVERRIDE, true);
+
+                        if (l_Player->HasSpellCooldown(SPELL_DRUID_STARFALL))
+                            l_Player->RemoveSpellCooldown(SPELL_DRUID_STARFALL, true);
+                    }
+
+                    l_Player->RemoveAura(GetSpellInfo()->Id);
+                    l_Player->RemoveAura(SPELL_DRUID_ASTRAL_INSIGHT);
+                }
+            }
+
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
@@ -3267,6 +3300,7 @@ class spell_dru_astral_communion : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_astral_communion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_astral_communion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -4152,7 +4186,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_charge_moonkin();
     new spell_dru_thrash_bear();
     new spell_dru_swipe_and_maul();
-    new spell_dru_soul_of_the_forest_eclipse();
+    new spell_dru_soul_of_the_forest_balance();
     new spell_dru_soul_of_the_forest();
     new spell_dru_tigers_fury();
     new spell_dru_play_death();

@@ -3271,6 +3271,12 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
             ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
             break;
+        case 127665:// Void Tendrills
+            ((SummonPropertiesEntry*)properties)->Flags |= 512; // Controllable guardian ?
+            ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_ALLY;
+            ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_MINION;
+            ((SummonPropertiesEntry*)properties)->Faction = 0;
+            break;
         case 113890:// Demonic Gateway : Remove old summon when cast an other gate
         case 113886:// Demonic Gateway : Remove old summon when cast an other gate
             if (m_spellInfo->Id == 113890)
