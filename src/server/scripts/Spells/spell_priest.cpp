@@ -101,6 +101,7 @@ enum PriestSpells
     PRIEST_SHADOW_WORD_INSANITY_ALLOWING_CAST       = 130733,
     PRIEST_SHADOW_WORD_INSANITY_DAMAGE              = 129249,
     PRIEST_SPELL_MIND_BLAST                         = 8092,
+    PRIEST_SPELL_MIND_SEAR                          = 48045,
     PRIEST_SPELL_2P_S12_SHADOW                      = 92711,
     PRIEST_SPELL_DISPERSION_SPRINT                  = 129960,
     PRIEST_SPELL_4P_S12_SHADOW                      = 131556,
@@ -942,7 +943,10 @@ class spell_pri_from_darkness_comes_light : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!procInfo.GetHealInfo() || !procInfo.GetHealInfo()->GetHeal() || !procInfo.GetActor())
+                if (!procInfo.GetHealInfo() || !procInfo.GetHealInfo()->GetHeal() || !procInfo.GetActor() || !procInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (procInfo.GetDamageInfo()->GetSpellInfo()->Id == PRIEST_SHADOW_WORD_PAIN || procInfo.GetDamageInfo()->GetSpellInfo()->Id == PRIEST_SPELL_MIND_SEAR)
                     return;
 
                 if (Player* player = procInfo.GetActor()->ToPlayer())
@@ -1656,7 +1660,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     return;
 
                 // Don't forget power cost
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
+                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB);
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
             }
 
