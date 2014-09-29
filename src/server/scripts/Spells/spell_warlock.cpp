@@ -2654,6 +2654,9 @@ class spell_warl_drain_life : public SpellScriptLoader
                     if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
                         _player->EnergizeBySpell(_player, WARLOCK_DRAIN_LIFE_ORIGINAL, 10, POWER_DEMONIC_FURY);
 
+                    if (_player->HasAura(108371)) // Harvest Life
+                        basepoints = basepoints * 1.5f;
+
                     _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
                 }
             }
