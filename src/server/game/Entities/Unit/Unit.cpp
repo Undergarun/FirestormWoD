@@ -13537,7 +13537,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     }
 
     // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
-    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+    if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE && damagetype != HEAL)
         return healamount;
 
     // Done fixed damage bonus auras
