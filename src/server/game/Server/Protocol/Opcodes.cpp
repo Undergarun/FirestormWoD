@@ -718,6 +718,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_AREATRIGGER,                                     STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAreaTriggerOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJECT_REPORT_USE,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGameobjectReportUse        );
     DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJECT_USE,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGameObjectUseOpcode        );
+    DEFINE_OPCODE_HANDLER(CMSG_SPELLCLICK,                                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSpellClick                 );
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1185,7 +1186,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_SET_TRADE_ITEM,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetTradeItemOpcode        );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_VEHICLE_REC_ID_AC,K                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SHOW_ACCOUNT_ACHIEVEMENT,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleShowAccountAchievement    );
-    //DEFINE_OPCODE_HANDLER(CMSG_SPELLCLICK,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSpellClick                );
     //DEFINE_OPCODE_HANDLER(CMSG_SOCKET_GEMS,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSocketOpcode              );
     //DEFINE_OPCODE_HANDLER(CMSG_SPIRIT_HEALER_ACTIVATE,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSpiritHealerActivateOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_SPLIT_ITEM,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSplitItemOpcode           );

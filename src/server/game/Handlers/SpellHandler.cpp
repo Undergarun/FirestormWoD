@@ -1023,34 +1023,25 @@ void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPacket& recvData)
+void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
 {
-    // Read guid
-    ObjectGuid guid;
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    bool unk = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
+    uint64 l_NpcGuid = 0;
+    bool l_TryAutoDismount = false;
 
-    uint8 byteOrder[8] = {0, 2, 3, 1, 4, 6, 5, 7};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    p_Packet.readPackGUID(l_NpcGuid);
+    l_TryAutoDismount = p_Packet.ReadBit();
 
     // this will get something not in world. crash
-    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, guid);
+    Creature * l_Unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_NpcGuid);
 
-    if (!unit)
+    if (!l_Unit)
         return;
 
     // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
-    if (!unit->IsInWorld())
+    if (!l_Unit->IsInWorld())
         return;
 
-    unit->HandleSpellClick(m_Player);
+    l_Unit->HandleSpellClick(m_Player);
 }
 
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)

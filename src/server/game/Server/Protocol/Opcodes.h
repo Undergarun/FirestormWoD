@@ -669,6 +669,7 @@ enum Opcodes
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x0343,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_USE                         = 0x0274,   ///< 6.0.2 18934
     CMSG_SAVE_CUF_PROFILES                      = 0x0000,   ///< 6.0.2 
+    CMSG_SPELLCLICK                             = 0x0503,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1228,7 +1229,6 @@ enum Opcodes
     CMSG_SET_TRADE_ITEM                               = 0x0000,
     CMSG_SET_VEHICLE_REC_ID_ACK                       = 0x0000,
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x0000,
-    CMSG_SPELLCLICK                                   = 0x0000,
     CMSG_SOCKET_GEMS                                  = 0x0000,
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x0000,
     CMSG_SPLIT_ITEM                                   = 0x0000,
