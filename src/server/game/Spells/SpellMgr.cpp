@@ -5819,6 +5819,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[4].EffectSpellPowerBonus = 0.f;
                 spellInfo->m_IsScaled = false;
                 break;
+            case 23922: // Shield Slam
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->AttackPowerBonus = 1.5f;
+                break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls
             case 74296: // Harvest Souls
