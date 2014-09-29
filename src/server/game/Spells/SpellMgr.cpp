@@ -3403,10 +3403,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttackPowerBonus = 0.938f;
                 spellInfo->m_IsScaled = true;
                 break;
-            case 115921:// Legacy of the Emperor
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
-                spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
-                break;
             case 117667:// Legacy of the Emperor (buff)
                 spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
                 break;
