@@ -5823,6 +5823,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
                 spellInfo->AttackPowerBonus = 1.5f;
                 break;
+            case 63733: // Serendipity
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls
             case 74296: // Harvest Souls

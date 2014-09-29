@@ -2670,6 +2670,39 @@ class spell_pri_levitate : public SpellScriptLoader
         }
 };
 
+// Called by Binding Heal 32546, Flash Heal 2061
+// Serendipity - 63733
+class spell_pri_serendipity : public SpellScriptLoader
+{
+    public:
+        spell_pri_serendipity() : SpellScriptLoader("spell_pri_serendipity") { }
+
+        class spell_pri_serendipity_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_serendipity_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (caster->HasAura(63733))
+                    caster->CastSpell(caster, 63735, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_serendipity_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_serendipity_SpellScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_confession();
@@ -2726,4 +2759,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_evangelism();
     new spell_pri_archangel();
     new spell_pri_levitate();
+    new spell_pri_serendipity();
 }
