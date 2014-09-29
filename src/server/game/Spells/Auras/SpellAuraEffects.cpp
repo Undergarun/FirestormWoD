@@ -7532,7 +7532,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             else if (m_tickNumber > totalTick * 2 / 3)
                 damage += (damage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
             // 5..8 ticks have normal tick damage
-            damage /= 10; // Prevent insane damage with 10 stacks
         }
         // Malefic Grasp
         if (GetSpellInfo()->Id == 103103)

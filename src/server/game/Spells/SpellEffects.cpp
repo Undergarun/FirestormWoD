@@ -1368,11 +1368,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 111397:// Bloody Fear
-        {
-            m_caster->DealDamage(m_caster, m_caster->CountPctFromMaxHealth(5), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            break;
-        }
         case 122282:// Death Coil (Symbiosis)
         {
             if (m_caster->IsFriendlyTo(unitTarget))
@@ -7814,8 +7809,9 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_TOTEM))
             continue;
 
-        int32 cost[MAX_POWERS];
-        memset(cost, 0, sizeof(cost));
+        int32 cost[MAX_POWERS_COST];
+        memset(cost, 0, sizeof(uint32) * MAX_POWERS_COST);
+        cost[MAX_POWERS_COST - 1] = 0;
         spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask(), cost);
         if (m_caster->GetPower(POWER_MANA) < cost[POWER_MANA])
             continue;

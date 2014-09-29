@@ -3399,6 +3399,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 133796: // Life Drain
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 63106: // Siphon Life (heal)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 0.938f;
                 spellInfo->m_IsScaled = true;
@@ -4483,6 +4487,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 88767: // Fulmination (triggered)
+            case 50273: // Arcane Barrage (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 51514: // Hex

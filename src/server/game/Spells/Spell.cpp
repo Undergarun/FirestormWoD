@@ -3574,7 +3574,8 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // Fill cost data (don't use power for item casts)
-    memset(m_powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+    memset(m_powerCost, 0, sizeof(uint32) * MAX_POWERS_COST);
+    m_powerCost[MAX_POWERS_COST - 1] = 0;
     if (m_CastItem == 0)
         m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, m_powerCost);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3590,7 +3591,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
         // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
-        // a possible alternative sollution for those would be validating aura target on unit state change
+        // a possible alternative solution for those would be validating aura target on unit state change
         if (triggeredByAura && triggeredByAura->IsPeriodic() && !triggeredByAura->GetBase()->IsPassive())
         {
             if (result != SPELL_FAILED_BAD_TARGETS)
