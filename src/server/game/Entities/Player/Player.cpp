@@ -10724,29 +10724,30 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
 
 void Player::SendNotifyLootMoneyRemoved(uint64 gold)
 {
-    WorldPacket data(SMSG_COIN_REMOVED);
+    WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(guid, GetLootGUID());
 
-    data.appendPackGUID(guid);
+    l_Data.appendPackGUID(guid);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNotifyLootItemRemoved(uint8 lootSlot)
+void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot)
 {
-    ObjectGuid guid = GetLootGUID();
-    ObjectGuid lootGuid = MAKE_NEW_GUID(GUID_LOPART(guid), 0, HIGHGUID_LOOT);
-    sObjectMgr->setLootViewGUID(lootGuid, guid);
+    ObjectGuid l_Guid       = GetLootGUID();
+    ObjectGuid l_LootGuid   = MAKE_NEW_GUID(GUID_LOPART(l_Guid), 0, HIGHGUID_LOOT);
 
-    WorldPacket data(SMSG_LOOT_REMOVED);
+    sObjectMgr->setLootViewGUID(l_LootGuid, l_Guid);
 
-    data.appendPackGUID(guid);
-    data.appendPackGUID(lootGuid);
-    data << uint8(lootSlot);
+    WorldPacket l_Data(SMSG_LOOT_REMOVED);
 
-    GetSession()->SendPacket(&data);
+    l_Data.appendPackGUID(l_Guid);
+    l_Data.appendPackGUID(l_LootGuid);
+    l_Data << uint8(p_LootSlot);
+
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
@@ -16249,11 +16250,11 @@ void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool crea
     data.FlushBits();
     data << uint32(0);
     data << uint32(p_Quantity);                             ///< Quantity
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);                                      ///< BattlePetBreedQuality
-    data << uint32(0);
+    data << uint32(GetItemCount(item->GetEntry()));         ///< count of items in inventory
+    data << uint32(0);                                      ///< Battle Pet Species ID
+    data << uint32(0);                                      ///< Battle Pet Breed ID
+    data << uint32(0);                                      ///< Battle Pet Breed Quality
+    data << uint32(0);                                      ///< Battle Pet Level
     data.appendPackGUID(item->GetGUID());                   ///< Item GUID
 
     data.WriteBit(received);                                ///< Pushed
@@ -16261,8 +16262,6 @@ void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool crea
     data.WriteBit(true);                                    ///< Display Text
     data.WriteBit(0);                                       ///< Is Bonus Roll
     data.FlushBits();
-
-    //data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
 
     if (broadcast && GetGroup())
         GetGroup()->BroadcastPacket(&data, true);

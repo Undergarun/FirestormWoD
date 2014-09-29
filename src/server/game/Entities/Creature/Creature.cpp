@@ -2071,27 +2071,15 @@ Player* Creature::SelectNearestPlayerNotGM(float distance) const
     return target;
 }
 
-void Creature::SendAIReaction(AiReaction reactionType)
+void Creature::SendAIReaction(AiReaction p_ReactionType)
 {
-    WorldPacket data(SMSG_AI_REACTION, 12);
-    ObjectGuid npcGuid = GetGUID();
+    WorldPacket l_Data(SMSG_AI_REACTION, 12);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_ReactionType);
 
-    uint8 bitsOrder[8] = { 5, 2, 3, 6, 7, 1, 0, 4 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
+    ((WorldObject*)this)->SendMessageToSet(&l_Data, true);
 
-    data.WriteByteSeq(npcGuid[1]);
-    data.WriteByteSeq(npcGuid[3]);
-    data << uint32(reactionType);
-    data.WriteByteSeq(npcGuid[7]);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[4]);
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[5]);
-
-    ((WorldObject*)this)->SendMessageToSet(&data, true);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_AI_REACTION, type %u.", reactionType);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_AI_REACTION, type %u.", p_ReactionType);
 }
 
 void Creature::CallAssistance()

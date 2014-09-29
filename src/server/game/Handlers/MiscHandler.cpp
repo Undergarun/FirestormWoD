@@ -537,6 +537,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint32(reason);
         data.WriteBit(0);
+        data.FlushBits();
         SendPacket(&data);
         LogoutRequest(0);
         return;
@@ -549,6 +550,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint32(reason);
         data.WriteBit(1);           // instant logout
+        data.FlushBits();
         SendPacket(&data);
         LogoutPlayer(true);
         return;
@@ -565,6 +567,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
     data << uint32(0);
     data.WriteBit(0);
+    data.FlushBits();
     SendPacket(&data);
     LogoutRequest(time(NULL));
 }

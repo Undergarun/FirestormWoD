@@ -78,8 +78,8 @@ enum Opcodes
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x03F4,   ///< 6.0.2 18934
-        SMSG_SET_PROFICIENCY                        = 0x0000,   ///< 6.0.2 
-        SMSG_INIT_WORLD_STATES                      = 0x0000,   ///< 6.0.2 
+        SMSG_SET_PROFICIENCY                        = 0x12AF,   ///< 6.0.2 18934
+        SMSG_INIT_WORLD_STATES                      = 0x0BB7,   ///< 6.0.2 18934
         SMSG_UPDATE_WORLD_STATE                     = 0x0000,   ///< 
         SMSG_EMOTE                                  = 0x0000,   ///< 6.0.2 
         SMSG_EXPLORATION_EXPERIENCE                 = 0x1413,   ///< 6.0.2 18934
@@ -91,22 +91,30 @@ enum Opcodes
         SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x0000,   ///< 6.0.2 
         SMSG_WEEKLY_RESET_CURRENCY                  = 0x0000,   ///< 6.0.2 
         SMSG_EQUIPMENT_SET_LIST                     = 0x0000,   ///< 
-        SMSG_INITIALIZE_FACTIONS                    = 0x0000,   ///< 6.0.2 
-        SMSG_BIND_POINT_UPDATE                      = 0x0000,   ///< 6.0.2 
+        SMSG_BIND_POINT_UPDATE                      = 0x1428,   ///< 6.0.2 18934
         SMSG_UPDATE_TALENT_DATA                     = 0x10FF,   ///< 6.0.2 18934
-        SMSG_TRANSFER_ABORTED                       = 0x0000,   ///< 6.0.2 
-        SMSG_TRANSFER_PENDING                       = 0x0000,   ///< 6.0.2 
-        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0000,   ///< 6.0.2 
-        SMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000,   ///< 6.0.2 
-        SMSG_SET_RAID_DIFFICULTY                    = 0x0000,   ///< 6.0.2 
-        SMSG_LOAD_CUF_PROFILES                      = 0x0000,   ///< 6.0.2 
-        SMSG_STANDSTATE_UPDATE                      = 0x0000,   ///< 6.0.2 
+        SMSG_TRANSFER_ABORTED                       = 0x13E8,   ///< 6.0.2 18934
+        SMSG_TRANSFER_PENDING                       = 0x0BC0,   ///< 6.0.2 18934
+        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0BBB,   ///< 6.0.2 18934
+        SMSG_SET_DUNGEON_DIFFICULTY                 = 0x0473,   ///< 6.0.2 18934
+        SMSG_SET_RAID_DIFFICULTY                    = 0x0ABC,   ///< 6.0.2 18934
+        SMSG_LOAD_CUF_PROFILES                      = 0x09B3,   ///< 6.0.2 18934
+        SMSG_STANDSTATE_UPDATE                      = 0x09C0,   ///< 6.0.2 18934
+
+        /// Reputations
+        SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 18934
+        SMSG_FACTION_BONUS_INFO                     = 0x01C0,   ///< 6.0.2 18934
+        SMSG_SET_FACTION_VISIBLE                    = 0x0157,   ///< 6.0.2 18934
+        SMSG_SET_FACTION_NOT_VISIBLE                = 0x1563,   ///< 6.0.2 18934
+        SMSG_SET_FACTION_STANDING                   = 0x10BB,   ///< 6.0.2 18934
+        SMSG_SET_FACTION_ATWAR                      = 0x0548,   ///< 6.0.2 18934
+        SMSG_SET_FORCED_REACTIONS                   = 0x1403,   ///< 6.0.2 18934
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x1408,   ///< 6.0.2 18934
         SMSG_LOGOUT_CANCEL_ACK                      = 0x1047,   ///< 6.0.2 18934
         SMSG_LOGOUT_COMPLETE                        = 0x1077,   ///< 6.0.2 18934
-        SMSG_GOSSIP_POI                             = 0x0000,   ///< 6.0.2 
+        SMSG_GOSSIP_POI                             = 0x08E8,   ///< 6.0.2 18934
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x03EF,   ///< 6.0.2 18934
@@ -126,7 +134,7 @@ enum Opcodes
         SMSG_ATTACKER_STATE_UPDATE                  = 0x11BC,   ///< 6.0.2 18934
         SMSG_ATTACK_START                           = 0x13E4,   ///< 6.0.2 18934
         SMSG_ATTACK_STOP                            = 0x10E7,   ///< 6.0.2 18934
-        SMSG_AI_REACTION                            = 0x0000,   ///< 6.0.2 
+        SMSG_AI_REACTION                            = 0x1654,   ///< 6.0.2 18934
         SMSG_ATTACK_SWING_ERROR                     = 0x0603,   ///< 6.0.2 18934
 
         /// Vendor
@@ -136,11 +144,11 @@ enum Opcodes
         SMSG_SELL_ITEM                              = 0x0BF3,   ///< 6.0.2 18934
 
         /// Achievement
-        SMSG_ALL_ACHIEVEMENT_DATA                   = 0x0000,   ///< 6.0.2 
+        SMSG_ALL_ACHIEVEMENT_DATA                   = 0x01A4,   ///< 6.0.2 18934
 
         /// Friends
-        SMSG_CONTACT_LIST                           = 0x0000,   ///< 6.0.2 
-        SMSG_FRIEND_STATUS                          = 0x0000,   ///< 6.0.2 
+        SMSG_CONTACT_LIST                           = 0x0B00,   ///< 6.0.2 18934
+        SMSG_FRIEND_STATUS                          = 0x0178,   ///< 6.0.2 18934
 
         /// Taxi
         SMSG_TAXI_NODE_STATUS                       = 0x0000,   ///< 6.0.2 
@@ -149,16 +157,16 @@ enum Opcodes
         SMSG_ACTIVATE_TAXI_REPLY                    = 0x0000,   ///< 6.0.2 
 
         /// Loot
-        SMSG_LOOT_LIST                              = 0x0000,   ///< 6.0.2 
-        SMSG_LOOT_RESPONSE                          = 0x0000,   ///< 6.0.2 
-        SMSG_LOOT_MONEY_NOTIFY                      = 0x0000,   ///< 6.0.2 
-        SMSG_LOOT_RELEASE                           = 0x0000,   ///< 6.0.2 
-        SMSG_LOOT_RELEASE_ALL                       = 0x0000,   ///< 6.0.2 
-        SMSG_LOOT_REMOVED                           = 0x0000,   ///< 6.0.2 
-        SMSG_COIN_REMOVED                           = 0x0000,   ///< 6.0.2 
+        SMSG_LOOT_LIST                              = 0x0037,   ///< 6.0.2 18934
+        SMSG_LOOT_RESPONSE                          = 0x09B4,   ///< 6.0.2 18934
+        SMSG_LOOT_MONEY_NOTIFY                      = 0x0100,   ///< 6.0.2 18934
+        SMSG_LOOT_RELEASE                           = 0x0707,   ///< 6.0.2 18934
+        SMSG_LOOT_RELEASE_ALL                       = 0x1173,   ///< 6.0.2 18934
+        SMSG_LOOT_REMOVED                           = 0x00BC,   ///< 6.0.2 18934
+        SMSG_COIN_REMOVED                           = 0x0333,   ///< 6.0.2 18934
 
         /// Bank
-        SMSG_SHOW_BANK                              = 0x0000,   ///< 6.0.2 
+        SMSG_SHOW_BANK                              = 0x10A7,   ///< 6.0.2 18934
 
         /// Group
         SMSG_PARTY_UPDATE                           = 0x0000,   ///< 6.0.2 
@@ -170,7 +178,7 @@ enum Opcodes
         SMSG_GROUP_UNINVITE                         = 0x0000,   ///< 
         SMSG_GROUP_NEW_LEADER                       = 0x0000,   ///< 6.0.2 
         SMSG_MINIMAP_PING                           = 0x0000,   ///< 6.0.2 
-        SMSG_SET_LOOT_METHOD_FAILED                 = 0x0000,   ///< 6.0.2 
+        SMSG_SET_LOOT_METHOD_FAILED                 = 0x1653,   ///< 6.0.2 18934
         SMSG_RANDOM_ROLL                            = 0x0000,   ///< 6.0.2 
         SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x0000,   ///< 6.0.2 
         SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x0000,   ///< 6.0.2 
@@ -420,7 +428,7 @@ enum Opcodes
         SMSG_SPELL_ENERGIZE_LOG                     = 0x0000,
         SMSG_SPELL_EXECUTE_LOG                      = 0x0000,
         SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x0EC8,   ///< 6.0.2 18934
-        SMSG_SPELL_HEAL_LOG                         = 0x0000,
+        SMSG_SPELL_HEAL_LOG                         = 0x0298,   ///< 6.0.2 18934
         SMSG_SPELL_INSTAKILL_LOG                    = 0x0000,
         SMSG_SPELL_INTERRUPT_LOG                    = 0x0000,
         SMSG_SPELL_MISS_LOG                         = 0x0000,
@@ -590,11 +598,11 @@ enum Opcodes
     CMSG_SHOWING_CLOAK                          = 0x0208,   ///< 6.0.2 18934
     CMSG_SHOWING_HELM                           = 0x0354,   ///< 6.0.2 18934
     CMSG_SET_ACTIVE_MOVER                       = 0x0000,   ///< 6.0.2
-    CMSG_LEARN_TALENTS                          = 0x0000,   ///< 6.0.2 
-    CMSG_AUTOEQUIP_ITEM                         = 0x0000,   ///< 6.0.2 
-    CMSG_SWAP_INV_ITEM                          = 0x0000,   ///< 6.0.2 
+    CMSG_LEARN_TALENTS                          = 0x04FB,   ///< 6.0.2 18934
+    CMSG_AUTOEQUIP_ITEM                         = 0x04FE,   ///< 6.0.2 18934
+    CMSG_SWAP_INV_ITEM                          = 0x04ED,   ///< 6.0.2 18934
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 6.0.1
-    CMSG_STAND_STATE_CHANGE                     = 0x0000,   ///< 6.0.2 
+    CMSG_STAND_STATE_CHANGE                     = 0x1A94,   ///< 6.0.2 18934
     CMSG_BINDER_ACTIVATE                        = 0x0663,   ///< 6.0.2 18934
     
     //////////////////////////////////////////////////////////////////////////
@@ -609,10 +617,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Loot
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOOT                                   = 0x0000,   ///< 6.0.2 
-    CMSG_LOOT_MONEY                             = 0x0000,   ///< 6.0.2
-    CMSG_LOOT_ITEM                              = 0x0000,   ///< 6.0.2
-    CMSG_LOOT_RELEASE                           = 0x0000,   ///< 6.0.2
+    CMSG_LOOT                                   = 0x1AC8,   ///< 6.0.2 18934
+    CMSG_LOOT_MONEY                             = 0x01C8,   ///< 6.0.2 18934
+    CMSG_LOOT_ITEM                              = 0x01C3,   ///< 6.0.2 18934
+    CMSG_LOOT_RELEASE                           = 0x0DBC,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Combat
@@ -655,8 +663,8 @@ enum Opcodes
     CMSG_TOGGLE_PVP                             = 0x04E9,   ///< 6.0.2 18934
     CMSG_TUTORIAL                               = 0x13B8,   ///< 6.0.2 18934
     CMSG_SET_SPECIALIZATION                     = 0x1ADF,   ///< 6.0.2 18934
-    CMSG_SET_WATCHED_FACTION                    = 0x0000,   ///< 6.0.2 
-    CMSG_SET_FACTION_INACTIVE                   = 0x0000,   ///< 6.0.2 
+    CMSG_SET_WATCHED_FACTION                    = 0x0748,   ///< 6.0.2 18934
+    CMSG_SET_FACTION_INACTIVE                   = 0x1264,   ///< 6.0.2 18934
     CMSG_AREATRIGGER                            = 0x14D7,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x0343,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_USE                         = 0x0274,   ///< 6.0.2 18934
@@ -1487,7 +1495,6 @@ enum Opcodes
     SMSG_ENABLE_HONOR_BUDDY_DETECTION                 = 0x0000,
     SMSG_ENCHANTMENT_LOG                              = 0x0000,
     SMSG_EQUIPMENT_SET_SAVED                          = 0x0000,
-    SMSG_FACTION_BONUS_INFO                           = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                      = 0x0000,
     SMSG_FISH_ESCAPED                                 = 0x0000,
     SMSG_FISH_NOT_HOOKED                              = 0x0000,
@@ -1779,11 +1786,6 @@ enum Opcodes
     SMSG_SET_AI_ANIM_KIT                              = 0x0000,
     SMSG_SET_ANIM_TIMER                               = 0x0000,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x0000,
-    SMSG_SET_FACTION_ATWAR                            = 0x0000,
-    SMSG_SET_FACTION_STANDING                         = 0x0000,
-    SMSG_SET_FACTION_VISIBLE                          = 0x0000,
-    SMSG_SET_FACTION_NOT_VISIBLE                      = 0x0000,
-    SMSG_SET_FORCED_REACTIONS                         = 0x0000,
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                 = 0x0000,
     SMSG_SET_MELEE_ANIM_KIT                           = 0x0000,
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0x0000,

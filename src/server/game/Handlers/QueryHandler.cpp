@@ -188,8 +188,8 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << float(ci->ModMana);                         // dmg/mana modifier
         data << uint32(itemCount);                          // quest item count
         data << uint32(0);                                  // 6.0.1 unk
-        data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
         data << uint32(ci->expansionUnknown);               // unknown meaning
+        data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
 
         if (SubName.size())
             data << SubName;                                // Sub Name

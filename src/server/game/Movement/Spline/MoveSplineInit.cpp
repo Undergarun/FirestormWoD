@@ -58,11 +58,11 @@ namespace Movement
 
     enum MonsterMoveType
     {
-        MonsterMoveNormal       = 4,
-        MonsterMoveStop         = 0,
+        MonsterMoveNormal       = 0,
         MonsterMoveFacingSpot   = 1,
         MonsterMoveFacingTarget = 2,
-        MonsterMoveFacingAngle  = 3
+        MonsterMoveFacingAngle  = 3,
+        MonsterMoveStop         = 4
     };
 
     inline void operator << (ByteBuffer& b, const Vector3& v)
@@ -198,22 +198,22 @@ namespace Movement
         }
 
         WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
-
+        
         l_Data.appendPackGUID(l_MoverGUID);
         l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
         l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
         l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
         l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
-        l_Data << float(l_MoveSpline.CurrentDestination().x);                                       ///< unk float
-        l_Data << float(l_MoveSpline.CurrentDestination().y);                                       ///< unk float
-        l_Data << float(l_MoveSpline.CurrentDestination().z);                                       ///< unk float
+        l_Data << float(0);                                                                         ///< Spline destination X
+        l_Data << float(0);                                                                         ///< Spline destination Y
+        l_Data << float(0);                                                                         ///< Spline destination Z
         l_Data << uint32(l_Splineflags & ~MoveSplineFlag::Mask_No_Monster_Move);                    ///< Spline raw flags
         l_Data << uint8(l_Splineflags.getAnimationId());                                            ///< Animation ID
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Animation Time
-        l_Data << uint32(0);                                                                        ///< unk
+        l_Data << uint32(l_MoveSpline.timeElapsed());                                               ///< Elapsed time
         l_Data << uint32(l_MoveSpline.Duration());                                                  ///< Duration
-        l_Data << float(l_MoveSpline.vertical_acceleration);                                        ///< Vertical Acceleration
-        l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Parabolic Time
+        l_Data << float(l_MoveSpline.vertical_acceleration);                                        ///< Vertical Acceleration (AKA Jump gravity)
+        l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Parabolic Time (AKA Special time)
         l_Data << uint32(l_UncompressedWayPointCount);                                              ///< Uncompressed waypoint count
         l_Data << uint8(0);                                                                         ///< unk
         l_Data << uint8(0);                                                                         ///< unk
@@ -293,7 +293,7 @@ namespace Movement
         args.flags = MoveSplineFlag::Done;
         m_Unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         l_MoveSpline.Initialize(args);
-
+        
         uint64 l_MoverGUID = m_Unit.GetGUID();
         uint64 l_TransportGUID = m_Unit.GetTransGUID();
 
@@ -306,24 +306,28 @@ namespace Movement
         l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
         l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
         l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
-        l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
-        l_Data << float(l_MoveSpline.CurrentDestination().x);                                       ///< unk float
-        l_Data << float(l_MoveSpline.CurrentDestination().y);                                       ///< unk float
-        l_Data << float(l_MoveSpline.CurrentDestination().z);                                       ///< unk float
+        l_Data << uint32(getMSTime());                                                              ///< Move Ticks
+        l_Data << float(0);                                                                         ///< Spline destination X
+        l_Data << float(0);                                                                         ///< Spline destination Y
+        l_Data << float(0);                                                                         ///< Spline destination Z
         l_Data << uint32(0);                                                                        ///< Spline raw flags
         l_Data << uint8(0);                                                                         ///< Animation ID
         l_Data << int32(0);                                                                         ///< Animation Time
-        l_Data << uint32(0);                                                                        ///< unk
-        l_Data << uint32(l_MoveSpline.Duration());                                                  ///< Duration
+        l_Data << uint32(0);                                                                        ///< Elapsed time
+        l_Data << uint32(0);                                                                        ///< Duration
         l_Data << float(0);                                                                         ///< Vertical Acceleration
         l_Data << int32(0);                                                                         ///< Parabolic Time
-        l_Data << uint32(0);                                                                        ///< Uncompressed waypoint count
+        l_Data << uint32(1);                                                                        ///< Uncompressed waypoint count
         l_Data << uint8(0);                                                                         ///< unk
         l_Data << uint8(0);                                                                         ///< unk
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
         l_Data << uint32(0);                                                                        ///< Compressed waypoint count
 
+        l_Data << float(loc.x);                                                                     ///< Fake WAYPOINT
+        l_Data << float(loc.y);                                                                     ///< Fake WAYPOINT
+        l_Data << float(loc.z);                                                                     ///< Fake WAYPOINT
+
         l_Data.WriteBits(0, 2);
         l_Data.WriteBit(0);
         l_Data.FlushBits();
@@ -332,7 +336,7 @@ namespace Movement
         l_Data.WriteBits(0, 2);
         l_Data.FlushBits();
 
-        //m_Unit.SendMessageToSet(&l_Data, true);
+        m_Unit.SendMessageToSet(&l_Data, true);
     }
 
     MoveSplineInit::MoveSplineInit(Unit& m) : m_Unit(m)

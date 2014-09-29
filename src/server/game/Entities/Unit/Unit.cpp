@@ -12021,55 +12021,24 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
+void Unit::SendHealSpellLog(Unit * p_Victim, uint32 p_SpellID, uint32 p_Damage, uint32 p_OverHeal, uint32 p_Absorb, bool p_Critical)
 {
     // we guess size
     WorldPacket data(SMSG_SPELL_HEAL_LOG, 60);
-    ObjectGuid targetGuid = victim->GetGUID();
-    ObjectGuid casterGuid = GetGUID();
 
-    data.WriteBit(critical);
-    data.WriteBit(casterGuid[5]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(targetGuid[0]);
+    data.appendPackGUID(p_Victim->GetGUID());
+    data.appendPackGUID(GetGUID());
+    data << uint32(p_SpellID);
+    data << uint32(p_Damage);
+    data << uint32(p_OverHeal);
+    data << uint32(p_Absorb);
+
+    data.WriteBit(p_Critical);
+    data.WriteBit(false);                               // Multistrike
     data.WriteBit(false);                               // IsDebug
-    data.WriteBit(casterGuid[1]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(casterGuid[7]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(casterGuid[0]);
-    data.WriteBit(casterGuid[2]);
-    data.WriteBit(casterGuid[3]);
-    data.WriteBit(false);                               // HasPowerData
     data.WriteBit(false);                               // IsDebug 2
-
-    data.WriteBit(casterGuid[6]);
-    data.WriteBit(casterGuid[4]);
-    data.WriteBit(targetGuid[1]);
-
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(casterGuid[6]);
-    data << uint32(Absorb);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(casterGuid[3]);
-    data.WriteByteSeq(casterGuid[7]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(targetGuid[7]);
-    data << uint32(Damage);
-    data.WriteByteSeq(casterGuid[5]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(casterGuid[2]);
-    data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(casterGuid[4]);
-    data << uint32(SpellID);
-    data.WriteByteSeq(targetGuid[1]);
-    data << uint32(OverHeal);
+    data.WriteBit(false);                               // HasPowerData
+    data.FlushBits();
 
     SendMessageToSet(&data, true);
 }
@@ -17945,29 +17914,17 @@ void Unit::SendPetTalk(uint32 pettalk)
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-void Unit::SendPetAIReaction(uint64 guid)
+void Unit::SendPetAIReaction(uint64 p_Guid)
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    Unit * l_Owner = GetOwner();
+    if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 12);
-    ObjectGuid npcGuid = guid;
+    WorldPacket l_Data(SMSG_AI_REACTION, 12);
+    l_Data.appendPackGUID(p_Guid);
+    l_Data << uint32(AI_REACTION_HOSTILE);
 
-    uint8 bitsOrder[8] = { 5, 2, 3, 6, 7, 1, 0, 4 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
-
-    data.WriteByteSeq(npcGuid[1]);
-    data.WriteByteSeq(npcGuid[3]);
-    data << uint32(AI_REACTION_HOSTILE);
-    data.WriteByteSeq(npcGuid[7]);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[4]);
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[5]);
-
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 ///----------End of Pet responses methods----------

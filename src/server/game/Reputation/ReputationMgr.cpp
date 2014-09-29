@@ -151,17 +151,18 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
 
 void ReputationMgr::SendForceReactions()
 {
-    WorldPacket data(SMSG_SET_FORCED_REACTIONS, 6 + _forcedReactions.size() *(4 + 4));
+    WorldPacket l_Data(SMSG_SET_FORCED_REACTIONS, 6 + _forcedReactions.size() *(4 + 4));
 
-    data.WriteBits(_forcedReactions.size(), 6);
+    l_Data.WriteBits(_forcedReactions.size(), 6);
+    l_Data.FlushBits();
 
     for (ForcedReactions::const_iterator itr = _forcedReactions.begin(); itr != _forcedReactions.end(); ++itr)
     {
-        data << uint32(itr->first);                         // faction_id (Faction.dbc)
-        data << uint32(itr->second);                        // reputation rank
+        l_Data << uint32(itr->first);                         // faction_id (Faction.dbc)
+        l_Data << uint32(itr->second);                        // reputation rank
     }
 
-    _player->SendDirectMessage(&data);
+    _player->SendDirectMessage(&l_Data);
 }
 
 void ReputationMgr::SendState(FactionState const* faction)
@@ -172,15 +173,12 @@ void ReputationMgr::SendState(FactionState const* faction)
         if (itr->second.needSend)
             ++count;
 
-    WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
-    data << float(0);
-    data << float(0);
+    WorldPacket l_Data(SMSG_SET_FACTION_STANDING, 17);
+    l_Data << float(0);               ///< ReferAFriendBonus
+    l_Data << float(0);               ///< BonusFromAchievementSystem
+    l_Data << uint32(count);
 
-    data.WriteBit(true);
-    data.WriteBits(count, 21);
-    data.FlushBits();
-
-    _sendFactionIncreased = false; // Reset
+    _sendFactionIncreased = false;  ///< Reset
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
@@ -188,12 +186,15 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             itr->second.needSend = false;
 
-            data << uint32(itr->second.Standing);
-            data << uint32(itr->second.ReputationListID);
+            l_Data << uint32(itr->second.ReputationListID);
+            l_Data << uint32(itr->second.Standing);
         }
     }
 
-    _player->SendDirectMessage(&data);
+    l_Data.WriteBit(true);            ///< ShowVisual
+    l_Data.FlushBits();
+
+    _player->SendDirectMessage(&l_Data);
 }
 
 void ReputationMgr::SendInitialReputations()
@@ -246,9 +247,9 @@ void ReputationMgr::SendVisible(FactionState const* faction) const
         return;
 
     // make faction visible in reputation list at client
-    WorldPacket data(SMSG_SET_FACTION_VISIBLE, 4);
-    data << faction->ReputationListID;
-    _player->SendDirectMessage(&data);
+    WorldPacket l_Data(SMSG_SET_FACTION_VISIBLE, 4);
+    l_Data << faction->ReputationListID;
+    _player->SendDirectMessage(&l_Data);
 }
 
 void ReputationMgr::Initialize()

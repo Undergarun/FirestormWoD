@@ -927,19 +927,19 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 {
     if (lv.permission == NONE_PERMISSION)
     {
-        p_Data.appendPackGUID(0);
-        p_Data.appendPackGUID(0);
+        p_Data.appendPackGUID(0);                           ///< Owner
+        p_Data.appendPackGUID(0);                           ///< Loot Obj
         p_Data << uint8(6);                                 ///< Failure reason
+        p_Data << uint8(0);                                 ///< Acquire Reason
         p_Data << uint8(0);
         p_Data << uint8(0);
-        p_Data << uint8(0);
-        p_Data << uint32(0);
-        p_Data << uint32(0);
-        p_Data << uint32(0);
+        p_Data << uint32(0);                                ///< Coins
+        p_Data << uint32(0);                                ///< Item count
+        p_Data << uint32(0);                                ///< Currency count
 
-        p_Data.WriteBit(false);                             ///< Unk
-        p_Data.WriteBit(false);                             ///< Unk
-        p_Data.WriteBit(false);                             ///< Unk
+        p_Data.WriteBit(false);                             ///< Acquired
+        p_Data.WriteBit(false);                             ///< AE Looting
+        p_Data.WriteBit(false);                             ///< Personal Looting
         p_Data.FlushBits();
         return p_Data;
     }
@@ -1084,6 +1084,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
             return p_Data;
     }
 
+    bool l_IsAELooting = false;
+
     // Process radius loot
     for (uint32 slot = l_Loot.items.size() + l_Loot.quest_items.size(); slot <= l_Loot.maxLinkedSlot; slot++)
     {
@@ -1097,6 +1099,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 continue;
 
             Loot* linkedLoot = &c->loot;
+            l_IsAELooting = true;
             switch (loot.permission)
             {
                 case GROUP_PERMISSION:
@@ -1428,9 +1431,14 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     if (l_CurrencyCount)
         p_Data.append(l_CurrenciesDataBuffer);
 
-    p_Data.WriteBit(lv.permission != NONE_PERMISSION);  ///< Unk
-    p_Data.WriteBit(lv.permission != NONE_PERMISSION);  ///< Unk
-    p_Data.WriteBit(false);                             ///< Unk
+    bool l_IsPersonalLooting = false;
+
+    if (!lv.viewer->GetGroup())
+        l_IsPersonalLooting = true;
+
+    p_Data.WriteBit(lv.permission != NONE_PERMISSION);  ///< Acquired
+    p_Data.WriteBit(l_IsAELooting);                     ///< AELooting
+    p_Data.WriteBit(l_IsPersonalLooting);               ///< Personal looting
     p_Data.FlushBits();
 
     return p_Data;

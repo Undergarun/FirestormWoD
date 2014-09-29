@@ -43,14 +43,11 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 
     uint32 l_LootCount = 0;
 
-    uint16 l_Unk = 0;
-
     uint8 l_LootListID      = 0;
     uint8 l_LinkedLootSlot  = 255;
 
     std::vector<uint64> l_LootObjectGuids;
 
-    p_RecvData >> l_Unk;
     p_RecvData >> l_LootCount;
 
     l_LootObjectGuids.resize(l_LootCount);
@@ -209,6 +206,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                     {
                         Player* recipient = itr->GetLootRecipient();
                         if (!recipient)
+                            continue;
+
+                        if (!itr->loot.gold)
                             continue;
 
                         if (itr->loot.IsLooter(player->GetGUID()))
