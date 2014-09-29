@@ -1304,7 +1304,7 @@
     <field type="int" name="LiquidTypeID_2" />
     <field type="int" name="LiquidTypeID_3" />
     <field type="float" name="MinElevation" />
-    <field type="float" name="AmbientMultiplier" />
+    <field type="int" name="UNK6.0.2" />
     <field type="int" name="Lightid" />
     <field type="int" name="MountFlags" />
     <field type="int" name="UwIntroSound" />
@@ -1313,8 +1313,6 @@
     <field type="int" name="WorldPvpId" />
     <field type="int" name="PvpCombatWorldStateID" />
     <field type="int" name="WildBattlePetLevelMin" />
-    <field type="int" name="WildBattlePetLevelMax" />
-    <field type="int" name="vv" />
   </AreaTable>
   <BattlemasterList build="0">
     <index>
@@ -2664,4 +2662,74 @@
     <field type="string" name="field2" />
     <field type="int" name="field3" />
   </BattlePetState>
+  <SpellDescriptionVariables build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+  </SpellDescriptionVariables>
+  <SpellAuraOptions build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+  </SpellAuraOptions>
+  <Weather build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </Weather>
+  <SummonProperties build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+  </SummonProperties>
+  <WowError_Strings build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </WowError_Strings>
+  <WorldEffect build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </WorldEffect>
 </DBFilesClient>

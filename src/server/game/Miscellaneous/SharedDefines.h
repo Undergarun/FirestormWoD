@@ -408,14 +408,14 @@ inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 
 enum ItemQualities
 {
-    ITEM_QUALITY_POOR                  = 0,                 //GREY
-    ITEM_QUALITY_NORMAL                = 1,                 //WHITE
-    ITEM_QUALITY_UNCOMMON              = 2,                 //GREEN
-    ITEM_QUALITY_RARE                  = 3,                 //BLUE
-    ITEM_QUALITY_EPIC                  = 4,                 //PURPLE
-    ITEM_QUALITY_LEGENDARY             = 5,                 //ORANGE
-    ITEM_QUALITY_ARTIFACT              = 6,                 //LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7                  //LIGHT YELLOW
+    ITEM_QUALITY_POOR                  = 0,                 // GREY
+    ITEM_QUALITY_NORMAL                = 1,                 // WHITE
+    ITEM_QUALITY_UNCOMMON              = 2,                 // GREEN
+    ITEM_QUALITY_RARE                  = 3,                 // BLUE
+    ITEM_QUALITY_EPIC                  = 4,                 // PURPLE
+    ITEM_QUALITY_LEGENDARY             = 5,                 // ORANGE
+    ITEM_QUALITY_ARTIFACT              = 6,                 // LIGHT YELLOW
+    ITEM_QUALITY_HEIRLOOM              = 7                  // LIGHT YELLOW
 };
 
 #define MAX_ITEM_QUALITY                 8
@@ -1245,7 +1245,7 @@ enum SpellEffects
     SPELL_EFFECT_TEST_REPUTATION                    = 208, // Unk 5.4.0
     SPELL_EFFECT_209                                = 209, // Unk 5.4.0
     SPELL_EFFECT_LEARN_BLUE_PRINT                   = 210,
-    SPELL_EFFECT_211                                = 211, // Unk 5.4.0
+    SPELL_EFFECT_211                                = 211, // Garrison learn (specialization)
     SPELL_EFFECT_212                                = 212, // Unk 5.4.0
     SPELL_EFFECT_DEATH_GRIP                         = 213,
     SPELL_EFFECT_214                                = 214, // Unk 6.0.1
@@ -1259,25 +1259,25 @@ enum SpellEffects
     SPELL_EFFECT_222                                = 222, // Unk 6.0.1
     SPELL_EFFECT_223                                = 223, // Unk 6.0.1
     SPELL_EFFECT_GARRISON_FINALIZE_BUILDING         = 224, // Finalize building construction
-    SPELL_EFFECT_225                                = 225, // Unk 6.0.1
+    SPELL_EFFECT_225                                = 225, // Battle-Training Stone
     SPELL_EFFECT_226                                = 226, // Unk 6.0.1
-    SPELL_EFFECT_227                                = 227, // Unk 6.0.1
-    SPELL_EFFECT_228                                = 228, // Unk 6.0.1
-    SPELL_EFFECT_229                                = 229, // Unk 6.0.1
-    SPELL_EFFECT_230                                = 230, // Unk 6.0.1
-    SPELL_EFFECT_231                                = 231, // Unk 6.0.1
-    SPELL_EFFECT_232                                = 232, // Unk 6.0.1
-    SPELL_EFFECT_233                                = 233, // Unk 6.0.1
+    SPELL_EFFECT_227                                = 227, // Teleport Into Karabor
+    SPELL_EFFECT_228                                = 228, // Recruit A Friend Summon Effect
+    SPELL_EFFECT_229                                = 229, // Upgrade follower to epic
+    SPELL_EFFECT_230                                = 230, // level follower related
+    SPELL_EFFECT_231                                = 231, // level up an follower (debug PTR spell)
+    SPELL_EFFECT_232                                = 232, // Phase related
+    SPELL_EFFECT_233                                = 233, // Retrain Follower (Reroll the abilities and traits on a follower.)
     SPELL_EFFECT_234                                = 234, // Unk 6.0.1
     SPELL_EFFECT_235                                = 235, // Unk 6.0.1
-    SPELL_EFFECT_236                                = 236, // Unk 6.0.1
+    SPELL_EFFECT_236                                = 236, // Burst of Experience (multiplicator ?)
     SPELL_EFFECT_237                                = 237, // Unk 6.0.1
-    SPELL_EFFECT_238                                = 238, // Unk 6.0.1
-    SPELL_EFFECT_239                                = 239, // Unk 6.0.1
+    SPELL_EFFECT_238                                = 238, // Garrison restore item (give X in skill)
+    SPELL_EFFECT_239                                = 239, // Garrison skip contruction
     SPELL_EFFECT_240                                = 240, // Unk 6.0.1
     SPELL_EFFECT_241                                = 241, // Unk 6.0.1
     SPELL_EFFECT_242                                = 242, // Unk 6.0.1
-    SPELL_EFFECT_243                                = 243, // Unk 6.0.1
+    SPELL_EFFECT_243                                = 243, // Illusion spells (visual enchant)
     SPELL_EFFECT_244                                = 244, // Unk 6.0.1
     SPELL_EFFECT_245                                = 245, // Unk 6.0.1
     SPELL_EFFECT_246                                = 246, // Unk 6.0.1
@@ -1976,7 +1976,7 @@ enum Targets
     TARGET_UNIT_CONE_ENEMY_104         = 104,
     TARGET_UNIT_UNK_105                = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER         = 106,
-    TARGET_DEST_EXTRA_TARGETS          = 107, // not enough info - only generic spells avalible
+    TARGET_DEST_EXTRA_TARGETS          = 107, // not enough info - only generic spells available
     TARGET_GAMEOBJECT_CONE             = 108,
     TARGET_109                         = 109, // spell 89008
     TARGET_UNIT_CONE_ENEMY_110         = 110, // 1 spell
@@ -2664,7 +2664,9 @@ enum Emote
     EMOTE_STATE_WORK_SMITH                       = 613, // (BLACKSMITH HAMMER)
     EMOTE_STATE_WORK_CHOPWOOD_GARR_FLESH         = 614, // (NO AXE, GARRISON, FLESH)
     EMOTE_STATE_CUSTOMSPELL02                    = 615,
-    EMOTE_STATE_READ_AND_SIT                     = 616
+    EMOTE_STATE_READ_AND_SIT                     = 616,
+    EMOTE_STATE_PARRY_UNARMED					 = 619,
+
 };
 
 // AnimationData.dbc
@@ -3514,7 +3516,7 @@ enum LockType
     LOCKTYPE_OPEN_FROM_VEHICLE     = 21,
     LOCKTYPE_ARCHAEOLOGY           = 22,
     LOCKTYPE_QUICK_OPEN_JCJ        = 23,
-    LOCKTYPE_LUMBER_MILL           = 28     // harvest timber (Garnison)
+    LOCKTYPE_LUMBER_MILL           = 28     // harvest timber (Garrison)
 };
 
 enum TrainerType                                            // this is important type for npcs!
@@ -3827,9 +3829,10 @@ enum QuestSort
     QUEST_SORT_BRAWLERS_GUILD      = 399,       // 5.1.0
     QUEST_SORT_PROVING_GROUNDS     = 400,
     QUEST_SORT_GARRISON_CAMPAIGN   = 401,       // 6.0.1
-    QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1 
+    QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1
     QUEST_SORT_GARRISON_SUPPORT     = 403,      // 6.0.1
-    QUEST_SORT_LOGGIN               = 404       // 6.0.1
+    QUEST_SORT_LOGGIN               = 404,      // 6.0.1
+    QUEST_SORT_PICKPOCKETING		= 405       // 6.0.2
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -4555,7 +4558,7 @@ enum BattlegroundTypeId
     // 443 = "The Ruby Sanctum"
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
     BATTLEGROUND_KT                 = 699,  // Valley of Power
-    BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
+    BATTLEGROUND_CTF3               = 706,  // NYI
     BATTLEGROUND_SSM                = 708,  // Silver shard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
@@ -4607,7 +4610,7 @@ enum SpellFamilyNames
     SPELLFAMILY_HUNTER      = 9,
     SPELLFAMILY_PALADIN     = 10,
     SPELLFAMILY_SHAMAN      = 11,
-    SPELLFAMILY_UNK2        = 12,                           // 2 spells (silence resistance)
+    SPELLFAMILY_UNK2        = 12,                           // 3 spells (silence resistance and pure awesome)
     SPELLFAMILY_POTION      = 13,
     // 14 - unused
     SPELLFAMILY_DEATHKNIGHT = 15,
@@ -4618,8 +4621,8 @@ enum SpellFamilyNames
 
     // Found on SpellClassOptions.dbc
     SPELLFAMILY_UNK4        = 54,
-    SPELLFAMILY_UNK5        = 56,                           // 2 Only
-    SPELLFAMILY_UNK6        = 57,
+    SPELLFAMILY_UNK5        = 56,
+    SPELLFAMILY_UNK6        = 57,							// Special Ability
     SPELLFAMILY_UNK7        = 66,                           // 2 Only
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,
