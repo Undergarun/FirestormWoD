@@ -504,15 +504,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     }
-                    case 118000:// Dragon Roar
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 168);
-                        else
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 140);
-
-                        break;
-                    }
                 }
 
                 break;
@@ -4405,7 +4396,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     }
 
     // some spell specific modifiers
-    float totalDamagePercentMod  = 1.0f;                    // applied to final bonus+weapon damage
+    float l_TotalDamagePercentMod  = 1.0f;                    // applied to final bonus+weapon damage
     int32 fixed_bonus = 0;
     int32 spell_bonus = 0;                                  // bonus specific for spell
     float final_bonus = 0;
@@ -4424,7 +4415,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                         if (ihit->effectMask & (1 << effIndex))
                             ++count;
 
-                    totalDamagePercentMod /= count;
+                    l_TotalDamagePercentMod /= count;
                     break;
                 }
             }
@@ -4474,7 +4465,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                             if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                                totalDamagePercentMod *= 1.447f;
+                                l_TotalDamagePercentMod *= 1.447f;
                     break;
                 }
                 case 16511: // Hemorrhage
@@ -4483,7 +4474,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                             if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                                totalDamagePercentMod *= 1.45f;
+                                l_TotalDamagePercentMod *= 1.45f;
                     break;
                 }
                 default:
@@ -4508,7 +4499,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 case 114236:// Shred (Glyph of Shred)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-                            totalDamagePercentMod *= 1.2f;
+                            l_TotalDamagePercentMod *= 1.2f;
                     break;
                 case 33876: // Mangle (Cat)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4570,7 +4561,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     // Death Knight T8 Melee 4P Bonus
                     if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                         AddPct(bonusPct, aurEff->GetAmount());
-                    AddPct(totalDamagePercentMod, bonusPct);
+                    AddPct(l_TotalDamagePercentMod, bonusPct);
 
                     break;
                 }
@@ -4582,7 +4573,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     // Death Knight T8 Melee 4P Bonus
                     if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                         AddPct(bonusPct, aurEff->GetAmount());
-                    AddPct(totalDamagePercentMod, bonusPct);
+                    AddPct(l_TotalDamagePercentMod, bonusPct);
                     break;
                 }
                 case 55050: // Heart Strike
@@ -4592,12 +4583,38 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                         AddPct(bonusPct, aurEff->GetAmount());
 
-                    AddPct(totalDamagePercentMod, bonusPct);
+                    AddPct(l_TotalDamagePercentMod, bonusPct);
                     break;
                 }
                 default:
                     break;
             }
+            break;
+        }
+        case SPELLFAMILY_WARRIOR:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 78:    // Heroic Strike
+                case 845:   // Cleave
+                {
+                    Player* l_Player = m_caster->ToPlayer();
+                    if (!l_Player)
+                        return;
+
+                    Item* l_MainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    if (!l_MainItem)
+                        return;
+
+                    // 40% damage bonus if a one-handed weapon is equipped
+                    if (l_MainItem->GetTemplate()->IsOneHanded())
+                        AddPct(l_TotalDamagePercentMod, 40);
+                    break;
+                }
+                default:
+                    break;
+            }
+
             break;
         }
         default:
@@ -4677,8 +4694,8 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     if (final_bonus)
         weaponDamage *= final_bonus;
 
-    if (totalDamagePercentMod != 1.0f)
-        weaponDamage = int32(weaponDamage* totalDamagePercentMod);
+    if (l_TotalDamagePercentMod != 1.0f)
+        weaponDamage = int32(weaponDamage* l_TotalDamagePercentMod);
 
     // prevent negative damage
     uint32 eff_damage(std::max(weaponDamage, 0));

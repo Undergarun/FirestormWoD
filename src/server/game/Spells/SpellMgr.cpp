@@ -3403,6 +3403,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
+            case 148017:// Icicle
+            case 148018:// Icicle
+            case 148019:// Icicle
+            case 148020:// Icicle
+            case 148021:// Icicle
+            case 148022:// Icicle hit
+                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED;
+                break;
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 0.938f;
                 spellInfo->m_IsScaled = true;

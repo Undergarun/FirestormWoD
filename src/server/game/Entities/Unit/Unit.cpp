@@ -10915,20 +10915,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
             break;
         }
-        case 46916:  // Slam! (Bloodsurge proc)
-        case 52437:  // Sudden Death
-        {
-            // Item - Warrior T10 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = GetAuraEffect(70847, 0))
-            {
-                if (!roll_chance_i(aurEff->GetAmount()))
-                    break;
-                CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
-                CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
-                CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
-            }
-            break;
-        }
         // Sword and Board
         case 50227:
         {
@@ -13365,7 +13351,6 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                             case 118000:// Dragon Roar ...
                                 // ... is always a critical hit
                                 return 100.0f;
-                                break;
                         }
                         break;
                     }
@@ -20118,10 +20103,22 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     SendMessageToSet(&data, false);
 }
 
-void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed)
+void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
 {
     ObjectGuid l_Guid = GetGUID();
-    ObjectGuid l_Target = p_Target->GetGUID();
+    ObjectGuid l_Target = p_Target ? p_Target->GetGUID() : 0;
+    Position l_Pos;
+
+    if (p_ThisAsPos)
+        GetPosition(&l_Pos);
+    else if (p_Target)
+        GetPosition(&l_Pos);
+    else
+    {
+        l_Pos.m_positionX = 0.f;
+        l_Pos.m_positionY = 0.f;
+        l_Pos.m_positionZ = 0.f;
+    }
 
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
 
@@ -20132,7 +20129,7 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed)
     l_Data.WriteBit(l_Guid[0]);
     l_Data.WriteBit(l_Guid[6]);
     l_Data.WriteBit(l_Target[2]);
-    l_Data.WriteBit(false);         // speedAsTime
+    l_Data.WriteBit(p_SpeedAsTime);
     l_Data.WriteBit(l_Guid[5]);
     l_Data.WriteBit(l_Target[1]);
     l_Data.WriteBit(l_Target[0]);
@@ -20145,9 +20142,9 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed)
 
     l_Data.WriteByteSeq(l_Guid[4]);
     l_Data.WriteByteSeq(l_Target[0]);
-    l_Data << float(p_Target->GetPositionY());
+    l_Data << float(l_Pos.m_positionY);
     l_Data.WriteByteSeq(l_Target[6]);
-    l_Data << float(p_Target->GetPositionZ());
+    l_Data << float(l_Pos.m_positionZ);
     l_Data << float(p_Speed);
     l_Data.WriteByteSeq(l_Guid[0]);
     l_Data << uint32(p_ID);         // spellVisualID
@@ -20158,7 +20155,7 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed)
     l_Data << uint16(0);            // reflectStatus
     l_Data.WriteByteSeq(l_Target[5]);
     l_Data.WriteByteSeq(l_Target[2]);
-    l_Data << float(p_Target->GetPositionX());
+    l_Data << float(l_Pos.m_positionX);
     l_Data.WriteByteSeq(l_Target[4]);
     l_Data.WriteByteSeq(l_Target[1]);
     l_Data.WriteByteSeq(l_Guid[2]);

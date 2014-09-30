@@ -80,7 +80,9 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_HORDE        = 146122,
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
-    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498
+    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
+    WARRIOR_SPELL_GLYPH_OF_BLAZING_TRAIL        = 123779,
+    WARRIOR_SPELL_DROP_FIRE_PERIODIC            = 126661
 };
 
 // Slam - 1464
@@ -285,7 +287,7 @@ class spell_warr_shield_block : public SpellScriptLoader
         }
 };
 
-// Storm Bolt - 107570
+// Storm Bolt - 107570 and Storm Bolt (off hand) - 145585
 class spell_warr_storm_bolt : public SpellScriptLoader
 {
     public:
@@ -1304,6 +1306,19 @@ class spell_warr_charge : public SpellScriptLoader
             return true;
         }
 
+        void HandleBeforeCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_BLAZING_TRAIL))
+            {
+                l_Caster->AddAura(WARRIOR_SPELL_DROP_FIRE_PERIODIC, l_Caster);
+                l_Caster->SendPlaySpellVisual(26423, NULL, 1.f, true, true);
+            }
+        }
+
         void HandleCharge(SpellEffIndex)
         {
             Unit* target = GetHitUnit();
@@ -1326,16 +1341,13 @@ class spell_warr_charge : public SpellScriptLoader
             if (canGenerateCharge && caster)
             {
                 int32 bp = GetEffectValue();
-
-                if (AuraEffectPtr bullRush = caster->GetAuraEffect(WARRIOR_SPELL_GLYPH_OF_BULL_RUSH, EFFECT_1))
-                    bp += bullRush->GetAmount();
-
                 caster->EnergizeBySpell(caster, GetSpellInfo()->Id, bp, POWER_RAGE);
             }
         }
 
         void Register()
         {
+            BeforeCast += SpellCastFn(script_impl::HandleBeforeCast);
             OnEffectHitTarget += SpellEffectFn(script_impl::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
             OnEffectHitTarget += SpellEffectFn(script_impl::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
@@ -1348,6 +1360,34 @@ class spell_warr_charge : public SpellScriptLoader
     {
         return new script_impl;
     }
+};
+
+// Warrior Charge Drop Fire Periodic - 126661
+class spell_warr_drop_fire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warr_drop_fire_periodic() : SpellScriptLoader("spell_warr_drop_fire_periodic") { }
+
+        class spell_warr_drop_fire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_drop_fire_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->SendPlaySpellVisual(26423, NULL, 1.f, true, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_drop_fire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_drop_fire_periodic_AuraScript();
+        }
 };
 
 // Shield Wall - 871
@@ -1559,6 +1599,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_thunder_clap();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
+    new spell_warr_drop_fire_periodic();
     new spell_warr_shield_wall();
     new spell_warr_spell_reflection();
     new spell_warr_intervene();
