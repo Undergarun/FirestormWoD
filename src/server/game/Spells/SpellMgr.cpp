@@ -3404,7 +3404,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->m_IsScaled = true;
                 break;
             case 117667:// Legacy of the Emperor (buff)
-                spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
                 break;
             case 45477: // Icy Touch
                 spellInfo->AttackPowerBonus = 0.319f;
@@ -5825,6 +5825,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 63733: // Serendipity
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 131081:// Frostfire Bolt (triggered)
+            case 131080:// Ice Lance (triggered)
+            case 131079:// Frost bolt (triggered)
+            case 131581:// Water bolt (triggered)
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED;
                 break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls
