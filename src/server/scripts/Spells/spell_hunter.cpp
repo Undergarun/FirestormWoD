@@ -577,6 +577,10 @@ class spell_hun_glaive_toss_missile : public SpellScriptLoader
 
             void HandleAfterCast()
             {
+                if (Unit* target = GetExplTargetUnit())
+                    if (GetCaster() == GetOriginalCaster())
+                        GetCaster()->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, target);
+
                 if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
                 {
                     if (Player* plr = GetCaster()->ToPlayer())
@@ -597,10 +601,6 @@ class spell_hun_glaive_toss_missile : public SpellScriptLoader
                             caster->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
                     }
                 }
-
-                if (Unit* target = GetExplTargetUnit())
-                    if (GetCaster() == GetOriginalCaster())
-                        GetCaster()->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, target);
             }
 
             void HandleOnHit()
