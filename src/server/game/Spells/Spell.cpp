@@ -503,6 +503,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
+    m_CanRecalculate = true;
 
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
@@ -1871,6 +1872,8 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
                     Position const* center = m_caster;
                     std::list<WorldObject*> targets;
                     float radius = m_spellInfo->Effects[i].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+                    if (radius == 0.f)
+                        radius = m_spellInfo->RangeEntry->maxRangeFriend;
 
                     SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[i].ImplicitTargetConditions);
 

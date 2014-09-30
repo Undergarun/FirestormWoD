@@ -652,7 +652,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             value = float(basePoints);
     }
 
-    if (caster && CanScale())
+    if (caster && CanScale() && (_spellInfo->AttackPowerBonus != 0.f || EffectSpellPowerBonus != 0.f))
     {
         bool rangedDamageClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
         WeaponAttackType attType = (_spellInfo->IsRangedWeaponSpell() && rangedDamageClass) ? RANGED_ATTACK : BASE_ATTACK;
@@ -3254,9 +3254,6 @@ SpellEffectScalingEntry const* SpellEffectInfo::GetEffectScaling() const
 
 bool SpellEffectInfo::CanScale() const
 {
-    if (_spellInfo->AttackPowerBonus == 0.f && EffectSpellPowerBonus == 0.f)
-        return false;
-
     switch (Effect)
     {
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:

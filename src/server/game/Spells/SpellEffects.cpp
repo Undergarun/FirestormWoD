@@ -1353,6 +1353,19 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             }
             break;
         }
+        case SPELLFAMILY_MONK:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 115921:// Legacy of the Emperor
+                    m_caster->CastSpell(unitTarget, damage, true);
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
         default:
             break;
     }
