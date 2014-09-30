@@ -1322,7 +1322,6 @@ class Unit : public WorldObject
         typedef std::list<AuraApplication *> AuraApplicationList;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
-        typedef std::vector<uint32> AuraIdList;
 
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
@@ -1695,6 +1694,7 @@ class Unit : public WorldObject
         AuraPtr AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisualKit(uint32 id, uint32 unkParam);
+        void SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed);
 
         void DeMorph();
 
@@ -2463,7 +2463,7 @@ class Unit : public WorldObject
         AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
-        AuraIdList _SoulSwapDOTList;
+        std::vector<AuraPtr> m_SoulSwapDOTList;
 
         typedef std::list<HealDone*> HealDoneList;
         typedef std::list<HealTaken*> HealTakenList;

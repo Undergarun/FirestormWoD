@@ -897,17 +897,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellId = newSpellInfo->Id;
         }
     }
-    // Soul Swap - 86121 and Soul Swap : Exhale - 86213
-    else if (spellInfo->Id == 86121 && _player->HasAura(86211))
-    {
-        SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(86213);
-        if (newSpellInfo)
-        {
-            spellInfo = newSpellInfo;
-            spellId = newSpellInfo->Id;
-            _player->RemoveAura(86211);
-        }
-    }
     // Mage Bomb - 125430 and  Living Bomb - 44457
     else if (spellInfo->Id == 125430 && _player->HasSpell(44457))
     {
@@ -968,8 +957,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         recvPacket.rfinish();
         _player->CastSpell(targets.GetUnitTarget(), 116995, true);
         _player->EnergizeBySpell(_player, 116995, 1, POWER_CHI);
-        int32 powerCost[MAX_POWERS];
-        memset(powerCost, 0, sizeof(powerCost));
+        int32 powerCost[MAX_POWERS_COST];
+        memset(powerCost, 0, sizeof(uint32) * MAX_POWERS_COST);
+        powerCost[MAX_POWERS_COST - 1] = 0;
         for (auto itr : spellInfo->SpellPowers)
         {
             spellInfo->CalcPowerCost(_player, spellInfo->GetSchoolMask(), powerCost);
@@ -983,8 +973,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     {
         recvPacket.rfinish();
         _player->CastSpell(targets.GetUnitTarget(), 132120, true);
-        int32 powerCost[MAX_POWERS];
-        memset(powerCost, 0, sizeof(powerCost));
+        int32 powerCost[MAX_POWERS_COST];
+        memset(powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+        powerCost[MAX_POWERS_COST - 1] = 0;
         for (auto itr : spellInfo->SpellPowers)
         {
             spellInfo->CalcPowerCost(_player, spellInfo->GetSchoolMask(), powerCost);

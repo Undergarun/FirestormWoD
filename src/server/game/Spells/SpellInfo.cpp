@@ -464,6 +464,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             else
                 gtScalingFormula += level - 1;
 
+            if (_spellInfo->Id == 118522 && _effIndex != 3)
+                gtScalingFormula = (_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1;
+
             if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry(gtScalingFormula))
             {
                 float multiplier = gtScaling->value;
@@ -1485,8 +1488,8 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
     if (mod->mask & SpellFamilyFlags)
         return true;
 
-    // Elemental Blast is affected by Ancestral Swiftness and Maelstrom Weapon
-    if (Id == 117014 && (affectSpell->Id == 16188 || affectSpell->Id == 53817))
+    // Elemental Blast is affected by Ancestral Swiftness and Maelstrom Weapon (exception with Glyph of Healing Storm)
+    if (Id == 117014 && (affectSpell->Id == 16188 || (affectSpell->Id == 53817 && mod->op != SPELLMOD_DAMAGE)))
         return true;
 
     return false;
@@ -2408,18 +2411,12 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             // Agony, Doom (Metamorphosis) and Havoc are no longer curses
             if (Id == 980 || Id == 603 || Id == 80240)
                 return SPELL_SPECIFIC_BANE;
-
             // only warlock curses have this
             if (Dispel == DISPEL_CURSE)
                 return SPELL_SPECIFIC_CURSE;
-
             // Warlock (Demon Armor | Fel Armor)
             if (SpellFamilyFlags[1] & 0x20000020)
                 return SPELL_SPECIFIC_WARLOCK_ARMOR;
-
-            //seed of corruption and corruption
-            if (SpellFamilyFlags[1] & 0x10 || SpellFamilyFlags[0] & 0x2)
-                return SPELL_SPECIFIC_WARLOCK_CORRUPTION;
 
             break;
         }
@@ -2656,7 +2653,7 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
             Powers PowerType = Powers(itr->PowerType);
 
             if (PowerType == POWER_HEALTH) // If power type - health drain all
-                m_powerCost[POWER_TO_INDEX(PowerType)] = caster->GetHealth();
+                m_powerCost[POWER_TO_INDEX(PowerType)] = int32(caster->GetHealth());
             else if (PowerType < MAX_POWERS) // Else drain all power
                 m_powerCost[POWER_TO_INDEX(PowerType)] = caster->GetPower(Powers(PowerType));
             else

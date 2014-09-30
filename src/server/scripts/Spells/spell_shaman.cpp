@@ -471,7 +471,7 @@ class spell_sha_call_of_the_elements : public SpellScriptLoader
         }
 };
 
-// Called by Healing Wave - 331, Greater Healing Wave - 77472 and Healing Surge - 8004
+// Called by Healing Wave - 331, Greater Healing Wave - 77472, Healing Surge - 8004 and Chain Heal - 1064
 // Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
 // Called by Lightning Bolt - 45284, Chain Lightning - 45297
 // Conductivity - 108282

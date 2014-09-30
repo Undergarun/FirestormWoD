@@ -813,6 +813,7 @@ void AddSC_WanderingIsland_South();
 void AddSC_timeless_isle();
 
 // battlegrounds
+void AddSC_BattlegroundDGScripts();
 
 // outdoor pvp
 void AddSC_outdoorpvp_hp();
@@ -1676,6 +1677,7 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+    AddSC_BattlegroundDGScripts();
 #endif
 }
 

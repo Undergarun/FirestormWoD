@@ -11665,6 +11665,25 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             data << uint32(0x1958) << uint32(0x1);
             data << uint32(0x1959) << uint32(0x4);
             break;
+        // Silvershard Mines
+        case 6126:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_SM)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0x1924) << uint32(1);            // SM_MINE_CARTS_DISPLAY
+                data << uint32(0x1925) << uint32(0);            // SM_ALLIANCE_RESOURCES
+                data << uint32(0x1926) << uint32(0);            // SM_HORDE_RESOURCES
+                data << uint32(0x1927) << uint32(1);            // SM_MINE_CART_1
+                data << uint32(0x1928) << uint32(1);            // SM_MINE_CART_2
+                data << uint32(0x1929) << uint32(1);            // SM_DISPLAY_ALLIANCE_RESSOURCES
+                data << uint32(0x192a) << uint32(1);            // SM_MINE_CART_3
+                data << uint32(0x192b) << uint32(1);            // SM_DISPLAY_HORDE_RESSOURCES
+                data << uint32(0x1adb) << uint32(0);            // SM_DISPLAY_PROGRESS_BAR
+                data << uint32(0x1adc) << uint32(0);            // SM_PROGRESS_BAR_STATUS
+                data << uint32(0x1add) << uint32(0);            // SM_UNK
+            }
+            break;
         // Tol'Viron Arena
         case 6296:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_TV)
@@ -11687,6 +11706,23 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0xE1A) << uint32(0x0);           // 9 show
             }
             break;
+        // Deepwind Gorge
+        case 6665:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_DG)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(7938) << uint32(1);          // WORLDSTATE_DG_GOLBIN_MINE
+                data << uint32(7939) << uint32(1);          // WORLDSTATE_DG_CENTER_MINE
+                data << uint32(7935) << uint32(1);          // WORLDSTATE_DG_PANDA_MINE
+                data << uint32(8230) << uint32(0);          // WORLDSTATE_DG_BASE_ALLIANCE
+                data << uint32(8231) << uint32(0);          // WORLDSTATE_DG_BASE_HORDE
+                data << uint32(7880) << uint32(0);          // WORLDSTATE_DG_SCORE_ALLIANCE
+                data << uint32(7881) << uint32(0);          // WORLDSTATE_DG_SCORE_HORDE
+                data << uint32(7904) << uint32(1);          // WORLDSTATE_DG_CART_ALLIANCE
+                data << uint32(7887) << uint32(1);          // WORLDSTATE_DG_CART_HORDE
+            }
+            break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
             data << uint32(0x913) << uint32(0x0);           // 8
@@ -11694,7 +11730,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             data << uint32(0x915) << uint32(0x0);           // 10
             break;
     }
+
     GetSession()->SendPacket(&data);
+
     SendBGWeekendWorldStates();
 }
 
