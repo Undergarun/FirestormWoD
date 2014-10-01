@@ -3547,7 +3547,7 @@ class npc_demoralizing_banner : public CreatureScript
 };
 
 /*######
-# npc_frozen_orb
+# npc_frozen_orb 45322
 ######*/
 
 enum frozenOrbSpells
@@ -3582,6 +3582,13 @@ class npc_frozen_orb : public CreatureScript
                     me->AddAura(SPELL_SELF_SNARE_90, me);
 
                     frozenOrbTimer = 1000;
+
+                    float rotation = owner->GetOrientation();
+                    float x = owner->GetPositionX() + ((35.0f) * cos(rotation));
+                    float y = owner->GetPositionY() + ((35.0f) * sin(rotation));
+
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, me->GetPositionZ());
                 }
                 else
                     me->DespawnOrUnsummon();
