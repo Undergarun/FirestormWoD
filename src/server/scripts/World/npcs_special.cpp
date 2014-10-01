@@ -59,6 +59,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "Vehicle.h"
 #include "Player.h"
+#include "SpellScript.h"
 
 /*########
 # npc_air_force_bots
