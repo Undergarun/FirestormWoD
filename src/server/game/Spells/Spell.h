@@ -507,6 +507,9 @@ class Spell
 
         int32 CalculateDamage(uint8 i, Unit const* target, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT) const
         {
+            if (!m_CanRecalculate)
+                return m_spellValue->EffectBasePoints[i];
+
             return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], triggeredByAura);
         }
 
@@ -573,6 +576,8 @@ class Spell
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
         bool IsCritForTarget(Unit* target) const;
+        bool CanRecalculate() const { return m_CanRecalculate; }
+        void SetCanRecalculate(bool p_Apply) { m_CanRecalculate = p_Apply; }
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
@@ -672,6 +677,7 @@ class Spell
         int32 m_healing;          // Healing in effects count here
         int32 m_final_damage;     // Final damage in effects count here
         int32 m_absorbed_damage;   // Final absorbed damage in effects count here
+        bool  m_CanRecalculate;
 
         // ******************************************
         // Spell trigger system

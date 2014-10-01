@@ -503,6 +503,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
+    m_CanRecalculate = true;
 
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
@@ -1871,6 +1872,8 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
                     Position const* center = m_caster;
                     std::list<WorldObject*> targets;
                     float radius = m_spellInfo->Effects[i].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+                    if (radius == 0.f)
+                        radius = m_spellInfo->RangeEntry->maxRangeFriend;
 
                     SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[i].ImplicitTargetConditions);
 
@@ -3574,7 +3577,8 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // Fill cost data (don't use power for item casts)
-    memset(m_powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+    memset(m_powerCost, 0, sizeof(uint32) * MAX_POWERS_COST);
+    m_powerCost[MAX_POWERS_COST - 1] = 0;
     if (m_CastItem == 0)
         m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, m_powerCost);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3590,7 +3594,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
         // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
-        // a possible alternative sollution for those would be validating aura target on unit state change
+        // a possible alternative solution for those would be validating aura target on unit state change
         if (triggeredByAura && triggeredByAura->IsPeriodic() && !triggeredByAura->GetBase()->IsPassive())
         {
             if (result != SPELL_FAILED_BAD_TARGETS)

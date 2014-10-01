@@ -3399,6 +3399,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 133796: // Life Drain
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 63106: // Siphon Life (heal)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
             case 83381: // Kill Command
                 spellInfo->AttackPowerBonus = 0.938f;
                 spellInfo->m_IsScaled = true;
@@ -3411,7 +3415,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
                 break;
             case 117667:// Legacy of the Emperor (buff)
-                spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
                 break;
             case 45477: // Icy Touch
                 spellInfo->AttackPowerBonus = 0.319f;
@@ -4483,6 +4487,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 88767: // Fulmination (triggered)
+            case 50273: // Arcane Barrage (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 51514: // Hex
@@ -5820,6 +5825,27 @@ void SpellMgr::LoadSpellCustomAttr()
             case 106830:// Trash (cat)
                 spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
                 spellInfo->m_IsScaled = false;
+                break;
+            case 2944:  // Devouring Plague
+                spellInfo->Effects[3].EffectSpellPowerBonus = 0.f;
+                spellInfo->Effects[4].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                break;
+            case 23922: // Shield Slam
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->AttackPowerBonus = 1.5f;
+                break;
+            case 63733: // Serendipity
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 131081:// Frostfire Bolt (triggered)
+            case 131080:// Ice Lance (triggered)
+            case 131079:// Frost bolt (triggered)
+            case 131581:// Water bolt (triggered)
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED;
                 break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls

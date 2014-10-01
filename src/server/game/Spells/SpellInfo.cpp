@@ -464,6 +464,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             else
                 gtScalingFormula += level - 1;
 
+            if (_spellInfo->Id == 118522 && _effIndex != 3)
+                gtScalingFormula = (_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1;
+
             if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry(gtScalingFormula))
             {
                 float multiplier = gtScaling->value;
@@ -649,7 +652,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             value = float(basePoints);
     }
 
-    if (caster && CanScale())
+    if (caster && CanScale() && (_spellInfo->AttackPowerBonus != 0.f || EffectSpellPowerBonus != 0.f))
     {
         bool rangedDamageClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
         WeaponAttackType attType = (_spellInfo->IsRangedWeaponSpell() && rangedDamageClass) ? RANGED_ATTACK : BASE_ATTACK;
@@ -1485,8 +1488,8 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
     if (mod->mask & SpellFamilyFlags)
         return true;
 
-    // Elemental Blast is affected by Ancestral Swiftness and Maelstrom Weapon
-    if (Id == 117014 && (affectSpell->Id == 16188 || affectSpell->Id == 53817))
+    // Elemental Blast is affected by Ancestral Swiftness and Maelstrom Weapon (exception with Glyph of Healing Storm)
+    if (Id == 117014 && (affectSpell->Id == 16188 || (affectSpell->Id == 53817 && mod->op != SPELLMOD_DAMAGE)))
         return true;
 
     return false;
@@ -2650,7 +2653,7 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
             Powers PowerType = Powers(itr->PowerType);
 
             if (PowerType == POWER_HEALTH) // If power type - health drain all
-                m_powerCost[POWER_TO_INDEX(PowerType)] = caster->GetHealth();
+                m_powerCost[POWER_TO_INDEX(PowerType)] = int32(caster->GetHealth());
             else if (PowerType < MAX_POWERS) // Else drain all power
                 m_powerCost[POWER_TO_INDEX(PowerType)] = caster->GetPower(Powers(PowerType));
             else
@@ -3251,9 +3254,6 @@ SpellEffectScalingEntry const* SpellEffectInfo::GetEffectScaling() const
 
 bool SpellEffectInfo::CanScale() const
 {
-    if (_spellInfo->AttackPowerBonus == 0.f && EffectSpellPowerBonus == 0.f)
-        return false;
-
     switch (Effect)
     {
         case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
