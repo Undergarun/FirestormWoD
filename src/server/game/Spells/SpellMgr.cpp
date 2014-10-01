@@ -5498,6 +5498,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetA = 0;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
                 break;
+            case 116011:
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[2].TargetA = 0;
+                break;
             // Cauterizing Flame
             case 99152:
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
