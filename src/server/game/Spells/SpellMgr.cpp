@@ -3474,6 +3474,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             case 121673:// Fire Shot
+            case 145153:
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050:// Malformed Blood

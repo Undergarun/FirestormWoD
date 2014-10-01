@@ -3904,8 +3904,7 @@ class spell_dru_eclipse : public SpellScriptLoader
                     {
                         int32 bp = GetHitDamage();
 
-                        if (Unit* target = plr->GetNextRandomRaidMember(15.0f))
-                            plr->CastCustomSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
+                        plr->CastCustomSpell(plr, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
                     }
                 }
             }

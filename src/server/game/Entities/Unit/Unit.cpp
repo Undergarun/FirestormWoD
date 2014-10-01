@@ -7438,11 +7438,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                                 break;
                             triggered_spell_id = 145162;
                             break;
-                        case SPEC_DROOD_RESTORATION:
-                            if (procSpell->Id != 5176)
-                                break;
-                            triggered_spell_id = 145153;
-                            break;
                         default:
                             return false;
                     }
@@ -10076,11 +10071,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             // Only triggered by Devastate
-            if (procSpell->Id != 20243)
-                return false;
-
-            // Mortal Peace
-            if (!HasAura(85730))
+            if (procSpell->Id != 1160)
                 return false;
 
             break;
