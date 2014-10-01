@@ -1205,7 +1205,7 @@ enum SpellEffects
     SPELL_EFFECT_171                                = 171, // Summons gamebject (player farm related)
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172, // Aoe resurrection (guild perk)
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
-    SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
+    SPELL_EFFECT_APPLY_AURA_2                       = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,

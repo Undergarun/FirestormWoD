@@ -2157,11 +2157,11 @@ class spell_warl_soul_swap : public SpellScriptLoader
                         {
                             // Soul Swap override spell
                             caster->CastSpell(caster, WARLOCK_SOUL_SWAP_AURA, true);
+                            target->CastSpell(caster, WARLOCK_SOUL_SWAP_VISUAL, true);
                             caster->RemoveSoulSwapDOT(target);
                         }
                         else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                         {
-                            caster->CastSpell(target, WARLOCK_SOUL_SWAP_VISUAL, true);
                             caster->ApplySoulSwapDOT(target);
                             caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
@@ -2516,7 +2516,6 @@ class spell_warl_shadowburn : public SpellScriptLoader
 
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
-// Immolation - 348 and Immolation (Fire and Brimstone) - 108686
 // Burning Embers generate
 class spell_warl_burning_embers : public SpellScriptLoader
 {
@@ -2550,30 +2549,6 @@ class spell_warl_burning_embers : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_burning_embers_SpellScript();
-        }
-
-        class spell_warl_burning_embers_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_burning_embers_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetTarget())
-                        l_Caster->SetPower(POWER_BURNING_EMBERS, l_Caster->GetPower(POWER_BURNING_EMBERS) + 1);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_embers_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_burning_embers_AuraScript();
         }
 };
 
