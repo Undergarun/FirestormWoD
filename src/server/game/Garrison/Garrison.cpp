@@ -1,6 +1,8 @@
 #include "Garrison.h"
 #include "Player.h"
 #include "DatabaseEnv.h"
+#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 
 uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
 {
