@@ -4778,6 +4778,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
                 return;
 
+    bool hasInterrupt = false;
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
     // there is no CURRENT_AUTOREPEAT_SPELL spells that can be interrupted
@@ -4799,6 +4800,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (curSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
+                    hasInterrupt = true;
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
@@ -4851,6 +4853,9 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             }
         }
     }
+
+    if (hasInterrupt && m_originalCaster->HasAura(58372) && m_spellInfo->Id == 6552) // Glyph of Rude Interruption
+        m_originalCaster->CastSpell(m_originalCaster, 86663, true);
 }
 
 void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
