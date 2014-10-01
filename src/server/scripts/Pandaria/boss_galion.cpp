@@ -20,6 +20,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 
