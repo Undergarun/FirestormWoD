@@ -1338,6 +1338,22 @@ class go_seaforium_charge : public GameObjectScript
         }
 };
 
+class go_mage_portal_pandaria : public GameObjectScript
+{
+    public:
+        go_mage_portal_pandaria() : GameObjectScript("go_mage_portal_pandaria") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (go->GetEntry() == 216057) // alliance
+                player->TeleportTo(870, 882.98, 297.62, 503.12, 3.80);
+            else if (go->GetEntry() == 216058) // horde
+                player->TeleportTo(870, 1604.37, 920.83, 470.63, 0.19);
+
+            return true;
+        }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1381,4 +1397,5 @@ void AddSC_go_scripts()
     new go_frostblade_shrine;
     new go_midsummer_bonfire;
     new go_seaforium_charge;
+    new go_mage_portal_pandaria;
 }

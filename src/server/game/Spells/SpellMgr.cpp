@@ -5455,12 +5455,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
-            case 132626: // Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: // Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
-                break;
             // Magic Barrier, Lady Vashj
             case 38112:
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
