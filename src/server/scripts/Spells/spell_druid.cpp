@@ -2165,7 +2165,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                /*if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
@@ -2190,7 +2190,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
                                 ++l_Iter;
                         }
                     }
-                }
+                }*/
             }
 
             void Register()
