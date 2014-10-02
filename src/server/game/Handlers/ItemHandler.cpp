@@ -306,60 +306,64 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
-    uint8 bag, slot, count, data1, data2, data3;
+    /// sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
+    uint32 l_Count          = 0;
+    uint8  l_ContainerId    = 0;
+    uint8  l_SlotNum        = 0;
 
-    recvData >> count >> data1 >> data2 >> data3 >> bag >> slot;
-    //sLog->outDebug("STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
+    p_Packet >> l_Count;
+    p_Packet >> l_ContainerId;
+    p_Packet >> l_SlotNum;
 
-    uint16 pos = (bag << 8) | slot;
+    uint16 l_ItemPosition = (l_ContainerId << 8) | l_SlotNum;
 
-    // prevent drop unequipable items (in combat, for example) and non-empty bags
-    if (m_Player->IsEquipmentPos(pos) || m_Player->IsBagPos(pos))
+    /// prevent drop unequipable items (in combat, for example) and non-empty bags
+    if (m_Player->IsEquipmentPos(l_ItemPosition) || m_Player->IsBagPos(l_ItemPosition))
     {
-        InventoryResult msg = m_Player->CanUnequipItem(pos, false);
+        InventoryResult msg = m_Player->CanUnequipItem(l_ItemPosition, false);
         if (msg != EQUIP_ERR_OK)
         {
-            m_Player->SendEquipError(msg, m_Player->GetItemByPos(pos), NULL);
+            m_Player->SendEquipError(msg, m_Player->GetItemByPos(l_ItemPosition), NULL);
             return;
         }
     }
 
-    Item* pItem  = m_Player->GetItemByPos(bag, slot);
-    if (!pItem)
+    Item* l_Item  = m_Player->GetItemByPos(l_ContainerId, l_SlotNum);
+
+    if (!l_Item)
     {
         m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (pItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
+    if (l_Item->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
     {
         m_Player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
     }
 
-    //! If trading
-    if (TradeData* tradeData = m_Player->GetTradeData())
+    /// If trading
+    if (TradeData * l_TradeData = m_Player->GetTradeData())
     {
-        //! If current item is in trade window (only possible with packet spoofing - silent return)
-        if (tradeData->GetTradeSlotForItem(pItem->GetGUID()) != TRADE_SLOT_INVALID)
+        /// If current item is in trade window (only possible with packet spoofing - silent return)
+        if (l_TradeData->GetTradeSlotForItem(l_Item->GetGUID()) != TRADE_SLOT_INVALID)
         {
             m_Player->SendEquipError(EQUIP_ERR_OBJECT_IS_BUSY, NULL, NULL);
             return;
         }
     }
 
-    sLog->OutPandashan("HandleDestroyItemOpcode[%u] %u %u", m_Player->GetGUIDLow(), pos, count);
+    sLog->OutPandashan("HandleDestroyItemOpcode[%u] %u %u", m_Player->GetGUIDLow(), l_ItemPosition, l_Count);
 
-    if (count)
+    if (l_Count)
     {
-        uint32 i_count = count;
-        m_Player->DestroyItemCount(pItem, i_count, true);
+        uint32 i_count = l_Count;
+        m_Player->DestroyItemCount(l_Item, i_count, true);
     }
     else
-        m_Player->DestroyItem(bag, slot, true);
+        m_Player->DestroyItem(l_ContainerId, l_SlotNum, true);
 }
 
 void WorldSession::SendItemDb2Reply(uint32 entry)

@@ -8709,18 +8709,19 @@ void Player::SendCurrencies()
 
 void Player::SendPvpRewards()
 {
-    WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
-    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true); // Count of gived conquest points from Random BG in week - dword34
-    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true); // Max Conquest points cap - dword20
-    packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / 100; // Conquest points from Arena win - dword30
-    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true); // Count of gived conquest points from Arena in week - dword28
-    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true); // Count of gived conquest points from Rated BG in week - dword2C
-    packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD)  / 100; // Conquest points from Rated BG win - dword18
-    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true); // Conquest points cap for Arena dword10
-    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true); // Conquest points cap for Rated BG - dword14
-    packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true); // Conquest points cap for Random BG - dword24
-    packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true); // Count of gived all conquest points in week - dword1C
-    GetSession()->SendPacket(&packet);
+    WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);                         ///< Count of gived all conquest points in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);                        ///< Max Conquest points cap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);                       ///< Count of gived conquest points from Rated BG in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);                      ///< Conquest points cap for Rated BG
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true);                 ///< Count of gived conquest points from Random BG in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true);                ///< Conquest points cap for Random BG
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);                     ///< Count of gived conquest points from Arena in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);                    ///< Conquest points cap for Arena
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD)  / 100;   ///< Conquest points from Rated BG win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / 100;       ///< Conquest points from Arena win
+
+    GetSession()->SendPacket(&l_Packet);
 }
 
 uint32 Player::GetCurrency(uint32 id, bool usePrecision) const

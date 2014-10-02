@@ -80,7 +80,7 @@ enum Opcodes
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x03F4,   ///< 6.0.2 18934
         SMSG_SET_PROFICIENCY                        = 0x12AF,   ///< 6.0.2 18934
         SMSG_INIT_WORLD_STATES                      = 0x0BB7,   ///< 6.0.2 18934
-        SMSG_UPDATE_WORLD_STATE                     = 0x0000,   ///< 
+        SMSG_UPDATE_WORLD_STATE                     = 0x1368,   ///< 6.0.2 18934
         SMSG_EMOTE                                  = 0x0000,   ///< 6.0.2 
         SMSG_EXPLORATION_EXPERIENCE                 = 0x1413,   ///< 6.0.2 18934
         SMSG_LOG_XP_GAIN                            = 0x13EC,   ///< 6.0.2 18934
@@ -100,6 +100,10 @@ enum Opcodes
         SMSG_SET_RAID_DIFFICULTY                    = 0x0ABC,   ///< 6.0.2 18934
         SMSG_LOAD_CUF_PROFILES                      = 0x09B3,   ///< 6.0.2 18934
         SMSG_STANDSTATE_UPDATE                      = 0x09C0,   ///< 6.0.2 18934
+        SMSG_START_TIMER                            = 0x02E3,   ///< 6.0.2 18934
+        SMSG_START_ELAPSED_TIMER                    = 0x1414,   ///< 6.0.2 18934 (unused)
+        SMSG_START_ELAPSED_TIMERS                   = 0x12AC,   ///< 6.0.2 18934 (unused)
+        SMSG_STOP_ELAPSED_TIMER                     = 0x0748,   ///< 6.0.2 18934 (unused)
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 18934
@@ -187,6 +191,15 @@ enum Opcodes
         SMSG_READY_CHECK_STARTED                    = 0x0000,   ///< 6.0.2 
         SMSG_ROLL_POLL_INFORM                       = 0x0000,   ///< 6.0.2 
         SMSG_ROLE_CHANGED_INFORM                    = 0x0000,   ///< 6.0.2 
+
+        /// Battle ground
+        SMSG_BATTLEFIELD_STATUS_QUEUED              = 0x1568,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_NONE                = 0x0614,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION   = 0x1623,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_ACTIVE              = 0x08AB,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_FAILED              = 0x12A3,   ///< 6.0.2 18934
+        SMSG_REQUEST_PVP_REWARDS_RESPONSE           = 0x1544,   ///< 6.0.2 18934
+        SMSG_PVP_OPTIONS_ENABLED                    = 0x02A8,   ///< 6.0.2 18934
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -604,6 +617,8 @@ enum Opcodes
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 6.0.1
     CMSG_STAND_STATE_CHANGE                     = 0x1A94,   ///< 6.0.2 18934
     CMSG_BINDER_ACTIVATE                        = 0x0663,   ///< 6.0.2 18934
+    CMSG_REQUEST_FORCED_REACTIONS               = 0x1B83,   ///< 6.0.2 18934
+    CMSG_DESTROY_ITEM                           = 0x0CC0,   ///< 6.0.2 18934
     
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -832,6 +847,18 @@ enum Opcodes
     CMSG_PETITION_SIGN                          = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
+    /// Battlegrounds
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_BATTLEMASTER_JOIN                      = 0x0327,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_PORT                       = 0x0428,   ///< 6.0.2 18934
+    CMSG_REQUEST_BATTLEFIELD_STATUS             = 0x10AC,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_REQUEST_SCORE_DATA         = 0x1B90,   ///< 6.0.2 18934
+    CMSG_REQUEST_PVP_REWARDS                    = 0x1596,   ///< 6.0.2 18934
+    CMSG_REQUEST_PVP_OPTIONS_ENABLED            = 0x00B7,   ///< 6.0.2 18934
+    CMSG_QUERY_COUNTDOWN_TIMER                  = 0x05E9,   ///< 6.0.2 18934 (unused)
+    CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS     = 0x1E85,   ///< 6.0.2 18934 (unused)
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -912,11 +939,7 @@ enum Opcodes
     CMSG_BATTLEFIELD_MGR_EXIT_REQUEST                 = 0x0000,
     CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE        = 0x0000,
     CMSG_BATTLEFIELD_MGR_QUEUE_REQUEST                = 0x0000,
-    CMSG_BATTLEFIELD_PORT                             = 0x0000,
-    CMSG_BATTLEFIELD_REQUEST_SCORE_DATA               = 0x0000,
-    CMSG_BATTLEFIELD_STATUS                           = 0x0000,
     CMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x0000,
-    CMSG_BATTLEMASTER_JOIN                            = 0x0000,
     CMSG_BATTLEMASTER_JOIN_ARENA                      = 0x0000,
     CMSG_BATTLEMASTER_JOIN_RATED                      = 0x0000,
     CMSG_BEGIN_TRADE                                  = 0x0000,
@@ -996,7 +1019,6 @@ enum Opcodes
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
-    CMSG_DESTROY_ITEM                                 = 0x0000,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x0000,
     CMSG_DISMISS_CRITTER                              = 0x0000,
     CMSG_DUEL_RESPONSE                                = 0x0000,
@@ -1176,12 +1198,9 @@ enum Opcodes
     CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x0000,
     CMSG_REQUEST_CEMETERY_LIST                        = 0x0000,
-    CMSG_REQUEST_FORCED_REACTIONS                     = 0x0000,
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x0000,
-    CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x0000,
-    CMSG_REQUEST_PVP_REWARDS                          = 0x0000,
     CMSG_REQUEST_RAID_INFO                            = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                        = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                       = 0x0000,
@@ -1345,12 +1364,7 @@ enum Opcodes
     SMSG_BATTLEFIELD_MGR_STATE_CHANGED                = 0x0000,
     SMSG_BATTLEFIELD_PORT_DENIED                      = 0x0000,
     SMSG_BATTLEFIELD_RATED_INFO                       = 0x0000,
-    SMSG_BATTLEFIELD_STATUS                           = 0x0000,
-    SMSG_BATTLEFIELD_STATUS_QUEUED                    = 0x0000,
-    SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION         = 0x0000,
-    SMSG_BATTLEFIELD_STATUS_ACTIVE                    = 0x0000,
     SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS           = 0x0000,
-    SMSG_BATTLEFIELD_STATUS_FAILED                    = 0x0000,
     SMSG_BATTLEGROUND_INIT                            = 0x0000,
     SMSG_BATTLEGROUND_INFO_THROTTLED                  = 0x0000,
     SMSG_BATTLEGROUND_POINTS                          = 0x0000,
@@ -1721,7 +1735,6 @@ enum Opcodes
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0x0000,
     SMSG_PVP_CREDIT                                   = 0x0000,
     SMSG_PVP_LOG_DATA                                 = 0x0000,
-    SMSG_PVP_OPTIONS_ENABLED                          = 0x0000,
     SMSG_QUERY_OBJECT_POSITION                        = 0x0000,
     SMSG_QUERY_OBJECT_ROTATION                        = 0x0000,
     SMSG_QUERY_TIME_RESPONSE                          = 0x0000,
@@ -1747,7 +1760,6 @@ enum Opcodes
     SMSG_REMOVE_LOSS_OF_CONTROL                       = 0x0000,
     SMSG_REPORT_PVP_AFK_RESULT                        = 0x0000,
     SMSG_REQUEST_CEMETERY_LIST_RESPONSE               = 0x0000,
-    SMSG_REQUEST_PVP_REWARDS_RESPONSE                 = 0x0000,
     SMSG_RESEARCH_COMPLETE                            = 0x0000,
     SMSG_RESEARCH_SETUP_HISTORY                       = 0x0000,
     SMSG_RESET_COMPRESSION_CONTEXT                    = 0x0000,
@@ -1830,13 +1842,9 @@ enum Opcodes
     SMSG_SPLINE_MOVE_UNSET_FLYING                     = 0x0000,
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x0000,
     SMSG_STABLE_RESULT                                = 0x0000,
-    SMSG_START_ELAPSED_TIMER                          = 0x0000,
-    SMSG_START_ELAPSED_TIMERS                         = 0x0000,
     SMSG_START_MIRROR_TIMER                           = 0x0000,
-    SMSG_START_TIMER                                  = 0x0000,
     SMSG_STOP_DANCE                                   = 0x0000,
     SMSG_STOP_MIRROR_TIMER                            = 0x0000,
-    SMSG_STOP_ELAPSED_TIMER                           = 0x0000,
     SMSG_STREAMING_MOVIE                              = 0x0000,
     SMSG_SUMMON_CANCEL                                = 0x0000,
     SMSG_SUMMON_REQUEST                               = 0x0000,

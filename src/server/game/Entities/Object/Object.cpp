@@ -3074,13 +3074,13 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-void Player::SendBattlegroundTimer(uint32 currentTime, uint32 maxTime)
+void Player::SendBattlegroundTimer(uint32 p_TimeRemaining, uint32 p_TotalTime)
 {
-    WorldPacket data(SMSG_START_TIMER, 12);
-    data << uint32(maxTime);
-    data << uint32(currentTime);
-    data << uint32(PVP_TIMER);
-    SendDirectMessage(&data);
+    WorldPacket l_Data(SMSG_START_TIMER, 12);
+    l_Data << uint32(p_TimeRemaining);
+    l_Data << uint32(p_TotalTime);
+    l_Data << uint32(PVP_TIMER);
+    SendDirectMessage(&l_Data);
 }
 
 GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid, std::list<uint64>* viewersList, uint32 p_AnimProgress, uint32 p_GoHealth)
