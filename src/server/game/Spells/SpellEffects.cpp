@@ -3434,6 +3434,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             break;
                     }
 
+                    if (m_caster->HasAura(63298)) // Glyph of Totemic Vigor
+                        damage += m_caster->CountPctFromMaxHealth(5);
+
                     if (damage)                                            // if not spell info, DB values used
                     {
                         summon->SetMaxHealth(damage);
