@@ -56,7 +56,7 @@ enum ItemModType
     ITEM_MOD_CRIT_TAKEN_RATING        = 34,
     ITEM_MOD_RESILIENCE_RATING        = 35,
     ITEM_MOD_HASTE_RATING             = 36,
-    ITEM_MOD_EXPERTISE_RATING         = 37,
+    ITEM_MOD_EXPERTISE_RATING         = 37, // Not used since 6.0.0
     ITEM_MOD_ATTACK_POWER             = 38,
     ITEM_MOD_RANGED_ATTACK_POWER      = 39,
     ITEM_MOD_MANA_REGENERATION        = 43,

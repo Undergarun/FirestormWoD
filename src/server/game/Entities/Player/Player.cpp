@@ -7095,22 +7095,6 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
 
-float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
-{
-    switch (attType)
-    {
-        case BASE_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
-        case OFF_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
-        case RANGED_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
-        default:
-            break;
-    }
-    return 0.0f;
-}
-
 float Player::OCTRegenMPPerSpirit()
 {
     uint8 level = getLevel();
@@ -7257,13 +7241,8 @@ void Player::UpdateRating(CombatRating cr)
         case CR_WEAPON_SKILL_OFFHAND:
         case CR_WEAPON_SKILL_RANGED:
             break;
-        case CR_EXPERTISE:
-            if (affectStats)
-            {
-                UpdateExpertise(BASE_ATTACK);
-                UpdateExpertise(OFF_ATTACK);
-                UpdateExpertise(RANGED_ATTACK);
-            }
+        case CR_EXPERTISE:                                  // Removed in 6.0.0
+          break;
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryPercentage();
             break;
@@ -9629,8 +9608,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
                 ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
                 break;
-            case ITEM_MOD_EXPERTISE_RATING:
-                ApplyRatingMod(CR_EXPERTISE, int32(val), apply);
+            case ITEM_MOD_EXPERTISE_RATING: // Useless since 6.0.0
                 break;
             case ITEM_MOD_ATTACK_POWER:
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
@@ -13864,14 +13842,6 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         }
 
         ApplyEquipCooldown(pItem);
-
-         // update expertise and armor penetration - passive auras may need it
-
-        if (slot == EQUIPMENT_SLOT_MAINHAND)
-            UpdateExpertise(BASE_ATTACK);
-
-        else if (slot == EQUIPMENT_SLOT_OFFHAND)
-            UpdateExpertise(OFF_ATTACK);
     }
     else
     {
@@ -14107,7 +14077,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 {
                     RemoveItemDependentAurasAndCasts(pItem);
 
-                    // remove held enchantments, update expertise
+                    // remove held enchantments
                     if (slot == EQUIPMENT_SLOT_MAINHAND)
                     {
                         if (pItem->GetItemSuffixFactor())
@@ -14120,11 +14090,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                             pItem->ClearEnchantment(PROP_ENCHANTMENT_SLOT_0);
                             pItem->ClearEnchantment(PROP_ENCHANTMENT_SLOT_1);
                         }
-
-                        UpdateExpertise(BASE_ATTACK);
                     }
-                    else if (slot == EQUIPMENT_SLOT_OFFHAND)
-                        UpdateExpertise(OFF_ATTACK);
                 }
             }
 
@@ -14243,11 +14209,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             {
                 // remove item dependent auras and casts (only weapon and armor slots)
                 RemoveItemDependentAurasAndCasts(pItem);
-
-                if (slot == EQUIPMENT_SLOT_MAINHAND)
-                    UpdateExpertise(BASE_ATTACK);
-                else if (slot == EQUIPMENT_SLOT_OFFHAND)
-                    UpdateExpertise(OFF_ATTACK);
 
                 // equipment visual show
                 SetVisibleItemSlot(slot, NULL);
@@ -15566,8 +15527,7 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             ApplyRatingMod(CR_HASTE_RANGED, -int32(removeValue), apply);
             ApplyRatingMod(CR_HASTE_SPELL, -int32(removeValue), apply);
             break;
-        case ITEM_MOD_EXPERTISE_RATING:
-            ApplyRatingMod(CR_EXPERTISE, -int32(removeValue), apply);
+        case ITEM_MOD_EXPERTISE_RATING: // Useless since 6.0.0
             break;
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, -int32(removeValue), apply);
@@ -15630,8 +15590,7 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             ApplyRatingMod(CR_HASTE_RANGED, int32(addValue), apply);
             ApplyRatingMod(CR_HASTE_SPELL, int32(addValue), apply);
             break;
-        case ITEM_MOD_EXPERTISE_RATING:
-            ApplyRatingMod(CR_EXPERTISE, int32(addValue), apply);
+        case ITEM_MOD_EXPERTISE_RATING: // Useless since 6.0.0
             break;
         case ITEM_MOD_MASTERY_RATING:
             ApplyRatingMod(CR_MASTERY, int32(addValue), apply);
@@ -15766,8 +15725,7 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
                 ApplyRatingMod(CR_HASTE_RANGED, int32(newVal - val), apply);
                 ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
                 break;
-            case ITEM_MOD_EXPERTISE_RATING:
-                ApplyRatingMod(CR_EXPERTISE, int32(newVal - val), apply);
+            case ITEM_MOD_EXPERTISE_RATING: // Useless since 6.0.0
                 break;
             case ITEM_MOD_ATTACK_POWER:
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(newVal - val), apply);
@@ -16075,9 +16033,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HASTE", enchant_amount);
                             break;
-                        case ITEM_MOD_EXPERTISE_RATING:
-                            ApplyRatingMod(CR_EXPERTISE, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u EXPERTISE", enchant_amount);
+                        case ITEM_MOD_EXPERTISE_RATING: // Removed in 6.0.0
                             break;
                         case ITEM_MOD_ATTACK_POWER:
                             HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);

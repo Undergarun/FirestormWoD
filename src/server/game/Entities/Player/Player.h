@@ -2305,7 +2305,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetBaseSpellPowerBonus() { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
 
-        float GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const;
         void UpdateBlockPercentage();
         void UpdateCritPercentage(WeaponAttackType attType);
         void UpdateAllCritPercentages();
@@ -2320,7 +2319,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
         void UpdateArmorPenetration(int32 amount);
-        void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();

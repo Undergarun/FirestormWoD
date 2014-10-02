@@ -249,9 +249,6 @@ bool Player::UpdateAllStats()
     UpdateDodgePercentage();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
-    UpdateExpertise(BASE_ATTACK);
-    UpdateExpertise(OFF_ATTACK);
-    UpdateExpertise(RANGED_ATTACK);
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
@@ -864,35 +861,6 @@ void Player::UpdateAllSpellCritChances()
 {
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateSpellCritChance(i);
-}
-
-void Player::UpdateExpertise(WeaponAttackType attack)
-{
-    float expertise = GetRatingBonusValue(CR_EXPERTISE);
-
-    Item* weapon = GetWeaponForAttack(attack, true);
-
-    AuraEffectList const& expAuras = GetAuraEffectsByType(SPELL_AURA_MOD_EXPERTISE);
-    for (AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
-    {
-        // item neutral spell
-        if ((*itr)->GetSpellInfo()->EquippedItemClass == -1)
-            expertise += (*itr)->GetAmount();
-        // item dependent spell
-        else if (weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellInfo()))
-            expertise += (*itr)->GetAmount();
-    }
-
-    if (expertise < 0)
-        expertise = 0.0f;
-
-    switch (attack)
-    {
-        case BASE_ATTACK: SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);          break;
-        case OFF_ATTACK:  SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);  break;
-        case RANGED_ATTACK: SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise); break;
-        default: break;
-    }
 }
 
 void Player::ApplyManaRegenBonus(int32 amount, bool apply)

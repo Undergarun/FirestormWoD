@@ -165,21 +165,6 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 }
             }
 
-            void CalculateAmountExpertise(constAuraEffectPtr /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
-                {
-                    // For others recalculate it from:
-                    float Expertise = 0.0f;
-                    // Increase hit from SPELL_AURA_MOD_EXPERTISE
-                    Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE);
-                    // Increase Expertise from Expertise ratings
-                    Expertise += owner->GetRatingBonusValue(CR_EXPERTISE);
-
-                    amount += int32(Expertise);
-                }
-            }
-
             void Register()
             {
                 switch (m_scriptSpellId)
@@ -196,7 +181,6 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     case SPELL_HUNTER_PET_SCALING_04:
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountMeleeHit, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE);
                         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountSpellHit, EFFECT_1, SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_pet_calculate_AuraScript::CalculateAmountExpertise, EFFECT_2, SPELL_AURA_MOD_EXPERTISE);
                         break;
                     case SPELL_DEATH_KNIGHT_PET_SCALING_03:
 //                    case SPELL_SHAMAN_PET_HIT:
@@ -618,26 +602,10 @@ public:
             }
         }
 
-        void CalculateAmountExpertise(constAuraEffectPtr /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
-            {
-                // For others recalculate it from:
-                float Expertise = 0.0f;
-                // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
-                Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                Expertise += owner->GetRatingBonusValue(CR_HIT_SPELL);
-
-                amount += int32(Expertise);
-            }
-        }
-
         void Register()
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_pet_scaling_05_AuraScript::CalculateAmountMeleeHit, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_pet_scaling_05_AuraScript::CalculateAmountSpellHit, EFFECT_1, SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_pet_scaling_05_AuraScript::CalculateAmountExpertise, EFFECT_2, SPELL_AURA_MOD_EXPERTISE);
         }
     };
 
@@ -1218,28 +1186,10 @@ public:
             }
         }
 
-        void CalculateAmountExpertise(constAuraEffectPtr /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (!GetCaster() || !GetCaster()->GetOwner())
-                return;
-            if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
-            {
-                // For others recalculate it from:
-                float Expertise = 0.0f;
-                // Increase hit from SPELL_AURA_MOD_EXPERTISE
-                Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE);
-                // Increase Expertise from Expertise ratings
-                Expertise += owner->GetRatingBonusValue(CR_EXPERTISE);
-
-                amount += int32(Expertise);
-            }
-        }
-
         void Register()
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_04_AuraScript::CalculateAmountMeleeHit, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_04_AuraScript::CalculateAmountSpellHit, EFFECT_1, SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_04_AuraScript::CalculateAmountExpertise, EFFECT_2, SPELL_AURA_MOD_EXPERTISE);
         }
     };
 
