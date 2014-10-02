@@ -3389,6 +3389,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 133740:
+                spellInfo->Effects[1].MiscValue = 0;
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
+                spellInfo->Effects[3].TriggerSpell = 0;
+                break;
             case 133795: // Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
