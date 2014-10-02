@@ -75,20 +75,6 @@ enum ePhases
     PHASE_DISINTEGRATION_BEAM_PHASE = 3
 };
 
-uint32 g_ColorEyeEntries[3] =
-{
-    { NPC_YELLOW_EYE },
-    { NPC_RED_EYE },
-    { NPC_BLUE_EYE }
-};
-
-uint32 g_ColorAddEntries[3] =
-{
-    { NPC_AMBER_FOG },
-    { NPC_CRIMSON_FOG },
-    { NPC_AZURE_FOG }
-};
-
 // Durumu the forgotten - 68036
 class boss_durumu : public CreatureScript
 {
