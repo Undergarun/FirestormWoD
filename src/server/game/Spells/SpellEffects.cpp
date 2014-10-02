@@ -459,15 +459,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             m_caster->CastSpell(m_caster, 139958, true);
                         break;
                     }
-                    case 34428: // Victory Rush
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 67.2f);
-                        else
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 56.0f);
-
-                        break;
-                    }
                     case 46968: // Shockwave
                     {
                         if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2459,6 +2450,10 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
                 damage = 20;
                 m_caster->RemoveAurasDueToSpell(32216);
             }
+            break;
+        case 118779:
+            if (m_caster->HasAura(58382))
+                AddPct(damage, 50);
             break;
         case 137562:// Nimble Brew
             if (!m_caster->HasAura(146952)) // Glyph of Nimble Brew
