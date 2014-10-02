@@ -3,6 +3,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "krasarang_wilds.h"
+#include "SpellScript.h"
 
 #define CHECK_STATUS(a) (player->GetQuestStatus(a) == QUEST_STATUS_INCOMPLETE)
 #define GOSSIP_CHOICE_1 "Let's fight !"

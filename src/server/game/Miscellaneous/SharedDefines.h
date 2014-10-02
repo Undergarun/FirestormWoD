@@ -351,7 +351,9 @@ enum Powers
     POWER_ARCANE_CHARGES                = 16,
     MAX_POWERS                          = 17,
     POWER_ALL                           = 127,          // default for class?
-    POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
+    POWER_HEALTH                        = 0xFFFFFFFE,   // (-2 as signed value)
+
+    MAX_POWERS_COST                     = MAX_POWERS+1
 };
 
 #define MAX_POWERS_PER_CLASS              5
@@ -1203,7 +1205,7 @@ enum SpellEffects
     SPELL_EFFECT_171                                = 171, // Summons gamebject (player farm related)
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172, // Aoe resurrection (guild perk)
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
-    SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
+    SPELL_EFFECT_APPLY_AURA_2                       = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,

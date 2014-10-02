@@ -7343,10 +7343,21 @@ void Player::UpdateRating(CombatRating cr)
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
+    {
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+    }
+
     if (amount < 0)
         amount = 0;
+
+    if (cr == CR_PARRY &&
+        (getClass() == CLASS_WARRIOR || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_PALADIN))
+    {
+        uint32 l_BonusValue = uint32(GetStat(STAT_STRENGTH) * 0.27f);
+        amount += l_BonusValue;
+    }
+
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
 
     if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)

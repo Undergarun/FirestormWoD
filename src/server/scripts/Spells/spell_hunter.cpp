@@ -114,6 +114,7 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_BEAST                = 61648,
     HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
     HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254,
+    HUNTER_SPELL_SET_PVP_S12_2P                     = 131564,
     HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
     HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     HUNTER_SPELL_GLYPH_OF_LIBERATION                = 132106,
@@ -365,7 +366,10 @@ class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
+                {
+                    if (caster->HasAura(HUNTER_SPELL_SET_PVP_S12_2P))
+                        caster->CastSpell(caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
+                }
             }
 
             void Register()
@@ -577,6 +581,10 @@ class spell_hun_glaive_toss_missile : public SpellScriptLoader
 
             void HandleAfterCast()
             {
+                if (Unit* target = GetExplTargetUnit())
+                    if (GetCaster() == GetOriginalCaster())
+                        GetCaster()->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, target);
+
                 if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
                 {
                     if (Player* plr = GetCaster()->ToPlayer())
@@ -597,10 +605,6 @@ class spell_hun_glaive_toss_missile : public SpellScriptLoader
                             caster->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
                     }
                 }
-
-                if (Unit* target = GetExplTargetUnit())
-                    if (GetCaster() == GetOriginalCaster())
-                        GetCaster()->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, target);
             }
 
             void HandleOnHit()

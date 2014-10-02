@@ -784,6 +784,16 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW);
     }
 
+    bool IsOneHanded() const
+    {
+        return Class == ITEM_CLASS_WEAPON && (
+            SubClass == ITEM_SUBCLASS_WEAPON_SWORD ||
+            SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+            SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+            SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
+            SubClass == ITEM_SUBCLASS_WEAPON_FIST_WEAPON);
+    }
+
     uint32 GetSkill() const
     {
         const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =

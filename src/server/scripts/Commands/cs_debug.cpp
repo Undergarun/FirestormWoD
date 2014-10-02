@@ -109,6 +109,7 @@ class debug_commandscript : public CommandScript
                 { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,            "", NULL },
                 { "boss",           SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,            "", NULL },
                 { "lfg",            SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,             "", NULL },
+                { "spellvisual",    SEC_ADMINISTRATOR,  false, &HandleDebugSpellVisualCommand,     "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -118,6 +119,30 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugSpellVisualCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            float l_Speed = atof((char*)p_Args);
+
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            if (!l_Player)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_Player->SendPlaySpellVisual(l_ID, l_Player, l_Speed, true, true);
+            return true;
         }
 
         static bool HandleDebugBossCommand(ChatHandler* p_Handler, char const* p_Args)

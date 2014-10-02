@@ -1321,7 +1321,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster, constAuraEffectPtr triggeredByAu
                 temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
 
                 m_fixed_periodic.SetFixedDamage(temp_damage);
-                m_fixed_periodic.SetCriticalChance(temp_crit);
+
+                // Some spells can't crit
+                if (!(GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+                    m_fixed_periodic.SetCriticalChance(temp_crit);
 
                 // Seed of Corruption and Soulburn : Seed of corruption - Set Total damage for explode
                 if (GetSpellInfo()->Id == 27243 || GetSpellInfo()->Id == 114790)
@@ -7532,7 +7535,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             else if (m_tickNumber > totalTick * 2 / 3)
                 damage += (damage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
             // 5..8 ticks have normal tick damage
-            damage /= 10; // Prevent insane damage with 10 stacks
         }
         // Malefic Grasp
         if (GetSpellInfo()->Id == 103103)
@@ -7992,6 +7994,10 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         else
             damage = int32(damage * 0.444f); // Final:   44.4%
     }
+
+    // Glyph of Bloody Healing - Increase bandage healings by 20%
+    if (m_spellInfo->Mechanic == MECHANIC_BANDAGE && target->HasAura(126665))
+        AddPct(damage, 20);
 
     bool crit = false;
     if (m_fixed_periodic.HasCritChance())

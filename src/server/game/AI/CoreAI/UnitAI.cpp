@@ -218,7 +218,8 @@ void UnitAI::FillAISpellInfo()
                 else if (targetType == TARGET_UNIT_DEST_AREA_ENEMY)
                     UPDATE_TARGET(AITARGET_ENEMY)
 
-                if (spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
+                if (spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA ||
+                    spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_2)
                 {
                     if (targetType == TARGET_UNIT_TARGET_ENEMY)
                         UPDATE_TARGET(AITARGET_DEBUFF)
