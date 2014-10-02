@@ -106,56 +106,6 @@ namespace ClientPatcher
                 }
 
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("Adding host rewrite...");
-
-                var host = "127.0.0.1";
-                var hostName = "garrosh.logon.battle.net";
-                var exists = false;
-
-                using (var sr = new StreamReader(hostsPath))
-                {
-                    while (!sr.EndOfStream)
-                    {
-                        var line = sr.ReadLine();
-
-                        if (line == host + hostName)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Host rewrite not needed... ;)");
-
-                            exists = true;
-
-                            break;
-                        }
-                    }
-                }
-
-                if (!exists)
-                {
-                    try
-                    {
-                        using (var stream = new StreamWriter(hostsPath, true, Encoding.UTF8))
-                        {
-                            stream.WriteLine("");
-                            stream.WriteLine("{0}{1}", host, hostName);
-                        }
-
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Host rewrite successfully added.");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(string.Format("Can't write host file! Exception type: {0}", e.GetType()));
-                        Console.WriteLine("You must add the following line:");
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine("{0}{1}", host, hostName);
-
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("to your host file before using Arctium WoD Sandbox!");
-                    }
-                }
             }
             else
             {

@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdint.h>
                                
-const uint8_t config_data[] = "Garrosh.wtf";
-const uint8_t builddate_data[] = " [Garrosh]";
-const uint8_t bnet_portal_data[] = "garrosh";
+const uint8_t config_data[]         = "Ashran.wtf";
+const uint8_t builddate_data[]      = "[Ashran]";
+const uint8_t bnet_portal_data[]    = "ashran";
+const uint8_t bnet_agent_data[]     = "noagt.exe";
+const uint8_t bnet_versions_data[]  = "http://%s-cdn.ashran.com/%s/versions";
+const uint8_t bnet_cdns_data[]      = "http://%s-cdn.ashran.com/%s/cdns";
 
 #ifndef _countof
 #define _countof(V) (sizeof(V) / sizeof(V[0]))
@@ -51,11 +54,15 @@ const uint8_t win32_packet_disable_filter_jam_dispatch[] =  {   0x00, 0x00, 0x00
 const uint8_t win32_packet_sending_routage[] = { 0xBB, 0x00, 0x00, 0x00, 0x00 };                           ///< mov     ebx, 0
 
 const struct RewriteItem Win32Patchs[] = {
-    { 0x0000000, sizeof(win32_packet_disable_filter_jam_dispatch),  win32_packet_disable_filter_jam_dispatch    },   ///< Disable packet filter
-   // { 0x038BC49, sizeof(win32_packet_sending_routage),              win32_packet_sending_routage                },   ///< Don't use special routage for packets
-    { 0x0A30C98, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
-    { 0x0A54DAC, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
-    { 0x0AF427C, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
+  //{ 0x0000000, sizeof(win32_packet_disable_filter_jam_dispatch),  win32_packet_disable_filter_jam_dispatch    },   ///< Disable packet filter
+  //{ 0x0000000, sizeof(win32_packet_sending_routage),              win32_packet_sending_routage                },   ///< Don't use special routage for packets
+    { 0x0A3183C, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
+    { 0x0A5567C, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
+    { 0x0AF4764, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
+    { 0x0A60FB4, sizeof(bnet_agent_data),                           bnet_agent_data                             },   ///< Change bnet agent
+    { 0x0A30B24, sizeof(bnet_versions_data),                        bnet_versions_data                          },   ///< Change bnet versions data
+    { 0x0A30B50, sizeof(bnet_cdns_data),                            bnet_cdns_data                              },   ///< Change bnet cdns data
+    
 };
 
 const uint8_t mac64_packet_disable_filter_date[]  = {0x8B, 0x55, 0x0C, 0xE9, 0x41, 0x01, 0x00, 0x00}; // mov edx, [ebp+arg_4];  jmp 141h
