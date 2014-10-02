@@ -32,7 +32,7 @@ enum eSpells
     SPELL_LINGERING_GAZE_MISSILE    = 133792,
     SPELL_LINGERING_GAZE_AT         = 133793,
     SPELL_LIFE_DRAIN_DUMMY          = 133795,
-    SPELL_LIFE_DRAIN_AURA            = 133796,
+    SPELL_LIFE_DRAIN_AURA           = 133796,
     SPELL_LIFE_DRAIN_DMG            = 133798,
 
     // Second Phase
@@ -53,19 +53,19 @@ enum eEvents
     EVENT_FORCE_OF_WILL             = 2,
     EVENT_LINGERING_GAZE            = 3,
     EVENT_DRAIN_LIFE                = 4,
-    EVENT_COLORBLIND_PHASE          = 5,
-    EVENT_RAY_SECOND_PHASE          = 6,
+    EVENT_COLORBLIND_PHASE          = 5,  // Initialize second phase
+    EVENT_RAY_SECOND_PHASE          = 6,  // Launch targets rays
     EVENT_SUMMON_RED_EYE            = 7,
     EVENT_SUMMON_BLUE_EYE           = 8,
     EVENT_SUMMON_YELLOW_EYE         = 9,
-    EVENT_ADD_ROTATION              = 10,
-    EVENT_DISINTEGRATION_BEAM_PHASE = 11
+    EVENT_ADD_ROTATION              = 10, // Make the free ray rotating with the caster orientation
+    EVENT_DISINTEGRATION_BEAM_PHASE = 11  // Initialize third phase
 };
 
 enum eActions
 {
-    ACTION_TURN_AROUND  = 1,
-    ACTION_ADD_REVEALED = 2
+    ACTION_TURN_AROUND              = 1,
+    ACTION_ADD_REVEALED             = 2
 };
 
 enum ePhases
@@ -73,20 +73,6 @@ enum ePhases
     PHASE_NORMAL_PHASE              = 1,
     PHASE_COLORBLIND_PHASE          = 2,
     PHASE_DISINTEGRATION_BEAM_PHASE = 3
-};
-
-uint32 const g_ColorEyeEntries[3] =
-{
-    { NPC_YELLOW_EYE },
-    { NPC_RED_EYE },
-    { NPC_BLUE_EYE }
-};
-
-uint32 const g_ColorAddEntries[3] =
-{
-    { NPC_AMBER_FOG },
-    { NPC_CRIMSON_FOG },
-    { NPC_AZURE_FOG }
 };
 
 // Durumu the forgotten - 68036
@@ -108,6 +94,7 @@ class boss_durumu : public CreatureScript
 
             void Reset()
             {
+                std::list<AreaTrigger*> l_AreatriggerList;
                 m_Events.Reset();
 
                 m_Phase = 0;
@@ -121,7 +108,6 @@ class boss_durumu : public CreatureScript
 
                 summons.DespawnAll();
 
-                std::list<AreaTrigger*> l_AreatriggerList;
                 me->GetAreaTriggerList(l_AreatriggerList, 133793);
 
                 if (!l_AreatriggerList.empty())
