@@ -951,20 +951,6 @@ enum TrinityStrings
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
 
-    // Silvershard Mines
-    LANG_BG_SM_CART_1                   = 1334,
-    LANG_BG_SM_CART_2                   = 1335,
-    LANG_BG_SM_CART_3                   = 1336,
-    LANG_BG_SM_CART_TAKEN               = 1337,
-    LANG_BG_SM_CART_DEFENDED            = 1338,
-    LANG_BG_SM_CART_ASSAULTED           = 1339,
-    LANG_BG_SM_CART_CLAIMED             = 1340,
-    LANG_BG_SM_START_ONE_MINUTE         = 1341,
-    LANG_BG_SM_START_HALF_MINUTE        = 1342,
-    LANG_BG_SM_HAS_BEGUN                = 1343,
-    LANG_BG_SM_A_NEAR_VICTORY           = 1344,
-    LANG_BG_SM_H_NEAR_VICTORY           = 1345,
-
     // Temple of Kotmogu
     LANG_BG_KT_START_ONE_MINUTE         = 1346,
     LANG_BG_KT_START_HALF_MINUTE        = 1347,
@@ -972,7 +958,22 @@ enum TrinityStrings
     LANG_BG_KT_DROPPED                  = 1349,
     LANG_BG_KT_PICKEDUP                 = 1350,
     LANG_BG_KT_O_PLACED                 = 1351,
-    // FREE IDS                           1352-1999
+
+    // Silvershard Mines
+    LANG_BG_SM_START_TWO_MINUTES                = 1352,
+    LANG_BG_SM_START_ONE_MINUTE                 = 1353,
+    LANG_BG_SM_START_HALF_MINUTE                = 1354,
+    LANG_BG_SM_HAS_BEGUN                        = 1355,
+    LANG_BG_SM_ALLIANCE_CONTROLLED_MINE_CART    = 1356,
+    LANG_BG_SM_HORDE_CONTROLLED_MINE_CART       = 1357,
+    LANG_BG_SM_MINE_CART_SPAWNED                = 1358,
+    LANG_BG_SM_ALLIANCE_CAPTURED_MINE_CART      = 1359,
+    LANG_BG_SM_HORDE_CAPTURED_MINE_CART         = 1360,
+    LANG_BG_SM_EAST_DIRECTION_CHANGED           = 1361,
+    LANG_BG_SM_NORTH_DIRECTION_CHANGED          = 1362,
+    LANG_BG_SM_A_NEAR_VICTORY                   = 1363,
+    LANG_BG_SM_H_NEAR_VICTORY                   = 1364,
+    // FREE IDS                           1365-1999
 
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
@@ -1151,6 +1152,36 @@ enum TrinityStrings
     LANG_BG_SA_H_GY_SOUTH                   = 10071, //The Horde captured the South Graveyard!
     LANG_BG_SA_H_GY_WEST                    = 10072, //The Horde captured the West Graveyard!
     LANG_BG_SA_H_GY_EAST                    = 10073, //The Horde captured the East Graveyard!
+
+    // Deepwind Gorge
+    LANG_BG_DG_START_TWO_MINUTES            = 10074,
+    LANG_BG_DG_START_ONE_MINUTE             = 10075,
+    LANG_BG_DG_START_HALF_MINUTE            = 10076,
+    LANG_BG_DG_HAS_BEGUN                    = 10077,
+
+    LANG_BG_DG_ALLIANCE_NEAR_VICTORY        = 10078,
+    LANG_BG_TK_HORDE_NEAR_VICTORY           = 10079,
+
+    LANG_BG_DG_ALLY                         = 10080,
+    LANG_BG_DG_HORDE                        = 10081,
+    LANG_BG_DG_NODE_SOUTH_MINE              = 10082,
+    LANG_BG_DG_NODE_CENTER                  = 10083,
+    LANG_BG_DG_NODE_NORTH_MINE              = 10084,
+    LANG_BG_DG_NODE_TAKEN                   = 10085,
+    LANG_BG_DG_NODE_DEFENDED                = 10086,
+    LANG_BG_DG_NODE_ASSAULTED               = 10087,
+    LANG_BG_DG_NODE_CLAIMED                 = 10088,
+
+    LANG_BG_DG_CAPTURED_HORDE_CART          = 10089,
+    LANG_BG_DG_CAPTURED_ALLIANCE_CART       = 10090,
+    LANG_BG_DG_DROPPED_HORDE_CART           = 10091,
+    LANG_BG_DG_DROPPED_ALLIANCE_CART        = 10092,
+    LANG_BG_DG_RETURNED_HORDE_CART          = 10093,
+    LANG_BG_DG_RETURNED_ALLIANCE_CART       = 10094,
+    LANG_BG_DG_PICKEDUP_HORDE_CART          = 10095,
+    LANG_BG_DG_PICKEDUP_ALLIANCE_CART       = 10096,
+    LANG_BG_DG_ALLIANCE_FLAG_RESPAWNED      = 10097,
+    LANG_BG_DG_HORDE_FLAG_RESPAWNED         = 10098,
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,

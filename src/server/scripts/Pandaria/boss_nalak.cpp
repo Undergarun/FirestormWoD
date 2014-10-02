@@ -21,6 +21,7 @@
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 
 #define BOSS_NALAK 0
 

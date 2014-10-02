@@ -351,7 +351,9 @@ enum Powers
     POWER_ARCANE_CHARGES                = 16,
     MAX_POWERS                          = 17,
     POWER_ALL                           = 127,          // default for class?
-    POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
+    POWER_HEALTH                        = 0xFFFFFFFE,   // (-2 as signed value)
+
+    MAX_POWERS_COST                     = MAX_POWERS+1
 };
 
 #define MAX_POWERS_PER_CLASS              5
@@ -1203,7 +1205,7 @@ enum SpellEffects
     SPELL_EFFECT_171                                = 171, // Summons gamebject (player farm related)
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172, // Aoe resurrection (guild perk)
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
-    SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
+    SPELL_EFFECT_APPLY_AURA_2                       = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,
@@ -2018,10 +2020,12 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
     GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING  = 33,
     GAMEOBJECT_TYPE_GUILD_BANK             = 34,
-    GAMEOBJECT_TYPE_TRAPDOOR               = 35
+    GAMEOBJECT_TYPE_TRAPDOOR               = 35,
+    GAMEOBJECT_TYPE_FLAG36                 = 36,
+    GAMEOBJECT_TYPE_FLAG37                 = 37,
+    MAX_GAMEOBJECT_TYPE
 };
 
-#define MAX_GAMEOBJECT_TYPE                  36             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  32             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -4388,7 +4392,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
     BATTLEGROUND_KT                 = 699,  // Valley of Power
     BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
-    BATTLEGROUND_SSM                = 708,  // Silver shard Mine
+    BATTLEGROUND_SM                 = 708,  // Silvershard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
     BATTLEGROUND_TTP                = 757   // The Tiger's Peak

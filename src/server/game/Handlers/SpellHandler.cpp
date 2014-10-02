@@ -957,8 +957,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         recvPacket.rfinish();
         _player->CastSpell(targets.GetUnitTarget(), 116995, true);
         _player->EnergizeBySpell(_player, 116995, 1, POWER_CHI);
-        int32 powerCost[MAX_POWERS];
-        memset(powerCost, 0, sizeof(powerCost));
+        int32 powerCost[MAX_POWERS_COST];
+        memset(powerCost, 0, sizeof(uint32) * MAX_POWERS_COST);
+        powerCost[MAX_POWERS_COST - 1] = 0;
         for (auto itr : spellInfo->SpellPowers)
         {
             spellInfo->CalcPowerCost(_player, spellInfo->GetSchoolMask(), powerCost);
@@ -972,8 +973,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     {
         recvPacket.rfinish();
         _player->CastSpell(targets.GetUnitTarget(), 132120, true);
-        int32 powerCost[MAX_POWERS];
-        memset(powerCost, 0, sizeof(powerCost));
+        int32 powerCost[MAX_POWERS_COST];
+        memset(powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+        powerCost[MAX_POWERS_COST - 1] = 0;
         for (auto itr : spellInfo->SpellPowers)
         {
             spellInfo->CalcPowerCost(_player, spellInfo->GetSchoolMask(), powerCost);
