@@ -9023,50 +9023,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
         target = this;
     }
 
-    // Vengeance tank mastery
-    switch (dummySpell->Id)
-    {
-        case 84839:
-        case 84840:
-        case 93098:
-        case 93099:
-        case 120267:
-        {
-            if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
-                return false;
-
-            if (victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!isInCombat())
-                return false;
-
-            int32 aviableBasepoints = 0;
-
-            triggered_spell_id = 132365;
-
-            if (AuraPtr vengeance = GetAura(triggered_spell_id, GetGUID()))
-                aviableBasepoints += vengeance->GetEffect(EFFECT_0)->GetAmount();
-
-            // First attack taken give 33% of the damage in attack power
-           if (!aviableBasepoints && (procFlag & PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK))
-                triggerAmount = 3333;
-
-            int32 cap = (GetCreateHealth() / 10) + GetStat(STAT_STAMINA);
-            basepoints0 = CalculatePct(damage, triggerAmount / 100);
-            basepoints0 += aviableBasepoints;
-            basepoints0 = std::min(cap, basepoints0);
-
-            CastCustomSpell(this, triggered_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura, originalCaster);
-            return true;
-        }
-        default:
-            break;
-    }
-
     // if not handled by custom case, get triggered spell from dummySpell proto
     if (!triggered_spell_id)
         triggered_spell_id = dummySpell->Effects[triggeredByAura->GetEffIndex()].TriggerSpell;

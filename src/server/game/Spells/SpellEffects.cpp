@@ -8055,7 +8055,7 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
         Item* mainItem = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
         Item* offItem = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
-        dualwield = (mainItem && offItem) ? 1 : 0;
+        dualwield = (mainItem && offItem) ? true : false;
 
         if (coeff < 0)
             coeff = 0.0f;

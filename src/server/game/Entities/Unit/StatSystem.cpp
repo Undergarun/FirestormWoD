@@ -476,22 +476,19 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 
     bool dualWield = mainItem && offItem && CanDualWield();
-    bool hasVengeance = HasAura(132365);
 
     float att_speed = GetAPMultiplier(attType, normalized);
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-    float attackPowerModifier = hasVengeance ? 11.0f : 14.0f;
     float dualWieldModifier = dualWield ? 0.898882275f : 1.0f;
-    float vengeanceModifier = hasVengeance ? 0.4f : 1.0f;
 
-    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / attackPowerModifier);
-    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / attackPowerModifier);
+    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
+    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier * vengeanceModifier;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier * vengeanceModifier;
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier;
 
     if (IsInFeralForm())
     {
@@ -501,13 +498,13 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier));
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier));
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f));
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f));
         }
         else if (GetShapeshiftForm() == FORM_BEAR)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.5f;
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / attackPowerModifier)) * 2.5f;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
         }
     }
 
