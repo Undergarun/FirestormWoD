@@ -2243,18 +2243,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                     if (player->HasSkill(SKILL_ENGINEERING))
                         AddPct(addhealth, 25);
                 break;
-            case 85222: // Light of Dawn
-                addhealth *= GetPowerCost(POWER_HOLY_POWER);
-
-                if (!caster)
-                    break;
-
-                if (caster->HasAura(54940))
-                    AddPct(addhealth, 25);
-
-                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
-
-                break;
             case 86961: // Cleansing Waters
             {
                 addhealth = m_caster->CountPctFromMaxHealth(4);
