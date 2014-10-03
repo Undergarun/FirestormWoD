@@ -4271,6 +4271,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 24858: // Moonkin form - hotfix 5.4.2
                 spellInfo->Effects[2].BasePoints = 100;
                 break;
+            case 51963: // Gargoyle's Strike
+                spellInfo->AttackPowerBonus = 0.83f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                break;
             case 50887: // Icy Talons - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 45;
                 break;

@@ -434,13 +434,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
                         break;
                     }
-                    // Gargoyle Strike
-                    case 51963:
-                    {
-                        // about +4 base spell dmg per level
-                        damage = (m_caster->getLevel() - 60) * 4 + 60;
-                        break;
-                    }
                     case 123199:// Toss Explosive Barrel
                         if (unitTarget->GetTypeId() == TYPEID_PLAYER ||
                             (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->GetOwner() && unitTarget->GetOwner()->ToPlayer()))
@@ -813,6 +806,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             damage += int32(((Guardian*)m_caster)->GetBonusDamage() * 0.15f);
                         break;
                 }
+                break;
             }
             case SPELLFAMILY_MONK:
             {
