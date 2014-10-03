@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (136494,'spell_pal_glyph_of_harsh_words');

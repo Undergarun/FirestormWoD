@@ -521,6 +521,40 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         }
                         break;
                     }
+                    case 130552:// Word of Glory
+                    {
+                        if (!m_caster || !unitTarget)
+                            return;
+
+                        damage += int32(0.49f * m_caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
+
+                        int32 holyPower = m_caster->GetPower(POWER_HOLY_POWER) + 1;
+
+                        if (holyPower > 3)
+                            holyPower = 3;
+
+                        // Divine Purpose
+                        if (m_caster->HasAura(90174))
+                            holyPower = 3;
+
+                        damage *= holyPower;
+
+                        // Bastion of Glory : +10% of power per application if target is caster
+                        if (unitTarget->GetGUID() == m_caster->GetGUID() && m_caster->HasAura(114637))
+                        {
+                            AuraPtr bastionOfGlory = m_caster->GetAura(114637);
+                            if (!bastionOfGlory)
+                                break;
+
+                            AddPct(damage, (10 * bastionOfGlory->GetStackAmount()));
+
+                            m_caster->RemoveAurasDueToSpell(114637);
+                        }
+
+                        damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, damage, DIRECT_DAMAGE);
+
+                        break;
+                    }
                     default:
                         break;
                 }

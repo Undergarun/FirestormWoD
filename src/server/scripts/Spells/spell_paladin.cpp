@@ -48,6 +48,7 @@ enum PaladinSpells
     SPELL_FORBEARANCE                           = 25771,
     PALADIN_SPELL_WORD_OF_GLORY                 = 85673,
     PALADIN_SPELL_WORD_OF_GLORY_HEAL            = 130551,
+    PALADIN_SPELL_WORD_OF_GLORY_DAMAGE          = 130552,
     PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY        = 54936,
     PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE = 115522,
     PALADIN_SPELL_CONSECRATION_AREA_DUMMY       = 81298,
@@ -93,6 +94,7 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DIVINE_STORM         = 63220,
     PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL    = 115515,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE             = 56420,
+    PALADIN_SPELL_GLYPH_OF_HARSH_WORDS          = 54938,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC        = 115654,
     PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
     PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
@@ -1339,6 +1341,65 @@ class spell_pal_word_of_glory : public SpellScriptLoader
         }
 };
 
+// call by 136494
+// Glyph of harsh words 54938
+class spell_pal_glyph_of_harsh_words : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_harsh_words() : SpellScriptLoader("spell_pal_glyph_of_harsh_words") { }
+
+        class spell_pal_glyph_of_harsh_words_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_harsh_words_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (!_player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                        return;
+
+                    if (Unit* unitTarget = GetHitUnit())
+                    {
+                        int32 holyPower = _player->GetPower(POWER_HOLY_POWER);
+
+                        if (holyPower > 2)
+                            holyPower = 2;
+
+                        if (_player->IsValidAssistTarget(unitTarget))
+                            _player->CastSpell(unitTarget, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                        else
+                            _player->CastSpell(unitTarget, PALADIN_SPELL_WORD_OF_GLORY_DAMAGE, true);
+
+                        if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY))
+                        {
+                            AuraPtr aura = _player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, _player);
+
+                            if (aura)
+                            {
+                                aura->GetEffect(0)->ChangeAmount(aura->GetEffect(0)->GetAmount() * (holyPower + 1));
+                                aura->SetNeedClientUpdateForTargets();
+                            }
+                        }
+
+                        if (!_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE))
+                            _player->ModifyPower(POWER_HOLY_POWER, -holyPower);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pal_glyph_of_harsh_words_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_harsh_words_SpellScript();
+        }
+};
+
 // Judgment - 20271
 class spell_pal_judgment : public SpellScriptLoader
 {
@@ -1832,4 +1893,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
+    new spell_pal_glyph_of_harsh_words();
 }
