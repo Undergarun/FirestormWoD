@@ -6391,6 +6391,17 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         caster->RemoveAurasDueToSpell(86674);
                     break;
                 }
+                case 125043: // Glyph of Contemplation
+                {
+                    if (Player* _player = caster->ToPlayer())
+                    {
+                        if (apply)
+                            _player->learnSpell(121183, false);
+                        else
+                            _player->removeSpell(121183);
+                    }
+                    break;
+                }
                 default:
                     break;
             }
