@@ -948,7 +948,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE
         && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)) && cleanDamage->mitigated_damage > 0)
     {
-        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
+        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 3.5f;
 
         switch (cleanDamage->attackType)
         {
@@ -1055,6 +1055,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (health <= damage)
     {
+        // Glyph of Endless Wrath
+        if (victim->GetOwner() && victim->GetOwner()->HasAura(119410) && victim->HasAura(19574))
+        {
+            damage = health - 1;
+            return damage;
+        }
+
         if (victim->GetTypeId() == TYPEID_PLAYER && victim != this)
         {
             victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
@@ -5077,7 +5084,15 @@ float Unit::GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask
             // Check if the Aura Effect has a the Same Effect Stack Rule and if so, use the highest amount of that SpellGroup
             // If the Aura Effect does not have this Stack Rule, it returns false so we can add to the multiplier as usual
             if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
-                AddPct(multiplier, (*i)->GetAmount());
+            {
+                int32 l_Amount = (*i)->GetAmount();
+
+                // Glyph of Deterrence
+                if ((*i)->GetSpellInfo()->Id == 19263 && HasAura(56850))
+                    l_Amount += 20;
+
+                AddPct(multiplier, l_Amount);
+            }
         }
     }
     // Add the highest of the Same Effect Stack Rule SpellGroups to the multiplier
@@ -10615,6 +10630,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 117967:// Brewmaster Training
         case 134563:// Healing Elixirs
         case 131564:// Arcane Intensity
+        case 115943:// Glyph of Crow Feast
             return false;
         case 35551: // Combat Potency
         {
@@ -17789,12 +17805,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
 
-        // For players set spell cooldown if need
+        // For players set spell cooldown if need - Already in milliseconds in DBC's
         uint32 cooldown = spellInfo->InternalCooldown;
         if (GetTypeId() == TYPEID_PLAYER)
         {
+            // In seconds in Database
             if (prepare && i->spellProcEvent && i->spellProcEvent->cooldown)
-                cooldown = i->spellProcEvent->cooldown;
+                cooldown = i->spellProcEvent->cooldown * IN_MILLISECONDS;
 
             // Can't proc if player has spell in cooldown
             if (cooldown && ToPlayer()->HasSpellCooldown(spellInfo->Id))
@@ -17810,7 +17827,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         {
             useCharges = false;
 
-            if (procExtra & PROC_EX_INTERNAL_DOT && !HasAura(115192) && !HasAura(131369))
+            if ((isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 
@@ -18065,7 +18082,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             SetCantProc(false);
 
         if (cooldown && ToPlayer())
-            ToPlayer()->AddSpellCooldown(spellInfo->Id, 0, cooldown * IN_MILLISECONDS);
+            ToPlayer()->AddSpellCooldown(spellInfo->Id, 0, cooldown);
     }
 
     // Cleanup proc requirements
@@ -18452,7 +18469,7 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist, uint32 p_ExcludeAura /*= 0*/) const
 {
     std::list<Unit*> targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -18474,6 +18491,13 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
         else
             ++tIter;
     }
+
+    // no appropriate targets
+    if (targets.empty())
+        return NULL;
+
+    if (p_ExcludeAura != 0)
+        targets.remove_if(JadeCore::UnitAuraCheck(p_ExcludeAura < 0 ? false : true, p_ExcludeAura));
 
     // no appropriate targets
     if (targets.empty())
@@ -18573,6 +18597,7 @@ uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectTyp
                 DirectDamage = true;
                 break;
             case SPELL_EFFECT_APPLY_AURA:
+            case SPELL_EFFECT_APPLY_AURA_2:
                 switch (spellProto->Effects[i].ApplyAuraName)
                 {
                     case SPELL_AURA_PERIODIC_DAMAGE:
@@ -18620,7 +18645,8 @@ uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectTyp
     for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         if (spellProto->Effects[j].Effect == SPELL_EFFECT_HEALTH_LEECH ||
-            (spellProto->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA && spellProto->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH))
+            (spellProto->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA && spellProto->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH) ||
+            (spellProto->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_2 && spellProto->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH))
         {
             CastingTime /= 2;
             break;
@@ -22053,15 +22079,17 @@ void Unit::RewardRage(float baseRage, bool attacker)
 
     if (attacker)
     {
-        // talent who gave more rage on attack
-        addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
+        // Talent which gave more rage on attack
+        AddPct(addRage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
+        // Seems to be 1 min by melee attack
+        addRage = std::max(1.0f, addRage);
     }
     else
     {
         addRage /= (GetCreateHealth()/35);
 
         // Generate rage from damage taken only in Berserker Stance
-        if (!HasAura(2458))
+        if (!HasAura(2458) && ToPlayer() && ToPlayer()->getClass() == CLASS_WARRIOR)
             return;
 
         // Berserker Rage effect
@@ -22672,11 +22700,11 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
     WorldSession::WriteMovementInfo(data, (MovementInfo*)&m_movementInfo);
 }
 
-void Unit::RemoveSoulSwapDOT(Unit* target)
+void Unit::RemoveSoulSwapDOT(Unit* p_Target)
 {
     m_SoulSwapDOTList.clear();
 
-    AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+    AuraEffectList const mPeriodic = p_Target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
     for (AuraEffectList::const_iterator iter = mPeriodic.begin(); iter != mPeriodic.end(); ++iter)
     {
         if (!(*iter)) // prevent crash
@@ -22686,28 +22714,43 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             (*iter)->GetCasterGUID() != GetGUID()) // only warlock spells
             continue;
 
-        m_SoulSwapDOTList.push_back((*iter)->GetBase());
+        AuraPtr l_Aura = (*iter)->GetBase();
+        SoulSwapAuraInfo l_AuraInfo = SoulSwapAuraInfo(l_Aura->GetId(), l_Aura->GetDuration(), l_Aura->GetMaxDuration(), l_Aura->GetCharges(), l_Aura->GetStackAmount());
+
+        for (uint8 l_Index = 0; l_Index < MAX_SPELL_EFFECTS; ++l_Index)
+        {
+            if (AuraEffectPtr l_AuraEffect = l_Aura->GetEffect(l_Index))
+            {
+                l_AuraInfo.m_FixedAmplitude[l_Index] = l_AuraEffect->GetAmplitude();
+                l_AuraInfo.m_FixedCritical[l_Index] = l_AuraEffect->m_fixed_periodic.GetCriticalChance();
+                l_AuraInfo.m_FixedDamages[l_Index] = l_AuraEffect->m_fixed_periodic.GetFixedDamage();
+                l_AuraInfo.m_FixedTotalDamages[l_Index] = l_AuraEffect->m_fixed_periodic.GetFixedTotalDamage();
+            }
+        }
+
+        m_SoulSwapDOTList.push_back(l_AuraInfo);
     }
 }
 
-void Unit::ApplySoulSwapDOT(Unit* target)
+void Unit::ApplySoulSwapDOT(Unit* p_Target)
 {
-    for (AuraPtr l_Aura : m_SoulSwapDOTList)
+    for (SoulSwapAuraInfo l_Aura : m_SoulSwapDOTList)
     {
-        if (AuraPtr l_NewAura = AddAura(l_Aura->GetId(), target))
+        if (AuraPtr l_NewAura = AddAura(l_Aura.m_ID, p_Target))
         {
-            l_NewAura->SetMaxDuration(l_Aura->GetMaxDuration());
-            l_NewAura->SetDuration(l_Aura->GetDuration());
+            l_NewAura->SetDuration(l_Aura.m_Duration);
+            l_NewAura->SetMaxDuration(l_Aura.m_MaxDuration);
+            l_NewAura->SetCharges(l_Aura.m_Charges);
+            l_NewAura->SetStackAmount(l_Aura.m_Stacks);
 
-            for (uint32 l_Index = 0; l_Index < MAX_SPELL_EFFECTS; ++l_Index)
+            for (uint8 l_Index = 0; l_Index < MAX_SPELL_EFFECTS; ++l_Index)
             {
-                if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_Index))
+                if (AuraEffectPtr l_AuraEffect = l_NewAura->GetEffect(l_Index))
                 {
-                    l_NewAura->SetStackAmount(l_Aura->GetStackAmount());
-                    l_NewAura->SetCharges(l_Aura->GetCharges());
-                    l_NewAura->GetEffect(l_Index)->m_fixed_periodic.SetCriticalChance(l_Effect->m_fixed_periodic.GetCriticalChance());
-                    l_NewAura->GetEffect(l_Index)->m_fixed_periodic.SetFixedDamage(l_Effect->m_fixed_periodic.GetFixedDamage());
-                    l_NewAura->GetEffect(l_Index)->m_fixed_periodic.SetFixedTotalDamage(l_Effect->m_fixed_periodic.GetFixedTotalDamage());
+                    l_AuraEffect->m_fixed_periodic.SetCriticalChance(l_Aura.m_FixedCritical[l_Index]);
+                    l_AuraEffect->m_fixed_periodic.SetFixedDamage(l_Aura.m_FixedDamages[l_Index]);
+                    l_AuraEffect->m_fixed_periodic.SetFixedTotalDamage(l_Aura.m_FixedTotalDamages[l_Index]);
+                    l_AuraEffect->SetAmplitude(l_Aura.m_FixedAmplitude[l_Index]);
                 }
             }
         }

@@ -2418,6 +2418,7 @@ void SpellMgr::LoadSpellPetAuras()
             }
             if (spellInfo->Effects[eff].Effect != SPELL_EFFECT_DUMMY &&
                 (spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA ||
+                spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA_2 ||
                 spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY))
             {
                 sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
@@ -3389,6 +3390,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 133740:
+                spellInfo->Effects[1].MiscValue = 0;
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
+                spellInfo->Effects[3].TriggerSpell = 0;
+                break;
             case 133795: // Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
@@ -4511,10 +4518,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Dispel = DISPEL_MAGIC;
                 break;
             case 113792:// Pyschic Horror - Psyfiend
-                spellInfo->MaxAffectedTargets = 1;
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(216); // 1.9s
-                spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Effects[1].TargetB = 0;
+                spellInfo->Effects[2].TargetB = 0;
                 break;
             case 125972:// Felin Grace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_SAFE_FALL;
@@ -4922,6 +4933,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 34433: // Shadowfiend
                 spellInfo->Effects[EFFECT_0].MiscValueB = 1561;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->OverrideSpellList.push_back(123040); // Add Mindbender to override spell list of Shadowfiend
                 break;
             case 64904: // Hymn of Hope

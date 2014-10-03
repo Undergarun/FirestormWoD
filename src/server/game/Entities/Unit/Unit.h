@@ -1394,7 +1394,7 @@ class Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
-        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExcludeAura = 0) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
@@ -2463,7 +2463,31 @@ class Unit : public WorldObject
         AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
-        std::vector<AuraPtr> m_SoulSwapDOTList;
+
+        struct SoulSwapAuraInfo
+        {
+            SoulSwapAuraInfo(uint32 p_ID, uint32 p_Duration, uint32 p_MaxDuration, uint32 p_Charges, uint32 p_Stacks) :
+                m_ID(p_ID), m_Duration(p_Duration), m_MaxDuration(p_MaxDuration), m_Charges(p_Charges), m_Stacks(p_Stacks)
+            {
+                memset(m_FixedDamages, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+                memset(m_FixedTotalDamages, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+                memset(m_FixedCritical, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+                memset(m_FixedAmplitude, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+            }
+
+            uint32 m_ID;
+            uint32 m_Duration;
+            uint32 m_MaxDuration;
+            uint32 m_Charges;
+            uint32 m_Stacks;
+
+            uint32 m_FixedDamages[MAX_SPELL_EFFECTS];
+            uint32 m_FixedTotalDamages[MAX_SPELL_EFFECTS];
+            uint32 m_FixedCritical[MAX_SPELL_EFFECTS];
+            uint32 m_FixedAmplitude[MAX_SPELL_EFFECTS];
+        };
+
+        std::vector<SoulSwapAuraInfo> m_SoulSwapDOTList;
 
         typedef std::list<HealDone*> HealDoneList;
         typedef std::list<HealTaken*> HealTakenList;
