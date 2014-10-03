@@ -1346,9 +1346,9 @@ class go_mage_portal_pandaria : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go)
         {
             if (go->GetEntry() == 216057) // alliance
-                player->TeleportTo(870, 882.98, 297.62, 503.12, 3.80);
+                player->TeleportTo(870, 882.98f, 297.62f, 503.12f, 3.80f);
             else if (go->GetEntry() == 216058) // horde
-                player->TeleportTo(870, 1604.37, 920.83, 470.63, 0.19);
+                player->TeleportTo(870, 1604.37f, 920.83f, 470.63f, 0.19f);
 
             return true;
         }
