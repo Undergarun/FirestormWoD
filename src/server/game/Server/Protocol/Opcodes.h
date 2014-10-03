@@ -198,8 +198,22 @@ enum Opcodes
         SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION   = 0x1623,   ///< 6.0.2 18934
         SMSG_BATTLEFIELD_STATUS_ACTIVE              = 0x08AB,   ///< 6.0.2 18934
         SMSG_BATTLEFIELD_STATUS_FAILED              = 0x12A3,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS     = 0x13F0,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_PORT_DENIED                = 0x0347,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEGROUND_PLAYER_JOINED             = 0x0768,   ///< 6.0.2 18934
+        SMSG_BATTLEGROUND_PLAYER_LEFT               = 0x09FC,   ///< 6.0.2 18934
+        SMSG_BATTLEGROUND_PLAYER_POSITIONS          = 0x09FB,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_ENTERING               = 0x13A4,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE = 0x10AB,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_EJECT_PENDING          = 0x1267,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEFIELD_MGR_EJECTED                = 0x09BF,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_QUEUE_INVITE           = 0x0368,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_STATE_CHANGED          = 0x10F7,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEFIELD_MGR_ENTRY_INVITE           = 0x03F3,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_EXIT_REQUEST           = 0x0000,
         SMSG_REQUEST_PVP_REWARDS_RESPONSE           = 0x1544,   ///< 6.0.2 18934
-        SMSG_PVP_OPTIONS_ENABLED                    = 0x02A8,   ///< 6.0.2 18934
+        SMSG_PVP_OPTIONS_ENABLED                    = 0x02A8,   ///< 6.0.2 18934 (unused)
+        SMSG_PVP_LOG_DATA                           = 0x03B8,   ///< 6.0.2 18934
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -857,6 +871,7 @@ enum Opcodes
     CMSG_REQUEST_PVP_OPTIONS_ENABLED            = 0x00B7,   ///< 6.0.2 18934
     CMSG_QUERY_COUNTDOWN_TIMER                  = 0x05E9,   ///< 6.0.2 18934 (unused)
     CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS     = 0x1E85,   ///< 6.0.2 18934 (unused)
+    CMSG_LEAVE_BATTLEFIELD                      = 0x1691,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1111,7 +1126,6 @@ enum Opcodes
     CMSG_ITEM_REFUND_INFO                             = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x0000,
-    CMSG_LEAVE_BATTLEFIELD                            = 0x0000,
     CMSG_LEAVE_CHANNEL                                = 0x0000,
     CMSG_LFG_GET_PLAYER_INFO                          = 0x0000,
     CMSG_LFG_GET_STATUS                               = 0x0000,
@@ -1354,23 +1368,10 @@ enum Opcodes
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x0000,
     SMSG_BARBER_SHOP_RESULT                           = 0x0000,
     SMSG_BATTLEFIELD_LIST                             = 0x0000,
-    SMSG_BATTLEFIELD_MGR_EJECTED                      = 0x0000,
-    SMSG_BATTLEFIELD_MGR_EJECT_PENDING                = 0x0000,
-    SMSG_BATTLEFIELD_MGR_ENTERING                     = 0x0000,
-    SMSG_BATTLEFIELD_MGR_ENTRY_INVITE                 = 0x0000,
-    SMSG_BATTLEFIELD_MGR_EXIT_REQUEST                 = 0x0000,
-    SMSG_BATTLEFIELD_MGR_QUEUE_INVITE                 = 0x0000,
-    SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE       = 0x0000,
-    SMSG_BATTLEFIELD_MGR_STATE_CHANGED                = 0x0000,
-    SMSG_BATTLEFIELD_PORT_DENIED                      = 0x0000,
     SMSG_BATTLEFIELD_RATED_INFO                       = 0x0000,
-    SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS           = 0x0000,
     SMSG_BATTLEGROUND_INIT                            = 0x0000,
     SMSG_BATTLEGROUND_INFO_THROTTLED                  = 0x0000,
     SMSG_BATTLEGROUND_POINTS                          = 0x0000,
-    SMSG_BATTLEGROUND_PLAYER_JOINED                   = 0x0000,
-    SMSG_BATTLEGROUND_PLAYER_LEFT                     = 0x0000,
-    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x0000,
     SMSG_BATTLEPET_CAGE_DATA_ERROR                    = 0x0000,
     SMSG_BATTLEPET_DELETE                             = 0x0000,
     SMSG_BATTLEPET_ERROR                              = 0x0000,
@@ -1734,7 +1735,6 @@ enum Opcodes
     SMSG_PROFILE_DATA_RESPONSE                        = 0x0000,
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0x0000,
     SMSG_PVP_CREDIT                                   = 0x0000,
-    SMSG_PVP_LOG_DATA                                 = 0x0000,
     SMSG_QUERY_OBJECT_POSITION                        = 0x0000,
     SMSG_QUERY_OBJECT_ROTATION                        = 0x0000,
     SMSG_QUERY_TIME_RESPONSE                          = 0x0000,

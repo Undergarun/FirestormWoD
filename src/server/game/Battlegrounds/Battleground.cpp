@@ -2136,55 +2136,38 @@ void Battleground::RewardXPAtKill(Player* killer, Player* victim)
 
 void Battleground::SendFlagsPositions()
 {
-    uint32 count = 0;
-    std::list<Player*> players;
+    uint32 l_Count = 0;
+    std::list<Player*> l_Players;
 
     if (Player* plr = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_ALLIANCE)))
     {
-        players.push_back(plr);
-        ++count;
+        l_Players.push_back(plr);
+        ++l_Count;
     }
 
     if (Player* plr = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_HORDE)))
     {
-        players.push_back(plr);
-        ++count;
+        l_Players.push_back(plr);
+        ++l_Count;
     }
 
-    if (!count)
+    if (!l_Count)
         return;
 
-    WorldPacket data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
-    ByteBuffer dataBuffer;
+    WorldPacket l_Data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
 
-    data.WriteBits(count, 20);
+    l_Data << uint32(l_Count);
 
-    for (auto itr : players)
+    for (auto l_Itr : l_Players)
     {
-        ObjectGuid guid = itr->GetGUID();
-
-        uint8 bits[8] = { 6, 7, 3, 1, 2, 0, 5, 4 };
-        data.WriteBitInOrder(guid, bits);
-
-        dataBuffer.WriteByteSeq(guid[6]);
-        dataBuffer.WriteByteSeq(guid[3]);
-        dataBuffer.WriteByteSeq(guid[1]);
-        dataBuffer << float(itr->GetPositionY());
-        dataBuffer.WriteByteSeq(guid[4]);
-        dataBuffer.WriteByteSeq(guid[0]);
-        dataBuffer << float(itr->GetPositionX());
-        dataBuffer.WriteByteSeq(guid[2]);
-        dataBuffer.WriteByteSeq(guid[5]);
-        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);
-        dataBuffer.WriteByteSeq(guid[7]);
-        dataBuffer << uint8(itr->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);
+        l_Data.appendPackGUID(l_Itr->GetGUID());
+        l_Data << float(l_Itr->GetPositionX());
+        l_Data << float(l_Itr->GetPositionY());
+        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FLAG_ICON_ALLIANCE : FLAG_ICON_HORDE);
+        l_Data << uint8(l_Itr->GetBGTeam());
     }
 
-    data.FlushBits();
-    if (dataBuffer.size())
-        data.append(dataBuffer);
-
-    SendPacketToAll(&data);
+    SendPacketToAll(&l_Data);
 }
 
 void Battleground::RelocateDeadPlayers(uint64 queueIndex)

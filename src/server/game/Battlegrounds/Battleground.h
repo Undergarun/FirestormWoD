@@ -158,6 +158,12 @@ enum BattlegroundStatus
     STATUS_WAIT_LEAVE   = 4                                 // means some faction has won BG and it is ending
 };
 
+enum FlagIcon
+{
+    FLAG_ICON_HORDE     = 1,
+    FLAG_ICON_ALLIANCE  = 2,
+};
+
 struct BattlegroundPlayer
 {
     time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
