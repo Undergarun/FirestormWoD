@@ -1756,6 +1756,7 @@ void PetBattleSystem::RemoveRequest(uint64 p_RequesterGuid)
     if (l_Request)
     {
         delete l_Request;
+        l_Request = NULL;
 
         m_Requests[p_RequesterGuid] = 0;
         m_Requests.erase(p_RequesterGuid);
