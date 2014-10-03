@@ -7108,7 +7108,6 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
         default:
             break;
     }
-
     return 0.0f;
 }
 
