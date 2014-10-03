@@ -1669,7 +1669,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                amount = powerUsed;
+                amount = powerUsed + 1;
             }
 
             void OnTick(constAuraEffectPtr aurEff)
