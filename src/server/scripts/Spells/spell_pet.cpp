@@ -30,28 +30,28 @@
 
 enum HunterPetCalculate
 {
-     SPELL_TAMED_PET_PASSIVE_06         = 19591,
-     SPELL_TAMED_PET_PASSIVE_07         = 20784,
-     SPELL_TAMED_PET_PASSIVE_08         = 34666,
-     SPELL_TAMED_PET_PASSIVE_09         = 34667,
-     SPELL_TAMED_PET_PASSIVE_10         = 34675,
-     SPELL_HUNTER_PET_SCALING_01        = 34902,
-     SPELL_HUNTER_PET_SCALING_02        = 34903,
-     SPELL_HUNTER_PET_SCALING_03        = 34904,
-     SPELL_HUNTER_PET_SCALING_04        = 61017,
-     SPELL_HUNTER_ANIMAL_HANDLER        = 34453,
+    SPELL_TAMED_PET_PASSIVE_06         = 19591,
+    SPELL_TAMED_PET_PASSIVE_07         = 20784,
+    SPELL_TAMED_PET_PASSIVE_08         = 34666,
+    SPELL_TAMED_PET_PASSIVE_09         = 34667,
+    SPELL_TAMED_PET_PASSIVE_10         = 34675,
+    SPELL_HUNTER_PET_SCALING_01        = 34902,
+    SPELL_HUNTER_PET_SCALING_02        = 34903,
+    SPELL_HUNTER_PET_SCALING_03        = 34904,
+    SPELL_HUNTER_PET_SCALING_04        = 61017,
+    SPELL_HUNTER_ANIMAL_HANDLER        = 34453,
 };
 
 enum WarlockPetCalculate
 {
-     SPELL_PET_PASSIVE_CRIT             = 35695,
-     SPELL_PET_PASSIVE_DAMAGE_TAKEN     = 35697,
-     SPELL_WARLOCK_PET_SCALING_01       = 34947,
-     SPELL_WARLOCK_PET_SCALING_02       = 34956,
-     SPELL_WARLOCK_PET_SCALING_03       = 34957,
-     SPELL_WARLOCK_PET_SCALING_04       = 34958,
-     SPELL_WARLOCK_PET_SCALING_05       = 61013,
-     SPELL_WARLOCK_GLYPH_OF_VOIDWALKER  = 56247,
+    SPELL_PET_PASSIVE_CRIT             = 35695,
+    SPELL_PET_PASSIVE_DAMAGE_TAKEN     = 35697,
+    SPELL_WARLOCK_PET_SCALING_01       = 34947,
+    SPELL_WARLOCK_PET_SCALING_02       = 34956,
+    SPELL_WARLOCK_PET_SCALING_03       = 34957,
+    SPELL_WARLOCK_PET_SCALING_04       = 34958,
+    SPELL_WARLOCK_PET_SCALING_05       = 61013,
+    SPELL_WARLOCK_GLYPH_OF_VOIDWALKER  = 56247,
 };
 
 enum DKPetCalculate
@@ -75,10 +75,10 @@ enum ShamanPetCalculate
 
 enum MiscPetCalculate
 {
-     SPELL_MAGE_PET_PASSIVE_ELEMENTAL   = 44559,
-     SPELL_PET_HEALTH_SCALING           = 61679,
-     SPELL_PET_UNK_01                   = 67561,
-     SPELL_PET_UNK_02                   = 67557,
+    SPELL_MAGE_PET_PASSIVE_ELEMENTAL   = 44559,
+    SPELL_PET_HEALTH_SCALING           = 61679,
+    SPELL_PET_UNK_01                   = 67561,
+    SPELL_PET_UNK_02                   = 67557,
 };
 
 class spell_gen_pet_calculate : public SpellScriptLoader
@@ -139,8 +139,6 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     float HitMelee = 0.0f;
                     // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
                     HitMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-                    // Increase hit melee from meele hit ratings
-                    HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
                     amount += int32(HitMelee);
                 }
@@ -154,8 +152,6 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     float HitSpell = 0.0f;
                     // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                     HitSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                    // Increase hit spell from spell hit ratings
-                    HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                     amount += int32(HitSpell);
                 }
@@ -169,8 +165,6 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                     float Expertise = 0.0f;
                     // Increase hit from SPELL_AURA_MOD_EXPERTISE
                     Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE);
-                    // Increase Expertise from Expertise ratings
-                    Expertise += owner->GetRatingBonusValue(CR_EXPERTISE);
 
                     amount += int32(Expertise);
                 }
@@ -592,8 +586,6 @@ public:
                 float HitMelee = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                 HitMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                HitMelee += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                 amount += int32(HitMelee);
             }
@@ -607,8 +599,6 @@ public:
                 float HitSpell = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                 HitSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                 amount += int32(HitSpell);
             }
@@ -622,8 +612,6 @@ public:
                 float Expertise = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                 Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                Expertise += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                 amount += int32(Expertise);
             }
@@ -825,8 +813,6 @@ public:
                 float HitMelee = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
                 HitMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-                // Increase hit melee from meele hit ratings
-                HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
                 amount += int32(HitMelee);
             }
@@ -840,8 +826,6 @@ public:
                 float HitSpell = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                 HitSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                 amount += int32(HitSpell);
             }
@@ -1186,8 +1170,6 @@ public:
                 float HitMelee = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
                 HitMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-                // Increase hit melee from meele hit ratings
-                HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
                 amount += int32(HitMelee);
             }
@@ -1203,8 +1185,6 @@ public:
                 float HitSpell = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                 HitSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                 amount += int32(HitSpell);
             }
@@ -1220,8 +1200,6 @@ public:
                 float Expertise = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_EXPERTISE
                 Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE);
-                // Increase Expertise from Expertise ratings
-                Expertise += owner->GetRatingBonusValue(CR_EXPERTISE);
 
                 amount += int32(Expertise);
             }
@@ -1607,8 +1585,6 @@ public:
                 float HitMelee = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
                 HitMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-                // Increase hit melee from meele hit ratings
-                HitMelee += owner->GetRatingBonusValue(CR_HIT_MELEE);
 
                 amount += int32(HitMelee);
             }
@@ -1624,8 +1600,6 @@ public:
                 float HitSpell = 0.0f;
                 // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
                 HitSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-                // Increase hit spell from spell hit ratings
-                HitSpell += owner->GetRatingBonusValue(CR_HIT_SPELL);
 
                 amount += int32(HitSpell);
             }

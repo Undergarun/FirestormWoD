@@ -4974,7 +4974,7 @@ void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const* aur
     target->UpdateArmor();
 }
 
-void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4984,9 +4984,14 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mod
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    target->ToPlayer()->UpdateExpertise(BASE_ATTACK);
-    target->ToPlayer()->UpdateExpertise(OFF_ATTACK);
-    target->ToPlayer()->UpdateExpertise(RANGED_ATTACK);
+    int32 expertise = (apply) ? GetAmount() : (-GetAmount());
+
+    if (expertise < 0)
+        expertise = 0;
+
+    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);
+    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);
+    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise);
 }
 
 /********************************/
@@ -5235,15 +5240,16 @@ void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, b
 
     Unit* target = aurApp->GetTarget();
 
+    target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
+    target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        target->ToPlayer()->UpdateMeleeHitChances();
-        target->ToPlayer()->UpdateRangedHitChances();
-    }
-    else
-    {
-        target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
-        target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+        if (Pet* pet = target->ToPlayer()->GetPet())
+        {
+            pet->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
+            pet->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+        }
     }
 }
 
@@ -5254,10 +5260,13 @@ void AuraEffect::HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
+    target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
+
     if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->UpdateSpellHitChances();
-    else
-        target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
+    {
+        if (Pet* pet = target->ToPlayer()->GetPet())
+            pet->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
+    }
 }
 
 void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const

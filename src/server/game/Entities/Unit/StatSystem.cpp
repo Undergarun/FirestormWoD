@@ -249,9 +249,6 @@ bool Player::UpdateAllStats()
     UpdateDodgePercentage();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
-    UpdateExpertise(BASE_ATTACK);
-    UpdateExpertise(OFF_ATTACK);
-    UpdateExpertise(RANGED_ATTACK);
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
@@ -817,77 +814,10 @@ void Player::UpdatePvPPowerPercentage()
     SetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, heal_value);
 }
 
-void Player::UpdateMeleeHitChances()
-{
-    m_modMeleeHitChance = 0;
-    AuraEffectList const & alist = GetAuraEffectsByType(SPELL_AURA_MOD_HIT_CHANCE);
-    Item *weapon = this->GetWeaponForAttack(BASE_ATTACK);
-    for (AuraEffectList::const_iterator itr = alist.begin(); itr != alist.end(); ++itr)
-    {
-        if ((*itr)->GetSpellInfo()->EquippedItemSubClassMask && !weapon)
-            continue;
-        if (weapon && !weapon->IsFitToSpellRequirements((*itr)->GetSpellInfo()))
-            continue;
-        m_modMeleeHitChance += (*itr)->GetAmount();
-    }
-    SetFloatValue(PLAYER_FIELD_UI_HIT_MODIFIER, m_modMeleeHitChance);
-    m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
-
-    if (Pet* pet = GetPet())
-        pet->m_modMeleeHitChance = m_modMeleeHitChance;
-}
-
-void Player::UpdateRangedHitChances()
-{
-    m_modRangedHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-    m_modRangedHitChance += GetRatingBonusValue(CR_HIT_RANGED);
-
-    if (Pet* pet = GetPet())
-        pet->m_modRangedHitChance = m_modRangedHitChance;
-}
-
-void Player::UpdateSpellHitChances()
-{
-    m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-    m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
-
-    if (Pet* pet = GetPet())
-        pet->m_modSpellHitChance = m_modSpellHitChance;
-}
-
 void Player::UpdateAllSpellCritChances()
 {
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateSpellCritChance(i);
-}
-
-void Player::UpdateExpertise(WeaponAttackType attack)
-{
-    float expertise = GetRatingBonusValue(CR_EXPERTISE);
-
-    Item* weapon = GetWeaponForAttack(attack, true);
-
-    AuraEffectList const& expAuras = GetAuraEffectsByType(SPELL_AURA_MOD_EXPERTISE);
-    for (AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
-    {
-        // item neutral spell
-        if ((*itr)->GetSpellInfo()->EquippedItemClass == -1)
-            expertise += (*itr)->GetAmount();
-        // item dependent spell
-        else if (weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellInfo()))
-            expertise += (*itr)->GetAmount();
-    }
-
-    if (expertise < 0)
-        expertise = 0.0f;
-
-    switch (attack)
-    {
-        case BASE_ATTACK: SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);          break;
-        case OFF_ATTACK:  SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);  break;
-        case RANGED_ATTACK: SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise); break;
-        default: break;
-    }
 }
 
 void Player::ApplyManaRegenBonus(int32 amount, bool apply)

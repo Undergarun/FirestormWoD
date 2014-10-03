@@ -2869,7 +2869,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Base hit chance from attacker and victim levels
     int32 modHitChance;
     if (leveldif < 3)
-        modHitChance = 96 - leveldif;
+        modHitChance = 100;
     else
         modHitChance = 94 - (leveldif - 2) * lchance;
 

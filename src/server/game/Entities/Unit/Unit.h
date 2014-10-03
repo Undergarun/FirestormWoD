@@ -570,9 +570,9 @@ enum CombatRating
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
     CR_BLOCK                            = 4,
-    CR_HIT_MELEE                        = 5,
-    CR_HIT_RANGED                       = 6,
-    CR_HIT_SPELL                        = 7,
+    CR_HIT_MELEE                        = 5,    // Removed in 6.0.0
+    CR_HIT_RANGED                       = 6,    // Removed in 6.0.0
+    CR_HIT_SPELL                        = 7,    // Removed in 6.0.0
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
@@ -588,7 +588,7 @@ enum CombatRating
     CR_WEAPON_SKILL_MAINHAND            = 20,
     CR_WEAPON_SKILL_OFFHAND             = 21,
     CR_WEAPON_SKILL_RANGED              = 22,
-    CR_EXPERTISE                        = 23,
+    CR_EXPERTISE                        = 23,   // Removed in 6.0.0
     CM_ARMOR_PENETRATION                = 24,
     CR_MASTERY                          = 25,
     CR_PVP_POWER                        = 26,

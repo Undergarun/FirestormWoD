@@ -2309,16 +2309,12 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllCritPercentages();
         void UpdateParryPercentage();
         void UpdateDodgePercentage();
-        void UpdateMeleeHitChances();
-        void UpdateRangedHitChances();
-        void UpdateSpellHitChances();
         void UpdateMasteryPercentage();
         void UpdatePvPPowerPercentage();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
         void UpdateArmorPenetration(int32 amount);
-        void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
