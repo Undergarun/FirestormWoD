@@ -619,11 +619,11 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
 void Player::UpdateAllCritPercentages()
 {
-    float value = GetMeleeCritFromAgility();
+    float crit = 0.0f;
 
-    SetBaseModValue(CRIT_PERCENTAGE, PCT_MOD, value);
-    SetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD, value);
-    SetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD, value);
+    SetBaseModValue(CRIT_PERCENTAGE, PCT_MOD, crit);
+    SetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD, crit);
+    SetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD, crit);
 
     UpdateCritPercentage(BASE_ATTACK);
     UpdateCritPercentage(OFF_ATTACK);
@@ -731,8 +731,6 @@ void Player::UpdateSpellCritChance(uint32 school)
     }
     // For others recalculate it from:
     float crit = 0.0f;
-    // Crit from Intellect
-    crit += GetSpellCritFromIntellect();
     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
     // Increase crit from SPELL_AURA_MOD_CRIT_PCT

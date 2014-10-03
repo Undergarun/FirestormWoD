@@ -6997,23 +6997,6 @@ float Player::GetTotalBaseModValue(BaseModGroup modGroup) const
     return m_auraBaseMod[modGroup][FLAT_MOD] * m_auraBaseMod[modGroup][PCT_MOD];
 }
 
-float Player::GetMeleeCritFromAgility()
-{
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (critBase == NULL || critRatio == NULL)
-        return 0.0f;
-
-    float crit = ((GetStat(STAT_AGILITY) - 1) / (critRatio->ratio * 100) + critBase->base);
-    return crit*100.0f;
-}
-
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
     // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
@@ -7051,23 +7034,6 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
     diminishing = 100.0f * (bonus_agility / (100.0f * dodgeRatio->ratio) * crit_to_dodge[pclass-1]);
     nondiminishing = (((base_agility - 1) / (dodgeRatio->ratio * 100)) * crit_to_dodge[pclass-1] + critBase->base) * 100.0f;
-}
-
-float Player::GetSpellCritFromIntellect()
-{
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
-    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
-    if (critBase == NULL || critRatio == NULL)
-        return 0.0f;
-
-    float crit = ((GetStat(STAT_INTELLECT) - 1) / (critRatio->ratio * 100) + critBase->base);
-    return crit * 100.0f;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
