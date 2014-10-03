@@ -296,7 +296,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModSpellDamagePercentFromAttackPower,      //237 SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER  implemented in Unit::SpellBaseDamageBonus
     &AuraEffect::HandleModSpellHealingPercentFromAttackPower,     //238 SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER implemented in Unit::SpellBaseHealingBonus
     &AuraEffect::HandleAuraModScale,                              //239 SPELL_AURA_MOD_SCALE_2 only in Noggenfogger Elixir (16595) before 2.3.0 aura 61
-    &AuraEffect::HandleNULL,                                      //240 SPELL_AURA_240
+    &AuraEffect::HandleAuraModExpertise,                          //240 SPELL_AURA_MOD_EXPERTISE
     &AuraEffect::HandleForceMoveForward,                          //241 SPELL_AURA_FORCE_MOVE_FORWARD Forces the caster to move forward
     &AuraEffect::HandleNULL,                                      //242 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_HEALING - 2 test spells: 44183 and 44182
     &AuraEffect::HandleAuraModFaction,                            //243 SPELL_AURA_MOD_FACTION
@@ -4974,6 +4974,26 @@ void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const* aur
     target->UpdateArmor();
 }
 
+void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    int32 expertise = (apply) ? GetAmount() : (-GetAmount());
+
+    if (expertise < 0)
+        expertise = 0;
+
+    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);
+    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);
+    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise);
+}
+
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
@@ -5220,15 +5240,16 @@ void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, b
 
     Unit* target = aurApp->GetTarget();
 
+    target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
+    target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        target->ToPlayer()->UpdateMeleeHitChances();
-        target->ToPlayer()->UpdateRangedHitChances();
-    }
-    else
-    {
-        target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
-        target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+        if (Pet* pet = target->ToPlayer()->GetPet())
+        {
+            pet->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
+            pet->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
+        }
     }
 }
 
@@ -5239,10 +5260,13 @@ void AuraEffect::HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
+    target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
+
     if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->UpdateSpellHitChances();
-    else
-        target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
+    {
+        if (Pet* pet = target->ToPlayer()->GetPet())
+            pet->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
+    }
 }
 
 void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const

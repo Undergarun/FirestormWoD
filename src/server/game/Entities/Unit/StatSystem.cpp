@@ -819,44 +819,6 @@ void Player::UpdatePvPPowerPercentage()
     SetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, heal_value);
 }
 
-void Player::UpdateMeleeHitChances()
-{
-    m_modMeleeHitChance = 0;
-    AuraEffectList const & alist = GetAuraEffectsByType(SPELL_AURA_MOD_HIT_CHANCE);
-    Item *weapon = this->GetWeaponForAttack(BASE_ATTACK);
-    for (AuraEffectList::const_iterator itr = alist.begin(); itr != alist.end(); ++itr)
-    {
-        if ((*itr)->GetSpellInfo()->EquippedItemSubClassMask && !weapon)
-            continue;
-        if (weapon && !weapon->IsFitToSpellRequirements((*itr)->GetSpellInfo()))
-            continue;
-        m_modMeleeHitChance += (*itr)->GetAmount();
-    }
-    SetFloatValue(PLAYER_FIELD_UI_HIT_MODIFIER, m_modMeleeHitChance);
-    m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
-
-    if (Pet* pet = GetPet())
-        pet->m_modMeleeHitChance = m_modMeleeHitChance;
-}
-
-void Player::UpdateRangedHitChances()
-{
-    m_modRangedHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-    m_modRangedHitChance += GetRatingBonusValue(CR_HIT_RANGED);
-
-    if (Pet* pet = GetPet())
-        pet->m_modRangedHitChance = m_modRangedHitChance;
-}
-
-void Player::UpdateSpellHitChances()
-{
-    m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-    m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
-
-    if (Pet* pet = GetPet())
-        pet->m_modSpellHitChance = m_modSpellHitChance;
-}
-
 void Player::UpdateAllSpellCritChances()
 {
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)

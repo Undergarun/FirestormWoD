@@ -7095,6 +7095,23 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
 
+float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
+{
+    switch (attType)
+    {
+        case BASE_ATTACK:
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+        case OFF_ATTACK:
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+        case RANGED_ATTACK:
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
 float Player::OCTRegenMPPerSpirit()
 {
     uint8 level = getLevel();
@@ -7203,14 +7220,9 @@ void Player::UpdateRating(CombatRating cr)
         case CR_BLOCK:
             UpdateBlockPercentage();
             break;
-        case CR_HIT_MELEE:
-            UpdateMeleeHitChances();
-            break;
-        case CR_HIT_RANGED:
-            UpdateRangedHitChances();
-            break;
-        case CR_HIT_SPELL:
-            UpdateSpellHitChances();
+        case CR_HIT_MELEE:                                  // Removed in 6.0.0
+        case CR_HIT_RANGED:                                 // Removed in 6.0.0
+        case CR_HIT_SPELL:                                  // Removed in 6.0.0
             break;
         case CR_CRIT_MELEE:
             if (affectStats)
@@ -9557,15 +9569,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_BLOCK_RATING:
                 ApplyRatingMod(CR_BLOCK, int32(val), apply);
                 break;
-            case ITEM_MOD_HIT_MELEE_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_RANGED_RATING:
-                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_SPELL_RATING:
-                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
-                break;
             case ITEM_MOD_CRIT_MELEE_RATING:
                 ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
                 break;
@@ -9586,11 +9589,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             case ITEM_MOD_HASTE_SPELL_RATING:
                 ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_CRIT_RATING:
                 ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
@@ -9776,9 +9774,6 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
     AuraEffectList const& auraDamagePctList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
         _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
-
-    UpdateMeleeHitChances();
-    UpdateRangedHitChances();
 }
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply)
@@ -15483,15 +15478,6 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_PARRY_RATING:
             ApplyRatingMod(CR_PARRY, -int32(removeValue), apply);
             break;
-        case ITEM_MOD_HIT_MELEE_RATING:
-            ApplyRatingMod(CR_HIT_MELEE, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_HIT_RANGED_RATING:
-            ApplyRatingMod(CR_HIT_RANGED, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_HIT_SPELL_RATING:
-            ApplyRatingMod(CR_HIT_SPELL, -int32(removeValue), apply);
-            break;
         case ITEM_MOD_CRIT_MELEE_RATING:
             ApplyRatingMod(CR_CRIT_MELEE, -int32(removeValue), apply);
             break;
@@ -15503,11 +15489,6 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             break;
         case ITEM_MOD_HASTE_SPELL_RATING:
             ApplyRatingMod(CR_HASTE_SPELL, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_HIT_RATING:
-            ApplyRatingMod(CR_HIT_MELEE, -int32(removeValue), apply);
-            ApplyRatingMod(CR_HIT_RANGED, -int32(removeValue), apply);
-            ApplyRatingMod(CR_HIT_SPELL, -int32(removeValue), apply);
             break;
         case ITEM_MOD_CRIT_RATING:
             ApplyRatingMod(CR_CRIT_MELEE, -int32(removeValue), apply);
@@ -15544,15 +15525,6 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_PARRY_RATING:
             ApplyRatingMod(CR_PARRY, int32(addValue), apply);
             break;
-        case ITEM_MOD_HIT_MELEE_RATING:
-            ApplyRatingMod(CR_HIT_MELEE, int32(addValue), apply);
-            break;
-        case ITEM_MOD_HIT_RANGED_RATING:
-            ApplyRatingMod(CR_HIT_RANGED, int32(addValue), apply);
-            break;
-        case ITEM_MOD_HIT_SPELL_RATING:
-            ApplyRatingMod(CR_HIT_SPELL, int32(addValue), apply);
-            break;
         case ITEM_MOD_CRIT_MELEE_RATING:
             ApplyRatingMod(CR_CRIT_MELEE, int32(addValue), apply);
             break;
@@ -15564,11 +15536,6 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             break;
         case ITEM_MOD_HASTE_SPELL_RATING:
             ApplyRatingMod(CR_HASTE_SPELL, int32(addValue), apply);
-            break;
-        case ITEM_MOD_HIT_RATING:
-            ApplyRatingMod(CR_HIT_MELEE, int32(addValue), apply);
-            ApplyRatingMod(CR_HIT_RANGED, int32(addValue), apply);
-            ApplyRatingMod(CR_HIT_SPELL, int32(addValue), apply);
             break;
         case ITEM_MOD_CRIT_RATING:
             ApplyRatingMod(CR_CRIT_MELEE, int32(addValue), apply);
@@ -15671,15 +15638,6 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
             case ITEM_MOD_BLOCK_RATING:
                 ApplyRatingMod(CR_BLOCK, int32(newVal - val), apply);
                 break;
-            case ITEM_MOD_HIT_MELEE_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_HIT_RANGED_RATING:
-                ApplyRatingMod(CR_HIT_RANGED, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_HIT_SPELL_RATING:
-                ApplyRatingMod(CR_HIT_SPELL, int32(newVal - val), apply);
-                break;
             case ITEM_MOD_CRIT_MELEE_RATING:
                 ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
                 break;
@@ -15697,11 +15655,6 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
                 break;
             case ITEM_MOD_HASTE_SPELL_RATING:
                 ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_HIT_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HIT_RANGED, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HIT_SPELL, int32(newVal - val), apply);
                 break;
             case ITEM_MOD_CRIT_RATING:
                 ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
@@ -15935,18 +15888,6 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SHIELD_BLOCK", enchant_amount);
                             break;
-                        case ITEM_MOD_HIT_MELEE_RATING:
-                            ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MELEE_HIT", enchant_amount);
-                            break;
-                        case ITEM_MOD_HIT_RANGED_RATING:
-                            ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u RANGED_HIT", enchant_amount);
-                            break;
-                        case ITEM_MOD_HIT_SPELL_RATING:
-                            ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_HIT", enchant_amount);
-                            break;
                         case ITEM_MOD_CRIT_MELEE_RATING:
                             ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MELEE_CRIT", enchant_amount);
@@ -15961,12 +15902,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             break;
                         case ITEM_MOD_HASTE_SPELL_RATING:
                             ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
-                            break;
-                        case ITEM_MOD_HIT_RATING:
-                            ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
-                            ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
-                            ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HIT", enchant_amount);
+                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_HASTE", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_RATING:
                             ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
@@ -16020,6 +15956,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             break;
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, int32(enchant_amount), apply);
+                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MASTERY_RATING", enchant_amount);
                             break;
                         default:
                             break;
