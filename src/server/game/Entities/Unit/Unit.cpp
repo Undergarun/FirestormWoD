@@ -8038,6 +8038,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 136494:
+                        case 85222:
+                        case 114163:
+                        case 114165:
                         {
                             float mastery = ToPlayer()->GetFloatValue(PLAYER_MASTERY) * 1.25f;
                             basepoints0 = int32(damage * float(mastery / 100.0f));
@@ -8046,7 +8050,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
                                 basepoints0 += aurShield->GetAmount();
 
-                            int32 maxHealth = CountPctFromMaxHealth(10);
+                            int32 maxHealth = CountPctFromMaxHealth(33);
                             basepoints0 = std::min(basepoints0, maxHealth);
 
                             break;
