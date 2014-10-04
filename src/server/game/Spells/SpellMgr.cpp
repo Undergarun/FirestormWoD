@@ -5204,6 +5204,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52042: // Healing Stream - Totem
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
+            case 121818:
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 135920: // Healing sphere at end
             case 135914:
                 spellInfo->MaxAffectedTargets = 1;
