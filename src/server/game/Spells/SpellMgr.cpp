@@ -5204,6 +5204,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52042: // Healing Stream - Totem
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
+            case 135920: // Healing sphere at end
+            case 135914:
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 115460:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DYNOBJ_NONE;
+                break;
             case 324:   // Lightning Shield
                 spellInfo->ProcCharges = 0;
                 break;
