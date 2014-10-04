@@ -7504,7 +7504,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 int32 bp = CalculatePct(damage, 90);
                 std::list<Unit*> groupList;
 
-                _player->GetPartyMembers(groupList);
+                _player->GetRaidMembers(groupList);
 
                 if (groupList.size() > 1)
                 {

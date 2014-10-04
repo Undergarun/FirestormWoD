@@ -857,7 +857,7 @@ class spell_sha_spirit_link : public SpellScriptLoader
                             if (Player* _player = caster->GetOwner()->ToPlayer())
                             {
                                 std::list<Unit*> memberList;
-                                _player->GetPartyMembers(memberList);
+                                _player->GetRaidMembers(memberList);
 
                                 float totalRaidHealthPct = 0;
 

@@ -1503,7 +1503,7 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
                                     std::list<Unit*> targets;
                                     std::list<Unit*> tempTargets;
 
-                                    _plr->GetPartyMembers(tempTargets);
+                                    _plr->GetRaidMembers(tempTargets);
 
                                     for (auto itr : tempTargets)
                                     {
@@ -1982,7 +1982,7 @@ class spell_monk_thunder_focus_tea : public SpellScriptLoader
                         {
                             std::list<Unit*> groupList;
 
-                            _player->GetPartyMembers(groupList);
+                            _player->GetRaidMembers(groupList);
 
                             for (auto itr : groupList)
                                 if (AuraPtr renewingMistGroup = itr->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
@@ -1996,7 +1996,7 @@ class spell_monk_thunder_focus_tea : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_monk_thunder_focus_tea_SpellScript::HandleOnHit);
             }
         };
@@ -2357,7 +2357,7 @@ class spell_monk_renewing_mist : public SpellScriptLoader
                     std::list<Creature*> statueList;
                     Creature* statue;
 
-                    _player->GetPartyMembers(playerList);
+                    _player->GetRaidMembers(playerList);
 
                     if (playerList.size() > 1)
                     {
@@ -3228,7 +3228,7 @@ class spell_monk_soothing_mist : public SpellScriptLoader
                         std::list<Creature*> statueList;
                         Creature* statue;
 
-                        _player->GetPartyMembers(playerList);
+                        _player->GetRaidMembers(playerList);
 
                         if (playerList.size() > 1)
                         {
@@ -3288,7 +3288,7 @@ class spell_monk_soothing_mist : public SpellScriptLoader
                             std::list<Creature*> statueList;
                             Creature* statue;
 
-                            _player->GetPartyMembers(playerList);
+                            _player->GetRaidMembers(playerList);
 
                             if (playerList.size() > 1)
                             {

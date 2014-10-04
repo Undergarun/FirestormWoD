@@ -1077,7 +1077,7 @@ class spell_warr_rallying_cry : public SpellScriptLoader
                     _player->CastSpell(_player, WARRIOR_SPELL_RALLYING_CRY, true);
 
                     std::list<Unit*> memberList;
-                    _player->GetPartyMembers(memberList);
+                    _player->GetRaidMembers(memberList);
 
                     for (auto itr : memberList)
                         if (itr->IsWithinDistInMap(_player, 30.0f))

@@ -2156,7 +2156,7 @@ class npc_new_lightwell : public CreatureScript
                             {
                                 std::list<Unit*> party;
                                 std::list<Unit*> tempList;
-                                plr->GetPartyMembers(party);
+                                plr->GetRaidMembers(party);
 
                                 for (auto itr : party)
                                 {
