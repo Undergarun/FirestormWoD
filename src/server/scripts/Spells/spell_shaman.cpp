@@ -1355,6 +1355,24 @@ class spell_sha_healing_stream : public SpellScriptLoader
                 return true;
             }
 
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<Unit*> unitList;
+
+                for (auto itr : targets)
+                    if (itr->ToUnit())
+                        unitList.push_back(itr->ToUnit());
+
+                unitList.sort(JadeCore::HealthPctOrderPred(true));
+                WorldObject* l_object = unitList.front();
+
+                targets.clear();
+                targets.push_back(l_object);
+            }
+
             void HandleOnHit()
             {
                 if (!GetCaster()->GetOwner())
@@ -1369,6 +1387,7 @@ class spell_sha_healing_stream : public SpellScriptLoader
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
                 OnHit += SpellHitFn(spell_sha_healing_stream_SpellScript::HandleOnHit);
             }
         };
