@@ -104,6 +104,11 @@ enum Opcodes
         SMSG_START_ELAPSED_TIMER                    = 0x1414,   ///< 6.0.2 18934 (unused)
         SMSG_START_ELAPSED_TIMERS                   = 0x12AC,   ///< 6.0.2 18934 (unused)
         SMSG_STOP_ELAPSED_TIMER                     = 0x0748,   ///< 6.0.2 18934 (unused)
+        SMSG_DEATH_RELEASE_LOC                      = 0x12B0,   ///< 6.0.2 18934
+        SMSG_CORPSE_RECLAIM_DELAY                   = 0x11C0,   ///< 6.0.2 18934
+        SMSG_CORPSE_LOCATION                        = 0x1768,   ///< 6.0.2 18934
+        SMSG_CORPSE_TRANSPORT_QUERY                 = 0x00AB,   ///< 6.0.2 18934
+        SMSG_DURABILITY_DAMAGE_DEATH                = 0x09E4,   ///< 6.0.2 18934
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 18934
@@ -192,28 +197,40 @@ enum Opcodes
         SMSG_ROLL_POLL_INFORM                       = 0x0000,   ///< 6.0.2 
         SMSG_ROLE_CHANGED_INFORM                    = 0x0000,   ///< 6.0.2 
 
-        /// Battle ground
-        SMSG_BATTLEFIELD_STATUS_QUEUED              = 0x1568,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_STATUS_NONE                = 0x0614,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION   = 0x1623,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_STATUS_ACTIVE              = 0x08AB,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_STATUS_FAILED              = 0x12A3,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS     = 0x13F0,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_PORT_DENIED                = 0x0347,   ///< 6.0.2 18934 (unused)
-        SMSG_BATTLEGROUND_PLAYER_JOINED             = 0x0768,   ///< 6.0.2 18934
-        SMSG_BATTLEGROUND_PLAYER_LEFT               = 0x09FC,   ///< 6.0.2 18934
-        SMSG_BATTLEGROUND_PLAYER_POSITIONS          = 0x09FB,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_MGR_ENTERING               = 0x13A4,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE = 0x10AB,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_MGR_EJECT_PENDING          = 0x1267,   ///< 6.0.2 18934 (unused)
-        SMSG_BATTLEFIELD_MGR_EJECTED                = 0x09BF,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_MGR_QUEUE_INVITE           = 0x0368,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_MGR_STATE_CHANGED          = 0x10F7,   ///< 6.0.2 18934 (unused)
-        SMSG_BATTLEFIELD_MGR_ENTRY_INVITE           = 0x03F3,   ///< 6.0.2 18934
-        SMSG_BATTLEFIELD_MGR_EXIT_REQUEST           = 0x0000,
-        SMSG_REQUEST_PVP_REWARDS_RESPONSE           = 0x1544,   ///< 6.0.2 18934
-        SMSG_PVP_OPTIONS_ENABLED                    = 0x02A8,   ///< 6.0.2 18934 (unused)
-        SMSG_PVP_LOG_DATA                           = 0x03B8,   ///< 6.0.2 18934
+        /// Battleground
+        SMSG_BATTLEFIELD_STATUS_QUEUED                      = 0x1568,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_NONE                        = 0x0614,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION           = 0x1623,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_ACTIVE                      = 0x08AB,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_FAILED                      = 0x12A3,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS             = 0x13F0,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_PORT_DENIED                        = 0x0347,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEFIELD_RATED_INFO                         = 0x13F7,   ///< 6.0.2 18934
+        SMSG_BATTLEGROUND_PLAYER_JOINED                     = 0x0768,   ///< 6.0.2 18934
+        SMSG_BATTLEGROUND_PLAYER_LEFT                       = 0x09FC,   ///< 6.0.2 18934
+        SMSG_BATTLEGROUND_PLAYER_POSITIONS                  = 0x09FB,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_ENTERING                       = 0x13A4,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE         = 0x10AB,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_EJECT_PENDING                  = 0x1267,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEFIELD_MGR_EJECTED                        = 0x09BF,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_QUEUE_INVITE                   = 0x0368,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_STATE_CHANGED                  = 0x10F7,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEFIELD_MGR_ENTRY_INVITE                   = 0x03F3,   ///< 6.0.2 18934
+        SMSG_BATTLEFIELD_MGR_EXIT_REQUEST                   = 0x0000,
+        SMSG_REQUEST_PVP_REWARDS_RESPONSE                   = 0x1544,   ///< 6.0.2 18934
+        SMSG_PVP_OPTIONS_ENABLED                            = 0x02A8,   ///< 6.0.2 18934 (unused)
+        SMSG_PVP_LOG_DATA                                   = 0x03B8,   ///< 6.0.2 18934
+        SMSG_ARENA_OPPONENT_SPECIALIZATIONS                 = 0x00A7,   ///< 6.0.2 18934
+        SMSG_DESTROY_ARENA_UNIT                             = 0x0200,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEGROUND_POINTS                            = 0x0738,   ///< 6.0.2 18934 (unused)
+        SMSG_BATTLEGROUND_INIT                              = 0x0064,   ///< 6.0.2 18934 (unused)
+        SMSG_MAP_OBJECTIVES_INIT                            = 0x0AA7,   ///< 6.0.2 18934 (unused)
+        SMSG_CONQUEST_FORMULA_CONSTANTS                     = 0x08C0,   ///< 6.0.2 18934 (unused)
+        SMSG_PVP_SEASON                                     = 0x0618,   ///< 6.0.2 18934
+        SMSG_WARGAME_CHECK_ENTRY                            = 0x08B7,   ///< 6.0.2 18934 (unused)
+        SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT  = 0x1237,   ///< 6.0.2 18934 (unused)
+        SMSG_SPIRIT_HEALER_CONFIRM                          = 0x0413,   ///< 6.0.2 18934
+        SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x0000,
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -878,6 +895,8 @@ enum Opcodes
     CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS     = 0x1E85,   ///< 6.0.2 18934 (unused)
     CMSG_LEAVE_BATTLEFIELD                      = 0x1691,   ///< 6.0.2 18934
     CMSG_SPIRIT_HEALER_ACTIVATE                 = 0x0544,   ///< 6.0.2 18934
+    CMSG_AREA_SPIRIT_HEALER_QUERY               = 0x0137,   ///< 6.0.2 18934
+    CMSG_AREA_SPIRIT_HEALER_QUEUE               = 0x0433,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -928,8 +947,6 @@ enum Opcodes
     CMSG_ADDON_REGISTERED_PREFIXES                    = 0x0000,
     CMSG_ADD_VOICE_IGNORE                             = 0x0000,
     CMSG_ALTER_APPEARANCE                             = 0x0000,
-    CMSG_AREA_SPIRIT_HEALER_QUERY                     = 0x0000,
-    CMSG_AREA_SPIRIT_HEALER_QUEUE                     = 0x0000,
     CMSG_ARENA_TEAM_ACCEPT                            = 0x0000,
     CMSG_ARENA_TEAM_CREATE                            = 0x0000,
     CMSG_ARENA_TEAM_DECLINE                           = 0x0000,
@@ -1313,7 +1330,6 @@ enum Opcodes
     CMSG_WORLD_TELEPORT                               = 0x0000,
     CMSG_WRAP_ITEM                                    = 0x0000,
     CMSG_ZONEUPDATE                                   = 0x0000,
-    CMSG_CONQUEST_POINTS_STATS_REQUEST                = 0x0000,
     CMSG_ARENA_2v2_STATS_REQUEST                      = 0x0000,
     CMSG_ARENA_3v3_STATS_REQUEST                      = 0x0000,
 
@@ -1336,7 +1352,6 @@ enum Opcodes
     SMSG_AE_LOOT_TARGETS                              = 0x0000,
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x0000,
     SMSG_APPLY_MOVEMENT_FORCE                         = 0x0000,
-    SMSG_AREA_SPIRIT_HEALER_TIME                      = 0x0000,
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                 = 0x0000,
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x0000,
     SMSG_AREA_TRIGGER_DENIED                          = 0x0000,
@@ -1346,7 +1361,6 @@ enum Opcodes
     SMSG_AREA_TRIGGER_RESET                           = 0x0000,
     SMSG_ARENA_ERROR                                  = 0x0000,
     SMSG_ARENA_OPPONENT_UPDATE                        = 0x0000,
-    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0x0000,
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED              = 0x0000,
     SMSG_ARENA_TEAM_COMMAND_RESULT                    = 0x0000,
     SMSG_ARENA_TEAM_EVENT                             = 0x0000,
@@ -1368,10 +1382,7 @@ enum Opcodes
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x0000,
     SMSG_BARBER_SHOP_RESULT                           = 0x0000,
     SMSG_BATTLEFIELD_LIST                             = 0x0000,
-    SMSG_BATTLEFIELD_RATED_INFO                       = 0x0000,
-    SMSG_BATTLEGROUND_INIT                            = 0x0000,
     SMSG_BATTLEGROUND_INFO_THROTTLED                  = 0x0000,
-    SMSG_BATTLEGROUND_POINTS                          = 0x0000,
     SMSG_BATTLEPET_CAGE_DATA_ERROR                    = 0x0000,
     SMSG_BATTLEPET_DELETE                             = 0x0000,
     SMSG_BATTLEPET_ERROR                              = 0x0000,
@@ -1479,7 +1490,6 @@ enum Opcodes
     SMSG_DANCE_QUERY_RESPONSE                         = 0x0000,
     SMSG_DB_LOOKUP_RESULT                             = 0x0000,
     SMSG_DEBUG_RUNE_REGEN                             = 0x0000,
-    SMSG_DESTROY_ARENA_UNIT                           = 0x0000,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x0000,
     SMSG_DISENCHANT_CREDIT                            = 0x0000,
@@ -1498,7 +1508,6 @@ enum Opcodes
     SMSG_DUEL_WINNER                                  = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
     SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
-    SMSG_DURABILITY_DAMAGE_DEATH                      = 0x0000,
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x0000,
     SMSG_ECHO_PARTY_SQUELCH                           = 0x0000,
     SMSG_ENABLE_BARBER_SHOP                           = 0x0000,
@@ -1788,7 +1797,6 @@ enum Opcodes
     SMSG_SERVER_INFO_QUERY_RESPONSE                   = 0x0000,
     SMSG_SERVER_INFO_RESPONSE                         = 0x0000,
     SMSG_SERVER_PERF                                  = 0x0000,
-    SMSG_SET_ARENA_SEASON                             = 0x0000,
     SMSG_SETUP_RESEARCH_HISTORY                       = 0x0000,
     SMSG_SET_AI_ANIM_KIT                              = 0x0000,
     SMSG_SET_ANIM_TIMER                               = 0x0000,
@@ -1808,7 +1816,6 @@ enum Opcodes
     SMSG_SHOW_ZONES_CHEAT_RESULT                      = 0x0000,
     SMSG_SOCKET_GEMS                                  = 0x0000,
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0x0000,
-    SMSG_SPIRIT_HEALER_CONFIRM                        = 0x0000,
     SMSG_SPLINE_MOVE_COLLISION_DISABLE                = 0x0000,
     SMSG_SPLINE_MOVE_COLLISION_ENABLE                 = 0x0000,
     SMSG_SPLINE_MOVE_GRAVITY_DISABLE                  = 0x0000,
@@ -1888,9 +1895,7 @@ enum Opcodes
     SMSG_WAIT_QUEUE_FINISH                            = 0x0000,
     SMSG_WAIT_QUEUE_UPDATE                            = 0x0000,
     SMSG_WARDEN_DATA                                  = 0x0000,
-    SMSG_WARGAME_CHECK_ENTRY                          = 0x0000,
     SMSG_WARGAME_REQUEST_SENT                         = 0x0000,
-    SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT= 0x0000,
     SMSG_WEATHER                                      = 0x0000,
     SMSG_WEEKLY_LAST_RESET                            = 0x0000,
     SMSG_WHOIS                                        = 0x0000,

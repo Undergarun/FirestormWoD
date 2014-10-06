@@ -1069,9 +1069,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
     {
-        l_Data.Initialize(SMSG_SET_ARENA_SEASON, 8);
-        l_Data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1);
+        l_Data.Initialize(SMSG_PVP_SEASON, 8);
         l_Data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+        l_Data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - 1);
         SendPacket(&l_Data);
     }
 

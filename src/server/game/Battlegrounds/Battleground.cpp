@@ -1208,40 +1208,25 @@ void Battleground::StartBattleground()
     //    sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
 
-void Battleground::BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team)
+void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint32 p_Team)
 {
-    ByteBuffer dataBuffer;
-    uint8 opponent_count = 0;
+    uint8 l_OpponentCount = 0;
 
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (_GetPlayerForTeam(team, itr, "BuildArenaOpponentSpecializations"))
-            opponent_count++;
+    for (BattlegroundPlayerMap::const_iterator l_It = m_Players.begin(); l_It != m_Players.end(); ++l_It)
+        if (_GetPlayerForTeam(p_Team, l_It, "BuildArenaOpponentSpecializations"))
+            l_OpponentCount++;
 
-    data->WriteBits(opponent_count, 21);
+    *p_Packet << uint32(l_OpponentCount);
 
-    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for (BattlegroundPlayerMap::iterator l_It = m_Players.begin(); l_It != m_Players.end(); ++l_It)
     {
-        if (Player* pl = _GetPlayerForTeam(team, itr, "BuildArenaOpponentSpecializations"))
+        if (Player * l_Player = _GetPlayerForTeam(p_Team, l_It, "BuildArenaOpponentSpecializations"))
         {
-            ObjectGuid guid = pl->GetGUID();
-            uint8 bitOrder[8] = { 1, 7, 2, 5, 3, 6, 0, 4 };
-            data->WriteBitInOrder(guid, bitOrder);
-
-            dataBuffer.WriteByteSeq(guid[6]);
-            dataBuffer << uint32(pl->GetSpecializationId(pl->GetActiveSpec()));
-            dataBuffer.WriteByteSeq(guid[3]);
-            dataBuffer.WriteByteSeq(guid[5]);
-            dataBuffer.WriteByteSeq(guid[1]);
-            dataBuffer.WriteByteSeq(guid[2]);
-            dataBuffer.WriteByteSeq(guid[4]);
-            dataBuffer.WriteByteSeq(guid[0]);
-            dataBuffer.WriteByteSeq(guid[7]);
+            *p_Packet << uint32(l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
+            *p_Packet << uint32(0);
+            p_Packet->appendPackGUID(l_Player->GetGUID());
         }
     }
-
-    data->FlushBits();
-    if (dataBuffer.size())
-        data->append(dataBuffer);
 }
 
 void Battleground::AddPlayer(Player* player)

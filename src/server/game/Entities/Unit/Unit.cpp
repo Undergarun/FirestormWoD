@@ -18648,11 +18648,12 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffectPtr triggeredByAura)
     return true;
 }
 
-void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
+void Unit::SendDurabilityLoss(Player * p_Receiver, uint32 p_Percent)
 {
-    WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
-    data << uint32(percent);
-    receiver->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
+    l_Data << uint32(p_Percent);
+
+    p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
 void Unit::PlayOneShotAnimKit(uint32 id)
