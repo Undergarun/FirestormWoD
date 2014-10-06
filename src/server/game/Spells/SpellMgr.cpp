@@ -3436,10 +3436,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttackPowerBonus = 0.319f;
                 spellInfo->m_IsScaled = true;
                 break;
-            case 49184: // Howling Blast
-                spellInfo->AttackPowerBonus = 0.369f;
-                spellInfo->m_IsScaled = true;
-                break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
                 break;
