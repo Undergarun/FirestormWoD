@@ -62,7 +62,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REPOP_REQUEST Message");
 
-    bool unk = recvData.ReadBit();
+    bool l_CheckInstance = recvData.ReadBit();
 
     if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
@@ -947,47 +947,41 @@ void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
     }
 }
 
-void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
+void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RECLAIM_CORPSE");
 
-    ObjectGuid guid;
+    uint64 l_CorpseGUID = 0;
 
-    uint8 bitsOrder[8] = { 0, 1, 2, 6, 5, 7, 3, 4 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 1, 6, 7, 2, 3, 5, 0 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
+    p_Packet.readPackGUID(l_CorpseGUID);
+    
     if (GetPlayer()->isAlive())
         return;
 
-    // do not allow corpse reclaim in arena
+    /// Do not allow corpse reclaim in arena
     if (GetPlayer()->InArena())
         return;
 
-    // body not released yet
+    /// Body not released yet
     if (!GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
 
-    Corpse* corpse = GetPlayer()->GetCorpse();
+    Corpse * l_Corpse = GetPlayer()->GetCorpse();
 
-    if (!corpse)
+    if (!l_Corpse)
         return;
 
-    // prevent resurrect before 30-sec delay after body release not finished
-    if (time_t(corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(NULL)))
+    /// Prevent resurrect before 30-sec delay after body release not finished
+    if (time_t(l_Corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(l_Corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(NULL)))
         return;
 
-    if (!corpse->IsWithinDistInMap(GetPlayer(), CORPSE_RECLAIM_RADIUS, true))
+    if (!l_Corpse->IsWithinDistInMap(GetPlayer(), CORPSE_RECLAIM_RADIUS, true))
         return;
 
-    // resurrect
+    /// Resurrect
     GetPlayer()->ResurrectPlayer(GetPlayer()->InBattleground() ? 1.0f : 0.5f);
 
-    // spawn bones
+    /// Spawn bones
     GetPlayer()->SpawnCorpseBones();
 }
 

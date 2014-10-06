@@ -1480,19 +1480,15 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                Player* originalCaster = GetOriginalCaster()->ToPlayer();
-                if (Unit* target = GetHitUnit())
+                Player* l_OriginalCaster = GetOriginalCaster()->ToPlayer();
+
+                if (Unit * l_Target = GetHitUnit())
                 {
-                    WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-                    ObjectGuid targetGuid = target->GetGUID();
+                    WorldPacket l_Data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
+                    
+                    l_Data.appendPackGUID(l_Target->GetGUID());
 
-                    uint8 bitsOrder[8] = { 2, 0, 4, 1, 5, 6, 7, 3 };
-                    data.WriteBitInOrder(targetGuid, bitsOrder);
-
-                    uint8 bytesOrder[8] = { 1, 2, 0, 4, 7, 5, 6, 3 };
-                    data.WriteBytesSeq(targetGuid, bytesOrder);
-
-                    originalCaster->GetSession()->SendPacket(&data);
+                    l_OriginalCaster->GetSession()->SendPacket(&l_Data);
                 }
             }
 

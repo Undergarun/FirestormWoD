@@ -314,91 +314,71 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
 }
 
-void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleCorpseLocationFromClientQueryOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CORPSE_QUERY");
 
-    Corpse* corpse = GetPlayer()->GetCorpse();
+    Corpse* l_Corpse = GetPlayer()->GetCorpse();
 
-    if (!corpse)
+    if (!l_Corpse)
     {
-        WorldPacket data(SMSG_CORPSE_QUERY);
 
-        data << uint32(0);
-        data << float(0);
-        data << uint32(0);
-        data << float(0);
-        data << float(0);
+        WorldPacket l_Data(SMSG_CORPSE_LOCATION);
 
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
+        l_Data.WriteBit(0);                                 ///< Valid
+        l_Data.FlushBits();
 
-        SendPacket(&data);
+        l_Data << uint32(0);                                ///< Map ID
+        l_Data << float(0);                                 ///< X
+        l_Data << float(0);                                 ///< Y
+        l_Data << float(0);                                 ///< Z
+        l_Data << uint32(0);                                ///< Actual map id
+        l_Data.appendPackGUID(0);                           ///< Transport
+
+        SendPacket(&l_Data);
+
         return;
     }
 
-    uint32 mapid = corpse->GetMapId();
-    float x = corpse->GetPositionX();
-    float y = corpse->GetPositionY();
-    float z = corpse->GetPositionZ();
-    uint32 corpsemapid = mapid;
+    uint32 l_MapID       = l_Corpse->GetMapId();
+    uint32 l_CorpseMapID = l_MapID;
+    float l_X = l_Corpse->GetTransport() ? l_Corpse->GetTransOffsetX() : l_Corpse->GetPositionX();
+    float l_Y = l_Corpse->GetTransport() ? l_Corpse->GetTransOffsetY() : l_Corpse->GetPositionY();
+    float l_Z = l_Corpse->GetTransport() ? l_Corpse->GetTransOffsetZ() : l_Corpse->GetPositionZ();
 
-    // if corpse at different map
-    if (mapid != m_Player->GetMapId())
+    /// If corpse at different map
+    if (l_MapID != m_Player->GetMapId())
     {
-        // search entrance map for proper show entrance
-        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
+        /// Search entrance map for proper show entrance
+        if (const MapEntry * l_CorpseMapEntry = sMapStore.LookupEntry(l_MapID))
         {
-            if (corpseMapEntry->IsDungeon() && corpseMapEntry->CorpseMapID >= 0)
+            if (l_CorpseMapEntry->IsDungeon() && l_CorpseMapEntry->CorpseMapID >= 0)
             {
-                // if corpse map have entrance
-                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
+                /// If corpse map have entrance
+                if (Map const* entranceMap = sMapMgr->CreateBaseMap(l_CorpseMapEntry->CorpseMapID))
                 {
-                    mapid = corpseMapEntry->CorpseMapID;
-                    x = corpseMapEntry->CorpseX;
-                    y = corpseMapEntry->CorpseY;
-                    z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
+                    l_MapID = l_CorpseMapEntry->CorpseMapID;
+                    l_X = l_CorpseMapEntry->CorpseX;
+                    l_Y = l_CorpseMapEntry->CorpseY;
+                    l_Z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), l_X, l_Y, MAX_HEIGHT);
                 }
             }
         }
     }
-    ObjectGuid guid = corpse->GetGUID();
 
-    WorldPacket data(SMSG_CORPSE_QUERY);
+    WorldPacket l_Data(SMSG_CORPSE_LOCATION);
 
-    data << uint32(mapid);
-    data << float(x);
-    data << uint32(corpsemapid);
-    data << float(y);
-    data << float(z);
+    l_Data.WriteBit(1);                                 ///< Valid
+    l_Data.FlushBits();
 
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(1);
+    l_Data << uint32(l_CorpseMapID);                    ///< Map ID
+    l_Data << float(l_X);                               ///< X
+    l_Data << float(l_Y);                               ///< Y
+    l_Data << float(l_Z);                               ///< Z
+    l_Data << uint32(l_MapID);                          ///< Actual map id
+    l_Data.appendPackGUID(l_Corpse->GetTransGUID());    ///< Transport
 
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[3]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleCemeteryListOpcode(WorldPacket& /*recvData*/)
@@ -595,27 +575,28 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
+void WorldSession::HandleCorpseTransportQueryOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
-    ObjectGuid guid;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
 
-    uint8 bits[8] = { 2, 7, 4, 1, 0, 5, 3, 6 };
-    recvData.ReadBitInOrder(guid, bits);
+    uint64 l_TransportGUID = 0;
 
-    recvData.FlushBits();
+    p_Packet.readPackGUID(l_TransportGUID);
 
-    uint8 bytes[8] = { 5, 2, 3, 0, 4, 1, 7, 6 };
-    recvData.ReadBytesSeq(guid, bytes);
+    GameObject * l_TransportGOB = HashMapHolder<GameObject>::Find(l_TransportGUID);
 
-    return;
+    if (!l_TransportGOB)
+        return;
 
-    // @TODO: Find me !
-    WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
-    data << float(0);
-    data << float(0);
-    data << float(0);
-    data << float(0);
+    if (!l_TransportGOB->IsTransport())
+        return;
+
+    WorldPacket data(SMSG_CORPSE_TRANSPORT_QUERY, 4+4+4+4);
+    data << float(l_TransportGOB->GetPositionX());
+    data << float(l_TransportGOB->GetPositionY());
+    data << float(l_TransportGOB->GetPositionZ());
+    data << float(l_TransportGOB->GetOrientation());
+
     SendPacket(&data);
 }
 

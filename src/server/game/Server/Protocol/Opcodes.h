@@ -699,6 +699,11 @@ enum Opcodes
     CMSG_GAMEOBJECT_USE                         = 0x0274,   ///< 6.0.2 18934
     CMSG_SAVE_CUF_PROFILES                      = 0x0000,   ///< 6.0.2 
     CMSG_SPELLCLICK                             = 0x0503,   ///< 6.0.2 18934
+    CMSG_REPOP_REQUEST                          = 0x0063,   ///< 6.0.2 18934
+    CMSG_RECLAIM_CORPSE                         = 0x0108,   ///< 6.0.2 18934
+    CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT      = 0x02B4,   ///< 6.0.2 18934
+    CMSG_QUERY_CORPSE_TRANSPORT                 = 0x11E7,   ///< 6.0.2 18934
+    CMSG_RETURN_TO_GRAVEYARD                    = 0x1053,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -872,6 +877,7 @@ enum Opcodes
     CMSG_QUERY_COUNTDOWN_TIMER                  = 0x05E9,   ///< 6.0.2 18934 (unused)
     CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS     = 0x1E85,   ///< 6.0.2 18934 (unused)
     CMSG_LEAVE_BATTLEFIELD                      = 0x1691,   ///< 6.0.2 18934
+    CMSG_SPIRIT_HEALER_ACTIVATE                 = 0x0544,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1030,7 +1036,6 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                               = 0x0000,
     CMSG_CONFIRM_RESPEC_WIPE                          = 0x0000,
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
-    CMSG_CORPSE_MAP_POSITION_QUERY                    = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
@@ -1202,10 +1207,8 @@ enum Opcodes
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
-    CMSG_RECLAIM_CORPSE                               = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x0000,
     CMSG_REFORGE_ITEM                                 = 0x0000,
-    CMSG_REPOP_REQUEST                                = 0x0000,
     CMSG_REPORT_BUG                                   = 0x0000,
     CMSG_REPORT_PVP_AFK                               = 0x0000,
     CMSG_REPORT_SUGGESTION                            = 0x0000,
@@ -1227,7 +1230,6 @@ enum Opcodes
     CMSG_RESET_FACTION_CHEAT                          = 0x0000,
     CMSG_RESET_INSTANCES                              = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
-    CMSG_RETURN_TO_GRAVEYARD                          = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
     CMSG_SEARCH_LFG_JOIN                              = 0x0000,
     CMSG_SEARCH_LFG_LEAVE                             = 0x0000,
@@ -1263,7 +1265,6 @@ enum Opcodes
     CMSG_SET_VEHICLE_REC_ID_ACK                       = 0x0000,
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x0000,
     CMSG_SOCKET_GEMS                                  = 0x0000,
-    CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x0000,
     CMSG_SPLIT_ITEM                                   = 0x0000,
     CMSG_START_QUEST                                  = 0x0000,
     CMSG_STOP_DANCE                                   = 0x0000,
@@ -1312,7 +1313,6 @@ enum Opcodes
     CMSG_WORLD_TELEPORT                               = 0x0000,
     CMSG_WRAP_ITEM                                    = 0x0000,
     CMSG_ZONEUPDATE                                   = 0x0000,
-    CMSG_CORPSE_QUERY                                 = 0x0000,
     CMSG_CONQUEST_POINTS_STATS_REQUEST                = 0x0000,
     CMSG_ARENA_2v2_STATS_REQUEST                      = 0x0000,
     CMSG_ARENA_3v3_STATS_REQUEST                      = 0x0000,
@@ -1467,11 +1467,7 @@ enum Opcodes
     SMSG_COMSAT_RECONNECT_TRY                         = 0x0000,
     SMSG_CONSOLE_WRITE                                = 0x0000,
     SMSG_CONVERT_RUNE                                 = 0x0000,
-    SMSG_CORPSE_QUERY                                 = 0x0000,
-    SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE           = 0x0000,
     SMSG_CORPSE_NOT_IN_INSTANCE                       = 0x0000,
-    SMSG_CORPSE_RECLAIM_DELAY                         = 0x0000,
-    SMSG_CORPSE_TRANSPORT_QUERY                       = 0x0000,
     SMSG_CRITERIA_DELETED                             = 0x0000,
     SMSG_CRITERIA_UPDATE                              = 0x0000,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0x0000,
@@ -1482,7 +1478,6 @@ enum Opcodes
     SMSG_DAMAGE_DONE_OBSOLETE                         = 0x0000,
     SMSG_DANCE_QUERY_RESPONSE                         = 0x0000,
     SMSG_DB_LOOKUP_RESULT                             = 0x0000,
-    SMSG_DEATH_RELEASE_LOC                            = 0x0000,
     SMSG_DEBUG_RUNE_REGEN                             = 0x0000,
     SMSG_DESTROY_ARENA_UNIT                           = 0x0000,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,

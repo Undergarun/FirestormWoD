@@ -435,24 +435,19 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     unit->AI()->sGossipHello(m_Player);
 }
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
-    ObjectGuid guid;
+    uint64 l_Healer;
 
-    uint8 bitsOrder[8] = { 7, 2, 1, 5, 6, 0, 3, 4 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    p_Packet.readPackGUID(l_Healer);
 
-    recvData.FlushBits();
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_Healer, UNIT_NPC_FLAG_SPIRITHEALER);
 
-    uint8 bytesOrder[8] = { 1, 7, 6, 0, 5, 2, 4, 3 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
-    if (!unit)
+    if (!l_Unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_Healer)));
         return;
     }
 

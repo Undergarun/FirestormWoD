@@ -807,10 +807,10 @@ class WorldSession
         void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
         void HandleRequestGmTicket(WorldPacket& recvPakcet);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
-        void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
+        void HandleCorpseLocationFromClientQueryOpcode(WorldPacket& recvPacket);
         void HandleCemeteryListOpcode(WorldPacket& recvData);
         void HandleForcedReactionsOpcode(WorldPacket& recvData);
-        void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
+        void HandleCorpseTransportQueryOpcode(WorldPacket& recvPacket);
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 

@@ -146,7 +146,7 @@ enum CharacterCustomizeFlags
 #define DEATH_EXPIRE_STEP (5*MINUTE)
 #define MAX_DEATH_COUNT 3
 
-static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
+static uint32 gCopseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 // == PlayerTaxi ================================================
 
@@ -6309,46 +6309,51 @@ void Player::BuildPlayerRepop()
     }
     GetMap()->AddToMap(corpse);
 
-    // convert player body to ghost
+    /// convert player body to ghost
     SetHealth(1);
 
     SendMovementSetWaterWalking(true);
+
     if (!GetSession()->isLogingOut())
         SetRooted(false);
 
-    // BG - remove insignia related
+    /// BG - remove insignia related
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-    // to prevent cheating
+    /// to prevent cheating
     corpse->ResetGhostTime();
 
-    StopMirrorTimers();                                     //disable timers(bars)
+    StopMirrorTimers();                                         ///< disable timers(bars)
 
-    SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, float(1.0f));   //see radius of death player?
+    SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, float(1.0f));     ///< see radius of death player?
 
-    // set and clear other
+    /// set and clear other
     SetByteValue(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
 }
 
-void Player::ResurrectPlayer(float restore_percent, bool applySickness)
+void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
 {
-    WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);          // remove spirit healer position
-    data << float(0);
-    data << float(0);
-    data << uint32(-1);
-    data << float(0);
-    GetSession()->SendPacket(&data);
+    /// remove spirit healer position
+    WorldPacket l_Data(SMSG_DEATH_RELEASE_LOC, 4 * 4);
+    l_Data << uint32(-1);
+    l_Data << float(0);
+    l_Data << float(0);
+    l_Data << float(0);
+    GetSession()->SendPacket(&l_Data);
 
     // speed change, land walk
 
     // remove death flag + set aura
     SetByteValue(UNIT_FIELD_ANIM_TIER, 3, 0x00);
+
     if (getRace() == RACE_NIGHTELF)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
+
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
     if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559) || HasAura(83950))
         RemoveAurasDueToSpell(84559); // The Quick and the Dead
+
     if (getClass() == CLASS_MONK && HasAura(131562))
         RemoveAurasDueToSpell(131562);
 
@@ -6363,18 +6368,19 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     m_deathTimer = 0;
 
     // set health/powers (0- will be set in caller)
-    if (restore_percent > 0.0f)
+    if (p_RestorePercent > 0.0f)
     {
-        // Percentage from SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER
-        AuraEffectList const& mResurrectedHealthByGuildMember = GetAuraEffectsByType(SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER);
-        for (AuraEffectList::const_iterator i = mResurrectedHealthByGuildMember.begin(); i != mResurrectedHealthByGuildMember.end(); ++i)
-            AddPct(restore_percent, (*i)->GetAmount());
+        /// Percentage from SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER
+        const AuraEffectList & l_ResurrectedHealthByGuildMember = GetAuraEffectsByType(SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER);
+        
+        for (AuraEffectList::const_iterator l_It = l_ResurrectedHealthByGuildMember.begin(); l_It != l_ResurrectedHealthByGuildMember.end(); ++l_It)
+            AddPct(p_RestorePercent, (*l_It)->GetAmount());
 
-        SetHealth(uint32(GetMaxHealth()*restore_percent));
-        SetPower(POWER_MANA, uint32(GetMaxPower(POWER_MANA)*restore_percent));
+        SetHealth(uint32(GetMaxHealth()*p_RestorePercent));
+        SetPower(POWER_MANA,   uint32(GetMaxPower(POWER_MANA)   * p_RestorePercent));
         SetPower(POWER_RAGE, 0);
-        SetPower(POWER_ENERGY, uint32(GetMaxPower(POWER_ENERGY)*restore_percent));
-        SetPower(POWER_FOCUS, uint32(GetMaxPower(POWER_FOCUS)*restore_percent));
+        SetPower(POWER_ENERGY, uint32(GetMaxPower(POWER_ENERGY) * p_RestorePercent));
+        SetPower(POWER_FOCUS,  uint32(GetMaxPower(POWER_FOCUS)  * p_RestorePercent));
         SetPower(POWER_ECLIPSE, 0);
         SetPower(POWER_DEMONIC_FURY, 200);
         SetPower(POWER_BURNING_EMBERS, 10);
@@ -6383,44 +6389,47 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         SetPower(POWER_SHADOW_ORB, 0);
     }
 
-    // trigger update zone for alive state zone updates
-    uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone, newarea);
-    UpdateZone(newzone, newarea);
-    sOutdoorPvPMgr->HandlePlayerResurrects(this, newzone);
+    /// Trigger update zone for alive state zone updates
+    uint32 l_NewZone, l_NewArea;
+
+    GetZoneAndAreaId(l_NewZone, l_NewArea);
+    UpdateZone(l_NewZone, l_NewArea);
+
+    sOutdoorPvPMgr->HandlePlayerResurrects(this, l_NewZone);
 
     if (InBattleground())
     {
-        if (Battleground* bg = GetBattleground())
-            bg->HandlePlayerResurrect(this);
+        if (Battleground * l_Battleground = GetBattleground())
+            l_Battleground->HandlePlayerResurrect(this);
     }
 
-    // update visibility
+    /// Update visibility
     UpdateObjectVisibility();
 
-    if (!applySickness)
+    if (!p_ApplySickness)
         return;
 
-    //Characters from level 1-10 are not affected by resurrection sickness.
-    //Characters from level 11-19 will suffer from one minute of sickness
-    //for each level they are above 10.
-    //Characters level 20 and up suffer from ten minutes of sickness.
-    int32 startLevel = sWorld->getIntConfig(CONFIG_DEATH_SICKNESS_LEVEL);
+    /// Characters from level 1-10 are not affected by resurrection sickness.
+    /// Characters from level 11-19 will suffer from one minute of sickness
+    /// for each level they are above 10.
+    /// Characters level 20 and up suffer from ten minutes of sickness.
+    int32 l_StartLevel = sWorld->getIntConfig(CONFIG_DEATH_SICKNESS_LEVEL);
 
-    if (int32(getLevel()) >= startLevel)
+    if (int32(getLevel()) >= l_StartLevel)
     {
-        // set resurrection sickness
+        /// Set resurrection sickness
         CastSpell(this, 15007, true);
 
-        // not full duration
-        if (int32(getLevel()) < startLevel+9)
+        /// Not full duration
+        if (int32(getLevel()) < l_StartLevel + 9)
         {
-            int32 delta = (int32(getLevel()) - startLevel + 1)*MINUTE;
+            int32 l_Data = (int32(getLevel()) - l_StartLevel + 1)*MINUTE;
 
-            AuraPtr aur = GetAura(15007, GetGUID());
-            if (aur != NULLAURA)
+            AuraPtr l_Aura = GetAura(15007, GetGUID());
+
+            if (l_Aura != NULLAURA)
             {
-                aur->SetDuration(delta*IN_MILLISECONDS);
+                l_Aura->SetDuration(l_Data*IN_MILLISECONDS);
             }
         }
     }
@@ -6770,14 +6779,16 @@ void Player::RepopAtGraveyard()
     {
         TeleportTo(ClosestGrave->map_id, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, GetOrientation());
         UpdateObjectVisibility();
-        if (isDead())                                        // not send if alive, because it used in TeleportTo()
+
+        /// not send if alive, because it used in TeleportTo()
+        if (isDead())
         {
-            WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap
-            data << ClosestGrave->y;
-            data << ClosestGrave->z;
-            data << ClosestGrave->map_id;
-            data << ClosestGrave->x;
-            GetSession()->SendPacket(&data);
+            WorldPacket l_Data(SMSG_DEATH_RELEASE_LOC, 4 * 4);  // show spirit healer position on minimap
+            l_Data << ClosestGrave->map_id;
+            l_Data << ClosestGrave->y;
+            l_Data << ClosestGrave->z;
+            l_Data << ClosestGrave->x;
+            GetSession()->SendPacket(&l_Data);
         }
     }
     else if (GetPositionZ() < zone->MaxDepth)
@@ -26437,7 +26448,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
     if (pvp)
     {
         if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP))
-            return copseReclaimDelay[0];
+            return gCopseReclaimDelay[0];
     }
     else if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE))
         return 0;
@@ -26446,7 +26457,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
     // 0..2 full period
     // should be ceil(x)-1 but not floor(x)
     uint64 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now)/DEATH_EXPIRE_STEP : 0;
-    return copseReclaimDelay[count];
+    return gCopseReclaimDelay[count];
 }
 
 void Player::UpdateCorpseReclaimDelay()
@@ -26471,54 +26482,59 @@ void Player::UpdateCorpseReclaimDelay()
         m_deathExpireTime = now+DEATH_EXPIRE_STEP;
 }
 
-void Player::SendCorpseReclaimDelay(bool load)
+void Player::SendCorpseReclaimDelay(bool p_Load)
 {
-    Corpse* corpse = GetCorpse();
-    if (load && !corpse)
+    Corpse * l_Corpse = GetCorpse();
+
+    if (p_Load && !l_Corpse)
         return;
 
-    bool pvp;
-    if (corpse)
-        pvp = (corpse->GetType() == CORPSE_RESURRECTABLE_PVP);
-    else
-        pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH);
+    bool l_IsPVP;
 
-    time_t delay;
-    if (load)
+    if (l_Corpse)
+        l_IsPVP = (l_Corpse->GetType() == CORPSE_RESURRECTABLE_PVP);
+    else
+        l_IsPVP = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH);
+
+    time_t l_Delay;
+
+    if (p_Load)
     {
-        if (corpse->GetGhostTime() > m_deathExpireTime)
+        if (l_Corpse->GetGhostTime() > m_deathExpireTime)
             return;
 
-        uint64 count;
-        if ((pvp && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
-           (!pvp && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
+        uint64 l_Count;
+
+        if ((l_IsPVP && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
+           (!l_IsPVP && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
         {
-            count = (m_deathExpireTime-corpse->GetGhostTime())/DEATH_EXPIRE_STEP;
-            if (count >= MAX_DEATH_COUNT)
-                count = MAX_DEATH_COUNT-1;
+            l_Count = (m_deathExpireTime-l_Corpse->GetGhostTime())/DEATH_EXPIRE_STEP;
+
+            if (l_Count >= MAX_DEATH_COUNT)
+                l_Count = MAX_DEATH_COUNT-1;
         }
         else
-            count=0;
+            l_Count=0;
 
-        time_t expected_time = corpse->GetGhostTime()+copseReclaimDelay[count];
+        time_t l_ExpectedTime = l_Corpse->GetGhostTime() + gCopseReclaimDelay[l_Count];
+        time_t l_Now          = time(NULL);
 
-        time_t now = time(NULL);
-        if (now >= expected_time)
+        if (l_Now >= l_ExpectedTime)
             return;
 
-        delay = expected_time-now;
+        l_Delay = l_ExpectedTime-l_Now;
     }
     else
-        delay = GetCorpseReclaimDelay(pvp);
+        l_Delay = GetCorpseReclaimDelay(l_IsPVP);
 
-    if (!delay)
+    if (!l_Delay)
         return;
 
-    //! corpse reclaim delay 30 * 1000ms or longer at often deaths
-    WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4);
-    data.WriteBit(0);
-    data << uint32(delay*IN_MILLISECONDS);
-    GetSession()->SendPacket(&data);
+    /// Corpse reclaim delay 30 * 1000ms or longer at often deaths
+    WorldPacket l_Data(SMSG_CORPSE_RECLAIM_DELAY, 4);
+    l_Data << uint32(l_Delay * IN_MILLISECONDS);
+
+    GetSession()->SendPacket(&l_Data);
 }
 
 Player* Player::GetNextRandomRaidMember(float radius)
