@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (116847,'spell_monk_rushing_jade_wind');

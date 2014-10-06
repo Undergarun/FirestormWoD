@@ -3864,6 +3864,35 @@ class spell_monk_eminence : public SpellScriptLoader
         }
 };
 
+// Rushing Jade Wind 116847
+class spell_monk_rushing_jade_wind : public SpellScriptLoader
+{
+    public:
+        spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
+
+        class spell_monk_rushing_jade_wind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_rushing_jade_wind_SpellScript)
+
+            void HandleOnCast()
+            {
+                if (Player* l_caster = GetCaster()->ToPlayer())
+                    if (l_caster->GetSpecializationId(l_caster->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        l_caster->CastSpell(l_caster, SPELL_MONK_SPINNING_CRANE_KICK_HEAL, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_rushing_jade_wind_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_rushing_jade_wind_SpellScript();
+        }
+};
+
 
 void AddSC_monk_spell_scripts()
 {
@@ -3932,4 +3961,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_roll();
     new spell_monk_tigereye_brew_stacks();
     new spell_monk_eminence();
+    new spell_monk_rushing_jade_wind();
 }
