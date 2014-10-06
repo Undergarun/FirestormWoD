@@ -1263,19 +1263,7 @@ struct GtOCTClassCombatRatingScalarEntry
     float   ratio;
 };
 
-struct GtOCTRegenHPEntry
-{
-    //uint32    level;
-    float   ratio;
-};
-
-struct GtOCTRegenMPEntry
-{
-    //uint32    level;
-    float   ratio;
-};
-
-struct gtOCTHpPerStaminaEntry
+struct GtOCTHpPerStaminaEntry
 {
     //uint32    level;
     float   ratio;

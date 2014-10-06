@@ -7033,8 +7033,8 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
         level = GT_MAX_LEVEL;
 
     // Dodge per agility is proportional to crit per agility, which is available from DBC files
-    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
+    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
     if (dodgeRatio == NULL || pclass > MAX_CLASSES)
         return;
 
@@ -7056,7 +7056,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass() - 1) * GT_MAX_RATING + cr + 1);
     if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
@@ -7066,8 +7066,10 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
     float baseResult = float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) * GetRatingMultiplier(cr);
+
     if (cr != CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)
         return baseResult;
+
     //return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
@@ -7096,8 +7098,7 @@ float Player::OCTRegenMPPerSpirit()
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-//    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
     if (moreRatio == NULL)
         return 0.0f;
 
@@ -7109,7 +7110,7 @@ float Player::OCTRegenMPPerSpirit()
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
-    m_baseRatingValue[cr] +=(apply ? value : -value);
+    m_baseRatingValue[cr] += (apply ? value : -value);
 
     // explicit affected values
     switch (cr)
@@ -7143,14 +7144,17 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 void Player::UpdateRating(CombatRating cr)
 {
     int32 amount = m_baseRatingValue[cr];
+
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
     if (amount < 0)
         amount = 0;
+
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr, uint32(amount));
 
     if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
