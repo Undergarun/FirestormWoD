@@ -178,24 +178,24 @@ enum Opcodes
         SMSG_SHOW_BANK                              = 0x10A7,   ///< 6.0.2 18934
 
         /// Group
-        SMSG_PARTY_UPDATE                           = 0x0000,   ///< 6.0.2 
-        SMSG_PARTY_MEMBER_STATE_FULL                = 0x0000,   ///< 6.0.2 
-        SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x0000,   ///< 
-        SMSG_PARTY_INVITE                           = 0x0000,   ///< 6.0.2 
-        SMSG_GROUP_DECLINE                          = 0x0000,   ///< 
-        SMSG_PARTY_COMMAND_RESULT                   = 0x0000,   ///< 6.0.2 
-        SMSG_GROUP_UNINVITE                         = 0x0000,   ///< 
-        SMSG_GROUP_NEW_LEADER                       = 0x0000,   ///< 6.0.2 
-        SMSG_MINIMAP_PING                           = 0x0000,   ///< 6.0.2 
-        SMSG_SET_LOOT_METHOD_FAILED                 = 0x1653,   ///< 6.0.2 18934
-        SMSG_RANDOM_ROLL                            = 0x0000,   ///< 6.0.2 
-        SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x0000,   ///< 6.0.2 
-        SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x0000,   ///< 6.0.2 
-        SMSG_READY_CHECK_COMPLETED                  = 0x0000,   ///< 6.0.2 
-        SMSG_READY_CHECK_RESPONSE                   = 0x0000,   ///< 6.0.2 
-        SMSG_READY_CHECK_STARTED                    = 0x0000,   ///< 6.0.2 
-        SMSG_ROLL_POLL_INFORM                       = 0x0000,   ///< 6.0.2 
-        SMSG_ROLE_CHANGED_INFORM                    = 0x0000,   ///< 6.0.2 
+        SMSG_PARTY_UPDATE                           = 0x00AC,   ///< 6.0.2 18934
+        SMSG_PARTY_MEMBER_STATE_FULL                = 0x02B8,   ///< 6.0.2 18934
+        SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x1038,   ///< 6.0.2 18934
+        SMSG_PARTY_INVITE                           = 0x0057,   ///< 6.0.2 18934
+        SMSG_GROUP_DECLINE                          = 0x08B8,   ///< 6.0.2 18934
+        SMSG_PARTY_COMMAND_RESULT                   = 0x1758,   ///< 6.0.2 18934
+        SMSG_GROUP_UNINVITE                         = 0x0143,   ///< 6.0.2 18934
+        SMSG_GROUP_NEW_LEADER                       = 0x03B3,   ///< 6.0.2 18934
+        SMSG_MINIMAP_PING                           = 001647,   ///< 6.0.2 18934
+        SMSG_SET_LOOT_METHOD_FAILED                 = 0x0AA3,   ///< 6.0.2 18934
+        SMSG_RANDOM_ROLL                            = 0x1204,   ///< 6.0.2 18934
+        SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x1364,   ///< 6.0.2 18934
+        SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x0407,   ///< 6.0.2 18934
+        SMSG_READY_CHECK_COMPLETED                  = 0x1404,   ///< 6.0.2 18934
+        SMSG_READY_CHECK_RESPONSE                   = 0x10FC,   ///< 6.0.2 18934
+        SMSG_READY_CHECK_STARTED                    = 0x08F0,   ///< 6.0.2 18934
+        SMSG_ROLL_POLL_INFORM                       = 0x1060,   ///< 6.0.2 18934
+        SMSG_ROLE_CHANGED_INFORM                    = 0x1157,   ///< 6.0.2 18934
 
         /// Battleground
         SMSG_BATTLEFIELD_STATUS_QUEUED                      = 0x1568,   ///< 6.0.2 18934
@@ -844,22 +844,22 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Group
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PARTY_INVITE                           = 0x0000,   ///< 6.0.2
-    CMSG_PARTY_INVITE_RESPONSE                  = 0x0000,   ///< 6.0.2
-    CMSG_LEAVE_GROUP                            = 0x0000,   ///< 6.0.2
-    CMSG_PARTY_UNINVITE                         = 0x0000,   ///< 6.0.2
-    CMSG_SET_PARTY_LEADER                       = 0x0000,   ///< 6.0.2
-    CMSG_SET_ROLE                               = 0x0000,   ///< 6.0.2
-    CMSG_LOOT_ROLL                              = 0x0000,   ///< 6.0.2
-    CMSG_MINIMAP_PING                           = 0x0000,   ///< 6.0.2
-    CMSG_SET_LOOT_METHOD                        = 0x0000,   ///< 6.0.2
-    CMSG_RANDOM_ROLL                            = 0x0000,   ///< 6.0.2
-    CMSG_UPDATE_RAID_TARGET                     = 0x0000,   ///< 6.0.2
-    CMSG_OPT_OUT_OF_LOOT                        = 0x0000,   ///< 6.0.2
-    CMSG_CONVERT_RAID                           = 0x0000,   ///< 6.0.2
-    CMSG_DO_READY_CHECK                         = 0x0000,   ///< 6.0.2
-    CMSG_READY_CHECK_RESPONSE                   = 0x0000,   ///< 6.0.2
-    CMSG_INITIATE_ROLE_POLL                     = 0x0000,   ///< 6.0.2
+    CMSG_PARTY_INVITE                           = 0x0BB3,   ///< 6.0.2 18934
+    CMSG_PARTY_INVITE_RESPONSE                  = 0x09EF,   ///< 6.0.2 18934
+    CMSG_LEAVE_GROUP                            = 0x01F7,   ///< 6.0.2 18934
+    CMSG_PARTY_UNINVITE                         = 0x08F8,   ///< 6.0.2 18934
+    CMSG_SET_PARTY_LEADER                       = 0x02AF,   ///< 6.0.2 18934
+    CMSG_SET_ROLE                               = 0x08BF,   ///< 6.0.2 18934
+    CMSG_LOOT_ROLL                              = 0x1591,   ///< 6.0.2 18934
+    CMSG_MINIMAP_PING                           = 0x0BB7,   ///< 6.0.2 18934
+    CMSG_SET_LOOT_METHOD                        = 0x10E8,   ///< 6.0.2 18934
+    CMSG_RANDOM_ROLL                            = 0x10FC,   ///< 6.0.2 18934
+    CMSG_UPDATE_RAID_TARGET                     = 0x03F7,   ///< 6.0.2 18934
+    CMSG_OPT_OUT_OF_LOOT                        = 0x1008,   ///< 6.0.2 18934
+    CMSG_CONVERT_RAID                           = 0x18C0,   ///< 6.0.2 18934
+    CMSG_DO_READY_CHECK                         = 0x08F4,   ///< 6.0.2 18934
+    CMSG_READY_CHECK_RESPONSE                   = 0x11C0,   ///< 6.0.2 18934
+    CMSG_INITIATE_ROLE_POLL                     = 0x12F0,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -886,6 +886,9 @@ enum Opcodes
     /// Battlegrounds
     //////////////////////////////////////////////////////////////////////////
     CMSG_BATTLEMASTER_JOIN                      = 0x0327,   ///< 6.0.2 18934
+    CMSG_BATTLEMASTER_JOIN_ARENA                = 0x0537,   ///< 6.0.2 18934
+    CMSG_BATTLEMASTER_JOIN_ARENA_SKIRMISH       = 0x1067,   ///< 6.0.2 18934 (unused)
+    CMSG_BATTLEMASTER_JOIN_RATED                = 0x0000,
     CMSG_BATTLEFIELD_PORT                       = 0x0428,   ///< 6.0.2 18934
     CMSG_REQUEST_BATTLEFIELD_STATUS             = 0x10AC,   ///< 6.0.2 18934
     CMSG_BATTLEFIELD_REQUEST_SCORE_DATA         = 0x1B90,   ///< 6.0.2 18934
@@ -897,6 +900,12 @@ enum Opcodes
     CMSG_SPIRIT_HEALER_ACTIVATE                 = 0x0544,   ///< 6.0.2 18934
     CMSG_AREA_SPIRIT_HEALER_QUERY               = 0x0137,   ///< 6.0.2 18934
     CMSG_AREA_SPIRIT_HEALER_QUEUE               = 0x0433,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_MGR_QUEUE_REQUEST          = 0x10C7,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE  = 0x0AE7,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_MGR_QUEUE_EXIT_REQUEST     = 0x00A8,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE  = 0x0BAC,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_LIST                       = 0x0488,   ///< 6.0.2 18934
+    CMSG_BATTLEFIELD_LEAVE                      = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -970,16 +979,6 @@ enum Opcodes
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
     CMSG_BANKER_ACTIVATE                              = 0x0000,
-    CMSG_BATTLEFIELD_JOIN                             = 0x0000,
-    CMSG_BATTLEFIELD_LEAVE                            = 0x0000,
-    CMSG_BATTLEFIELD_LIST                             = 0x0000,
-    CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE        = 0x0000,
-    CMSG_BATTLEFIELD_MGR_EXIT_REQUEST                 = 0x0000,
-    CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE        = 0x0000,
-    CMSG_BATTLEFIELD_MGR_QUEUE_REQUEST                = 0x0000,
-    CMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x0000,
-    CMSG_BATTLEMASTER_JOIN_ARENA                      = 0x0000,
-    CMSG_BATTLEMASTER_JOIN_RATED                      = 0x0000,
     CMSG_BEGIN_TRADE                                  = 0x0000,
     CMSG_BLACK_MARKET_HELLO                           = 0x0000,
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x0000,

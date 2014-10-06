@@ -327,75 +327,82 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
     if (l_HasRolesDesired)
         l_RolesDesired = p_RecvData.read<uint32>();
 
-    uint32 groupGUID = GetPlayer()->GetGroupInvite();
-    if (!groupGUID)
+    uint32 l_GroupGUID = GetPlayer()->GetGroupInvite();
+
+    if (!l_GroupGUID)
         return;
 
-    Group* group = sGroupMgr->GetGroupByGUID(groupGUID);
-    if (!group)
+    Group * l_Group = sGroupMgr->GetGroupByGUID(l_GroupGUID);
+
+    if (!l_Group)
         return;
 
     if (l_Accept)
     {
         // Remove player from invitees in any case
-        group->RemoveInvite(GetPlayer());
+        l_Group->RemoveInvite(GetPlayer());
 
-        if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
+        if (l_Group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
             return;
         }
 
         // Group is full
-        if (group->IsFull())
+        if (l_Group->IsFull())
         {
             SendPartyResult(PARTY_CMD_INVITE, "", ERR_GROUP_FULL);
             return;
         }
 
-        Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
+        Player * l_Leader = ObjectAccessor::FindPlayer(l_Group->GetLeaderGUID());
 
-        // Forming a new group, create it
-        if (!group->IsCreated())
+        /// Forming a new group, create it
+        if (!l_Group->IsCreated())
         {
-            // This can happen if the leader is zoning. To be removed once delayed actions for zoning are implemented
-            if (!leader)
+            /// This can happen if the leader is zoning. To be removed once delayed actions for zoning are implemented
+            if (!l_Leader)
             {
-                group->RemoveAllInvites();
+                l_Group->RemoveAllInvites();
                 return;
             }
 
-            // If we're about to create a group there really should be a leader present
-            ASSERT(leader);
-            group->RemoveInvite(leader);
-            group->Create(leader);
-            sGroupMgr->AddGroup(group);
+            /// If we're about to create a group there really should be a leader present
+            ASSERT(l_Leader);
+
+            l_Group->RemoveInvite(l_Leader);
+            l_Group->Create(l_Leader);
+
+            sGroupMgr->AddGroup(l_Group);
         }
 
-        // Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
-        if (!group->AddMember(GetPlayer()))
+        /// Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
+        if (!l_Group->AddMember(GetPlayer()))
             return;
 
-        group->BroadcastGroupUpdate();
+        l_Group->BroadcastGroupUpdate();
     }
     else
     {
-        // Remember leader if online (group pointer will be invalid if group gets disbanded)
-        Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
+        /// Remember leader if online (group pointer will be invalid if group gets disbanded)
+        Player * l_Leader = ObjectAccessor::FindPlayer(l_Group->GetLeaderGUID());
 
-        // uninvite, group can be deleted
+        /// Uninvite, group can be deleted
         GetPlayer()->UninviteFromGroup();
 
-        if (!leader || !leader->GetSession())
+        if (!l_Leader || !l_Leader->GetSession())
             return;
 
-        // report
+        /// Report
         std::string l_Name = GetPlayer()->GetName();
-        WorldPacket data(SMSG_GROUP_DECLINE, l_Name.length());
-        data.WriteBits(l_Name.length(), 6);
-        data.FlushBits();
-        data.WriteString(l_Name);
-        leader->GetSession()->SendPacket(&data);
+
+        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length());
+        l_Data.WriteBits(l_Name.length(), 6);
+        l_Data.FlushBits();
+
+        l_Data.WriteString(l_Name);
+
+        l_Leader->GetSession()->SendPacket(&l_Data);
     }
 }
 
@@ -610,7 +617,7 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-// @TODO: Verify order, l_RollType & l_LootListID are maybe inversed
+/// @TODO: Verify order, l_RollType & l_LootListID are maybe inversed
 void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
 {
     uint64 l_LootObj;
@@ -621,20 +628,23 @@ void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
     p_RecvData >> l_RollType;
     p_RecvData >> l_LootListID;
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    Group* l_Group = GetPlayer()->GetGroup();
+
+    if (!l_Group)
         return;
 
-    group->CountRollVote(GetPlayer()->GetGUID(), l_LootListID, l_RollType);
+    l_Group->CountRollVote(GetPlayer()->GetGUID(), l_LootListID, l_RollType);
 
     switch (l_RollType)
     {
         case ROLL_NEED:
             GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
             break;
+
         case ROLL_GREED:
             GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
             break;
+
     }
 }
 
@@ -1228,7 +1238,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_POSITION);
         p_Data->WriteBit(false);
         p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_AURAS);
-        p_Data->WriteBit(false);
         p_Data->WriteBit(l_PetInfo);
         p_Data->WriteBit(false);
         p_Data->FlushBits();

@@ -109,111 +109,87 @@ void WorldSession::SendBfLeaveMessage(uint64 p_Guid, BFLeaveReason p_Reason)
     SendPacket(&l_Data);
 }
 
-//Send by client when he click on accept for queue
-void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
+/// Send by client when he click on accept for queue
+void WorldSession::HandleBfQueueInviteResponse(WorldPacket & p_Packet)
 {
-    uint8 accepted;
-    ObjectGuid guid;
+    uint64 l_QueueID        = 0;
+    bool   l_AcceptedInvite = false;
 
-    uint8 bitOrder[8] = {4, 7, 6, 1, 2, 5, 0, 3};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    p_Packet >> l_QueueID;
+    l_AcceptedInvite = p_Packet.ReadBit();
 
-    accepted = recvData.ReadBit();
+    sLog->outTrace(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)l_QueueID, l_AcceptedInvite);
 
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = {6, 4, 0, 1, 5, 7, 3, 2};
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
-
-    if (!accepted)
+    if (!l_AcceptedInvite)
         return;
 
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
-    if (!bf)
+    Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldByGUID(l_QueueID);
+
+    if (!l_Battlefield)
         return;
 
-    bf->PlayerAcceptInviteToQueue(m_Player);
+    l_Battlefield->PlayerAcceptInviteToQueue(m_Player);
 }
 
-//Send by client on clicking in accept or refuse of invitation windows for join game
-void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
+/// Send by client on clicking in accept or refuse of invitation windows for join game
+void WorldSession::HandleBfEntryInviteResponse(WorldPacket & p_Packet)
 {
-    uint8 accepted;
-    ObjectGuid guid;
+    uint64 l_QueueID = 0;
+    bool l_AcceptedInvite = false;;
 
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    accepted = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
+    p_Packet >> l_QueueID;
+    l_AcceptedInvite = p_Packet.ReadBit();
 
-    recvData.FlushBits();
+    sLog->outTrace(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", uint64(l_QueueID), l_AcceptedInvite);
 
-    uint8 byteOrder[8] = {3, 2, 4, 0, 5, 7, 6, 1};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    Battlefield* l_Battlefield = sBattlefieldMgr->GetBattlefieldByGUID(l_QueueID);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", uint64(guid), accepted);
-
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
-    if (!bf)
+    if (!l_Battlefield)
         return;
 
-    if (accepted)
-        bf->PlayerAcceptInviteToWar(m_Player);
+    if (l_AcceptedInvite)
+        l_Battlefield->PlayerAcceptInviteToWar(m_Player);
     else
-        if (m_Player->GetZoneId() == bf->GetZoneId())
-            bf->KickPlayerFromBattlefield(m_Player->GetGUID());
+    {
+        if (m_Player->GetZoneId() == l_Battlefield->GetZoneId())
+            l_Battlefield->KickPlayerFromBattlefield(m_Player->GetGUID());
+    }
 }
 
-void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
+void WorldSession::HandleBfQueueRequest(WorldPacket& p_Packet)
 {
-    ObjectGuid guid;
+    uint64 l_QueueID = 0;
 
-    uint8 bitOrder[8] = {3, 5, 7, 0, 6, 2, 1, 4};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    p_Packet >> l_QueueID;
 
-    uint8 byteOrder[8] = {1, 0, 3, 2, 4, 7, 5, 6};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64)l_QueueID);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
+    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldByGUID(l_QueueID))
     {
-        if (bf->IsWarTime())
-            bf->InvitePlayerToWar(m_Player);
+        if (l_Battlefield->IsWarTime())
+            l_Battlefield->InvitePlayerToWar(m_Player);
         else
         {
-            uint32 timer = bf->GetTimer() / 1000;
-            if (timer < 15 * MINUTE)
-                bf->InvitePlayerToQueue(m_Player);
+            uint32 l_Timer = l_Battlefield->GetTimer() / 1000;
+
+            if (l_Timer < 15 * MINUTE)
+                l_Battlefield->InvitePlayerToQueue(m_Player);
         }
     }
 }
 
-void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
+void WorldSession::HandleBfExitQueueRequest(WorldPacket & p_Packet)
 {
-    ObjectGuid guid;
+    uint64 l_QueueID = 0;
 
-    uint8 bitOrder[8] = {4, 0, 1, 5, 3, 7, 6, 2};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    p_Packet >> l_QueueID;
 
-    recvData.FlushBits();
+    sLog->outTrace(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", (uint64)l_QueueID);
 
-    uint8 byteOrder[8] = {0, 6, 2, 5, 4, 1, 7, 3};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    SendBfLeaveMessage(l_QueueID);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
-
-    SendBfLeaveMessage(guid);
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
-        bf->AskToLeaveQueue(m_Player);
+    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldByGUID(l_QueueID))
+        l_Battlefield->AskToLeaveQueue(m_Player);
 }
 
 void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)

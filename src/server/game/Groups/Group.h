@@ -428,7 +428,7 @@ class Group
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;
         uint64              m_guid;
-        uint32              m_counter;                      // used only in SMSG_PARTY_UPDATE
+        uint32              m_UpdateCount;                      // used only in SMSG_PARTY_UPDATE
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         uint8               m_readyCheckCount;
