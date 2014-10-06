@@ -155,10 +155,10 @@ enum Opcodes
         SMSG_FRIEND_STATUS                          = 0x0178,   ///< 6.0.2 18934
 
         /// Taxi
-        SMSG_TAXI_NODE_STATUS                       = 0x0000,   ///< 6.0.2 
-        SMSG_NEW_TAXI_PATH                          = 0x0000,   ///< 6.0.2 
-        SMSG_SHOW_TAXI_NODES                        = 0x0000,   ///< 6.0.2 
-        SMSG_ACTIVATE_TAXI_REPLY                    = 0x0000,   ///< 6.0.2 
+        SMSG_TAXI_NODE_STATUS                       = 0x1114,   ///< 6.0.2 18934
+        SMSG_NEW_TAXI_PATH                          = 0x0728,   ///< 6.0.2 18934
+        SMSG_SHOW_TAXI_NODES                        = 0x12B8,   ///< 6.0.2 18934
+        SMSG_ACTIVATE_TAXI_REPLY                    = 0x09FF,   ///< 6.0.2 18934
 
         /// Loot
         SMSG_LOOT_LIST                              = 0x0037,   ///< 6.0.2 18934
@@ -717,10 +717,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Taxi
     //////////////////////////////////////////////////////////////////////////
-    CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0000,   ///< 6.0.2 
-    CMSG_ENABLE_TAXI_NODE                       = 0x0000,   ///< 6.0.2
-    CMSG_ACTIVATE_TAXI                          = 0x0000,   ///< 6.0.2
-    CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0000,   ///< 6.0.2
+    CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0767,   ///< 6.0.2 18934
+    CMSG_ENABLE_TAXI_NODE                       = 0x0573,   ///< 6.0.2 18934
+    CMSG_ACTIVATE_TAXI                          = 0x0054,   ///< 6.0.2 18934
+    CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0253,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest
