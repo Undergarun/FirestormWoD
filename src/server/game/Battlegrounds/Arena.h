@@ -126,7 +126,7 @@ enum ArenaSlots
     SLOT_ARENA_5V5 = 2,
     MAX_ARENA_SLOT = 3,
     SLOT_RBG       = 3,
-    MAX_PVP_SLOT   = 4
+    MAX_PVP_SLOT   = 6
 };
 
 #define MAX_ARENA_TYPE 6                                    // type : 2, 3 or 5

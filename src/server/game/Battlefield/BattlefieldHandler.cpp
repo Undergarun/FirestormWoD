@@ -294,14 +294,14 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 
     for (int i = 0; i < MAX_PVP_SLOT; i++)
     {
-        data << uint32(m_Player->GetWeekGames(i)); // games of week
-        data << uint32(m_Player->GetSeasonGames(i)); // games of season
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(m_Player->GetArenaPersonalRating(i)); // current rating
-        data << uint32(m_Player->GetBestRatingOfSeason(i)); // best rating of season
-        data << uint32(m_Player->GetBestRatingOfWeek(i)); // best rating of week
-        data << uint32(m_Player->GetPrevWeekWins(i)); // wins of prev week
+        data << uint32(m_Player->GetArenaPersonalRating(i));    ///< current rating
+        data << uint32(0);                                      ///< Ranking
+        data << uint32(m_Player->GetSeasonGames(i));            ///< games of season
+        data << uint32(m_Player->GetSeasonWins(i));             ///< games of season
+        data << uint32(m_Player->GetWeekGames(i));              ///< games of week
+        data << uint32(m_Player->GetWeekWins(i));               ///< won games of week
+        data << uint32(m_Player->GetBestRatingOfWeek(i));       ///< best rating of week
+        data << uint32(m_Player->GetBestRatingOfSeason(i));     ///< best rating of season
     }
 
     SendPacket(&data);

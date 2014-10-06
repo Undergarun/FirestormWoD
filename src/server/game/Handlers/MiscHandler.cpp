@@ -2281,63 +2281,55 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
 }
 
 // Battlefield and Battleground
-void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
 
-    Battleground* bg = m_Player->GetBattleground();
+    Battleground* l_Battleground = m_Player->GetBattleground();
 
-    ObjectGuid guid;
+    uint64 l_Healer = 0;
 
-    uint8 bitsOrder[8] = { 5, 3, 0, 6, 1, 7, 4, 2 };
-    recv_data.ReadBitInOrder(guid, bitsOrder);
+    p_Packet.readPackGUID(l_Healer);
 
-    recv_data.FlushBits();
+    Creature * l_Unit = GetPlayer()->GetMap()->GetCreature(l_Healer);
 
-    uint8 bytesOrder[8] = { 6, 7, 3, 0, 5, 4, 2, 1 };
-    recv_data.ReadBytesSeq(guid, bytesOrder);
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
+    if (!l_Unit)
         return;
 
-    if (!unit->isSpiritService())                            // it's not spirit service
+    /// It's not spirit service
+    if (!l_Unit->isSpiritService())
         return;
 
-    if (bg)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, bg, guid);
+    if (l_Battleground)
+        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
 
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
-        bf->SendAreaSpiritHealerQueryOpcode(m_Player,guid);
+    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
+        l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player,l_Healer);
 }
 
-void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
 
-    Battleground* bg = m_Player->GetBattleground();
-    ObjectGuid npcGuid;
+    Battleground* l_Battleground = m_Player->GetBattleground();
+    uint64 l_Healer = 0;
 
-    uint8 bitsOrder[8] = { 6, 2, 0, 3, 5, 4, 1, 7 };
-    recv_data.ReadBitInOrder(npcGuid, bitsOrder);
+    p_Packet.readPackGUID(l_Healer);
 
-    recv_data.FlushBits();
+    Creature* l_Unit = GetPlayer()->GetMap()->GetCreature(l_Healer);
 
-    uint8 bytesOrder[8] = { 4, 2, 6, 0, 1, 7, 3, 5 };
-    recv_data.ReadBytesSeq(npcGuid, bytesOrder);
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(npcGuid);
-    if (!unit)
+    if (!l_Unit)
         return;
 
-    if (!unit->isSpiritService())                            // it's not spirit service
+    /// it's not spirit service
+    if (!l_Unit->isSpiritService())
         return;
 
-    if (bg)
-        bg->AddPlayerToResurrectQueue(npcGuid, m_Player->GetGUID());
+    if (l_Battleground)
+        l_Battleground->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
 
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
-        bf->AddPlayerToResurrectQueue(npcGuid, m_Player->GetGUID());
+    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
+        l_Battlefield->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
