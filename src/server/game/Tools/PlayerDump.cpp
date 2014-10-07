@@ -30,7 +30,7 @@
 #include "AccountMgr.h"
 #include "zlib.h"
 
-#define DUMP_TABLE_COUNT 30
+#define DUMP_TABLE_COUNT 32
 
 struct DumpTable
 {
@@ -40,39 +40,41 @@ struct DumpTable
 
 static DumpTable dumpTables[DUMP_TABLE_COUNT] =
 {
-    { "characters",                       DTT_CHARACTER  },
+    { "account_achievement",              DTT_ACC_ACH     },
+    { "account_achievement_progress",     DTT_ACC_ACH_PRO },
+    { "characters",                       DTT_CHARACTER   },
     //{ "character_account_data",           DTT_CHAR_TABLE }, problème de `
-    { "character_achievement",            DTT_CHAR_TABLE },
-    { "character_achievement_progress",   DTT_CHAR_TABLE },
-    { "character_action",                 DTT_CHAR_TABLE },
-    { "character_aura",                   DTT_CHAR_TABLE },
-    { "character_aura_effect",            DTT_CHAR_TABLE },
-    { "character_currency",               DTT_CHAR_TABLE },
+    { "character_achievement",            DTT_CHAR_TABLE  },
+    { "character_achievement_progress",   DTT_CHAR_TABLE  },
+    { "character_action",                 DTT_CHAR_TABLE  },
+    { "character_aura",                   DTT_CHAR_TABLE  },
+    { "character_aura_effect",            DTT_CHAR_TABLE  },
+    { "character_currency",               DTT_CHAR_TABLE  },
     //{ "character_cuf_profiles",           DTT_CHAR_TABLE },
-    { "character_declinedname",           DTT_CHAR_TABLE },
-    { "character_equipmentsets",          DTT_EQSET_TABLE},
+    { "character_declinedname",           DTT_CHAR_TABLE  },
+    { "character_equipmentsets",          DTT_EQSET_TABLE },
     //{ "character_gifts",                  DTT_ITEM_GIFT  },
-    { "character_glyphs",                 DTT_CHAR_TABLE },
-    { "character_homebind",               DTT_CHAR_TABLE },
-    { "character_inventory",              DTT_INVENTORY  },
-    { "character_pet",                    DTT_PET        },
-    { "character_pet_declinedname",       DTT_PET        },
-    { "character_queststatus",            DTT_CHAR_TABLE },
-    { "character_queststatus_rewarded",   DTT_CHAR_TABLE },
-    { "character_rates",                  DTT_CHAR_TABLE },
-    { "character_reputation",             DTT_CHAR_TABLE },
-    { "character_skills",                 DTT_CHAR_TABLE },
-    { "character_spell",                  DTT_CHAR_TABLE },
-    { "character_spell_cooldown",         DTT_CHAR_TABLE },
-    { "character_talent",                 DTT_CHAR_TABLE },
-    { "character_void_storage",           DTT_VS_TABLE   },
-    { "item_instance",                    DTT_ITEM       },
-    { "mail",                             DTT_MAIL       },
-    { "mail_items",                       DTT_MAIL_ITEM  },
-    { "pet_aura",                         DTT_PET_TABLE  },
-    { "pet_aura_effect",                  DTT_PET_TABLE  },
-    { "pet_spell",                        DTT_PET_TABLE  },
-    { "pet_spell_cooldown",               DTT_PET_TABLE  },
+    { "character_glyphs",                 DTT_CHAR_TABLE  },
+    { "character_homebind",               DTT_CHAR_TABLE  },
+    { "character_inventory",              DTT_INVENTORY   },
+    { "character_pet",                    DTT_PET         },
+    { "character_pet_declinedname",       DTT_PET         },
+    { "character_queststatus",            DTT_CHAR_TABLE  },
+    { "character_queststatus_rewarded",   DTT_CHAR_TABLE  },
+    { "character_rates",                  DTT_CHAR_TABLE  },
+    { "character_reputation",             DTT_CHAR_TABLE  },
+    { "character_skills",                 DTT_CHAR_TABLE  },
+    { "character_spell",                  DTT_CHAR_TABLE  },
+    { "character_spell_cooldown",         DTT_CHAR_TABLE  },
+    { "character_talent",                 DTT_CHAR_TABLE  },
+    { "character_void_storage",           DTT_VS_TABLE    },
+    { "item_instance",                    DTT_ITEM        },
+    { "mail",                             DTT_MAIL        },
+    { "mail_items",                       DTT_MAIL_ITEM   },
+    { "pet_aura",                         DTT_PET_TABLE   },
+    { "pet_aura_effect",                  DTT_PET_TABLE   },
+    { "pet_spell",                        DTT_PET_TABLE   },
+    { "pet_spell_cooldown",               DTT_PET_TABLE   },
 };
 
 // Low level functions
@@ -217,13 +219,14 @@ bool changetokGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, u
     return changetoknth(str, n, chritem, false, nonzero);
 }
 
-std::string CreateDumpString(char const* tableName, QueryResult result)
+std::string CreateDumpString(uint32 type, char const* tableName, QueryResult result)
 {
     if (!tableName || !result)
         return "";
+
     std::ostringstream ss;
-    ss << "INSERT INTO " << _TABLE_SIM_ << tableName << _TABLE_SIM_
-            << " VALUES (";
+    ss << "INSERT INTO " << _TABLE_SIM_ << tableName << _TABLE_SIM_  << " VALUES (";
+
     Field *fields = result->Fetch();
     for (uint32 i = 0; i < result->GetFieldCount(); ++i)
     {
@@ -238,7 +241,25 @@ std::string CreateDumpString(char const* tableName, QueryResult result)
 
         ss << "'";
     }
-    ss << "); ";
+    ss << ")";
+
+    if (type == DTT_ACC_ACH)
+    {
+        std::string first_guid = fields[1].GetString();
+        std::string date       = fields[3].GetString();
+
+        ss << " ON DUPLICATE KEY UPDATE first_guid = CASE when `date` > " << date << " THEN " << first_guid << " ELSE first_guid END, `date` = LEAST(`date`, " << date << ")";
+    }
+
+    if (type == DTT_ACC_ACH_PRO)
+    {
+        std::string counter = fields[2].GetString();
+        CharacterDatabase.EscapeString(counter);
+
+        ss << " ON DUPLICATE KEY UPDATE counter = GREATEST(counter, " << counter << ")";
+    }
+
+    ss << ";";
     return ss.str();
 }
 
@@ -289,7 +310,7 @@ void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& 
 }
 
 // Writing - High-level functions
-bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type)
+bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type)
 {
     GUIDs const* guids = NULL;
     char const* fieldname = NULL;
@@ -321,6 +342,10 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         case DTT_VS_TABLE:
             fieldname = "playerGuid";
             break;
+        case DTT_ACC_ACH:
+        case DTT_ACC_ACH_PRO:
+            fieldname = "account";
+            break;
         default:
             fieldname = "guid";
             break;
@@ -339,7 +364,9 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
     {
         std::string wherestr;
 
-        if (guids) // set case, get next guids string
+        if (type == DTT_ACC_ACH_PRO || type == DTT_ACC_ACH) // account table (i know, it's 'account' but it's linked to realm :D)
+            wherestr = GenerateWhereStr(fieldname, account);
+        else if (guids) // set case, get next guids string
             wherestr = GenerateWhereStr(fieldname, *guids, guids_itr);
         else
             // not set case, get single guid string
@@ -377,7 +404,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
                     break;
             }
 
-            dump += CreateDumpString(tableTo, result);
+            dump += CreateDumpString(type, tableTo, result);
             dump += "\n";
         }
         while (result->NextRow());
@@ -387,7 +414,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
     return true;
 }
 
-bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
+bool PlayerDumpWriter::GetDump(uint32 guid, uint32 account, std::string &dump)
 {
     dump = "";
 
@@ -397,7 +424,7 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
             "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
 
     for (int i = 0; i < DUMP_TABLE_COUNT; ++i)
-        if (!DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name,
+        if (!DumpTable(dump, guid, account, dumpTables[i].name, dumpTables[i].name,
                 dumpTables[i].type))
             return false;
 
@@ -407,7 +434,7 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
     return true;
 }
 
-DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
+DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid, uint32 account)
 {
     FILE* fout = fopen(file.c_str(), "w");
     if (!fout)
@@ -415,7 +442,7 @@ DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
 
     DumpReturn ret = DUMP_SUCCESS;
     std::string dump;
-    if (!GetDump(guid, dump))
+    if (!GetDump(guid, account, dump))
         ret = DUMP_CHARACTER_DELETED;
 
     fprintf(fout, "%s\n", dump.c_str());
