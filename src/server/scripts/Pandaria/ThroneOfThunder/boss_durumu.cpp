@@ -26,54 +26,74 @@
 
 enum eSpells
 {
-    SPELL_HARD_STARE                = 133765,
-    SPELL_FORCE_OF_WILL             = 136413, // May be too much powerful, to check with players
-    SPELL_LINGERING_GAZE_MAIN       = 138467, // Script Effect
-    SPELL_LINGERING_GAZE_MISSILE    = 133792,
-    SPELL_LINGERING_GAZE_AT         = 133793,
-    SPELL_LIFE_DRAIN_DUMMY          = 133795,
-    SPELL_LIFE_DRAIN_AURA           = 133796,
-    SPELL_LIFE_DRAIN_DMG            = 133798,
+    SPELL_HARD_STARE                     = 133765,
+    SPELL_FORCE_OF_WILL                  = 136413, // May be too much powerful, to check with players
+    SPELL_LINGERING_GAZE_MAIN            = 138467, // Script Effect
+    SPELL_LINGERING_GAZE_MISSILE         = 133792,
+    SPELL_LINGERING_GAZE_AT              = 133793,
+    SPELL_LIFE_DRAIN_DUMMY               = 133795,
+    SPELL_LIFE_DRAIN_AURA                = 133796,
+    SPELL_LIFE_DRAIN_DMG                 = 133798,
 
     // Second Phase
-    SPELL_BRIGHT_LIGHT              = 134124, // Yellow link between caster/target
-    SPELL_INFRARED_LIGHT            = 134123, // Red link between caster/target
-    SPELL_BLUE_RAYS                 = 134122, // Blue link between caster/target
-    SPELL_BRIGHT_LIGHT_MAIN         = 133740,
-    SPELL_BLUE_RAYS_MAIN            = 133672,
-    SPELL_INFRARED_LIGHT_MAIN       = 133734,
-    SPELL_RED_FOG_INVISIBILITY      = 136116,
-    SPELL_YELLOW_FOG_INVISIBILITY   = 136117,
-    SPELL_BLUE_FOG_INVISIBILITY     = 136118,
+    SPELL_BRIGHT_LIGHT                   = 134124, // Yellow link between caster/target
+    SPELL_INFRARED_LIGHT                 = 134123, // Red link between caster/target
+    SPELL_BLUE_RAYS                      = 134122, // Blue link between caster/target
+    SPELL_BRIGHT_LIGHT_MAIN              = 133740,
+    SPELL_BLUE_RAYS_MAIN                 = 133672,
+    SPELL_INFRARED_LIGHT_MAIN            = 133734,
+    SPELL_RED_FOG_INVISIBILITY           = 136116,
+    SPELL_YELLOW_FOG_INVISIBILITY        = 136117,
+    SPELL_BLUE_FOG_INVISIBILITY          = 136118,
+
+    // Color adds spells
+    SPELL_AMBER_ARMOR                    = 136174, // Amber Fog
+    SPELL_BURST_OF_AMBER                 = 136123, // Amber Fog
+    SPELL_AMBER_RETAILIATION             = 136175, // Amber Fog
+    SPELL_CAUSTIC_SPIKE                  = 136154, // Crimson Fog
+    SPELL_CRIMSON_BLOOM                  = 136122, // Crimson Fog
+    SPELL_ICY_GRASP                      = 136177, // Azure Fog
+    SPELL_FLASH_FREEZE                   = 136124,  // Azure Fog
+
+    // Third Phase
+    SPELL_SUMMON_EYEBEAM_TARGET          = 133775, // Target of 134169
+    SPELL_DISINTEGRATION_BEAM_PRECAST    = 134169
 };
 
 enum eEvents
 {
-    EVENT_HARD_STARE                = 1,
-    EVENT_FORCE_OF_WILL             = 2,
-    EVENT_LINGERING_GAZE            = 3,
-    EVENT_DRAIN_LIFE                = 4,
-    EVENT_COLORBLIND_PHASE          = 5,  // Initialize second phase
-    EVENT_RAY_SECOND_PHASE          = 6,  // Launch targets rays
-    EVENT_SUMMON_RED_EYE            = 7,
-    EVENT_SUMMON_BLUE_EYE           = 8,
-    EVENT_SUMMON_YELLOW_EYE         = 9,
-    EVENT_ADD_ROTATION              = 10, // Make the free ray rotating with the caster orientation
-    EVENT_DISINTEGRATION_BEAM_PHASE = 11  // Initialize third phase
+    EVENT_HARD_STARE                     = 1,
+    EVENT_FORCE_OF_WILL                  = 2,
+    EVENT_LINGERING_GAZE                 = 3,
+    EVENT_DRAIN_LIFE                     = 4,
+    EVENT_COLORBLIND_PHASE               = 5,  // Initialize second phase
+    EVENT_RAY_SECOND_PHASE               = 6,  // Launch targets rays
+    EVENT_SUMMON_RED_EYE                 = 7,
+    EVENT_SUMMON_BLUE_EYE                = 8,
+    EVENT_SUMMON_YELLOW_EYE              = 9,
+    EVENT_ADD_ROTATION                   = 10, // Make the free ray rotating with the caster orientation
+    EVENT_AMBER_RETAILIATION             = 11,
+    EVENT_DISINTEGRATION_BEAM_PHASE      = 12, // Initialize third phase
+    EVENT_STOP_DISINTEGRATION_BEAM_PHASE = 13
 };
 
 enum eActions
 {
-    ACTION_TURN_AROUND              = 1,
-    ACTION_ADD_REVEALED             = 2
+    ACTION_TURN_AROUND                   = 1,
+    ACTION_ADD_REVEALED                  = 2,
+    ACTION_SCHEDULE_ADD_SPELL            = 3
 };
 
 enum ePhases
 {
-    PHASE_NORMAL_PHASE              = 1,
-    PHASE_COLORBLIND_PHASE          = 2,
-    PHASE_DISINTEGRATION_BEAM_PHASE = 3
+    PHASE_NORMAL_PHASE                   = 1,
+    PHASE_COLORBLIND_PHASE               = 2,
+    PHASE_DISINTEGRATION_BEAM_PHASE      = 3
 };
+
+bool g_AddActivated[3] = { false, false, false };
+
+uint32 g_AddEntries[3] = { NPC_AZURE_FOG, NPC_AMBER_FOG, NPC_CRIMSON_FOG };
 
 // Durumu the forgotten - 68036
 class boss_durumu : public CreatureScript
@@ -95,20 +115,21 @@ class boss_durumu : public CreatureScript
             void Reset()
             {
                 std::list<AreaTrigger*> l_AreatriggerList;
+
                 m_Events.Reset();
 
                 m_Phase = 0;
 
                 _Reset();
 
-                me->GetMotionMaster()->MoveTargetedHome();
-                me->ReenableEvadeMode();
-                me->ClearUnitState(UNIT_STATE_ROOT);
-                me->AddUnitState(UNIT_STATE_ROOT);
-
                 summons.DespawnAll();
 
-                me->GetAreaTriggerList(l_AreatriggerList, 133793);
+                me->GetMotionMaster()->MoveTargetedHome();
+                me->ReenableEvadeMode();
+                // Make the boss static at his home position
+                me->ClearUnitState(UNIT_STATE_ROOT);
+                me->AddUnitState(UNIT_STATE_ROOT);
+                me->GetAreaTriggerList(l_AreatriggerList, SPELL_LINGERING_GAZE_AT);
 
                 if (!l_AreatriggerList.empty())
                     for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
@@ -127,15 +148,15 @@ class boss_durumu : public CreatureScript
 
                 m_Events.Reset();
 
-                // First phase
-/*                m_Events.ScheduleEvent(EVENT_HARD_STARE, 8000);
-                m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 13000);
-                m_Events.ScheduleEvent(EVENT_LINGERING_GAZE, 19000);
-                m_Events.ScheduleEvent(EVENT_DRAIN_LIFE, 25000);*/
+//                 // First phase
+//                 m_Events.ScheduleEvent(EVENT_HARD_STARE, 8000); // Boss first standard spell
+//                 m_Events.ScheduleEvent(EVENT_FORCE_OF_WILL, 13000); // Boss second standard spell
+//                 m_Events.ScheduleEvent(EVENT_LINGERING_GAZE, 19000); // Bos third standard spell
+//                 m_Events.ScheduleEvent(EVENT_DRAIN_LIFE, 25000); // Boss fourth standard spell
 
                 // Second Phase
-                m_Events.ScheduleEvent(EVENT_COLORBLIND_PHASE, 12000);
-                //m_Events.ScheduleEvent(EVENT_DISINTEGRATION_BEAM_PHASE, 30000);
+               // m_Events.ScheduleEvent(EVENT_COLORBLIND_PHASE, 12000); // Starts second phase
+                m_Events.ScheduleEvent(EVENT_DISINTEGRATION_BEAM_PHASE, 12000);
             }
 
             void JustDied(Unit* /*p_Killer*/)
@@ -145,7 +166,7 @@ class boss_durumu : public CreatureScript
                 summons.DespawnAll();
 
                 std::list<AreaTrigger*> l_AreatriggerList;
-                me->GetAreaTriggerList(l_AreatriggerList, 133793);
+                me->GetAreaTriggerList(l_AreatriggerList, SPELL_LINGERING_GAZE_AT);
 
                 if (!l_AreatriggerList.empty())
                     for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
@@ -157,6 +178,7 @@ class boss_durumu : public CreatureScript
                     m_Instance->SetBossState(DATA_DURUMU_THE_FORGOTTEN, DONE);
                 }
 
+                // LFR Loots
                 if (me->GetMap()->IsLFR())
                 {
                     me->SetLootRecipient(NULL);
@@ -164,10 +186,6 @@ class boss_durumu : public CreatureScript
                     if (l_Player && l_Player->GetGroup())
                         sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
-            }
-
-            void DoAction(const int32 /*p_Action*/)
-            {
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -204,87 +222,79 @@ class boss_durumu : public CreatureScript
                     {
                         uint8 l_TargetCounter = 0;
                         uint8 l_SummonCounter = 0;
-                        // float l_Angle = 0.0f;
+
+                        float l_Angle = 0.0f;
 
                         m_Phase = PHASE_COLORBLIND_PHASE;
 
+                        // Schedule every Eye summon
                         m_Events.ScheduleEvent(EVENT_SUMMON_RED_EYE, 500);
                         m_Events.ScheduleEvent(EVENT_SUMMON_BLUE_EYE, 900);
                         m_Events.ScheduleEvent(EVENT_SUMMON_YELLOW_EYE, 1300);
 
-                        std::list<Player*> l_PlayerList;
-                        GetPlayerListInGrid(l_PlayerList, me, 200.0f);
+                        // 0 - Azure, 1 - Amber, 2 - Crimson
+                        uint8 l_SpawnCounts[3] = { 0, 0, 0 };
+                        uint8 l_TotalCount = 0;
 
-//                         for (uint8 i = 0; i < 3; i++)
-//                         {
-//                             float l_X = me->GetPositionX() + (frand(44.70f, 62.78f) * cos(l_Angle));
-//                             float l_Y = me->GetPositionY() + (frand(44.70f, 62.78f) * sin(l_Angle));
-//
-//                            switch (i)
-//                             {
-//                                 case 0:
-//                                     me->SummonCreature(NPC_AZURE_FOG, l_X, l_Y, me->GetPositionZ());
-//                                         break;
-//                                 case 1:
-//                                     me->SummonCreature(NPC_AMBER_FOG, l_X, l_Y, me->GetPositionZ());
-//                                         break;
-//                                 case 2:
-//                                     me->SummonCreature(NPC_CRIMSON_FOG, l_X, l_Y, me->GetPositionZ());
-//                                         break;
-//                                 default:
-//                                     break;
-//                             }
-//
-//                             l_Angle += (2 * M_PI) / 3 + frand(-20.0f, 20.0f);
-//                         }
-
-                        for (uint8 i = 0; i < 3; i++)
+                        if (IsHeroic())
                         {
-                            float l_Angle = frand(0, 2 * M_PI);
-                            float l_X = me->GetPositionX() + (frand(44.70f, 62.78f) * cos(l_Angle));
-                            float l_Y = me->GetPositionY() + (frand(44.70f, 62.78f) * sin(l_Angle));
+                            l_SpawnCounts[0] = 3;
+                            l_SpawnCounts[1] = 1;
+                            l_SpawnCounts[2] = 1;
+                            l_TotalCount = 5;
+                        }
+                        else
+                        {
+                            l_SpawnCounts[0] = 3;
+                            l_SpawnCounts[2] = 1;
+                            l_TotalCount = 4;
+                        }
 
-                            switch (i)
+                        // Spawns invisble adds at almost random locations on the plateform.
+                        for (uint8 i = 0; (i <= 2 && l_TotalCount); i++)
+                        {
+                            while (l_SpawnCounts[i])
                             {
-                            case 0:
-                                me->SummonCreature(NPC_AZURE_FOG, l_X, l_Y, me->GetPositionZ());
-                                break;
-                            case 1:
-                                me->SummonCreature(NPC_AMBER_FOG, l_X, l_Y, me->GetPositionZ());
-                                break;
-                            case 2:
-                                me->SummonCreature(NPC_CRIMSON_FOG, l_X, l_Y, me->GetPositionZ());
-                                break;
-                            default:
-                                break;
+                                float l_X = me->GetPositionX() + (frand(44.70f, 62.78f) * cos(l_Angle));
+                                float l_Y = me->GetPositionY() + (frand(44.70f, 62.78f) * sin(l_Angle));
+
+                                switch (i)
+                                {
+                                    case 0:
+                                        me->SummonCreature(NPC_AZURE_FOG, l_X, l_Y, me->GetPositionZ());
+                                        break;
+                                    case 1:
+                                        me->SummonCreature(NPC_AMBER_FOG, l_X, l_Y, me->GetPositionZ());
+                                        break;
+                                    case 2:
+                                        me->SummonCreature(NPC_CRIMSON_FOG, l_X, l_Y, me->GetPositionZ());
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                --l_SpawnCounts[i];
+                                --l_TotalCount;
+                                l_Angle += (2 * M_PI) / 3 + frand(-20.0f, 20.0f);
                             }
                         }
 
-                        //m_Events.ScheduleEvent(EVENT_COLORBLIND_PHASE, 180000);
+                        m_Events.ScheduleEvent(EVENT_COLORBLIND_PHASE, 180000);
                         break;
                     }
                     case EVENT_SUMMON_RED_EYE:
-                    {
                         me->SummonCreature(NPC_RED_EYE, 5894.78f, 4513.95f, -0.4788f);
                         break;
-                    }
                     case EVENT_SUMMON_BLUE_EYE:
-                    {
                         me->SummonCreature(NPC_BLUE_EYE, 5894.78f, 4513.95f, -0.4788f);
                         break;
-                    }
                     case EVENT_SUMMON_YELLOW_EYE:
-                    {
                         me->SummonCreature(NPC_YELLOW_EYE, 5894.78f, 4513.95f, -0.4788f);
                         break;
-                    }
                     case EVENT_DISINTEGRATION_BEAM_PHASE:
-                    {
                         m_Phase = PHASE_DISINTEGRATION_BEAM_PHASE;
-
-                        m_Events.ScheduleEvent(EVENT_DISINTEGRATION_BEAM_PHASE, 180000);
+                        //m_Events.ScheduleEvent(EVENT_DISINTEGRATION_BEAM_PHASE, 180000);
                         break;
-                    }
                     default:
                         break;
                 }
@@ -299,7 +309,7 @@ class boss_durumu : public CreatureScript
         }
 };
 
-// Hungry Eye - 67859
+// Hungry Eye - 67859 (Add for the spell DRAIN LIFE, coming from first phase)
 class mob_hungry_eye : public CreatureScript
 {
     public:
@@ -313,19 +323,11 @@ class mob_hungry_eye : public CreatureScript
 
             EventMap m_Events;
 
-            void Reset()
-            {
-            }
-
             void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_Events.Reset();
 
                 m_Events.ScheduleEvent(EVENT_DRAIN_LIFE, 5000);
-            }
-
-            void EnterCombat(Unit* /*p_Attacker*/)
-            {
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -334,12 +336,14 @@ class mob_hungry_eye : public CreatureScript
 
                 if (me->HasAura(SPELL_LIFE_DRAIN_DUMMY))
                 {
-                    std::list<Player*> l_PlayerList;
+                    // When the add is summoned, this aura is added to himself 5 seconds later.
 
+                    std::list<Player*> l_PlayerList;
                     Player* l_AuraPlayer = nullptr;
 
                     GetPlayerListInGrid(l_PlayerList, me, 200.0f);
 
+                    // If some player has the aura LIFE DRAIN, he's selected.
                     for (Player* l_Player : l_PlayerList)
                     {
                         if (!l_Player->HasAura(SPELL_LIFE_DRAIN_AURA))
@@ -348,6 +352,7 @@ class mob_hungry_eye : public CreatureScript
                             l_AuraPlayer = l_Player;
                     }
 
+                    // If some player not getting the aura runs in front of one player who has it, this first player gets the aura applied on him.
                     if (l_AuraPlayer)
                     {
                         for (Player* l_Player : l_PlayerList)
@@ -384,6 +389,230 @@ class mob_hungry_eye : public CreatureScript
         }
 };
 
+// Color adds - 69050/69051/69052
+class mob_durumu_second_phase_add : public CreatureScript
+{
+    public:
+        mob_durumu_second_phase_add() : CreatureScript("mob_durumu_second_phase_add") { }
+
+        struct mob_durumu_second_phase_addAI : public ScriptedAI
+        {
+            mob_durumu_second_phase_addAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+            }
+
+            EventMap m_Events;
+            float m_Orientation;
+            bool m_RedSpellCasted; // Verifies if the add CRIMSON FOG has casted the spell CRIMSON BLOOD, which should be casted when the add runs out of the lightning cone.
+            bool m_YellowSpellCasted; // Verifies if the add AMBER FOG has casted the spell BURST OF AMBER, which should be casted when the add runs out of the lightning cone.
+            bool m_BlueSpellCasted;
+            uint32 m_TableIndex;
+
+            // For every add, direction is set to the boss, and invisibility aura is added. RED FOG spell is set as not casted.
+            void Reset()
+            {
+                m_Orientation = 0;
+                m_RedSpellCasted = false;
+                m_YellowSpellCasted = false;
+                m_BlueSpellCasted = false;
+                me->AddUnitState(UNIT_STATE_ROOT);
+
+                if (Creature* l_Boss = GetClosestCreatureWithEntry(me, NPC_DURUMU_THE_FORGOTTEN, 200.0f, true))
+                {
+                    m_Orientation = me->GetAngle(l_Boss->GetPositionX(), l_Boss->GetPositionY());
+
+                    me->SetFacingTo(m_Orientation);
+                    me->SetOrientation(m_Orientation);
+                }
+
+                switch (me->GetEntry())
+                {
+                    case NPC_CRIMSON_FOG:
+                        me->CastSpell(me, SPELL_RED_FOG_INVISIBILITY, false);
+                        m_TableIndex = 2;
+                        break;
+                    case NPC_AMBER_FOG:
+                        me->CastSpell(me, SPELL_YELLOW_FOG_INVISIBILITY, false);
+                        m_TableIndex = 1;
+                        break;
+                    case NPC_AZURE_FOG:
+                        me->CastSpell(me, SPELL_BLUE_FOG_INVISIBILITY, false);
+                        m_TableIndex = 0;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void IsSummonedBy(Unit* /*p_Summoner*/)
+            {
+                m_Events.Reset();
+            }
+
+            // When AMBER FOG enters in combat, his armor aura which "triggers" another spell is added. The event casting the triggered spell is scheduled.
+            void EnterCombat(Unit* /*victim*/)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_CRIMSON_FOG:
+                        break;
+                    case NPC_AMBER_FOG:
+                        me->AddAura(SPELL_AMBER_ARMOR, me);
+                        break;
+                    case NPC_AZURE_FOG:
+                        break;
+                }
+            }
+
+            void DoAction(const int32 p_Action)
+            {
+                // This action is called when the add is in the right light cone. About the CRIMSON FOG, it makes him casting a spell.
+                // For every add, invisibility is removed and template is set to make him attackable.
+                if (p_Action == ACTION_ADD_REVEALED)
+                {
+                    switch (me->GetEntry())
+                    {
+                        case NPC_CRIMSON_FOG:
+                            me->RemoveAurasDueToSpell(SPELL_RED_FOG_INVISIBILITY);
+                            me->CastSpell(me, SPELL_CAUSTIC_SPIKE, false);
+                            break;
+                        case NPC_AMBER_FOG:
+                            me->RemoveAurasDueToSpell(SPELL_YELLOW_FOG_INVISIBILITY);
+                            break;
+                        case NPC_AZURE_FOG:
+                            me->RemoveAurasDueToSpell(SPELL_BLUE_FOG_INVISIBILITY);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    me->ClearUnitState(UNIT_STATE_ROOT);
+                    me->setFaction(14);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (Player* l_Player = me->SelectNearestPlayer(200.0f))
+                        me->Attack(l_Player, true);
+                }
+                // This action is called when CRIMSON FOG runs out of the cone. The boolean check is added to avoid infinite loop.
+                else if (p_Action == ACTION_SCHEDULE_ADD_SPELL)
+                {
+                    switch (me->GetEntry())
+                    {
+                        case NPC_CRIMSON_FOG:
+                        {
+                            if (g_AddActivated[m_TableIndex])
+                            {
+                                if (!m_RedSpellCasted)
+                                {
+                                    me->CastSpell(me, SPELL_CRIMSON_BLOOM, false);
+                                    m_RedSpellCasted = true;
+                                }
+                            }
+                            break;
+                        }
+                        case NPC_AMBER_FOG:
+                        {
+                            if (g_AddActivated[m_TableIndex])
+                            {
+                                if (!m_YellowSpellCasted)
+                                {
+                                    me->CastSpell(me, SPELL_BURST_OF_AMBER, false);
+                                    m_YellowSpellCasted = true;
+                                }
+                            }
+                            break;
+                        }
+                        case NPC_AZURE_FOG:
+                        {
+                            if (g_AddActivated[m_TableIndex])
+                            {
+                                if (!m_BlueSpellCasted)
+                                {
+                                    me->CastSpell(me, SPELL_FLASH_FREEZE, false);
+                                    m_BlueSpellCasted = true;
+                                }
+                            }
+                            break;
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void JustDied (Unit* p_Killer)
+            {
+                bool l_AddsAllDead = true;
+
+                for (uint8 l_I = 0; l_I < 3; l_I++)
+                    if (g_AddEntries[l_I] != me->GetEntry())
+                        if (GetClosestCreatureWithEntry(me, g_AddEntries[l_I], 200.0f, true))
+                            l_AddsAllDead = false;
+
+                if (l_AddsAllDead)
+                {
+
+                }
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+
+                m_Events.Update(p_Diff);
+
+                // When AMBER FOG is in combat, every 10% of life reached, is scheduled some event which makes him casting a spell (AMBER RETAILIATION).
+                if (me->isInCombat())
+                {
+                    if (me->HasAura(SPELL_AMBER_ARMOR))
+                    {
+                        if (me->GetEntry() == NPC_AMBER_FOG)
+                        {
+                            float l_HealthPct = me->GetHealthPct();
+                            int8 l_HealthPctInt = G3D::iRound(l_HealthPct / 10) * 10;
+
+                            switch (l_HealthPctInt)
+                            {
+                                case 90:
+                                case 80:
+                                case 70:
+                                case 60:
+                                case 50:
+                                case 40:
+                                case 30:
+                                case 20:
+                                case 10:
+                                    m_Events.ScheduleEvent(EVENT_AMBER_RETAILIATION, 300);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_AMBER_RETAILIATION:
+                        me->CastSpell(me, SPELL_AMBER_RETAILIATION, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_durumu_second_phase_addAI(p_Creature);
+        }
+};
+
 // Color Eyes - 67854/67855/67856
 class mob_second_phase_eye : public CreatureScript
 {
@@ -397,12 +626,21 @@ class mob_second_phase_eye : public CreatureScript
             }
 
             EventMap m_Events;
+            uint64 m_RedTargetGuid;
+            uint64 m_BlueTargetGuid;
 
+            // Set color eyes not moving, and set the boolean who checks if adds are activated to false.
             void Reset()
             {
                 me->setFaction(35);
                 me->SetReactState(REACT_PASSIVE);
                 me->AddUnitState(UNIT_STATE_ROOT);
+
+                m_RedTargetGuid  = 0;
+                m_BlueTargetGuid = 0;
+
+                for (uint8 l_I = 0; l_I < 3; l_I++)
+                    g_AddActivated[l_I] = false;
             }
 
             void IsSummonedBy(Unit* /*p_Summoner*/)
@@ -427,51 +665,143 @@ class mob_second_phase_eye : public CreatureScript
             void DoAction(const int32 p_Action)
             {
                 if (p_Action == ACTION_TURN_AROUND)
-                {
                     m_Events.ScheduleEvent(EVENT_ADD_ROTATION, 150);
-                }
+            }
+
+            void SetGUID(uint64 guid, int32 id)
+            {
+                if (id == 1)
+                    m_RedTargetGuid = guid;
+                else if (id == 2)
+                    m_BlueTargetGuid = guid;
             }
 
             void UpdateAI(const uint32 p_Diff)
             {
                 m_Events.Update(p_Diff);
 
-                switch (me->GetEntry())
+                // Awesome part...
+                // This part of the script is here to verify if one of the invisble adds is targeted by a cone.
+                // If so, an action is called, which makes them visible and attackable.
+                if (me->GetEntry() == NPC_YELLOW_EYE && me->HasAura(SPELL_BRIGHT_LIGHT_MAIN) ||
+                    me->GetEntry() == NPC_BLUE_EYE && me->HasAura(SPELL_BLUE_RAYS_MAIN) ||
+                    me->GetEntry() == NPC_RED_EYE && me->HasAura(SPELL_INFRARED_LIGHT_MAIN))
                 {
-                    case NPC_BLUE_EYE:
+                    switch (me->GetEntry())
                     {
-                        if (Creature* l_Add = GetClosestCreatureWithEntry(me, NPC_AZURE_FOG, 200.0f))
-                            if (l_Add->HasAura(SPELL_YELLOW_FOG_INVISIBILITY) || l_Add->HasAura(SPELL_RED_FOG_INVISIBILITY) || l_Add->HasAura(SPELL_BLUE_FOG_INVISIBILITY))
-                                if (l_Add->isInFront(me, 0.593412f))
+                        case NPC_BLUE_EYE:
+                        {
+                            if (Creature* l_Add = GetClosestCreatureWithEntry(me, NPC_AZURE_FOG, 200.0f))
+                            {
+                                if (l_Add->HasAura(SPELL_BLUE_FOG_INVISIBILITY))
+                                {
                                     if (l_Add->GetAI())
-                                        l_Add->AI()->DoAction(ACTION_ADD_REVEALED);
-                        break;
-                    }
-                    case NPC_YELLOW_EYE:
-                    {
-                        if (Creature* l_Add = GetClosestCreatureWithEntry(me, NPC_AMBER_FOG, 200.0f))
-                            if (l_Add->HasAura(SPELL_YELLOW_FOG_INVISIBILITY) || l_Add->HasAura(SPELL_RED_FOG_INVISIBILITY) || l_Add->HasAura(SPELL_BLUE_FOG_INVISIBILITY))
-                                if (l_Add->isInFront(me, 0.593412f))
+                                    {
+                                        if (me->isInFront(l_Add, (M_PI / 6)))
+                                        {
+                                            l_Add->AI()->DoAction(ACTION_ADD_REVEALED);
+                                            g_AddActivated[0] = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
                                     if (l_Add->GetAI())
-                                        l_Add->AI()->DoAction(ACTION_ADD_REVEALED);
+                                    {
+                                        if (!me->isInFront(l_Add, (M_PI / 6)) && g_AddActivated[0])
+                                        {
+                                            CAST_AI(mob_durumu_second_phase_add::mob_durumu_second_phase_addAI, l_Add->AI())->m_BlueSpellCasted = false;
+                                        }
+                                        else
+                                        {
+                                            if (g_AddActivated[0])
+                                                l_Add->AI()->DoAction(ACTION_SCHEDULE_ADD_SPELL);
+                                        }
+                                    }
+                                }
 
-                        break;
-                    }
-                    case NPC_RED_EYE:
-                    {
-                        if (Creature* l_Add = GetClosestCreatureWithEntry(me, NPC_CRIMSON_FOG, 200.0f))
-                            if (l_Add->HasAura(SPELL_YELLOW_FOG_INVISIBILITY) || l_Add->HasAura(SPELL_RED_FOG_INVISIBILITY) || l_Add->HasAura(SPELL_BLUE_FOG_INVISIBILITY))
-                                if (l_Add->isInFront(me, 0.593412f))
+                            }
+                            break;
+                        }
+                        case NPC_YELLOW_EYE:
+                        {
+                            if (Creature* l_Add = GetClosestCreatureWithEntry(me, NPC_AMBER_FOG, 200.0f))
+                            {
+                                if (l_Add->HasAura(SPELL_YELLOW_FOG_INVISIBILITY))
+                                {
                                     if (l_Add->GetAI())
-                                        l_Add->AI()->DoAction(ACTION_ADD_REVEALED);
-                        break;
+                                    {
+                                        if (me->isInFront(l_Add, (M_PI / 6)))
+                                        {
+                                            l_Add->AI()->DoAction(ACTION_ADD_REVEALED);
+                                            g_AddActivated[1] = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (l_Add->GetAI())
+                                    {
+                                        if (!me->isInFront(l_Add, (M_PI / 6)) && g_AddActivated[1])
+                                        {
+                                            CAST_AI(mob_durumu_second_phase_add::mob_durumu_second_phase_addAI, l_Add->AI())->m_YellowSpellCasted = false;
+                                        }
+                                        else
+                                        {
+                                            if (g_AddActivated[1])
+                                                l_Add->AI()->DoAction(ACTION_SCHEDULE_ADD_SPELL);
+                                        }
+                                    }
+                                }
+
+                            }
+                            break;
+                        }
+                        // In this case, more particular, the boolean who checks if the spell has been casted is set to false, into the add script directly.
+                        // In the case that he's no more targeted by the cone, the spell will be casted, and the boolean will be set back to true.
+                        case NPC_RED_EYE:
+                        {
+                            if (Creature* l_Add = GetClosestCreatureWithEntry(me, NPC_CRIMSON_FOG, 200.0f))
+                            {
+                                if (l_Add->HasAura(SPELL_RED_FOG_INVISIBILITY))
+                                {
+                                    if (l_Add->GetAI())
+                                    {
+                                        if (me->isInFront(l_Add, (M_PI / 6)))
+                                        {
+                                            l_Add->AI()->DoAction(ACTION_ADD_REVEALED);
+                                            g_AddActivated[2] = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (l_Add->GetAI())
+                                    {
+                                        if (!me->isInFront(l_Add, (M_PI / 6)) && g_AddActivated[2])
+                                        {
+                                            CAST_AI(mob_durumu_second_phase_add::mob_durumu_second_phase_addAI, l_Add->AI())->m_RedSpellCasted = false;
+                                        }
+                                        else
+                                        {
+                                            if (g_AddActivated[2])
+                                                l_Add->AI()->DoAction(ACTION_SCHEDULE_ADD_SPELL);
+                                        }
+                                    }
+                                }
+
+                            }
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    // This event consists in targeting players and casting the linking light aura cone on them.
+                    // For every eye but the yellow one, target GUID is saved, to channel the aura applied next to it.
                     case EVENT_RAY_SECOND_PHASE:
                     {
                         std::list<Player*> l_PlayerList;
@@ -488,6 +818,7 @@ class mob_second_phase_eye : public CreatureScript
                                         if (!l_Player->HasAura(SPELL_INFRARED_LIGHT) && !l_Player->HasAura(SPELL_BRIGHT_LIGHT) && !l_Player->HasAura(SPELL_BLUE_RAYS))
                                         {
                                             me->CastSpell(l_Player, SPELL_INFRARED_LIGHT, false);
+                                            SetGUID(l_Player->GetGUID(), 1);
                                             break;
                                         }
                                     }
@@ -518,6 +849,7 @@ class mob_second_phase_eye : public CreatureScript
                                         if (!l_Player->HasAura(SPELL_INFRARED_LIGHT) && !l_Player->HasAura(SPELL_BRIGHT_LIGHT) && !l_Player->HasAura(SPELL_BLUE_RAYS))
                                         {
                                             me->CastSpell(l_Player, SPELL_BLUE_RAYS, false);
+                                            SetGUID(l_Player->GetGUID(), 2);
                                             break;
                                         }
                                     }
@@ -538,11 +870,52 @@ class mob_second_phase_eye : public CreatureScript
 
                         break;
                     }
+                    // Some rotation is applied for the free cone (with no target), and the other ones update their orientation to the players for who the GUID has been saved earlier.
                     case EVENT_ADD_ROTATION:
                     {
-                        me->SetFacingTo(me->GetOrientation() + 0.04f);
-                        me->SetOrientation(me->GetOrientation() + 0.04f);
-                        m_Events.ScheduleEvent(EVENT_ADD_ROTATION, 150);
+                        switch (me->GetEntry())
+                        {
+                            case NPC_YELLOW_EYE:
+                                me->SetFacingTo(me->GetOrientation() + 0.04f);
+                                me->SetOrientation(me->GetOrientation() + 0.04f);
+                                break;
+                            case NPC_BLUE_EYE:
+                            {
+                                float l_Orientation = 0;
+
+                                if (Player* l_Target = me->GetPlayer(*me, m_BlueTargetGuid))
+                                {
+                                    l_Orientation = me->GetAngle(l_Target->GetPositionX(), l_Target->GetPositionY());
+                                    me->SetOrientation(l_Orientation);
+                                    me->SetFacingTo(l_Orientation);
+                                }
+                                break;
+                            }
+                            case NPC_RED_EYE:
+                            {
+                                float l_Orientation = 0;
+
+                                if (Player* l_Target = me->GetPlayer(*me, m_RedTargetGuid))
+                                {
+                                    l_Orientation = me->GetAngle(l_Target->GetPositionX(), l_Target->GetPositionY());
+                                    me->SetOrientation(l_Orientation);
+                                    me->SetFacingTo(l_Orientation);
+                                }
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        m_Events.ScheduleEvent(EVENT_ADD_ROTATION, 250);
+
+                        if (Creature* l_RedEye = GetClosestCreatureWithEntry(me, NPC_RED_EYE, 5.0f))
+                            if (l_RedEye->GetAI())
+                                l_RedEye->AI()->DoAction(ACTION_TURN_AROUND);
+
+                        if (Creature* l_RedEye = GetClosestCreatureWithEntry(me, NPC_BLUE_EYE, 5.0f))
+                            if (l_RedEye->GetAI())
+                                l_RedEye->AI()->DoAction(ACTION_TURN_AROUND);
                     }
                         break;
                     default:
@@ -554,90 +927,6 @@ class mob_second_phase_eye : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const
         {
             return new mob_second_phase_eyeAI(p_Creature);
-        }
-};
-
-// Color adds - 69050/69051/69052
-class mob_durumu_second_phase_add : public CreatureScript
-{
-    public:
-        mob_durumu_second_phase_add() : CreatureScript("mob_durumu_second_phase_add") { }
-
-        struct mob_durumu_second_phase_addAI : public ScriptedAI
-        {
-            mob_durumu_second_phase_addAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-            }
-
-            EventMap m_Events;
-
-            void Reset()
-            {
-                me->SetDisplayId(11686);
-
-                switch (me->GetEntry())
-                {
-                    case NPC_CRIMSON_FOG:
-                        me->CastSpell(me, SPELL_RED_FOG_INVISIBILITY, false);
-                        break;
-                    case NPC_AMBER_FOG:
-                        me->CastSpell(me, SPELL_YELLOW_FOG_INVISIBILITY, false);
-                        break;
-                    case NPC_AZURE_FOG:
-                        me->CastSpell(me, SPELL_BLUE_FOG_INVISIBILITY, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void IsSummonedBy(Unit* /*p_Summoner*/)
-            {
-                m_Events.Reset();
-                me->AddUnitState(UNIT_STATE_ROOT);
-            }
-
-            void DoAction(const int32 p_Action)
-            {
-                if (p_Action == ACTION_ADD_REVEALED)
-                {
-                    switch (me->GetEntry())
-                    {
-                        case NPC_CRIMSON_FOG:
-                            me->SetDisplayId(47140);
-                            me->RemoveAurasDueToSpell(SPELL_RED_FOG_INVISIBILITY);
-                            break;
-                        case NPC_AMBER_FOG:
-                            me->SetDisplayId(47141);
-                            me->RemoveAurasDueToSpell(SPELL_YELLOW_FOG_INVISIBILITY);
-                            break;
-                        case NPC_AZURE_FOG:
-                            me->SetDisplayId(47142);
-                            me->RemoveAurasDueToSpell(SPELL_BLUE_FOG_INVISIBILITY);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    me->ClearUnitState(UNIT_STATE_ROOT);
-                    me->setFaction(14);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                    if (Player* l_Player = me->SelectNearestPlayer(200.0f))
-                        me->Attack(l_Player, true);
-                }
-            }
-
-            void UpdateAI(const uint32 p_Diff)
-            {
-                m_Events.Update(p_Diff);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new mob_durumu_second_phase_addAI(p_Creature);
         }
 };
 
@@ -813,7 +1102,6 @@ class spell_colorblind_phase_link_visual : public SpellScriptLoader
                 switch (this->GetSpellInfo()->Id)
                 {
                     case SPELL_BRIGHT_LIGHT:
-                        //l_Caster->CastSpell(l_Caster, SPELL_BRIGHT_LIGHT_MAIN, true);
                         l_Caster->AddAura(SPELL_BRIGHT_LIGHT_MAIN, l_Caster);
 
                         if (Creature* l_Creature = l_Caster->ToCreature())

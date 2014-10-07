@@ -191,6 +191,7 @@ enum eCreatures
     NPC_AZURE_FOG                   = 69052,
     NPC_AMBER_FOG                   = 69051,
     NPC_CRIMSON_FOG                 = 69050,
+    NPC_EYEBEAM_TARGET              = 67882,
 
     NPC_PRIMORDIUS                  = 69017,
     NPC_LIVING_FLUID                = 69069,
