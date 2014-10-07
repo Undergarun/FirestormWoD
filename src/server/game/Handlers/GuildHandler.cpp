@@ -93,48 +93,37 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
     Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
-void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildInviteByNameOpcode(WorldPacket& p_Packet)
 {
-    time_t now = time(NULL);
-    if (now - timeLastGuildInviteCommand < 5)
+    time_t l_Now = time(NULL);
+    if (l_Now - m_TimeLastGuildInviteCommand < 5)
         return;
     else
-       timeLastGuildInviteCommand = now;
+       m_TimeLastGuildInviteCommand = l_Now;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INVITE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INVITE_BY_NAME");
 
-    uint32 nameLength = recvPacket.ReadBits(8);
-    nameLength *= 2;
+    uint32 l_NameLenght = 0;
+    std::string l_Name = "";
 
-    bool pair = recvPacket.ReadBit();
+    l_NameLenght    = p_Packet.ReadBits(9);
+    l_Name          = p_Packet.ReadString(l_NameLenght);
 
-    if (pair)
-        nameLength++;
-
-    recvPacket.FlushBits();
-    std::string invitedName = recvPacket.ReadString(nameLength);
-
-    if (normalizePlayerName(invitedName))
+    if (normalizePlayerName(l_Name))
         if (Guild* guild = _GetPlayerGuild(this, true))
-            guild->HandleInviteMember(this, invitedName);
+            guild->HandleInviteMember(this, l_Name);
 }
 
-void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildOfficierRemoveMemberOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REMOVE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_OFFICER_REMOVE_MEMBER");
 
-    ObjectGuid playerGuid;
+    uint64 l_Removee = 0;
 
-    uint8 bitOrder[8] = { 7, 0, 6, 3, 1, 2, 4, 5 };
-    recvPacket.ReadBitInOrder(playerGuid, bitOrder);
+    p_Packet.readPackGUID(l_Removee);
 
-    recvPacket.FlushBits();
-
-    uint8 byteOrder[8] = { 7, 4, 3, 0, 2, 6, 5, 1 };
-    recvPacket.ReadBytesSeq(playerGuid, byteOrder);
-
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleRemoveMember(this, playerGuid);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleRemoveMember(this, l_Removee);
 }
 
 void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket)
@@ -159,17 +148,18 @@ void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket)
     guild->SwitchGuildLeader(GetPlayer()->GetGUID());
 }
 
-void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleAcceptGuildInviteOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ACCEPT");
-    // Player cannot be in guild
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACCEPT_GUILD_INVITE");
+
+    /// Player cannot be in guild
     if (!GetPlayer()->GetGuildId())
-        // Guild where player was invited must exist
-        if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
-            guild->HandleAcceptMember(this);
+        /// Guild where player was invited must exist
+        if (Guild * l_Guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
+            l_Guild->HandleAcceptMember(this);
 }
 
-void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildDeclineInvitationsOpcode(WorldPacket& /*recvPacket*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DECLINE");
 
@@ -177,113 +167,102 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
     GetPlayer()->SetInGuild(0);
 }
 
-void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildRosterOpcode(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ROSTER");
 
-    recvPacket.rfinish();
-
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleRoster(this);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleRoster(this);
 }
 
-void WorldSession::HandleGuildAssignRankOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildAssignRankOpcode(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ASSIGN_MEMBER_RANK");
 
-    ObjectGuid targetGuid;
+    uint64 l_Member = 0;
+    uint32 l_RankOrder = 0;
 
-    uint32 rankId;
-    recvPacket >> rankId;
+    p_Packet.readPackGUID(l_Member);
+    p_Packet >> l_RankOrder;
 
-    uint8 bitOrder[8] = { 7, 2, 5, 6, 0, 4, 3, 1 };
-    recvPacket.ReadBitInOrder(targetGuid, bitOrder);
-
-    recvPacket.FlushBits();
-
-    uint8 byteOrder[8] = { 0, 6, 5, 2, 4, 1, 3, 7 };
-    recvPacket.ReadBytesSeq(targetGuid, byteOrder);
-
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleSetMemberRank(this, targetGuid, GetPlayer()->GetGUID(), rankId);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleSetMemberRank(this, l_Member, GetPlayer()->GetGUID(), l_RankOrder);
 }
 
 void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEAVE");
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleLeaveMember(this);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleLeaveMember(this);
 }
 
-void WorldSession::HandleGuildDisbandOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildDeleteOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DISBAND");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DELETE");
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleDisband(this);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleDisband(this);
 }
 
-void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEADER");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_GUILD_MASTER");
 
-    std::string name;
-    std::string realName;
-    uint32 len = recvPacket.ReadBits(8);
-    len *= 2;
+    std::string l_NewMasterName     = "";
+    std::string l_NewMasterRealName = "";
+    uint32 l_NewMasterNameLenght = 0;
 
-    bool pair = recvPacket.ReadBit();
-    if (pair)
-        len++;
+    uint32 l_NewMasterNameLenght = recvPacket.ReadBits(9);
 
-    recvPacket.FlushBits();
+    l_NewMasterName = recvPacket.ReadString(l_NewMasterNameLenght);
+    l_NewMasterRealName.resize(l_NewMasterName.size());
 
-    name = recvPacket.ReadString(len);
-    realName.resize(name.size());
-
-    size_t pos = name.find('-');
-    if (pos > 0)
+    size_t l_Position = l_NewMasterName.find('-');
+    if (l_Position > 0)
     {
-        for (size_t i = 0; i < name.size(); i++)
-            if (i <= pos)
-                realName[i] = name[i];
+        for (size_t l_I = 0; l_I < l_NewMasterName.size(); l_I++)
+            if (l_I <= l_Position)
+                l_NewMasterRealName[l_I] = l_NewMasterName[l_I];
 
-        if (normalizePlayerName(name))
-            if (Guild* guild = _GetPlayerGuild(this, true))
-                guild->HandleSetLeader(this, realName);
+        if (normalizePlayerName(l_NewMasterName))
+            if (Guild * l_Guild = _GetPlayerGuild(this, true))
+                l_Guild->HandleSetLeader(this, l_NewMasterRealName);
     }
     else
     {
-        if (normalizePlayerName(name))
-            if (Guild* guild = _GetPlayerGuild(this, true))
-                guild->HandleSetLeader(this, name);
+        if (normalizePlayerName(l_NewMasterName))
+            if (Guild * l_Guild = _GetPlayerGuild(this, true))
+                l_Guild->HandleSetLeader(this, l_NewMasterName);
     }
 }
 
-void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildUpdateMOTDTextOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_MOTD");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_UPDATE_MOTD_TEXT");
 
-    uint32 motdLength = recvPacket.ReadBits(10);
-    recvPacket.FlushBits();
-    std::string motd = recvPacket.ReadString(motdLength);
+    uint32 l_MotdTextLenght = 0;
+    std::string l_MotdText = "";
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleSetMOTD(this, motd);
+    l_MotdTextLenght = p_Packet.ReadBits(10);
+    l_MotdText = p_Packet.ReadString(l_MotdTextLenght);
+
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleSetMOTD(this, l_MotdText);
 }
 
-void WorldSession::HandleSwapRanks(WorldPacket& recvPacket)
+void WorldSession::HandleShiftRanks(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SWITCH_RANK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SHIFT_RANK");
 
-    uint32 id = 0;
-    bool up = false;
+    uint32 l_RankOrder = 0;
+    bool l_ShiftUp = false;
 
-    recvPacket >> id;
-    up = recvPacket.ReadBit();
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleSwapRanks(this, id, up);
+    p_Packet >> l_RankOrder;
+    l_ShiftUp = p_Packet.ReadBit();
+
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleSwapRanks(this, l_RankOrder, l_ShiftUp);
 }
 
 void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
@@ -320,56 +299,52 @@ void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
         guild->HandleSetMemberNote(this, note, playerGuid, type);
 }
 
-void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
+void WorldSession::HandleGuildGetRanksOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY_RANKS");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_GET_RANKS");
 
-    ObjectGuid guildGuid;
+    uint64 l_GuildGUID = 0;
 
-    uint8 bitOrder[8] = { 4, 1, 6, 7, 5, 3, 0, 2 };
-    recvData.ReadBitInOrder(guildGuid, bitOrder);
+    p_Packet.readPackGUID(l_GuildGUID);
 
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 0, 3, 4, 5, 6, 1, 2, 7 };
-    recvData.ReadBytesSeq(guildGuid, byteOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(m_Player->GetGUID()))
-            guild->HandleGuildRanks(this);
+    if (Guild * l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGUID))
+        if (l_Guild->IsMember(m_Player->GetGUID()))
+            l_Guild->HandleGuildRanks(this);
 }
 
-void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildAddRankOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ADD_RANK");
 
-    uint32 rankId;
-    recvPacket >> rankId;
+    uint32 l_RankOrder = 0;
+    uint32 l_NameLength = 0;
+    std::string l_Name = "";
 
-    uint32 length = recvPacket.ReadBits(7);
+    l_NameLength = p_Packet.ReadBits(7);
 
-    recvPacket.FlushBits();
+    p_Packet >> l_RankOrder;
 
-    std::string rankName = recvPacket.ReadString(length);
+    l_Name = p_Packet.ReadString(l_NameLength);
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleAddNewRank(this, rankName); //, rankId);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleAddNewRank(this, l_Name); //, rankId);
 }
 
-void WorldSession::HandleGuildDelRankOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildDeleteRankOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEL_RANK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DELETE_RANK");
 
-    uint32 rankId;
-    recvPacket >> rankId;
+    uint32 l_RankOrder = 0;
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleRemoveRank(this, rankId);
+    p_Packet >> l_RankOrder;
+
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleRemoveRank(this, l_RankOrder);
 }
 
-void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildUpdateInfoTextOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INFO_TEXT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_UPDATE_INFO_TEXT");
 
     uint32 length = recvPacket.ReadBits(12);
 
@@ -424,7 +399,7 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
         guild->SendEventLog(this);
 }
 
-void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket& /* recvData */)
+void WorldSession::HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket& /* recvData */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_MONEY_WITHDRAWN_QUERY)");
 
@@ -440,317 +415,228 @@ void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
         guild->SendPermissions(this);
 }
 
-// Called when clicking on Guild bank gameobject
-void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
+/// Called when clicking on Guild bank gameobject
+void WorldSession::HandleGuildBankActivate(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_ACTIVATE)");
 
-    ObjectGuid GoGuid;
-    bool fullSlotList;
+    uint64 l_Banker = 0;
+    bool l_FullUpdate = false;
 
-    GoGuid[1] = recvData.ReadBit();
-    GoGuid[7] = recvData.ReadBit();
-    GoGuid[6] = recvData.ReadBit();
-    GoGuid[3] = recvData.ReadBit();
-    GoGuid[5] = recvData.ReadBit();
-    GoGuid[0] = recvData.ReadBit();
-    fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
-    GoGuid[4] = recvData.ReadBit();
-    GoGuid[2] = recvData.ReadBit();
+    p_Packet.readPackGUID(l_Banker);
+    l_FullUpdate = p_Packet.ReadBit();  ///< 0 = only slots updated in last operation are shown. 1 = all slots updated
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 0, 2, 6, 5, 3, 7, 4, 1 };
-    recvData.ReadBytesSeq(GoGuid, bytesOrder);
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
     {
-        if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankList(this, 0, true, true);
+        if (Guild* l_Guild = _GetPlayerGuild(this))
+            l_Guild->SendBankList(this, 0, true, true);
         else
             Guild::SendCommandResult(this, GUILD_BANK, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     }
 }
 
 // Called when opening guild bank tab only (first one)
-void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
+void WorldSession::HandleGuildBankQueryTab(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
 
-    ObjectGuid GoGuid;
-    uint8 tabId;
-    bool fullSlotList;
+    uint64 l_Banker = 0;
+    uint8 l_Tab = 0;
+    bool l_FullUpdate = false;;
 
-    recvData >> tabId;
+    p_Packet.readPackGUID(l_Banker);
+    p_Packet >> l_Tab;
+    l_FullUpdate = p_Packet.ReadBit();      ///< 0 = only slots updated in last operation are shown. 1 = all slots updated
 
-    GoGuid[3] = recvData.ReadBit();
-    GoGuid[1] = recvData.ReadBit();
-    GoGuid[4] = recvData.ReadBit();
-    GoGuid[0] = recvData.ReadBit();
-    GoGuid[6] = recvData.ReadBit();
-    GoGuid[5] = recvData.ReadBit();
-    GoGuid[7] = recvData.ReadBit();
-    fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
-    GoGuid[2] = recvData.ReadBit();
-
-    uint8 bytesOrder[8] = { 2, 5, 6, 0, 1, 4, 7, 3 };
-    recvData.ReadBytesSeq(GoGuid, bytesOrder);
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (Guild* guild = _GetPlayerGuild(this))
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+    {
+        if (Guild * l_Guild = _GetPlayerGuild(this))
         {
-            guild->SendBankList(this, tabId, true, false);
-            guild->SendMoneyInfo(this);
+            l_Guild->SendBankList(this, l_Tab, true, false);
+            l_Guild->SendMoneyInfo(this);
         }
+    }
 }
 
-void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
+void WorldSession::HandleGuildBankDepositMoney(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
-    ObjectGuid goGuid;
-    uint64 money;
+    uint64 l_Banker = 0;
+    uint64 l_Money = 0;
 
-    recvData >> money;
+    p_Packet.readPackGUID(l_Banker);
+    p_Packet >> l_Money;
 
-    uint8 bitsOrder[8] = { 4, 3, 5, 6, 1, 0, 2, 7 };
-    recvData.ReadBitInOrder(goGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 1, 0, 4, 5, 2, 7, 3, 6 };
-    recvData.ReadBytesSeq(goGuid, bytesOrder);
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
     {
-        if (money && GetPlayer()->HasEnoughMoney(money))
+        if (l_Money && GetPlayer()->HasEnoughMoney(l_Money))
         {
-            if (Guild* guild = _GetPlayerGuild(this))
+            if (Guild * l_Guild = _GetPlayerGuild(this))
             {
-                uint64 amount = guild->GetBankMoney();
-                if ((amount + money) > MAX_MONEY_AMOUNT)
-                    guild->SendCommandResult(this, GUILD_BANK, ERR_GUILD_TOO_MUCH_MONEY);
+                uint64 l_Amount = l_Guild->GetBankMoney();
+
+                if ((l_Amount + l_Money) > MAX_MONEY_AMOUNT)
+                    l_Guild->SendCommandResult(this, GUILD_BANK, ERR_GUILD_TOO_MUCH_MONEY);
                 else
-                    guild->HandleMemberDepositMoney(this, money);
+                    l_Guild->HandleMemberDepositMoney(this, l_Money);
             }
         }
     }
 }
 
-void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
+void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_WITHDRAW_MONEY)");
 
-    uint64 money;
-    ObjectGuid GoGuid;
+    uint64 l_Banker;
+    uint64 l_Money;
 
-    recvData >> money;
+    p_Packet.readPackGUID(l_Banker);
+    p_Packet >> l_Money;
 
-    uint8 bitsOrder[8] = { 7, 6, 5, 0, 4, 3, 1, 2 };
-    recvData.ReadBitInOrder(GoGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 4, 6, 7, 3, 1, 0, 5 };
-    recvData.ReadBytesSeq(GoGuid, bytesOrder);
-
-    if (money)
-        if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-            if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleMemberWithdrawMoney(this, money);
+    if (l_Money)
+    {
+        if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        {
+            if (Guild * l_Guild = _GetPlayerGuild(this))
+                l_Guild->HandleMemberWithdrawMoney(this, l_Money);
+        }
+    }
 }
 
-void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
+void WorldSession::HandleGuildBankSwapItems(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
 
-    ObjectGuid GoGuid;
-    uint32 amountSplited = 0;
-    uint32 originalItemId = 0;
-    uint32 itemId = 0;
-    uint32 autostoreCount = 0;
-    uint8 srcTabSlot = 0;
-    uint8 toChar = 0;
-    uint8 srcTabId = 0;
-    uint8 dstTabId = 0;
-    uint8 dstTabSlot = 0;
-    uint8 plrSlot = 0;
-    uint8 plrBag = 0;
-    bool bit52 = false;
-    bool hasDstTab = false;
-    bool bankToBank = false;
-    bool hasSrcTabSlot = false;
-    bool hasPlrSlot = false;
-    bool hasItemId = false;
-    bool hasPlrBag = false;
-    bool autostore = false;
+    uint64 l_Banker = 0;
 
-    recvData >> amountSplited;
-    recvData >> dstTabSlot >> toChar;
-    recvData >> originalItemId;
-    recvData >> srcTabId;
+    uint32 l_ItemID        = 0;
+    uint32 l_ItemID1       = 0;
+    uint32 l_BankItemCount = 0;
+    uint32 l_StackCount    = 0;
 
-    bit52 = recvData.ReadBit();
-    GoGuid[3] = recvData.ReadBit();
-    hasDstTab = !recvData.ReadBit();
-    bankToBank = recvData.ReadBit();
-    hasSrcTabSlot = !recvData.ReadBit();
-    GoGuid[1] = recvData.ReadBit();
-    hasPlrSlot = !recvData.ReadBit();
-    GoGuid[4] = recvData.ReadBit();
-    hasItemId = !recvData.ReadBit();
-    GoGuid[0] = recvData.ReadBit();
-    hasPlrBag = !recvData.ReadBit();
-    GoGuid[2] = recvData.ReadBit();
-    GoGuid[7] = recvData.ReadBit();
-    autostore = !recvData.ReadBit();
-    GoGuid[6] = recvData.ReadBit();
-    GoGuid[5] = recvData.ReadBit();
+    uint8 l_BankTab           = 0;
+    uint8 l_BankSlot          = 0;
+    uint8 l_BankTab1          = 0;
+    uint8 l_BankSlot1         = 0;
+    uint8 l_ContainerSlot     = 0;
+    uint8 l_ContainerItemSlot = 0;
+    uint8 l_ToSlot            = 0;
 
-    recvData.FlushBits();
+    bool l_BankOnly  = false;
+    bool l_AutoStore = false;
 
-    uint8 bytesOrder[8] = { 7, 3, 1, 6, 5, 4, 2, 0 };
-    recvData.ReadBytesSeq(GoGuid, bytesOrder);
+    p_Packet.readPackGUID(l_Banker);
+    p_Packet >> l_BankTab;
+    p_Packet >> l_BankSlot;
+    p_Packet >> l_ItemID;
+    p_Packet >> l_BankTab1;
+    p_Packet >> l_BankSlot1;
+    p_Packet >> l_ItemID1;
+    p_Packet >> l_BankItemCount;
+    p_Packet >> l_ContainerSlot;
+    p_Packet >> l_ContainerItemSlot;
+    p_Packet >> l_ToSlot;
+    p_Packet >> l_StackCount;
 
-    if (hasItemId)
-        recvData >> itemId;
+    l_BankOnly = p_Packet.ReadBit();
+    l_AutoStore = p_Packet.ReadBit();
 
-    if (hasPlrSlot)
-        recvData >> plrSlot;
-
-    if (autostore)
-        recvData >> autostoreCount;
-
-    if (hasDstTab)
-        recvData >> dstTabId;
-
-    if (hasPlrBag)
-        recvData >> plrBag;
-
-    if (hasSrcTabSlot)
-        recvData >> srcTabSlot;
-
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-    {
-        recvData.rfinish();                   // Prevent additional spam at rejected packet
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
-    }
 
-    Guild* guild = _GetPlayerGuild(this);
-    if (!guild)
-    {
-        recvData.rfinish();                   // Prevent additional spam at rejected packet
+    Guild * l_Guild = _GetPlayerGuild(this);
+
+    if (!l_Guild)
         return;
-    }
 
-    if (bankToBank)
-        guild->SwapItems(GetPlayer(), dstTabId, srcTabSlot, srcTabId, dstTabSlot, amountSplited);
-    else if (autostore)
-        guild->AutoStoreItemInInventory(GetPlayer(), srcTabId, dstTabSlot, autostoreCount);
+    if (l_BankOnly)
+        l_Guild->SwapItems(GetPlayer(), l_BankTab1, l_BankSlot, l_BankTab, l_BankSlot1, l_StackCount);
+    else if (l_AutoStore)
+        l_Guild->AutoStoreItemInInventory(GetPlayer(), l_BankTab, l_BankSlot1, l_BankItemCount);
     else
     {
-        // Player <-> Bank
-        // Allow to work with inventory only
-        if (!Player::IsInventoryPos(plrBag, plrSlot) && !(plrBag == NULL_BAG && plrSlot == NULL_SLOT))
+        /// Player <-> Bank
+        /// Allow to work with inventory only
+        if (!Player::IsInventoryPos(l_ContainerSlot, l_ContainerItemSlot) && !(l_ContainerSlot == NULL_BAG && l_ContainerItemSlot == NULL_SLOT))
             GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, NULL);
         else
-            guild->SwapItemsWithInventory(GetPlayer(), toChar, srcTabId, dstTabSlot, plrBag, plrSlot, amountSplited);
+            l_Guild->SwapItemsWithInventory(GetPlayer(), l_ToSlot, l_BankTab, l_BankSlot1, l_ContainerSlot, l_ContainerItemSlot, l_StackCount);
     }
 }
 
-void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
+void WorldSession::HandleGuildBankBuyTab(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
 
-    uint8 tabId;
-    ObjectGuid GoGuid;
-    recvData >> tabId;
+    uint64 l_Banker = 0;
+    uint8 l_BankTab = 0;
 
-    uint8 bitsOrder[8] = { 1, 3, 7, 2, 4, 0, 5, 6 };
-    recvData.ReadBitInOrder(GoGuid, bitsOrder);
+    p_Packet.readPackGUID(l_Banker);
+    p_Packet >> l_BankTab;
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 3, 1, 6, 5, 4, 2, 7, 0 };
-    recvData.ReadBytesSeq(GoGuid, bytesOrder);
-
-    // Only for SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB, this prevent cheating
-    if (tabId > 5)
+    /// Only for SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB, this prevent cheating
+    if (l_BankTab > 5)
         return;
 
-    if (!GoGuid || GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (Guild* guild = _GetPlayerGuild(this))
-            guild->HandleBuyBankTab(this, tabId);
+    if (!l_Banker || GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        if (Guild * l_Guild = _GetPlayerGuild(this))
+            l_Guild->HandleBuyBankTab(this, l_BankTab);
 }
 
-void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
+void WorldSession::HandleGuildBankUpdateTab(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
 
-    bool pair;
-    uint8 tabId;
-    ObjectGuid GoGuid;
-    uint32 nameLen, iconLen;
-    std::string name;
-    std::string icon;
+    uint64 l_Banker = 0;
+    uint32 l_NameLenght = 0;
+    uint32 l_IconLenght = 0;
+    uint8 l_BankTab;
+    std::string l_Name;
+    std::string l_Icon;
 
-    recvData >> tabId;
+    p_Packet.readPackGUID(l_Banker);
+    p_Packet >> l_BankTab;
 
-    nameLen = recvData.ReadBits(7);
-    iconLen = recvData.ReadBits(8);
-    iconLen *= 2;
+    l_NameLenght = p_Packet.ReadBits(7);
+    l_IconLenght = p_Packet.ReadBits(9);
 
-    pair = recvData.ReadBit();
+    l_Name = p_Packet.ReadString(l_NameLenght);
+    l_Icon = p_Packet.ReadString(l_IconLenght);
 
-    if (pair)
-        iconLen++;
-
-    uint8 bitsOrder[8] = { 0, 2, 6, 7, 3, 4, 5, 1 };
-    recvData.ReadBitInOrder(GoGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(GoGuid[6]);
-    recvData.ReadByteSeq(GoGuid[4]);
-
-    icon = recvData.ReadString(iconLen);
-
-    recvData.ReadByteSeq(GoGuid[5]);
-    recvData.ReadByteSeq(GoGuid[0]);
-    recvData.ReadByteSeq(GoGuid[7]);
-    recvData.ReadByteSeq(GoGuid[1]);
-
-    name = recvData.ReadString(nameLen);
-
-    recvData.ReadByteSeq(GoGuid[2]);
-    recvData.ReadByteSeq(GoGuid[3]);
-
-    if (!name.empty() && !icon.empty())
-        if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-            if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleSetBankTabInfo(this, tabId, name, icon);
+    if (!l_Name.empty() && !l_Icon.empty())
+    {
+        if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        {
+            if (Guild * l_Guild = _GetPlayerGuild(this))
+                l_Guild->HandleSetBankTabInfo(this, l_BankTab, l_Name, l_Icon);
+        }
+    }
 }
 
-void WorldSession::HandleGuildBankLogQuery(WorldPacket& recvData)
+void WorldSession::HandleGuildBankLogQuery(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_LOG_QUERY)");
 
-    uint32 tabId;
-    recvData >> tabId;
+    uint32 l_TabID = 0;
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->SendBankLog(this, tabId);
+    p_Packet >> l_TabID;
+
+    if (Guild * l_Guild = _GetPlayerGuild(this))
+        l_Guild->SendBankLog(this, l_TabID);
 }
 
-void WorldSession::HandleQueryGuildBankTabText(WorldPacket& recvData)
+void WorldSession::HandleQueryGuildBankTextQuery(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_QUERY_TEXT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_TEXT_QUERY");
 
-    uint32 tabId;
-    recvData >> tabId;
+    uint32 l_Tab = 0;
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->SendBankTabText(this, tabId);
+    p_Packet >> l_Tab;
+
+    if (Guild * l_Guild = _GetPlayerGuild(this))
+        l_Guild->SendBankTabText(this, l_Tab);
 }
 
 void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
@@ -789,46 +675,49 @@ void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
             guild->SendGuildXP(this);
 }
 
-void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_RANK_PERMISSIONS");
 
-    Guild* guild = _GetPlayerGuild(this, true);
-    if (!guild)
+    Guild * l_Guild = _GetPlayerGuild(this, true);
+
+    if (!l_Guild)
     {
-        recvPacket.rfinish();
+        p_Packet.rfinish();
         return;
     }
 
-    uint32 unk;
-    uint32 rankId;
-    uint32 oldRights;
-    uint32 newRights;
-    uint32 moneyPerDay;
+    uint32 l_RankOrder          = 0;
+    uint32 l_RankID             = 0;
+    uint32 l_OldFlags           = 0;
+    uint32 l_Flags              = 0;
+    uint32 l_RankNameLenght     = 0;
+    uint32 l_WithdrawGoldLimit  = 0;
 
-    recvPacket >> rankId;
-    recvPacket >> newRights;
-    recvPacket >> moneyPerDay;
+    std::string l_RankName = "";
 
-    GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);
-    for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
+    p_Packet >> l_RankID;
+    p_Packet >> l_RankOrder;
+    p_Packet >> l_Flags;
+    p_Packet >> l_OldFlags;
+    p_Packet >> l_WithdrawGoldLimit;
+
+    GuildBankRightsAndSlotsVec l_RightsAndSlots(GUILD_BANK_MAX_TABS);
+    for (uint8 l_TabID = 0; l_TabID < GUILD_BANK_MAX_TABS; ++l_TabID)
     {
-        uint32 bankRights;
-        uint32 slots;
+        uint32 l_TabFlags;
+        uint32 l_TabWithdrawItemLimit;
 
-        recvPacket >> bankRights;
-        recvPacket >> slots;
+        p_Packet >> l_TabFlags;
+        p_Packet >> l_TabWithdrawItemLimit;
 
-        rightsAndSlots[tabId] = GuildBankRightsAndSlots(uint8(bankRights), slots);
+        l_RightsAndSlots[l_TabID] = GuildBankRightsAndSlots(uint8(l_TabFlags), l_TabWithdrawItemLimit);
     }
 
-    recvPacket >> unk;
-    recvPacket >> oldRights;
-    uint32 nameLength = recvPacket.ReadBits(7);
-    recvPacket.FlushBits();
-    std::string rankName = recvPacket.ReadString(nameLength);
+    l_RankNameLenght    = p_Packet.ReadBits(7);
+    l_RankName          = p_Packet.ReadString(l_RankNameLenght);
 
-    guild->HandleSetRankInfo(this, rankId, rankName, newRights, moneyPerDay, rightsAndSlots);
+    l_Guild->HandleSetRankInfo(this, l_RankID, l_RankName, l_Flags, l_WithdrawGoldLimit, l_RightsAndSlots);
 }
 
 void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)

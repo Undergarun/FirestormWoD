@@ -1935,23 +1935,24 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
     GetPlayer()->UpdateVisibilityForPlayer();
 }
 
-void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetTitleOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
 
-    uint32 title;
-    recvData >> title;
+    uint32 l_Title 0;
 
-    // -1 at none
-    if (title > 0 && title < MAX_TITLE_INDEX)
+    p_Packet >> l_Title;
+
+    /// -1 at none
+    if (l_Title > 0 && l_Title < MAX_TITLE_INDEX)
     {
-        if (!GetPlayer()->HasTitle(title))
+        if (!GetPlayer()->HasTitle(l_Title))
             return;
     }
     else
-        title = 0;
+        l_Title = 0;
 
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, title);
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, l_Title);
 }
 
 void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)

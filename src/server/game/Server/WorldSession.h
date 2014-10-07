@@ -638,28 +638,28 @@ class WorldSession
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
 
         void HandleGuildQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildInviteOpcode(WorldPacket& recvPacket);
-        void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
+        void HandleGuildInviteByNameOpcode(WorldPacket& recvPacket);
+        void HandleGuildOfficierRemoveMemberOpcode(WorldPacket& recvPacket);
         void HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket);
-        void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
-        void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
+        void HandleAcceptGuildInviteOpcode(WorldPacket& recvPacket);
+        void HandleGuildDeclineInvitationsOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildRosterOpcode(WorldPacket& recvPacket);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildAssignRankOpcode(WorldPacket& recvPacket);
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
-        void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
-        void HandleGuildLeaderOpcode(WorldPacket& recvPacket);
-        void HandleGuildMOTDOpcode(WorldPacket& recvPacket);
+        void HandleGuildDeleteOpcode(WorldPacket& recvPacket);
+        void HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket);
+        void HandleGuildUpdateMOTDTextOpcode(WorldPacket& recvPacket);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);
+        void HandleGuildGetRanksOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryNewsOpcode(WorldPacket& recvPacket);
-        void HandleSwapRanks(WorldPacket& recvPacket);
+        void HandleShiftRanks(WorldPacket& recvPacket);
         void HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket);
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildDelRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
+        void HandleGuildDeleteRankOpcode(WorldPacket& recvPacket);
+        void HandleGuildUpdateInfoTextOpcode(WorldPacket& recvPacket);
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
         void HandleGuildRequestPartyState(WorldPacket& recvPacket);
         void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
@@ -971,8 +971,8 @@ class WorldSession
 
         // Guild Bank
         void HandleGuildPermissions(WorldPacket& recvData);
-        void HandleGuildBankMoneyWithdrawn(WorldPacket& recvData);
-        void HandleGuildBankerActivate(WorldPacket& recvData);
+        void HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket& recvData);
+        void HandleGuildBankActivate(WorldPacket& recvData);
         void HandleGuildBankQueryTab(WorldPacket& recvData);
         void HandleGuildBankLogQuery(WorldPacket& recvData);
         void HandleGuildBankDepositMoney(WorldPacket& recvData);
@@ -981,7 +981,7 @@ class WorldSession
 
         void HandleGuildBankUpdateTab(WorldPacket& recvData);
         void HandleGuildBankBuyTab(WorldPacket& recvData);
-        void HandleQueryGuildBankTabText(WorldPacket& recvData);
+        void HandleQueryGuildBankTextQuery(WorldPacket& recvData);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
         void HandleGuildQueryXPOpcode(WorldPacket& recvData);
 
@@ -1169,7 +1169,7 @@ class WorldSession
         time_t timeLastChannelUnbanCommand;
         time_t timeLastChannelAnnounceCommand;
         time_t m_TimeLastGroupInviteCommand;
-        time_t timeLastGuildInviteCommand;
+        time_t m_TimeLastGuildInviteCommand;
         time_t timeLastChannelModerCommand;
         time_t timeLastChannelOwnerCommand;
         time_t timeLastChannelSetownerCommand;
