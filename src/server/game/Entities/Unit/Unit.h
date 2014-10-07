@@ -2385,7 +2385,7 @@ class Unit : public WorldObject
         void FocusTarget(Spell const* focusSpell, uint64 target);
         void ReleaseFocus(Spell const* focusSpell);
 
-        int32 GetEclipsePower() { return _eclipsePower; };
+        int32 GetEclipsePower() { return m_EclipsePower; };
         void SetEclipsePower(int32 power, bool send = true);
 
         uint32 GetHealingDoneInPastSecs(uint32 secs);
@@ -2583,7 +2583,7 @@ class Unit : public WorldObject
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
-        int32 _eclipsePower;
+        int32 m_EclipsePower;
 
         time_t _lastDamagedTime;
 };

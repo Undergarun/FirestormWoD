@@ -700,7 +700,7 @@ class debug_commandscript : public CommandScript
             }
 
             if (handler->GetSession()->GetPlayer()->GetSelection())
-                unit->PlayDistanceSound(soundId, handler->GetSession()->GetPlayer());
+                unit->PlayDistanceSound(unit, soundId, handler->GetSession()->GetPlayer());
             else
                 unit->PlayDirectSound(soundId, handler->GetSession()->GetPlayer());
 

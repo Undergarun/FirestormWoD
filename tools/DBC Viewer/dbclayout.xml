@@ -1737,14 +1737,6 @@
     <field type="int" name="field39" />
     <field type="int" name="field40" />
   </Vehicle>
-  <PowerDisplay build="0">
-    <field type="int" name="m_ID" />
-    <field type="int" name="m_ActualType" />
-    <field type="string" name="m_GlobalStringBaseTag" />
-    <field type="byte" name="m_Red" />
-    <field type="int" name="m_Green" />
-    <field type="int" name="m_Blue" />
-  </PowerDisplay>
   <SpellItemEnchantment build="0">
     <index>
       <primary>ID</primary>
@@ -2691,13 +2683,13 @@
     <field type="int" name="field1" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
+    <field type="float" name="field4" />
+    <field type="float" name="field5" />
+    <field type="float" name="field6" />
+    <field type="float" name="field7" />
+    <field type="float" name="field8" />
+    <field type="float" name="field9" />
+    <field type="string" name="field10" />
     <field type="int" name="field11" />
     <field type="int" name="field12" />
   </Weather>
@@ -2773,4 +2765,73 @@
     <field type="int" name="field14" />
     <field type="int" name="field15" />
   </WorldMapOverlay>
+  <UnitPowerBar build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="float" name="field5" />
+    <field type="float" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="string" name="field21" />
+    <field type="string" name="field22" />
+    <field type="int" name="field23" />
+    <field type="string" name="field24" />
+    <field type="float" name="field25" />
+    <field type="float" name="field26" />
+  </UnitPowerBar>
+  <SpellPower build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+  </SpellPower>
+  <Weather build="18988">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="AmbienceID" />
+    <field type="int" name="Type" />
+    <field type="int" name="EffectType" />
+    <field type="float" name="Intensity1" />
+    <field type="float" name="Intensity2" />
+    <field type="float" name="TransitionSkyBox" />
+    <field type="float" name="EffectColor1" />
+    <field type="float" name="EffectColor2" />
+    <field type="float" name="EffectColor3" />
+    <field type="string" name="EffectTexture" />
+    <field type="int" name="SoundAmbienceID" />
+    <field type="int" name="WindSettingsID" />
+  </Weather>
 </DBFilesClient>

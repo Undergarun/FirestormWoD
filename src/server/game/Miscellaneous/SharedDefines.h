@@ -132,12 +132,13 @@ enum LootModes
 
 enum Expansion
 {
-    EXP_VANILLA     = 0,
-    EXP_BC          = 1,
-    EXP_WOTLK       = 2,
-    EXP_CATACLYSM   = 3,
-    EXP_PANDARIA    = 4,
-    EXP_WOD         = 5
+    EXPANSION_VANILLA = 0,
+    EXPANSION_THE_BURNING_CRUSAD        = 1,
+    EXPANSION_WRATH_OF_THE_LICH_KING    = 2,
+    EXPANSION_CATACLYSM                 = 3,
+    EXPANSION_MISTS_OF_PANDARIA         = 4,
+    EXPANSION_WARLORDS_OF_DRAENOR       = 5,
+    MAX_EXPANSION                       = 6
 };
 
 enum Gender
@@ -147,7 +148,7 @@ enum Gender
     GENDER_NONE                        = 2
 };
 
-// Race value is index in ChrRaces.dbc
+// ChrRaces.dbc
 enum Races
 {
     RACE_NONE               = 0,
@@ -195,7 +196,7 @@ enum Races
 
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
-// Class value is index in ChrClasses.dbc
+// ChrClasses.dbc
 enum Classes
 {
     CLASS_NONE          = 0,
@@ -915,6 +916,34 @@ enum SpellAttr12
     SPELL_ATTR12_UNK29                            = 0x20000000, // 29
     SPELL_ATTR12_UNK30                            = 0x40000000, // 30
     SPELL_ATTR12_UNK31                            = 0x80000000  // 31
+};
+
+enum SpellAttr13
+{
+    SPELL_ATTR13_UNK0                             = 0x00000001, //  0
+    SPELL_ATTR13_UNK1                             = 0x00000002, //  1
+    SPELL_ATTR13_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR13_UNK3                             = 0x00000008, //  3
+    SPELL_ATTR13_UNK4                             = 0x00000010, //  4
+    SPELL_ATTR13_UNK5                             = 0x00000020, //  5
+    SPELL_ATTR13_UNK6                             = 0x00000040, //  6
+    SPELL_ATTR13_UNK7                             = 0x00000080, //  7
+    SPELL_ATTR13_UNK8                             = 0x00000100, //  8
+    SPELL_ATTR13_UNK9                             = 0x00000200, //  9
+    SPELL_ATTR13_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR13_UNK11                            = 0x00000800, // 11
+    SPELL_ATTR13_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR13_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR13_UNK14                            = 0x00004000, // 14
+    SPELL_ATTR13_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR13_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR13_UNK17                            = 0x00020000, // 17
+    SPELL_ATTR13_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR13_UNK19                            = 0x00080000, // 19
+    SPELL_ATTR13_UNK20                            = 0x00100000, // 20
+    SPELL_ATTR13_UNK21                            = 0x00200000, // 21
+    SPELL_ATTR13_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR13_UNK23                            = 0x00800000  // 23
 };
 
 #define MIN_TALENT_SPEC         0
@@ -2081,10 +2110,10 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_AREADAMAGE             = 12,
     GAMEOBJECT_TYPE_CAMERA                 = 13,
     GAMEOBJECT_TYPE_MAP_OBJECT             = 14,
-    GAMEOBJECT_TYPE_MO_TRANSPORT           = 15,
+   GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT           = 15,
     GAMEOBJECT_TYPE_DUEL_ARBITER           = 16,
     GAMEOBJECT_TYPE_FISHINGNODE            = 17,
-    GAMEOBJECT_TYPE_SUMMONING_RITUAL       = 18,
+    GAMEOBJECT_TYPE_RITUAL       = 18,
     GAMEOBJECT_TYPE_MAILBOX                = 19,
     GAMEOBJECT_TYPE_DO_NOT_USE             = 20,
     GAMEOBJECT_TYPE_GUARDPOST              = 21,
@@ -2101,20 +2130,20 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
     GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING  = 33,
     GAMEOBJECT_TYPE_GUILD_BANK             = 34,
-    GAMEOBJECT_TYPE_UNK                    = 35,
-    GAMEOBJECT_TYPE_TRAPDOOR               = 36,
-    GAMEOBJECT_TYPE_UNK2                   = 37,
-    GAMEOBJECT_TYPE_GARRISON_BUILD         = 38,
+    GAMEOBJECT_TYPE_TRAPDOOR               = 35,
+    GAMEOBJECT_TYPE_NEW_FLAG               = 36,
+    GAMEOBJECT_TYPE_NEW_FLAG_DROP          = 37,
+    GAMEOBJECT_TYPE_GARRISON_BUILDING      = 38,
     GAMEOBJECT_TYPE_GARRISON_PLOT          = 39,
     GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
     GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 42,
-    GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 43,
+    GAMEOBJECT_TYPE_TROPHY                 = 43,
     GAMEOBJECT_TYPE_PHASEABLE_MO           = 44,
-    GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
+    GAMEOBJECT_TYPE_SHIPMENT               = 45,
 };
 
-#define MAX_GAMEOBJECT_TYPE                  40             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -2580,7 +2609,8 @@ enum Emote
     EMOTE_STATE_SPELL_CHANNEL_DIRECTED           = 469,
     EMOTE_STAND_STATE_NONE                       = 470,
     EMOTE_STATE_READYJOUST                       = 471,
-    EMOTE_STATE_STRANGULATE                      = 473,
+    EMOTE_STATE_STRANGULATE                      = 472,
+    EMOTE_STATE_STRANGULATE2                     = 473,
     EMOTE_STATE_READYSPELLOMNI                   = 474,
     EMOTE_STATE_HOLD_JOUST                       = 475,
     EMOTE_ONESHOT_CRY_JAINA                      = 476,
@@ -2644,7 +2674,7 @@ enum Emote
     EMOTE_ONESHOT_CRY_NOSOUND                    = 579,
     EMOTE_ONESHOT_COMBATCRITICAL                 = 584,
     EMOTE_STATE_TRAIN                            = 585,
-    EMOTE_STATE_WORK_CHOPWOOD_NEW                    = 586, // lumber Axe
+    EMOTE_STATE_WORK_CHOPWOOD_NEW                = 586, // lumber Axe
     EMOTE_ONESHOT_SPECIALATTACK2H                = 587,
     EMOTE_STATE_READ_AND_TALK                    = 588,
     EMOTE_ONESHOT_STAND_VAR1                     = 589,
@@ -3634,38 +3664,38 @@ enum CreatureFamily
 
 enum CreatureTypeFlags
 {
-    CREATURE_TYPEFLAGS_TAMEABLE         = 0x00000001,         // Tameable by any hunter
-    CREATURE_TYPEFLAGS_GHOST            = 0x00000002,         // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
-    CREATURE_TYPEFLAGS_BOSS             = 0x00000004,         // BOSS flag (skull on level)
-    CREATURE_TYPEFLAGS_UNK3             = 0x00000008,
-    CREATURE_TYPEFLAGS_UNK4             = 0x00000010,         // controls something in client tooltip related to creature faction
-    CREATURE_TYPEFLAGS_UNK5             = 0x00000020,         // may be sound related
-    CREATURE_TYPEFLAGS_UNK6             = 0x00000040,         // may be related to attackable / not attackable creatures with spells, used together with lua_IsHelpfulSpell/lua_IsHarmfulSpell
-    CREATURE_TYPEFLAGS_DEAD_INTERACT    = 0x00000080,         // Player can interact with the creature if its dead (not player dead)
-    CREATURE_TYPEFLAGS_HERBLOOT         = 0x00000100,         // Can be looted by herbalist
-    CREATURE_TYPEFLAGS_MININGLOOT       = 0x00000200,         // Can be looted by miner
-    CREATURE_TYPEFLAGS_UNK10            = 0x00000400,
-    CREATURE_TYPEFLAGS_MOUNTED_COMBAT   = 0x00000800,         // Creature can remain mounted when entering combat
-    CREATURE_TYPEFLAGS_AID_PLAYERS      = 0x00001000,         // Can aid any player (and group) in combat. Typically seen for escorting NPC's
-    CREATURE_TYPEFLAGS_UNK13            = 0x00002000,         // checked from calls in Lua_PetHasActionBar
-    CREATURE_TYPEFLAGS_UNK14            = 0x00004000,         // Lua_UnitGUID, client does guid_low &= 0xFF000000 if this flag is set
-    CREATURE_TYPEFLAGS_ENGINEERLOOT     = 0x00008000,         // Can be looted by engineer
-    CREATURE_TYPEFLAGS_EXOTIC           = 0x00010000,         // Can be tamed by hunter as exotic pet
-    CREATURE_TYPEFLAGS_UNK17            = 0x00020000,         // Related to CreatureDisplayInfo and scaling in some way
-    CREATURE_TYPEFLAGS_UNK18            = 0x00040000,         // ? Related to vehicle/siege weapons?
-    CREATURE_TYPEFLAGS_UNK19            = 0x00080000,
-    CREATURE_TYPEFLAGS_ENVIRONMENT      = 0x00100000,
-    CREATURE_TYPEFLAGS_UNK21            = 0x00200000,         // may be has something to do with animation (disable animation?)
-    CREATURE_TYPEFLAGS_UNK22            = 0x00400000,
-    CREATURE_TYPEFLAGS_SQUIRE           = 0x00800000,         // @todo NEED TO IMPLEMENT IT https://github.com/mangosthree/server/commit/e6eec30f51b581b3fb4f2ea537be33d1078e1003
-    CREATURE_TYPEFLAGS_UNK24            = 0x01000000,
-    CREATURE_TYPEFLAGS_UNK25            = 0x02000000,
-    CREATURE_TYPEFLAGS_PARTY_MEMBER     = 0x04000000,         // Creature can be targeted by spells that require target to be in caster's party/raid
-    CREATURE_TYPEFLAGS_UNK27            = 0x08000000,         // Used in Lua_ForceGossip
-    CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
-    CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
-    CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
-    CREATURE_TYPEFLAGS_QUEST_BOSS       = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
+    CREATURE_TYPEFLAGS_TAMEABLE                          = 0x00000001, // Tameable by any hunter
+    CREATURE_TYPEFLAGS_GHOST                             = 0x00000002, // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
+    CREATURE_TYPEFLAGS_BOSS                              = 0x00000004,
+    CREATURE_TYPEFLAGS_DO_NOT_PLAY_WOUND_PARRY_ANIMATION = 0x00000008,
+    CREATURE_TYPEFLAGS_HIDE_FACTION_TOOLTIP              = 0x00000010,
+    CREATURE_TYPEFLAGS_UNK5                              = 0x00000020,
+    CREATURE_TYPEFLAGS_SPELL_ATTACKABLE                  = 0x00000040,
+    CREATURE_TYPEFLAGS_DEAD_INTERACT                     = 0x00000080, // Player can interact with the creature if its dead (not player dead)
+    CREATURE_TYPEFLAGS_HERBLOOT                          = 0x00000100, // Can be looted by herbalist
+    CREATURE_TYPEFLAGS_MININGLOOT                        = 0x00000200, // Can be looted by miner
+    CREATURE_TYPEFLAGS_DONT_LOG_DEATH                    = 0x00000400, // Death event will not show up in combat log
+    CREATURE_TYPEFLAGS_MOUNTED_COMBAT                    = 0x00000800, // Creature can remain mounted when entering combat
+    CREATURE_TYPEFLAGS_CAN_ASSIST                        = 0x00001000,
+    CREATURE_TYPEFLAGS_IS_PET_BAR_USED                   = 0x00002000,
+    CREATURE_TYPEFLAGS_MASK_UID                          = 0x00004000,
+    CREATURE_TYPEFLAGS_ENGINEERLOOT                      = 0x00008000, // Can be looted by engineer
+    CREATURE_TYPEFLAGS_EXOTIC                            = 0x00010000, // Can be tamed by hunter as exotic pet
+    CREATURE_TYPEFLAGS_USE_DEFAULT_COLLISION_BOX         = 0x00020000,
+    CREATURE_TYPEFLAGS_IS_SIEGE_WEAPON                   = 0x00040000,
+    CREATURE_TYPEFLAGS_PROJECTILE_COLLISION              = 0x00080000, // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
+    CREATURE_TYPEFLAGS_HIDE_NAMEPLATE                    = 0x00100000,
+    CREATURE_TYPEFLAGS_DO_NOT_PLAY_MOUNTED_ANIMATIONS    = 0x00200000,
+    CREATURE_TYPEFLAGS_IS_LINK_ALL                       = 0x00400000,
+    CREATURE_TYPEFLAGS_INTERACT_ONLY_WITH_CREATOR        = 0x00800000,
+    CREATURE_TYPEFLAGS_DO_NOT_PLAY_UNIT_EVENT_SOUNDS     = 0x01000000,
+    CREATURE_TYPEFLAGS_HAS_NO_SHADOW_BLOB                = 0x02000000,
+    CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT                = 0x04000000, //! Creature can be targeted by spells that require target to be in caster's party/raid
+    CREATURE_TYPEFLAGS_FORCE_GOSSIP                      = 0x08000000,
+    CREATURE_TYPEFLAGS_DO_NOT_SHEATHE                    = 0x10000000,
+    CREATURE_TYPEFLAGS_DO_NOT_TARGET_ON_INTERACTION      = 0x20000000,
+    CREATURE_TYPEFLAGS_DO_NOT_RENDER_OBJECT_NAME         = 0x40000000,
+    CREATURE_TYPEFLAGS_UNIT_IS_QUEST_BOSS                = 0x80000000  // Not verified
 };
 
 enum CreatureTypeFlags2
@@ -3687,7 +3717,8 @@ enum CreatureEliteType
     CREATURE_ELITE_RAREELITE       = 2,
     CREATURE_ELITE_WORLDBOSS       = 3,
     CREATURE_ELITE_RARE            = 4,
-    CREATURE_ELITE_TRIVIAL         = 5                      // found in 2.2.3 for 2 mobs
+    CREATURE_ELITE_TRIVIAL         = 5,                     // found in 2.2.3 for 2 mobs
+    CREATURE_WEAK                  = 6
 };
 
 // values based at Holidays_*.DB2
@@ -3742,9 +3773,9 @@ enum HolidayIds
     HOLIDAY_CALL_TO_ARMS_WS2         = 499,    // Call to Arms: Warsong Gulch
     HOLIDAY_UNK_601_1                = 507,
     HOLIDAY_UNK_601_2                = 508,
-    HOLIDAY_UNK_601_3                = 509, 
-    HOLIDAY_UNK_601_4                = 514,
-    HOLIDAY_UNK_601_5                = 515,
+    HOLIDAY_ANNIVERSARY_9_YEARS      = 509,
+    HOLIDAY_ANNIVERSARY_10_YEARS     = 514,
+    HOLIDAY_CALL_TO_ARMS_DG          = 515,
     HOLIDAY_UNK_601_6                = 516,
     HOLIDAY_UNK_601_7                = 517,
     HOLIDAY_UNK_601_8                = 518,
@@ -3832,28 +3863,40 @@ enum QuestSort
     QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1
     QUEST_SORT_GARRISON_SUPPORT     = 403,      // 6.0.1
     QUEST_SORT_LOGGIN               = 404,      // 6.0.1
-    QUEST_SORT_PICKPOCKETING		= 405       // 6.0.2
+    QUEST_SORT_PICKPOCKETING        = 405       // 6.0.2
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
-    case QUEST_SORT_WARLOCK:        return CLASS_WARLOCK;
-    case QUEST_SORT_WARRIOR:        return CLASS_WARRIOR;
-    case QUEST_SORT_SHAMAN:         return CLASS_SHAMAN;
-    case QUEST_SORT_PALADIN:        return CLASS_PALADIN;
-    case QUEST_SORT_MAGE:           return CLASS_MAGE;
-    case QUEST_SORT_ROGUE:          return CLASS_ROGUE;
-    case QUEST_SORT_HUNTER:         return CLASS_HUNTER;
-    case QUEST_SORT_PRIEST:         return CLASS_PRIEST;
-    case QUEST_SORT_DRUID:          return CLASS_DRUID;
-    case QUEST_SORT_DEATH_KNIGHT:   return CLASS_DEATH_KNIGHT;
-    case QUEST_SORT_MONK:           return CLASS_MONK;
+    case QUEST_SORT_WARLOCK:
+        return CLASS_WARLOCK;
+    case QUEST_SORT_WARRIOR:
+        return CLASS_WARRIOR;
+    case QUEST_SORT_SHAMAN:
+        return CLASS_SHAMAN;
+    case QUEST_SORT_PALADIN:
+        return CLASS_PALADIN;
+    case QUEST_SORT_MAGE:
+        return CLASS_MAGE;
+    case QUEST_SORT_ROGUE:
+        return CLASS_ROGUE;
+    case QUEST_SORT_HUNTER:
+        return CLASS_HUNTER;
+    case QUEST_SORT_PRIEST:
+        return CLASS_PRIEST;
+    case QUEST_SORT_DRUID:
+        return CLASS_DRUID;
+    case QUEST_SORT_DEATH_KNIGHT:
+        return CLASS_DEATH_KNIGHT;
+    case QUEST_SORT_MONK:
+        return CLASS_MONK;
     }
     return 0;
 }
 
+// SkillLine.dbc
 enum SkillType
 {
     SKILL_NONE                     = 0,
@@ -4076,18 +4119,24 @@ enum SkillType
     SKILL_PET_TRADING_POST         = 2000  // 6.0.1
 };
 
-#define MAX_SKILL_TYPE               1306
+#define MAX_SKILL_TYPE               2001
 
 inline SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
-    case LOCKTYPE_PICKLOCK:    return SKILL_LOCKPICKING;
-    case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
-    case LOCKTYPE_MINING:      return SKILL_MINING;
-    case LOCKTYPE_FISHING:     return SKILL_FISHING;
-    case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
-    case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
+    case LOCKTYPE_PICKLOCK:
+        return SKILL_LOCKPICKING;
+    case LOCKTYPE_HERBALISM:
+        return SKILL_HERBALISM;
+    case LOCKTYPE_MINING:
+        return SKILL_MINING;
+    case LOCKTYPE_FISHING:
+        return SKILL_FISHING;
+    case LOCKTYPE_INSCRIPTION:
+        return SKILL_INSCRIPTION;
+    case LOCKTYPE_ARCHAEOLOGY:
+        return SKILL_ARCHAEOLOGY;
     default: break;
     }
     return SKILL_NONE;
@@ -4097,18 +4146,30 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
-    case QUEST_SORT_HERBALISM:      return SKILL_HERBALISM;
-    case QUEST_SORT_FISHING:        return SKILL_FISHING;
-    case QUEST_SORT_BLACKSMITHING:  return SKILL_BLACKSMITHING;
-    case QUEST_SORT_ALCHEMY:        return SKILL_ALCHEMY;
-    case QUEST_SORT_LEATHERWORKING: return SKILL_LEATHERWORKING;
-    case QUEST_SORT_ENGINEERING:    return SKILL_ENGINEERING;
-    case QUEST_SORT_TAILORING:      return SKILL_TAILORING;
-    case QUEST_SORT_COOKING:        return SKILL_COOKING;
-    case QUEST_SORT_FIRST_AID:      return SKILL_FIRST_AID;
-    case QUEST_SORT_JEWELCRAFTING:  return SKILL_JEWELCRAFTING;
-    case QUEST_SORT_INSCRIPTION:    return SKILL_INSCRIPTION;
-    case QUEST_SORT_ARCHAEOLOGY:    return SKILL_ARCHAEOLOGY;
+    case QUEST_SORT_HERBALISM:
+        return SKILL_HERBALISM;
+    case QUEST_SORT_FISHING:
+        return SKILL_FISHING;
+    case QUEST_SORT_BLACKSMITHING:
+        return SKILL_BLACKSMITHING;
+    case QUEST_SORT_ALCHEMY:
+        return SKILL_ALCHEMY;
+    case QUEST_SORT_LEATHERWORKING:
+        return SKILL_LEATHERWORKING;
+    case QUEST_SORT_ENGINEERING:
+        return SKILL_ENGINEERING;
+    case QUEST_SORT_TAILORING:
+        return SKILL_TAILORING;
+    case QUEST_SORT_COOKING:
+        return SKILL_COOKING;
+    case QUEST_SORT_FIRST_AID:
+        return SKILL_FIRST_AID;
+    case QUEST_SORT_JEWELCRAFTING:
+        return SKILL_JEWELCRAFTING;
+    case QUEST_SORT_INSCRIPTION:
+        return SKILL_INSCRIPTION;
+    case QUEST_SORT_ARCHAEOLOGY:
+        return SKILL_ARCHAEOLOGY;
     }
     return 0;
 }
@@ -4126,6 +4187,7 @@ enum SkillCategory
     SKILL_CATEGORY_GENERIC       = 12
 };
 
+// TotemCategory.dbc
 enum TotemCategory
 {
     TC_SKINNING_SKIFE_OLD          = 1,
@@ -4199,8 +4261,6 @@ enum WeatherType
     WEATHER_TYPE_RAIN       = 1,
     WEATHER_TYPE_SNOW       = 2,
     WEATHER_TYPE_STORM      = 3,
-    WEATHER_TYPE_THUNDERS   = 86,
-    WEATHER_TYPE_BLACKRAIN  = 90
 };
 
 #define MAX_WEATHER_TYPE 4
@@ -4566,7 +4626,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow)
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 758
+#define MAX_BATTLEGROUND_TYPE_ID 790
 
 enum MailResponseType
 {
