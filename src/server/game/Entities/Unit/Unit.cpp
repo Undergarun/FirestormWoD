@@ -16447,75 +16447,79 @@ int32 Unit::GetMaxPower(Powers power) const
     return GetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex);
 }
 
-void Unit::SetPower(Powers power, int32 val, bool regen)
+void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
-    if (powerIndex == MAX_POWERS)
+    uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
+
+    if (l_PowerIndex == MAX_POWERS)
         return;
 
-    int32 maxPower = int32(GetMaxPower(power));
-    if (maxPower < val)
-        val = maxPower;
+    int32 l_MaxPower = int32(GetMaxPower(p_PowerType));
 
-    m_powers[powerIndex] = val;
-    uint32 regen_diff = getMSTime() - m_lastRegenTime[powerIndex];
+    if (l_MaxPower < p_PowerValue)
+        p_PowerValue = l_MaxPower;
 
-    if (regen)
-        m_lastRegenTime[powerIndex] = getMSTime();
+    m_powers[l_PowerIndex] = p_PowerValue;
 
-    if (!regen || regen_diff > 2000)
-        SetInt32Value(UNIT_FIELD_POWER + powerIndex, val);
+    uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
-    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER && (!regen || regen_diff > 2000))
+    if (p_Regen)
+        m_lastRegenTime[l_PowerIndex] = getMSTime();
+
+    if (!p_Regen || l_RegenDiff > 2000)
+        SetInt32Value(UNIT_FIELD_POWER + l_PowerIndex, p_PowerValue);
+
+    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER && (!p_Regen || l_RegenDiff > 2000))
     {
-        int powerCounter = 1;
+        int l_PowerCount = 1;
 
-        WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
-        data.appendPackGUID(GetGUID());
-        data << uint32(powerCounter);
+        WorldPacket l_Data(SMSG_POWER_UPDATE, 2 + 16 + 4 + 4 + 1);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(l_PowerCount);
 
-        data << int32(val);
-        data << uint8(power);
+        l_Data << int32(p_PowerValue);
+        l_Data << uint8(p_PowerType);
 
-        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
+        SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
 
-    // Custom MoP Script
-    // Pursuit of Justice - 26023
-    if (Player* _player = ToPlayer())
+    /// Custom MoP Script
+    /// Pursuit of Justice - 26023
+    if (Player * l_Player = ToPlayer())
     {
-        if (_player->HasAura(26023))
+        if (l_Player->HasAura(26023))
         {
-            AuraPtr aura = _player->GetAura(26023);
-            if (aura)
+            AuraPtr l_Aura = l_Player->GetAura(26023);
+            if (l_Aura)
             {
-                int32 holyPower = _player->GetPower(POWER_HOLY_POWER) >= 3 ? 3 : _player->GetPower(POWER_HOLY_POWER);
-                int32 AddValue = 5 * holyPower;
+                int32 l_HolyPower = l_Player->GetPower(POWER_HOLY_POWER) >= 3 ? 3 : l_Player->GetPower(POWER_HOLY_POWER);
+                int32 l_AddValue  = 5 * l_HolyPower;
 
-                aura->GetEffect(0)->ChangeAmount(15 + AddValue);
+                l_Aura->GetEffect(0)->ChangeAmount(15 + l_AddValue);
 
-                AuraPtr aura2 = _player->AddAura(114695, _player);
-                if (aura2)
-                    aura2->GetEffect(0)->ChangeAmount(AddValue);
+                AuraPtr l_SecondAura = l_Player->AddAura(114695, l_Player);
+
+                if (l_SecondAura)
+                    l_SecondAura->GetEffect(0)->ChangeAmount(l_AddValue);
             }
         }
-        else if (_player->HasAura(114695))
-            _player->RemoveAura(114695);
+        else if (l_Player->HasAura(114695))
+            l_Player->RemoveAura(114695);
     }
 
-    // group update
-    if (Player* player = ToPlayer())
+    /// group update
+    if (Player * l_Player = ToPlayer())
     {
-        if (player->GetGroup())
-            player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_POWER);
+        if (l_Player->GetGroup())
+            l_Player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_POWER);
     }
-    else if (Pet* pet = ToCreature()->ToPet())
+    else if (Pet * l_Pet = ToCreature()->ToPet())
     {
-        if (pet->isControlled())
+        if (l_Pet->isControlled())
         {
-            Unit* owner = GetOwner();
-            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
+            Unit * l_Owner = GetOwner();
+            if (l_Owner && (l_Owner->GetTypeId() == TYPEID_PLAYER) && l_Owner->ToPlayer()->GetGroup())
+                l_Owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
         }
     }
 }
@@ -22056,53 +22060,53 @@ bool Unit::IsSplineEnabled() const
     return movespline->Initialized();
 }
 
-void Unit::SetEclipsePower(int32 power, bool send)
+void Unit::SetEclipsePower(int32 p_Power, bool p_Send)
 {
-    if (power > 100)
-        power = 100;
+    if (p_Power > 100)
+        p_Power = 100;
 
-    if (power < -100)
-        power = -100;
+    if (p_Power < -100)
+        p_Power = -100;
 
-    if (power > 0)
+    if (p_Power > 0)
     {
         if (HasAura(48518))
-            RemoveAurasDueToSpell(48518); // Eclipse (Lunar)
+            RemoveAurasDueToSpell(48518); ///< Eclipse (Lunar)
         if (HasAura(107095))
-            RemoveAurasDueToSpell(107095);// Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
+            RemoveAurasDueToSpell(107095);///< Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
     }
 
-    if (power == 0)
-    {
+    if (p_Power == 0)
+    {                      
         if (HasAura(48517))
-            RemoveAurasDueToSpell(48517); // Eclipse (Solar)
+            RemoveAurasDueToSpell(48517); ///< Eclipse (Solar)
         if (HasAura(48518))
-            RemoveAurasDueToSpell(48518); // Eclipse (Lunar)
+            RemoveAurasDueToSpell(48518); ///< Eclipse (Lunar)
         if (HasAura(107095))
-            RemoveAurasDueToSpell(107095);// Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
+            RemoveAurasDueToSpell(107095);///< Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
     }
 
-    if (power < 0)
+    if (p_Power < 0)
     {
         if (HasAura(48517))
-            RemoveAurasDueToSpell(48517); // Eclipse (Solar)
+            RemoveAurasDueToSpell(48517); ///< Eclipse (Solar)
     }
 
-    _eclipsePower = power;
+    m_EclipsePower = p_Power;
 
-    if (send)
+    if (p_Send)
     {
-        int powerCounter = 1;
+        int l_PowerCount = 1;
 
-        WorldPacket data(SMSG_POWER_UPDATE);
+        WorldPacket l_Data(SMSG_POWER_UPDATE, 2 + 16 + 4 + 4 + 1);
 
-        data.appendPackGUID(GetGUID());
-        data << uint32(powerCounter);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(l_PowerCount);
 
-        data << int32(_eclipsePower);
-        data << uint8(POWER_ECLIPSE);
+        l_Data << int32(m_EclipsePower);
+        l_Data << uint8(POWER_ECLIPSE);
 
-        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
+        SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
 }
 

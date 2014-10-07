@@ -268,22 +268,16 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature * p_Source, uint32 p_SoundKitID, ChatMsg p_MsgType, uint64 p_WhisperGuid, TextRange p_Range, Team p_Team, bool p_GMOnly)
 {
-    if (!sound || !source)
+    if (!p_SoundKitID || !p_Source)
         return;
 
-    uint8 bitsOrder[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    uint8 bytesOrder[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+    WorldPacket l_Data(SMSG_PLAY_SOUND,  2 + 16 + 4);
+    l_Data.appendPackGUID(p_Source->GetGUID());
+    l_Data << uint32(p_SoundKitID);
 
-    ObjectGuid guid = source->GetGUID();
-
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteBitInOrder(guid, bitsOrder);
-    data.WriteBytesSeq(guid, bytesOrder);
-    data << uint32(sound);
-
-    SendNonChatPacket(source, &data, msgType, whisperGuid, range, team, gmOnly);
+    SendNonChatPacket(p_Source, &l_Data, p_MsgType, p_WhisperGuid, p_Range, p_Team, p_GMOnly);
 }
 
 void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const

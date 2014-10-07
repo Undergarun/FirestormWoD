@@ -1102,29 +1102,17 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     }
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
+void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player * p_Player, Battleground * p_Battleground, uint64 p_Guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    ObjectGuid npcGuid = guid;
+    uint32 l_Time = 30000 - p_Battleground->GetLastResurrectTime();      ///< resurrect every 30 seconds
+    if (l_Time == uint32(-1))
+        l_Time = 0;
 
-    uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
-    if (time_ == uint32(-1))
-        time_ = 0;
+    WorldPacket l_Data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    l_Data.appendPackGUID(p_Guid);
+    l_Data << uint32(l_Time);
 
-    uint8 bitsOrder[8] = { 0, 4, 2, 6, 3, 5, 1, 7 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
-
-    data.WriteByteSeq(npcGuid[4]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[3]);
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[6]);
-    data.WriteByteSeq(npcGuid[7]);
-    data << uint32(time_);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(npcGuid[1]);
-
-    player->GetSession()->SendPacket(&data);
+    p_Player->GetSession()->SendPacket(&l_Data);
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)

@@ -680,27 +680,17 @@ void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, const uint64 &guid)
+void Battlefield::SendAreaSpiritHealerQueryOpcode(Player * p_Player, const uint64 & p_Guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    ObjectGuid npcGuid = guid;
-    uint32 time = m_LastResurectTimer;  // resurrect every 30 seconds
+    ASSERT(p_Player && p_Player->GetSession());
 
-    uint8 bitsOrder[8] = { 0, 4, 2, 6, 3, 5, 1, 7 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
+    uint32 l_Time = m_LastResurectTimer;  ///< resurrect every 30 seconds
 
-    data.WriteByteSeq(npcGuid[4]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[3]);
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[6]);
-    data.WriteByteSeq(npcGuid[7]);
-    data << uint32(time);
-    data.WriteByteSeq(npcGuid[0]);
+    WorldPacket l_Data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    l_Data.append(p_Guid);
+    l_Data << uint32(l_Time);
 
-    ASSERT(player && player->GetSession());
-
-    player->GetSession()->SendPacket(&data);
+    p_Player->GetSession()->SendPacket(&l_Data);
 }
 
 // ----------------------
