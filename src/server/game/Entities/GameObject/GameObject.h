@@ -225,7 +225,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //3 can be used to replace castBarCaption?
         } camera;
         //14 GAMEOBJECT_TYPE_MAPOBJECT - empty
-        //15 GAMEOBJECT_TYPE_MO_TRANSPORT
+        //15GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT
         struct
         {
             uint32 taxiPathId;                              //0
@@ -239,7 +239,7 @@ struct GameObjectTemplate
         } moTransport;
         //16 GAMEOBJECT_TYPE_DUELFLAG - empty
         //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
-        //18 GAMEOBJECT_TYPE_SUMMONING_RITUAL
+        //18 GAMEOBJECT_TYPE_RITUAL
         struct
         {
             uint32 reqParticipants;                         //0
@@ -922,7 +922,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         std::list<uint32> m_SkillupList;
 
-        Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
+        Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_RITUAL where GO is not summoned (no owner)
         std::set<uint64> m_unique_users;
         uint32 m_usetimes;
 

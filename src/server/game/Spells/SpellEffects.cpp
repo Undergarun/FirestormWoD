@@ -7035,7 +7035,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         fz = liqData.level;
     }
     // if gameobject is summoning object, it should be spawned right on caster's position
-    else if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
+    else if (goinfo->type == GAMEOBJECT_TYPE_RITUAL)
     {
         m_caster->GetPosition(fx, fy, fz);
     }
@@ -7072,7 +7072,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             duration = duration - lastSec*IN_MILLISECONDS + FISHING_BOBBER_READY_TIME*IN_MILLISECONDS;
             break;
         }
-        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:
+        case GAMEOBJECT_TYPE_RITUAL:
         {
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
             {

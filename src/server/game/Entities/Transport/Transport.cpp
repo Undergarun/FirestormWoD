@@ -32,7 +32,7 @@ Transport* MapManager::LoadTransportInMap(Map* instance, uint32 goEntry, uint32 
 {
     const GameObjectTemplate* goInfo = sObjectMgr->GetGameObjectTemplate(goEntry);
 
-    if (!goInfo || goInfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
+    if (!goInfo || goInfo->type !=GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
         return NULL;
 
     Transport* Ship = new Transport(period, goInfo->ScriptId);
@@ -168,7 +168,7 @@ void MapManager::LoadTransports()
             continue;
         }
 
-        if (goinfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
+        if (goinfo->type !=GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
         {
             sLog->outError(LOG_FILTER_SQL, "Transport ID:%u, Name: %s, will not be loaded, gameobject_template type wrong", entry, name.c_str());
             continue;
