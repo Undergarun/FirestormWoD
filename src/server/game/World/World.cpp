@@ -3494,6 +3494,17 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
         return NULL;
 }
 
+uint64 World::GetCharacterGuidByName(std::string p_Name)
+{
+    for (std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.begin(); itr != _characterNameDataMap.end(); ++itr)
+    {
+        if (itr->second.m_name == p_Name)
+            return MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER);
+    }
+
+    return 0;
+}
+
 void World::UpdatePhaseDefinitions()
 {
     SessionMap::const_iterator itr;

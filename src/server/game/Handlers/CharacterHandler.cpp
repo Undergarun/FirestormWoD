@@ -1904,7 +1904,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newName))
+    if (uint64 newguid = sWorld->GetCharacterGuidByName(newName))
     {
         if (newguid != playerGuid)
         {
@@ -2387,7 +2387,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newname))
+    if (uint64 newguid = sWorld->GetCharacterGuidByName(newname))
     {
         if (newguid != guid)
         {
