@@ -761,7 +761,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             }
             case DTT_ACC_ACH:
             {
-                if (!changenth(line, 1, newguid)) // character_*.guid update
+                if (!changenth(line, 2, newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
