@@ -759,6 +759,14 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
                 break;
             }
+            case DTT_ACC_ACH:
+            {
+                if (!changenth(line, 1, newguid)) // character_*.guid update
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_ACC_ACH_PRO:
+                break; // nothing to change, it's account id only
             default:
                 //sLog->outError("Unknown dump table type: %u", type);
                 ROLLBACK(DUMP_FILE_BROKEN);
