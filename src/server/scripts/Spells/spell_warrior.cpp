@@ -83,6 +83,7 @@ enum WarriorSpells
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
     WARRIOR_SPELL_GLYPH_OF_BLAZING_TRAIL        = 123779,
     WARRIOR_SPELL_DROP_FIRE_PERIODIC            = 126661,
+    WARRIOR_SPELL_GLYPH_OF_INCITE_TRIGGER       = 122016,
     WARRIOR_SPELL_GLYPH_OF_MYSTIC_SHOUT         = 58095,
     WARRIOR_SPELL_MYSTIC_SHOUT_HOVER            = 121186,
     WARRIOR_SPELL_GLYPH_OF_CROW_FEAST           = 115943,
@@ -1729,6 +1730,38 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
         }
 };
 
+// Called By Heroic Strike 78 & Cleave 845
+// Incite - 122016
+class spell_warr_glyph_of_incite : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_incite() : SpellScriptLoader("spell_warr_glyph_of_incite") { }
+
+        class spell_warr_glyph_of_incite_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_incite_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Unit = GetCaster())
+                {
+                    if (AuraPtr l_Aura = l_Unit->GetAura(WARRIOR_SPELL_GLYPH_OF_INCITE_TRIGGER))
+                        l_Aura->ModStackAmount(-1);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_incite_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_incite_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_impaling_throws();
@@ -1772,4 +1805,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_spell_reflection();
     new spell_warr_intervene();
     new spell_warr_glyph_of_gag_order();
+    new spell_warr_glyph_of_incite();
 }

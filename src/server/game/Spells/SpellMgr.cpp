@@ -3487,6 +3487,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             case 121673:// Fire Shot
+            case 145153:
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050:// Malformed Blood
@@ -4282,6 +4283,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 24858: // Moonkin form - hotfix 5.4.2
                 spellInfo->Effects[2].BasePoints = 100;
+                break;
+            case 51963: // Gargoyle's Strike
+                spellInfo->AttackPowerBonus = 0.83f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
                 break;
             case 50887: // Icy Talons - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 45;
@@ -5472,12 +5477,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
-            case 132626: // Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: // Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
-                break;
             // Magic Barrier, Lady Vashj
             case 38112:
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -5520,6 +5519,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].TargetA = 0;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 116011:
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[2].TargetA = 0;
                 break;
             // Cauterizing Flame
             case 99152:

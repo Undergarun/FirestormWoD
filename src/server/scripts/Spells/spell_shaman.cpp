@@ -251,7 +251,8 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS ||
+                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE)
                     return;
 
                 if (!(eventInfo.GetHealInfo()->GetHeal()))
@@ -553,7 +554,8 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE)
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE ||
+                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
                     return;
 
                 if (!(eventInfo.GetDamageInfo()->GetDamage()) && !(eventInfo.GetHealInfo()->GetHeal()))

@@ -2165,7 +2165,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                /*if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
@@ -2182,15 +2182,13 @@ class spell_dru_lifebloom : public SpellScriptLoader
                             {
                                 l_LifeBloom->SetStackAmount((*l_Iter)->GetStackAmount());
                                 (*l_Iter)->Remove();
-                                l_Caster->GetSingleCastAuras().remove((*l_Iter));
-                                l_Iter = l_SCAuras.begin();
                                 break;
                             }
                             else
                                 ++l_Iter;
                         }
                     }
-                }*/
+                }
             }
 
             void Register()
@@ -2210,13 +2208,18 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->GetSingleCastAuras().remove(aurEff->GetBase());
+
                 // Final heal only on duration end
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
-                if (!l_Caster || !l_Target)
+                if (!l_Target)
                     return;
 
                 if (l_Caster->ToPlayer()->HasSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL))
@@ -3943,8 +3946,7 @@ class spell_dru_eclipse : public SpellScriptLoader
                     {
                         int32 bp = GetHitDamage();
 
-                        if (Unit* target = plr->GetNextRandomRaidMember(15.0f))
-                            plr->CastCustomSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
+                        plr->CastCustomSpell(plr, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
                     }
                 }
             }
