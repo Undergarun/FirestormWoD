@@ -395,7 +395,7 @@ struct GameObjectTemplate
             uint32 startOpen;                               // 1
             uint32 autoClose;                               // 2
         } trapDoor;
-        // 38 GAMEOBJECT_TYPE_GARRISON_BUILD
+        // 38 GAMEOBJECT_TYPE_GARRISON_BUILDING
         struct
         {
             uint32 DefaultMap;                              // 0

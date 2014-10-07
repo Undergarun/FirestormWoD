@@ -132,12 +132,13 @@ enum LootModes
 
 enum Expansion
 {
-    EXP_VANILLA     = 0,
-    EXP_BC          = 1,
-    EXP_WOTLK       = 2,
-    EXP_CATACLYSM   = 3,
-    EXP_PANDARIA    = 4,
-    EXP_WOD         = 5
+    EXPANSION_VANILLA = 0,
+    EXPANSION_THE_BURNING_CRUSAD        = 1,
+    EXPANSION_WRATH_OF_THE_LICH_KING    = 2,
+    EXPANSION_CATACLYSM                 = 3,
+    EXPANSION_MISTS_OF_PANDARIA         = 4,
+    EXPANSION_WARLORDS_OF_DRAENOR       = 5,
+    MAX_EXPANSION                       = 6
 };
 
 enum Gender
@@ -147,7 +148,7 @@ enum Gender
     GENDER_NONE                        = 2
 };
 
-// Race value is index in ChrRaces.dbc
+// ChrRaces.dbc
 enum Races
 {
     RACE_NONE               = 0,
@@ -195,7 +196,7 @@ enum Races
 
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
-// Class value is index in ChrClasses.dbc
+// ChrClasses.dbc
 enum Classes
 {
     CLASS_NONE          = 0,
@@ -2101,10 +2102,10 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_BARBER_CHAIR           = 32,
     GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING  = 33,
     GAMEOBJECT_TYPE_GUILD_BANK             = 34,
-    GAMEOBJECT_TYPE_UNK                    = 35,
-    GAMEOBJECT_TYPE_TRAPDOOR               = 36,
-    GAMEOBJECT_TYPE_UNK2                   = 37,
-    GAMEOBJECT_TYPE_GARRISON_BUILD         = 38,
+    GAMEOBJECT_TYPE_TRAPDOOR               = 35,
+    GAMEOBJECT_TYPE_NEW_FLAG               = 36,
+    GAMEOBJECT_TYPE_NEW_FLAG_DROP          = 37,
+    GAMEOBJECT_TYPE_GARRISON_BUILDING      = 38,
     GAMEOBJECT_TYPE_GARRISON_PLOT          = 39,
     GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
     GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
@@ -2114,7 +2115,7 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
 };
 
-#define MAX_GAMEOBJECT_TYPE                  40             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -3742,9 +3743,9 @@ enum HolidayIds
     HOLIDAY_CALL_TO_ARMS_WS2         = 499,    // Call to Arms: Warsong Gulch
     HOLIDAY_UNK_601_1                = 507,
     HOLIDAY_UNK_601_2                = 508,
-    HOLIDAY_UNK_601_3                = 509, 
-    HOLIDAY_UNK_601_4                = 514,
-    HOLIDAY_UNK_601_5                = 515,
+    HOLIDAY_ANNIVERSARY_9_YEARS      = 509,
+    HOLIDAY_ANNIVERSARY_10_YEARS     = 514,
+    HOLIDAY_CALL_TO_ARMS_DG          = 515,
     HOLIDAY_UNK_601_6                = 516,
     HOLIDAY_UNK_601_7                = 517,
     HOLIDAY_UNK_601_8                = 518,
@@ -3832,28 +3833,40 @@ enum QuestSort
     QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1
     QUEST_SORT_GARRISON_SUPPORT     = 403,      // 6.0.1
     QUEST_SORT_LOGGIN               = 404,      // 6.0.1
-    QUEST_SORT_PICKPOCKETING		= 405       // 6.0.2
+    QUEST_SORT_PICKPOCKETING        = 405       // 6.0.2
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
-    case QUEST_SORT_WARLOCK:        return CLASS_WARLOCK;
-    case QUEST_SORT_WARRIOR:        return CLASS_WARRIOR;
-    case QUEST_SORT_SHAMAN:         return CLASS_SHAMAN;
-    case QUEST_SORT_PALADIN:        return CLASS_PALADIN;
-    case QUEST_SORT_MAGE:           return CLASS_MAGE;
-    case QUEST_SORT_ROGUE:          return CLASS_ROGUE;
-    case QUEST_SORT_HUNTER:         return CLASS_HUNTER;
-    case QUEST_SORT_PRIEST:         return CLASS_PRIEST;
-    case QUEST_SORT_DRUID:          return CLASS_DRUID;
-    case QUEST_SORT_DEATH_KNIGHT:   return CLASS_DEATH_KNIGHT;
-    case QUEST_SORT_MONK:           return CLASS_MONK;
+    case QUEST_SORT_WARLOCK:
+        return CLASS_WARLOCK;
+    case QUEST_SORT_WARRIOR:
+        return CLASS_WARRIOR;
+    case QUEST_SORT_SHAMAN:
+        return CLASS_SHAMAN;
+    case QUEST_SORT_PALADIN:
+        return CLASS_PALADIN;
+    case QUEST_SORT_MAGE:
+        return CLASS_MAGE;
+    case QUEST_SORT_ROGUE:
+        return CLASS_ROGUE;
+    case QUEST_SORT_HUNTER:
+        return CLASS_HUNTER;
+    case QUEST_SORT_PRIEST:
+        return CLASS_PRIEST;
+    case QUEST_SORT_DRUID:
+        return CLASS_DRUID;
+    case QUEST_SORT_DEATH_KNIGHT:
+        return CLASS_DEATH_KNIGHT;
+    case QUEST_SORT_MONK:
+        return CLASS_MONK;
     }
     return 0;
 }
 
+// SkillLine.dbc
 enum SkillType
 {
     SKILL_NONE                     = 0,
@@ -4076,18 +4089,24 @@ enum SkillType
     SKILL_PET_TRADING_POST         = 2000  // 6.0.1
 };
 
-#define MAX_SKILL_TYPE               1306
+#define MAX_SKILL_TYPE               2001
 
 inline SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
-    case LOCKTYPE_PICKLOCK:    return SKILL_LOCKPICKING;
-    case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
-    case LOCKTYPE_MINING:      return SKILL_MINING;
-    case LOCKTYPE_FISHING:     return SKILL_FISHING;
-    case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
-    case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
+    case LOCKTYPE_PICKLOCK:
+        return SKILL_LOCKPICKING;
+    case LOCKTYPE_HERBALISM:
+        return SKILL_HERBALISM;
+    case LOCKTYPE_MINING:
+        return SKILL_MINING;
+    case LOCKTYPE_FISHING:
+        return SKILL_FISHING;
+    case LOCKTYPE_INSCRIPTION:
+        return SKILL_INSCRIPTION;
+    case LOCKTYPE_ARCHAEOLOGY:
+        return SKILL_ARCHAEOLOGY;
     default: break;
     }
     return SKILL_NONE;
@@ -4097,18 +4116,30 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
-    case QUEST_SORT_HERBALISM:      return SKILL_HERBALISM;
-    case QUEST_SORT_FISHING:        return SKILL_FISHING;
-    case QUEST_SORT_BLACKSMITHING:  return SKILL_BLACKSMITHING;
-    case QUEST_SORT_ALCHEMY:        return SKILL_ALCHEMY;
-    case QUEST_SORT_LEATHERWORKING: return SKILL_LEATHERWORKING;
-    case QUEST_SORT_ENGINEERING:    return SKILL_ENGINEERING;
-    case QUEST_SORT_TAILORING:      return SKILL_TAILORING;
-    case QUEST_SORT_COOKING:        return SKILL_COOKING;
-    case QUEST_SORT_FIRST_AID:      return SKILL_FIRST_AID;
-    case QUEST_SORT_JEWELCRAFTING:  return SKILL_JEWELCRAFTING;
-    case QUEST_SORT_INSCRIPTION:    return SKILL_INSCRIPTION;
-    case QUEST_SORT_ARCHAEOLOGY:    return SKILL_ARCHAEOLOGY;
+    case QUEST_SORT_HERBALISM:
+        return SKILL_HERBALISM;
+    case QUEST_SORT_FISHING:
+        return SKILL_FISHING;
+    case QUEST_SORT_BLACKSMITHING:
+        return SKILL_BLACKSMITHING;
+    case QUEST_SORT_ALCHEMY:
+        return SKILL_ALCHEMY;
+    case QUEST_SORT_LEATHERWORKING:
+        return SKILL_LEATHERWORKING;
+    case QUEST_SORT_ENGINEERING:
+        return SKILL_ENGINEERING;
+    case QUEST_SORT_TAILORING:
+        return SKILL_TAILORING;
+    case QUEST_SORT_COOKING:
+        return SKILL_COOKING;
+    case QUEST_SORT_FIRST_AID:
+        return SKILL_FIRST_AID;
+    case QUEST_SORT_JEWELCRAFTING:
+        return SKILL_JEWELCRAFTING;
+    case QUEST_SORT_INSCRIPTION:
+        return SKILL_INSCRIPTION;
+    case QUEST_SORT_ARCHAEOLOGY:
+        return SKILL_ARCHAEOLOGY;
     }
     return 0;
 }
@@ -4126,6 +4157,7 @@ enum SkillCategory
     SKILL_CATEGORY_GENERIC       = 12
 };
 
+// TotemCategory.dbc
 enum TotemCategory
 {
     TC_SKINNING_SKIFE_OLD          = 1,
@@ -4199,8 +4231,6 @@ enum WeatherType
     WEATHER_TYPE_RAIN       = 1,
     WEATHER_TYPE_SNOW       = 2,
     WEATHER_TYPE_STORM      = 3,
-    WEATHER_TYPE_THUNDERS   = 86,
-    WEATHER_TYPE_BLACKRAIN  = 90
 };
 
 #define MAX_WEATHER_TYPE 4

@@ -856,6 +856,8 @@ uint32 GetMaxLevelForExpansion(uint32 expansion)
             return 85;
         case CONTENT_86_90:
             return 90;
+        case CONTENT_91_100:
+            return 100;
         default:
             break;
 
