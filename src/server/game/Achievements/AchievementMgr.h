@@ -282,6 +282,7 @@ class AchievementMgr
         typedef std::map<uint32, uint32> TimedAchievementMap;
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
         uint32 _achievementPoints;
+        bool m_NeedDBSync;
 };
 
 class AchievementGlobalMgr
