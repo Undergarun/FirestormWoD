@@ -298,100 +298,108 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     }
 }
 
-void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)recvPacket.size());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)p_Packet.size());
 
-    Player* pUser = m_Player;
-
-    // ignore for remote control state
-    if (pUser->m_mover != pUser)
+    /// ignore for remote control state
+    if (m_Player->m_mover != m_Player)
         return;
 
-    uint8 bagIndex, slot;
+    uint8 l_PackSlot = 0;
+    uint8 l_Slot = 0;
 
-    recvPacket >> bagIndex >> slot;
+    p_Packet >> l_PackSlot;
+    p_Packet >> l_Slot;
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "bagIndex: %u, slot: %u", bagIndex, slot);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "bagIndex: %u, slot: %u", l_PackSlot, l_Slot);
 
-    Item* item = pUser->GetItemByPos(bagIndex, slot);
-    if (!item)
+    Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
+
+    if (!l_Item)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
-        return;
-    }
-
-    ItemTemplate const* proto = item->GetTemplate();
-    if (!proto)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, NULL);
+        m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
+    const ItemTemplate * l_ItemTemplate = l_Item->GetTemplate();
+
+    if (!l_ItemTemplate)
     {
-        pUser->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
+        m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, l_Item, NULL);
+        return;
+    }
+
+    /// Verify that the bag is an actual bag or wrapped item that can be used "normally"
+    if (!(l_ItemTemplate->Flags & ITEM_PROTO_FLAG_OPENABLE) && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
+    {
+        m_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, l_Item, NULL);
         sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
-                pUser->GetName(), pUser->GetGUIDLow(), item->GetGUIDLow(), proto->ItemId);
+                m_Player->GetName(), m_Player->GetGUIDLow(), l_Item->GetGUIDLow(), l_ItemTemplate->ItemId);
+
         return;
     }
 
-    // locked item
-    uint32 lockId = proto->LockID;
-    if (lockId)
-    {
-        LockEntry const* lockInfo = sLockStore.LookupEntry(lockId);
+    /// Locked item
+    uint32 l_LockID = l_ItemTemplate->LockID;
 
-        if (!lockInfo)
+    if (l_LockID)
+    {
+        const LockEntry * l_LockInfo = sLockStore.LookupEntry(l_LockID);
+
+        if (!l_LockInfo)
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
-            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", item->GetGUIDLow(), lockId);
+            m_Player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, l_Item, NULL);
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", l_Item->GetGUIDLow(), l_LockID);
+
             return;
         }
 
-        // was not unlocked yet
-        if (item->IsLocked())
+        /// Was not unlocked yet
+        if (l_Item->IsLocked())
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
+            m_Player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, l_Item, NULL);
+
             return;
         }
     }
 
-    if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))// wrapped?
+    /// Wrapped?
+    if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
 
-        stmt->setUInt32(0, item->GetGUIDLow());
+        l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
 
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
 
-        if (result)
+        if (l_Result)
         {
-            Field* fields = result->Fetch();
-            uint32 entry = fields[0].GetUInt32();
-            uint32 flags = fields[1].GetUInt32();
+            Field* l_Fields = l_Result->Fetch();
+            uint32 l_Entry = l_Fields[0].GetUInt32();
+            uint32 l_Flags = l_Fields[1].GetUInt32();
 
-            item->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, 0);
-            item->SetEntry(entry);
-            item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, flags);
-            item->SetState(ITEM_CHANGED, pUser);
+            l_Item->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, 0);
+            l_Item->SetEntry(l_Entry);
+            l_Item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, l_Flags);
+            l_Item->SetState(ITEM_CHANGED, m_Player);
         }
         else
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", item->GetGUIDLow());
-            pUser->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+            sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", l_Item->GetGUIDLow());
+            m_Player->DestroyItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+
             return;
         }
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
-        stmt->setUInt32(0, item->GetGUIDLow());
+        l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
 
-        CharacterDatabase.Execute(stmt);
+        CharacterDatabase.Execute(l_Stmt);
     }
     else
-        pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
+        m_Player->SendLoot(l_Item->GetGUID(), LOOT_CORPSE);
 }
 
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)

@@ -2375,22 +2375,16 @@ void WorldObject::AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerLi
     }
 }
 
-void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
+void WorldObject::SendPlaySound(uint32 p_SoundKitID, bool p_OnlySelf)
 {
-    uint8 bitsOrder[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    uint8 bytesOrder[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
+    WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << p_SoundKitID;
 
-    ObjectGuid guid = GetGUID();
-
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteBitInOrder(guid, bitsOrder);
-    data.WriteBytesSeq(guid, bytesOrder);
-    data << Sound;
-
-    if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
-        this->ToPlayer()->GetSession()->SendPacket(&data);
+    if (p_OnlySelf && GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
     else
-        SendMessageToSet(&data, true); // ToSelf ignored in this case
+        SendMessageToSet(&l_Data, true); ///< ToSelf ignored in this case
 }
 
 void Object::ForceValuesUpdateAtIndex(uint32 i)
@@ -3647,68 +3641,37 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.f*/, float p_SourceY /*= 0.f*/, float p_SourceZ /*= 0.f*/)
 {
-    WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4+8);
-    ObjectGuid guid = GetGUID();
+    float l_X = (p_SourceObject && p_SourceX == 0) ? p_SourceObject->GetPositionX() : p_SourceX;
+    float l_Y = (p_SourceObject && p_SourceY == 0) ? p_SourceObject->GetPositionY() : p_SourceY;
+    float l_Z = (p_SourceObject && p_SourceZ == 0) ? p_SourceObject->GetPositionZ() : p_SourceZ;
 
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
+    WorldPacket l_Data(SMSG_PLAY_OBJECT_SOUND, (2 * (16 + 2)) + 4 + 4 + 4 + 4);
+    l_Data << uint32(p_SoundKitID);
+    l_Data.appendPackGUID(p_SourceObject ? p_SourceObject->GetGUID() : 0);
+    l_Data.appendPackGUID(p_TargetObject ? p_TargetObject->GetGUID() : 0);
+    l_Data << float(l_X);
+    l_Data << float(l_Y);
+    l_Data << float(l_Z);
 
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[1]);
-
-    data << uint32(sound_id);
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[3]);
-    if (target)
-        target->SendDirectMessage(&data);
+    if (p_TargetObject && p_TargetObject->ToPlayer())
+        p_TargetObject->ToPlayer()->SendDirectMessage(&l_Data);
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(&l_Data, true);
 }
 
-void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDirectSound(uint32 p_SoundKitID, Player * p_Target /*= NULL*/)
 {
-    uint8 bitsOrder[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-    uint8 bytesOrder[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
 
-    ObjectGuid guid = GetGUID();
+    WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << p_SoundKitID;
 
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteBitInOrder(guid, bitsOrder);
-    data.WriteBytesSeq(guid, bytesOrder);
-    data << sound_id;
-    if (target)
-        target->SendDirectMessage(&data);
+    if (p_Target)
+        p_Target->SendDirectMessage(&l_Data);
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(&l_Data, true);
 }
 
 void WorldObject::DestroyForNearbyPlayers()

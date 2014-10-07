@@ -7035,7 +7035,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         fz = liqData.level;
     }
     // if gameobject is summoning object, it should be spawned right on caster's position
-    else if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
+    else if (goinfo->type == GAMEOBJECT_TYPE_RITUAL)
     {
         m_caster->GetPosition(fx, fy, fz);
     }
@@ -7072,7 +7072,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             duration = duration - lastSec*IN_MILLISECONDS + FISHING_BOBBER_READY_TIME*IN_MILLISECONDS;
             break;
         }
-        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:
+        case GAMEOBJECT_TYPE_RITUAL:
         {
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -7660,7 +7660,7 @@ void Spell::EffectRenamePet(SpellEffIndex /*effIndex*/)
     unitTarget->SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED);
 }
 
-void Spell::EffectPlayMusic(SpellEffIndex effIndex)
+void Spell::EffectPlayMusic(SpellEffIndex p_EffectIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7668,14 +7668,15 @@ void Spell::EffectPlayMusic(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    uint32 soundId = m_spellInfo->Effects[effIndex].MiscValue;
+    uint32 l_SoundID = m_spellInfo->Effects[p_EffectIndex].MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundId))
+    if (!sSoundEntriesStore.LookupEntry(l_SoundID))
         return;
 
-    WorldPacket data(SMSG_PLAY_MUSIC, 4);
-    data << uint32(soundId);
-    unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PLAY_MUSIC, 4);
+    l_Data << uint32(l_SoundID);
+
+    unitTarget->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 void Spell::EffectSpecCount(SpellEffIndex /*effIndex*/)

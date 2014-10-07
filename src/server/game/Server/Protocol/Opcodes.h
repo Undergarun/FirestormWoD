@@ -81,15 +81,15 @@ enum Opcodes
         SMSG_SET_PROFICIENCY                        = 0x12AF,   ///< 6.0.2 18934
         SMSG_INIT_WORLD_STATES                      = 0x0BB7,   ///< 6.0.2 18934
         SMSG_UPDATE_WORLD_STATE                     = 0x1368,   ///< 6.0.2 18934
-        SMSG_EMOTE                                  = 0x0000,   ///< 6.0.2 
+        SMSG_EMOTE                                  = 0x03F8,   ///< 6.0.2 18934
         SMSG_EXPLORATION_EXPERIENCE                 = 0x1413,   ///< 6.0.2 18934
         SMSG_LOG_XP_GAIN                            = 0x13EC,   ///< 6.0.2 18934
         SMSG_LEVELUP_INFO                           = 0x09BB,   ///< 6.0.2 18934
         SMSG_ITEM_PUSH_RESULT                       = 0x09A3,   ///< 6.0.2 18934 
-        SMSG_INIT_CURRENCY                          = 0x0000,   ///< 6.0.2 
-        SMSG_UPDATE_CURRENCY                        = 0x0000,   ///< 6.0.2 
-        SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x0000,   ///< 6.0.2 
-        SMSG_WEEKLY_RESET_CURRENCY                  = 0x0000,   ///< 6.0.2 
+        SMSG_INIT_CURRENCY                          = 0x00A4,   ///< 6.0.2 18934
+        SMSG_UPDATE_CURRENCY                        = 0x1363,   ///< 6.0.2 18934
+        SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x1057,   ///< 6.0.2 18934
+        SMSG_WEEKLY_RESET_CURRENCY                  = 0x0628,   ///< 6.0.2 18934
         SMSG_EQUIPMENT_SET_LIST                     = 0x0000,   ///< 
         SMSG_BIND_POINT_UPDATE                      = 0x1428,   ///< 6.0.2 18934
         SMSG_UPDATE_TALENT_DATA                     = 0x10FF,   ///< 6.0.2 18934
@@ -109,6 +109,9 @@ enum Opcodes
         SMSG_CORPSE_LOCATION                        = 0x1768,   ///< 6.0.2 18934
         SMSG_CORPSE_TRANSPORT_QUERY                 = 0x00AB,   ///< 6.0.2 18934
         SMSG_DURABILITY_DAMAGE_DEATH                = 0x09E4,   ///< 6.0.2 18934
+        SMSG_PLAY_MUSIC                             = 0x00B3,   ///< 6.0.2 18934
+        SMSG_PLAY_OBJECT_SOUND                      = 0x0448,   ///< 6.0.2 18934
+        SMSG_PLAY_SOUND                             = 0x02BB,   ///< 6.0.2 18934
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 18934
@@ -127,7 +130,7 @@ enum Opcodes
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x03EF,   ///< 6.0.2 18934
-        SMSG_POWER_UPDATE                           = 0x0000,   ///< 6.0.2 
+        SMSG_POWER_UPDATE                           = 0x1424,   ///< 6.0.2 18934
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x1154,   ///< 6.0.2 18934
@@ -230,7 +233,7 @@ enum Opcodes
         SMSG_WARGAME_CHECK_ENTRY                            = 0x08B7,   ///< 6.0.2 18934 (unused)
         SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT  = 0x1237,   ///< 6.0.2 18934 (unused)
         SMSG_SPIRIT_HEALER_CONFIRM                          = 0x0413,   ///< 6.0.2 18934
-        SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x0000,
+        SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x1167,   ///< 6.0.2 18934
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -650,6 +653,7 @@ enum Opcodes
     CMSG_BINDER_ACTIVATE                        = 0x0663,   ///< 6.0.2 18934
     CMSG_REQUEST_FORCED_REACTIONS               = 0x1B83,   ///< 6.0.2 18934
     CMSG_DESTROY_ITEM                           = 0x0CC0,   ///< 6.0.2 18934
+    CMSG_OPEN_ITEM                              = 0x1084,   ///< 6.0.2 18934
     
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1194,7 +1198,6 @@ enum Opcodes
     CMSG_OBJECT_UPDATE_FAILED                         = 0x0000,
     CMSG_OBJECT_UPDATE_RESCUED                        = 0x0000,
     CMSG_OPENING_CINEMATIC                            = 0x0000,
-    CMSG_OPEN_ITEM                                    = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PET_ABANDON                                  = 0x0000,
     CMSG_PET_ACTION                                   = 0x0000,
@@ -1723,12 +1726,9 @@ enum Opcodes
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0x0000,
     SMSG_PLAYER_VEHICLE_DATA                          = 0x0000,
     SMSG_PLAY_DANCE                                   = 0x0000,
-    SMSG_PLAY_MUSIC                                   = 0x0000,
-    SMSG_PLAY_OBJECT_SOUND                            = 0x0000,
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                       = 0x0000,
     SMSG_PLAY_ORPHAN_SPELL_VISUAL                     = 0x0000,
     SMSG_PLAY_SCENE                                   = 0x0000,
-    SMSG_PLAY_SOUND                                   = 0x0000,
     SMSG_PLAY_SPELL_VISUAL                            = 0x0000,
     SMSG_PLAY_TIME_WARNING                            = 0x0000,
     SMSG_PRE_RESURRECT                                = 0x0000,

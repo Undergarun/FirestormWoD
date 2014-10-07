@@ -918,6 +918,34 @@ enum SpellAttr12
     SPELL_ATTR12_UNK31                            = 0x80000000  // 31
 };
 
+enum SpellAttr13
+{
+    SPELL_ATTR13_UNK0                             = 0x00000001, //  0
+    SPELL_ATTR13_UNK1                             = 0x00000002, //  1
+    SPELL_ATTR13_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR13_UNK3                             = 0x00000008, //  3
+    SPELL_ATTR13_UNK4                             = 0x00000010, //  4
+    SPELL_ATTR13_UNK5                             = 0x00000020, //  5
+    SPELL_ATTR13_UNK6                             = 0x00000040, //  6
+    SPELL_ATTR13_UNK7                             = 0x00000080, //  7
+    SPELL_ATTR13_UNK8                             = 0x00000100, //  8
+    SPELL_ATTR13_UNK9                             = 0x00000200, //  9
+    SPELL_ATTR13_UNK10                            = 0x00000400, // 10
+    SPELL_ATTR13_UNK11                            = 0x00000800, // 11
+    SPELL_ATTR13_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR13_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR13_UNK14                            = 0x00004000, // 14
+    SPELL_ATTR13_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR13_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR13_UNK17                            = 0x00020000, // 17
+    SPELL_ATTR13_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR13_UNK19                            = 0x00080000, // 19
+    SPELL_ATTR13_UNK20                            = 0x00100000, // 20
+    SPELL_ATTR13_UNK21                            = 0x00200000, // 21
+    SPELL_ATTR13_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR13_UNK23                            = 0x00800000  // 23
+};
+
 #define MIN_TALENT_SPEC         0
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
@@ -2082,10 +2110,10 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_AREADAMAGE             = 12,
     GAMEOBJECT_TYPE_CAMERA                 = 13,
     GAMEOBJECT_TYPE_MAP_OBJECT             = 14,
-    GAMEOBJECT_TYPE_MO_TRANSPORT           = 15,
+   GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT           = 15,
     GAMEOBJECT_TYPE_DUEL_ARBITER           = 16,
     GAMEOBJECT_TYPE_FISHINGNODE            = 17,
-    GAMEOBJECT_TYPE_SUMMONING_RITUAL       = 18,
+    GAMEOBJECT_TYPE_RITUAL       = 18,
     GAMEOBJECT_TYPE_MAILBOX                = 19,
     GAMEOBJECT_TYPE_DO_NOT_USE             = 20,
     GAMEOBJECT_TYPE_GUARDPOST              = 21,
@@ -2110,9 +2138,9 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
     GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 42,
-    GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 43,
+    GAMEOBJECT_TYPE_TROPHY                 = 43,
     GAMEOBJECT_TYPE_PHASEABLE_MO           = 44,
-    GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
+    GAMEOBJECT_TYPE_SHIPMENT               = 45,
 };
 
 #define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
@@ -2581,7 +2609,8 @@ enum Emote
     EMOTE_STATE_SPELL_CHANNEL_DIRECTED           = 469,
     EMOTE_STAND_STATE_NONE                       = 470,
     EMOTE_STATE_READYJOUST                       = 471,
-    EMOTE_STATE_STRANGULATE                      = 473,
+    EMOTE_STATE_STRANGULATE                      = 472,
+    EMOTE_STATE_STRANGULATE2                     = 473,
     EMOTE_STATE_READYSPELLOMNI                   = 474,
     EMOTE_STATE_HOLD_JOUST                       = 475,
     EMOTE_ONESHOT_CRY_JAINA                      = 476,
@@ -2645,7 +2674,7 @@ enum Emote
     EMOTE_ONESHOT_CRY_NOSOUND                    = 579,
     EMOTE_ONESHOT_COMBATCRITICAL                 = 584,
     EMOTE_STATE_TRAIN                            = 585,
-    EMOTE_STATE_WORK_CHOPWOOD_NEW                    = 586, // lumber Axe
+    EMOTE_STATE_WORK_CHOPWOOD_NEW                = 586, // lumber Axe
     EMOTE_ONESHOT_SPECIALATTACK2H                = 587,
     EMOTE_STATE_READ_AND_TALK                    = 588,
     EMOTE_ONESHOT_STAND_VAR1                     = 589,
@@ -3635,38 +3664,38 @@ enum CreatureFamily
 
 enum CreatureTypeFlags
 {
-    CREATURE_TYPEFLAGS_TAMEABLE         = 0x00000001,         // Tameable by any hunter
-    CREATURE_TYPEFLAGS_GHOST            = 0x00000002,         // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
-    CREATURE_TYPEFLAGS_BOSS             = 0x00000004,         // BOSS flag (skull on level)
-    CREATURE_TYPEFLAGS_UNK3             = 0x00000008,
-    CREATURE_TYPEFLAGS_UNK4             = 0x00000010,         // controls something in client tooltip related to creature faction
-    CREATURE_TYPEFLAGS_UNK5             = 0x00000020,         // may be sound related
-    CREATURE_TYPEFLAGS_UNK6             = 0x00000040,         // may be related to attackable / not attackable creatures with spells, used together with lua_IsHelpfulSpell/lua_IsHarmfulSpell
-    CREATURE_TYPEFLAGS_DEAD_INTERACT    = 0x00000080,         // Player can interact with the creature if its dead (not player dead)
-    CREATURE_TYPEFLAGS_HERBLOOT         = 0x00000100,         // Can be looted by herbalist
-    CREATURE_TYPEFLAGS_MININGLOOT       = 0x00000200,         // Can be looted by miner
-    CREATURE_TYPEFLAGS_UNK10            = 0x00000400,
-    CREATURE_TYPEFLAGS_MOUNTED_COMBAT   = 0x00000800,         // Creature can remain mounted when entering combat
-    CREATURE_TYPEFLAGS_AID_PLAYERS      = 0x00001000,         // Can aid any player (and group) in combat. Typically seen for escorting NPC's
-    CREATURE_TYPEFLAGS_UNK13            = 0x00002000,         // checked from calls in Lua_PetHasActionBar
-    CREATURE_TYPEFLAGS_UNK14            = 0x00004000,         // Lua_UnitGUID, client does guid_low &= 0xFF000000 if this flag is set
-    CREATURE_TYPEFLAGS_ENGINEERLOOT     = 0x00008000,         // Can be looted by engineer
-    CREATURE_TYPEFLAGS_EXOTIC           = 0x00010000,         // Can be tamed by hunter as exotic pet
-    CREATURE_TYPEFLAGS_UNK17            = 0x00020000,         // Related to CreatureDisplayInfo and scaling in some way
-    CREATURE_TYPEFLAGS_UNK18            = 0x00040000,         // ? Related to vehicle/siege weapons?
-    CREATURE_TYPEFLAGS_UNK19            = 0x00080000,
-    CREATURE_TYPEFLAGS_ENVIRONMENT      = 0x00100000,
-    CREATURE_TYPEFLAGS_UNK21            = 0x00200000,         // may be has something to do with animation (disable animation?)
-    CREATURE_TYPEFLAGS_UNK22            = 0x00400000,
-    CREATURE_TYPEFLAGS_SQUIRE           = 0x00800000,         // @todo NEED TO IMPLEMENT IT https://github.com/mangosthree/server/commit/e6eec30f51b581b3fb4f2ea537be33d1078e1003
-    CREATURE_TYPEFLAGS_UNK24            = 0x01000000,
-    CREATURE_TYPEFLAGS_UNK25            = 0x02000000,
-    CREATURE_TYPEFLAGS_PARTY_MEMBER     = 0x04000000,         // Creature can be targeted by spells that require target to be in caster's party/raid
-    CREATURE_TYPEFLAGS_UNK27            = 0x08000000,         // Used in Lua_ForceGossip
-    CREATURE_TYPEFLAGS_UNK28            = 0x10000000,
-    CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
-    CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
-    CREATURE_TYPEFLAGS_QUEST_BOSS       = 0x80000000          // Lua_UnitIsQuestBoss found on MaNGOS3
+    CREATURE_TYPEFLAGS_TAMEABLE                          = 0x00000001, // Tameable by any hunter
+    CREATURE_TYPEFLAGS_GHOST                             = 0x00000002, // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
+    CREATURE_TYPEFLAGS_BOSS                              = 0x00000004,
+    CREATURE_TYPEFLAGS_DO_NOT_PLAY_WOUND_PARRY_ANIMATION = 0x00000008,
+    CREATURE_TYPEFLAGS_HIDE_FACTION_TOOLTIP              = 0x00000010,
+    CREATURE_TYPEFLAGS_UNK5                              = 0x00000020,
+    CREATURE_TYPEFLAGS_SPELL_ATTACKABLE                  = 0x00000040,
+    CREATURE_TYPEFLAGS_DEAD_INTERACT                     = 0x00000080, // Player can interact with the creature if its dead (not player dead)
+    CREATURE_TYPEFLAGS_HERBLOOT                          = 0x00000100, // Can be looted by herbalist
+    CREATURE_TYPEFLAGS_MININGLOOT                        = 0x00000200, // Can be looted by miner
+    CREATURE_TYPEFLAGS_DONT_LOG_DEATH                    = 0x00000400, // Death event will not show up in combat log
+    CREATURE_TYPEFLAGS_MOUNTED_COMBAT                    = 0x00000800, // Creature can remain mounted when entering combat
+    CREATURE_TYPEFLAGS_CAN_ASSIST                        = 0x00001000,
+    CREATURE_TYPEFLAGS_IS_PET_BAR_USED                   = 0x00002000,
+    CREATURE_TYPEFLAGS_MASK_UID                          = 0x00004000,
+    CREATURE_TYPEFLAGS_ENGINEERLOOT                      = 0x00008000, // Can be looted by engineer
+    CREATURE_TYPEFLAGS_EXOTIC                            = 0x00010000, // Can be tamed by hunter as exotic pet
+    CREATURE_TYPEFLAGS_USE_DEFAULT_COLLISION_BOX         = 0x00020000,
+    CREATURE_TYPEFLAGS_IS_SIEGE_WEAPON                   = 0x00040000,
+    CREATURE_TYPEFLAGS_PROJECTILE_COLLISION              = 0x00080000, // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
+    CREATURE_TYPEFLAGS_HIDE_NAMEPLATE                    = 0x00100000,
+    CREATURE_TYPEFLAGS_DO_NOT_PLAY_MOUNTED_ANIMATIONS    = 0x00200000,
+    CREATURE_TYPEFLAGS_IS_LINK_ALL                       = 0x00400000,
+    CREATURE_TYPEFLAGS_INTERACT_ONLY_WITH_CREATOR        = 0x00800000,
+    CREATURE_TYPEFLAGS_DO_NOT_PLAY_UNIT_EVENT_SOUNDS     = 0x01000000,
+    CREATURE_TYPEFLAGS_HAS_NO_SHADOW_BLOB                = 0x02000000,
+    CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT                = 0x04000000, //! Creature can be targeted by spells that require target to be in caster's party/raid
+    CREATURE_TYPEFLAGS_FORCE_GOSSIP                      = 0x08000000,
+    CREATURE_TYPEFLAGS_DO_NOT_SHEATHE                    = 0x10000000,
+    CREATURE_TYPEFLAGS_DO_NOT_TARGET_ON_INTERACTION      = 0x20000000,
+    CREATURE_TYPEFLAGS_DO_NOT_RENDER_OBJECT_NAME         = 0x40000000,
+    CREATURE_TYPEFLAGS_UNIT_IS_QUEST_BOSS                = 0x80000000  // Not verified
 };
 
 enum CreatureTypeFlags2
@@ -3688,7 +3717,8 @@ enum CreatureEliteType
     CREATURE_ELITE_RAREELITE       = 2,
     CREATURE_ELITE_WORLDBOSS       = 3,
     CREATURE_ELITE_RARE            = 4,
-    CREATURE_ELITE_TRIVIAL         = 5                      // found in 2.2.3 for 2 mobs
+    CREATURE_ELITE_TRIVIAL         = 5,                     // found in 2.2.3 for 2 mobs
+    CREATURE_WEAK                  = 6
 };
 
 // values based at Holidays_*.DB2
@@ -4596,7 +4626,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow)
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 758
+#define MAX_BATTLEGROUND_TYPE_ID 790
 
 enum MailResponseType
 {

@@ -766,7 +766,7 @@ void Map::ScriptsProcess()
 
                     // PlaySound.Flags bitmask: 0/2=without/with distance dependent
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_DISTANCE_SOUND)
-                        object->PlayDistanceSound(step.script->PlaySound.SoundID, player);
+                        object->PlayDistanceSound(object, step.script->PlaySound.SoundID, player);
                     else
                         object->PlayDirectSound(step.script->PlaySound.SoundID, player);
                 }

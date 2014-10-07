@@ -2851,34 +2851,27 @@ public:
         return true;
     }
 
-    static bool HandlePlayAllCommand(ChatHandler* handler, char const* args)
+    static bool HandlePlayAllCommand(ChatHandler* p_Handler, char const* p_Args)
     {
-        if (!*args)
+        if (!*p_Args)
             return false;
 
-        uint32 soundId = atoi((char*)args);
+        uint32 l_SoundKitID = atoi((char*)p_Args);
 
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sSoundEntriesStore.LookupEntry(l_SoundKitID))
         {
-            handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
-            handler->SetSentErrorMessage(true);
+            p_Handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, l_SoundKitID);
+            p_Handler->SetSentErrorMessage(true);
             return false;
         }
 
-        WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
-        ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
+        WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
+        l_Data.appendPackGUID(p_Handler->GetSession()->GetPlayer()->GetGUID());
+        l_Data << uint32(l_SoundKitID);
 
-        uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-        data.WriteBitInOrder(guid, bits);
+        sWorld->SendGlobalMessage(&l_Data);
 
-        uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-        data.WriteBytesSeq(guid, bytes);
-
-        data << uint32(soundId);
-
-        sWorld->SendGlobalMessage(&data);
-
-        handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+        p_Handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, l_SoundKitID);
         return true;
     }
 
