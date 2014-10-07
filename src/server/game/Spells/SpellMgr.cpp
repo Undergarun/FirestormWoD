@@ -3776,6 +3776,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[1].TargetA = TARGET_DEST_DEST;
                 break;
+            case 13812:
+                spellInfo->m_IsScaled = true;
+                break;
             case 108287:// Totemic Projection
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;

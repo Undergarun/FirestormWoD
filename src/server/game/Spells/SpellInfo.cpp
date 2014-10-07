@@ -3335,6 +3335,7 @@ bool SpellEffectInfo::CanScale() const
         case SPELL_EFFECT_HEAL:
         case SPELL_EFFECT_WEAPON_DAMAGE:
         case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
             return true;
     }
 
