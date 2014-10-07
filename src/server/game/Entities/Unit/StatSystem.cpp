@@ -308,16 +308,12 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina()
 {
-    // Taken from PaperDollFrame.lua - 4.3.4.15595
     float ratio = 14.0f;
     if (GtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((getClass() - 1) * GT_MAX_LEVEL + getLevel() - 1))
         ratio = hpBase->ratio;
 
-    float stamina = GetStat(STAT_STAMINA);
-    float baseStam = std::min(20.0f, stamina);
-    float moreStam = stamina - baseStam;
-
-    return baseStam + moreStam * ratio;
+    // Taken from PaperDollFrame.lua 6.0 build 18888
+    return GetStat(STAT_STAMINA) * ratio;
 }
 
 void Player::UpdateMaxHealth()
