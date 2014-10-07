@@ -80,7 +80,162 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_HORDE        = 146122,
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
-    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498
+    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
+    WARRIOR_SPELL_GLYPH_OF_BLAZING_TRAIL        = 123779,
+    WARRIOR_SPELL_DROP_FIRE_PERIODIC            = 126661,
+    WARRIOR_SPELL_GLYPH_OF_MYSTIC_SHOUT         = 58095,
+    WARRIOR_SPELL_MYSTIC_SHOUT_HOVER            = 121186,
+    WARRIOR_SPELL_GLYPH_OF_CROW_FEAST           = 115943,
+    WARRIOR_SPELL_CROW_FEAST                    = 115944,
+    WARRIOR_SPELL_GLYPH_OF_BLOODY_HEALING       = 58369,
+    WARRIOR_SPELL_BLOODY_HEALING                = 126665,
+    WARRIOR_SPELL_GLYPH_OF_IMPALING_THROWS      = 146970,
+    WARRIOR_SPELL_IMPALING_THROWS               = 147838,
+    WARRIOR_SPELL_HEROIC_THROW                  = 57755
+};
+
+// Impaling Throws - 147838
+class spell_warr_impaling_throws : public SpellScriptLoader
+{
+    public:
+        spell_warr_impaling_throws() : SpellScriptLoader("spell_warr_impaling_throws") { }
+
+        class spell_warr_impaling_throws_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_impaling_throws_AuraScript);
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (!GetAura())
+                    return;
+
+                if (Unit* l_Caster = GetAura()->GetCaster())
+                {
+                    if (Unit* l_Target = GetAura()->GetUnitOwner())
+                    {
+                        if (l_Caster->GetDistance(l_Target) <= 5.f)
+                        {
+                            l_Target->RemoveAura(GetSpellInfo()->Id);
+
+                            if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->HasSpellCooldown(WARRIOR_SPELL_HEROIC_THROW))
+                                l_Caster->ToPlayer()->RemoveSpellCooldown(WARRIOR_SPELL_HEROIC_THROW, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_warr_impaling_throws_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_impaling_throws_AuraScript();
+        }
+};
+
+// Called by Heroic Throw - 57755
+// Glyph of Impaling Throws - 115943
+class spell_warr_glyph_of_impaling_throws : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_impaling_throws() : SpellScriptLoader("spell_warr_glyph_of_impaling_throws") { }
+
+        class spell_warr_glyph_of_impaling_throws_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_impaling_throws_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_IMPALING_THROWS) && l_Caster->GetDistance(l_Target) > 10.f)
+                            l_Caster->AddAura(WARRIOR_SPELL_IMPALING_THROWS, l_Target);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_impaling_throws_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_impaling_throws_SpellScript();
+        }
+};
+
+// Called by Execute - 5308
+// Glyph of Crow Feast - 115943
+class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_crow_feast() : SpellScriptLoader("spell_warr_glyph_of_crow_feast") { }
+
+        class spell_warr_glyph_of_crow_feast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_crow_feast_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_CROW_FEAST) && GetSpell()->IsCritForTarget(l_Target))
+                            l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_CROW_FEAST, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_crow_feast_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_crow_feast_SpellScript();
+        }
+};
+
+// Called by Commanding Shout - 469 and Battle Shout - 6673
+// Glyph of Mystic Shout - 58095
+class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_mystic_shout() : SpellScriptLoader("spell_warr_glyph_of_mystic_shout") { }
+
+        class spell_warr_glyph_of_mystic_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_mystic_shout_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_MYSTIC_SHOUT))
+                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_MYSTIC_SHOUT_HOVER, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_mystic_shout_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_mystic_shout_SpellScript();
+        }
 };
 
 // Slam - 1464
@@ -285,7 +440,7 @@ class spell_warr_shield_block : public SpellScriptLoader
         }
 };
 
-// Storm Bolt - 107570
+// Storm Bolt - 107570 and Storm Bolt (off hand) - 145585
 class spell_warr_storm_bolt : public SpellScriptLoader
 {
     public:
@@ -295,6 +450,15 @@ class spell_warr_storm_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_storm_bolt_SpellScript);
 
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* unitTarget = GetExplTargetUnit())
+                        caster->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                }
+            }
+
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
@@ -303,14 +467,13 @@ class spell_warr_storm_bolt : public SpellScriptLoader
                     {
                         if (unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), EFFECT_0))
                             SetHitDamage(GetHitDamage() * 6);
-                        else
-                            caster->CastSpell(unitTarget, WARRIOR_SPELL_STORM_BOLT_STUN, true);
                     }
                 }
             }
 
             void Register()
             {
+                OnCast += SpellCastFn(spell_warr_storm_bolt_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_warr_storm_bolt_SpellScript::HandleOnHit);
             }
         };
@@ -1246,19 +1409,22 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (target->GetGUID() == caster->GetGUID())
+                        if (l_Target->GetGUID() == l_Caster->GetGUID())
                             return;
 
-                        if (caster->getLevel() >= 32)
+                        if (l_Caster->getLevel() >= 32)
                         {
-                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && caster->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                                caster->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && l_Caster->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
+                                l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DEEP_WOUNDS, true);
                             else
-                                caster->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                                l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+
+                            if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_BLOODY_HEALING))
+                                l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODY_HEALING, true);
                         }
                     }
                 }
@@ -1304,6 +1470,19 @@ class spell_warr_charge : public SpellScriptLoader
             return true;
         }
 
+        void HandleBeforeCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_BLAZING_TRAIL))
+            {
+                l_Caster->AddAura(WARRIOR_SPELL_DROP_FIRE_PERIODIC, l_Caster);
+                l_Caster->SendPlaySpellVisual(26423, NULL, 1.f, true, true);
+            }
+        }
+
         void HandleCharge(SpellEffIndex)
         {
             Unit* target = GetHitUnit();
@@ -1326,16 +1505,13 @@ class spell_warr_charge : public SpellScriptLoader
             if (canGenerateCharge && caster)
             {
                 int32 bp = GetEffectValue();
-
-                if (AuraEffectPtr bullRush = caster->GetAuraEffect(WARRIOR_SPELL_GLYPH_OF_BULL_RUSH, EFFECT_1))
-                    bp += bullRush->GetAmount();
-
                 caster->EnergizeBySpell(caster, GetSpellInfo()->Id, bp, POWER_RAGE);
             }
         }
 
         void Register()
         {
+            BeforeCast += SpellCastFn(script_impl::HandleBeforeCast);
             OnEffectHitTarget += SpellEffectFn(script_impl::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
             OnEffectHitTarget += SpellEffectFn(script_impl::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
@@ -1348,6 +1524,34 @@ class spell_warr_charge : public SpellScriptLoader
     {
         return new script_impl;
     }
+};
+
+// Warrior Charge Drop Fire Periodic - 126661
+class spell_warr_drop_fire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warr_drop_fire_periodic() : SpellScriptLoader("spell_warr_drop_fire_periodic") { }
+
+        class spell_warr_drop_fire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_drop_fire_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->SendPlaySpellVisual(26423, NULL, 1.f, true, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_drop_fire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_drop_fire_periodic_AuraScript();
+        }
 };
 
 // Shield Wall - 871
@@ -1527,6 +1731,10 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_impaling_throws();
+    new spell_warr_glyph_of_impaling_throws();
+    new spell_warr_glyph_of_crow_feast();
+    new spell_warr_glyph_of_mystic_shout();
     new spell_warr_slam();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
@@ -1559,6 +1767,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_thunder_clap();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
+    new spell_warr_drop_fire_periodic();
     new spell_warr_shield_wall();
     new spell_warr_spell_reflection();
     new spell_warr_intervene();

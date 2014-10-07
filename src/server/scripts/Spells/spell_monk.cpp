@@ -2606,77 +2606,54 @@ class spell_monk_zen_sphere : public SpellScriptLoader
     public:
         spell_monk_zen_sphere() : SpellScriptLoader("spell_monk_zen_sphere") { }
 
-        class spell_monk_zen_sphere_SpellScript : public SpellScript
+        class spell_monk_zen_sphere_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_monk_zen_sphere_SpellScript);
-
-            bool active;
-
-            void HandleBeforeHit()
-            {
-                active = false;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (target->HasAura(SPELL_MONK_ZEN_SPHERE_HEAL))
-                            active = true;
-            }
-
-            void HandleAfterHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (active)
-                        {
-                            _player->CastSpell(_player, SPELL_MONK_ZEN_SPHERE_DETONATE_HEAL, true);
-                            _player->CastSpell(_player, SPELL_MONK_ZEN_SPHERE_DETONATE_DAMAGE, true);
-                            _player->RemoveAura(SPELL_MONK_ZEN_SPHERE_HEAL);
-                            active = false;
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_monk_zen_sphere_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_monk_zen_sphere_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_zen_sphere_SpellScript();
-        }
-};
-
-// Zen Sphere - 124081
-class spell_monk_zen_sphere_hot : public SpellScriptLoader
-{
-    public:
-        spell_monk_zen_sphere_hot() : SpellScriptLoader("spell_monk_zen_sphere_hot") { }
-
-        class spell_monk_zen_sphere_hot_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_zen_sphere_hot_AuraScript);
+            PrepareAuraScript(spell_monk_zen_sphere_AuraScript);
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, SPELL_MONK_ZEN_SPHERE_DAMAGE, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MONK_ZEN_SPHERE_DAMAGE, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
+            }
+
+            void HandleOnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AURA_REMOVE_BY_DEFAULT || l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL ||
+                    l_RemoveMode == AURA_REMOVE_BY_EXPIRE || l_RemoveMode == AURA_REMOVE_BY_DEATH)
+                {
+                    Unit* l_Target = GetTarget();
+                    if (!l_Target)
+                        return;
+
+                    l_Target->CastSpell(l_Target, SPELL_MONK_ZEN_SPHERE_DETONATE_HEAL, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
+                    l_Target->CastSpell(l_Target, SPELL_MONK_ZEN_SPHERE_DETONATE_DAMAGE, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
+                }
+            }
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                if (GetCaster()->GetHealthPct() > 35.f)
+                    return;
+
+                GetCaster()->RemoveAura(p_AurEff->GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_zen_sphere_hot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_zen_sphere_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_monk_zen_sphere_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectProc += AuraEffectProcFn(spell_monk_zen_sphere_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_monk_zen_sphere_hot_AuraScript();
+            return new spell_monk_zen_sphere_AuraScript();
         }
 };
 
@@ -3892,7 +3869,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_healing_elixirs_aura();
     new spell_monk_healing_elixirs();
     new spell_monk_zen_sphere();
-    new spell_monk_zen_sphere_hot();
     new spell_monk_chi_burst();
     new spell_monk_energizing_brew();
     new spell_monk_spear_hand_strike();

@@ -2420,7 +2420,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             // area auras should not stack (shaman totem)
-            if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA
+            if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA_2
                 && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_PERSISTENT_AREA_AURA)
                 continue;
 
@@ -2521,6 +2521,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
         {
             if ((m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
                 (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2 || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2 || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
                 m_spellInfo->Effects[i].ApplyAuraName == existingSpellInfo->Effects[i].ApplyAuraName)
             {
                 switch (m_spellInfo->Effects[i].ApplyAuraName)
@@ -3328,7 +3330,8 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
             continue;
         UnitList targetList;
         // non-area aura
-        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA ||
+            GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA_2)
         {
             targetList.push_back(GetUnitOwner());
         }

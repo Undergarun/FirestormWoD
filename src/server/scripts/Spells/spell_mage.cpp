@@ -1566,6 +1566,66 @@ class spell_mage_living_bomb : public SpellScriptLoader
         }
 };
 
+// Called by Frostbolt 116, Frostfire Bolt 44614 & Ice Lance 30455
+// Water bolt - 31707
+// Glyph Icy Veins : 131078
+class spell_mage_glyph_icy_veins : public SpellScriptLoader
+{
+    public:
+        spell_mage_glyph_icy_veins() : SpellScriptLoader("spell_mage_glyph_icy_veins") { }
+
+        class spell_mage_glyph_icy_veins_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_glyph_icy_veins_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+                int32 l_Basepoints = GetHitDamage();
+
+                if (!caster || !target)
+                    return;
+
+                if (caster->HasAura(131078) && caster->ToPlayer())
+                {
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case 44614:
+                            caster->CastCustomSpell(target, 131081, &l_Basepoints, NULL, NULL, true);
+                            caster->CastCustomSpell(target, 131081, &l_Basepoints, NULL, NULL, true);
+                            break;
+                        case 116:
+                            caster->CastCustomSpell(target, 131079, &l_Basepoints, NULL, NULL, true);
+                            caster->CastCustomSpell(target, 131079, &l_Basepoints, NULL, NULL, true);
+                            break;
+                        case 30455:
+                            caster->CastCustomSpell(target, 131080, &l_Basepoints, NULL, NULL, true);
+                            caster->CastCustomSpell(target, 131080, &l_Basepoints, NULL, NULL, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if (caster->GetOwner() && caster->GetOwner()->HasAura(131078))
+                {
+                    caster->CastCustomSpell(target, 131581, &l_Basepoints, NULL, NULL, true);
+                    caster->CastCustomSpell(target, 131581, &l_Basepoints, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_glyph_icy_veins_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_glyph_icy_veins_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_mirror_image_summon();
@@ -1601,4 +1661,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_incanters_absorbtion_absorb();
     new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_living_bomb();
+    new spell_mage_glyph_icy_veins();
 }

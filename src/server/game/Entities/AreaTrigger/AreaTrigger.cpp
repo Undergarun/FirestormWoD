@@ -141,6 +141,12 @@ void AreaTrigger::Update(uint32 p_time)
             for (auto itr : targetList)
                 itr->CastSpell(itr, 135299, true);
 
+            // Glyph of Black Ice
+            if (caster->GetDistance(this) <= radius && caster->HasAura(109263) && !caster->HasAura(83559))
+                caster->CastSpell(caster, 83559, true);
+            else
+                caster->RemoveAura(83559);
+
             break;
         }
         case 62618: // Power Word: Barrier

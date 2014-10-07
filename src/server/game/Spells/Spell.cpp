@@ -503,6 +503,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
+    m_CanRecalculate = true;
 
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
@@ -1871,6 +1872,8 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
                     Position const* center = m_caster;
                     std::list<WorldObject*> targets;
                     float radius = m_spellInfo->Effects[i].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+                    if (radius == 0.f)
+                        radius = m_spellInfo->RangeEntry->maxRangeFriend;
 
                     SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[i].ImplicitTargetConditions);
 
@@ -2605,6 +2608,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
                 case SPELL_EFFECT_APPLY_AURA:
+                case SPELL_EFFECT_APPLY_AURA_2:
                 case SPELL_EFFECT_POWER_BURN:
                 case SPELL_EFFECT_DISPEL:
                 {
@@ -3280,8 +3284,12 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     m_spellAura->Remove();
                     bool found = false;
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (effectMask & (1 << i) && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
+                    {
+                        if (effectMask & (1 << i) && (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA ||
+                            m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA_2))
                             found = true;
+                    }
+
                     if (!found)
                         return SPELL_MISS_IMMUNE;
                 }
@@ -3465,8 +3473,10 @@ bool Spell::UpdateChanneledTargetList()
     uint32 channelTargetEffectMask = m_channelTargetEffectMask;
     uint32 channelAuraMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
-            channelAuraMask |= 1<<i;
+    {
+        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2)
+            channelAuraMask |= 1 << i;
+    }
 
     channelAuraMask &= channelTargetEffectMask;
 
@@ -3527,7 +3537,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2)
             {
                 // Change aura with ranks only if basepoints are taken from spellInfo and aura is positive
                 if (m_spellInfo->IsPositiveEffect(i))
@@ -3574,7 +3584,8 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // Fill cost data (don't use power for item casts)
-    memset(m_powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+    memset(m_powerCost, 0, sizeof(uint32) * MAX_POWERS_COST);
+    m_powerCost[MAX_POWERS_COST - 1] = 0;
     if (m_CastItem == 0)
         m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, m_powerCost);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3590,7 +3601,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
         // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
-        // a possible alternative sollution for those would be validating aura target on unit state change
+        // a possible alternative solution for those would be validating aura target on unit state change
         if (triggeredByAura && triggeredByAura->IsPeriodic() && !triggeredByAura->GetBase()->IsPassive())
         {
             if (result != SPELL_FAILED_BAD_TARGETS)
@@ -7743,7 +7754,7 @@ bool Spell::CanAutoCast(Unit* target)
 
     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
-        if (m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_2)
         {
             if (m_spellInfo->StackAmount <= 1)
             {

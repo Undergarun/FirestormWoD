@@ -1246,8 +1246,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
         SendPetBattleRequestFailed(l_ErrorCode);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
+        return;
     }
-
 
     // Load player pets
     BattlePet::Ptr * l_PetSlots = _player->GetBattlePetCombatTeam();
@@ -1291,6 +1291,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
         SendPetBattleRequestFailed(l_ErrorCode);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
+        return;
     }
 
     ////////////////////////////////
@@ -1316,6 +1317,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
         SendPetBattleRequestFailed(l_ErrorCode);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
+        return;
     }
 
     l_WildBattlePet = sWildBattlePetMgr->GetWildBattlePet(l_Wild);
@@ -1340,6 +1342,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
         SendPetBattleRequestFailed(l_ErrorCode);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
+        return;
     }
 
     SendPetBattleFinalizeLocation(l_BattleRequest);

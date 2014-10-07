@@ -24,6 +24,8 @@
 #include "DatabaseEnv.h"
 #include "Player.h"
 #include "AchievementMgr.h"
+#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 
 #define PETBATTLE_ABILITY_TRAP_FAMILY 0x99C00
 
@@ -1754,6 +1756,7 @@ void PetBattleSystem::RemoveRequest(uint64 p_RequesterGuid)
     if (l_Request)
     {
         delete l_Request;
+        l_Request = NULL;
 
         m_Requests[p_RequesterGuid] = 0;
         m_Requests.erase(p_RequesterGuid);

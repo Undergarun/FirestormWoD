@@ -23,6 +23,7 @@
 
 #include "Common.h"
 #include <ace/Singleton.h>
+#include "Player.h"
 
 class Field;
 
