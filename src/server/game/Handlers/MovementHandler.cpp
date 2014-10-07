@@ -634,8 +634,8 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
         return;
     }
 
-    uint64 l_MoverGuid;
-    uint64 l_TransportGuid;
+    uint64 l_MoverGuid      = 0;
+    uint64 l_TransportGuid  = 0;
 
     for (uint32 l_I = 0; l_I < MSE_COUNT; ++l_I)
     {
