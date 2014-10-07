@@ -1419,10 +1419,10 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
                         if (l_Caster->getLevel() >= 32)
                         {
-                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && l_Caster->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                                l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                            else
-                                l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DEEP_WOUNDS, true);
+                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && !l_Caster->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
+                                return;
+
+                            l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DEEP_WOUNDS, true);
 
                             if (l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_BLOODY_HEALING))
                                 l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODY_HEALING, true);
