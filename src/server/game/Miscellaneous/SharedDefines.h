@@ -132,8 +132,8 @@ enum LootModes
 
 enum Expansion
 {
-    EXPANSION_VANILLA = 0,
-    EXPANSION_THE_BURNING_CRUSAD        = 1,
+    EXPANSION_VANILLA                   = 0,
+    EXPANSION_THE_BURNING_CRUSADE       = 1,
     EXPANSION_WRATH_OF_THE_LICH_KING    = 2,
     EXPANSION_CATACLYSM                 = 3,
     EXPANSION_MISTS_OF_PANDARIA         = 4,

@@ -310,10 +310,10 @@ WeatherState Weather::GetWeatherState() const
                 return WEATHER_STATE_MEDIUM_SANDSTORM;
             else
                 return WEATHER_STATE_HEAVY_SANDSTORM;
-        case WEATHER_TYPE_BLACKRAIN:
-            return WEATHER_STATE_BLACKRAIN;
-        case WEATHER_TYPE_THUNDERS:
-            return WEATHER_STATE_THUNDERS;
+        //case WEATHER_TYPE_BLACKRAIN:
+        //    return WEATHER_STATE_BLACKRAIN;
+        //case WEATHER_TYPE_THUNDERS:
+        //    return WEATHER_STATE_THUNDERS;
         case WEATHER_TYPE_FINE:
         default:
             return WEATHER_STATE_FINE;

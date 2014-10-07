@@ -6672,7 +6672,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLockId(&got, got.camera.lockId, 0);
                 break;
             }
-            caseGAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:              //15
+            case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:              //15
             {
                 if (got.moTransport.taxiPathId)
                 {
