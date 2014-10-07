@@ -7054,7 +7054,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
+    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr * GT_MAX_LEVEL + level - 1);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
     GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass() - 1) * GT_MAX_RATING + cr + 1);
     if (!Rating || !classRating)

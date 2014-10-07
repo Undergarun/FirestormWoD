@@ -1216,8 +1216,8 @@ struct GlyphSlotEntry
     uint32  Order;                                          // 2        m_Tooltip
 };
 
-// All Gt* DBC store data for 100 levels, some by 100 per class/race
-#define GT_MAX_LEVEL    100
+// All Gt* DBC store data for 123 levels, some by 123 per class/race
+#define GT_MAX_LEVEL    123
 // gtOCTClassCombatRatingScalar.dbc stores data for 32 ratings, look at MAX_COMBAT_RATING for real used amount
 #define GT_MAX_RATING   32
 
