@@ -308,16 +308,12 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina()
 {
-    // Taken from PaperDollFrame.lua - 4.3.4.15595
     float ratio = 14.0f;
     if (GtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((getClass() - 1) * GT_MAX_LEVEL + getLevel() - 1))
         ratio = hpBase->ratio;
 
-    float stamina = GetStat(STAT_STAMINA);
-    float baseStam = std::min(20.0f, stamina);
-    float moreStam = stamina - baseStam;
-
-    return baseStam + moreStam * ratio;
+    // Taken from PaperDollFrame.lua 6.0 build 18888
+    return GetStat(STAT_STAMINA) * ratio;
 }
 
 void Player::UpdateMaxHealth()
@@ -479,7 +475,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-    float dualWieldModifier = dualWield ? 0.898882275f : 1.0f;
+    float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);

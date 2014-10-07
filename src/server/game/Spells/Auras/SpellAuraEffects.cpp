@@ -494,6 +494,46 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //435 SPELL_AURA_435
     &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_436
     &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
+    &AuraEffect::HandleNULL,                                      //439 SPELL_AURA_439
+    &AuraEffect::HandleNULL,                                      //440 SPELL_AURA_440
+    &AuraEffect::HandleNULL,                                      //441 SPELL_AURA_441
+    &AuraEffect::HandleNULL,                                      //442 SPELL_AURA_442
+    &AuraEffect::HandleNULL,                                      //443 SPELL_AURA_443
+    &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
+    &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
+    &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
+    &AuraEffect::HandleNULL,                                      //447 SPELL_AURA_447
+    &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
+    &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
+    &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
+    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
+    &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_453
+    &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
+    &AuraEffect::HandleNULL,                                      //455 SPELL_AURA_455
+    &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456
+    &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_457
+    &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_458
+    &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
+    &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_460
+    &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
+    &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
+    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
+    &AuraEffect::HandleNULL,                                      //464 SPELL_AURA_464
+    &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_465
+    &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_466
+    &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
+    &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_468
+    &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
+    &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
+    &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_471
+    &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
+    &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
+    &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
+    &AuraEffect::HandleNULL,                                      //475 SPELL_AURA_475
+    &AuraEffect::HandleNULL,                                      //476 SPELL_AURA_476
+    &AuraEffect::HandleNULL,                                      //477 SPELL_AURA_477
+    &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
