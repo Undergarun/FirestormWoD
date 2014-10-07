@@ -73,6 +73,7 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 warGodJalakGuid;
 
             uint64 jiKunGuid;
+            uint64 jiKunExitDoorGuid;
 
             uint64 firstMoguBloodVatGuid;
             uint64 secondMoguBloodVatGuid;
@@ -110,6 +111,7 @@ class instance_throne_of_thunder : public InstanceMapScript
                 megaeraGuid             = 0;
 
                 jiKunGuid               = 0;
+                jiKunExitDoorGuid       = 0;
 
                 firstMoguBloodVatGuid   = 0;
                 secondMoguBloodVatGuid  = 0;
@@ -257,6 +259,9 @@ class instance_throne_of_thunder : public InstanceMapScript
                     case GOB_TENTH_MOGU_BLOOD_VAT:
                         tenthMoguBloodVatGuid = go->GetGUID();
                         break;
+                    case  GOB_JI_KUN_EXIT_DOOR:
+                        jiKunExitDoorGuid = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -352,6 +357,8 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return ninthMoguBloodVatGuid;
                     case GOB_TENTH_MOGU_BLOOD_VAT:
                         return tenthMoguBloodVatGuid;
+                    case GOB_JI_KUN_EXIT_DOOR:
+                        return jiKunExitDoorGuid;
                     case DATA_STATUE_0:
                         return moguStatuesGuids[0];
                     case DATA_STATUE_1:

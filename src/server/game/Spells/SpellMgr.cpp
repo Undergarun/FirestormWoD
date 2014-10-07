@@ -4624,6 +4624,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52610: // Savage Roar (basic)
                 spellInfo->Effects[2].BasePoints = 40;
                 break;
+            case 140016:// Drop Feathers
+                spellInfo->Effects[0].MiscValue = 218543;
+                break;
             case 119905:// Cauterize (Command Demon)
             case 119907:// Disarm (Command Demon)
             case 119909:// Whiplash (Command Demon)
