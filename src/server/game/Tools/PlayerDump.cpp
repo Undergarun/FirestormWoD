@@ -489,6 +489,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     std::stringstream stringstr;
 
+    ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
+
     while (!feof(fin))
     {
         if (!fgets(buf, 32000, fin))
