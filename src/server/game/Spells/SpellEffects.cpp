@@ -1600,6 +1600,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     }
 
     CustomSpellValues values;
+    bool l_IsCustom = false;
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
     {
@@ -1607,6 +1608,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
         values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
         values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
+        l_IsCustom = true;
     }
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
@@ -1615,7 +1617,10 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+    if (l_IsCustom)
+        m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+    else
+        m_caster->CastSpell(targets, spellInfo, NULL, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
@@ -1649,6 +1654,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         targets.SetUnitTarget(m_caster);
     }
 
+    bool l_IsCustom = false;
     CustomSpellValues values;
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
@@ -1657,6 +1663,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
         values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
         values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
+        l_IsCustom = true;
     }
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
@@ -1665,7 +1672,10 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+    if (l_IsCustom)
+        m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+    else
+        m_caster->CastSpell(targets, spellInfo, NULL, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
 }
 
 void Spell::EffectForceCast(SpellEffIndex effIndex)
@@ -2267,8 +2277,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                addhealth += int32(0.49f * m_caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
-
                 int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
 
                 if (holyPower > 3)
@@ -2764,7 +2772,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
         // Glyph of Explosive Trap
         if (m_spellInfo->Id == 13812 && caster->HasAura(119403))
         {
-            m_caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 149575, true);
+            caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 149575, true);
             dynObj->SetDuration(0);
             return;
         }

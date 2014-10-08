@@ -398,6 +398,15 @@ class boss_ji_kun : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/)
             {
+                if (m_Instance)
+                {
+                    if (!m_Instance->CheckRequiredBosses(DATA_JI_KUN))
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 m_Events.ScheduleEvent(EVENT_TALON_RAKE, 24000);
                 m_Events.ScheduleEvent(EVENT_CAW, urand(18000, 50000));
                 m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
@@ -732,7 +741,7 @@ class mob_fall_catcher : public CreatureScript
             void UpdateAI(const uint32 p_Diff)
             {
                 // Waiting for a player to take back
-                if (!m_IsTransporting)
+                if (!m_IsTransporting && m_Instance)
                 {
                     Creature* l_JiKun = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_JI_KUN));
                     if (!l_JiKun)

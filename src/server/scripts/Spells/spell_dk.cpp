@@ -656,8 +656,8 @@ class spell_dk_howling_blast : public SpellScriptLoader
                 if (!caster || !target || !tar)
                     return;
 
-                if (target->GetGUID() != tar)
-                    SetHitDamage(GetHitDamage()/2);
+                if (target->GetGUID() == tar)
+                    SetHitDamage(GetHitDamage() * 2);
 
                 caster->CastSpell(target, DK_SPELL_FROST_FEVER, true);
             }

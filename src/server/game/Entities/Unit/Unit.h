@@ -1507,6 +1507,7 @@ class Unit : public WorldObject
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
         void GetPartyMembers(std::list<Unit*> &units);
+        void GetRaidMembers(std::list<Unit*> &units);
         bool IsContestedGuard() const
         {
             if (FactionTemplateEntry const* entry = getFactionTemplateEntry())

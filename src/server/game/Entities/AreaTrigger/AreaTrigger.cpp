@@ -126,7 +126,7 @@ void AreaTrigger::Update(uint32 p_Time)
     if (GetDuration() > int32(p_Time))
         m_Duration -= p_Time;
     else if (GetDuration() != -1 && int32(m_CreatedTime) > GetDuration())
-        Remove(); // expired
+        Remove(p_Time); // expired
 
     m_CreatedTime += p_Time;
     WorldObject::Update(p_Time);
@@ -137,7 +137,7 @@ void AreaTrigger::Update(uint32 p_Time)
 
     if (!GetCaster())
     {
-        Remove();
+        Remove(p_Time);
         return;
     }
 
@@ -499,7 +499,7 @@ void AreaTrigger::Update(uint32 p_Time)
                             {
                                 if (l_AreaTrigger != this && l_AreaTrigger->GetDistance(this) < 2.5f)
                                 {
-                                    l_AreaTrigger->Remove();
+                                    l_AreaTrigger->Remove(0);
                                     SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 1.5f);
                                     this->SetObjectScale(m_VisualRadius * 1.5f);
                                     this->SetVisualRadius(m_VisualRadius * 1.5f);
@@ -534,7 +534,7 @@ void AreaTrigger::Update(uint32 p_Time)
     }
 }
 
-void AreaTrigger::Remove()
+void AreaTrigger::Remove(uint32 p_time)
 {
     if (IsInWorld())
     {
@@ -544,6 +544,28 @@ void AreaTrigger::Remove()
 
         switch (m_spellInfo->Id)
         {
+            case 115460:
+            {
+                if (int32(GetDuration()) - int32(p_time) > 0)
+                    break;
+
+                if (!m_Caster)
+                    break;
+
+                m_Caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135914, true);
+                break;
+            }
+            case 119031:
+            {
+                if (int32(GetDuration()) - int32(p_time) > 0)
+                    break;
+
+                if (!m_Caster)
+                    break;
+
+                m_Caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135920, true);
+                break;
+            }
             case 116011:// Rune of Power : Remove the buff if caster is still in radius
                 if (m_Caster && m_Caster->HasAura(116014))
                     m_Caster->RemoveAura(116014);

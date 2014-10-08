@@ -1124,7 +1124,7 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 {
-    if (!_player || !_player->IsInWorld() || realmID != 5)
+    if (!_player || !_player->IsInWorld())
         return;
 
     PetBattleRequest* l_BattleRequest = sPetBattleSystem->CreateRequest(_player->GetGUID());
@@ -1239,8 +1239,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 
@@ -1284,8 +1284,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 
@@ -1299,6 +1299,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     // Wild should be wild
     if (!sWildBattlePetMgr->IsWildPet(l_Wild))
     {
+        l_ErrorCode = PETBATTLE_REQUEST_INVALID_TARGET;
+
         _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
         _player->SetRooted(false);
 
@@ -1310,8 +1312,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 
@@ -1324,6 +1326,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
     if (!l_WildBattlePet)
     {
+        l_ErrorCode = PETBATTLE_REQUEST_INVALID_TARGET;
+
         _player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
         _player->SetRooted(false);
 
@@ -1335,8 +1339,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 

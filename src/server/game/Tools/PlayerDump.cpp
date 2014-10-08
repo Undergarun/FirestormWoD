@@ -469,7 +469,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 {
     uint32 charcount = AccountMgr::GetCharactersCount(p_Account);
     // Taran'zhu hack fix for merge TZ <-> Elegon
-    if (charcount >= (realmID == 2 ? 22 : 11))
+    if (charcount >= uint32(realmID == 2 ? 22 : 11))
         return DUMP_TOO_MANY_CHARS;
 
     FILE* fin = fopen(p_File.c_str(), "r");
