@@ -813,15 +813,16 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Stance of the Wise Serpent - 115070
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(115070) && spellProto
         && spellProto->Id != 124098 && spellProto->Id != 107270 && spellProto->Id != 132467
-        && spellProto->Id != 130651 && spellProto->Id != 117993) // Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
+        && spellProto->Id != 130651 && spellProto->Id != 117993 && spellProto->Id != 120272
+        && spellProto->Id != 120274) // Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst, Chi Torpedo & Tiger Strikes
     {
-        int32 bp = damage / 2;
+        int32 bp = damage / 4;
         std::list<Unit*> targetList;
         std::list<Creature*> tempList;
         std::list<Creature*> statueList;
         Creature* statue;
 
-        ToPlayer()->GetPartyMembers(targetList);
+        ToPlayer()->GetRaidMembers(targetList);
 
         if (targetList.size() > 1)
         {
@@ -846,7 +847,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         // In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
         for (auto itr : targetList)
         {
-            CastCustomSpell(itr, 117895, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); // Eminence - statue
+            CastCustomSpell(itr, 126890, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); // Eminence
 
             if (statueList.size() == 1)
             {
@@ -5388,7 +5389,7 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
         AreaTrigger* areaTrigger = *i;
         if (areaTrigger->GetSpellId() == spellId)
         {
-            areaTrigger->Remove();
+            areaTrigger->Remove(0);
             i = m_AreaTrigger.begin();
         }
         else
@@ -5405,7 +5406,7 @@ void Unit::RemoveAllDynObjects()
 void Unit::RemoveAllAreasTrigger()
 {
     while (!m_AreaTrigger.empty())
-        m_AreaTrigger.front()->Remove();
+        m_AreaTrigger.front()->Remove(0);
 }
 
 GameObject* Unit::GetGameObject(uint32 spellId) const
@@ -20084,6 +20085,41 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
         if (Guardian* pet = owner->GetGuardianPet())
             if (pet->isAlive() && (pet == this || IsInMap(pet)))
                 TagUnitMap.push_back(pet);
+    }
+}
+
+void Unit::GetRaidMembers(std::list<Unit*> &p_Members)
+{
+    Unit* l_Owner = GetCharmerOrOwnerOrSelf();
+    Group* l_Group = NULL;
+    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+        l_Group = l_Owner->ToPlayer()->GetGroup();
+
+    if (l_Group)
+    {
+        for (GroupReference* l_Iter = l_Group->GetFirstMember(); l_Iter != NULL; l_Iter = l_Iter->next())
+        {
+            Player* l_Target = l_Iter->getSource();
+
+            // IsHostileTo check duel and controlled by enemy
+            if (l_Target && !IsHostileTo(l_Target))
+            {
+                if (l_Target->isAlive() && IsInMap(l_Target))
+                    p_Members.push_back(l_Target);
+
+                if (Guardian* l_Pet = l_Target->GetGuardianPet())
+                    if (l_Pet->isAlive() && IsInMap(l_Target))
+                        p_Members.push_back(l_Pet);
+            }
+        }
+    }
+    else
+    {
+        if (l_Owner->isAlive() && (l_Owner == this || IsInMap(l_Owner)))
+            p_Members.push_back(l_Owner);
+        if (Guardian* l_Pet = l_Owner->GetGuardianPet())
+            if (l_Pet->isAlive() && (l_Pet == this || IsInMap(l_Pet)))
+                p_Members.push_back(l_Pet);
     }
 }
 
