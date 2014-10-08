@@ -2430,6 +2430,9 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
             else
                 ++itr;
         }
+
+        if (Player* l_Player = target->ToPlayer())
+            l_Player->UnsummonCurrentBattlePetIfAny(true);
     }
     else
     {

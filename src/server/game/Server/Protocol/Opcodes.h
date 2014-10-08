@@ -768,7 +768,7 @@ enum Opcodes
     SMSG_BATTLEPET_DELETE                             = 0x8AC,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_ERROR                              = 0x491,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_HEALED                             = 0x108,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
-    SMSG_BATTLEPET_JOURNAL                            = 0x5B5,  // 5.4.0 17399
+    //SMSG_BATTLEPET_JOURNAL                            = 0x5B5,  // 5.4.0 17399
     SMSG_BATTLEPET_JOURNAL_LOCK_ACQUIRED              = 0x1B1,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_JOURNAL_LOCK_DENIED                = 0x107,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_LICENSE_CHANGED                    = 0x103,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
