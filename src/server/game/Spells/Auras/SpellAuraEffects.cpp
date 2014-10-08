@@ -4518,12 +4518,11 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
     Unit* target = aurApp->GetTarget();
     uint32 mechanic = 0;
 
+    if (target->HasAura(146659) && GetId() == 1953) // Glyph of Rapid Displacement
+        return;
+
     switch (GetId())
     {
-        case 1953: // Blink
-            if (target->HasAura(146659)) // Glyph of Rapid Displacement
-                return;
-            break;
         case 42292: // PvP trinket
         case 59752: // Every Man for Himself
         case 65547: // PvP trinket (Trial of Crusader)
