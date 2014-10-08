@@ -398,6 +398,15 @@ class boss_ji_kun : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/)
             {
+                if (m_Instance)
+                {
+                    if (!m_Instance->CheckRequiredBosses(DATA_JI_KUN))
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 m_Events.ScheduleEvent(EVENT_TALON_RAKE, 24000);
                 m_Events.ScheduleEvent(EVENT_CAW, urand(18000, 50000));
                 m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
