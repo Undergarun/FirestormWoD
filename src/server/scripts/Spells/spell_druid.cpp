@@ -2231,7 +2231,6 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
                 if (!l_Caster || !l_Target)
                     return;
