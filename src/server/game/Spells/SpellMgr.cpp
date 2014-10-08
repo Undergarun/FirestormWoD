@@ -3417,7 +3417,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 33763: // Lifebloom
-                spellInfo->AttributeEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
             case 148017:// Icicle
             case 148018:// Icicle
