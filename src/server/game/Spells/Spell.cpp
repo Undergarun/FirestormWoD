@@ -6383,8 +6383,8 @@ void Spell::TakeRunePower(bool didHit)
         }
     }
 
-    // you can gain some runic power when use runes
-    if (didHit && gain_runic)
+    // you can gain some runic power when use runes (hack fix for ice touch & Howling Blast with Rime 59057)
+    if (didHit && (gain_runic || m_spellInfo->Id == 45477 || m_spellInfo->Id == 49184))
     {
         if (int32 rp = int32(runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
         {

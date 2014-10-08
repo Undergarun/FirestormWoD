@@ -45,6 +45,7 @@
 #include <functional>
 #include "PhaseMgr.h"
 #include <LockedMap.h>
+#include <ace/Thread_Mutex.h>
 
 class Item;
 class PhaseMgr;
@@ -1338,6 +1339,8 @@ class ObjectMgr
         {
             _lootViewGUID[lootview] = creature;
         }
+
+        ACE_Thread_Mutex m_GuidLock;
 
     private:
         // first free id for selected id type

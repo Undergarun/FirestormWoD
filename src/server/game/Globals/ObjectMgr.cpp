@@ -6352,6 +6352,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     {
         case HIGHGUID_ITEM:
         {
+            ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
             ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
             return _hiItemGuid++;
         }
@@ -6362,6 +6363,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_PET:
         {
+            ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
             ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
             return _hiPetGuid++;
         }
@@ -6372,6 +6374,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_PLAYER:
         {
+            ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
             ASSERT(_hiCharGuid < 0xFFFFFFFE && "Player guid overflow!");
             return _hiCharGuid++;
         }

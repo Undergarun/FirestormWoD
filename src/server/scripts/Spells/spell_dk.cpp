@@ -1207,58 +1207,55 @@ class spell_dk_plague_leech : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_plague_leech_SpellScript);
 
+            std::queue<uint8> m_RunesInCharge;
+
             SpellCastResult CheckRunes()
             {
-                int32 runesUsed = 0;
-
-                if (GetCaster() && GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    for (uint8 i = 0; i < MAX_RUNES; ++i)
-                        if (GetCaster()->ToPlayer()->GetRuneCooldown(i))
-                            runesUsed++;
+                    for (uint8 l_Index = 0; l_Index < MAX_RUNES; ++l_Index)
+                    {
+                        if (l_Player->GetRuneCooldown(l_Index))
+                            m_RunesInCharge.push(l_Index);
+                    }
 
-                    if (runesUsed != 6)
+                    if (m_RunesInCharge.empty())
                         return SPELL_FAILED_DONT_REPORT;
-                    else
-                        return SPELL_CAST_OK;
 
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) && !target->HasAura(DK_SPELL_FROST_FEVER))
+                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) || !target->HasAura(DK_SPELL_FROST_FEVER))
                             return SPELL_FAILED_DONT_REPORT;
-                        else
-                            return SPELL_CAST_OK;
                     }
                 }
                 else
                     return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
             }
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        target->RemoveAura(DK_SPELL_FROST_FEVER);
-                        target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
+                        l_Target->RemoveAura(DK_SPELL_FROST_FEVER);
+                        l_Target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
 
-                        uint32 runeRandom;
-                        bool runeOff = true;
+                        uint8 l_Count = std::min(uint8(2), uint8(m_RunesInCharge.size()));
 
-                        while (runeOff)
+                        while (l_Count)
                         {
-                            runeRandom = urand(0, 5);
+                            uint8 l_RuneID = m_RunesInCharge.front();
 
-                            if (_player->GetRuneCooldown(runeRandom))
-                            {
-                                _player->SetRuneCooldown(runeRandom, 0);
-                                _player->ConvertRune(runeRandom, RUNE_DEATH);
-                                runeOff = false;
-                            }
+                            l_Player->SetRuneCooldown(l_RuneID, 0);
+                            l_Player->ConvertRune(l_RuneID, RUNE_DEATH);
+                            --l_Count;
+                            m_RunesInCharge.pop();
                         }
 
-                        _player->ResyncRunes(MAX_RUNES);
+                        l_Player->ResyncRunes(MAX_RUNES);
                     }
                 }
             }
