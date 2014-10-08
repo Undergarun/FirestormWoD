@@ -1219,7 +1219,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->IsFriendlyTo(unitTarget))
                     {
                         // Glyph of Death Coil
-                        if (m_caster->HasAura(63333) && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                        if (m_caster->HasAura(63333) && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD && unitTarget != m_caster)
                             m_caster->CastSpell(unitTarget, 115635, true); // Death Barrier
                         else
                         {
