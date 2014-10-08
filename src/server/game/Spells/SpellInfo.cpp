@@ -1851,9 +1851,10 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 110078:
         case 106498:
         case 106368:
+        case 133755:
             if (!player)
                 return SPELL_CAST_OK;
-            return (area_id == 5928) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+            return (area_id == 5928 || area_id == 6622) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         case 103755: // Twilight Epiphany, Archbishop Benedictus, Hour of Twilight
             return ((map_id == 940 && area_id == 5845) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA);
         case 105009: // Gift of Sargeras, Well of Eternity

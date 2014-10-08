@@ -879,14 +879,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     sScriptMgr->OnPlayerDelete(charGuid);
     sWorld->DeleteCharacterNameData(GUID_LOPART(charGuid));
 
-    if (sLog->ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO)) // optimize GetPlayerDump call
-    {
-        std::string dump;
-        if (PlayerDumpWriter().GetDump(GUID_LOPART(charGuid), dump))
-
-            sLog->outCharDump(dump.c_str(), GetAccountId(), GUID_LOPART(charGuid), name.c_str());
-    }
-
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(charGuid);
     Player::DeleteFromDB(charGuid, GetAccountId());
     sWorld->DeleteCharName(name);
@@ -1912,7 +1904,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newName))
+    if (uint64 newguid = sWorld->GetCharacterGuidByName(newName))
     {
         if (newguid != playerGuid)
         {
@@ -2395,7 +2387,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newname))
+    if (uint64 newguid = sWorld->GetCharacterGuidByName(newname))
     {
         if (newguid != guid)
         {

@@ -397,7 +397,8 @@ public:
                 {
                     Field* field = toDump->Fetch();
                     uint32 transaction = field[0].GetUInt32();
-                    uint32 perso_guid = field[2].GetUInt32();
+                    uint32 account     = field[1].GetUInt32();
+                    uint32 perso_guid  = field[2].GetUInt32();
 
                     if (Player * pPlayer = sObjectMgr->GetPlayerByLowGUID(perso_guid))
                     {
@@ -407,7 +408,7 @@ public:
 
                     bool error = true;
                     std::string dump;
-                    if (PlayerDumpWriter().GetDump(perso_guid, dump))
+                    if (PlayerDumpWriter().GetDump(perso_guid, account, dump))
                     {
                         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
                         stmt->setString(0, dump);
@@ -464,7 +465,7 @@ public:
                         continue;
                     }
 
-                    LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", (uint32)err, transaction);
+                    LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)err, transaction);
 
                     /*if (dump == DUMP_SUCCESS)
                     {

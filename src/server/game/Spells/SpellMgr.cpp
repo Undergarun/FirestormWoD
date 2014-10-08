@@ -3390,6 +3390,18 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 134755:
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 133740:
+                spellInfo->Effects[1].MiscValue = 0;
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
+                spellInfo->Effects[3].TriggerSpell = 0;
+                break;
+            case 133734 :
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 133795: // Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
@@ -3403,6 +3415,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 63106: // Siphon Life (heal)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 33763: // Lifebloom
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
             case 148017:// Icicle
             case 148018:// Icicle
@@ -3475,6 +3490,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             case 121673:// Fire Shot
+            case 145153:
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050:// Malformed Blood
@@ -4271,6 +4287,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 24858: // Moonkin form - hotfix 5.4.2
                 spellInfo->Effects[2].BasePoints = 100;
                 break;
+            case 51963: // Gargoyle's Strike
+                spellInfo->AttackPowerBonus = 0.83f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                break;
             case 50887: // Icy Talons - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 45;
                 break;
@@ -4641,6 +4661,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 52610: // Savage Roar (basic)
                 spellInfo->Effects[2].BasePoints = 40;
+                break;
+            case 140016:// Drop Feathers
+                spellInfo->Effects[0].MiscValue = 218543;
                 break;
             case 119905:// Cauterize (Command Demon)
             case 119907:// Disarm (Command Demon)
@@ -5460,12 +5483,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
-            case 132626: // Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: // Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
-                break;
             // Magic Barrier, Lady Vashj
             case 38112:
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -5508,6 +5525,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].TargetA = 0;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 116011:
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[2].TargetA = 0;
                 break;
             // Cauterizing Flame
             case 99152:

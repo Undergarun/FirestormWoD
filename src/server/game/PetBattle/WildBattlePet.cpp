@@ -62,10 +62,6 @@ void WildBattlePetZonePools::LoadPoolTemplate(Field* l_Fields)
 
 void WildBattlePetZonePools::Populate()
 {
-    // TMP DISABLE    
-    if (realmID != 5)
-        return;
-
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
         WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
@@ -355,9 +351,6 @@ void WildBattlePetMgr::Load()
 
 void WildBattlePetMgr::PopulateAll()
 {
-    // TMP DISABLE    
-    if (realmID != 5)
-        return;
 
     for (std::map<uint32, std::map<uint32, WildBattlePetZonePools> >::iterator l_It = m_PoolsByMap.begin(); l_It != m_PoolsByMap.end(); l_It++)
         for (std::map<uint32, WildBattlePetZonePools>::iterator l_It2 = l_It->second.begin(); l_It2 != l_It->second.end(); l_It2++)
@@ -365,10 +358,6 @@ void WildBattlePetMgr::PopulateAll()
 }
 void WildBattlePetMgr::PopulateMap(uint32 p_MapID)
 {
-    // TMP DISABLE    
-    if (realmID != 5)
-        return;
-
     if (m_PoolsByMap.find(p_MapID) == m_PoolsByMap.end())
         return;
 

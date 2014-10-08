@@ -437,14 +437,14 @@ void AreaTrigger::Update(uint32 p_time)
         case 134370:// Down Draft
         {
             std::list<Player*> playerList;
-            GetPlayerListInGrid(playerList, 60.0f);
+            GetPlayerListInGrid(playerList, 40.0f);
 
             Position pos;
             GetPosition(&pos);
 
             for (auto player : playerList)
             {
-                if (player->IsWithinDist(caster, 50.0f, false))
+                if (player->IsWithinDist(caster, 30.0f, false))
                 {
                     if (player->isAlive() && !player->hasForcedMovement)
                         player->SendApplyMovementForce(true, pos, -12.0f);

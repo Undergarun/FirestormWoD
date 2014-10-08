@@ -4279,12 +4279,12 @@ void Player::InitSpellForLevel()
     // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
     if (level == 90 && getClass() == CLASS_MAGE)
     {
-        if (TeamForRace(getRace()) == ALLIANCE)
+        if (TeamForRace(getRace()) == HORDE)
         {
             learnSpell(132627, false); // Teleport: Vale of Eternal Blossoms
             learnSpell(132626, false); // Portal: Vale of Eternal Blossoms
 
-            // Only for horde
+            // Only for alliance
             if (HasSpell(132621))
                 removeSpell(132621, false, false);
             if (HasSpell(132620))
@@ -4295,7 +4295,7 @@ void Player::InitSpellForLevel()
             learnSpell(132621, false); // Teleport: Vale of Eternal Blossoms
             learnSpell(132620, false); // Portal: Vale of Eternal Blossoms
 
-            // Only for alliance
+            // Only for horde
             if (HasSpell(132626))
                 removeSpell(132626, false, false);
             if (HasSpell(132627))
@@ -31021,12 +31021,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
         return;
 
     if (!p_Unvolontary)
-    {
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LAST_BATTLEPET);
-        l_Statement->setUInt64(0, 0);
-        l_Statement->setUInt32(1, GetGUIDLow());
-        CharacterDatabase.Execute(l_Statement);
-    }
+        m_LastSummonedBattlePet = 0;
 
     Creature * l_Pet = GetSummonedBattlePet();
 
@@ -31044,7 +31039,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 /// Summon new pet 
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
-    if (!IsInWorld())
+    if (!IsInWorld() || m_LastSummonedBattlePet == 0)
         return;
 
     std::vector<BattlePet::Ptr>::iterator l_It = std::find_if(m_BattlePets.begin(), m_BattlePets.end(), [p_JournalID](BattlePet::Ptr & p_Ptr)
