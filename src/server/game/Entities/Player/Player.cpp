@@ -5069,8 +5069,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             pet.UpdateStats();
             pet.Health = pet.InfoMaxHealth;
 
-            pet.AddToPlayer(this);
-            GetSession()->SendPetBattleJournal();
+            pet.AddToPlayer(this); 
+            ReloadPetBattles();
             break;
         }
     }
@@ -31167,6 +31167,12 @@ std::shared_ptr<BattlePet> * Player::GetBattlePetCombatTeam()
 /// Reload pet battles
 void Player::ReloadPetBattles()
 {
+    for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
+    {
+        BattlePet::Ptr l_Pet = (*l_It);
+        l_Pet->Save();
+    }
+
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
     stmt->setUInt32(0, GetSession()->GetAccountId());
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);

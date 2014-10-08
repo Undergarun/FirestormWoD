@@ -1124,7 +1124,7 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 {
-    if (!_player || !_player->IsInWorld() || realmID != 5)
+    if (!_player || !_player->IsInWorld())
         return;
 
     PetBattleRequest* l_BattleRequest = sPetBattleSystem->CreateRequest(_player->GetGUID());
@@ -1239,8 +1239,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 
@@ -1284,8 +1284,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 
@@ -1310,8 +1310,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 
@@ -1335,8 +1335,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
 
         for (size_t l_CurrentPetID = 0; l_CurrentPetID < MAX_PETBATTLE_SLOTS; ++l_CurrentPetID)
-        if (l_PlayerPets[l_CurrentPetID])
-            l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
+            if (l_PlayerPets[l_CurrentPetID])
+                l_PlayerPets[l_CurrentPetID] = BattlePetInstance::Ptr();
 
         l_WildBattlePet = BattlePetInstance::Ptr();
 

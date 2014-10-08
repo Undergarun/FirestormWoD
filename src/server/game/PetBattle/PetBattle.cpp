@@ -1275,7 +1275,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
             l_Player->GetSession()->SendPetBattleFinalRound(this);
             l_Player->SetControlled(false, UNIT_STATE_ROOT);
             l_Player->SummonLastSummonedBattlePet();
-            l_Player->GetSession()->SendPetBattleJournal();
+            l_Player->ReloadPetBattles();
             l_Player->_petBattleId = 0;
         }
         else
