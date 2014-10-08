@@ -665,7 +665,7 @@ int Master::Run()
     ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable);
     ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable);
     ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable);
-    ACE_Based::Thread CharactersTransfertRunnable_thread(new CharactersTransfertRunnable);
+    //ACE_Based::Thread CharactersTransfertRunnable_thread(new CharactersTransfertRunnable);
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
