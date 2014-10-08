@@ -408,7 +408,7 @@ void ObjectMgr::LoadCreatureTemplates()
 
                                              "KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           21      22      23       24           25           26        27     28      29        30        31         32         33        34         35
-                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction_A, faction_H, npcflag, npcflag2, speed_walk, speed_run, "
+                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
     //                                             36      37    38     39     40        41           42            43              44               45            46         47          48
                                              "speed_fly, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, "
     //                                             49         50         51             52             53             54          55           56              57           58
@@ -461,8 +461,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.maxlevel          = fields[index++].GetUInt8();
         creatureTemplate.expansion         = uint32(fields[index++].GetInt16());
         creatureTemplate.expansionUnknown  = uint32(fields[index++].GetUInt16());
-        creatureTemplate.faction_A         = uint32(fields[index++].GetUInt16());
-        creatureTemplate.faction_H         = uint32(fields[index++].GetUInt16());
+        creatureTemplate.faction         = uint32(fields[index++].GetUInt16());
         creatureTemplate.npcflag           = fields[index++].GetUInt32();
         creatureTemplate.npcflag2          = fields[index++].GetUInt32();
         creatureTemplate.speed_walk        = fields[index++].GetFloat();
@@ -711,13 +710,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
+    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
     if (!factionTemplate)
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing faction_A template (%u).", cInfo->Entry, cInfo->faction_A);
-
-    factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
-    if (!factionTemplate)
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing faction_H template (%u).", cInfo->Entry, cInfo->faction_H);
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing faction template (%u).", cInfo->Entry, cInfo->faction);
 
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = NULL;

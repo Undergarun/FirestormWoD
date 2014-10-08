@@ -129,9 +129,8 @@ struct CreatureTemplate
     uint8   minlevel;
     uint8   maxlevel;
     uint32  expansion;
-    uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
-    uint32  faction_A;
-    uint32  faction_H;
+    uint32  expansionUnknown;                               // either 0 or 5, sent to the client / wdb
+    uint32  faction;
     uint32  npcflag;
     uint32  npcflag2;
     float   speed_walk;
