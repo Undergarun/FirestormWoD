@@ -7098,14 +7098,13 @@ float Player::OCTRegenMPPerSpirit()
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
-    if (moreRatio == NULL)
-        return 0.0f;
+    float ratio = 0.0f;
+    GtRegenMPPerSptEntry  const* regenBase = sGtRegenMPPerSptStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
+    if (regenBase)
+        ratio = regenBase->ratio;
 
     // Formula get from PaperDollFrame script
-    float spirit    = GetStat(STAT_SPIRIT);
-    float regen     = spirit * moreRatio->ratio;
-    return regen;
+    return GetStat(STAT_SPIRIT) * ratio;
 }
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
