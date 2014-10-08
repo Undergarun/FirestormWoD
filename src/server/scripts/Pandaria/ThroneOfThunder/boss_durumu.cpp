@@ -133,7 +133,7 @@ class boss_durumu : public CreatureScript
 
                 if (!l_AreatriggerList.empty())
                     for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
-                        l_AreaTrigger->Remove();
+                        l_AreaTrigger->Remove(0);
 
                 if (m_Instance)
                 {
@@ -170,7 +170,7 @@ class boss_durumu : public CreatureScript
 
                 if (!l_AreatriggerList.empty())
                     for (AreaTrigger* l_AreaTrigger : l_AreatriggerList)
-                        l_AreaTrigger->Remove();
+                        l_AreaTrigger->Remove(0);
 
                 if (m_Instance)
                 {

@@ -1438,7 +1438,7 @@ class spell_pri_atonement : public SpellScriptLoader
                             int32 bp = CalculatePct(GetHitDamage(), 90);
                             std::list<Unit*> groupList;
 
-                            _player->GetPartyMembers(groupList);
+                            _player->GetRaidMembers(groupList);
 
                             if (groupList.size() > 1)
                             {

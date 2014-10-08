@@ -1290,6 +1290,14 @@ bool Aura::CanBeSaved() const
         case 37025: // Water, Coilfang Raid
         case 36444: // Water, Lake Wintergrasp
         case 28801: // Slime, Naxxramas
+        case 121164:// Kotmogu orb
+        case 121175:// Kotmogu orb
+        case 121176:// Kotmogu orb
+        case 121177:// Kotmogu orb
+        case 121219:// Kotmogu orb
+        case 121221:// Kotmogu orb
+        case 121220:// Kotmogu orb
+        case 121217:// Kotmogu orb
             return false;
         default:
             break;

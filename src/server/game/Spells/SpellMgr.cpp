@@ -3445,10 +3445,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttackPowerBonus = 0.319f;
                 spellInfo->m_IsScaled = true;
                 break;
-            case 49184: // Howling Blast
-                spellInfo->AttackPowerBonus = 0.369f;
-                spellInfo->m_IsScaled = true;
-                break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
                 break;
@@ -3788,6 +3784,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 149575:// Explosive Trap (knock back)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[1].TargetA = TARGET_DEST_DEST;
+                break;
+            case 13812:
+                spellInfo->m_IsScaled = true;
                 break;
             case 108287:// Totemic Projection
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
@@ -5215,6 +5214,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 52042: // Healing Stream - Totem
                 spellInfo->Effects[0].BasePoints = 31;
+                break;
+            case 121818:
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 135920: // Healing sphere at end
+            case 135914:
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 115460:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DYNOBJ_NONE;
                 break;
             case 324:   // Lightning Shield
                 spellInfo->ProcCharges = 0;

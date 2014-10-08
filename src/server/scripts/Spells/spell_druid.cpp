@@ -267,7 +267,7 @@ class spell_dru_yseras_gift : public SpellScriptLoader
                     else
                     {
                         std::list<Unit*> party;
-                        caster->GetPartyMembers(party);
+                        caster->GetRaidMembers(party);
 
                         if (party.empty())
                             return;
@@ -378,7 +378,7 @@ class spell_dru_genesis : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     std::list<Unit*> l_Members;
-                    l_Player->GetPartyMembers(l_Members);
+                    l_Player->GetRaidMembers(l_Members);
 
                     for (Unit* l_Unit : l_Members)
                     {

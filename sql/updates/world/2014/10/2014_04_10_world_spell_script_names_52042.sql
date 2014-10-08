@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUE (52042,'spell_sha_healing_stream_totem');

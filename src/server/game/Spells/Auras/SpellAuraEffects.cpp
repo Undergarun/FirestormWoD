@@ -7481,14 +7481,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
             caster->CastSpell(caster, 120587, true);
 
-        // Deep Wounds
-        if (GetSpellInfo()->Id == 115767)
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-              if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                  damage *= 2;
-        }
-
         // Nether Tempest and Living Bomb deal 85% of damage if used on player
         if (GetSpellInfo()->Id == 44457 || GetSpellInfo()->Id == 114923)
         {
@@ -7504,7 +7496,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 int32 bp = CalculatePct(damage, 90);
                 std::list<Unit*> groupList;
 
-                _player->GetPartyMembers(groupList);
+                _player->GetRaidMembers(groupList);
 
                 if (groupList.size() > 1)
                 {

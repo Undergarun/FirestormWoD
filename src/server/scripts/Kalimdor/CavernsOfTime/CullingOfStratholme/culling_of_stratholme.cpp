@@ -299,6 +299,9 @@ public:
     {
         npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
 
+        if (!creature || !player || !creature->GetInstanceScript())
+            return;
+
         if (pAI && pAI->bStepping == false)
         {
             switch (pAI->uiGossipStep)
