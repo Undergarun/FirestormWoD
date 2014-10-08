@@ -4443,7 +4443,7 @@ void Spell::finish(bool ok)
                 break;
 
             // Only for Death Grip triggered to prevent dysfunctionment of the set bonus
-            if (m_spellInfo->Id == 49560)
+            if (m_spellInfo->Id == 49576)
             {
                 bool first = !m_caster->HasAura(131547);
 
