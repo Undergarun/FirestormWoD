@@ -4330,6 +4330,8 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             pet->SetName(new_name);
     }
 
+    pet->SetHealth(pet->GetMaxHealth());
+
     ExecuteLogEffectSummonObject(effIndex, pet);
 }
 
