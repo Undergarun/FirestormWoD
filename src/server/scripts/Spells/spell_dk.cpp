@@ -75,7 +75,8 @@ enum DeathKnightSpells
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920,
     DK_SPELL_DEATH_COIL_DAMAGE                  = 47632,
     DK_SPELL_GLYPH_OF_DEATH_AND_DECAY           = 58629,
-    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375
+    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375,
+    DK_SPELL_MASTERY_DREADBLADE                 = 77515
 };
 
 // Death and Decay - 43265
@@ -1730,6 +1731,12 @@ class spell_dk_scourge_strike : public SpellScriptLoader
 
                     if (AuraEffectPtr aurEff = caster->GetAuraEffectOfRankedSpell(DK_SPELL_BLACK_ICE_R1, EFFECT_0))
                         AddPct(bp, aurEff->GetAmount());
+
+                    if (caster->HasAura(DK_SPELL_MASTERY_DREADBLADE))
+                    {
+                        float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 2.5f;
+                        AddPct(bp, Mastery);
+                    }
 
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
