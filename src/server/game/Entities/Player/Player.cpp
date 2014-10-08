@@ -31021,12 +31021,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
         return;
 
     if (!p_Unvolontary)
-    {
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LAST_BATTLEPET);
-        l_Statement->setUInt64(0, 0);
-        l_Statement->setUInt32(1, GetGUIDLow());
-        CharacterDatabase.Execute(l_Statement);
-    }
+        m_LastSummonedBattlePet = 0;
 
     Creature * l_Pet = GetSummonedBattlePet();
 
@@ -31044,7 +31039,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 /// Summon new pet 
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
-    if (!IsInWorld())
+    if (!IsInWorld() || m_LastSummonedBattlePet == 0)
         return;
 
     std::vector<BattlePet::Ptr>::iterator l_It = std::find_if(m_BattlePets.begin(), m_BattlePets.end(), [p_JournalID](BattlePet::Ptr & p_Ptr)
