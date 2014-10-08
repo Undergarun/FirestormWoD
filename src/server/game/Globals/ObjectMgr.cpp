@@ -3375,7 +3375,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             for (int i = 0; i < MAX_STATS; i++)
             {
-                pLevelInfo->stats[i] = fields[i+3].GetUInt8();
+                pLevelInfo->stats[i] = fields[i+3].GetUInt16();
             }
 
             ++count;
