@@ -96,6 +96,9 @@ enum eCreatures
     NPC_GASTROPOD                   = 68220,
     NPC_WEB                         = 68249,
     NPC_CORPSE_SPIDER               = 68248,
+    NPC_QUIVERING_BLOB              = 69383,
+    NPC_MALIGNANT_OOZE              = 69382,
+    NPC_RITUAL_GUARD                = 70179,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
@@ -189,7 +192,7 @@ enum eCreatures
     NPC_EXIT_CHAMBER                = 70734, // Spawns
     NPC_NEST_GUARDIAN               = 701734, // Heroic mode
 
-    // Durumu the forgotten
+    // Durumu the Forgotten
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
     NPC_APPARAISING_EYE             = 67858,
     NPC_HUNGRY_EYE                  = 67859,
@@ -203,11 +206,19 @@ enum eCreatures
     NPC_CRIMSON_FOG                 = 69050,
     NPC_EYEBEAM_TARGET              = 67882,
 
+    // Primordius
     NPC_PRIMORDIUS                  = 69017,
     NPC_LIVING_FLUID                = 69069,
     NPC_VISCOUS_HORROR              = 69070,
 
+    // Dark Animus
     NPC_DARK_ANIMUS                 = 69427,
+    NPC_DARK_RITUALIST              = 69702,
+    NPC_ANIMA_GOLEM                 = 69701,
+    NPC_LARGE_ANIMA_GOLEM           = 69700,
+    NPC_MASSIVE_ANIMA_GOLEM         = 69699,
+    NPC_CRIMSON_WAKE                = 69951,
+    NPC_ANIMA_ORB                   = 69756,
 
     NPC_IRON_QON                    = 68078,
 

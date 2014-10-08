@@ -2941,6 +2941,78 @@ void ObjectMgr::LoadVehicleAccessories()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadAreaTriggerTemplates()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_AreaTriggerTemplates.clear();                           // needed for reload case
+
+    uint32 l_Count = 0;
+
+    //                                                      0           1          2        3        4          5         6            7               8                   9
+    QueryResult l_Result = WorldDatabase.Query("SELECT `spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`,"
+    //                                                         10            11        12      13       14       15       16        17      18
+                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7` FROM `areatrigger_template`");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint8 l_Index = 0;
+
+        AreaTriggerTemplate l_Template;
+        l_Template.m_SpellID       = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_EffIndex      = l_Fields[l_Index++].GetUInt8();
+        l_Template.m_Entry         = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_Type          = l_Fields[l_Index++].GetUInt8();
+        l_Template.m_ScaleX        = l_Fields[l_Index++].GetFloat();
+        l_Template.m_ScaleY        = l_Fields[l_Index++].GetFloat();
+        l_Template.m_Flags         = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_MoveCurveID   = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_ScaleCurveID  = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_MorphCurveID  = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_FacingCurveID = l_Fields[l_Index++].GetUInt32();
+
+        switch (l_Template.m_Type)
+        {
+            case AREATRIGGER_TYPE_POLYGON:
+                l_Template.m_PolygonDatas.m_Vertices[0]         = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_Vertices[1]         = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_HeightTarget        = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_VerticesTarget[0]   = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_VerticesTarget[1]   = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_Height              = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_VerticesCount       = l_Fields[l_Index++].GetUInt32();
+                l_Template.m_PolygonDatas.m_VerticesTargetCount = l_Fields[l_Index++].GetUInt32();
+                break;
+            case AREATRIGGER_TYPE_BOX:
+                l_Template.m_BoxDatas.m_ExtentTarget[0] = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_Extent[2]       = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_ExtentTarget[1] = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_Extent[1]       = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_ExtentTarget[2] = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_Extent[0]       = l_Fields[l_Index++].GetFloat();
+                break;
+            case AREATRIGGER_TYPE_SPHERE:
+            case AREATRIGGER_TYPE_CYLINDER:
+            case AREATRIGGER_TYPE_SPLINE:
+            default:
+                break;
+        }
+
+        m_AreaTriggerTemplates[l_Template.m_SpellID].push_back(l_Template);
+
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger templates in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();

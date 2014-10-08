@@ -29,20 +29,23 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), m_caster(NULL), m_visualRadius(0.0f)
+AreaTrigger::AreaTrigger() : WorldObject(false), m_Duration(0), m_Caster(NULL), m_VisualRadius(0.0f)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
 
-    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
+    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_AREATRIGGER;
 
     m_valuesCount = AREATRIGGER_END;
-    m_createdTime = 0;
+    m_CreatedTime = 0;
+
+    m_Trajectory = AREATRIGGER_INTERPOLATION_NONE;
+    m_Templates.clear();
 }
 
 AreaTrigger::~AreaTrigger()
 {
-    ASSERT(!m_caster);
+    ASSERT(!m_Caster);
 }
 
 void AreaTrigger::AddToWorld()
@@ -67,7 +70,7 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos)
+bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest)
 {
     SetMap(caster->GetMap());
     Relocate(pos);
@@ -79,13 +82,29 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
     WorldObject::_Create(guidlow, HIGHGUID_AREATRIGGER, caster->GetPhaseMask());
 
-    SetEntry(triggerEntry);
+    AreaTriggerTemplateList l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(spell->Id);
+    for (AreaTriggerTemplate l_Template : l_Templates)
+    {
+        if (l_Template.m_EffIndex == p_EffIndex)
+            m_Templates.push_back(l_Template);
+    }
+
+    AreaTriggerTemplate l_MainTemplate = GetMainTemplate();
+
+    SetEntry(l_MainTemplate.m_Entry);
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
     SetUInt64Value(AREATRIGGER_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
+
+    SetSource(pos);
+    SetDestination(p_Dest);
+    SetTrajectory(pos != p_Dest ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
+    SetUpdateTimerInterval(60);
+
+    m_CreatedTime = getMSTime();
 
     if (spell->GetDuration() != -1)
         SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
@@ -98,20 +117,19 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     if (!GetMap()->AddToMap(this))
         return false;
 
-    m_createdTime = getMSTime();
-
     return true;
 }
 
-void AreaTrigger::Update(uint32 p_time)
+void AreaTrigger::Update(uint32 p_Time)
 {
     // Don't decrease infinite durations
-    if (GetDuration() > int32(p_time))
-        _duration -= p_time;
-    else if (GetDuration() != -1)
-        Remove(p_time); // expired
+    if (GetDuration() > int32(p_Time))
+        m_Duration -= p_Time;
+    else if (GetDuration() != -1 && int32(m_CreatedTime) > GetDuration())
+        Remove(p_Time); // expired
 
-    WorldObject::Update(p_time);
+    m_CreatedTime += p_Time;
+    WorldObject::Update(p_Time);
 
     SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(AREATRIGGER_SPELLID));
     if (!m_spellInfo)
@@ -119,7 +137,7 @@ void AreaTrigger::Update(uint32 p_time)
 
     if (!GetCaster())
     {
-        Remove(p_time);
+        Remove(p_Time);
         return;
     }
 
@@ -459,7 +477,7 @@ void AreaTrigger::Update(uint32 p_time)
         }
         case 133793: // Lingering Gaze
         {
-            float l_BiggestRadius = m_visualRadius + 2.0f;
+            float l_BiggestRadius = m_VisualRadius + 2.0f;
             bool l_MergeCheck = false;
 
             std::list<Player*> playerList;
@@ -483,18 +501,18 @@ void AreaTrigger::Update(uint32 p_time)
                                 {
                                     l_AreaTrigger->Remove(0);
                                     SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 1.5f);
-                                    this->SetObjectScale(m_visualRadius * 1.5f);
-                                    this->SetVisualRadius(m_visualRadius * 1.5f);
+                                    this->SetObjectScale(m_VisualRadius * 1.5f);
+                                    this->SetVisualRadius(m_VisualRadius * 1.5f);
                                     l_MergeCheck = true;
                                 }
                             }
                         }
                     }
 
-                    if (player->GetDistance(this) > m_visualRadius && player->HasAura(134040))
+                    if (player->GetDistance(this) > m_VisualRadius && player->HasAura(134040))
                         player->RemoveAura(134040);
 
-                    if (player->GetDistance(this) <= m_visualRadius && !player->HasAura(134040))
+                    if (player->GetDistance(this) <= m_VisualRadius && !player->HasAura(134040))
                         player->AddAura(134040, player);
                 }
             }
@@ -502,6 +520,17 @@ void AreaTrigger::Update(uint32 p_time)
         }
         default:
             break;
+    }
+
+    m_UpdateTimer.Update(p_Time);
+
+    if (m_UpdateTimer.Passed())
+    {
+        m_UpdateTimer.Reset();
+
+        // Calculate new position
+        if (m_Trajectory)
+            GetPositionAtTime(m_CreatedTime, this);
     }
 }
 
@@ -520,10 +549,10 @@ void AreaTrigger::Remove(uint32 p_time)
                 if (int32(GetDuration()) - int32(p_time) > 0)
                     break;
 
-                if (!m_caster)
+                if (!m_Caster)
                     break;
 
-                m_caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135914, true);
+                m_Caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135914, true);
                 break;
             }
             case 119031:
@@ -531,15 +560,15 @@ void AreaTrigger::Remove(uint32 p_time)
                 if (int32(GetDuration()) - int32(p_time) > 0)
                     break;
 
-                if (!m_caster)
+                if (!m_Caster)
                     break;
 
-                m_caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135920, true);
+                m_Caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135920, true);
                 break;
             }
             case 116011:// Rune of Power : Remove the buff if caster is still in radius
-                if (m_caster && m_caster->HasAura(116014))
-                    m_caster->RemoveAura(116014);
+                if (m_Caster && m_Caster->HasAura(116014))
+                    m_Caster->RemoveAura(116014);
                 break;
             case 122731:// Create Noise Cancelling Area Trigger
             {
@@ -590,16 +619,49 @@ void AreaTrigger::Remove(uint32 p_time)
 void AreaTrigger::BindToCaster()
 {
     //ASSERT(!m_caster);
-    m_caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
+    m_Caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
     //ASSERT(GetCaster());
     //ASSERT(GetCaster()->GetMap() == GetMap());
-    if (m_caster)
-        m_caster->_RegisterAreaTrigger(this);
+    if (m_Caster)
+        m_Caster->_RegisterAreaTrigger(this);
 }
 
 void AreaTrigger::UnbindFromCaster()
 {
-    ASSERT(m_caster);
-    m_caster->_UnregisterAreaTrigger(this);
-    m_caster = NULL;
+    ASSERT(m_Caster);
+    m_Caster->_UnregisterAreaTrigger(this);
+    m_Caster = NULL;
+}
+
+void AreaTrigger::SendMovementUpdate()
+{
+    WorldPacket l_Data(SMSG_AREA_TRIGGER_MOVEMENT_UPDATE, 24);
+
+    // startX
+    // startY
+    // endY
+    // endZ
+    // startZ
+    // endX
+}
+
+void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
+{
+    switch (m_Trajectory)
+    {
+        case AREATRIGGER_INTERPOLATION_LINEAR:
+        {
+            int32 l_Duration = GetDuration();
+            float l_Progress = float(p_Time % l_Duration) / l_Duration;
+
+            p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
+            p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
+            p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
+            p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
+            break;
+        }
+        default:
+            *p_OutPos = m_Source;
+            break;
+    }
 }

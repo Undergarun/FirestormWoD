@@ -1883,8 +1883,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
-
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger templates...");
+    sObjectMgr->LoadAreaTriggerTemplates();
 
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
