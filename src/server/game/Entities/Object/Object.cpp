@@ -580,7 +580,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 l_UpdateFlags) const
             packet.ReadInt32("AreaTrigger::unkBit536::UInt32");
         */
 
-        *p_Data << uint32(GetMSTimeDiffToNow(l_AreaTrigger->GetCreatedTime()));
+        *p_Data << uint32(l_AreaTrigger->GetCreatedTime());
 
         if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0)
         {

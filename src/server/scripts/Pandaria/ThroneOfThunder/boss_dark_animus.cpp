@@ -53,10 +53,10 @@ enum eSpells
     SPELL_ANIMA_CAPACITY_36         = 138386,
 
     // Dark Animus
-    SPELL_ACTIVATION_SEQUENCE       = 139537,
-	SPELL_SIPHON_ANIMA              = 138644,
+    SPELL_ACTIVATION_SEQUENCE       = 139537,   // LFR only
+    SPELL_SIPHON_ANIMA              = 138644,
     SPELL_TOUCH_OF_THE_ANIMUS       = 138659,
-    SPELL_EMPOWER_GOLEM             = 138780,
+    SPELL_EMPOWER_GOLEM             = 138780,   // Heroic only
     SPELL_ANIMA_RING                = 136954,   // 25 Anima needed
     SPELL_ANIMA_RING_1              = 136955,
     SPELL_ANIMA_RING_2              = 136956,
@@ -70,9 +70,12 @@ enum eSpells
     SPELL_ANIMA_RING_10             = 138674,
     SPELL_ANIMA_RING_11             = 138675,
     SPELL_ANIMA_RING_12             = 138676,
+    SPELL_ANIMA_RING_DEBUFF         = 136962,
     SPELL_ANIMA_FONT                = 138691,   // 50 Anima needed
+    SPELL_ANIMA_FONT_MISSILE        = 138697,
     SPELL_INTERRUPTING_JOLT         = 138763,   // 75 Anima needed
     SPELL_FULL_POWER                = 138729,   // 100 Anima neded (soft enrage)
+    SPELL_FULL_POWER_MISSILE        = 138749,
     SPELL_ANIMA_CAPACITY_100        = 137387,
     SPELL_BERSERK                   = 47008,
 
@@ -124,7 +127,14 @@ enum eEvents
     EVENT_CHECK_NEAR_GOLEM,
     EVENT_CRIMSON_WAKE,
     EVENT_EXPLOSIVE_SLAM,
-    EVENT_MATTER_SWAP
+    EVENT_MATTER_SWAP,
+    EVENT_SIPHON_ANIMA,
+    EVENT_TOUCH_OF_THE_ANIMUS,
+    EVENT_ANIMA_RING,
+    EVENT_ANIMA_FONT,
+    EVENT_INTERRUPTING_JOLT,
+    EVENT_FULL_POWER,
+    EVENT_EMPOWER_GOLEM
 };
 
 enum eSays
@@ -186,6 +196,8 @@ uint32 const g_AnimaRingSpells[12] =
     SPELL_ANIMA_RING_12
 };
 
+#define MAX_ANIMA_CAPACITY 4
+
 // Dark Animus - 69427
 class boss_dark_animus : public CreatureScript
 {
@@ -198,12 +210,14 @@ class boss_dark_animus : public CreatureScript
             {
                 m_Instance = p_Creature->GetInstanceScript();
                 p_Creature->CastSpell(p_Creature, SPELL_TURNED_OFF, true);
-                m_CheckPowerTimer = 1000;
             }
 
             EventMap m_Events;
             InstanceScript* m_Instance;
             uint32 m_CheckPowerTimer;
+
+            int32 m_PowerCaps[MAX_ANIMA_CAPACITY];
+            bool m_PowerCapsReached[MAX_ANIMA_CAPACITY];
 
             void Reset()
             {
@@ -219,11 +233,21 @@ class boss_dark_animus : public CreatureScript
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
+                me->RemoveAura(SPELL_ACTIVATION_SEQUENCE);
+
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 _Reset();
+
+                for (uint8 l_Iter = 0; l_Iter < MAX_ANIMA_CAPACITY; ++l_Iter)
+                {
+                    m_PowerCapsReached[l_Iter] = false;
+                    m_PowerCaps[l_Iter] = (l_Iter + 1) * 25;
+                }
+
+                m_CheckPowerTimer = 1000;
             }
 
             void JustReachedHome()
@@ -242,10 +266,28 @@ class boss_dark_animus : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                 m_Events.ScheduleEvent(EVENT_BERSERK, 600000);  // 10 min
+                m_Events.ScheduleEvent(EVENT_SIPHON_ANIMA, 6000);
+                m_Events.ScheduleEvent(EVENT_TOUCH_OF_THE_ANIMUS, 11000);
+
+                if (IsHeroic())
+                    m_Events.ScheduleEvent(EVENT_EMPOWER_GOLEM, 16000);
             }
 
             void DoAction(const int32 p_Action)
             {
+                switch (p_Action)
+                {
+                    case ACTION_ACTIVATE_GOLEM:
+                    {
+                        m_CheckPowerTimer = 0;
+
+                        if (Player* l_Target = me->FindNearestPlayer(50.f))
+                            AttackStart(l_Target);
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -261,12 +303,41 @@ class boss_dark_animus : public CreatureScript
                         {
                             m_CheckPowerTimer = 0;
 
-                            if (Player* l_Target = me->FindNearestPlayer(50.f))
+                            if (Player* l_Target = me->FindNearestPlayer(100.f))
                                 AttackStart(l_Target);
                         }
                     }
                     else
                         m_CheckPowerTimer -= p_Diff;
+                }
+
+                for (uint8 l_Iter = 0; l_Iter < MAX_ANIMA_CAPACITY; ++l_Iter)
+                {
+                    if (m_PowerCapsReached[l_Iter])
+                        continue;
+
+                    if (me->GetPower(POWER_ENERGY) >= m_PowerCaps[l_Iter])
+                    {
+                        m_PowerCapsReached[l_Iter] = true;
+
+                        switch (EVENT_ANIMA_RING + l_Iter)
+                        {
+                            case EVENT_ANIMA_RING:
+                                m_Events.ScheduleEvent(EVENT_ANIMA_RING, 23000);
+                                break;
+                            case EVENT_ANIMA_FONT:
+                                m_Events.ScheduleEvent(EVENT_ANIMA_FONT, 14000);
+                                break;
+                            case EVENT_INTERRUPTING_JOLT:
+                                m_Events.ScheduleEvent(EVENT_INTERRUPTING_JOLT, 23000);
+                                break;
+                            case EVENT_FULL_POWER:
+                                me->CastSpell(me, SPELL_FULL_POWER, false);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
 
                 if (!UpdateVictim())
@@ -281,6 +352,37 @@ class boss_dark_animus : public CreatureScript
                 {
                     case EVENT_BERSERK:
                         me->CastSpell(me, SPELL_BERSERK, true);
+                        break;
+                    case EVENT_SIPHON_ANIMA:
+                    {
+                        uint8 l_Rand = urand(0, 10);
+                        me->CastSpell(me, SPELL_SIPHON_ANIMA, true);
+                        if (l_Rand)
+                            me->MonsterTextEmote("Dark Animus drains power from the other golems with |cFFF00000|Hspell:138644|h[Siphon Anima]|h|r!", 0, true);
+                        m_Events.ScheduleEvent(EVENT_SIPHON_ANIMA, 6000);
+                        break;
+                    }
+                    case EVENT_TOUCH_OF_THE_ANIMUS:
+                        me->CastSpell(me, SPELL_TOUCH_OF_THE_ANIMUS, true);
+                        m_Events.ScheduleEvent(EVENT_TOUCH_OF_THE_ANIMUS, 11000);
+                        break;
+                    case EVENT_ANIMA_RING:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_ANIMA_RING, false);
+                        m_Events.ScheduleEvent(EVENT_ANIMA_RING, 24200);
+                        break;
+                    case EVENT_ANIMA_FONT:
+                        me->CastSpell(me, SPELL_ANIMA_FONT, false);
+                        m_Events.ScheduleEvent(EVENT_ANIMA_FONT, 25000);
+                        break;
+                    case EVENT_INTERRUPTING_JOLT:
+                        me->CastSpell(me, SPELL_INTERRUPTING_JOLT, false);
+                        me->MonsterTextEmote("Stop casting! Dark Animus is generating an |cFFF00000|Hspell:138763|h[Interrupting Jolt]|h|r.", 0, true);
+                        m_Events.ScheduleEvent(EVENT_INTERRUPTING_JOLT, 21500);
+                        break;
+                    case EVENT_EMPOWER_GOLEM:
+                        me->CastSpell(me, SPELL_EMPOWER_GOLEM, true);
+                        m_Events.ScheduleEvent(EVENT_EMPOWER_GOLEM, 16000);
                         break;
                     default:
                         break;
@@ -332,6 +434,15 @@ class mob_anima_orb : public CreatureScript
                 RespawnAnimaGolems();
                 RespawnLargeGolems();
                 RespawnMassiveGolems();
+
+                if (m_Instance)
+                {
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MATTER_SWAP);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EXPLOSIVE_SLAM);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_ANIMUS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANIMA_FONT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANIMA_RING_DEBUFF);
+                }
             }
 
             void MoveInLineOfSight(Unit* p_Who)
@@ -392,6 +503,12 @@ class mob_anima_orb : public CreatureScript
                 {
                     m_Instance->SetBossState(DATA_DARK_ANIMUS, IN_PROGRESS);
                     DoZoneInCombat();
+
+                    if (IsLFR())
+                    {
+                        if (Creature* l_DarkAnimus = Creature::GetCreature(*me, m_Instance->GetData64(NPC_DARK_ANIMUS)))
+                            l_DarkAnimus->CastSpell(l_DarkAnimus, SPELL_ACTIVATION_SEQUENCE, true);
+                    }
                 }
 
                 me->RemoveAllAuras();
@@ -419,6 +536,7 @@ class mob_anima_orb : public CreatureScript
                 {
                     l_Golem->Respawn();
                     l_Golem->GetMotionMaster()->MoveTargetedHome();
+                    l_Golem->SetPower(POWER_ENERGY, 0);
                 }
             }
 
@@ -431,6 +549,7 @@ class mob_anima_orb : public CreatureScript
                 {
                     l_Golem->Respawn();
                     l_Golem->GetMotionMaster()->MoveTargetedHome();
+                    l_Golem->SetPower(POWER_ENERGY, 0);
                 }
             }
 
@@ -443,6 +562,7 @@ class mob_anima_orb : public CreatureScript
                 {
                     l_Golem->Respawn();
                     l_Golem->GetMotionMaster()->MoveTargetedHome();
+                    l_Golem->SetPower(POWER_ENERGY, 0);
                 }
             }
 
@@ -603,6 +723,8 @@ class mob_anima_golem : public CreatureScript
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
                 me->CastSpell(me, SPELL_EVASIVE, true);
 
+                me->RemoveAura(SPELL_EMPOWER_GOLEM);
+
                 m_Activated = false;
                 m_Events.Reset();
 
@@ -650,7 +772,7 @@ class mob_anima_golem : public CreatureScript
 
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (Unit* l_Target = me->FindNearestPlayer(100.f))
+                        if (Player* l_Target = me->FindNearestPlayer(100.f))
                             AttackStart(l_Target);
                         m_Activated = true;
                         break;
@@ -732,7 +854,6 @@ class mob_large_anima_golem : public CreatureScript
             mob_large_anima_golemAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 p_Creature->CastSpell(p_Creature, SPELL_TURNED_OFF, true);
-                m_CheckPowerTimer = 1000;
                 m_Instance = p_Creature->GetInstanceScript();
             }
 
@@ -757,6 +878,8 @@ class mob_large_anima_golem : public CreatureScript
                 me->CastSpell(me, SPELL_ANIMA_CAPACITY_8, true);
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
 
+                me->RemoveAura(SPELL_EMPOWER_GOLEM);
+
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
@@ -766,6 +889,8 @@ class mob_large_anima_golem : public CreatureScript
 
                 m_Events.Reset();
                 DespawnCrimsonWakes();
+
+                m_CheckPowerTimer = 1000;
             }
 
             void JustReachedHome()
@@ -797,7 +922,7 @@ class mob_large_anima_golem : public CreatureScript
 
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (Unit* l_Target = me->FindNearestPlayer(100.f))
+                        if (Player* l_Target = me->FindNearestPlayer(100.f))
                             AttackStart(l_Target);
                         break;
                     }
@@ -835,6 +960,8 @@ class mob_large_anima_golem : public CreatureScript
                     }
                     else
                         m_CheckPowerTimer -= p_Diff;
+
+                    return;
                 }
 
                 if (!UpdateVictim())
@@ -885,7 +1012,6 @@ class mob_massive_anima_golem : public CreatureScript
             mob_massive_anima_golemAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 p_Creature->CastSpell(p_Creature, SPELL_TURNED_OFF, true);
-                m_CheckPowerTimer = 1000;
                 m_Instance = p_Creature->GetInstanceScript();
             }
 
@@ -902,6 +1028,8 @@ class mob_massive_anima_golem : public CreatureScript
                 me->CastSpell(me, SPELL_ANIMA_CAPACITY_36, true);
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
 
+                me->RemoveAura(SPELL_EMPOWER_GOLEM);
+
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
@@ -910,6 +1038,8 @@ class mob_massive_anima_golem : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 m_Events.Reset();
+
+                m_CheckPowerTimer = 1000;
             }
 
             void JustReachedHome()
@@ -951,6 +1081,8 @@ class mob_massive_anima_golem : public CreatureScript
                     }
                     else
                         m_CheckPowerTimer -= p_Diff;
+
+                    return;
                 }
 
                 if (!UpdateVictim())
@@ -1084,20 +1216,15 @@ class spell_transfusion_aoe : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_CRITICALLY_DAMAGED_1));
-
-                if (p_Targets.empty())
-                    return;
-
                 p_Targets.remove_if([this](WorldObject* p_Object) -> bool
                 {
                     if (!p_Object || !p_Object->ToCreature())
                         return true;
 
-                    if (p_Object->GetEntry() == NPC_ANIMA_GOLEM)
-                        return false;
+                    if (p_Object->GetEntry() != NPC_ANIMA_GOLEM)
+                        return true;
 
-                    return true;
+                    return false;
                 });
             }
 
@@ -1137,23 +1264,27 @@ class spell_transfusion_searcher : public SpellScriptLoader
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (p_Targets.empty())
+                Unit* l_Caster = GetCaster();
+                if (p_Targets.empty() || !l_Caster)
                     return;
 
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                 {
-                    if (!p_Object || !p_Object->ToCreature())
+                    if (!p_Object)
                         return true;
 
-                    if (p_Object->ToUnit()->GetPower(POWER_ENERGY) >= p_Object->ToUnit()->GetMaxPower(POWER_ENERGY))
+                    Creature* l_Golem = p_Object->ToCreature();
+                    if (!l_Golem)
                         return true;
 
-                    if (p_Object->GetEntry() == NPC_ANIMA_GOLEM)
+                    if (l_Golem->GetPower(POWER_ENERGY) >= l_Golem->GetMaxPower(POWER_ENERGY) ||
+                        (l_Golem->GetPower(POWER_ENERGY) + l_Caster->GetPower(POWER_ENERGY)) > l_Golem->GetMaxPower(POWER_ENERGY))
                         return true;
 
-                    if (p_Object->GetEntry() == NPC_LARGE_ANIMA_GOLEM ||
-                        p_Object->GetEntry() == NPC_MASSIVE_ANIMA_GOLEM ||
-                        p_Object->GetEntry() == NPC_DARK_ANIMUS)
+                    if (l_Golem->GetEntry() == NPC_ANIMA_GOLEM ||
+                        l_Golem->GetEntry() == NPC_LARGE_ANIMA_GOLEM ||
+                        l_Golem->GetEntry() == NPC_MASSIVE_ANIMA_GOLEM ||
+                        l_Golem->GetEntry() == NPC_DARK_ANIMUS)
                         return false;
 
                     return true;
@@ -1331,7 +1462,7 @@ class spell_matter_swap : public SpellScriptLoader
                 {
                     if (AuraEffectPtr l_Effect0 = l_MatterSwap->GetEffect(EFFECT_0))
                     {
-                        if (Unit* l_Caster = GetTarget())
+                        if (Unit* l_Target = GetUnitOwner())
                         {
                             uint32 l_ElapsedTime = l_MatterSwap->GetMaxDuration() - l_MatterSwap->GetDuration();
 
@@ -1363,7 +1494,7 @@ class spell_matter_swap : public SpellScriptLoader
 
             void HandleDispel(DispelInfo* p_DispelData)
             {
-                if (Unit* l_DarkAnimus = GetCaster())
+                if (Unit* l_MassiveGolem = GetCaster())
                 {
                     if (Unit* l_Target = GetTarget())
                     {
@@ -1373,13 +1504,13 @@ class spell_matter_swap : public SpellScriptLoader
                         if (l_PlayerList.empty())
                             return;
 
-                        uint64 l_TargetGuid = l_Target->GetGUID();
-                        l_PlayerList.remove_if([this, l_TargetGuid](Player* p_Player) -> bool
+                        uint64 l_CasterGuid = l_MassiveGolem->GetGUID();
+                        l_PlayerList.remove_if([this, l_CasterGuid](Player* p_Player) -> bool
                         {
                             if (!p_Player || !p_Player->HasAura(SPELL_TARGETED_MATTER_SWAP))
                                 return true;
 
-                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_TargetGuid) == NULLAURA)
+                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_CasterGuid) == NULLAURA)
                                 return true;
 
                             return false;
@@ -1390,16 +1521,13 @@ class spell_matter_swap : public SpellScriptLoader
 
                         if (Player* l_Player = (*l_PlayerList.begin()))
                         {
-                            if (AuraPtr l_MatterSwap = l_Target->GetAura(SPELL_MATTER_SWAP))
-                            {
-                                int32 l_TargetDamage = l_Target->CountPctFromMaxHealth(l_MatterSwap->GetEffect(EFFECT_0)->GetAmount());
-                                int32 l_PlayerDamage = l_Player->CountPctFromMaxHealth(l_MatterSwap->GetEffect(EFFECT_1)->GetAmount());
+                            int32 l_TargetDamage = l_Target->CountPctFromMaxHealth(GetEffect(EFFECT_0)->GetAmount());
+                            int32 l_PlayerDamage = l_Player->CountPctFromMaxHealth(GetEffect(EFFECT_1)->GetAmount());
 
-                                if (l_TargetDamage)
-                                    l_DarkAnimus->CastCustomSpell(l_Target, SPELL_MATTER_SWAP_DAMAGE, &l_TargetDamage, NULL, NULL, true);
-                                if (l_PlayerDamage)
-                                    l_DarkAnimus->CastCustomSpell(l_Player, SPELL_MATTER_SWAP_DAMAGE, &l_PlayerDamage, NULL, NULL, true);
-                            }
+                            if (l_TargetDamage)
+                                l_MassiveGolem->CastCustomSpell(l_Target, SPELL_MATTER_SWAP_DAMAGE, &l_TargetDamage, NULL, NULL, true);
+                            if (l_PlayerDamage)
+                                l_MassiveGolem->CastCustomSpell(l_Player, SPELL_MATTER_SWAP_DAMAGE, &l_PlayerDamage, NULL, NULL, true);
 
                             Position l_TargetPos, l_PlayerPos;
                             l_Player->GetPosition(&l_PlayerPos);
@@ -1418,7 +1546,7 @@ class spell_matter_swap : public SpellScriptLoader
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (Unit* l_DarkAnimus = GetCaster())
+                if (Unit* l_MassiveGolem = GetCaster())
                 {
                     if (Unit* l_Target = GetTarget())
                     {
@@ -1428,16 +1556,16 @@ class spell_matter_swap : public SpellScriptLoader
                         if (l_PlayerList.empty())
                             return;
 
-                        uint64 l_TargetGuid = l_Target->GetGUID();
-                        l_PlayerList.remove_if([this, l_TargetGuid](Player* p_Player) -> bool
+                        uint64 l_CasterGuid = l_MassiveGolem->GetGUID();
+                        l_PlayerList.remove_if([this, l_CasterGuid](Player* p_Player) -> bool
                         {
                             if (!p_Player || !p_Player->HasAura(SPELL_TARGETED_MATTER_SWAP))
                                 return true;
 
-                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_TargetGuid) == NULLAURA)
+                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_CasterGuid) == NULLAURA)
                                 return true;
 
-                            return true;
+                            return false;
                         });
 
                         if (l_PlayerList.empty())
@@ -1445,16 +1573,13 @@ class spell_matter_swap : public SpellScriptLoader
 
                         if (Player* l_Player = (*l_PlayerList.begin()))
                         {
-                            if (AuraPtr l_MatterSwap = l_Target->GetAura(SPELL_MATTER_SWAP))
-                            {
-                                int32 l_TargetDamage = l_Target->CountPctFromMaxHealth(l_MatterSwap->GetEffect(EFFECT_0)->GetAmount());
-                                int32 l_PlayerDamage = l_Player->CountPctFromMaxHealth(l_MatterSwap->GetEffect(EFFECT_1)->GetAmount());
+                            int32 l_TargetDamage = l_Target->CountPctFromMaxHealth(p_AurEff->GetBase()->GetEffect(EFFECT_0)->GetAmount());
+                            int32 l_PlayerDamage = l_Target->CountPctFromMaxHealth(p_AurEff->GetAmount());
 
-                                if (l_TargetDamage)
-                                    l_DarkAnimus->CastCustomSpell(l_Target, SPELL_MATTER_SWAP_DAMAGE, &l_TargetDamage, NULL, NULL, true);
-                                if (l_PlayerDamage)
-                                    l_DarkAnimus->CastCustomSpell(l_Player, SPELL_MATTER_SWAP_DAMAGE, &l_PlayerDamage, NULL, NULL, true);
-                            }
+                            if (l_TargetDamage)
+                                l_MassiveGolem->CastCustomSpell(l_Target, SPELL_MATTER_SWAP_DAMAGE, &l_TargetDamage, NULL, NULL, true);
+                            if (l_PlayerDamage)
+                                l_MassiveGolem->CastCustomSpell(l_Player, SPELL_MATTER_SWAP_DAMAGE, &l_PlayerDamage, NULL, NULL, true);
 
                             Position l_TargetPos, l_PlayerPos;
                             l_Player->GetPosition(&l_PlayerPos);
@@ -1569,6 +1694,265 @@ class spell_anima_ring : public SpellScriptLoader
         }
 };
 
+// Activation Sequence - 139537
+class spell_activation_sequence : public SpellScriptLoader
+{
+    public:
+        spell_activation_sequence() : SpellScriptLoader("spell_activation_sequence") {}
+
+        class spell_activation_sequence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_activation_sequence_AuraScript);
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Creature* l_DarkAnimus = GetTarget()->ToCreature())
+                    l_DarkAnimus->AI()->DoAction(ACTION_ACTIVATE_GOLEM);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_activation_sequence_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_activation_sequence_AuraScript();
+        }
+};
+
+// Siphon Anima - 138644
+class spell_siphon_anima : public SpellScriptLoader
+{
+    public:
+        spell_siphon_anima() : SpellScriptLoader("spell_siphon_anima") { }
+
+        class spell_siphon_anima_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_siphon_anima_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (!p_Object || !p_Object->ToCreature())
+                        return true;
+
+                    if (p_Object->ToUnit()->GetPower(POWER_ENERGY) <= 0)
+                        return true;
+
+                    if (p_Object->GetEntry() == GetCaster()->GetEntry())
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siphon_anima_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_siphon_anima_SpellScript();
+        }
+};
+
+// Touch of the Animus - 138659
+class spell_touch_of_the_animus : public SpellScriptLoader
+{
+    public:
+        spell_touch_of_the_animus() : SpellScriptLoader("spell_touch_of_the_animus") { }
+
+        class spell_touch_of_the_animus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_touch_of_the_animus_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                JadeCore::RandomResizeList(p_Targets, 1);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_touch_of_the_animus_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_touch_of_the_animus_SpellScript();
+        }
+};
+
+// Anima Font - 138691
+class spell_anima_font : public SpellScriptLoader
+{
+    public:
+        spell_anima_font() : SpellScriptLoader("spell_anima_font") { }
+
+        class spell_anima_font_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_anima_font_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                JadeCore::RandomResizeList(p_Targets, 1);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anima_font_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_anima_font_SpellScript();
+        }
+};
+
+// Anima Font (Dummy - trigger missile) - 138694
+class spell_anima_font_dummy : public SpellScriptLoader
+{
+    public:
+        spell_anima_font_dummy() : SpellScriptLoader("spell_anima_font_dummy") { }
+
+        class spell_anima_font_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_anima_font_dummy_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                JadeCore::RandomResizeList(p_Targets, 1);
+            }
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, SPELL_ANIMA_FONT_MISSILE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anima_font_dummy_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_anima_font_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_anima_font_dummy_SpellScript();
+        }
+};
+
+// FULL POWER - 138734
+class spell_full_power : public SpellScriptLoader
+{
+    public:
+        spell_full_power() : SpellScriptLoader("spell_full_power") { }
+
+        class spell_full_power_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_full_power_SpellScript);
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, SPELL_FULL_POWER_MISSILE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_full_power_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_full_power_SpellScript();
+        }
+};
+
+// Empower Golem - 138780
+class spell_empower_golem : public SpellScriptLoader
+{
+    public:
+        spell_empower_golem() : SpellScriptLoader("spell_empower_golem") { }
+
+        class spell_empower_golem_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_empower_golem_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (!p_Object || !p_Object->ToCreature())
+                        return true;
+
+                    if (!p_Object->ToCreature()->isAlive())
+                        return true;
+
+                    if (p_Object->GetEntry() == NPC_ANIMA_GOLEM ||
+                        p_Object->GetEntry() == NPC_LARGE_ANIMA_GOLEM ||
+                        p_Object->GetEntry() == NPC_MASSIVE_ANIMA_GOLEM)
+                        return false;
+
+                    return false;
+                });
+
+                if (p_Targets.empty())
+                    return;
+
+                std::list<Unit*> l_TempList;
+                for (WorldObject* l_Object : p_Targets)
+                    l_TempList.push_back(l_Object->ToUnit());
+
+                l_TempList.sort(JadeCore::HealthPctOrderPred());
+                WorldObject* l_Object = (*l_TempList.begin());
+                p_Targets.clear();
+                p_Targets.push_back(l_Object);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_empower_golem_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_empower_golem_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_empower_golem_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_empower_golem_SpellScript();
+        }
+};
+
 void AddSC_boss_dark_animus()
 {
     new boss_dark_animus();
@@ -1587,4 +1971,11 @@ void AddSC_boss_dark_animus()
     new spell_matter_swap();
     new spell_targeted_matter_swap();
     new spell_anima_ring();
+    new spell_activation_sequence();
+    new spell_siphon_anima();
+    new spell_touch_of_the_animus();
+    new spell_anima_font();
+    new spell_anima_font_dummy();
+    new spell_full_power();
+    new spell_empower_golem();
 }

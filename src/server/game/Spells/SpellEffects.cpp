@@ -2077,6 +2077,10 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
         int32 gain = int32(newDamage* gainMultiplier);
 
+        // Hack fix for Dark Animus
+        if (m_caster->GetEntry() == 69427)
+            gain = 1;
+
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, gainMultiplier);
@@ -8049,7 +8053,7 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
     }
 
     AreaTrigger* areaTrigger = new AreaTrigger;
-    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), m_caster, GetSpellInfo(), effIndex, l_Source, l_Dest))
+    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), m_originalCaster && m_caster != m_originalCaster ? m_originalCaster : m_caster, GetSpellInfo(), effIndex, l_Source, l_Dest))
         delete areaTrigger;
 
     // Custom MoP Script

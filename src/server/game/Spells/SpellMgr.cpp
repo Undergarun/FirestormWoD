@@ -3430,20 +3430,23 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[10].TriggerSpell = 0;
                 spellInfo->Effects[11].TriggerSpell = 0;
                 break;
-            case 138674:// Anima Ring (Triggered)
             case 136955:// Anima Ring (Triggered)
             case 136956:// Anima Ring (Triggered)
-            case 138673:// Anima Ring (Triggered)
             case 136957:// Anima Ring (Triggered)
             case 136958:// Anima Ring (Triggered)
-            case 138675:// Anima Ring (Triggered)
-            case 138671:// Anima Ring (Triggered)
             case 136959:// Anima Ring (Triggered)
-            case 138676:// Anima Ring (Triggered)
             case 136960:// Anima Ring (Triggered)
+            case 138671:// Anima Ring (Triggered)
             case 138672:// Anima Ring (Triggered)
+            case 138673:// Anima Ring (Triggered)
+            case 138674:// Anima Ring (Triggered)
+            case 138675:// Anima Ring (Triggered)
+            case 138676:// Anima Ring (Triggered)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->ExplicitTargetMask = TARGET_FLAG_DEST_LOCATION;
+                break;
+            case 136962:// Anima Ring (debuff)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 138613:// Matter Swap (Teleport)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
