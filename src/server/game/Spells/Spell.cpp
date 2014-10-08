@@ -6920,7 +6920,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!m_caster->_IsValidAttackTarget(target, GetSpellInfo()))
                             return SPELL_FAILED_BAD_TARGETS;
                     }
-                    else if (m_caster->HasAura(63333) && target == m_caster)
+                    else if (m_caster->HasAura(63333) && target == m_caster && m_caster->GetCreatureType() != CREATURE_TYPE_UNDEAD)
                         return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (m_spellInfo->Id == 19938)          // Awaken Peon
