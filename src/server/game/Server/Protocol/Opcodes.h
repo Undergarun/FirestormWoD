@@ -943,22 +943,22 @@ enum Opcodes
     CMSG_GUILD_BANK_UPDATE_TAB                     = 0x0128,   ///< 6.0.2 18934
     CMSG_GUILD_BANK_WITHDRAW_MONEY                 = 0x0348,   ///< 6.0.2 18934
     CMSG_GUILD_BANK_SET_TAB_TEXT                   = 0x08AD,   ///< 6.0.2 18934
-    CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x00C5,   ///< 6.0.2 18934
+    CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x00C5,   ///< 6.0.2 18934 (unused)
     CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x08BA,   ///< 6.0.2 18934
     CMSG_GUILD_SET_MEMBER_NOTE                     = 0x00C9,   ///< 6.0.2 18934
-
-
-
-    CMSG_GUILD_CHANGE_NAME_REQUEST              = 0x0000,
-    CMSG_GUILD_EVENT_LOG_QUERY                  = 0x0000,
-    CMSG_GUILD_MEMBER_SEND_SOR_REQUEST          = 0x0000,
-    CMSG_GUILD_NEWS_UPDATE_STICKY               = 0x0000,
-    CMSG_GUILD_PERMISSIONS                      = 0x0000,
-    CMSG_GUILD_QUERY_NEWS                       = 0x0000,
-    CMSG_GUILD_REPLACE_GUILD_MASTER             = 0x0000,
-    CMSG_GUILD_REQUEST_CHALLENGE_UPDATE         = 0x0000,
-    CMSG_GUILD_REQUEST_MAX_DAILY_XP             = 0x0000,
-    CMSG_GUILD_REQUEST_PARTY_STATE              = 0x0000,
+    CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x00E2,   ///< 6.0.2 18934
+    CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x1183,   ///< 6.0.2 18934
+    CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x04EF,   ///< 6.0.2 18934
+    CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x08EE,   ///< 6.0.2 18934
+    CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x00D9,   ///< 6.0.2 18934 (unused)
+    CMSG_GUILD_PERMISSIONS_QUERY                   = 0x01A1,   ///< 6.0.2 18934
+    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x08C2,   ///< 6.0.2 18934
+    CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x00D5,   ///< 6.0.2 18934
+    CMSG_GUILD_QUERY_NEWS                          = 0x01F6,   ///< 6.0.2 18934
+    CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x08A6,   ///< 6.0.2 18934 (unused)
+    CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x00CA,   ///< 6.0.2 18934 (unused)
+    CMSG_QUERY_GUILD_RECIPES                       = 0x00E5,   ///< 6.0.2 18934
+    CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x04B9,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1219,11 +1219,6 @@ enum Opcodes
     CMSG_PLAY_DANCE                                   = 0x0000,
     CMSG_PVP_LOG_DATA                                 = 0x0000,
     CMSG_QUERY_BATTLEFIELD_STATE                      = 0x0000,
-    CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE               = 0x0000,
-    CMSG_QUERY_GUILD_MEMBER_RECIPES                   = 0x0000,
-    CMSG_QUERY_GUILD_RECIPES                          = 0x0000,
-    CMSG_QUERY_GUILD_REWARDS                          = 0x0000,
-    CMSG_QUERY_GUILD_XP                               = 0x0000,
     CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0x0000,
     CMSG_QUERY_QUESTS_COMPLETED                       = 0x0000,
     CMSG_QUERY_TIME                                   = 0x0000,
@@ -1297,7 +1292,6 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x0000,
     CMSG_SUMMON_RESPONSE                              = 0x0000,
     CMSG_SUSPEND_TOKEN                                = 0x0000,
-    CMSG_SAVE_GUILD_EMBLEM                            = 0x0000,
     CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,

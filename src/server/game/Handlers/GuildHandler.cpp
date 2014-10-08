@@ -96,26 +96,26 @@ void WorldSession::HandleGuildOfficierRemoveMemberOpcode(WorldPacket& p_Packet)
         l_Guild->HandleRemoveMember(this, l_Removee);
 }
 
-void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REPLACE_GUILD_MASTER");
 
-    Guild* guild = _GetPlayerGuild(this, true);
+    Guild * l_Guild = _GetPlayerGuild(this, true);
 
-    if (!guild)
-        return; // Cheat
+    if (!l_Guild)
+        return; ///< Cheat
 
-    uint32 logoutTime = guild->GetMemberLogoutTime(guild->GetLeaderGUID());
+    uint32 l_LogoutTime = l_Guild->GetMemberLogoutTime(l_Guild->GetLeaderGUID());
 
-    if (!logoutTime)
+    if (!l_LogoutTime)
         return;
 
-    time_t now = time(NULL);
+    time_t l_Now = time(NULL);
 
-    if (time_t(logoutTime + 3 * MONTH) > now)
-        return; // Cheat
+    if (time_t(l_LogoutTime + 3 * MONTH) > l_Now)
+        return; ///< Cheat
 
-    guild->SwitchGuildLeader(GetPlayer()->GetGUID());
+    l_Guild->SwitchGuildLeader(GetPlayer()->GetGUID());
 }
 
 void WorldSession::HandleAcceptGuildInviteOpcode(WorldPacket& /*recvPacket*/)
@@ -311,38 +311,31 @@ void WorldSession::HandleGuildUpdateInfoTextOpcode(WorldPacket& recvPacket)
         guild->HandleSetInfo(this, info);
 }
 
-void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePlayerSaveGuildEmblemOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SAVE_GUILD_EMBLEM");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PLAYER_SAVE_GUILD_EMBLEM");
 
-    EmblemInfo emblemInfo;
-    emblemInfo.ReadPacket(recvPacket);
+    uint64 l_Vendor = 0;
 
-    ObjectGuid playerGuid;
+    EmblemInfo l_EmblemInfo;
+    l_EmblemInfo.ReadPacket(p_Packet);
 
-    uint8 bitsOrder[8] = { 6, 4, 0, 7, 5, 2, 1, 3 };
-    recvPacket.ReadBitInOrder(playerGuid, bitsOrder);
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_Vendor, UNIT_NPC_FLAG_TABARDDESIGNER);
 
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 5, 1, 0, 7, 4, 3, 6, 2 };
-    recvPacket.ReadBytesSeq(playerGuid, bytesOrder);
-
-    Player* player = ObjectAccessor::FindPlayer(playerGuid);
-    if (!player)
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePlayerSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_Vendor)));
         return;
+    }
 
-    if (GetPlayer()->GetGUID() != player->GetGUID())
-        return;
-
-    // Remove fake death
+    /// Remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (Guild* guild = _GetPlayerGuild(this))
-        guild->HandleSetEmblem(this, emblemInfo);
+        guild->HandleSetEmblem(this, l_EmblemInfo);
     else
-        // "You are not part of a guild!";
+        /// "You are not part of a guild!";
         Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD);
 }
 
@@ -350,8 +343,8 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_EVENT_LOG_QUERY)");
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->SendEventLog(this);
+    if (Guild * l_Guild = _GetPlayerGuild(this))
+        l_Guild->SendEventLog(this);
 }
 
 void WorldSession::HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket& /* recvData */)
@@ -362,12 +355,12 @@ void WorldSession::HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket&
         guild->SendMoneyInfo(this);
 }
 
-void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
+void WorldSession::HandleGuildPermissionsQueryOpcode(WorldPacket& /* recvData */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS_QUERY)");
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->SendPermissions(this);
+    if (Guild * l_Guild = _GetPlayerGuild(this))
+        l_Guild->SendPermissions(this);
 }
 
 /// Called when clicking on Guild bank gameobject
@@ -610,25 +603,6 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket& p_Packet)
         guild->SetBankTabText(l_Tab, l_TabText);
 }
 
-void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_XP");
-
-    ObjectGuid guildGuid;
-
-    uint8 bitOrder[8] = { 2, 1, 6, 4, 3, 7, 0, 5 };
-    recvPacket.ReadBitInOrder(guildGuid, bitOrder);
-
-    recvPacket.FlushBits();
-
-    uint8 byteOrder[8] = { 6, 0, 1, 3, 4, 7, 5, 2 };
-    recvPacket.ReadBytesSeq(guildGuid, byteOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(m_Player->GetGUID()))
-            guild->SendGuildXP(this);
-}
-
 void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_RANK_PERMISSIONS");
@@ -674,43 +648,16 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& p_Packet)
     l_Guild->HandleSetRankInfo(this, l_RankID, l_RankName, l_Flags, l_WithdrawGoldLimit, l_RightsAndSlots);
 }
 
-void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)
+void WorldSession::HandleRequestGuildPartyState(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_GUILD_PARTY_STATE");
 
-    ObjectGuid guildGuid;
+    uint64 l_GuildGUID = 0;
 
-    uint8 bitOrder[8] = { 0, 1, 2, 6, 5, 7, 3, 4 };
-    recvData.ReadBitInOrder(guildGuid, bitOrder);
+    p_Packet.readPackGUID(l_GuildGUID);
 
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 4, 1, 6, 7, 2, 3, 5, 0 };
-    recvData.ReadBytesSeq(guildGuid, byteOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        guild->HandleGuildPartyRequest(this);
-}
-
-void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
-{
-    ObjectGuid guildGuid;
-
-    uint8 bitOrder[8] = {2, 5, 3, 7, 4, 1, 0, 6};
-    recvPacket.ReadBitInOrder(guildGuid, bitOrder);
-
-    uint8 byteOrder[8] = {7, 3, 2, 1, 0, 5, 6, 4};
-    recvPacket.ReadBytesSeq(guildGuid, byteOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-    {
-        if (guild->IsMember(m_Player->GetGUID()))
-        {
-            WorldPacket data(SMSG_GUILD_SEND_MAX_DAILY_XP, 8);
-            data << uint64(sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP));
-            SendPacket(&data);
-        }
-    }
+    if (Guild * l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGUID))
+        l_Guild->HandleGuildPartyRequest(this);
 }
 
 void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
@@ -721,12 +668,12 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
     GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, enable);
 }
 
-void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
 {
-    uint32 unk = 0;
-    recvPacket >> unk;
+    uint32 l_CurrentVersion = 0;
+    p_Packet >> l_CurrentVersion;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
+    if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
@@ -757,70 +704,57 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY_NEWS");
 
-    ObjectGuid guildGuid;
+    uint64 l_GuildGUID = 0;
 
-    uint8 bitsOrder[8] = { 7, 3, 4, 1, 0, 6, 2, 5 };
-    recvPacket.ReadBitInOrder(guildGuid, bitsOrder);
+    p_Packet.readPackGUID(l_GuildGUID);
 
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 7, 6, 4, 3, 1, 0, 5 };
-    recvPacket.ReadBytesSeq(guildGuid, bytesOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
+    if (Guild * l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGUID))
     {
-        if (guild->IsMember(m_Player->GetGUID()))
+        if (l_Guild->IsMember(m_Player->GetGUID()))
         {
-            WorldPacket data;
-            guild->GetNewsLog().BuildNewsData(data);
-            SendPacket(&data);
+            WorldPacket l_Data;
+            l_Guild->GetNewsLog().BuildNewsData(l_Data);
+
+            SendPacket(&l_Data);
         }
     }
 }
 
-void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& p_Packet)
 {
-    uint32 newsId;
-    bool sticky;
-    ObjectGuid guid;
+    uint64 l_GuildGUID  = 0;
+    uint32 l_NewsID     = 0;
+    bool l_Sticky = false;
 
-    recvPacket >> newsId;
+    p_Packet.readPackGUID(l_GuildGUID);
+    p_Packet >> l_NewsID;
 
-    guid[6] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    sticky = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
+    l_Sticky = p_Packet.ReadBit();
 
-    uint8 byteOrder[8] = {0, 7, 2, 3, 6, 5, 1, 4};
-    recvPacket.ReadBytesSeq(guid, byteOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
+    if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
     {
-        if (GuildNewsEntry* newsEntry = guild->GetNewsLog().GetNewsById(newsId))
+        if (GuildNewsEntry * l_NewsEntry = l_Guild->GetNewsLog().GetNewsById(l_NewsID))
         {
-            if (sticky)
-                newsEntry->Flags |= 1;
+            if (l_Sticky)
+                l_NewsEntry->Flags |= 1;
             else
-                newsEntry->Flags &= ~1;
-            WorldPacket data;
-            guild->GetNewsLog().BuildNewsData(newsId, *newsEntry, data);
-            SendPacket(&data);
+                l_NewsEntry->Flags &= ~1;
+
+            WorldPacket l_Data;
+            l_Guild->GetNewsLog().BuildNewsData(l_NewsID, *l_NewsEntry, l_Data);
+
+            SendPacket(&l_Data);
         }
     }
 }
 
-void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket)
+void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_CHALLENGE_UPDATE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_CHALLENGE_UPDATE_REQUEST");
 
     GuildChallengeRewardData const& reward = sObjectMgr->GetGuildChallengeRewardData();
 
@@ -844,21 +778,17 @@ void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGuildRequestGuildRecipes(WorldPacket& recvPacket)
+void WorldSession::HandleGuildRequestGuildRecipes(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_CHALLENGE_UPDATE");
 
-    ObjectGuid guildGuid;
+    uint64 l_GuildGUID = 0;
 
-    uint8 bitsOrder[8] = { 1, 7, 4, 5, 2, 6, 0, 3 };
-    recvPacket.ReadBitInOrder(guildGuid, bitsOrder);
+    p_Packet.readPackGUID(l_GuildGUID);
 
-    recvPacket.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 0, 2, 3, 1, 5, 4, 6 };
-    recvPacket.ReadBytesSeq(guildGuid, bytesOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(m_Player->GetGUID()))
-            guild->SendGuildRecipes(this);
+    if (Guild * l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGUID))
+    {
+        if (l_Guild->IsMember(m_Player->GetGUID()))
+            l_Guild->SendGuildRecipes(this);
+    }
 }

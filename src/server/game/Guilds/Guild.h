@@ -279,7 +279,7 @@ class EmblemInfo
 
         void LoadFromDB(Field* fields);
         void SaveToDB(uint32 guildId) const;
-        void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_borderColor >> m_borderStyle >> m_backgroundColor >> m_color; }
+        void ReadPacket(WorldPacket& recv) { recv >> m_style >> m_color >> m_borderStyle >> m_borderColor >> m_backgroundColor; }
         void WritePacket(WorldPacket& data) const;
 
         uint32 GetStyle() const { return m_style; }

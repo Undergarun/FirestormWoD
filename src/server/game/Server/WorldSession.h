@@ -645,7 +645,7 @@ class WorldSession
         void HandleGuildDeclineInvitationsOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildRosterOpcode(WorldPacket& recvPacket);
-        void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
+        void HandleRequestGuildRewardsListOpcode(WorldPacket& recvPacket);
         void HandleGuildAssignRankOpcode(WorldPacket& recvPacket);
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
         void HandleGuildDeleteOpcode(WorldPacket& recvPacket);
@@ -660,11 +660,10 @@ class WorldSession
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
         void HandleGuildDeleteRankOpcode(WorldPacket& recvPacket);
         void HandleGuildUpdateInfoTextOpcode(WorldPacket& recvPacket);
-        void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
-        void HandleGuildRequestPartyState(WorldPacket& recvPacket);
-        void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
+        void HandlePlayerSaveGuildEmblemOpcode(WorldPacket& recvPacket);
+        void HandleRequestGuildPartyState(WorldPacket& recvPacket);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
-        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
+        void HandleGuildChallengeUpdateRequest(WorldPacket& recvPacket);
         void HandleGuildRequestGuildRecipes(WorldPacket& recvPacket);
 
         void HandleGuildFinderAddRecruit(WorldPacket& recvPacket);
@@ -970,7 +969,7 @@ class WorldSession
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
         // Guild Bank
-        void HandleGuildPermissions(WorldPacket& recvData);
+        void HandleGuildPermissionsQueryOpcode(WorldPacket& recvData);
         void HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket& recvData);
         void HandleGuildBankActivate(WorldPacket& recvData);
         void HandleGuildBankQueryTab(WorldPacket& recvData);
@@ -983,7 +982,6 @@ class WorldSession
         void HandleGuildBankBuyTab(WorldPacket& recvData);
         void HandleQueryGuildBankTextQuery(WorldPacket& recvData);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
-        void HandleGuildQueryXPOpcode(WorldPacket& recvData);
 
         // Refer-a-Friend
         void HandleGrantLevel(WorldPacket& recvData);
