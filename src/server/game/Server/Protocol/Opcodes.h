@@ -250,7 +250,7 @@ enum Opcodes
         SMSG_LFGUILD_APPLICANT_LIST_CHANGED         = 0x0000,
 
         /// Bank
-        SMSG_GUILD_RANK                             = 0x0000,
+        SMSG_GUILD_RANKS                            = 0x035A,   ///< 6.0.2 18934
         SMSG_GUILD_BANK_LOG_QUERY_RESULT            = 0x0000,
         SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0000,
         SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x0000,
@@ -266,13 +266,12 @@ enum Opcodes
         SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x0000,
 
         /// Info
-        SMSG_GUILD_ROSTER                           = 0x0000,
-        SMSG_GUILD_ROSTER_UPDATE                    = 0x0000,
-        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x0000,
+        SMSG_GUILD_ROSTER                           = 0x0779,   ///< 6.0.2 18934
+        SMSG_GUILD_ROSTER_UPDATE                    = 0x025A,   ///< 6.0.2 18934 (unused)
+        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x034A,   ///< 6.0.2 18934
         SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,   ///< Debug opcode (disabled)
-        SMSG_GUILD_XPEARNED                         = 0x0000,
-        SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000,
-        SMSG_GUILD_REWARDS_LIST                     = 0x0000,
+        SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x1609,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_REWARDS_LIST                     = 0x1349,   ///< 6.0.2 18934
         SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0000,
         SMSG_GUILD_CHALLENGE_UPDATED                = 0x0000,
         SMSG_GUILD_REPUTATION_WEEKLY_CAP            = 0x0000,
@@ -281,7 +280,7 @@ enum Opcodes
         SMSG_GUILD_COMMAND_RESULT                   = 0x0000,
         SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0000,
         SMSG_GUILD_SEND_GUILD_XP                    = 0x0000,
-        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x0000,
+        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x1329,   ///< 6.0.2 18934 (unused)
         SMSG_GUILD_KNOWN_RECIPES                    = 0x0000,
         SMSG_GUILD_MEMBER_DAILY_RESET               = 0x0000,
         SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x0000,
@@ -290,12 +289,12 @@ enum Opcodes
         SMSG_GUILD_CHANGE_NAME_RESULT               = 0x0000,
         SMSG_GUILD_INVITE                           = 0x0000,
         SMSG_GUILD_INVITE_DECLINED                  = 0x0000,
-        SMSG_GUILD_PARTY_STATE                      = 0x0000,
+        SMSG_GUILD_PARTY_STATE                      = 0x127A,   ///< 6.0.2 18934
         SMSG_GUILD_MEMBERS_WITH_RECIPE              = 0x0000,
         SMSG_GUILD_MOVE_STARTING                    = 0x0000,
         SMSG_GUILD_MOVED                            = 0x0000,
-        SMSG_GUILD_NEWS                             = 0x0000,
-        SMSG_GUILD_NEWS_DELETED                     = 0x0000,
+        SMSG_GUILD_NEWS                             = 0x0229,   ///< 6.0.2 18934
+        SMSG_GUILD_NEWS_DELETED                     = 0x0279,   ///< 6.0.2 18934 (unused)
 
         /// Event system
         SMSG_GUILD_EVENT_NEW_LEADER                 = 0x0000,
