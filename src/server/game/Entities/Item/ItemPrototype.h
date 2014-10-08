@@ -32,40 +32,43 @@ enum ItemModType
     ITEM_MOD_INTELLECT                = 5,
     ITEM_MOD_SPIRIT                   = 6,
     ITEM_MOD_STAMINA                  = 7,
-    ITEM_MOD_DEFENSE_SKILL_RATING     = 12,
+    ITEM_MOD_DEFENSE_SKILL_RATING     = 12, // Deprecated
     ITEM_MOD_DODGE_RATING             = 13,
     ITEM_MOD_PARRY_RATING             = 14,
     ITEM_MOD_BLOCK_RATING             = 15,
-    ITEM_MOD_HIT_MELEE_RATING         = 16, // Removed in 6.0.0
-    ITEM_MOD_HIT_RANGED_RATING        = 17, // Removed in 6.0.0
-    ITEM_MOD_HIT_SPELL_RATING         = 18, // Removed in 6.0.0
-    ITEM_MOD_CRIT_MELEE_RATING        = 19,
-    ITEM_MOD_CRIT_RANGED_RATING       = 20,
-    ITEM_MOD_CRIT_SPELL_RATING        = 21,
-    ITEM_MOD_HIT_TAKEN_MELEE_RATING   = 22,
-    ITEM_MOD_HIT_TAKEN_RANGED_RATING  = 23,
-    ITEM_MOD_HIT_TAKEN_SPELL_RATING   = 24,
-    ITEM_MOD_CRIT_TAKEN_MELEE_RATING  = 25,
-    ITEM_MOD_CRIT_TAKEN_RANGED_RATING = 26,
-    ITEM_MOD_CRIT_TAKEN_SPELL_RATING  = 27,
-    ITEM_MOD_HASTE_MELEE_RATING       = 28,
-    ITEM_MOD_HASTE_RANGED_RATING      = 29,
-    ITEM_MOD_HASTE_SPELL_RATING       = 30,
-    ITEM_MOD_HIT_RATING               = 31, // Removed in 6.0.0
+    ITEM_MOD_HIT_MELEE_RATING         = 16, // Deprecated
+    ITEM_MOD_HIT_RANGED_RATING        = 17, // Deprecated
+    ITEM_MOD_HIT_SPELL_RATING         = 18, // Deprecated
+    ITEM_MOD_CRIT_MELEE_RATING        = 19, // Deprecated, merged in ITEM_MOD_CRIT_RATING
+    ITEM_MOD_CRIT_RANGED_RATING       = 20, // Deprecated, merged in ITEM_MOD_CRIT_RATING
+    ITEM_MOD_CRIT_SPELL_RATING        = 21, // Deprecated, merged in ITEM_MOD_CRIT_RATING
+    ITEM_MOD_HIT_TAKEN_MELEE_RATING   = 22, // Deprecated
+    ITEM_MOD_HIT_TAKEN_RANGED_RATING  = 23, // Deprecated
+    ITEM_MOD_HIT_TAKEN_SPELL_RATING   = 24, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_MELEE_RATING  = 25, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_RANGED_RATING = 26, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_SPELL_RATING  = 27, // Deprecated
+    ITEM_MOD_HASTE_MELEE_RATING       = 28, // Deprecated, merged in ITEM_MOD_HASTE_RATING
+    ITEM_MOD_HASTE_RANGED_RATING      = 29, // Deprecated, merged in ITEM_MOD_HASTE_RATING
+    ITEM_MOD_HASTE_SPELL_RATING       = 30, // Deprecated, merged in ITEM_MOD_HASTE_RATING
+    ITEM_MOD_HIT_RATING               = 31, // Deprecated
     ITEM_MOD_CRIT_RATING              = 32,
-    ITEM_MOD_HIT_TAKEN_RATING         = 33,
-    ITEM_MOD_CRIT_TAKEN_RATING        = 34,
+    ITEM_MOD_HIT_TAKEN_RATING         = 33, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_RATING        = 34, // Deprecated
     ITEM_MOD_RESILIENCE_RATING        = 35,
     ITEM_MOD_HASTE_RATING             = 36,
-    ITEM_MOD_EXPERTISE_RATING         = 37, // Removed in 6.0.0
+    ITEM_MOD_EXPERTISE_RATING         = 37, // Deprecated
     ITEM_MOD_ATTACK_POWER             = 38,
-    ITEM_MOD_RANGED_ATTACK_POWER      = 39,
+    ITEM_MOD_RANGED_ATTACK_POWER      = 39, // Deprecated, merged in ITEM_MOD_ATTACK_POWER
+    ITEM_MOD_VERSATILITY_RATING       = 40,
+    ITEM_MOD_SPELL_HEALING_DONE       = 41, // Deprecated
+    ITEM_MOD_SPELL_DAMAGE_DONE        = 42, // Deprecated
     ITEM_MOD_MANA_REGENERATION        = 43,
-    ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
+    ITEM_MOD_ARMOR_PENETRATION_RATING = 44, // Deprecated
     ITEM_MOD_SPELL_POWER              = 45,
     ITEM_MOD_HEALTH_REGEN             = 46,
-    ITEM_MOD_SPELL_PENETRATION        = 47,
-    ITEM_MOD_BLOCK_VALUE              = 48,
+    ITEM_MOD_SPELL_PENETRATION        = 47, // Deprecated
+    ITEM_MOD_BLOCK_VALUE              = 48, // Deprecated
     ITEM_MOD_MASTERY_RATING           = 49,
     ITEM_MOD_EXTRA_ARMOR              = 50,
     ITEM_MOD_FIRE_RESISTANCE          = 51,
@@ -75,9 +78,21 @@ enum ItemModType
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
     ITEM_MOD_PVP_POWER                = 57,
+    ITEM_MOD_MULTISTRIKE_RATING       = 59,
+    ITEM_MOD_READINESS_RATING         = 60,
+    ITEM_MOD_SPEED_RATING             = 61,
+    ITEM_MOD_LEECH_RATING             = 62,
+    ITEM_MOD_AVOIDANCE_RATING         = 63,
+    ITEM_MOD_INDESTRUCTIBLE           = 64,
+    ITEM_MOD_WOD_5                    = 65,
+    ITEM_MOD_WOD_6                    = 66,
+    ITEM_MOD_STRENGTH_AGILITY_INTELLECT = 71,
+    ITEM_MOD_STRENGTH_AGILITY         = 72,
+    ITEM_MOD_AGILITY_INTELLECT        = 73,
+    ITEM_MOD_STRENGTH_INTELLECT       = 74,
 };
 
-#define MAX_ITEM_MOD                    58
+#define MAX_ITEM_MOD                    75
 
 enum ItemSpelltriggerType
 {

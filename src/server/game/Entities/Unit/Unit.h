@@ -562,39 +562,42 @@ enum WeaponAttackType
     MAX_ATTACK
 };
 
-// Last check : 5.0.5
+// Last check : 6.0.2
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,
-    CR_DEFENSE_SKILL                    = 1,    // Removed in 4.0.1
+    CR_WEAPON_SKILL                     = 0,    // Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
+    CR_DEFENSE_SKILL                    = 1,    // Deprecated
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
     CR_BLOCK                            = 4,
-    CR_HIT_MELEE                        = 5,    // Removed in 6.0.0
-    CR_HIT_RANGED                       = 6,    // Removed in 6.0.0
-    CR_HIT_SPELL                        = 7,    // Removed in 6.0.0
+    CR_HIT_MELEE                        = 5,    // Deprecated
+    CR_HIT_RANGED                       = 6,    // Deprecated
+    CR_HIT_SPELL                        = 7,    // Deprecated
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
-    CR_HIT_TAKEN_MELEE                  = 11,   // Deprecated since Cataclysm
-    CR_HIT_TAKEN_RANGED                 = 12,   // Deprecated since Cataclysm
-    CR_HIT_TAKEN_SPELL                  = 13,   // Deprecated since Cataclysm
+    CR_MULTISTRIKE                      = 11,
+    CR_READINESS                        = 12,
+    CR_SPEED                            = 13,
     CR_RESILIENCE_CRIT_TAKEN            = 14,
     CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,
-    CR_CRIT_TAKEN_SPELL                 = 16,   // Deprecated since Cataclysm
+    CR_LIFESTEAL                        = 16,
     CR_HASTE_MELEE                      = 17,
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
-    CR_WEAPON_SKILL_MAINHAND            = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,
-    CR_WEAPON_SKILL_RANGED              = 22,
-    CR_EXPERTISE                        = 23,   // Removed in 6.0.0
-    CM_ARMOR_PENETRATION                = 24,
+    CR_AVOIDANCE                        = 20,
+    CR_WEAPON_SKILL_OFFHAND             = 21,   // Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
+    CR_WEAPON_SKILL_RANGED              = 22,   // Deprecated
+    CR_EXPERTISE                        = 23,   // Deprecated
+    CR_ARMOR_PENETRATION                = 24,   // Deprecated
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,
+    CR_PVP_POWER                        = 26,   // Deprecated, CR_UNUSED_3 in PaperDollFrame.lua
+    CR_UNUSED                           = 27,   // CR_UNUSED_4 in PaperDollFrame.lua
+    CR_VERSATILITY_DAMAGE_DONE          = 28,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 29,
 };
 
-#define MAX_COMBAT_RATING         27
+#define MAX_COMBAT_RATING         30
 
 enum DamageEffectType
 {
