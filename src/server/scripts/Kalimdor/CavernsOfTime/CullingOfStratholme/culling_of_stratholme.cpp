@@ -300,7 +300,7 @@ public:
         npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
 
         if (!creature || !player || !creature->GetInstanceScript())
-            return;
+            return false;
 
         if (pAI && pAI->bStepping == false)
         {
