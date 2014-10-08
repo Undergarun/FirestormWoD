@@ -2630,14 +2630,14 @@ namespace JadeCore
     class UnitDistanceCompareOrderPred
     {
         public:
-            UnitDistanceCompareOrderPred(const Unit* source, bool ascending = true) : m_object(source), m_ascending(ascending) {}
-            bool operator() (const Unit* a, const Unit* b) const
+            UnitDistanceCompareOrderPred(const WorldObject* source, bool ascending = true) : m_object(source), m_ascending(ascending) {}
+            bool operator() (const WorldObject* a, const WorldObject* b) const
             {
                 return m_ascending ? a->GetDistance(m_object) < b->GetDistance(m_object) :
                                      a->GetDistance(m_object) > b->GetDistance(m_object);
             }
         private:
-            const Unit* m_object;
+            const WorldObject* m_object;
             const bool m_ascending;
     };
 

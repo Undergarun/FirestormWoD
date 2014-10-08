@@ -2135,7 +2135,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
-        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 115073 && Id != 6544)
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 115073 && Id != 6544 && !IsCustomChecked())
             if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
                 return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -3854,6 +3854,30 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 113780:// Deadly Poison (direct damage)
         case 113952:// Paralytic Poison
         case 122233:// Crimson Tempest (DoT)
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool SpellInfo::IsCustomChecked() const
+{
+    switch (Id)
+    {
+        case 138674:// Anima Ring (Triggered)
+        case 136955:// Anima Ring (Triggered)
+        case 136956:// Anima Ring (Triggered)
+        case 138673:// Anima Ring (Triggered)
+        case 136957:// Anima Ring (Triggered)
+        case 136958:// Anima Ring (Triggered)
+        case 138675:// Anima Ring (Triggered)
+        case 138671:// Anima Ring (Triggered)
+        case 136959:// Anima Ring (Triggered)
+        case 138676:// Anima Ring (Triggered)
+        case 136960:// Anima Ring (Triggered)
+        case 138672:// Anima Ring (Triggered)
             return true;
         default:
             break;

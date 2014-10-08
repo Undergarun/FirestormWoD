@@ -3390,27 +3390,64 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 134755:
+            case 134755:// Eye Sore
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 133740:
+            case 133740:// Bright Light
                 spellInfo->Effects[1].MiscValue = 0;
                 spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
                 spellInfo->Effects[3].TriggerSpell = 0;
                 break;
-            case 133734 :
+            case 133734:// Infrared Light
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133795: // Life Drain
+            case 133795:// Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133798: // Life Drain
+            case 133798:// Life Drain
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133796: // Life Drain
+            case 133796:// Life Drain
+            case 138908:// Transfusion
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 138378:// Transfusion
+                spellInfo->ExplicitTargetMask = 0;
+                break;
+            case 136954:// Anima Ring
+                spellInfo->Effects[0].TriggerSpell = 0;
+                spellInfo->Effects[1].TriggerSpell = 0;
+                spellInfo->Effects[2].TriggerSpell = 0;
+                spellInfo->Effects[3].TriggerSpell = 0;
+                spellInfo->Effects[4].TriggerSpell = 0;
+                spellInfo->Effects[5].TriggerSpell = 0;
+                spellInfo->Effects[6].TriggerSpell = 0;
+                spellInfo->Effects[7].TriggerSpell = 0;
+                spellInfo->Effects[8].TriggerSpell = 0;
+                spellInfo->Effects[9].TriggerSpell = 0;
+                spellInfo->Effects[10].TriggerSpell = 0;
+                spellInfo->Effects[11].TriggerSpell = 0;
+                break;
+            case 138674:// Anima Ring (Triggered)
+            case 136955:// Anima Ring (Triggered)
+            case 136956:// Anima Ring (Triggered)
+            case 138673:// Anima Ring (Triggered)
+            case 136957:// Anima Ring (Triggered)
+            case 136958:// Anima Ring (Triggered)
+            case 138675:// Anima Ring (Triggered)
+            case 138671:// Anima Ring (Triggered)
+            case 136959:// Anima Ring (Triggered)
+            case 138676:// Anima Ring (Triggered)
+            case 136960:// Anima Ring (Triggered)
+            case 138672:// Anima Ring (Triggered)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_DEST_LOCATION;
+                break;
+            case 138613:// Matter Swap (Teleport)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetB = 0;
                 break;
             case 63106: // Siphon Life (heal)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;

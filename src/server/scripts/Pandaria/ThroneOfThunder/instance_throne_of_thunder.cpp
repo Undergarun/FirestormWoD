@@ -90,6 +90,11 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 megaeraGuid;
             uint64 durumuGuid;
 
+            uint64 m_DarkAnimusGuid;
+            uint64 m_AnimaOrbGuid;
+            uint8 m_AnimaGolemToDisable;
+            uint8 m_LargeAnimaGolemToDisable;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
@@ -130,6 +135,20 @@ class instance_throne_of_thunder : public InstanceMapScript
                     moguFountainsGuids[i]   = 0;
                     moguStatuesGuids[i]     = 0;
                     tribalDoorsGuid[i]      = 0;
+                }
+
+                m_DarkAnimusGuid = 0;
+                m_AnimaOrbGuid = 0;
+
+                if (instance->Is25ManRaid())
+                {
+                    m_AnimaGolemToDisable = 0;
+                    m_LargeAnimaGolemToDisable = 0;
+                }
+                else
+                {
+                    m_AnimaGolemToDisable = 13;
+                    m_LargeAnimaGolemToDisable = 3;
                 }
             }
 
@@ -189,6 +208,34 @@ class instance_throne_of_thunder : public InstanceMapScript
                     case NPC_DURUMU_THE_FORGOTTEN:
                         durumuGuid = creature->GetGUID();
                         break;
+                    case NPC_DARK_ANIMUS:
+                        m_DarkAnimusGuid = creature->GetGUID();
+                        break;
+                    case NPC_ANIMA_ORB:
+                        m_AnimaOrbGuid = creature->GetGUID();
+                        break;
+                    case NPC_ANIMA_GOLEM:
+                    {
+                        // ACTION_DESACTIVATE_GOLEM
+                        if (urand(0, 1) && m_AnimaGolemToDisable)
+                        {
+                            // SPELL_CRITICALLY_DAMAGED_1
+                            creature->CastSpell(creature, 138400, true);
+                            --m_AnimaGolemToDisable;
+                        }
+                        break;
+                    }
+                    case NPC_LARGE_ANIMA_GOLEM:
+                    {
+                        // ACTION_DESACTIVATE_GOLEM
+                        if (urand(0, 1) && m_LargeAnimaGolemToDisable)
+                        {
+                            // SPELL_CRITICALLY_DAMAGED_1
+                            creature->CastSpell(creature, 138400, true);
+                            --m_LargeAnimaGolemToDisable;
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -381,6 +428,10 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return megaeraGuid;
                     case NPC_DURUMU_THE_FORGOTTEN:
                         return durumuGuid;
+                    case NPC_DARK_ANIMUS:
+                        return m_DarkAnimusGuid;
+                    case NPC_ANIMA_ORB:
+                        return m_AnimaOrbGuid;
                     default:
                         break;
                 }

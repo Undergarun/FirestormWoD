@@ -701,7 +701,7 @@ enum Opcodes
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x81A,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_TRIGGER_DENIED                          = 0x0A2,  // 5.4.0 17399 (JamList) (NYI) or SMSG_AREA_TRIGGER_MESSAGE ?
     SMSG_AREA_TRIGGER_MESSAGE                         = 0x000,  // 5.0.5 16048
-    SMSG_AREA_TRIGGER_MOVEMENT_UPDATE                 = 0x01D,  // 5.4.0 17399 (JamList)
+    SMSG_AREA_TRIGGER_MOVEMENT_UPDATE                 = 0x01D,  // 5.4.0 17399
     SMSG_AREA_TRIGGER_NO_CORPSE                       = 0x43D,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_TRIGGER_RESET                           = 0x8B7,  // 5.4.0 17399 (JamList)
     SMSG_ARENA_ERROR                                  = 0x91C,  // 5.4.0 17399 (JamList)
