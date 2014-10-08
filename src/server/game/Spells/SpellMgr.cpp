@@ -3404,6 +3404,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
+            case 33763: // Lifebloom
+                spellInfo->AttributeEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
+                break;
             case 148017:// Icicle
             case 148018:// Icicle
             case 148019:// Icicle
