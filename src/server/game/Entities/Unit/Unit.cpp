@@ -17811,7 +17811,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 cooldown = i->spellProcEvent->cooldown * IN_MILLISECONDS;
 
             // Can't proc if player has spell in cooldown
-            if (cooldown && ToPlayer()->HasSpellCooldown(spellInfo->Id))
+            if (cooldown && ToPlayer()->HasSpellCooldown(spellInfo->Id) && spellInfo->Id != 16689)
                 continue;
         }
 
