@@ -21,7 +21,7 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_JI_KUN, 94835, 0, 1, 1, 1, 1); -- Ji-Kun Hatchling
 
 -- Mode 10 normal
-SET @10_NMJIKUN = 69712;
+SET @10NM_JIKUN = 69712;
 UPDATE `creature_template` SET `lootid`= @10NM_JIKUN WHERE `entry`= @10NM_JIKUN;
 DELETE FROM `creature_loot_template` WHERE `entry`= @10NM_JIKUN;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES

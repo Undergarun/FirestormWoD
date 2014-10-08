@@ -1,1 +1,1 @@
-SELECT * FROM creature WHERE id = 69839
+DELETE FROM creature WHERE id = 68178;
