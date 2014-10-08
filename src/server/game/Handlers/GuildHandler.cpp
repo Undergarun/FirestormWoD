@@ -40,55 +40,25 @@ inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
     return NULL;
 }
 
-void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_INFO");
 
-    ObjectGuid guildGuid;
-    ObjectGuid playerGuid;
+    uint64 l_GuildGuid  = 0;
+    uint64 l_PlayerGuid = 0;
 
-    playerGuid[2] = recvPacket.ReadBit();
-    guildGuid[7] = recvPacket.ReadBit();
-    playerGuid[6] = recvPacket.ReadBit();
-    playerGuid[1] = recvPacket.ReadBit();
-    guildGuid[5] = recvPacket.ReadBit();
-    guildGuid[4] = recvPacket.ReadBit();
-    guildGuid[6] = recvPacket.ReadBit();
-    guildGuid[1] = recvPacket.ReadBit();
-    playerGuid[3] = recvPacket.ReadBit();
-    guildGuid[2] = recvPacket.ReadBit();
-    playerGuid[0] = recvPacket.ReadBit();
-    guildGuid[0] = recvPacket.ReadBit();
-    playerGuid[4] = recvPacket.ReadBit();
-    guildGuid[3] = recvPacket.ReadBit();
-    playerGuid[5] = recvPacket.ReadBit();
-    playerGuid[7] = recvPacket.ReadBit();
+    p_Packet.readPackGUID(l_GuildGuid);
+    p_Packet.readPackGUID(l_PlayerGuid);
 
-
-    recvPacket.ReadByteSeq(playerGuid[0]);
-    recvPacket.ReadByteSeq(playerGuid[2]);
-    recvPacket.ReadByteSeq(playerGuid[7]);
-    recvPacket.ReadByteSeq(guildGuid[7]);
-    recvPacket.ReadByteSeq(guildGuid[2]);
-    recvPacket.ReadByteSeq(playerGuid[3]);
-    recvPacket.ReadByteSeq(guildGuid[3]);
-    recvPacket.ReadByteSeq(guildGuid[6]);
-    recvPacket.ReadByteSeq(guildGuid[0]);
-    recvPacket.ReadByteSeq(playerGuid[4]);
-    recvPacket.ReadByteSeq(playerGuid[6]);
-    recvPacket.ReadByteSeq(guildGuid[1]);
-    recvPacket.ReadByteSeq(guildGuid[5]);
-    recvPacket.ReadByteSeq(guildGuid[4]);
-    recvPacket.ReadByteSeq(playerGuid[5]);
-    recvPacket.ReadByteSeq(playerGuid[1]);
-
-    // If guild doesn't exist or player is not part of the guild send error
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(playerGuid))
+    /// If guild doesn't exist or player is not part of the guild send error
+    if (Guild * l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGuid))
+    {
+        if (l_Guild->IsMember(l_PlayerGuid))
         {
-            guild->HandleQuery(this);
+            l_Guild->HandleQuery(this);
             return;
         }
+    }
 
     Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }

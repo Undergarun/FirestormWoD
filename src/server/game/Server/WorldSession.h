@@ -637,7 +637,7 @@ class WorldSession
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
 
-        void HandleGuildQueryOpcode(WorldPacket& recvPacket);
+        void HandleQueryGuildInfoOpcode(WorldPacket& recvPacket);
         void HandleGuildInviteByNameOpcode(WorldPacket& recvPacket);
         void HandleGuildOfficierRemoveMemberOpcode(WorldPacket& recvPacket);
         void HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket);
@@ -652,7 +652,7 @@ class WorldSession
         void HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket);
         void HandleGuildUpdateMOTDTextOpcode(WorldPacket& recvPacket);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
-        void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
+        void HandleGuildSetMemberNoteOpcode(WorldPacket& recvPacket);
         void HandleGuildGetRanksOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryNewsOpcode(WorldPacket& recvPacket);
         void HandleShiftRanks(WorldPacket& recvPacket);

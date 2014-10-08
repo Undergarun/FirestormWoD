@@ -699,6 +699,7 @@ enum Opcodes
     CMSG_REALM_NAME_QUERY                       = 0x0AFF,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_QUERY                       = 0x0D97,   ///< 6.0.2 18934
     CMSG_PETITION_QUERY                         = 0x04D4,   ///< 6.0.2 18934
+    CMSG_QUERY_GUILD_INFO                       = 0x00E4,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -946,13 +947,13 @@ enum Opcodes
     CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x08BA,   ///< 6.0.2 18934
     CMSG_GUILD_SET_MEMBER_NOTE                     = 0x00C9,   ///< 6.0.2 18934
 
+
+
     CMSG_GUILD_CHANGE_NAME_REQUEST              = 0x0000,
     CMSG_GUILD_EVENT_LOG_QUERY                  = 0x0000,
-    CMSG_GUILD_INFO                             = 0x0000,
     CMSG_GUILD_MEMBER_SEND_SOR_REQUEST          = 0x0000,
     CMSG_GUILD_NEWS_UPDATE_STICKY               = 0x0000,
     CMSG_GUILD_PERMISSIONS                      = 0x0000,
-    CMSG_GUILD_QUERY                            = 0x0000,
     CMSG_GUILD_QUERY_NEWS                       = 0x0000,
     CMSG_GUILD_REPLACE_GUILD_MASTER             = 0x0000,
     CMSG_GUILD_REQUEST_CHALLENGE_UPDATE         = 0x0000,
