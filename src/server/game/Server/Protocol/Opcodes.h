@@ -941,9 +941,11 @@ enum Opcodes
     CMSG_GUILD_BANK_SWAP_ITEMS                     = 0x0403,   ///< 6.0.2 18934
     CMSG_GUILD_BANK_UPDATE_TAB                     = 0x0128,   ///< 6.0.2 18934
     CMSG_GUILD_BANK_WITHDRAW_MONEY                 = 0x0348,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_SET_TAB_TEXT                   = 0x08AD,   ///< 6.0.2 18934
+    CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x00C5,   ///< 6.0.2 18934
+    CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x08BA,   ///< 6.0.2 18934
+    CMSG_GUILD_SET_MEMBER_NOTE                     = 0x00C9,   ///< 6.0.2 18934
 
-    CMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x0000,
-    CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY       = 0x0000,
     CMSG_GUILD_CHANGE_NAME_REQUEST              = 0x0000,
     CMSG_GUILD_EVENT_LOG_QUERY                  = 0x0000,
     CMSG_GUILD_INFO                             = 0x0000,
@@ -956,9 +958,6 @@ enum Opcodes
     CMSG_GUILD_REQUEST_CHALLENGE_UPDATE         = 0x0000,
     CMSG_GUILD_REQUEST_MAX_DAILY_XP             = 0x0000,
     CMSG_GUILD_REQUEST_PARTY_STATE              = 0x0000,
-    CMSG_GUILD_SET_ACHIEVEMENT_TRACKING         = 0x0000,
-    CMSG_GUILD_SET_GUILD_MASTER                 = 0x0000,
-    CMSG_GUILD_SET_NOTE                         = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1274,7 +1273,6 @@ enum Opcodes
     CMSG_UNSET_FACTION_ATWAR                          = 0x0000,
     CMSG_SET_FACTION_CHEAT                            = 0x0000,
     CMSG_SET_LOOT_SPECIALIZATION                      = 0x0000,
-    CMSG_SET_GUILD_BANK_TEXT                          = 0x0000,
     CMSG_SET_LFG_COMMENT                              = 0x0000,
     CMSG_SET_PET_SLOT                                 = 0x0000,
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0x0000,

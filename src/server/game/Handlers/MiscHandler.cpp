@@ -1939,7 +1939,7 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
 
-    uint32 l_Title 0;
+    uint32 l_Title = 0;
 
     p_Packet >> l_Title;
 
@@ -2188,13 +2188,14 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     player->GetAchievementMgr().SendAchievementInfo(m_Player);
 }
 
-void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
+void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& p_Packet)
 {
-    uint32 achievementId;
-    recvData >> achievementId;
+    uint32 l_AchievementID = 0;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
-        guild->GetAchievementMgr().SendAchievementInfo(m_Player, achievementId);
+    p_Packet >> l_AchievementID;
+
+    if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
+        l_Guild->GetAchievementMgr().SendAchievementInfo(m_Player, l_AchievementID);
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)

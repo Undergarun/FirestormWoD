@@ -213,7 +213,7 @@ void WorldSession::HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket)
     std::string l_NewMasterRealName = "";
     uint32 l_NewMasterNameLenght = 0;
 
-    uint32 l_NewMasterNameLenght = recvPacket.ReadBits(9);
+    l_NewMasterNameLenght = recvPacket.ReadBits(9);
 
     l_NewMasterName = recvPacket.ReadString(l_NewMasterNameLenght);
     l_NewMasterRealName.resize(l_NewMasterName.size());
@@ -265,38 +265,23 @@ void WorldSession::HandleShiftRanks(WorldPacket & p_Packet)
         l_Guild->HandleSwapRanks(this, l_RankOrder, l_ShiftUp);
 }
 
-void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildSetMemberNoteOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_NOTE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_MEMBER_NOTE");
 
-    ObjectGuid playerGuid;
-    playerGuid[6] = recvPacket.ReadBit();
-    playerGuid[5] = recvPacket.ReadBit();
-    playerGuid[0] = recvPacket.ReadBit();
-    playerGuid[1] = recvPacket.ReadBit();
-    playerGuid[2] = recvPacket.ReadBit();
-    playerGuid[3] = recvPacket.ReadBit();
-    bool type = recvPacket.ReadBit();      // 0 == Officer, 1 == Public
-    playerGuid[4] = recvPacket.ReadBit();
-    uint32 noteLength = recvPacket.ReadBits(8);
-    playerGuid[7] = recvPacket.ReadBit();
+    uint64 l_NoteeGUID = 0;
+    uint32 l_NoteLenght = 0;
+    bool l_IsPublic = false;
 
-    recvPacket.FlushBits();
+    std::string l_Note = "";
 
-    recvPacket.ReadByteSeq(playerGuid[5]);
-    recvPacket.ReadByteSeq(playerGuid[7]);
-    recvPacket.ReadByteSeq(playerGuid[2]);
-    recvPacket.ReadByteSeq(playerGuid[3]);
-    recvPacket.ReadByteSeq(playerGuid[4]);
+    l_NoteLenght    = p_Packet.ReadBits(8);
+    l_IsPublic      = p_Packet.ReadBit();
 
-    std::string note = recvPacket.ReadString(noteLength);
+    l_Note = p_Packet.ReadString(l_NoteLenght);
 
-    recvPacket.ReadByteSeq(playerGuid[1]);
-    recvPacket.ReadByteSeq(playerGuid[0]);
-    recvPacket.ReadByteSeq(playerGuid[6]);
-
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleSetMemberNote(this, note, playerGuid, type);
+    if (Guild * l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleSetMemberNote(this, l_Note, l_NoteeGUID, l_IsPublic);
 }
 
 void WorldSession::HandleGuildGetRanksOpcode(WorldPacket& p_Packet)
@@ -639,21 +624,20 @@ void WorldSession::HandleQueryGuildBankTextQuery(WorldPacket& p_Packet)
         l_Guild->SendBankTabText(this, l_Tab);
 }
 
-void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
+void WorldSession::HandleSetGuildBankTabText(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_GUILD_BANK_TEXT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_SET_TAB_TEXT");
 
-    uint32 tabId;
-    recvData >> tabId;
+    uint32 l_Tab = 0;
+    uint32 l_TabTextLenght = 0;
+    std::string l_TabText = "";
 
-    uint32 textLen = recvData.ReadBits(14);
-
-    recvData.FlushBits();
-
-    std::string text = recvData.ReadString(textLen);
+    p_Packet >> l_Tab;
+    l_TabTextLenght = p_Packet.ReadBits(14);
+    l_TabText       = p_Packet.ReadString(l_TabTextLenght);
 
     if (Guild* guild = _GetPlayerGuild(this))
-        guild->SetBankTabText(tabId, text);
+        guild->SetBankTabText(l_Tab, l_TabText);
 }
 
 void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
