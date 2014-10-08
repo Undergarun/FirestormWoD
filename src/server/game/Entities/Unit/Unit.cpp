@@ -7453,11 +7453,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                                 break;
                             triggered_spell_id = 145162;
                             break;
-                        case SPEC_DROOD_RESTORATION:
-                            if (procSpell->Id != 5176)
-                                break;
-                            triggered_spell_id = 145153;
-                            break;
                         default:
                             return false;
                     }
@@ -8058,6 +8053,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 136494:
+                        case 85222:
+                        case 114163:
+                        case 114165:
                         {
                             float mastery = ToPlayer()->GetFloatValue(PLAYER_MASTERY) * 1.25f;
                             basepoints0 = int32(damage * float(mastery / 100.0f));
@@ -8066,7 +8065,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
                                 basepoints0 += aurShield->GetAmount();
 
-                            int32 maxHealth = CountPctFromMaxHealth(10);
+                            int32 maxHealth = CountPctFromMaxHealth(33);
                             basepoints0 = std::min(basepoints0, maxHealth);
 
                             break;
@@ -10091,11 +10090,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             // Only triggered by Devastate
-            if (procSpell->Id != 20243)
-                return false;
-
-            // Mortal Peace
-            if (!HasAura(85730))
+            if (procSpell->Id != 1160)
                 return false;
 
             break;
@@ -13375,6 +13370,7 @@ float Unit::GetSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolM
                     }
                 }
             }
+            break;
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (victim)
@@ -20257,7 +20253,7 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 {
     // player mounted on multi-passenger mount is also classified as vehicle
-    if (IsVehicle() || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
+    if ((IsVehicle() && !HasAura(115034)) || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
         return;
 
     // Resilience works only for players or pets against other players or pets

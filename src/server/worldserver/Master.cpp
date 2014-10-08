@@ -465,7 +465,7 @@ public:
                         continue;
                     }
 
-                    LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", (uint32)err, transaction);
+                    LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)err, transaction);
 
                     /*if (dump == DUMP_SUCCESS)
                     {

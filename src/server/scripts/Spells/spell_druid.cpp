@@ -2163,6 +2163,33 @@ class spell_dru_lifebloom : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_lifebloom_SpellScript);
 
+            uint8 m_Stacks;
+
+            bool Load()
+            {
+                m_Stacks = 0;
+                return true;
+            }
+
+            void HandleBeforeCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    // remove other single target auras
+                    Unit::AuraList& l_SCAuras = l_Caster->GetSingleCastAuras();
+                    for (Unit::AuraList::iterator l_Iter = l_SCAuras.begin(); l_Iter != l_SCAuras.end();)
+                    {
+                        if ((*l_Iter)->GetId() == GetSpellInfo()->Id)
+                        {
+                            m_Stacks = (*l_Iter)->GetStackAmount();
+                            break;
+                        }
+                        else
+                            ++l_Iter;
+                    }
+                }
+            }
+
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -2170,31 +2197,17 @@ class spell_dru_lifebloom : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         AuraPtr l_LifeBloom = l_Target->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID());
-                        if (l_LifeBloom == NULLAURA)
+                        if (l_LifeBloom == NULLAURA || m_Stacks == 0)
                             return;
 
-                        l_Caster->GetSingleCastAuras().push_back(l_LifeBloom);
-                        // remove other single target auras
-                        Unit::AuraList& l_SCAuras = l_Caster->GetSingleCastAuras();
-                        for (Unit::AuraList::iterator l_Iter = l_SCAuras.begin(); l_Iter != l_SCAuras.end();)
-                        {
-                            if ((*l_Iter)->GetUnitOwner() && (*l_Iter)->GetUnitOwner() != l_Target)
-                            {
-                                l_LifeBloom->SetStackAmount((*l_Iter)->GetStackAmount());
-                                (*l_Iter)->Remove();
-                                l_Caster->GetSingleCastAuras().remove((*l_Iter));
-                                l_Iter = l_SCAuras.begin();
-                                break;
-                            }
-                            else
-                                ++l_Iter;
-                        }
+                        l_LifeBloom->SetStackAmount(m_Stacks);
                     }
                 }
             }
 
             void Register()
             {
+                BeforeCast += SpellCastFn(spell_dru_lifebloom_SpellScript::HandleBeforeCast);
                 AfterHit += SpellHitFn(spell_dru_lifebloom_SpellScript::HandleAfterHit);
             }
         };
@@ -2210,13 +2223,16 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
                 // Final heal only on duration end
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
-                if (!l_Caster || !l_Target)
+                if (!l_Target)
                     return;
 
                 if (l_Caster->ToPlayer()->HasSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL))

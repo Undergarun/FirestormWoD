@@ -551,7 +551,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
 
             SendMessage2ToAll(LANG_BG_DG_NODE_DEFENDED, ChatMsg(CHAT_MSG_BG_SYSTEM_ALLIANCE + l_TeamIndex), p_Source, _GetNodeNameId(l_Node), LANG_BG_DG_ALLY + l_TeamIndex);
         }
-        l_SoundID = (l_TeamIndex == TEAM_ALLIANCE) ? BG_DG_SOUND_NODE_ASSAULTED_ALLIANCE : BG_DG_SOUND_NODE_ASSAULTED_HORDE;
+        l_SoundID = (l_TeamIndex == BG_TEAM_ALLIANCE) ? BG_DG_SOUND_NODE_ASSAULTED_ALLIANCE : BG_DG_SOUND_NODE_ASSAULTED_HORDE;
     }
     // If node is occupied, change to enemy-contested
     else
@@ -566,7 +566,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
 
         SendMessage2ToAll(LANG_BG_DG_NODE_ASSAULTED, ChatMsg(CHAT_MSG_BG_SYSTEM_ALLIANCE + l_TeamIndex), p_Source, _GetNodeNameId(l_Node), LANG_BG_DG_ALLY + l_TeamIndex);
 
-        l_SoundID = (l_TeamIndex == TEAM_ALLIANCE) ? BG_DG_SOUND_NODE_ASSAULTED_ALLIANCE : BG_DG_SOUND_NODE_ASSAULTED_HORDE;
+        l_SoundID = (l_TeamIndex == BG_TEAM_ALLIANCE) ? BG_DG_SOUND_NODE_ASSAULTED_ALLIANCE : BG_DG_SOUND_NODE_ASSAULTED_HORDE;
     }
 
     // If node is occupied again, send "X has taken the Y" msg.

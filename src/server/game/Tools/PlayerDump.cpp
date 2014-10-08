@@ -468,7 +468,8 @@ void fixNULLfields(std::string &line)
 DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems, uint32 p_AtLogin, bool p_Premade)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(p_Account);
-    if (charcount >= 11)
+    // Taran'zhu hack fix for merge TZ <-> Elegon
+    if (charcount >= (realmID == 2 ? 22 : 11))
         return DUMP_TOO_MANY_CHARS;
 
     FILE* fin = fopen(p_File.c_str(), "r");
@@ -515,6 +516,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     std::stringstream stringstr;
+
+    ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
 
     while (!feof(fin))
     {

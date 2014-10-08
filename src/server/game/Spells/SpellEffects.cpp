@@ -434,13 +434,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
                         break;
                     }
-                    // Gargoyle Strike
-                    case 51963:
-                    {
-                        // about +4 base spell dmg per level
-                        damage = (m_caster->getLevel() - 60) * 4 + 60;
-                        break;
-                    }
                     case 123199:// Toss Explosive Barrel
                         if (unitTarget->GetTypeId() == TYPEID_PLAYER ||
                             (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->GetOwner() && unitTarget->GetOwner()->ToPlayer()))
@@ -457,15 +450,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     {
                         if (m_caster->HasAura(29725))
                             m_caster->CastSpell(m_caster, 139958, true);
-                        break;
-                    }
-                    case 34428: // Victory Rush
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 67.2f);
-                        else
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 56.0f);
-
                         break;
                     }
                     case 46968: // Shockwave
@@ -528,6 +512,40 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                 damage /= count;
                             }
                         }
+                        break;
+                    }
+                    case 130552:// Word of Glory
+                    {
+                        if (!m_caster || !unitTarget)
+                            return;
+
+                        damage += int32(0.49f * m_caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
+
+                        int32 holyPower = m_caster->GetPower(POWER_HOLY_POWER) + 1;
+
+                        if (holyPower > 3)
+                            holyPower = 3;
+
+                        // Divine Purpose
+                        if (m_caster->HasAura(90174))
+                            holyPower = 3;
+
+                        damage *= holyPower;
+
+                        // Bastion of Glory : +10% of power per application if target is caster
+                        if (unitTarget->GetGUID() == m_caster->GetGUID() && m_caster->HasAura(114637))
+                        {
+                            AuraPtr bastionOfGlory = m_caster->GetAura(114637);
+                            if (!bastionOfGlory)
+                                break;
+
+                            AddPct(damage, (10 * bastionOfGlory->GetStackAmount()));
+
+                            m_caster->RemoveAurasDueToSpell(114637);
+                        }
+
+                        damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, damage, DIRECT_DAMAGE);
+
                         break;
                     }
                     default:
@@ -788,6 +806,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             damage += int32(((Guardian*)m_caster)->GetBonusDamage() * 0.15f);
                         break;
                 }
+                break;
             }
             case SPELLFAMILY_MONK:
             {
@@ -2218,18 +2237,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                     if (player->HasSkill(SKILL_ENGINEERING))
                         AddPct(addhealth, 25);
                 break;
-            case 85222: // Light of Dawn
-                addhealth *= GetPowerCost(POWER_HOLY_POWER);
-
-                if (!caster)
-                    break;
-
-                if (caster->HasAura(54940))
-                    AddPct(addhealth, 25);
-
-                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
-
-                break;
             case 86961: // Cleansing Waters
             {
                 addhealth = m_caster->CountPctFromMaxHealth(4);
@@ -2459,6 +2466,10 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
                 damage = 20;
                 m_caster->RemoveAurasDueToSpell(32216);
             }
+            break;
+        case 118779:
+            if (m_caster->HasAura(58382))
+                AddPct(damage, 50);
             break;
         case 137562:// Nimble Brew
             if (!m_caster->HasAura(146952)) // Glyph of Nimble Brew
@@ -3433,6 +3444,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         default:
                             break;
                     }
+
+                    if (m_caster->HasAura(63298)) // Glyph of Totemic Vigor
+                        damage += m_caster->CountPctFromMaxHealth(5);
 
                     if (damage)                                            // if not spell info, DB values used
                     {
@@ -4778,6 +4792,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
                 return;
 
+    bool hasInterrupt = false;
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
     // there is no CURRENT_AUTOREPEAT_SPELL spells that can be interrupted
@@ -4799,6 +4814,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (curSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
+                    hasInterrupt = true;
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
@@ -4851,6 +4867,9 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             }
         }
     }
+
+    if (hasInterrupt && m_originalCaster->HasAura(58372) && m_spellInfo->Id == 6552) // Glyph of Rude Interruption
+        m_originalCaster->CastSpell(m_originalCaster, 86663, true);
 }
 
 void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
