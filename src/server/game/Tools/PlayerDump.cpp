@@ -518,6 +518,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     std::stringstream stringstr;
 
     ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
+    sObjectMgr->_hiItemGuid++;
 
     while (!feof(fin))
     {

@@ -102,6 +102,10 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_PREMIUM, "UPDATE account_premium SET active = 0 WHERE active = 1 AND unsetdate<=UNIX_TIMESTAMP() AND unsetdate<>setdate", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UP_TRANSFERT_PDUMP, "UPDATE transferts SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
+    // Transferts
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_DUMP, "SELECT `id`, `account`, `perso_guid` FROM transferts WHERE `from` = ? AND state = 0", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_LOAD, "SELECT `id`, `account`, `perso_guid`, `dump` FROM transferts WHERE `to` = ? AND state = 1", CONNECTION_ASYNC);
+
     // Battle pets
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
