@@ -3272,12 +3272,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
 
+        bool l_IsCasting = false;
         // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
             {
+                l_IsCasting = true;
                 // Stop spells on prepare or casting state
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                     target->InterruptSpell(CurrentSpellTypes(i), false);
@@ -3286,7 +3288,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
         // Glyph of Strangulate - 58618
         // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618))
+        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_IsCasting)
         {
             aurApp->GetBase()->SetMaxDuration(aurApp->GetBase()->GetMaxDuration() + 2000);
             aurApp->GetBase()->RefreshDuration();
