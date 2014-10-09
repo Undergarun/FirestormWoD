@@ -433,7 +433,7 @@ class Guild
                 uint32 GetGUID() const { return m_guid; }
 
                 virtual void SaveToDB(SQLTransaction& trans) const = 0;
-                virtual void WritePacket(WorldPacket& data, ByteBuffer& content, bool hasCashFlow = false) const = 0;
+                virtual void WritePacket(WorldPacket& data, bool hasCashFlow = false) const = 0;
 
             protected:
                 uint32 m_guildId;
@@ -454,7 +454,7 @@ class Guild
                 ~EventLogEntry() { }
 
                 void SaveToDB(SQLTransaction& trans) const;
-                void WritePacket(WorldPacket& data, ByteBuffer& content, bool hasCashFlow = false) const;
+                void WritePacket(WorldPacket& data, bool hasCashFlow = false) const;
 
             private:
                 GuildEventLogTypes m_eventType;
@@ -492,7 +492,7 @@ class Guild
                 ~BankEventLogEntry() { }
 
                 void SaveToDB(SQLTransaction& trans) const;
-                void WritePacket(WorldPacket& data, ByteBuffer& content, bool hasCashFlow = false) const;
+                void WritePacket(WorldPacket& data, bool hasCashFlow = false) const;
 
             private:
                 GuildBankEventLogTypes m_eventType;
@@ -755,10 +755,8 @@ class Guild
         void SendPermissions(WorldSession* session) const;
         void SendMoneyInfo(WorldSession* session) const;
         void SendLoginInfo(WorldSession* session);
-        void SendGuildReputationWeeklyCap(WorldSession* session) const;
-        void SendGuildXP(WorldSession* session) const;
         void SendGuildRecipes(WorldSession* session) const;
-        void SendMemberLeave(WorldSession* session, ObjectGuid playerGuid, bool kicked);
+        void SendMemberLeave(WorldSession * p_Session, uint64 p_PlayerGuid, bool p_Kicked);
 
         // Load from DB
         bool LoadFromDB(Field* fields);

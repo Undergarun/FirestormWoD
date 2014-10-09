@@ -754,26 +754,23 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_CHALLENGE_UPDATE_REQUEST");
 
-    GuildChallengeRewardData const& reward = sObjectMgr->GetGuildChallengeRewardData();
+    const GuildChallengeRewardData & l_Reward = sObjectMgr->GetGuildChallengeRewardData();
 
-    WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATED, 5*6*4);
+    WorldPacket l_Data(SMSG_GUILD_CHALLENGE_UPDATED, 5*6*4);
 
-    for (uint8 i = 0; i < CHALLENGE_MAX; i++)
-        data << uint32(reward[i].ChallengeCount);
+    for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
+        l_Data << uint32(l_Reward[l_I].ChallengeCount);
 
-    for (uint8 i = 0; i < CHALLENGE_MAX; i++)
-        data << uint32(0);                      // Current count : @TODO : New system ! Guild challenge
+    for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
+        l_Data << uint32(l_Reward[l_I].Gold2);
 
-    for (uint8 i = 0; i < CHALLENGE_MAX; i++)
-        data << uint32(reward[i].Experience);
+    for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
+        l_Data << uint32(l_Reward[l_I].Experience);
 
-    for (uint8 i = 0; i < CHALLENGE_MAX; i++)
-        data << uint32(reward[i].Gold2);
+    for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
+        l_Data << uint32(l_Reward[l_I].Gold);
 
-    for (uint8 i = 0; i < CHALLENGE_MAX; i++)
-        data << uint32(reward[i].Gold);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleGuildRequestGuildRecipes(WorldPacket& p_Packet)

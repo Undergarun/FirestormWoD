@@ -255,7 +255,7 @@ enum Opcodes
         SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0000,
         SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x0000,
         SMSG_GUILD_BANK_QUERY_RESULTS               = 0x0000,
-        SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x0000,
+        SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x1319,   ///< 6.0.2 18934
 
         /// Achievement
         SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x0000,
@@ -272,45 +272,44 @@ enum Opcodes
         SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,   ///< Debug opcode (disabled)
         SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x1609,   ///< 6.0.2 18934 (unused)
         SMSG_GUILD_REWARDS_LIST                     = 0x1349,   ///< 6.0.2 18934
-        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0000,
-        SMSG_GUILD_CHALLENGE_UPDATED                = 0x0000,
-        SMSG_GUILD_REPUTATION_WEEKLY_CAP            = 0x0000,
-        SMSG_GUILD_MEMBER_RECIPES                   = 0x0000,
-        SMSG_GUILD_INVITE_EXPIRED                   = 0x0000,
-        SMSG_GUILD_COMMAND_RESULT                   = 0x0000,
-        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0000,
-        SMSG_GUILD_SEND_GUILD_XP                    = 0x0000,
+        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0709,   ///< 6.0.2 18934
+        SMSG_GUILD_CHALLENGE_UPDATED                = 0x160A,   ///< 6.0.2 18934
+        SMSG_GUILD_MEMBER_RECIPES                   = 0x137A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_INVITE_EXPIRED                   = 0x077A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_COMMAND_RESULT                   = 0x020A,   ///< 6.0.2 18934
+        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0219,   ///< 6.0.2 18934 (unused)
         SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x1329,   ///< 6.0.2 18934 (unused)
-        SMSG_GUILD_KNOWN_RECIPES                    = 0x0000,
-        SMSG_GUILD_MEMBER_DAILY_RESET               = 0x0000,
-        SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x0000,
-        SMSG_GUILD_NAME_CHANGED                     = 0x0000,
-        SMSG_GUILD_RESET                            = 0x0000,
-        SMSG_GUILD_CHANGE_NAME_RESULT               = 0x0000,
-        SMSG_GUILD_INVITE                           = 0x0000,
-        SMSG_GUILD_INVITE_DECLINED                  = 0x0000,
+        SMSG_GUILD_KNOWN_RECIPES                    = 0x0679,   ///< 6.0.2 18934
+        SMSG_GUILD_MEMBER_DAILY_RESET               = 0x1239,   ///< 6.0.2 18934
+        SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x032A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_NAME_CHANGED                     = 0x022A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_RESET                            = 0x123A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_CHANGE_NAME_RESULT               = 0x1279,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_INVITE                           = 0x1209,   ///< 6.0.2 18934
+        SMSG_GUILD_INVITE_DECLINED                  = 0x1359,   ///< 6.0.2 18934 (unused)
         SMSG_GUILD_PARTY_STATE                      = 0x127A,   ///< 6.0.2 18934
-        SMSG_GUILD_MEMBERS_WITH_RECIPE              = 0x0000,
-        SMSG_GUILD_MOVE_STARTING                    = 0x0000,
-        SMSG_GUILD_MOVED                            = 0x0000,
+        SMSG_GUILD_MEMBERS_WITH_RECIPE              = 0x067A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_MOVE_STARTING                    = 0x061A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_MOVED                            = 0x063A,   ///< 6.0.2 18934 (unused)
         SMSG_GUILD_NEWS                             = 0x0229,   ///< 6.0.2 18934
         SMSG_GUILD_NEWS_DELETED                     = 0x0279,   ///< 6.0.2 18934 (unused)
 
         /// Event system
-        SMSG_GUILD_EVENT_NEW_LEADER                 = 0x0000,
-        SMSG_GUILD_EVENT_PRESENCE_CHANGE            = 0x0000,
-        SMSG_GUILD_EVENT_PLAYER_JOINED              = 0x0000,
-        SMSG_GUILD_EVENT_PLAYER_LEFT                = 0x0000,
-        SMSG_GUILD_EVENT_RANKS_UPDATED              = 0x0000,
-        SMSG_GUILD_EVENT_RANK_CHANGED               = 0x0000,
-        SMSG_GUILD_EVENT_LOG_QUERY_RESULTS          = 0x0000,
-        SMSG_GUILD_EVENT_MOTD                       = 0x0000,
-        SMSG_GUILD_EVENT_DISBANDED                  = 0x0000,
-        SMSG_GUILD_EVENT_TAB_MODIFIED               = 0x0000,
-        SMSG_GUILD_EVENT_TAB_DELETED                = 0x0000,
-        SMSG_GUILD_EVENT_TAB_TEXT_CHANGED           = 0x0000,
-        SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED      = 0x0000,
-        SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x0000,
+        SMSG_GUILD_EVENT_NEW_LEADER                 = 0x0349,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_PRESENCE_CHANGE            = 0x0649,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_PLAYER_JOINED              = 0x074A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_PLAYER_LEFT                = 0x062A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_RANKS_UPDATED              = 0x1339,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_RANK_CHANGED               = 0x161A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_LOG_QUERY_RESULTS          = 0x0719,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_MOTD                       = 0x125A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_DISBANDED                  = 0x0339,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_ADDED                  = 0x036A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_MODIFIED               = 0x0269,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_DELETED                = 0x0249,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_TEXT_CHANGED           = 0x073A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED      = 0x120A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x0769,   ///< 6.0.2 18934
 
         /// Misc
         SMSG_GMGUILD_SAVE_RESPONSE                  = 0x0000,   ///< Debug opcode (disabled)
