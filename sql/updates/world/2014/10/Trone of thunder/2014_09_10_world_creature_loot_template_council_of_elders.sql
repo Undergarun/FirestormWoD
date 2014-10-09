@@ -1,5 +1,6 @@
 -- Council of Elders Loots
 
+-- Kaz'ra Jin
 -- Normal Mode
 SET @REF_COUNCIL_NORMAL = 69134;
 DELETE FROM reference_loot_template WHERE entry = @REF_COUNCIL_NORMAL;
@@ -64,20 +65,6 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_COUNCIL_NORMAL, 96233, 0, 1, 1, 1, 1), /* Zeeg's Ancient Kegsmasher (Thunderforged) */
 (@REF_COUNCIL_NORMAL, 94758, 0, 1, 1, 1, 1); /* Zerat, Malakk's Soulburning Greatsword */
 
--- Mode 10 normal
-SET @10NM_KAZ_RA_JIN = 69134;
-UPDATE creature_template SET lootid = @10NM_KAZ_RA_JIN WHERE entry = @10NM_KAZ_RA_JIN;
-DELETE FROM creature_loot_template WHERE entry = @10NM_KAZ_RA_JIN;
-INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
-(@10NM_KAZ_RA_JIN, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 2); /* REF 1 */
-
--- Mode 25 normal
-SET @25NM_KAZ_RA_JIN = 80134;
-UPDATE creature_template SET lootid = @25NM_KAZ_RA_JIN WHERE entry = @25NM_KAZ_RA_JIN;
-DELETE FROM creature_loot_template WHERE entry = @25NM_KAZ_RA_JIN;
-INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
-(@25NM_KAZ_RA_JIN, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 5); /* REF 1 */
-
 -- Heroic Mode
 SET @REF_COUNCIL_HEROIC = 81134;
 DELETE FROM reference_loot_template WHERE entry = @REF_COUNCIL_HEROIC;
@@ -140,6 +127,20 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_COUNCIL_HEROIC, 96605, 0, 1, 1, 1, 1), /* Zeeg's Ancient Kegsmasher */
 (@REF_COUNCIL_HEROIC, 96419, 0, 1, 1, 1, 1); /* Zerat, Malakk's Soulburning Greatsword */
 
+-- Mode 10 normal
+SET @10NM_KAZ_RA_JIN = 69134;
+UPDATE creature_template SET lootid = @10NM_KAZ_RA_JIN WHERE entry = @10NM_KAZ_RA_JIN;
+DELETE FROM creature_loot_template WHERE entry = @10NM_KAZ_RA_JIN;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10NM_KAZ_RA_JIN, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 2); /* REF 1 */
+
+-- Mode 25 normal
+SET @25NM_KAZ_RA_JIN = 80134;
+UPDATE creature_template SET lootid = @25NM_KAZ_RA_JIN WHERE entry = @25NM_KAZ_RA_JIN;
+DELETE FROM creature_loot_template WHERE entry = @25NM_KAZ_RA_JIN;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25NM_KAZ_RA_JIN, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 5); /* REF 1 */
+
 -- Mode 10 Heroic
 SET @10HM_KAZ_RA_JIN = 81134;
 UPDATE creature_template SET lootid = @10HM_KAZ_RA_JIN WHERE entry = @10HM_KAZ_RA_JIN;
@@ -155,9 +156,123 @@ INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, 
 (@25HM_KAZ_RA_JIN, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 5); /* REF 2 */
 
 -- Currencies
-DELETE FROM creature_loot_currency WHERE creature_id IN (@10NM_KAZ_RA_JIN, @25NM_KAZ_RA_JIN);
+DELETE FROM creature_loot_currency WHERE creature_id IN (@10NM_KAZ_RA_JIN, @25NM_KAZ_RA_JIN, @10HM_KAZ_RA_JIN, @25HM_KAZ_RA_JIN);
 REPLACE INTO creature_loot_currency (creature_id, CurrencyId1, CurrencyCount1) VALUES
 (@10NM_KAZ_RA_JIN, 396, 4000),
 (@25NM_KAZ_RA_JIN, 396, 4000),
 (@10HM_KAZ_RA_JIN, 396, 4000),
 (@25HM_KAZ_RA_JIN, 396, 4000);
+
+
+-- Mar'Li
+-- Mode 10 normal
+SET @10NM_MAR_LI = 69132;
+UPDATE creature_template SET lootid = @10NM_MAR_LI WHERE entry = @10NM_MAR_LI;
+DELETE FROM creature_loot_template WHERE entry = @10NM_MAR_LI;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10NM_MAR_LI, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 2); /* REF 1 */
+
+-- Mode 25 normal
+SET @25NM_MAR_LI = 80132;
+UPDATE creature_template SET lootid = @25NM_MAR_LI WHERE entry = @25NM_MAR_LI;
+DELETE FROM creature_loot_template WHERE entry = @25NM_MAR_LI;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25NM_MAR_LI, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 5); /* REF 1 */
+
+-- Mode 10 Heroic
+SET @10HM_MAR_LI = 81132;
+UPDATE creature_template SET lootid = @10HM_MAR_LI WHERE entry = @10HM_MAR_LI;
+DELETE FROM creature_loot_template WHERE entry = @10HM_MAR_LI;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10HM_MAR_LI, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 2); /* REF 2 */
+
+-- Mode 10 Heroic
+SET @25HM_MAR_LI = 82132;
+UPDATE creature_template SET lootid = @25HM_MAR_LI WHERE entry = @25HM_MAR_LI;
+DELETE FROM creature_loot_template WHERE entry = @25HM_MAR_LI;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25HM_MAR_LI, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 5); /* REF 2 */
+
+-- Currencies
+DELETE FROM creature_loot_currency WHERE creature_id IN (@10NM_MAR_LI, @25NM_MAR_LI, @10HM_MAR_LI, @25HM_MAR_LI);
+REPLACE INTO creature_loot_currency (creature_id, CurrencyId1, CurrencyCount1) VALUES
+(@10NM_MAR_LI, 396, 4000),
+(@25NM_MAR_LI, 396, 4000),
+(@10HM_MAR_LI, 396, 4000),
+(@25HM_MAR_LI, 396, 4000);
+
+
+-- Sul the SandCrawler
+-- Mode 10 normal
+SET @10NM_SUL = 69078;
+UPDATE creature_template SET lootid = @10NM_SUL WHERE entry = @10NM_SUL;
+DELETE FROM creature_loot_template WHERE entry = @10NM_SUL;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10NM_SUL, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 2); /* REF 1 */
+
+-- Mode 25 normal
+SET @25NM_SUL = 80078;
+UPDATE creature_template SET lootid = @25NM_SUL WHERE entry = @25NM_SUL;
+DELETE FROM creature_loot_template WHERE entry = @25NM_SUL;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25NM_SUL, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 5); /* REF 1 */
+
+-- Mode 10 Heroic
+SET @10HM_SUL = 81078;
+UPDATE creature_template SET lootid = @10HM_SUL WHERE entry = @10HM_SUL;
+DELETE FROM creature_loot_template WHERE entry = @10HM_SUL;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10HM_SUL, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 2); /* REF 2 */
+
+-- Mode 10 Heroic
+SET @25HM_SUL = 82078;
+UPDATE creature_template SET lootid = @25HM_SUL WHERE entry = @25HM_SUL;
+DELETE FROM creature_loot_template WHERE entry = @25HM_SUL;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25HM_SUL, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 5); /* REF 2 */
+
+-- Currencies
+DELETE FROM creature_loot_currency WHERE creature_id IN (@10NM_SUL, @25NM_SUL, @10HM_SUL, @25HM_SUL);
+REPLACE INTO creature_loot_currency (creature_id, CurrencyId1, CurrencyCount1) VALUES
+(@10NM_SUL, 396, 4000),
+(@25NM_SUL, 396, 4000),
+(@10HM_SUL, 396, 4000),
+(@25HM_SUL, 396, 4000);
+
+
+-- Frost King Malakk
+-- Mode 10 normal
+SET @10NM_MALAKK = 69131;
+UPDATE creature_template SET lootid = @10NM_MALAKK WHERE entry = @10NM_MALAKK;
+DELETE FROM creature_loot_template WHERE entry = @10NM_MALAKK;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10NM_MALAKK, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 2); /* REF 1 */
+
+-- Mode 25 normal
+SET @25NM_MALAKK = 80131;
+UPDATE creature_template SET lootid = @25NM_MALAKK WHERE entry = @25NM_MALAKK;
+DELETE FROM creature_loot_template WHERE entry = @25NM_MALAKK;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25NM_MALAKK, 1, 100, 1, 0, -@REF_COUNCIL_NORMAL, 5); /* REF 1 */
+
+-- Mode 10 Heroic
+SET @10HM_MALAKK = 81131;
+UPDATE creature_template SET lootid = @10HM_MALAKK WHERE entry = @10HM_MALAKK;
+DELETE FROM creature_loot_template WHERE entry = @10HM_MALAKK;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@10HM_MALAKK, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 2); /* REF 2 */
+
+-- Mode 10 Heroic
+SET @25HM_MALAKK = 82131;
+UPDATE creature_template SET lootid = @25HM_MALAKK WHERE entry = @25HM_MALAKK;
+DELETE FROM creature_loot_template WHERE entry = @25HM_MALAKK;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUES
+(@25HM_MALAKK, 1, 100, 1, 0, -@REF_COUNCIL_HEROIC, 5); /* REF 2 */
+
+-- Currencies
+DELETE FROM creature_loot_currency WHERE creature_id IN (@10NM_MALAKK, @25NM_MALAKK, @10HM_MALAKK, @25HM_MALAKK);
+REPLACE INTO creature_loot_currency (creature_id, CurrencyId1, CurrencyCount1) VALUES
+(@10NM_MALAKK, 396, 4000),
+(@25NM_MALAKK, 396, 4000),
+(@10HM_MALAKK, 396, 4000),
+(@25HM_MALAKK, 396, 4000);
