@@ -515,9 +515,9 @@ void AreaTrigger::Remove(uint32 p_time)
 
         switch (m_spellInfo->Id)
         {
-            case 115460:
+            case 115460: // zen sphere
             {
-                if (int32(GetDuration()) - int32(p_time) > 0)
+                if (int32(GetDuration()) - int32(p_time) > 0 || GetDuration() == 0)
                     break;
 
                 if (!m_caster)
@@ -526,9 +526,9 @@ void AreaTrigger::Remove(uint32 p_time)
                 m_caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135914, true);
                 break;
             }
-            case 119031:
+            case 119031: // zen sphere
             {
-                if (int32(GetDuration()) - int32(p_time) > 0)
+                if (int32(GetDuration()) - int32(p_time) > 0 || GetDuration() == 0)
                     break;
 
                 if (!m_caster)
