@@ -2659,6 +2659,9 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 
             void HandleTargets(std::list<WorldObject*>& targets)
             {
+                if (Unit* mushroom = GetCaster())
+                    targets.remove(mushroom);
+
                 count = targets.size();
             }
 
