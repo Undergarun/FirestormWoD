@@ -3004,6 +3004,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target, constAuraEffectPtr triggered
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
 
+        if (m_damage > damageInfo.damage)
+            damageInfo.damage = m_damage;
+
         m_damage = damageInfo.damage;
         CallScriptOnHitHandlers();
         damageInfo.damage = m_damage;
