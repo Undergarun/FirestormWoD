@@ -4912,6 +4912,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Mechanic = 0;
                 break;
+            case 115072: // Expel Harm
+                spellInfo->m_IsScaled = true;
+                break;
             case 20066: // Repentence
             case 115175:// Soothing Mists
             case 116694:// Surging Mists
