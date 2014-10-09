@@ -2238,7 +2238,7 @@ void World::Update(uint32 diff)
             m_transfertsLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
         }
 
-        m_timers[WUPDATE_TRANSFERT].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFERT].SetInterval(2 * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFERT].Reset();
     }
 
@@ -2331,7 +2331,7 @@ void World::Update(uint32 diff)
         m_transfertsDumpCallbacks.cancel();
         m_transfertsLoadCallbacks.cancel();
 
-        m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFERT].SetInterval(2 * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFERT].Reset();
     }
 
