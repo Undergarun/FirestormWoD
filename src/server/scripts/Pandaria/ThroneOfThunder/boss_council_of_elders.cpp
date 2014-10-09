@@ -214,6 +214,20 @@ bool isAlonePossessed(InstanceScript* instance)
     return true;
 }
 
+bool AllBossesDead(Creature* me)
+{
+    for (uint8 l_I = 0; l_I < 4; l_I++)
+    {
+        if (entries[l_I] != me->GetEntry())
+            if (GetClosestCreatureWithEntry(me, entries[l_I], 200.0f, true))
+                continue;
+            else
+                return false;
+    }
+
+    return true;
+}
+
 // Gara'Jal's Soul - 69182
 class npc_gara_jal_s_soul : public CreatureScript
 {
@@ -506,6 +520,9 @@ class boss_king_malakk : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+
+                if (!AllBossesDead(me))
+                    me->SetLootRecipient(NULL);
 
                 Talk(7);
             }
@@ -812,6 +829,9 @@ class boss_kazra_jin : public CreatureScript
                     if (l_Player && l_Player->GetGroup())
                         sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
+
+                if (!AllBossesDead(me))
+                    me->SetLootRecipient(NULL);
 
                 Talk(7);
             }
@@ -1243,6 +1263,9 @@ class boss_sul_the_sandcrawler : public CreatureScript
                     if (l_Player && l_Player->GetGroup())
                         sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
+
+                if (!AllBossesDead(me))
+                    me->SetLootRecipient(NULL);
 
                 Talk(7);
             }
@@ -1787,6 +1810,9 @@ class boss_high_priestress_mar_li : public CreatureScript
                     if (l_Player && l_Player->GetGroup())
                         sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
+
+                if (!AllBossesDead(me))
+                    me->SetLootRecipient(NULL);
 
                 Talk(8);
             }
