@@ -3417,18 +3417,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ExplicitTargetMask = 0;
                 break;
             case 136954:// Anima Ring
-                spellInfo->Effects[0].TriggerSpell = 0;
-                spellInfo->Effects[1].TriggerSpell = 0;
-                spellInfo->Effects[2].TriggerSpell = 0;
-                spellInfo->Effects[3].TriggerSpell = 0;
-                spellInfo->Effects[4].TriggerSpell = 0;
-                spellInfo->Effects[5].TriggerSpell = 0;
-                spellInfo->Effects[6].TriggerSpell = 0;
-                spellInfo->Effects[7].TriggerSpell = 0;
-                spellInfo->Effects[8].TriggerSpell = 0;
-                spellInfo->Effects[9].TriggerSpell = 0;
-                spellInfo->Effects[10].TriggerSpell = 0;
-                spellInfo->Effects[11].TriggerSpell = 0;
+                for (uint8 l_Iter = 0; l_Iter <= 11; l_Iter++)
+                    spellInfo->Effects[l_Iter].TriggerSpell = 0;
                 break;
             case 136955:// Anima Ring (Triggered)
             case 136956:// Anima Ring (Triggered)
