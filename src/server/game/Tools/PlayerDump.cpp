@@ -188,7 +188,7 @@ uint32 registerNewGuid(uint32 oldGuid, std::map<uint32, uint32> &guidMap, uint32
     if (itr != guidMap.end())
         return itr->second;
 
-    uint32 newguid = hiGuid + guidMap.size();
+    uint32 newguid = hiGuid;
     guidMap[oldGuid] = newguid;
     return newguid;
 }
@@ -517,9 +517,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     std::stringstream stringstr;
 
-    ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
-    sObjectMgr->_hiItemGuid++;
-
     while (!feof(fin))
     {
         if (!fgets(buf, 32000, fin))
@@ -635,7 +632,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 char newSetGuid[24];
                 snprintf(newSetGuid, 24, UI64FMTD, sObjectMgr->GenerateEquipmentSetGuid());
                 if (!changenth(line, 2, newSetGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);// character_equipmentsets.setguid
+                    ROLLBACK(DUMP_FILE_BROKEN); // character_equipmentsets.setguid
                 break;
             }
             case DTT_INVENTORY:
@@ -643,9 +640,9 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 if (!changenth(line, 1, newguid)) // character_inventory.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!changeGuid(line, 2, items, sObjectMgr->_hiItemGuid, true))
+                if (!changeGuid(line, 2, items, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), true))
                     ROLLBACK(DUMP_FILE_BROKEN);// character_inventory.bag update
-                if (!changeGuid(line, 4, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 4, items, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM)))
                     ROLLBACK(DUMP_FILE_BROKEN);// character_inventory.item update
                 break;
             }
@@ -663,7 +660,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             }
             case DTT_MAIL: // mail
             {
-                if (!changeGuid(line, 1, mails, sObjectMgr->_mailId))
+                if (!changeGuid(line, 1, mails, sObjectMgr->GenerateMailID()))
                     ROLLBACK(DUMP_FILE_BROKEN); // mail.id update
                 if (!changenth(line, 6, newguid))// mail.receiver update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -671,9 +668,9 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             }
             case DTT_MAIL_ITEM: // mail_items
             {
-                if (!changeGuid(line, 1, mails, sObjectMgr->_mailId))
+                if (!changeGuid(line, 1, mails, sObjectMgr->GenerateMailID()))
                     ROLLBACK(DUMP_FILE_BROKEN); // mail_items.id
-                if (!changeGuid(line, 2, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 2, items, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM)))
                     ROLLBACK(DUMP_FILE_BROKEN);// mail_items.item_guid
                 if (!changenth(line, 3, newguid))// mail_items.receiver
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -682,7 +679,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             case DTT_ITEM:
             {
                 // item, owner, data field:item, owner guid
-                if (!changeGuid(line, 1, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 1, items, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM)))
                     ROLLBACK(DUMP_FILE_BROKEN);// item_instance.guid update
                 if (!changenth(line, 3, newguid))// item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -714,7 +711,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             {
                 if (!changenth(line, 1, newguid)) // character_gifts.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changeGuid(line, 2, items, sObjectMgr->_hiItemGuid))
+                if (!changeGuid(line, 2, items, sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM)))
                     ROLLBACK(DUMP_FILE_BROKEN);// character_gifts.item_guid update
                 break;
             }
@@ -793,8 +790,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     //CharacterDatabase.DirectCommitTransaction(trans);
 
-    sObjectMgr->_hiItemGuid += items.size();
-    sObjectMgr->_mailId += mails.size();
+    //sObjectMgr->_hiItemGuid += items.size();
+    //sObjectMgr->_mailId += mails.size();
 
     if (incHighest)
         ++sObjectMgr->_hiCharGuid;
