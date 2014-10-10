@@ -525,20 +525,20 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                     {
                         acctCharCount = std::stoi(ch);
                     }
-                    catch(std::invalid_argument& /*e*/)
+                    catch(...)
                     {
                         acctCharCount = 0;
                         sLog->OutPandashan("Exception (invalid argument) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
                         KickPlayer();
                         return;
                     }
-                    catch(std::out_of_range)
+                    /*catch(std::out_of_range)
                     {
                         acctCharCount = 0;
                         sLog->OutPandashan("Exception (out of range) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
                         KickPlayer();
                         return;
-                    }
+                    }*/
                 }
             }
 
@@ -1544,7 +1544,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     if (!result)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
-        data << uint8(CHAR_CREATE_ERROR);
+        BuildCharacterRename(&data, 0, CHAR_CREATE_ERROR, newName);
         SendPacket(&data);
         return;
     }

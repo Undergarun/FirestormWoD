@@ -632,6 +632,15 @@ struct HotfixInfo
     uint32 Entry;
 };
 
+struct BattlePetTemplate
+{
+    uint32 Species;
+    uint32 Breed;
+    uint32 Quality;
+    uint32 Level;
+};
+typedef std::map<uint32, BattlePetTemplate> BattlePetTemplateContainer;
+
 struct ResearchPOIPoint
 {
     ResearchPOIPoint(int32 _x, int32 _y) { x = _x; y = _y; }
@@ -961,6 +970,7 @@ class ObjectMgr
         void LoadItemScriptNames();
         void LoadItemLocales();
         void LoadItemSpecs();
+        void LoadItemSpecsOverride();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1013,12 +1023,19 @@ class ObjectMgr
 
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
+        void LoadBattlePetTemplate();
 
         void LoadItemExtendedCost();
         void LoadGuildChallengeRewardInfo();
 
         void LoadResearchSiteZones();
         void LoadResearchSiteLoot();
+
+        BattlePetTemplate const* GetBattlePetTemplate(uint32 species) const
+        {
+            BattlePetTemplateContainer::const_iterator itr = _battlePetTemplateStore.find(species);
+            return itr != _battlePetTemplateStore.end() ? &itr->second : NULL;
+        }
 
         ResearchZoneMap const& GetResearchZoneMap() const { return _researchZoneMap; }
         ResearchLootVector const& GetResearchLoot() const { return _researchLoot; }
@@ -1465,6 +1482,7 @@ class ObjectMgr
         TrinityStringLocaleContainer _trinityStringLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
+        BattlePetTemplateContainer _battlePetTemplateStore;
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;

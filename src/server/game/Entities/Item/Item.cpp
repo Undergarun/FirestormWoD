@@ -216,6 +216,10 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPPLIES))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_COOKING_CONTAINER:
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_COOKING_SUPPLIES))
+                        return false;
+                    return true;
                 default:
                     return false;
             }
@@ -305,7 +309,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
                 SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
         }
 
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
     }
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
@@ -501,7 +505,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         if (CanUpgrade())
         {
              SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
         }
     }
     else
@@ -526,7 +530,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
                     SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
             }
 
-            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1|0x2|0x4);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
         }
     }
 
@@ -893,7 +897,7 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
-        if (proto->InventoryType == INVTYPE_WEAPON &&
+        if ((proto->InventoryType == INVTYPE_WEAPON || proto->InventoryType == INVTYPE_2HWEAPON) &&
             (spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONMAINHAND) ||
              spellInfo->EquippedItemInventoryTypeMask & (1 << INVTYPE_WEAPONOFFHAND)))
             return true;

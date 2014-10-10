@@ -33,7 +33,7 @@ enum eTsulongEvents
     EVENT_SPAWN_SUNBEAM,
     EVENT_SHADOW_BREATH,
     EVENT_NIGHTMARES,
-    EVENT_DARK_OF_NIGHT,
+    EVENT_DARK_OF_NIGHT,    //Heroic
     EVENT_UP_ENERGY,
     EVENT_SUN_BREATH,
     EVENT_SPAWN_EMBODIED_TERROR,
@@ -51,6 +51,7 @@ enum eTsulongSpells
     SPELL_SHADOW_BREATH        = 122752,
     SPELL_NIGHTMARES           = 122770,
     SPELL_SPAWN_DARK_OF_NIGHT  = 123739,
+    SPELL_TRIGGER_LIGHT_OF_DAY = 123816,
     SPELL_DAY_PHASE            = 122453,
     SPELL_SUN_BREATH           = 122855,
     SPELL_BATHED_IN_LIGHT      = 122858,
@@ -60,6 +61,10 @@ enum eTsulongSpells
     // The dark of the night
     SPELL_BUMP_DARK_OF_NIGHT   = 130013,
     SPELL_VISUAL_DARK_OF_NIGHT = 123740,
+    SPELL_VISUAL_LINK_TO_BEAM  = 137567,
+
+    // The light of the day
+    SPELL_BUFF_LIGHT_OF_DAY    = 123716,
 
     // The embodied terror
     SPELL_TERRORIZE_PLAYER     = 123011,
@@ -72,11 +77,13 @@ enum eTsulongSpells
     // Unstable sha
     SPELL_BOLT                 = 122881,
     SPELL_INSTABILITY          = 123697,
+
+    SPELL_TSULONG_BONUS        = 132201
 };
 
 enum eTsulongTimers
 {
-    TIMER_FIRST_WAYPOINT  = 5000, // 5 secs for test, live : 120 000
+    TIMER_FIRST_WAYPOINT  =  5000, // 5 secs for test, live : 120 000
     TIMER_SHADOW_BREATH   = 25000,
     TIMER_NIGHTMARES      = 11600,
     TIMER_DARK_OF_NIGHT   = 30000,
@@ -86,7 +93,7 @@ enum eTsulongTimers
     TIMER_TERRORIZE       = 13500,
     TIMER_FRIGHT          =  6000,
     TIMER_UNSTABLE_SHA    = 18000,
-    TIMER_BOLT            = 2000,
+    TIMER_BOLT            =  2000,
 };
 
 enum eTsulongPhase
@@ -117,10 +124,11 @@ enum eTsulongActions
 
 enum eTsulongCreatures
 {
-    SUNBEAM_DUMMY_ENTRY    = 62849,
-    EMBODIED_TERROR        = 62969,
-    UNSTABLE_SHA_DUMMY     = 62962,
-    TINY_TERROR            = 62977,
+    SUNBEAM_DUMMY_ENTRY     = 62849,
+    EMBODIED_TERROR         = 62969,
+    UNSTABLE_SHA_DUMMY      = 62962,
+    TINY_TERROR             = 62977,
+    NPC_DARK_OF_NIGHT       = 63346,
 };
 
 enum eTsulongTexts
@@ -135,6 +143,7 @@ enum eTsulongTexts
     VO_TES_SERPENT_SPELL_NIGGHTMARE = 7
 };
 
+// 62442 - Tsulong
 class boss_tsulong : public CreatureScript
 {
     public:
@@ -174,6 +183,7 @@ class boss_tsulong : public CreatureScript
                 berserkTimer = 60000 * 8;
 
                 me->SetDisableGravity(true);
+                me->ReenableEvadeMode();
                 me->SetCanFly(true);
                 me->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS);
                 me->RemoveAurasDueToSpell(SPELL_DAY_PHASE);
@@ -181,7 +191,11 @@ class boss_tsulong : public CreatureScript
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
+
                 me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				
                 phase = PHASE_NONE;
                 events.SetPhase(PHASE_NONE);
 
@@ -189,12 +203,17 @@ class boss_tsulong : public CreatureScript
                 {
                     if (pInstance->GetBossState(DATA_TSULONG) == DONE)
                     {
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_BREATH);
+                        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
+
                         needToLeave = true;
                         leaveTimer = 10000;
                         me->SetDisplayId(DISPLAY_TSULON_DAY);
                         me->setFaction(2104);
                         phase = PHASE_NONE;
                         events.SetPhase(PHASE_NONE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else if (pInstance->GetBossState(DATA_PROTECTORS) == DONE)
                     {
@@ -264,17 +283,6 @@ class boss_tsulong : public CreatureScript
                     Talk(VO_TES_SERPENT_SLAY_DAY);
             }
 
-            void JustDied(Unit* killer)
-            {
-                if (pInstance)
-                {
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    pInstance->SetBossState(DATA_TSULONG, DONE);
-                }
-
-                _JustDied();
-            }
-
             void DoAction(const int32 action)
             {
                 if (action == ACTION_START_TSULONG_WAYPOINT)
@@ -319,6 +327,12 @@ class boss_tsulong : public CreatureScript
 
             void DamageTaken(Unit* doneBy, uint32 &damage)
             {
+                if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
+                {
+                    damage = 0;
+                    return;
+                }
+
                 if (phase == PHASE_DAY)
                 {
                     uint32 health = me->GetHealth();
@@ -329,7 +343,7 @@ class boss_tsulong : public CreatureScript
                     }
 
                     if (damage >= me->GetHealth())
-                        damage = me->GetHealth()-1;
+                        damage = me->GetHealth() - 1;
                 }
                 
                 if (phase == PHASE_NIGHT)
@@ -340,20 +354,36 @@ class boss_tsulong : public CreatureScript
                         EndOfFight();
                     }
                 }
-
-                if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
-                    damage = 0;
             }
 
             void EndOfFight()
             {
                 Talk(VO_TES_SERPENT_DEATH);
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                pInstance->SetBossState(DATA_TSULONG, DONE);
+
+                if (pInstance)
+                {
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    pInstance->SetBossState(DATA_TSULONG, DONE);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DREAD_SHADOWS_DEBUFF);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
+                }
+
+                me->RemoveAllAreasTrigger();
+                me->RemoveAllAuras();
+                me->ReenableHealthRegen();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->ReenableEvadeMode();
                 me->ReenableHealthRegen();
                 me->CombatStop();
                 EnterEvadeMode();
+                me->GetMotionMaster()->MoveTargetedHome();
+                _Reset();
+
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                    if (Player* player = itr->getSource())
+                        player->CombatStop();
 
                 switch (me->GetMap()->GetSpawnMode())
                 {
@@ -371,6 +401,21 @@ class boss_tsulong : public CreatureScript
                         break;
                     default:
                         break;
+                }
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_TSULONG_BONUS, true);
+                }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -485,6 +530,8 @@ class boss_tsulong : public CreatureScript
                             me->SetDisplayId(DISPLAY_TSULON_NIGHT);
                             me->RemoveAurasDueToSpell(SPELL_DAY_PHASE);
                             me->RemoveAurasDueToSpell(SPELL_TERRORIZE_TSULONG);
+                            if (IsHeroic())
+                                me->RemoveAurasDueToSpell(SPELL_TRIGGER_LIGHT_OF_DAY);
                             me->ClearUnitState(UNIT_STATE_ROOT);
                             me->setFaction(14);
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -496,6 +543,8 @@ class boss_tsulong : public CreatureScript
                             if (me->GetMap()->IsHeroic())
                                 events.RescheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
                             events.RescheduleEvent(EVENT_UP_ENERGY, TIMER_UP_ENERGY);
+                            if (instance)
+                                instance->DoAddAuraOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                             break;
                         case EVENT_SPAWN_SUNBEAM:
                             Position pos;
@@ -511,10 +560,6 @@ class boss_tsulong : public CreatureScript
                                 Talk(VO_TES_SERPENT_SPELL_NIGGHTMARE);
                             me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM), SPELL_NIGHTMARES, false);
                             events.ScheduleEvent(EVENT_NIGHTMARES, TIMER_NIGHTMARES, 0, PHASE_NIGHT);
-                            break;
-                        case EVENT_DARK_OF_NIGHT:
-                            me->CastSpell(me, SPELL_SPAWN_DARK_OF_NIGHT, false);
-                            events.ScheduleEvent(EVENT_DARK_OF_NIGHT, TIMER_DARK_OF_NIGHT, 0, PHASE_NIGHT);
                             break;
                         case EVENT_UP_ENERGY:
                             if (me->GetPower(POWER_ENERGY) == 100)
@@ -557,6 +602,10 @@ class boss_tsulong : public CreatureScript
                             events.RescheduleEvent(EVENT_SUN_BREATH, TIMER_SUN_BREATH, 0, PHASE_DAY);
                             events.RescheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR, 0, PHASE_DAY);
                             events.RescheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA, 0, PHASE_DAY);
+                            if (IsHeroic())
+                                me->CastSpell(me, SPELL_TRIGGER_LIGHT_OF_DAY, false);
+                            if (instance)
+                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                             break;
                         case EVENT_SUN_BREATH:
                             me->CastSpell(me, SPELL_SUN_BREATH, false);
@@ -567,7 +616,7 @@ class boss_tsulong : public CreatureScript
                             me->GetRandomNearPosition(pos, 45.0f);
                             if (Creature* embodiedTerror = me->SummonCreature(EMBODIED_TERROR, pos))
                                 embodiedTerror->GetMotionMaster()->MovePoint(1, -1010.239f, -3043.97f, 12.82f);
-                            events.ScheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR-25000, 0, PHASE_DAY);
+                            events.ScheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR, 0, PHASE_DAY);
                             break;
                         case EVENT_UNSTABLE_SHA:
                         {
@@ -582,7 +631,7 @@ class boss_tsulong : public CreatureScript
                                 for (uint32 i = 0; i < (dummysRands.size() < 3 ? dummysRands.size() : 3); i++)
                                     me->CastSpell(dummysRands[i], SPELL_SUMMON_UNSTABLE_SHA, false);
                             }
-                            events.ScheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA-10000, 0, PHASE_DAY);
+                            events.ScheduleEvent(EVENT_UNSTABLE_SHA, TIMER_UNSTABLE_SHA, 0, PHASE_DAY);
                             break;
                         }
                         default:
@@ -608,17 +657,20 @@ class boss_tsulong : public CreatureScript
         }
 };
 
+// 62849 - Sunbeam
 class npc_sunbeam : public CreatureScript
 {
     public:
         npc_sunbeam() : CreatureScript("npc_sunbeam") { }
 
-        struct npc_sunbeamAI : public CreatureAI
+        struct npc_sunbeamAI : public ScriptedAI
         {
             InstanceScript* pInstance;
+            EventMap events;
+            std::list<uint64> darkList;
             bool despawn;
 
-            npc_sunbeamAI(Creature* creature) : CreatureAI(creature)
+            npc_sunbeamAI(Creature* creature) : ScriptedAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
                 despawn = false;
@@ -626,6 +678,22 @@ class npc_sunbeam : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
                 creature->CastSpell(creature, SPELL_SUNBEAM_DUMMY, true);
+                darkList.clear();
+            }
+
+            void Reset()
+            {
+                events.Reset();
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_DARK_OF_NIGHT, 8000);
+            }
+
+            void DespawnDark()
+            {
+                if (!darkList.empty())
+                    for (uint64 darkGuid : darkList)
+                        if (Creature* dark = me->GetMap()->GetCreature(darkGuid))
+                            dark->DespawnOrUnsummon();
             }
 
             void Despawn()
@@ -636,6 +704,9 @@ class npc_sunbeam : public CreatureScript
                 {
                     if (Creature* tsulong = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TSULONG)))
                         tsulong->AI()->DoAction(ACTION_SPAWN_SUNBEAM);
+
+                    if (IsHeroic())
+                        DespawnDark();
                 }
 
                 me->DespawnOrUnsummon(1000);
@@ -643,6 +714,8 @@ class npc_sunbeam : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                if (IsHeroic())
+                    DespawnDark();
                 Despawn();
             }
 
@@ -654,6 +727,26 @@ class npc_sunbeam : public CreatureScript
                 float scale = me->GetFloatValue(OBJECT_FIELD_SCALE);
                 if (scale <= 1.0f)
                     Despawn();
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_DARK_OF_NIGHT:
+                    {
+                        // Spawning 5 Dark of night
+                        for (uint8 i = 0; i < 5; ++i)
+                        {
+                            Position spawnPos;
+                            me->GetNearPosition(spawnPos, urand(30.0f, 50.0f), urand(0, 2 * M_PI));
+                            if (Creature* dark = me->SummonCreature(NPC_DARK_OF_NIGHT, spawnPos))
+                                darkList.push_back(dark->GetGUID());
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
         };
 
@@ -663,6 +756,7 @@ class npc_sunbeam : public CreatureScript
         }
 };
 
+// 63446 - The Dark of Night
 class npc_dark_of_night : public CreatureScript
 {
     public:
@@ -682,10 +776,21 @@ class npc_dark_of_night : public CreatureScript
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 creature->CastSpell(me, SPELL_VISUAL_DARK_OF_NIGHT, false);
+                me->SetSpeed(MOVE_RUN, 0.5f);
+                me->SetSpeed(MOVE_WALK, 0.5f);
                 sunbeamTargetGUID = 0;
                 visualCastTimer = 1000;
                 explode = false;
+            }
 
+            void IsSummonedBy(Unit* summoner)
+            {
+                if (summoner)
+                {
+                    sunbeamTargetGUID = summoner->GetGUID();
+                    DoCast(summoner, SPELL_VISUAL_LINK_TO_BEAM);
+                    me->GetMotionMaster()->MovePoint(1, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -698,39 +803,20 @@ class npc_dark_of_night : public CreatureScript
                 else
                     visualCastTimer -= diff;
 
-                // Try to find a sunbeam
-                if (!sunbeamTargetGUID)
+                // Check if we are close enought to kill the sunbeam !
+                if (!explode)
                 {
-                    std::list<Creature*> sumbeams;
-                    me->GetCreatureListWithEntryInGrid(sumbeams, SUNBEAM_DUMMY_ENTRY, 100.0f);
-                    float minDist = 150.0f;
-                    Creature* tmp = NULL;
-
-                    for (auto itr : sumbeams)
+                    Creature* sunbeam = me->GetMap()->GetCreature(sunbeamTargetGUID);
+                    if (!sunbeam)
                     {
-                        float dist = itr->GetDistance2d(me);
-                        if (dist < minDist)
-                        {
-                            tmp = itr;
-                            sunbeamTargetGUID = itr->GetGUID();
-                        }
+                        me->DespawnOrUnsummon();
+                        return;
                     }
 
-                    if (tmp)
-                        me->GetMotionMaster()->MovePoint(1, tmp->GetPositionX(), tmp->GetPositionY(), tmp->GetPositionZ());
-                }
-                // Check if we are close enought to kill the sunbeam !
-                else if (!explode)
-                {
-                    Creature* tmp = me->GetMap()->GetCreature(sunbeamTargetGUID);
-                    if (!tmp)
-                        return;
-
-                    float dist = tmp->GetDistance(me);
-                    if (dist <= tmp->GetFloatValue(OBJECT_FIELD_SCALE))
+                    if (sunbeam->GetDistance(me) <= sunbeam->GetFloatValue(OBJECT_FIELD_SCALE))
                     {
                         me->CastSpell(me, SPELL_BUMP_DARK_OF_NIGHT, false);
-                        me->Kill(tmp);
+                        me->Kill(sunbeam);
                         me->DespawnOrUnsummon(1000);
                         explode = true;
                     }
@@ -744,6 +830,37 @@ class npc_dark_of_night : public CreatureScript
         }
 };
 
+// 63337 - Light of the day
+class npc_ligth_of_day : public CreatureScript
+{
+    public:
+        npc_ligth_of_day() : CreatureScript("npc_light_of_day") { }
+
+        struct npc_light_of_dayAI : public ScriptedAI
+        {
+            npc_light_of_dayAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            void OnSpellClick(Unit* clicker)
+            {
+                if (clicker->GetTypeId() != TYPEID_PLAYER || clicker->HasAura(SPELL_SUN_BREATH))
+                    return;
+                else
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_light_of_dayAI(creature);
+        }
+};
+
+// 62979 - Embodied Terror
 class npc_embodied_terror : public CreatureScript
 {
     public:
@@ -803,6 +920,7 @@ class npc_embodied_terror : public CreatureScript
         }
 };
 
+// 62977 - Fright Spawn
 class npc_tiny_terror : public CreatureScript
 {
     public:
@@ -848,6 +966,7 @@ class npc_tiny_terror : public CreatureScript
         }
 };
 
+// 62919 - Unstable Sha
 class npc_unstable_sha : public CreatureScript
 {
     public:
@@ -920,7 +1039,7 @@ class npc_unstable_sha : public CreatureScript
                     if (plrRands.size())
                     {
                         me->CastSpell(plrRands[0], SPELL_BOLT, false);
-                        me->DealDamage(me, 0.15*me->GetMaxHealth());
+                        me->DealDamage(me, 0.15 * me->GetMaxHealth());
                     }
                     boltTimer = TIMER_BOLT;
                 }
@@ -935,7 +1054,7 @@ class npc_unstable_sha : public CreatureScript
         }
 };
 
-// 125843, jam spell ?
+// 125843, jam spell ? - Dread Shadows
 class spell_dread_shadows_damage : public SpellScriptLoader
 {
     public:
@@ -976,7 +1095,7 @@ class DreadShadowsTargetCheck
         }
 };
 
-// 122768
+// 122768 - Dread Shadows
 class spell_dread_shadows_malus : public SpellScriptLoader
 {
     public:
@@ -1005,7 +1124,7 @@ class spell_dread_shadows_malus : public SpellScriptLoader
         }
 };
 
-// 122789
+// 122789 - Sunbeam
 class spell_sunbeam : public SpellScriptLoader
 {
     public:
@@ -1084,7 +1203,7 @@ class spell_sunbeam : public SpellScriptLoader
         }
 };
 
-// 122855
+// 122855 - Sun Breath
 class spell_sun_breath : public SpellScriptLoader
 {
     public:
@@ -1096,12 +1215,17 @@ class spell_sun_breath : public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                // spell still have valid caster ! 
-                Map::PlayerList const& players = GetCaster()->GetMap()->GetPlayers();
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // spell still have valid caster !
+                Map::PlayerList const& players = caster->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if (itr->getSource()->GetDistance(GetCaster()) < 30.0f && itr->getSource()->isInFront(GetCaster(), M_PI/3))
-                        GetCaster()->AddAura(SPELL_BATHED_IN_LIGHT, itr->getSource());
+                    Player* plr = itr->getSource();
+                    if (plr->GetDistance(caster) < 30.0f && plr->isInFront(caster, M_PI/3) && !plr->HasAura(SPELL_BUFF_LIGHT_OF_DAY))
+                        caster->AddAura(SPELL_BATHED_IN_LIGHT, itr->getSource());
                 }
             }
 
@@ -1117,7 +1241,7 @@ class spell_sun_breath : public SpellScriptLoader
         }
 };
 
-// 123018 
+// 123018 - Terrorize
 class spell_terrorize_player : public SpellScriptLoader
 {
     public:
@@ -1147,7 +1271,7 @@ class spell_terrorize_player : public SpellScriptLoader
             return new spell_terrorize_player_SpellScript();
         }
 };
-// 123697
+// 123697 - Instability
 class spell_instability : public SpellScriptLoader
 {
     public:
@@ -1180,18 +1304,49 @@ class spell_instability : public SpellScriptLoader
         }
 };
 
+// 123716 - Light of the day
+class spell_light_of_the_day : public SpellScriptLoader
+{
+    public:
+        spell_light_of_the_day() : SpellScriptLoader("spell_light_of_the_day") { }
+
+        class spell_light_of_the_day_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_light_of_the_day_AuraScript);
+
+            void Check(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (target->HasAura(SPELL_SUN_BREATH))
+                        target->RemoveAura(SPELL_BUFF_LIGHT_OF_DAY);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_light_of_the_day_AuraScript::Check, EFFECT_1, SPELL_AURA_MOD_HEALING_DONE_PERCENT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_light_of_the_day_AuraScript();
+        }
+};
+
 void AddSC_boss_tsulong()
 {
-    new boss_tsulong();
-    new npc_sunbeam();
-    new npc_dark_of_night();
-    new npc_embodied_terror();
-    new npc_tiny_terror();
-    new npc_unstable_sha();
-    new spell_dread_shadows_damage();
-    new spell_dread_shadows_malus();
-    new spell_sunbeam();
-    new spell_sun_breath();
-    new spell_terrorize_player();
-    new spell_instability();
+    new boss_tsulong();                 // 62442
+    new npc_sunbeam();                  // 62849
+    new npc_dark_of_night();            // 63346
+    new npc_ligth_of_day();             // 63337
+    new npc_embodied_terror();          // 62969
+    new npc_tiny_terror();              // 62977
+    new npc_unstable_sha();             // 62919
+    new spell_dread_shadows_damage();   // 125843
+    new spell_dread_shadows_malus();    // 122768
+    new spell_sunbeam();                // 122789
+    new spell_sun_breath();             // 122855
+    new spell_terrorize_player();       // 123018
+    new spell_instability();            // 123697
+    new spell_light_of_the_day();       // 123716
 }

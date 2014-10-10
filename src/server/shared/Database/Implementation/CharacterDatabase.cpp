@@ -634,6 +634,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_GOLD,       "DELETE FROM store_gold WHERE transaction = ?",                                                 CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_BOUTIQUE_GOLD_LOG,   "INSERT INTO log_store_gold (id, transaction, guid, gold) VALUES (0, ?, ?, ?);",                CONNECTION_ASYNC);
 
+    PREPARE_STATEMENT(CHAR_LOAD_BOUTIQUE_TITLE,     "SELECT title, transaction FROM store_title WHERE guid = ?",                                    CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_TITLE,      "DELETE FROM store_title WHERE transaction = ?",                                                CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_BOUTIQUE_TITLE_LOG,  "INSERT INTO log_store_title (id, transaction, guid, title) VALUES (0, ?, ?, ?);",              CONNECTION_ASYNC);
+
     PREPARE_STATEMENT(CHAR_LOAD_BOUTIQUE_METIER,    "SELECT skill, value FROM store_metier WHERE guid = ?",                                         CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_METIER,     "DELETE FROM store_metier WHERE guid = ? AND skill = ? AND value = ?",                          CONNECTION_ASYNC);
 
@@ -672,4 +676,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET follower_id = ?, level = ?, xp = ?, quality = ?, item_level_armor = ?, item_level_weapon = ?, current_mission_id = ?, current_building_id = ?, abilities = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
+
+    // Battle pets
+    PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_LAST_BATTLEPET, "SELECT lastbattlepet FROM characters WHERE guid = ? AND lastbattlepet != 0", CONNECTION_ASYNC);
 }

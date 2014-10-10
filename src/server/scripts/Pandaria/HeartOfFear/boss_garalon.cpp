@@ -17,7 +17,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "ScriptPCH.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -105,7 +104,9 @@ enum Spells
     SPELL_BROKEN_LEG_VIS   = 123500,
 
     // Mend Leg: Boss Leg heal spell. Used every 30 seconds after a leg dies.
-    SPELL_MEND_LEG         = 123495  // Dummy, handled to "revive" the leg. Triggers 123796 script effect to remove SPELL_BROKEN_LEG from boss, we don't use it.
+    SPELL_MEND_LEG         = 123495, // Dummy, handled to "revive" the leg. Triggers 123796 script effect to remove SPELL_BROKEN_LEG from boss, we don't use it.
+
+    SPELL_GARALON_BONUS    = 132196
 };
 
 enum Events
@@ -131,6 +132,12 @@ enum Actions
     ACTION_LEG_ACTIVATE,
     ACTION_LEG_DIED,
     ACTION_MEND_LEG          // Heal leg.
+};
+
+enum
+{
+    NPC_GARALON_LEG                 = 63053,
+    NPC_PHEROMONE_TRAIL             = 63021,
 };
 
 // 62164 - Garalon
@@ -245,23 +252,23 @@ public:
             else
             {
                 // For each leg, we look in the seats to find it
-                for (auto leg : legList)
+                std::list<Creature*>::iterator itr = legList.begin();
+                while (itr != legList.end() && !shouldRespawn)
                 {
-                    bool legFound = false;
                     uint8 seat = 0;
-                    while (!legFound && seat < 4)
+                    bool legFound = false;
+                    while (seat < 4 && !legFound)
                     {
                         if (Unit* passenger = me->GetVehicleKit()->GetPassenger(seat))
-                            if (leg == passenger->ToCreature())
+                            if (*itr == passenger->ToCreature())
                                 legFound = true;
                         ++seat;
                     }
-                    // if leg hasn't been found, we should respawn the legs
+
                     if (!legFound)
-                    {
                         shouldRespawn = true;
-                        break;
-                    }
+
+                    ++itr;
                 }
             }
 
@@ -400,11 +407,27 @@ public:
                 instance->SetBossState(DATA_GARALON, DONE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_AURA); // Remove Pheromones.
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PUNGENCY);
             }
 
             fightInProgress = false;
 
             _JustDied();
+
+            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+            {
+                if (Player* l_Player = l_Itr->getSource())
+                    me->CastSpell(l_Player, SPELL_GARALON_BONUS, true);
+            }
+
+            if (me->GetMap()->IsLFR())
+            {
+                me->SetLootRecipient(NULL);
+                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                if (l_Player && l_Player->GetGroup())
+                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+            }
         }
 
         void JustSummoned(Creature* summon)

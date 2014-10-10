@@ -289,10 +289,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             break;
         }
         case CONDITION_SPAWNMASK:
-            {
-                condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
-                break;
-            }
+        {
+            condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -1967,14 +1967,14 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             break;
         }
         case CONDITION_SPAWNMASK:
+        {
+            if (cond->ConditionValue1 > SPAWNMASK_RAID_ALL)
             {
-                if (cond->ConditionValue1 >= SPAWNMASK_RAID_ALL)
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Map Difficulty condition has non existing map difficulty in value1 (%u), skipped", cond->ConditionValue1);
-                    return false;
-                }
-                break;
+                sLog->outError(LOG_FILTER_SQL, "Map Difficulty condition has non existing map difficulty in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
             }
+            break;
+        }
         case CONDITION_UNUSED_21:
             sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_21 in `conditions` table - ignoring");
             return false;

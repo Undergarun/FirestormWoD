@@ -150,6 +150,7 @@ class UnitAI
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
+        virtual void SetDestTarget(WorldLocation const* dest) {}
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satisfying the predicate.

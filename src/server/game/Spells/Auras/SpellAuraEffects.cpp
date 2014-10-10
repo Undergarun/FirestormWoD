@@ -2079,21 +2079,25 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 48629;
             spellId3 = 106840;
             spellId4 = 113636;
+            target->RemoveAura(115034);
             break;
         case FORM_TRAVEL:
             spellId = 5419;
+            target->RemoveAura(115034);
 
-            if (target->HasAura(114338) && !target->HasAura(131113))
+            if (target->HasAura(114338) && !target->HasAura(131113) && apply)
                 spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
+            target->RemoveAura(115034);
             break;
         case FORM_BEAR:
             spellId = 1178;
             spellId2 = 21178;
             spellId3 = 106829;
             spellId4 = 106899;
+            target->RemoveAura(115034);
             break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
@@ -2107,14 +2111,17 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_MOONKIN:
             spellId = 24905;
             spellId2 = 24907;
+            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT:
             spellId = 33948;
             spellId2 = 34764;
+            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT_EPIC:
             spellId  = 40122;
             spellId2 = 40121;
+            target->RemoveAura(115034);
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
@@ -3296,19 +3303,15 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
 
-        bool interrupted = false;
-        // call functions which may have additional effects after chainging state of unit
+        // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
             {
+                // Stop spells on prepare or casting state
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
-                {
-                    // Stop spells on prepare or casting state
                     target->InterruptSpell(CurrentSpellTypes(i), false);
-                    interrupted = true;
-                }
             }
         }
 
@@ -3590,6 +3593,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         }
 
         target->Mount(displayId, vehicleId, GetMiscValue());
+        target->RemoveFlagsAuras();
 
         // cast speed aura
         if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
@@ -4114,6 +4118,19 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
         return;
 
     Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    switch (m_spellInfo->Id)
+    {
+        case 114868:// Soul Reaper - Haste
+            // Don't increase speed if caster doesn't have glyph
+            if (!target->HasAura(146645))
+                return;
+            break;
+        default:
+            break;
+    }
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
@@ -5047,12 +5064,21 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    // Update manaregen value
-    if (GetMiscValue() == POWER_MANA)
-        target->ToPlayer()->UpdateManaRegen();
-    else if (GetMiscValue() == POWER_RUNES)
-        target->ToPlayer()->UpdateAllRunesRegen();
-    // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
+    switch (GetMiscValue())
+    {
+        case POWER_MANA:
+            target->ToPlayer()->UpdateManaRegen();
+            break;
+        case POWER_RUNES:
+            target->ToPlayer()->UpdateAllRunesRegen();
+            break;
+        case POWER_ENERGY:
+            target->ToPlayer()->UpdateEnergyRegen();
+            break;
+        default:
+            // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
+            break;
+    }
 }
 
 void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5393,8 +5419,8 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
 
     float value = float(GetAmount());
 
-    if (target->GetTypeId() == TYPEID_PLAYER && m_spellInfo->IsReducingCastTime())
-        value /= 5.0f;
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        value /= m_spellInfo->GetCastTimeReduction();
 
     target->ApplyCastTimePercentMod(value, apply);
 }
@@ -6823,6 +6849,9 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
+    if (!caster || !target)
+        return;
+
     switch (GetSpellInfo()->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -6830,20 +6859,17 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             switch (GetId())
             {
                 case 98971: // Smoldering Rune, Item - Death Knight T12 DPS 2P Bonus
-                    GetCaster()->CastSpell(GetCaster(), 99055, true);
+                    caster->CastSpell(caster, 99055, true);
                     break;
                 case 91296: // Egg Shell, Corrupted Egg Shell
-                    GetCaster()->CastSpell(GetCaster(), 91306, true);
+                    GetCaster()->CastSpell(caster, 91306, true);
                     break;
                 case 91308: // Egg Shell, Corrupted Egg Shell (H)
-                    GetCaster()->CastSpell(GetCaster(), 91311, true);
+                    caster->CastSpell(caster, 91311, true);
                     break;
                 case 66149: // Bullet Controller Periodic - 10 Man
                 case 68396: // Bullet Controller Periodic - 25 Man
                 {
-                    if (!caster)
-                        break;
-
                     caster->CastCustomSpell(66152, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     caster->CastCustomSpell(66153, SPELLVALUE_MAX_TARGETS, urand(1, 6), target, true);
                     break;
@@ -6856,9 +6882,9 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 {
                     if (target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
                     {
-                         target->CastSpell(target, 62475, true); // System Shutdown
-                         if (Unit* veh = target->GetVehicleBase())
-                             veh->CastSpell(target, 62475, true);
+                        target->CastSpell(target, 62475, true); // System Shutdown
+                        if (Unit* veh = target->GetVehicleBase())
+                            veh->CastSpell(target, 62475, true);
                     }
                     break;
                 }
@@ -6873,9 +6899,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 }
                 case 102522:// Fan the Flames
                 {
-                    if (!caster)
-                        break;
-
                     switch (rand()%4)
                     {
                         case 1:
@@ -6932,9 +6955,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 // Camouflage
                 case 80326:
                 {
-                    if (!caster)
-                        break;
-
                     if ((caster->isMoving() && !caster->HasAura(119449)) || caster->HasAura(80325))
                         return;
 
@@ -6960,9 +6980,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             break;
         }
         case SPELLFAMILY_SHAMAN:
-            if (!caster || !target)
-                break;
-
+        {
             switch (GetId())
             {
                 // Astral Shift
@@ -6973,10 +6991,9 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     break;
             }
             break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
-            if (!caster)
-                break;
-
+        {
             switch (GetId())
             {
                 // Hysteria
@@ -6995,12 +7012,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         caster->RemoveAurasDueToSpell(96268);
                     break;
                 }
-                default:
-                    break;
-            }
-
-            switch (GetSpellInfo()->Id)
-            {
                 case 50034: // Blood Rites
                 case 56835: // Reaping
                 {
@@ -7016,34 +7027,35 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 default:
                     break;
             }
-            break;
-        case SPELLFAMILY_PALADIN:
-            if (!caster || !target)
-                break;
 
+            break;
+        }
+        case SPELLFAMILY_PALADIN:
+        {
             // Holy Radiance
             if (GetId() == 82327)
                 caster->CastSpell(target, 86452, true);
             break;
+        }
         case SPELLFAMILY_WARLOCK:
+        {
             switch (GetId())
             {
                 // Curse of Elements - Jinx
                 case 1490:
                 {
-                    Unit * caster = GetCaster();
-                    if (!caster)
-                        break;
                     if (AuraEffectPtr aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 5002, 0))
                     {
                         if (aurEff->GetId() == 85479)
                             caster->CastSpell(target, 86105, true);
-                        else caster->CastSpell(target, 85547, true);
+                        else
+                            caster->CastSpell(target, 85547, true);
                     }
                     break;
                 }
             }
             break;
+        }
         default:
             break;
     }
@@ -8555,14 +8567,13 @@ void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (!target)
         return;
 
     // Asphyxiate
     if (m_spellInfo->Id == 108194)
     {
-        int32 newZ = 10;
+        int32 newZ = 5;
         target->SetControlled(apply, UNIT_STATE_STUNNED);
 
         if (apply)

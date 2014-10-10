@@ -222,7 +222,7 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        if (!player->GetVehicleKit())
+        if (!player->GetVehicleKit() || m_Player->GetVehicleKit())
             return;
         if (!player->IsInRaidWith(m_Player))
             return;

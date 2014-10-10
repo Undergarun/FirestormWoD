@@ -103,6 +103,7 @@ add_library(collision STATIC
   ${collision_STAT_SRCS}
   ${collision_STAT_PCH_SRC}
 )
+
 set_property(TARGET collision PROPERTY FOLDER "server")
 target_link_libraries(collision
   shared

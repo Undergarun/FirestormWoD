@@ -22,4 +22,5 @@ include_directories(
 add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=0)
 
 add_library(gsoap STATIC ${gsoap_STAT_SRCS})
+
 set_property(TARGET gsoap PROPERTY FOLDER "dep")

@@ -134,7 +134,9 @@ enum WarlockSpells
     WARLOCK_DEMON_SUFFERING                 = 17735,
     WARLOCK_DEMON_SEDUCE                    = 6358,
     WARLOCK_DEMON_SPELL_LOCK                = 19647,
-    WARLOCK_DEMON_AXE_TOSS                  = 89766
+    WARLOCK_DEMON_AXE_TOSS                  = 89766,
+    WARLOCK_LIFE_TAP                        = 1454,
+    WARLOCK_GLYPH_OF_LIFE_TAP               = 63320
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -1512,6 +1514,7 @@ class spell_warl_decimate : public SpellScriptLoader
 };
 
 // Called by Shadow Bolt - 686, Soul Fire - 6353, Touch of Chaos - 103964 and Demonic Slash - 114175
+// Soul Fire (metamorphosis) - 104027
 // Demonic Call - 114925
 class spell_warl_demonic_call : public SpellScriptLoader
 {
@@ -1717,7 +1720,7 @@ class spell_warl_dark_bargain_on_absorb : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_dark_bargain_on_absorb_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_dark_bargain_on_absorb_AuraScript::OnAbsorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_dark_bargain_on_absorb_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_warl_dark_bargain_on_absorb_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -1819,18 +1822,19 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
 
                     if (Guardian* guardian = caster->GetGuardianPet())
                     {
-                        sacrifiedHealth = guardian->CountPctFromCurHealth(50);
+                        sacrifiedHealth = guardian->CountPctFromCurHealth(25);
                         guardian->ModifyHealth(-sacrifiedHealth);
                     }
                     else
                     {
-                        sacrifiedHealth = caster->CountPctFromCurHealth(50);
+                        sacrifiedHealth = caster->CountPctFromCurHealth(25);
                         caster->ModifyHealth(-sacrifiedHealth);
                     }
 
-                    amount = sacrifiedHealth * 2;
+                    amount = sacrifiedHealth * 4;
                 }
             }
+
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_sacrificial_pact_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
@@ -2137,9 +2141,9 @@ class spell_warl_soul_swap_soulburn : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         // Apply instantly corruption, unstable affliction and agony on the target
-                        caster->AddAura(WARLOCK_CORRUPTION, target);
-                        caster->AddAura(WARLOCK_UNSTABLE_AFFLICTION, target);
-                        caster->AddAura(WARLOCK_AGONY, target);
+                        caster->CastSpell(target, WARLOCK_CORRUPTION, true);
+                        caster->CastSpell(target, WARLOCK_UNSTABLE_AFFLICTION, true);
+                        caster->CastSpell(target, WARLOCK_AGONY, true);
                         caster->RemoveAura(WARLOCK_SOULBURN_AURA);
                     }
                 }
@@ -2801,21 +2805,29 @@ class spell_warl_life_tap : public SpellScriptLoader
                 return SPELL_FAILED_FIZZLE;
             }
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 healthCost = int32(caster->GetMaxHealth() * 0.15f);
+                    int32 amount = int32(caster->GetMaxHealth() * 0.15f);
 
-                    caster->SetHealth(caster->GetHealth() - healthCost);
-                    caster->EnergizeBySpell(caster, 1454, healthCost, POWER_MANA);
+                    if (caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
+                    {
+                        if (AuraEffectPtr lifeTap = caster->GetAuraEffect(WARLOCK_LIFE_TAP, EFFECT_2))
+                            lifeTap->SetAmount(lifeTap->GetAmount() + amount);
+                    }
+                    else
+                    {
+                        caster->SetHealth(caster->GetHealth() - amount);
+                        caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
+                    }
                 }
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_warl_life_tap_SpellScript::CheckLife);
-                OnHit += SpellHitFn(spell_warl_life_tap_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_warl_life_tap_SpellScript::HandleAfterHit);
             }
         };
 
@@ -3146,7 +3158,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                     {
                         int32 damage = aurEff->GetAmount() * 8;
                         // backfire damage and silence
-                        caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                        caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, &damage, NULL, true);
                     }
                 }
             }
@@ -3160,6 +3172,72 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_unstable_affliction_AuraScript();
+        }
+};
+
+// Called by Corruption - 146739, Agony - 980, Unstable Affliction - 30108, Immolate - 348, Doom - 603
+// Pandemic - 131973
+class spell_warl_pandemic : public SpellScriptLoader
+{
+    public:
+        spell_warl_pandemic() : SpellScriptLoader("spell_warl_pandemic") { }
+
+        class spell_warl_pandemic_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_pandemic_SpellScript);
+
+            int32 duration;
+
+            void HandlePandemic()
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                            duration = aura->GetDuration();
+                        else
+                            duration = 0;
+                    }
+                }
+            }
+
+            void HandleOnHit()
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        {
+                            int32 newDuration;
+                            int32 maxDuration = sSpellMgr->GetSpellInfo(aura->GetId())->GetMaxDuration();
+                            int32 newMaxDuration = maxDuration * 1.5f;
+                            if (duration == 0)
+                                newDuration = maxDuration;
+                            else
+                                newDuration = duration + maxDuration < newMaxDuration ? duration + maxDuration : newMaxDuration;
+                            aura->SetDuration(newDuration);
+
+                            if (newDuration > maxDuration)
+                                aura->SetMaxDuration(newDuration);
+
+                            duration = 0;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_warl_pandemic_SpellScript::HandlePandemic);
+                OnHit += SpellHitFn(spell_warl_pandemic_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_pandemic_SpellScript();
         }
 };
 
@@ -3234,4 +3312,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
+    new spell_warl_pandemic();
 }

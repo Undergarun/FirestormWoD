@@ -94,7 +94,7 @@ class PlayerDumpReader : public PlayerDump
     public:
         PlayerDumpReader() {}
 
-        DumpReturn LoadDump(const std::string& file, uint32 account, std::string name, uint32 guid, bool onlyBoundedItems = false);
+        DumpReturn LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems = false, uint32 p_AtLogin = 0, bool p_Premade = false);
 };
 
 #define sInterRealmTransfertReader ACE_Singleton<PlayerDumpReader, ACE_Thread_Mutex>::instance()

@@ -339,6 +339,15 @@ class LFGMgr
             return NULL;
         }
 
+        bool IsInDebug() const { return m_debug; }
+        void SetDebug(bool p_Value) { m_debug = p_Value; }
+
+        /////////////////////////////////////////////
+        /// LFR
+        /////////////////////////////////////////////
+        void AutomaticLootAssignation(Creature* p_Creature, Group* p_Group);
+        const ItemTemplate* GetDefaultAutomaticLootItem(Creature* p_Creature);
+
     private:
 
         uint8 GetRoles(uint64 guid);
@@ -369,7 +378,8 @@ class LFGMgr
         LfgType GetDungeonType(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
 
-        // General variables
+        // General variablesUpdateProposal
+        bool m_debug;                                      ///< Num of players minimum is 1, for debug only (.lfg debug command)
         bool m_update;                                     ///< Doing an update?
         uint32 m_QueueTimer;                               ///< used to check interval of update
         uint32 m_lfgProposalId;                            ///< used as internal counter for proposals

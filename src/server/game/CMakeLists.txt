@@ -55,6 +55,7 @@ file(GLOB_RECURSE sources_Tools Tools/*.cpp Tools/*.h)
 file(GLOB_RECURSE sources_Tickets Tickets/*.cpp Tickets/*.h)
 file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
+file(GLOB_RECURSE sources_PetBattle PetBattle/*.cpp PetBattle/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
@@ -116,8 +117,30 @@ set(game_STAT_SRCS
   ${sources_Weather}
   ${sources_World}
   ${sources_Cinematic}
-  ${sources_shared_ptrs}
+  ${sources_PetBattle}
   ${sources_Garrison}
+  ${sources_shared_ptrs}
+)
+
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${game_STAT_SRCS}")
+
+set(game_STAT_SRCS
+  ${game_STAT_SRCS}
 )
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -239,6 +262,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Warden
   ${CMAKE_CURRENT_SOURCE_DIR}/Warden/Modules
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
+  ${CMAKE_CURRENT_SOURCE_DIR}/PetBattle
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_CURRENT_SOURCE_DIR}/SharedPtrs
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders

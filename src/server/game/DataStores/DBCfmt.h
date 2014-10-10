@@ -22,7 +22,7 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-const char Achievementfmt[]                   = "niixsxiixixxiix";
+const char Achievementfmt[]                   = "niiissiiiiisiii";
 const std::string CustomAchievementfmt        = "pppaaaapapaappa";
 const std::string CustomAchievementIndex      = "ID";
 const char AchievementCriteriafmt[]           = "niiiixiiiisiiiiixxiiiii";
@@ -94,6 +94,7 @@ const char ItemLimitCategoryEntryfmt[]        = "nxii";
 const char ItemRandomPropertiesfmt[]          = "nxiiiiis";
 const char ItemRandomSuffixfmt[]              = "nsxiiiiiiiiii";
 const char ItemSetEntryfmt[]                  = "dsiiiiiiiiiiiiiiiiiii";
+const char ItemSpecEntryfmt[]                 = "niiiiii";
 const char ItemSpecOverrideEntryfmt[]         = "nii";
 const char LFGDungeonEntryfmt[]               = "nxiiiiiiiiixxixixiiiixxxxixxx";
 const char LiquidTypefmt[]                    = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
@@ -142,7 +143,7 @@ const char SpellScalingEntryfmt[]             = "diiiifixx";
 const char SpellTargetRestrictionsEntryfmt[]  = "nixfxiiii";
 const char SpellInterruptsEntryfmt[]          = "dxxixixi";
 const char SpellEquippedItemsEntryfmt[]       = "dxxiii";
-const char SpellAuraOptionsEntryfmt[]         = "nxxiiiixx";
+const char SpellAuraOptionsEntryfmt[]         = "nixiiiiii";
 const char SpellCooldownsEntryfmt[]           = "dxxiii";
 const char SpellLevelsEntryfmt[]              = "dixiii";
 const char SpellShapeshiftEntryfmt[]          = "nixixx";
@@ -161,5 +162,8 @@ const char WMOAreaTableEntryfmt[]             = "niiixxxxxiixxxx";
 const char WorldMapAreaEntryfmt[]             = "xinxffffixxxii";
 const char WorldMapOverlayEntryfmt[]          = "nxiiiixxxxxxxxxx";
 const char WorldSafeLocsEntryfmt[]            = "nifffxx";
+const char GtBattlePetTypeDamageModfmt[]      = "xf";
+const char GtBattlePetXPfmt[]                 = "xf";
+const char SpellProcsPerMinuteEntryfmt[]      = "nfx";
 
 #endif

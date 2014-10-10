@@ -168,6 +168,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                                 targetMask = TARGET_FLAG_UNIT_ENEMY;
                                 break;
                             case TARGET_CHECK_ALLY:
+                            case TARGET_CHECK_ALLY_OR_RAID:
                                 targetMask = TARGET_FLAG_UNIT_ALLY;
                                 break;
                             case TARGET_CHECK_PARTY:
@@ -180,7 +181,6 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                                 targetMask = TARGET_FLAG_UNIT_PASSENGER;
                                 break;
                             case TARGET_CHECK_RAID_CLASS:
-                                // nobreak;
                             default:
                                 targetMask = TARGET_FLAG_UNIT;
                                 break;
@@ -330,7 +330,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 115
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 116
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 117
-    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 118
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY_OR_RAID, TARGET_DIR_NONE},    // 118 TARGET_UNIT_ALLY_OR_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 119
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 120
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 121
@@ -895,6 +895,11 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     ProcChance = _options ? _options->procChance : 0;
     ProcCharges = _options ? _options->procCharges : 0;
     StackAmount = _options ? _options->StackAmount : 0;
+    InternalCooldown = _options ? _options->InternalCooldown : 0;
+    if (SpellProcsPerMinuteEntry const* procs = sSpellProcsPerMinuteStore.LookupEntry(_options ? _options->ProcsPerMinuteEntry : 0))
+        ProcsPerMinute = procs->ProcsPerMinute;
+    else
+        ProcsPerMinute = 0;
 
     // SpellAuraRestrictionsEntry
     SpellAuraRestrictionsEntry const* _aura = GetSpellAuraRestrictions();
@@ -1007,6 +1012,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
         Reagent[i] = _reagents ? _reagents->Reagent[i] : 0;
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
         ReagentCount[i] = _reagents ? _reagents->ReagentCount[i] : 0;
+
+    CurrencyID = _reagents ? _reagents->CurrencyID : 0;
+    CurrencyCount = _reagents ? _reagents->CurrencyCount : 0;
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
@@ -1282,7 +1290,7 @@ bool SpellInfo::IsPassiveStackableWithRanks() const
 
 bool SpellInfo::IsMultiSlotAura() const
 {
-    return (IsPassive() || Id == 55849 || Id == 40075 || Id == 44413) && Id != 76856; // Power Spark, Fel Flak Fire, Incanter's Absorption, hack fix for Unshackled Fury stacking with itself
+    return (IsPassive() || Id == 55849 || Id == 40075 || Id == 44413) && Id != 76856;
 }
 
 bool SpellInfo::IsDeathPersistent() const
@@ -3224,7 +3232,7 @@ bool SpellInfo::_IsNeedDelay() const
     switch (Id)
     {
         case 379:   // Earth Shield (Shaman)
-        case 14157: // Ruthlessness (Rogue)
+        case 14161: // Ruthlessness (Rogue)
         case 33110: // Prayer of Mending (Priest)
         case 48503: // Living Seed (Druid)
         case 52752: // Ancestral Awakening (Shaman)
@@ -3451,22 +3459,23 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
     return scale;
 }
 
-bool SpellInfo::IsReducingCastTime() const
+float SpellInfo::GetCastTimeReduction() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbing
         case 50274: // Spore Cloud
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
         case 90315: // Tailspin
         case 109466:// Curse of Enfeeblement
         case 109468:// Curse of Enfeeblement (Soulburn)
         case 116198:// Enfeeblement Aura (Metamorphosis)
-            return true;
+            return 5.f;
+        case 5760:  // Mind-Numbing
+        case 58604: // Lava Breath
+        case 73975: // Necrotic Strike
+            return 2.f;
     }
 
-    return false;
+    return 1.f;
 }
 
 bool SpellInfo::CanTriggerBladeFlurry() const
@@ -3928,6 +3937,7 @@ bool SpellInfo::IsAffectedByResilience() const
         case 49016: // Unholy Frenzy
         case 87023: // Cauterize
         case 110914:// Dark Bargain (DoT)
+        case 113344:// Bloodbath (DoT)
         case 124280:// Touch of Karma (DoT)
             return false;
         default:

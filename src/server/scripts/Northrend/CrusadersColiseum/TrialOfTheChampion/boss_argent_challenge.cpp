@@ -350,7 +350,7 @@ class spell_paletress_shield : public SpellScriptLoader
             // function registering
             void Register()
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_paletress_shieldAuraScript::HandleOnEffectAbsorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_paletress_shieldAuraScript::HandleOnEffectAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 

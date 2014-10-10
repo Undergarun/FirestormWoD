@@ -31,7 +31,6 @@ DB2Storage <ItemSparseEntry>                sItemSparseStore (ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
-DB2Storage <BattlePetSpeciesEntry>          sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
 DB2Storage <SpellReagentsEntry>             sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage <ItemUpgradeEntry>               sItemUpgradeStore(ItemUpgradeEntryfmt);
 DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
@@ -63,6 +62,22 @@ DB2Storage <GarrPlotBuildingEntry>          sGarrPlotBuildingStore(GarrPlotBuild
 DB2Storage <GarrFollowerEntry>              sGarrFollowerStore(GarrFollowerEntryfmt);
 DB2Storage <GarrAbilityEntry>               sGarrAbilityStore(GarrAbilityEntryfmt);
 DB2Storage <GarrFollowerXAbilityEntry>      sGarrFollowerXAbilityStore(GarrFollowerXAbilityEntryfmt);
+
+
+//////////////////////////////////////////////////////////////////////////
+/// Battle pet
+//////////////////////////////////////////////////////////////////////////
+DB2Storage<BattlePetAbilityEntry>           sBattlePetAbilityStore(BattlePetAbilityfmt);
+DB2Storage<BattlePetAbilityEffectEntry>     sBattlePetAbilityEffectStore(BattlePetAbilityEffectfmt);
+DB2Storage<BattlePetAbilityTurnEntry>       sBattlePetAbilityTurnStore(BattlePetAbilityTurnfmt);
+DB2Storage<BattlePetAbilityStateEntry>      sBattlePetAbilityStateStore(BattlePetAbilityStatefmt);
+DB2Storage<BattlePetStateEntry>             sBattlePetStateStore(BattlePetStatefmt);
+DB2Storage<BattlePetEffectPropertiesEntry>  sBattlePetEffectPropertiesStore(BattlePetEffectPropertiesfmt);
+DB2Storage<BattlePetBreedQualityEntry>      sBattlePetBreedQualityStore(BattlePetBreedQualityfmt);
+DB2Storage<BattlePetBreedStateEntry>        sBattlePetBreedStateStore(BattlePetBreedStatefmt);
+DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpeciesfmt);
+DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore(BattlePetSpeciesStatefmt);
+DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
 
 // DBC used only for initialization sTaxiPathNodeStore at startup.
 TaxiPathNodesByPath sTaxiPathNodesByPath;
@@ -170,6 +185,21 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2");
     LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2");
  
+    //////////////////////////////////////////////////////////////////////////
+    /// Battle pet
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sBattlePetAbilityStore,          db2Path, "BattlePetAbility.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityEffectStore,    db2Path, "BattlePetAbilityEffect.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityTurnStore,      db2Path, "BattlePetAbilityTurn.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityStateStore,     db2Path, "BattlePetAbilityState.db2");
+    LoadDB2(bad_db2_files, sBattlePetStateStore,            db2Path, "BattlePetState.db2");
+    LoadDB2(bad_db2_files, sBattlePetEffectPropertiesStore, db2Path, "BattlePetEffectProperties.db2");
+    LoadDB2(bad_db2_files, sBattlePetBreedQualityStore,     db2Path, "BattlePetBreedQuality.db2");
+    LoadDB2(bad_db2_files, sBattlePetBreedStateStore,       db2Path, "BattlePetBreedState.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,     db2Path, "BattlePetSpeciesState.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2");
+
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
     {
         if (const ItemModifiedAppearanceEntry * l_ModifiedAppearanceEntry = sItemModifiedAppearanceStore.LookupEntry(l_Y))
@@ -221,7 +251,6 @@ void LoadDB2Stores(const std::string& dataPath)
     for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
             sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
-
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)

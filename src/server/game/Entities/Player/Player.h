@@ -73,6 +73,14 @@ typedef std::deque<Mail*> PlayerMails;
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
+enum ToastTypes
+{
+    TOAST_TYPE_NONE,
+    TOAST_TYPE_NEW_CURRENCY,
+    TOAST_TYPE_NEW_ITEM,
+    TOAST_TYPE_MONEY
+};
+
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
 {
@@ -458,7 +466,7 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK21                  = 0x00200000,
     PLAYER_FLAGS_COMMENTATOR2           = 0x00400000,
     PLAYER_ALLOW_ONLY_ABILITY           = 0x00800000,       // used by bladestorm and killing spree, allowed only spells with SPELL_ATTR0_REQ_AMMO, SPELL_EFFECT_ATTACK, checked only for active player
-    PLAYER_FLAGS_BATTLE_PET             = 0x01000000,       // Unlock battle pet slot
+    PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING= 0x01000000,       // allowed to use battle pet combat system
     PLAYER_FLAGS_NO_XP_GAIN             = 0x02000000,
     PLAYER_FLAGS_UNK26                  = 0x04000000,
     PLAYER_FLAGS_AUTO_DECLINE_GUILD     = 0x08000000,       // Automatically declines guild invites
@@ -1597,7 +1605,7 @@ class Player : public Unit, public GridObject<Player>
         void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
-        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
+        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
         float GetReputationPriceDiscount(Creature const* creature) const;
 
@@ -1624,6 +1632,7 @@ class Player : public Unit, public GridObject<Player>
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();
+        void SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed);
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
@@ -1953,7 +1962,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
         void SetSpecializationId(uint8 spec, uint32 id);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
-        uint32 GetRoleForGroup(uint32 specializationId);
+        uint32 GetRoleForGroup(uint32 specializationId = 0);
 
         bool ResetTalents(bool no_cost = false);
         uint32 GetNextResetTalentsCost() const;
@@ -2318,6 +2327,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
+        void UpdateEnergyRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
 
@@ -2332,6 +2342,10 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetLootSpecId() const { return m_lootSpecId; }
         void SetLootSpecId(uint32 specId) { m_lootSpecId = specId; }
+
+        uint32 GetBonusRollFails() const { return m_BonusRollFails; }
+        void IncreaseBonusRollFails() { ++m_BonusRollFails; }
+        void ResetBonusRollFails() { m_BonusRollFails = 0; }
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -2496,6 +2510,7 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
         void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
+        void _ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
@@ -3054,6 +3069,7 @@ class Player : public Unit, public GridObject<Player>
         void HandleStoreItemCallback(PreparedQueryResult result);
         void HandleStoreLevelCallback(PreparedQueryResult result);
         void HandleStoreGoldCallback(PreparedQueryResult result);
+        void HandleStoreTitleCallback(PreparedQueryResult result);
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
@@ -3065,15 +3081,6 @@ class Player : public Unit, public GridObject<Player>
         void SendTokenResponse();
         void SendRefreshSpellMods();
 
-        /*********************************************************/
-        /***              BATTLE PET SYSTEM                    ***/
-        /*********************************************************/
-
-        BattlePetMgr& GetBattlePetMgr() { return m_battlePetMgr; }
-        BattlePetMgr const& GetBattlePetMgr() const { return m_battlePetMgr; }
-
-        void SendBattlePetJournal();
-
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
         void SetBattleGroundRoles(uint8 roles) { m_bgRoles = roles; }
 
@@ -3081,6 +3088,33 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         void PlayScene(uint32 sceneId, WorldObject* spectator);
+
+        /// Compute the unlocked pet battle slot
+        uint32 GetUnlockedPetBattleSlot();
+        /// Summon current pet if any active
+        void UnsummonCurrentBattlePetIfAny(bool p_Unvolontary);
+        /// Summon new pet 
+        void SummonBattlePet(uint64 p_JournalID);
+        /// Get current summoned battle pet
+        Minion * GetSummonedBattlePet();
+        /// Summon last summoned battle pet
+        void SummonLastSummonedBattlePet();
+
+        PreparedQueryResultFuture _PetBattleCountBattleSpeciesCallback;
+
+    protected:
+        /// Summon new pet (call back)
+        void SummonBattlePetCallback(PreparedQueryResult& p_Result);
+        /// Summon last summoned battle pet
+        void SummonLastBattlePetSummonedCallback(PreparedQueryResult& p_Result);
+
+        /// PetBattleCountBattleSpeciesCallback
+        void PetBattleCountBattleSpeciesCallback(PreparedQueryResult& p_Result);
+
+        PreparedQueryResultFuture _SummonBattlePetCallback;
+        PreparedQueryResultFuture _SummonLastBattlePetSummonedCallback;
+
+        Minion * m_BattlePetSummon;
 
     private:
         // Gamemaster whisper whitelist
@@ -3205,7 +3239,9 @@ class Player : public Unit, public GridObject<Player>
 
         void outDebugValues() const;
         uint64 m_lootGuid;
+
         uint32 m_lootSpecId;
+        uint32 m_BonusRollFails;
 
         uint32 m_team;
         uint32 m_nextSave;
@@ -3479,6 +3515,7 @@ class Player : public Unit, public GridObject<Player>
 
         // Store callback
         PreparedQueryResultFuture _storeGoldCallback;
+        PreparedQueryResultFuture _storeTitleCallback;
         PreparedQueryResultFuture _storeItemCallback;
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;

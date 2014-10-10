@@ -23,6 +23,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
+#include "LFGMgr.h"
 
 #define CAST_PLR(a)     (dynamic_cast<Player*>(a))
 #define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
@@ -214,7 +215,7 @@ struct ScriptedAI : public CreatureAI
     Difficulty GetDifficulty() const { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
+    bool Is25ManRaid() const { return _difficulty == LEGACY_MAN25_DIFFICULTY || _difficulty == LEGACY_MAN25_HEROIC_DIFFICULTY || _difficulty == RAID_TOOL_DIFFICULTY; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const

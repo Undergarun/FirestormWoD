@@ -928,13 +928,6 @@ void WorldSession::HandleReportSuggestionOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleRequestBattlePetJournal(WorldPacket& /*recvPacket*/)
-{
-    WorldPacket data;
-    GetPlayer()->GetBattlePetMgr().BuildBattlePetJournal(&data);
-    SendPacket(&data);
-}
-
 void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
 {
     // Notify player if he has a ticket in progress
@@ -1037,11 +1030,12 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 {
     uint32 triggerId;
-    uint8 unkbit1, unkbit2;
+    bool l_Enter;
+    bool l_FromClient;
 
     recvData >> triggerId;
-    unkbit1 = recvData.ReadBit();
-    unkbit2 = recvData.ReadBit();
+    l_Enter = recvData.ReadBit();
+    l_FromClient = recvData.ReadBit();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 

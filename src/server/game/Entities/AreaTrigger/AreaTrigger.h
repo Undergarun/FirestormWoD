@@ -45,15 +45,20 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void BindToCaster();
         void UnbindFromCaster();
 
+        uint32 GetCreatedTime() const { return m_createdTime; }
+
         float GetVisualRadius() const { return m_visualRadius; }
         void SetVisualRadius(float radius) { m_visualRadius = radius; }
 
         uint32 GetCreationTimeMS() const { return m_CreationTimeMS; }
+
+        bool IsAreaTriggerBox() const { return GetSpellId() == 140781; }
 
     protected:
         int32 _duration;
         uint32 m_CreationTimeMS;
         Unit* m_caster;
         float m_visualRadius;
+        uint32 m_createdTime;
 };
 #endif

@@ -1575,7 +1575,6 @@ void Guild::HandleSetRankInfo(WorldSession * p_Session, uint32 p_RankID, const s
         for (GuildBankRightsAndSlotsVec::const_iterator l_It = p_RightsAndSlots.begin(); l_It != p_RightsAndSlots.end(); ++l_It)
         {
             _SetRankBankTabRightsAndSlots(p_RankID, l_TabID++, *l_It);
-            SendBankList(p_Session, l_TabID, false, true);
         }
 
         WorldPacket l_Data(SMSG_GUILD_EVENT_RANK_CHANGED);

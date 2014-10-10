@@ -198,6 +198,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+    GetPlayer()->SummonLastSummonedBattlePet();
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
@@ -252,6 +253,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     // resummon pet
     l_MoverPlayer->ResummonPetTemporaryUnSummonedIfAny();
+    l_MoverPlayer->SummonLastSummonedBattlePet();
 
     //lets process all delayed operations on successful teleport
     l_MoverPlayer->ProcessDelayedOperations();
@@ -440,6 +442,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
         AreaTableEntry const* zone = GetAreaEntryByAreaID(l_PlayerMover->GetAreaId());
         float depth = zone ? zone->MaxDepth : -500.0f;
+
+        // Eye of the Cyclone
+        if (l_PlayerMover->GetMapId() == 566)
+            depth = 1000.f;
+
         if (l_MovementInfo.pos.GetPositionZ() < depth)
         {
             if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))

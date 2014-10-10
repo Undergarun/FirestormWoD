@@ -67,6 +67,7 @@ endif()
 
 add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
 set_property(TARGET g3dlib PROPERTY FOLDER "dep")
+
 target_link_libraries(g3dlib
   ${ZLIB_LIBRARIES}
 )
