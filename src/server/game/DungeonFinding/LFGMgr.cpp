@@ -1850,6 +1850,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 case MAN25_DIFFICULTY:
                 case MAN25_HEROIC_DIFFICULTY:
                     maxPlayersToTeleport = 25;
+                    break;
                 case MAN40_DIFFICULTY:
                     maxPlayersToTeleport = 40;
                     break;
