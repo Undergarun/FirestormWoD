@@ -3,8 +3,9 @@
 #include "WildBattlePet.h"
 #include "DB2Store.h"
 #include "DatabaseEnv.h"
-#include "Player.h"
 #include "AchievementMgr.h"
+#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 
 #define PETBATTLE_ABILITY_TRAP_FAMILY 0x99C00
 

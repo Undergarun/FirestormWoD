@@ -243,7 +243,7 @@ bool PetBattleAbilityEffect::Damage(uint32 target, int32 damage)
 
     if (!(Flags & FailFlags))
     {
-        for (uint32 petId = 0; petId < _countof(PetBattleInstance->Pets); ++petId)
+        for (uint32 petId = 0; petId < (MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS); ++petId)
         {
             if (!PetBattleInstance->Pets[petId])
                 continue;

@@ -21,7 +21,7 @@ void WildBattlePetZonePools::LoadPoolTemplate(Field* l_Fields)
     l_PoolTemplate.MinLevel     = l_Fields[5].GetUInt32();
     l_PoolTemplate.MaxLevel     = l_Fields[6].GetUInt32();
 
-    for (size_t l_I = 0; l_I < _countof(l_PoolTemplate.Breeds); ++l_I)
+    for (size_t l_I = 0; l_I < BREED_SIZE; ++l_I)
         l_PoolTemplate.Breeds[l_I] = l_Fields[7 + l_I].GetUInt32();
 
     l_PoolTemplate.Entry = 0;
@@ -150,16 +150,16 @@ void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePe
         0, 3, 3, 3, 2, 2, 2, 1, 1, 1};
 
     uint32 totalBreedWeight = 0;
-    for (size_t i = 0; i < _countof(p_Template->Breeds); ++i)
-        if (p_Template->Breeds[i] < _countof(breedQuality))
+    for (size_t i = 0; i < BREED_SIZE; ++i)
+        if (p_Template->Breeds[i] < 23)
             totalBreedWeight += breedQualityWeights[breedQuality[p_Template->Breeds[i]]];
 
     l_BattlePetInstance->Breed = 3;
     uint32 minBreedChances = l_BattlePetInstance->Level * totalBreedWeight * 2 / 75;
     uint32 breedChances = urand(1, totalBreedWeight);
-    for (size_t i = 0; i < _countof(p_Template->Breeds); ++i)
+    for (size_t i = 0; i < BREED_SIZE; ++i)
     {
-        if (p_Template->Breeds[i] >= _countof(breedQuality))
+        if (p_Template->Breeds[i] >= 23)
             continue;
 
         int32 weight = breedQualityWeights[breedQuality[p_Template->Breeds[i]]];

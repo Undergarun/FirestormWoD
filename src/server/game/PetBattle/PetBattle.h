@@ -3,6 +3,7 @@
 #define __PETBATTLE_HEADER__
 
 #include "Common.h"
+#include "Player.h"
 #include <ace/Singleton.h>
 
 class Field;
