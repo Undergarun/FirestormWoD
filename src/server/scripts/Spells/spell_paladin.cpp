@@ -1854,48 +1854,48 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 // Light of down - 85222
 class spell_pal_light_of_dawn : public SpellScriptLoader
 {
-public:
-    spell_pal_light_of_dawn() : SpellScriptLoader("spell_pal_light_of_dawn") { }
+    public:
+        spell_pal_light_of_dawn() : SpellScriptLoader("spell_pal_light_of_dawn") { }
 
-    class spell_pal_light_of_dawn_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_light_of_dawn_SpellScript);
-
-        uint8 l_PowerCost;
-
-        void HandleOnCast()
+        class spell_pal_light_of_dawn_SpellScript : public SpellScript
         {
-            if (Player* _player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_pal_light_of_dawn_SpellScript);
+
+            uint8 l_PowerCost;
+
+            void HandleOnCast()
             {
-                l_PowerCost = _player->GetPower(POWER_HOLY_POWER);
-                if (l_PowerCost > 3)
-                    l_PowerCost = 3;
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    l_PowerCost = _player->GetPower(POWER_HOLY_POWER);
+                    if (l_PowerCost > 3)
+                        l_PowerCost = 3;
+                }
             }
-        }
 
-        void HandleOnHit()
+            void HandleOnHit()
+            {
+                SetHitHeal(GetHitHeal() * l_PowerCost);
+            }
+
+            void HandleAfterCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                    _player->ModifyPower(POWER_HOLY_POWER, -int32(l_PowerCost) + 1);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleOnCast);
+                OnHit += SpellHitFn(spell_pal_light_of_dawn_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            SetHitHeal(GetHitHeal() * l_PowerCost);
+            return new spell_pal_light_of_dawn_SpellScript();
         }
-
-        void HandleAfterCast()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-                _player->ModifyPower(POWER_HOLY_POWER, -int32(l_PowerCost));
-        }
-
-        void Register()
-        {
-            OnCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleOnCast);
-            OnHit += SpellHitFn(spell_pal_light_of_dawn_SpellScript::HandleOnHit);
-            AfterCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleAfterCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_light_of_dawn_SpellScript();
-    }
 };
 
 void AddSC_paladin_spell_scripts()
