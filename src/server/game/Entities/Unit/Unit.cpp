@@ -1357,6 +1357,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     if (!victim || !victim->isAlive())
         return;
 
+    // WoD: Apply factor on damages depending on creature level and expansion
+    if (this->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT)
+        damage *= CalculateDamageDealtFactor(this->ToPlayer(), victim->ToCreature());
+    else if (this->GetTypeId() == TYPEID_UNIT && victim->GetTypeId() == TYPEID_PLAYER)
+        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), this->ToCreature());
+
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
     if (IsDamageReducedByArmor(damageSchoolMask, spellInfo))
@@ -1529,6 +1535,12 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
+
+    // WoD: Apply factor on damages depending on creature level and expansion
+    if (this->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT)
+        damage *= CalculateDamageDealtFactor(this->ToPlayer(), victim->ToCreature());
+    else if (this->GetTypeId() == TYPEID_UNIT && victim->GetTypeId() == TYPEID_PLAYER)
+        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), this->ToCreature());
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -22488,4 +22500,71 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     *data << uint8(updateMask.GetBlockCount());
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
+}
+
+float Unit::CalculateDamageDealtFactor(Player* player, Creature* target)
+{
+    if (!player || !target)
+        return 1.0f;
+
+    uint32 levelDiff = player->getLevel() - target->getLevel();
+    uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
+
+    float damageDealtFactor = 1.0f;
+
+    if (targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    {
+        if (levelDiff < 5)
+        {
+            // Ranges from 1.0625 to 1.25 vs. 1-4 LevelDiffs
+            damageDealtFactor = 1 + 0.0625f * levelDiff;
+        }
+        else if (levelDiff < 10)
+        {
+            // Ranges from 4.0 to 6.0 vs. 5-9 LevelDiffs
+            damageDealtFactor = 1.5f + 0.5f * levelDiff;
+        }
+        else
+        {
+            // Maximum factor of 16.5 vs. 10+ LevelDiffs
+            damageDealtFactor = 16.5f;
+        }
+    }
+
+    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 0, 0};
+
+    if ((player->getLevel() <= GetMaxLevelForExpansion(targetExpansion) - 1) && player->GetAverageItemLevel() > IntendedItemLevelByExpansion[targetExpansion])
+    {
+        float altDamageDealtFactor = 1 + 5 / 3 * 0.01f * (player->GetAverageItemLevel() - IntendedItemLevelByExpansion[targetExpansion]);
+        damageDealtFactor = std::max(damageDealtFactor, altDamageDealtFactor);
+    }
+
+    return damageDealtFactor;
+}
+
+float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
+{
+    if (!player || !target)
+        return 1.0f;
+
+    uint32 levelDiff = player->getLevel() - target->getLevel();
+    uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
+
+    float damageTakenFactor = 1.0f;
+
+    if (targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    {
+        // 10% DR per level diff, with a floor of 10%
+        damageTakenFactor = std::max(1.0f - 0.1f * levelDiff, 0.1f);
+    }
+
+    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 0, 0};
+
+    if ((player->getLevel() <= GetMaxLevelForExpansion(targetExpansion) - 1) && player->GetAverageItemLevel() > IntendedItemLevelByExpansion[targetExpansion])
+    {
+        float altDamageTakenFactor = 1 - 0.01f * (player->GetAverageItemLevel() - IntendedItemLevelByExpansion[targetExpansion]);
+        damageTakenFactor = std::min(damageTakenFactor, altDamageTakenFactor);
+    }
+
+    return damageTakenFactor;
 }

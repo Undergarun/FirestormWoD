@@ -1586,6 +1586,9 @@ class Unit : public WorldObject
         uint32 GetCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_CRIT_TAKEN, 33.0f, damage); }
         uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 100.0f, damage); }
 
+        float CalculateDamageDealtFactor(Player* player, Creature* target);
+        float CalculateDamageTakenFactor(Player* player, Creature* target);
+
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
         float MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const;
