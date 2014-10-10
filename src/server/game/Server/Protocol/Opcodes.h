@@ -251,10 +251,10 @@ enum Opcodes
 
         /// Bank
         SMSG_GUILD_RANKS                            = 0x035A,   ///< 6.0.2 18934
-        SMSG_GUILD_BANK_LOG_QUERY_RESULT            = 0x0000,
-        SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0000,
-        SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x0000,
-        SMSG_GUILD_BANK_QUERY_RESULTS               = 0x0000,
+        SMSG_GUILD_BANK_LOG_QUERY_RESULT            = 0x0739,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0619,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x134A,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_QUERY_RESULTS               = 0x1229,   ///< 6.0.2 18934
         SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x1319,   ///< 6.0.2 18934
 
         /// Achievement

@@ -157,7 +157,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
         data.WriteBit(guildGUID[5]);
 
         bufferData << uint8(sGuildFinderMgr->HasRequest(player->GetGUIDLow(), guild->GetGUID()));
-        bufferData << guild->GetLevel();
+        bufferData << guild->GetAchievementMgr().GetAchievementPoints();
         bufferData << uint32(guildSettings.GetInterests());
         bufferData << uint32(0);                                                                    // Unk
         bufferData << uint32(guild->GetEmblemInfo().GetBorderStyle());

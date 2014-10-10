@@ -433,7 +433,7 @@ class Guild
                 uint32 GetGUID() const { return m_guid; }
 
                 virtual void SaveToDB(SQLTransaction& trans) const = 0;
-                virtual void WritePacket(WorldPacket& data, bool hasCashFlow = false) const = 0;
+                virtual void WritePacket(WorldPacket& data) const = 0;
 
             protected:
                 uint32 m_guildId;
@@ -454,7 +454,7 @@ class Guild
                 ~EventLogEntry() { }
 
                 void SaveToDB(SQLTransaction& trans) const;
-                void WritePacket(WorldPacket& data, bool hasCashFlow = false) const;
+                void WritePacket(WorldPacket& data) const;
 
             private:
                 GuildEventLogTypes m_eventType;
@@ -492,7 +492,7 @@ class Guild
                 ~BankEventLogEntry() { }
 
                 void SaveToDB(SQLTransaction& trans) const;
-                void WritePacket(WorldPacket& data, bool hasCashFlow = false) const;
+                void WritePacket(WorldPacket& data) const;
 
             private:
                 GuildBankEventLogTypes m_eventType;
@@ -518,7 +518,7 @@ class Guild
                 // Adds new event to collection and saves it to DB
                 void AddEvent(SQLTransaction& trans, LogEntry* entry);
                 // Writes information about all events to packet
-                void WritePacket(WorldPacket& data, bool hasCashFlow = false) const;
+                void WritePacket(WorldPacket& data) const;
                 uint32 GetNextGUID();
 
             private:
@@ -807,12 +807,6 @@ class Guild
         AchievementMgr<Guild>& GetAchievementMgr() { return m_achievementMgr; }
         AchievementMgr<Guild> const& GetAchievementMgr() const { return m_achievementMgr; }
 
-         // Guild leveling
-        uint32 GetLevel() const { return _level; }
-        void GiveXP(uint32 xp, Player* source);
-        uint64 GetExperience() const { return _experience; }
-        uint64 GetTodayExperience() const { return _todayExperience; }
-        void ResetDailyExperience();
         GuildNewsLog& GetNewsLog() { return _newsLog; }
 
         EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
@@ -849,10 +843,6 @@ class Guild
 
         AchievementMgr<Guild> m_achievementMgr;
         GuildNewsLog _newsLog;
-
-        uint32 _level;
-        uint64 _experience;
-        uint64 _todayExperience;
 
     private:
         inline uint32 _GetRanksSize() const { return uint32(m_ranks.size()); }

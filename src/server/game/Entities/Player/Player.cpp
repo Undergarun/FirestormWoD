@@ -6351,7 +6351,7 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
 
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
 
-    if ((GetGuild() && GetGuild()->GetLevel() >= 15) || HasAura(84559) || HasAura(83950))
+    if (GetGuild() || HasAura(84559) || HasAura(83950))
         RemoveAurasDueToSpell(84559); // The Quick and the Dead
 
     if (getClass() == CLASS_MONK && HasAura(131562))
@@ -17177,10 +17177,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         GiveXP(XP, NULL);
     else
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
-
-    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
-
+    
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     if (quest->GetRewOrReqMoney())
         moneyRew += quest->GetRewOrReqMoney();

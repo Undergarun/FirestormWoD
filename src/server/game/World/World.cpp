@@ -1763,9 +1763,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Guild XP for level...");
-    sGuildMgr->LoadGuildXpForLevel();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Guild rewards...");
     sGuildMgr->LoadGuildRewards();
 
@@ -2166,7 +2163,6 @@ void World::Update(uint32 diff)
     {
         ResetDailyQuests();
         m_NextDailyQuestReset += DAY;
-        sGuildMgr->ResetExperienceCaps();
     }
 
     /// Handle weekly quests reset time

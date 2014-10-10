@@ -1624,7 +1624,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     {
         ObjectGuid guildGuid = guild->GetGUID();
 
-        data << uint32(guild->GetLevel());
+        data << uint32(guild->GetAchievementMgr().GetAchievementPoints());
 
         data.WriteByteSeq(guildGuid[1]);
         data.WriteByteSeq(guildGuid[3]);
@@ -1638,7 +1638,6 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         data.WriteByteSeq(guildGuid[0]);
         data.WriteByteSeq(guildGuid[7]);
 
-        data << uint64(guild->GetExperience());
     }
 
     data.WriteByteSeq(playerGuid[6]);

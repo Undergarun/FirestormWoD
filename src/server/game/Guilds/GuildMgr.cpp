@@ -107,21 +107,6 @@ Guild* GuildMgr::GetGuildByLeader(uint64 guid) const
     return NULL;
 }
 
-uint32 GuildMgr::GetXPForGuildLevel(uint8 level) const
-{
-    if (level < GuildXPperLevel.size())
-        return GuildXPperLevel[level];
-    return 0;
-}
-
-void GuildMgr::ResetExperienceCaps()
-{
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
-
-    for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        itr->second->ResetDailyExperience();
-}
-
 void GuildMgr::ResetReputationCaps()
 {
     /// @TODO: Implement
@@ -465,57 +450,6 @@ void GuildMgr::LoadGuilds()
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
     }
-}
-
-void GuildMgr::LoadGuildXpForLevel()
-{
-    uint32 oldMSTime = getMSTime();
-
-    GuildXPperLevel.resize(sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL));
-    for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL); ++level)
-        GuildXPperLevel[level] = 0;
-
-    //                                                 0        1
-    QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM guild_xp_for_level");
-
-    if (!result)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 xp for guild level definitions. DB table `guild_xp_for_level` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 level        = fields[0].GetUInt32();
-        uint32 requiredXP   = fields[1].GetUInt64();
-
-        if (level >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
-        {
-            sLog->outInfo(LOG_FILTER_GENERAL, "Unused (> Guild.MaxLevel in worldserver.conf) level %u in `guild_xp_for_level` table, ignoring.", uint32(level));
-            continue;
-        }
-
-        GuildXPperLevel[level] = requiredXP;
-        ++count;
-
-    }
-    while (result->NextRow());
-
-    // fill level gaps
-    for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL); ++level)
-    {
-        if (!GuildXPperLevel[level])
-        {
-            sLog->outError(LOG_FILTER_SQL, "Level %i does not have XP for guild level data. Using data of level [%i] + 1660000.", level+1, level);
-            GuildXPperLevel[level] = GuildXPperLevel[level - 1] + 1660000;
-        }
-    }
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u xp for guild level definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GuildMgr::LoadGuildRewards()

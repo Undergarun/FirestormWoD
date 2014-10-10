@@ -36,7 +36,6 @@ public:
     Guild* GetGuildByName(const std::string& guildName) const;
     std::string GetGuildNameById(uint32 guildId) const;
 
-    void LoadGuildXpForLevel();
     void LoadGuildRewards();
 
     void LoadGuilds();
@@ -45,20 +44,18 @@ public:
 
     void SaveGuilds();
 
-    void ResetExperienceCaps();
-     void ResetReputationCaps();
+    void ResetReputationCaps();
 
     uint32 GenerateGuildId();
     void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
 
-    uint32 GetXPForGuildLevel(uint8 level) const;
     std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
 
 protected:
     uint32 NextGuildId;
     GuildContainer GuildStore;
-    std::vector<uint64> GuildXPperLevel;
     std::vector<GuildReward> GuildRewards;
+
 };
 
 #define sGuildMgr ACE_Singleton<GuildMgr, ACE_Null_Mutex>::instance()

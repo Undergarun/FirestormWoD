@@ -122,8 +122,11 @@ void WorldSession::HandleAcceptGuildInviteOpcode(WorldPacket& /*recvPacket*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACCEPT_GUILD_INVITE");
 
+    if (Guild * l_Guild = m_Player->GetGuild())
+        l_Guild->HandleLeaveMember(this);
+
     /// Player cannot be in guild
-    if (!GetPlayer()->GetGuildId())
+    if (!m_Player->GetGuildId())
         /// Guild where player was invited must exist
         if (Guild * l_Guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
             l_Guild->HandleAcceptMember(this);
@@ -134,7 +137,6 @@ void WorldSession::HandleGuildDeclineInvitationsOpcode(WorldPacket& /*recvPacket
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DECLINE");
 
     GetPlayer()->SetGuildIdInvited(0);
-    GetPlayer()->SetInGuild(0);
 }
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket & p_Packet)
@@ -400,7 +402,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& p_Packet)
     {
         if (Guild * l_Guild = _GetPlayerGuild(this))
         {
-            l_Guild->SendBankList(this, l_Tab, true, false);
+            l_Guild->SendBankList(this, l_Tab, true, true);
             l_Guild->SendMoneyInfo(this);
         }
     }
@@ -500,9 +502,9 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& p_Packet)
         return;
 
     if (l_BankOnly)
-        l_Guild->SwapItems(GetPlayer(), l_BankTab1, l_BankSlot, l_BankTab, l_BankSlot1, l_StackCount);
+        l_Guild->SwapItems(GetPlayer(), l_BankTab1, l_BankSlot1, l_BankTab, l_BankSlot, l_StackCount);
     else if (l_AutoStore)
-        l_Guild->AutoStoreItemInInventory(GetPlayer(), l_BankTab, l_BankSlot1, l_BankItemCount);
+        l_Guild->AutoStoreItemInInventory(GetPlayer(), l_BankTab, l_BankSlot, l_BankItemCount);
     else
     {
         /// Player <-> Bank
@@ -510,7 +512,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& p_Packet)
         if (!Player::IsInventoryPos(l_ContainerSlot, l_ContainerItemSlot) && !(l_ContainerSlot == NULL_BAG && l_ContainerItemSlot == NULL_SLOT))
             GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, NULL);
         else
-            l_Guild->SwapItemsWithInventory(GetPlayer(), l_ToSlot, l_BankTab, l_BankSlot1, l_ContainerSlot, l_ContainerItemSlot, l_StackCount);
+            l_Guild->SwapItemsWithInventory(GetPlayer(), l_ToSlot, l_BankTab, l_BankSlot, l_ContainerSlot, l_ContainerItemSlot, l_StackCount);
     }
 }
 
@@ -759,10 +761,10 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& recvPacket)
     WorldPacket l_Data(SMSG_GUILD_CHALLENGE_UPDATED, 5*6*4);
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
-        l_Data << uint32(l_Reward[l_I].ChallengeCount);
+        l_Data << uint32(0);
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
-        l_Data << uint32(l_Reward[l_I].Gold2);
+        l_Data << uint32(l_Reward[l_I].ChallengeCount);
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
         l_Data << uint32(l_Reward[l_I].Experience);
