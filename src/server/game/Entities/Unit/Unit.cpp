@@ -681,12 +681,6 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
-    DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
-    victim->SetDamageTaken(dmgTaken);
-
-    DamageDone* dmgDone = new DamageDone(damage, getMSTime());
-    SetDamageDone(dmgDone);
-
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
 
@@ -1138,6 +1132,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             he->DuelComplete(DUEL_WON);
         }
     }
+
+    DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
+    victim->SetDamageTaken(dmgTaken);
+
+    DamageDone* dmgDone = new DamageDone(damage, getMSTime());
+    SetDamageDone(dmgDone);
 
     return damage;
 }
