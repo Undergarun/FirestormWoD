@@ -608,8 +608,6 @@ class spell_dk_death_strike_heal : public SpellScriptLoader
                             uint32 hl = GetHitHeal() * 0.2 * chg;
                             SetHitHeal(GetHitHeal() + hl);
                         }
-
-                        _player->RemoveAura(DK_SPELL_SCENT_OF_BLOOD_AURA);
                     }
                 }
             }

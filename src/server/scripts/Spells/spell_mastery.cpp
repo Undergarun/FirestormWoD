@@ -387,20 +387,20 @@ class spell_mastery_blood_shield : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _plr = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_plr->GetTypeId() == TYPEID_PLAYER && _plr->HasAura(77513) && _plr->getLevel() >= 80)
+                        if (l_Player->GetTypeId() == TYPEID_PLAYER && l_Player->HasAura(77513) && l_Player->getLevel() >= 80)
                         {
                             // Check the Mastery aura while in Blood presence
-                            if (_plr->HasAura(77513) && _plr->HasAura(48263))
+                            if (l_Player->HasAura(77513) && l_Player->HasAura(48263))
                             {
-                                float Mastery = _plr->GetFloatValue(PLAYER_MASTERY) * 6.25f / 100.0f;
+                                float Mastery = l_Player->GetFloatValue(PLAYER_MASTERY) * 6.25f / 100.0f;
 
                                 int32 bp = -int32(GetHitDamage() * Mastery);
 
-                                if (AuraPtr scentOfBlood = _plr->GetAura(SPELL_DK_SCENT_OF_BLOOD))
+                                if (AuraPtr scentOfBlood = l_Player->GetAura(SPELL_DK_SCENT_OF_BLOOD))
                                     AddPct(bp, (scentOfBlood->GetStackAmount() * 20));
 
                                 if (AuraEffectPtr bloodShield = target->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
@@ -408,7 +408,9 @@ class spell_mastery_blood_shield : public SpellScriptLoader
 
                                 bp = std::min(uint32(bp), target->GetMaxHealth());
 
-                                _plr->CastCustomSpell(target, MASTERY_SPELL_BLOOD_SHIELD, &bp, NULL, NULL, true);
+                                l_Player->CastCustomSpell(target, MASTERY_SPELL_BLOOD_SHIELD, &bp, NULL, NULL, true);
+
+                                l_Player->RemoveAura(SPELL_DK_SCENT_OF_BLOOD);
                             }
                         }
                     }
