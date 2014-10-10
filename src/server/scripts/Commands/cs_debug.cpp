@@ -163,7 +163,7 @@ class debug_commandscript : public CommandScript
             bool l_HasGuild = false;
             bool l_HasChannel = false;
 
-            data.Initialize(SMSG_MESSAGE_CHAT, 200);
+            data.Initialize(SMSG_CHAT, 200);
             data.WriteBit(l_UnkBit5269);
             data.WriteBit(!l_HasText);
             data.WriteBit(!l_UnkBit5256);

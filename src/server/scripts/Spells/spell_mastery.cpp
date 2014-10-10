@@ -67,7 +67,7 @@ class spell_mastery_echo_of_light : public SpellScriptLoader
                 if (!unitTarget || !plr)
                     return;
 
-                float Mastery = plr->GetFloatValue(PLAYER_MASTERY) * 1.25f / 100.0f;
+                float Mastery = plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
                 int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 6;
 
                 bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);

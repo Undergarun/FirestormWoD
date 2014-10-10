@@ -272,7 +272,7 @@ class misc_commandscript : public CommandScript
         {
             if (!*args)
             {
-                if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+                if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
                     handler->GetSession()->SendNotification(LANG_DEV_ON);
                 else
                     handler->GetSession()->SendNotification(LANG_DEV_OFF);
@@ -283,14 +283,14 @@ class misc_commandscript : public CommandScript
 
             if (argstr == "on")
             {
-                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
                 handler->GetSession()->SendNotification(LANG_DEV_ON);
                 return true;
             }
 
             if (argstr == "off")
             {
-                handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+                handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
                 handler->GetSession()->SendNotification(LANG_DEV_OFF);
                 return true;
             }
@@ -367,9 +367,9 @@ class misc_commandscript : public CommandScript
                 handler->PSendSysMessage("no VMAP available for area info");
 
             handler->PSendSysMessage(LANG_MAP_POSITION,
-                object->GetMapId(), (mapEntry ? mapEntry->name : "<unknown>"),
-                zoneId, (zoneEntry ? zoneEntry->AreaNameLang : "<unknown>"),
-                areaId, (areaEntry ? areaEntry->AreaNameLang : "<unknown>"),
+                object->GetMapId(), (mapEntry ? mapEntry->MapNameLang : "<unknown>"),
+                zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
+                areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
                 object->GetPhaseMask(),
                 object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
                 cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -398,7 +398,7 @@ class misc_commandscript : public CommandScript
             uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target, sSpellPowerStore.LookupEntry(spellInfo->SpellPowerId));
 
             return true;
         }
@@ -1166,7 +1166,7 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            if (player->isDead() || player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
             {
                 // if player is dead and stuck, send ghost to graveyard
                 player->RepopAtGraveyard();
@@ -1216,7 +1216,7 @@ class misc_commandscript : public CommandScript
             uint32 zoneId = player->GetZoneId();
 
             AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(zoneId);
-            if (!areaEntry || areaEntry->ParentAreaID != 0)
+            if (!areaEntry || areaEntry->mapid != 0)
             {
                 handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
                 handler->SetSentErrorMessage(true);
@@ -1321,8 +1321,8 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
-            playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields | val)));
+            uint32 currFields = playerTarget->GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+            playerTarget->SetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields | val)));
 
             handler->SendSysMessage(LANG_EXPLORE_AREA);
             return true;
@@ -1352,8 +1352,8 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
-            playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields ^ val)));
+            uint32 currFields = playerTarget->GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+            playerTarget->SetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields ^ val)));
 
             handler->SendSysMessage(LANG_UNEXPLORE_AREA);
             return true;
@@ -1899,22 +1899,22 @@ class misc_commandscript : public CommandScript
             AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
             if (area)
             {
-                areaName = area->AreaNameLang;
+                areaName = area->area_name;
 
-                AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
+                AreaTableEntry const* zone = GetAreaEntryByAreaID(area->mapid);
                 if (zone)
-                    zoneName = zone->AreaNameLang;
+                    zoneName = zone->area_name;
             }
 
             if (target)
             {
                 if (!zoneName.empty())
-                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, zoneName.c_str(), areaName.c_str(), phase);
+                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->MapNameLang, zoneName.c_str(), areaName.c_str(), phase);
                 else
-                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, areaName.c_str(), "<unknown>", phase);
+                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->MapNameLang, areaName.c_str(), "<unknown>", phase);
             }
             else
-                handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());
+                handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->MapNameLang, areaName.c_str());
 
             return true;
         }
@@ -2687,8 +2687,8 @@ class misc_commandscript : public CommandScript
             creatureTarget->RemoveCorpse();
             creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-            pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
-            pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+            pet->SetUInt64Value(UNIT_FIELD_CREATED_BY, player->GetGUID());
+            pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, player->getFaction());
 
             if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
             {
@@ -2843,7 +2843,7 @@ class misc_commandscript : public CommandScript
                 }
 
                 if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
-                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player, sSpellPowerStore.LookupEntry(spellInfo->SpellPowerId));
 
                 // save player
                 player->SaveToDB();
