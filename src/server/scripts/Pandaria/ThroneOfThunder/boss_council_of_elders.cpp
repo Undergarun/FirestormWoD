@@ -220,9 +220,9 @@ bool AllBossesDead(Creature* me)
     {
         if (entries[l_I] != me->GetEntry())
             if (GetClosestCreatureWithEntry(me, entries[l_I], 200.0f, true))
-                continue;
-            else
                 return false;
+            else
+                continue;
     }
 
     return true;
