@@ -273,12 +273,12 @@ enum Opcodes
         SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x1319,   ///< 6.0.2 18934
 
         /// Achievement
-        SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x0000,
-        SMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x0000,
-        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x0000,
-        SMSG_GUILD_CRITERIA_UPDATE                  = 0x0000,
-        SMSG_GUILD_CRITERIA_DELETED                 = 0x0000,
-        SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x0000,
+        SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x1269,   ///< 6.0.2 18934
+        SMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x060A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x1379,   ///< 6.0.2 18934
+        SMSG_GUILD_CRITERIA_UPDATE                  = 0x1249,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_CRITERIA_DELETED                 = 0x0359,   ///< 6.0.2 18934
+        SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x027A,   ///< 6.0.2 18934
 
         /// Info
         SMSG_GUILD_ROSTER                           = 0x0779,   ///< 6.0.2 18934

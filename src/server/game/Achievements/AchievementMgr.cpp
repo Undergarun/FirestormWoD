@@ -437,32 +437,20 @@ void AchievementMgr<T>::RemoveCriteriaProgress(const AchievementCriteriaEntry* e
 }
 
 template<>
-void AchievementMgr<Guild>::RemoveCriteriaProgress(const AchievementCriteriaEntry* entry)
+void AchievementMgr<Guild>::RemoveCriteriaProgress(const * AchievementCriteriaEntry p_Entry)
 {
-    CriteriaProgressMap::iterator criteriaProgress = GetCriteriaProgressMap()->find(entry->ID);
-    if (criteriaProgress == GetCriteriaProgressMap()->end())
+    CriteriaProgressMap::iterator l_CriteriaProgress = GetCriteriaProgressMap()->find(p_Entry->ID);
+
+    if (l_CriteriaProgress == GetCriteriaProgressMap()->end())
         return;
 
-    ObjectGuid guid = GetOwner()->GetGUID();
+    WorldPacket l_Data(SMSG_GUILD_CRITERIA_DELETED, 4 + 8);
+    l_Data.appendPackGUID(GetOwner()->GetGUID());
+    l_Data << uint32(p_Entry->ID);
 
-    WorldPacket data(SMSG_GUILD_CRITERIA_DELETED, 4 + 8);
+    SendPacket(&l_Data);
 
-    uint8 bitOrder[8] = {7, 3, 4, 2, 1, 5, 6, 0};
-    data.WriteBitInOrder(guid, bitOrder);
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-    data << uint32(entry->ID);
-    data.WriteByteSeq(guid[0]);
-
-    SendPacket(&data);
-
-    GetCriteriaProgressMap()->erase(criteriaProgress);
+    GetCriteriaProgressMap()->erase(l_CriteriaProgress);
 }
 
 template<class T>
@@ -1111,38 +1099,29 @@ void AchievementMgr<Player>::Reset()
 template<>
 void AchievementMgr<Guild>::Reset()
 {
-    ObjectGuid guid = GetOwner()->GetGUID();
-    for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
+    for (CompletedAchievementMap::const_iterator l_It = m_completedAchievements.begin(); l_It != m_completedAchievements.end(); ++l_It)
     {
-        WorldPacket data(SMSG_GUILD_ACHIEVEMENT_DELETED, 4);
+        WorldPacket l_Data(SMSG_GUILD_ACHIEVEMENT_DELETED, 4);
 
-        uint8 bitOrder[8] = {4, 1, 2, 3, 0, 7, 5, 6};
-        data.WriteBitInOrder(guid, bitOrder);
+        l_Data.appendPackGUID(GetOwner()->GetGUID());
+        l_Data << uint32(l_It->first);
+        l_Data << uint32(secsToTimeBitFields(l_It->second.date));
 
-        data << uint32(iter->first);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[7]);
-        data << uint32(secsToTimeBitFields(iter->second.date));
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[2]);
-        SendPacket(&data);
+        SendPacket(&l_Data);
     }
 
-    CriteriaProgressMap* criteriaProgressMap = GetCriteriaProgressMap();
+    CriteriaProgressMap * l_CriteriaProgressMap = GetCriteriaProgressMap();
 
-    if (!criteriaProgressMap)
+    if (!l_CriteriaProgressMap)
         return;
 
-    while (!criteriaProgressMap->empty())
-       if (AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(criteriaProgressMap->begin()->first))
+    while (!l_CriteriaProgressMap->empty())
+       if (AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(l_CriteriaProgressMap->begin()->first))
             RemoveCriteriaProgress(criteria);
 
     _achievementPoints = 0;
     m_completedAchievements.clear();
+
     DeleteFromDB(GetOwner()->GetId());
 }
 
@@ -1236,27 +1215,15 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
 }
 
 template<>
-void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* achievement) const
+void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* p_Achievement) const
 {
-    ObjectGuid guid = GetOwner()->GetGUID();
+    WorldPacket l_Data(SMSG_GUILD_ACHIEVEMENT_EARNED, 8+4+8);
 
-    WorldPacket data(SMSG_GUILD_ACHIEVEMENT_EARNED, 8+4+8);
+    l_Data.appendPackGUID(GetOwner()->GetGUID());
+    l_Data << uint32(p_Achievement->ID);
+    l_Data << uint32(secsToTimeBitFields(time(NULL)));
 
-    uint8 bitOrder[8] = { 6, 1, 5, 0, 3, 4, 2, 7 };
-    data.WriteBitInOrder(guid, bitOrder);
-
-    data.WriteByteSeq(guid[7]);
-    data << uint32(achievement->ID);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
-    data << uint32(secsToTimeBitFields(time(NULL)));
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 template<class T>
@@ -2391,27 +2358,19 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 {
-    WorldPacket data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4) + 3);
-    data.WriteBits(m_completedAchievements.size(), 22);
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+    WorldPacket l_Data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4) + 3);
+    l_Data << uint32(m_completedAchievements.size());
+
+    for (CompletedAchievementMap::const_iterator l_It = m_completedAchievements.begin(); l_It != m_completedAchievements.end(); ++l_It)
     {
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-        data.WriteBit(0);
-    }
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
-    {
-        data << uint32(0); //0 or time ?
-        data << uint32(itr->first);
-        data << uint32(secsToTimeBitFields(itr->second.date));
+        l_Data << uint32(l_It->first);
+        l_Data << uint32(secsToTimeBitFields(l_It->second.date));
+        l_Data.appendPackGUID(l_It->second.first_guid);
+        l_Data << uint32(realmID);
+        l_Data << uint32(realmID);
     }
 
-    receiver->GetSession()->SendPacket(&data);
+    receiver->GetSession()->SendPacket(&l_Data);
 }
 
 template<class T>
