@@ -437,7 +437,7 @@ void AchievementMgr<T>::RemoveCriteriaProgress(const AchievementCriteriaEntry* e
 }
 
 template<>
-void AchievementMgr<Guild>::RemoveCriteriaProgress(const * AchievementCriteriaEntry p_Entry)
+void AchievementMgr<Guild>::RemoveCriteriaProgress(const AchievementCriteriaEntry * p_Entry)
 {
     CriteriaProgressMap::iterator l_CriteriaProgress = GetCriteriaProgressMap()->find(p_Entry->ID);
 
@@ -1070,8 +1070,9 @@ void AchievementMgr<Player>::Reset()
 {
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
     {
-        WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
+        WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 8);
         data << uint32(iter->first);
+        data << uint32(0);
         SendPacket(&data);
     }
 
@@ -1164,54 +1165,23 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         cell.Visit(p, message, *GetOwner()->GetMap(), *GetOwner(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
     }
 
-    WorldPacket data(SMSG_ACHIEVEMENT_EARNED);
+    WorldPacket l_Data(SMSG_ACHIEVEMENT_EARNED);
 
-    ObjectGuid thisPlayerGuid = GetOwner()->GetGUID();
-    ObjectGuid firstPlayerOnAccountGuid = GetOwner()->GetGUID();
+    uint64 firstPlayerOnAccountGuid = GetOwner()->GetGUID();
 
     if (HasAccountAchieved(achievement->ID))
         firstPlayerOnAccountGuid = GetFirstAchievedCharacterOnAccount(achievement->ID);
 
-    data << uint32(secsToTimeBitFields(time(NULL)));
-    data << uint32(50724905);
-    data << uint32(achievement->ID);
-    data << uint32(50724905);
-    data.WriteBit(thisPlayerGuid[6]);
-    data.WriteBit(firstPlayerOnAccountGuid[5]);
-    data.WriteBit(firstPlayerOnAccountGuid[3]);
-    data.WriteBit(firstPlayerOnAccountGuid[0]);
-    data.WriteBit(firstPlayerOnAccountGuid[1]);
-    data.WriteBit(firstPlayerOnAccountGuid[6]);
-    data.WriteBit(thisPlayerGuid[2]);
-    data.WriteBit(firstPlayerOnAccountGuid[2]);
-    data.WriteBit(thisPlayerGuid[1]);
-    data.WriteBit(thisPlayerGuid[4]);
-    data.WriteBit(thisPlayerGuid[5]);
-    data.WriteBit(thisPlayerGuid[7]);
-    data.WriteBit(firstPlayerOnAccountGuid[7]);
-    data.WriteBit(thisPlayerGuid[0]);
-    data.WriteBit(firstPlayerOnAccountGuid[4]);
-    data.WriteBit(0);
-    data.WriteBit(thisPlayerGuid[3]);
+    l_Data.appendPackGUID(GetOwner()->GetGUID());
+    l_Data.appendPackGUID(firstPlayerOnAccountGuid);
+    l_Data << uint32(achievement->ID);
+    l_Data << uint32(secsToTimeBitFields(time(NULL)));
+    l_Data << uint32(realmID);
+    l_Data << uint32(realmID);
+    l_Data.WriteBit(0);
+    l_Data.FlushBits();
 
-    data.WriteByteSeq(firstPlayerOnAccountGuid[4]);
-    data.WriteByteSeq(thisPlayerGuid[0]);
-    data.WriteByteSeq(thisPlayerGuid[2]);
-    data.WriteByteSeq(thisPlayerGuid[6]);
-    data.WriteByteSeq(thisPlayerGuid[1]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[1]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[5]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[0]);
-    data.WriteByteSeq(thisPlayerGuid[7]);
-    data.WriteByteSeq(thisPlayerGuid[3]);
-    data.WriteByteSeq(thisPlayerGuid[5]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[6]);
-    data.WriteByteSeq(thisPlayerGuid[4]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[3]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[7]);
-    data.WriteByteSeq(firstPlayerOnAccountGuid[2]);
-
-    GetOwner()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    GetOwner()->SendMessageToSetInRange(&l_Data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
 template<>
@@ -1234,83 +1204,42 @@ void AchievementMgr<T>::SendCriteriaUpdate(AchievementCriteriaEntry const* /*ent
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
-    WorldPacket data(SMSG_CRITERIA_UPDATE, 4 + 4 + 4 + 4 + 8 + 4);
-    ObjectGuid playerGuid = GetOwner()->GetGUID();
+    WorldPacket l_Data(SMSG_CRITERIA_UPDATE, 4 + 4 + 4 + 4 + 8 + 4);
 
-    data << uint32(entry->ID);
+    l_Data << uint32(entry->ID);
+    l_Data << uint64(progress->counter);
+    l_Data.appendPackGUID(GetOwner()->GetGUID());
 
     // This are some flags, 1 is for keeping the counter at 0 in client
     if (!entry->timeLimit)
-        data << uint32(0);
+        l_Data << uint32(0);
     else
-        data << uint32(timedCompleted ? 0 : 1);
+        l_Data << uint32(timedCompleted ? 0 : 1);
 
-    data << uint32(timeElapsed);                        // Time from start
-    data << uint32(secsToTimeBitFields(progress->date));
-    data << uint64(progress->counter);
-    data << uint32(0);                                  // Time from create
+    l_Data << uint32(secsToTimeBitFields(progress->date));
+    l_Data << uint32(timeElapsed);                        // Time from start
+    l_Data << uint32(0);                                  // Time from create
 
-    uint8 bitsOrder[8] = { 2, 4, 1, 5, 3, 6, 7, 0 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 7, 0, 6, 5, 2, 1, 4, 3 };
-    data.WriteBytesSeq(playerGuid, bytesOrder);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 template<>
-void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
+void AchievementMgr<Guild>::SendCriteriaUpdate(const AchievementCriteriaEntry * p_Entry, const CriteriaProgress * p_Progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
 {
-    // Will send response to criteria progress request
-    WorldPacket data;// (SMSG_GUILD_CRITERIA_DATA);
+    /// Will send response to criteria progress request
+    WorldPacket l_Data(SMSG_GUILD_CRITERIA_UPDATE, 80);
 
-    ObjectGuid counter = progress->counter; // For accessing every byte individually
-    ObjectGuid guid = progress->CompletedGUID;
+    l_Data << uint32(1);
 
-    data.WriteBits(1, 19);
-    data.WriteBit(counter[3]);
-    data.WriteBit(counter[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(counter[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(counter[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(counter[5]);
-    data.WriteBit(counter[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(counter[1]);
-    data.WriteBit(counter[4]);
-    data.WriteBit(guid[1]);
+    l_Data << uint32(p_Entry->ID);
+    l_Data << uint32(p_Progress->date);      /// Unknown date
+    l_Data << uint32(p_Progress->date);      /// Unknown date
+    l_Data << uint32(p_Progress->date);      /// Last update time (not packed!)
+    l_Data << uint64(p_Progress->counter);
+    l_Data.appendPackGUID(p_Progress->CompletedGUID);
+    l_Data << uint32(p_Progress->changed);
 
-    data.FlushBits();
-
-    data.WriteByteSeq(guid[4]);
-    data << uint32(progress->date);      // Unknown date
-    data.WriteByteSeq(counter[2]);
-    data.WriteByteSeq(counter[0]);
-    data << uint32(progress->changed);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(entry->ID);
-    data << uint32(progress->date);      // Last update time (not packed!)
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(counter[1]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(counter[4]);
-    data << uint32(progress->date);      // Unknown date
-    data.WriteByteSeq(counter[5]);
-    data.WriteByteSeq(counter[3]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(counter[6]);
-    data.WriteByteSeq(counter[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[5]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 template<class T>

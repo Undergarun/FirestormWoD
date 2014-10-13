@@ -158,6 +158,12 @@ enum Opcodes
 
         /// Achievement
         SMSG_ALL_ACHIEVEMENT_DATA                   = 0x01A4,   ///< 6.0.2 18934
+        SMSG_ACHIEVEMENT_DELETED                    = 0x0154,   ///< 6.0.2 18934
+        SMSG_ACHIEVEMENT_EARNED                     = 0x1617,   ///< 6.0.2 18934
+        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0727,   ///< 6.0.2 18934 (unused)
+        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x1603,   ///< 6.0.2 18934 (unused)
+        SMSG_CRITERIA_DELETED                       = 0x1454,   ///< 6.0.2 18934
+        SMSG_CRITERIA_UPDATE                        = 0x0AEC,   ///< 6.0.2 18934
 
         /// Friends
         SMSG_CONTACT_LIST                           = 0x0B00,   ///< 6.0.2 18934
@@ -1370,13 +1376,9 @@ enum Opcodes
     SMSG_INITIAL_SPELLS                               = 0x0000,
     SMSG_SPELLBREAKLOG                                = 0x0000,
     SMSG_SPELLSTEALLOG                                = 0x0000,
-    SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x0000,
-    SMSG_ACCOUNT_CRITERIA_UPDATE_ALL                  = 0x0000,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x0000,
     SMSG_ACCOUNT_PROFILE                              = 0x0000,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x0000,
-    SMSG_ACHIEVEMENT_DELETED                          = 0x0000,
-    SMSG_ACHIEVEMENT_EARNED                           = 0x0000,
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
@@ -1511,8 +1513,6 @@ enum Opcodes
     SMSG_CONSOLE_WRITE                                = 0x0000,
     SMSG_CONVERT_RUNE                                 = 0x0000,
     SMSG_CORPSE_NOT_IN_INSTANCE                       = 0x0000,
-    SMSG_CRITERIA_DELETED                             = 0x0000,
-    SMSG_CRITERIA_UPDATE                              = 0x0000,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0x0000,
     SMSG_CURRENCY_LOOT_REMOVED                        = 0x0000,
     SMSG_CURRENCY_LOOT_RESTORED                       = 0x0000,
