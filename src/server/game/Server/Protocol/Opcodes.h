@@ -658,8 +658,8 @@ enum Opcodes
     CMSG_VIOLENCE_LEVEL                         = 0x00D4,   ///< 6.0.2 18934
     CMSG_LOAD_SCREEN                            = 0x09B8,   ///< 6.0.2 18934
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x02A3,   ///< 6.0.2 18934
-    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000,   ///< 6.0.2 
-    CMSG_SET_RAID_DIFFICULTY                    = 0x0000,   ///< 6.0.2 
+    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0AEB,   ///< 6.0.2 18934
+    CMSG_SET_RAID_DIFFICULTY                    = 0x12F3,   ///< 6.0.2 18934
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0338,   ///< 6.0.2 18934
     CMSG_SHOWING_CLOAK                          = 0x0208,   ///< 6.0.2 18934
     CMSG_SHOWING_HELM                           = 0x0354,   ///< 6.0.2 18934
@@ -678,10 +678,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
-    CMSG_AUTOBANK_ITEM                          = 0x0000,   ///< 6.0.2 
-    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0000,   ///< 6.0.2 
-    CMSG_BUY_BANK_SLOT                          = 0x0000,   ///< 6.0.2 
-    CMSG_BUY_REAGENT_BANK                       = 0x0000,   ///< 6.0.2 
+    CMSG_AUTOBANK_ITEM                          = 0x06A5,   ///< 6.0.2 18934
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0686,   ///< 6.0.2 18934
+    CMSG_BUY_BANK_SLOT                          = 0x0677,   ///< 6.0.2 18934
+    CMSG_BUY_REAGENT_BANK                       = 0x0638,   ///< 6.0.2 18934
     CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0000,   ///< 6.0.2
 
     //////////////////////////////////////////////////////////////////////////
