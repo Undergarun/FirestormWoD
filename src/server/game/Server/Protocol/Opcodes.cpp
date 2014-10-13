@@ -307,13 +307,13 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGuild
         /// Guild Finder
-        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_BROWSE,                                  STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_APPLICATIONS,                            STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED,               STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_BROWSE,                                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_APPLICATIONS,                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED,               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_COMMAND_RESULT,                          STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_RECRUITS,                                STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_POST,                                    STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_APPLICANT_LIST_CHANGED,                  STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_RECRUITS,                                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_POST,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_LFGUILD_APPLICANT_LIST_CHANGED,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Bank
         DEFINE_OPCODE_HANDLER(SMSG_GUILD_RANKS,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1010,6 +1010,16 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_MEMBER_RECIPES,                      STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_RECIPES,                             STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGuildRequestGuildRecipes   );
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_SAVE_GUILD_EMBLEM,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePlayerSaveGuildEmblemOpcode);
+    
+    /// Guild finding
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_ADD_RECRUIT,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderAddRecruit      );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_BROWSE,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderBrowse          );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_DECLINE_RECRUIT,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderDeclineRecruit  );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_GET_APPLICATIONS,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderGetApplications );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_GET_RECRUITS,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderGetRecruits     );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_POST_REQUEST,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderPostRequest     );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_REMOVE_RECRUIT,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderRemoveRecruit   );
+    DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_SET_GUILD_POST,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildFinderSetGuildPost    );
 
     //////////////////////////////////////////////////////////////////////////
     /// Petition
@@ -1178,14 +1188,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_COMMENT,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_ROLES,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetRolesOpcode         );
     //DEFINE_OPCODE_HANDLER(CMSG_LFG_TELEPORT,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgTeleportOpcode         );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_ADD_RECRUIT,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderAddRecruit     );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_BROWSE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderBrowse         );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_DECLINE_RECRUIT,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderDeclineRecruit );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_GET_APPLICATIONS,               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderGetApplications);
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_GET_RECRUITS,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderGetRecruits    );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_POST_REQUEST,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderPostRequest    );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_REMOVE_RECRUIT,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderRemoveRecruit  );
-    //DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost   );
     //DEFINE_OPCODE_HANDLER(CMSG_LIST_STABLE_PETS,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode     );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_CURRENCY,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_LOOT_MASTER_GIVE,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterGiveOpcode      );

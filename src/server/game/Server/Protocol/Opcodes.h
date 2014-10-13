@@ -256,13 +256,13 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGuild
         /// Guild Finder
-        SMSG_LFGUILD_BROWSE                         = 0x0000,
-        SMSG_LFGUILD_APPLICATIONS                   = 0x0000,
-        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x0000,
-        SMSG_LFGUILD_COMMAND_RESULT                 = 0x0000,
-        SMSG_LFGUILD_RECRUITS                       = 0x0000,
-        SMSG_LFGUILD_POST                           = 0x0000,
-        SMSG_LFGUILD_APPLICANT_LIST_CHANGED         = 0x0000,
+        SMSG_LFGUILD_BROWSE                         = 0x124A,   ///< 6.0.2 18934
+        SMSG_LFGUILD_APPLICATIONS                   = 0x0659,   ///< 6.0.2 18934
+        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x136A,   ///< 6.0.2 18934
+        SMSG_LFGUILD_COMMAND_RESULT                 = 0x1309,   ///< 6.0.2 18934 (unused)
+        SMSG_LFGUILD_RECRUITS                       = 0x0319,   ///< 6.0.2 18934
+        SMSG_LFGUILD_POST                           = 0x0209,   ///< 6.0.2 18934
+        SMSG_LFGUILD_APPLICANT_LIST_CHANGED         = 0x065A,   ///< 6.0.2 18934
 
         /// Bank
         SMSG_GUILD_RANKS                            = 0x035A,   ///< 6.0.2 18934
@@ -972,6 +972,16 @@ enum Opcodes
     CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x00CA,   ///< 6.0.2 18934 (unused)
     CMSG_QUERY_GUILD_RECIPES                       = 0x00E5,   ///< 6.0.2 18934
     CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x04B9,   ///< 6.0.2 18934
+    
+    /// Guild finding
+    CMSG_LF_GUILD_ADD_RECRUIT                      = 0x08E4,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_BROWSE                           = 0x02B0,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x098A,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x00ED,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_GET_RECRUITS                     = 0x01B5,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_POST_REQUEST                     = 0x08BE,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x01D1,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_SET_GUILD_POST                   = 0x03C0,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
@@ -1198,14 +1208,6 @@ enum Opcodes
     CMSG_LFG_SET_COMMENT                              = 0x0000,
     CMSG_LFG_SET_ROLES                                = 0x0000,
     CMSG_LFG_TELEPORT                                 = 0x0000,
-    CMSG_LF_GUILD_ADD_RECRUIT                         = 0x0000,
-    CMSG_LF_GUILD_BROWSE                              = 0x0000,
-    CMSG_LF_GUILD_DECLINE_RECRUIT                     = 0x0000,
-    CMSG_LF_GUILD_GET_APPLICATIONS                    = 0x0000,
-    CMSG_LF_GUILD_GET_RECRUITS                        = 0x0000,
-    CMSG_LF_GUILD_POST_REQUEST                        = 0x0000,
-    CMSG_LF_GUILD_REMOVE_RECRUIT                      = 0x0000,
-    CMSG_LF_GUILD_SET_GUILD_POST                      = 0x0000,
     CMSG_LIST_STABLE_PETS                             = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
