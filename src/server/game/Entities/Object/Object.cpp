@@ -314,42 +314,9 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
     /// SMSG_DESTROY_OBJECT doesn't exist anymore, now blizz use OUT_OF_RANGE block
     /// in SMSG_UPDATE_OBJECT to destroy an WorldObject
     WorldPacket l_Data(SMSG_UPDATE_OBJECT, 40);
-    
-    uint16 l_MapID = 0;
 
-    switch (GetTypeId())
-    {
-        case TYPEID_PLAYER:
-        case TYPEID_UNIT:
-            l_MapID = ToUnit()->GetMapId();
-            break;
-
-        case TYPEID_ITEM:
-        case TYPEID_CONTAINER:
-            l_MapID = p_Target->GetMapId();
-            break;
-
-        case TYPEID_GAMEOBJECT:
-            l_MapID = ToGameObject()->GetMapId();
-            break;
-
-        case TYPEID_DYNAMICOBJECT:
-            l_MapID = ToDynObject()->GetMapId();
-            break;
-
-        case TYPEID_AREATRIGGER:
-            l_MapID = ToAreaTrigger()->GetMapId();
-            break;
-
-        case TYPEID_CORPSE:
-            l_MapID = ToCorpse()->GetMapId();
-            break;
-
-        case TYPEID_SCENEOBJECT:
-            l_MapID = reinterpret_cast<const SceneObject*>(this)->GetMapId();
-            break;
-
-    }
+    // Player cannot see creatures from different map ;)
+    uint16 l_MapID = p_Target->GetMapId();
 
     UpdateData l_Update(l_MapID);
     l_Update.AddOutOfRangeGUID(GetGUID());
