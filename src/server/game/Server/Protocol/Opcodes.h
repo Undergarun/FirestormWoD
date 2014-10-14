@@ -85,12 +85,12 @@ enum Opcodes
         SMSG_EXPLORATION_EXPERIENCE                 = 0x1413,   ///< 6.0.2 18934
         SMSG_LOG_XP_GAIN                            = 0x13EC,   ///< 6.0.2 18934
         SMSG_LEVELUP_INFO                           = 0x09BB,   ///< 6.0.2 18934
-        SMSG_ITEM_PUSH_RESULT                       = 0x09A3,   ///< 6.0.2 18934 
+        SMSG_ITEM_PUSH_RESULT                       = 0x09A3,   ///< 6.0.2 18934
         SMSG_INIT_CURRENCY                          = 0x00A4,   ///< 6.0.2 18934
         SMSG_UPDATE_CURRENCY                        = 0x1363,   ///< 6.0.2 18934
         SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x1057,   ///< 6.0.2 18934
         SMSG_WEEKLY_RESET_CURRENCY                  = 0x0628,   ///< 6.0.2 18934
-        SMSG_EQUIPMENT_SET_LIST                     = 0x0000,   ///< 
+        SMSG_EQUIPMENT_SET_LIST                     = 0x0000,   ///<
         SMSG_BINDER_CONFIRM                         = 0x1263,   ///< 6.0.2 18934
         SMSG_BIND_POINT_UPDATE                      = 0x1428,   ///< 6.0.2 18934
         SMSG_UPDATE_TALENT_DATA                     = 0x10FF,   ///< 6.0.2 18934
@@ -113,7 +113,7 @@ enum Opcodes
         SMSG_PLAY_MUSIC                             = 0x00B3,   ///< 6.0.2 18934
         SMSG_PLAY_OBJECT_SOUND                      = 0x0448,   ///< 6.0.2 18934
         SMSG_PLAY_SOUND                             = 0x02BB,   ///< 6.0.2 18934
-        SMSG_DISPLAY_TOAST                          = 0x0000,   ///< 
+        SMSG_DISPLAY_TOAST                          = 0x0000,   ///<
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 18934
@@ -152,7 +152,7 @@ enum Opcodes
         SMSG_ATTACK_SWING_ERROR                     = 0x0603,   ///< 6.0.2 18934
 
         /// Vendor
-        SMSG_LIST_INVENTORY                         = 0x0103,   ///< 6.0.2 18934 
+        SMSG_LIST_INVENTORY                         = 0x0103,   ///< 6.0.2 18934
         SMSG_BUY_FAILED                             = 0x0254,   ///< 6.0.2 18934
         SMSG_BUY_ITEM                               = 0x01A8,   ///< 6.0.2 18934
         SMSG_SELL_ITEM                              = 0x0BF3,   ///< 6.0.2 18934
@@ -354,7 +354,7 @@ enum Opcodes
         SMSG_MOTD                                   = 0x0E5D,   ///< 6.0.2 18934
         SMSG_EXPECTED_SPAM_RECORDS                  = 0x0000,
         SMSG_DEFENSE_MESSAGE                        = 0x0000,   ///<
-        SMSG_ZONE_UNDER_ATTACK                      = 0x0000,   ///< 6.0.2 
+        SMSG_ZONE_UNDER_ATTACK                      = 0x0000,   ///< 6.0.2
         SMSG_WHO                                    = 0x0000,
 
         /// Chat
@@ -374,10 +374,10 @@ enum Opcodes
         SMSG_CHANNEL_NOTIFY_LEFT                    = 0x080D,   ///< 6.0.2 18934
         SMSG_CHANNEL_NOTIFY_JOINED                  = 0x1C0A,   ///< 6.0.2 18934
         SMSG_CHANNEL_NOTIFY                         = 0x0C4D,   ///< 6.0.2 18934
-        SMSG_CHANNEL_LIST                           = 0x0000,   ///< 6.0.2 
-        SMSG_USERLIST_ADD                           = 0x0000,   ///< 6.0.2 
-        SMSG_USERLIST_REMOVE                        = 0x0000,   ///< 6.0.2 
-        SMSG_USERLIST_UPDATE                        = 0x0000,   ///< 6.0.2 
+        SMSG_CHANNEL_LIST                           = 0x0000,   ///< 6.0.2
+        SMSG_USERLIST_ADD                           = 0x0000,   ///< 6.0.2
+        SMSG_USERLIST_REMOVE                        = 0x0000,   ///< 6.0.2
+        SMSG_USERLIST_UPDATE                        = 0x0000,   ///< 6.0.2
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -586,9 +586,9 @@ enum Opcodes
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,   ///< 6.0.1
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0000,   ///< 6.0.2 
-    #pragma endregion 
-        
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0000,   ///< 6.0.2
+    #pragma endregion
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -610,14 +610,14 @@ enum Opcodes
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
-    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x0000,   ///< 6.0.2 
+    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x0000,   ///< 6.0.2
     CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
-    CMSG_GET_GARRISON_INFO                                  = 0x0000,   ///< 6.0.2 
+    CMSG_GET_GARRISON_INFO                                  = 0x0000,   ///< 6.0.2
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,   ///< 6.0.2 
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,   ///< 6.0.2 
+    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,   ///< 6.0.2
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
@@ -634,14 +634,14 @@ enum Opcodes
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
     CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.0.2 
-    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,   ///< 6.0.2 
-    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///< 6.0.2 
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///< 6.0.2
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOG_STREAMING_ERROR                    = 0x0000,   ///< 6.0.2 
+    CMSG_LOG_STREAMING_ERROR                    = 0x0000,   ///< 6.0.2
     CMSG_QUEUED_MESSAGES_END                    = 0x0000,   ///<
     CMSG_LOG_DISCONNECT                         = 0x1856,   ///< 6.0.2 18934
     CMSG_PING                                   = 0x1B75,   ///< 6.0.2 18764
@@ -681,7 +681,7 @@ enum Opcodes
     CMSG_OPEN_ITEM                              = 0x1084,   ///< 6.0.2 18934
     CMSG_SET_TITLE                              = 0x05F0,   ///< 6.0.2 18934
     CMSG_PLAYED_TIME                            = 0x0DEC,   ///< 6.0.2 18934
-    
+
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
@@ -731,7 +731,7 @@ enum Opcodes
     /// Interaction
     //////////////////////////////////////////////////////////////////////////
     CMSG_LOGOUT_REQUEST                         = 0x0513,   ///< 6.0.2 18934
-    CMSG_LOGOUT_CANCEL                          = 0x0000,   ///< 6.0.2 
+    CMSG_LOGOUT_CANCEL                          = 0x0000,   ///< 6.0.2
     CMSG_SET_ACTION_BUTTON                      = 0x10AB,   ///< 6.0.2 18934
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0223,   ///< 6.0.2 18934
     CMSG_SET_SELECTION                          = 0x1038,   ///< 6.0.2 18934
@@ -746,7 +746,7 @@ enum Opcodes
     CMSG_AREATRIGGER                            = 0x14D7,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x0343,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_USE                         = 0x0274,   ///< 6.0.2 18934
-    CMSG_SAVE_CUF_PROFILES                      = 0x0000,   ///< 6.0.2 
+    CMSG_SAVE_CUF_PROFILES                      = 0x0000,   ///< 6.0.2
     CMSG_SPELLCLICK                             = 0x0503,   ///< 6.0.2 18934
     CMSG_REPOP_REQUEST                          = 0x0063,   ///< 6.0.2 18934
     CMSG_RECLAIM_CORPSE                         = 0x0108,   ///< 6.0.2 18934
@@ -791,7 +791,6 @@ enum Opcodes
     /// Account data
     //////////////////////////////////////////////////////////////////////////
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES           = 0x0000,   ///<
-    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x0000,   ///<
 
     //////////////////////////////////////////////////////////////////////////
     /// Chat
@@ -987,7 +986,7 @@ enum Opcodes
     CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x00CA,   ///< 6.0.2 18934 (unused)
     CMSG_QUERY_GUILD_RECIPES                       = 0x00E5,   ///< 6.0.2 18934
     CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x04B9,   ///< 6.0.2 18934
-    
+
     /// Guild finding
     CMSG_LF_GUILD_ADD_RECRUIT                      = 0x08E4,   ///< 6.0.2 18934
     CMSG_LF_GUILD_BROWSE                           = 0x02B0,   ///< 6.0.2 18934
