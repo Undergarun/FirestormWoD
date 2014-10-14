@@ -1403,12 +1403,12 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 {
-    bool unk1 = recvData.ReadBit();                 // 0 or 1 expected
+    bool l_TriggerScriptEvent = recvData.ReadBit();                 // 0 or 1 expected
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
     data << uint32(m_Player->GetLevelPlayedTime());
     data << uint32(m_Player->GetTotalPlayedTime());
-    data.WriteBit(unk1);                            // 0 - will not show in chat frame
+    data.WriteBit(l_TriggerScriptEvent);                            // 0 - will not show in chat frame
     data.FlushBits();
     SendPacket(&data);
 }

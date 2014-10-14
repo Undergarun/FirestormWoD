@@ -560,22 +560,22 @@ enum Opcodes
     /// Jam Client Garrison
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGarrison
-        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x0000,   ///< 6.0.2 
-        SMSG_GARRISON_PLOT_PLACED                                       = 0x0000,   ///< 6.0.2 
-        SMSG_GARRISON_PLOT_REMOVED                                      = 0x0000,   ///< 6.0.2 
-        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x0000,   ///< 6.0.2 
-        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0000,   ///< 6.0.2 
+        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x1459,   ///< 6.0.2 18934
+        SMSG_GARRISON_PLOT_PLACED                                       = 0x001A,   ///< 6.0.2 18934
+        SMSG_GARRISON_PLOT_REMOVED                                      = 0x012A,   ///< 6.0.2 18934
+        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x18D4,   ///< 6.0.2 18934
+        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0987,   ///< 6.0.2 18934
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
-        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0000,   ///< 6.0.2 
-        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x0000,   ///< 6.0.2 
+        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0079,   ///< 6.0.2 18934
+        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x147A,   ///< 6.0.2 18934
         SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
-        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x0000,   ///< 6.0.2 
+        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x1069,   ///< 6.0.2 18934
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
-        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0000,   ///< 6.0.2 
+        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0519,   ///< 6.0.2 18934
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
-        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0000,   ///< 6.0.2 
+        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x103A,   ///< 6.0.2 18934
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x0000,
         SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0000,
         SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0000,
@@ -659,6 +659,7 @@ enum Opcodes
     CMSG_CREATE_CHARACTER                       = 0x10F3,   ///< 6.0.2 18934
     CMSG_CHAR_DELETE                            = 0x08FC,   ///< 6.0.2 18934
     CMSG_REORDER_CHARACTERS                     = 0x02B8,   ///< 6.0.2 18934
+    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x09B4,   ///< 6.0.2 18934 (unused)
     CMSG_PLAYER_LOGIN                           = 0x03A8,   ///< 6.0.2 18934
     CMSG_VIOLENCE_LEVEL                         = 0x00D4,   ///< 6.0.2 18934
     CMSG_LOAD_SCREEN                            = 0x09B8,   ///< 6.0.2 18934
@@ -679,6 +680,7 @@ enum Opcodes
     CMSG_DESTROY_ITEM                           = 0x0CC0,   ///< 6.0.2 18934
     CMSG_OPEN_ITEM                              = 0x1084,   ///< 6.0.2 18934
     CMSG_SET_TITLE                              = 0x05F0,   ///< 6.0.2 18934
+    CMSG_PLAYED_TIME                            = 0x0DEC,   ///< 6.0.2 18934
     
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -891,6 +893,7 @@ enum Opcodes
     CMSG_DO_READY_CHECK                         = 0x08F4,   ///< 6.0.2 18934
     CMSG_READY_CHECK_RESPONSE                   = 0x11C0,   ///< 6.0.2 18934
     CMSG_INITIATE_ROLE_POLL                     = 0x12F0,   ///< 6.0.2 18934
+    CMSG_REQUEST_RAID_INFO                      = 0x18B0,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -1012,6 +1015,11 @@ enum Opcodes
     CMSG_PETBATTLE_INPUT                           = 0x0000,
     CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x0000,
     CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x0000,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Battle pay
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x0BEC,   ///< 6.0.2 18934 (unused)
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1257,7 +1265,6 @@ enum Opcodes
     CMSG_PET_RENAME                                   = 0x0000,
     CMSG_PET_SET_ACTION                               = 0x0000,
     CMSG_PET_STOP_ATTACK                              = 0x0000,
-    CMSG_PLAYED_TIME                                  = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
     CMSG_PLAYER_LOGOUT                                = 0x0000,
     CMSG_PLAYER_VEHICLE_ENTER                         = 0x0000,
@@ -1282,7 +1289,6 @@ enum Opcodes
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x0000,
-    CMSG_REQUEST_RAID_INFO                            = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                        = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                       = 0x0000,
     CMSG_REQUEST_RESEARCH_HISTORY                     = 0x0000,
