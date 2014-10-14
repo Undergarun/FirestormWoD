@@ -504,7 +504,7 @@ enum Opcodes
         SMSG_SPELL_INTERRUPT_LOG                    = 0x0000,
         SMSG_SPELL_MISS_LOG                         = 0x0000,
         SMSG_ENVIRONMENTAL_DAMAGE_LOG               = 0x0000,
-        SMSG_SPELL_PERIODIC_AURA_LOG                = 0x0000,
+        SMSG_SPELL_PERIODIC_AURA_LOG                = 0x039B,   ///< 6.0.2 19027
         SMSG_SPELL_PROC_SCRIPT_LOG                  = 0x0000,   ///< Debug opcode (disabled)
         SMSG_SPELL_PROCS_PER_MINUTE_LOG             = 0x0000,   ///< Debug opcode (disabled)
         SMSG_SPELL_CHANCE_PROC_LOG                  = 0x0000,   ///< Debug opcode (disabled)
