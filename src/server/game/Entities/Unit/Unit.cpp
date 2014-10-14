@@ -22531,7 +22531,7 @@ float Unit::CalculateDamageDealtFactor(Player* player, Creature* target)
         }
     }
 
-    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 620, 695};
+    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 0, 0};
 
     if ((player->getLevel() <= GetMaxLevelForExpansion(targetExpansion) - 1) && player->GetAverageItemLevel() > IntendedItemLevelByExpansion[targetExpansion])
     {
@@ -22558,7 +22558,7 @@ float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
         damageTakenFactor = std::max(1.0f - 0.1f * levelDiff, 0.1f);
     }
 
-    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 620, 695};
+    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 0, 0};
 
     if ((player->getLevel() <= GetMaxLevelForExpansion(targetExpansion) - 1) && player->GetAverageItemLevel() > IntendedItemLevelByExpansion[targetExpansion])
     {
