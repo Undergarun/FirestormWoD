@@ -4166,6 +4166,10 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             target->SetCanFly(apply);
+
+            if (target->ToPlayer())
+                target->ToPlayer()->SendMovementSetCanTransitionBetweenSwimAndFly(apply);
+
             if (!apply)
             {
                 target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
