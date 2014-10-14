@@ -62,7 +62,6 @@ const struct RewriteItem Win32Patchs[] = {
     { 0x0A60FB4, sizeof(bnet_agent_data),                           bnet_agent_data                             },   ///< Change bnet agent
     { 0x0A30B24, sizeof(bnet_versions_data),                        bnet_versions_data                          },   ///< Change bnet versions data
     { 0x0A30B50, sizeof(bnet_cdns_data),                            bnet_cdns_data                              },   ///< Change bnet cdns data
-    
 };
 
 const uint8_t mac64_packet_disable_filter_date[]  = {0x8B, 0x55, 0x0C, 0xE9, 0x41, 0x01, 0x00, 0x00}; // mov edx, [ebp+arg_4];  jmp 141h
