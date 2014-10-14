@@ -91,6 +91,7 @@ enum Opcodes
         SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x1057,   ///< 6.0.2 18934
         SMSG_WEEKLY_RESET_CURRENCY                  = 0x0628,   ///< 6.0.2 18934
         SMSG_EQUIPMENT_SET_LIST                     = 0x0000,   ///< 
+        SMSG_BINDER_CONFIRM                         = 0x1263,   ///< 6.0.2 18934
         SMSG_BIND_POINT_UPDATE                      = 0x1428,   ///< 6.0.2 18934
         SMSG_UPDATE_TALENT_DATA                     = 0x10FF,   ///< 6.0.2 18934
         SMSG_TRANSFER_ABORTED                       = 0x13E8,   ///< 6.0.2 18934
@@ -668,13 +669,11 @@ enum Opcodes
     CMSG_SHOWING_CLOAK                          = 0x0208,   ///< 6.0.2 18934
     CMSG_SHOWING_HELM                           = 0x0354,   ///< 6.0.2 18934
     CMSG_SET_ACTIVE_MOVER                       = 0x0F45,   ///< 6.0.2 18934
-    CMSG_SET_ACTIVE_MOVER                       = 0x0000,   ///< 6.0.2
     CMSG_LEARN_TALENTS                          = 0x04FB,   ///< 6.0.2 18934
     CMSG_AUTOEQUIP_ITEM                         = 0x04FE,   ///< 6.0.2 18934
     CMSG_SWAP_INV_ITEM                          = 0x04ED,   ///< 6.0.2 18934
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 6.0.1
     CMSG_STAND_STATE_CHANGE                     = 0x1A94,   ///< 6.0.2 18934
-    CMSG_BINDER_ACTIVATE                        = 0x0663,   ///< 6.0.2 18934
     CMSG_REQUEST_FORCED_REACTIONS               = 0x1B83,   ///< 6.0.2 18934
     CMSG_DESTROY_ITEM                           = 0x0CC0,   ///< 6.0.2 18934
     CMSG_OPEN_ITEM                              = 0x1084,   ///< 6.0.2 18934
@@ -1433,7 +1432,6 @@ enum Opcodes
     SMSG_BATTLEPET_TRAP_LEVEL                         = 0x0000,
     SMSG_BATTLEPET_UPDATE                             = 0x0000,
     SMSG_BEASTMASTER_FAILED                           = 0x0000,
-    SMSG_BINDER_CONFIRM                               = 0x0000,
     SMSG_BIND_ZONE_REPLY                              = 0x0000,
     SMSG_BLACK_MARKET_OPEN_RESULT                     = 0x0000,
     SMSG_BLACK_MARKET_OUT_BID                         = 0x0000,
