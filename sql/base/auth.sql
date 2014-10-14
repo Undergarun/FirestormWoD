@@ -1,6 +1,6 @@
 /*
-SQLyog Ultimate v9.02 
-MySQL - 5.6.11-log : Database - 505_auth
+SQLyog Ultimate v11.11 (64 bit)
+MySQL - 5.6.20-log : Database - auth
 *********************************************************************
 */
 
@@ -9,9 +9,14 @@ MySQL - 5.6.11-log : Database - 505_auth
 /*!40101 SET SQL_MODE=''*/;
 
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`auth` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
 /*Table structure for table `account` */
+
+DROP TABLE IF EXISTS `account`;
 
 CREATE TABLE `account` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
@@ -33,12 +38,18 @@ CREATE TABLE `account` (
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `os` varchar(3) NOT NULL DEFAULT '',
   `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
+  `bnet2_pass_hash` varchar(256) NOT NULL DEFAULT '',
+  `bnet2_salt` varchar(64) NOT NULL DEFAULT '',
+  `google_auth` varchar(15) DEFAULT NULL,
+  `rsa_clear` blob,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`),
   KEY `recruiterIndex` (`recruiter`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Account System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account System';
 
 /*Table structure for table `account_access` */
+
+DROP TABLE IF EXISTS `account_access`;
 
 CREATE TABLE `account_access` (
   `id` int(10) unsigned NOT NULL,
@@ -50,6 +61,8 @@ CREATE TABLE `account_access` (
 
 /*Table structure for table `account_banned` */
 
+DROP TABLE IF EXISTS `account_banned`;
+
 CREATE TABLE `account_banned` (
   `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Account id',
   `bandate` int(10) unsigned NOT NULL DEFAULT '0',
@@ -60,7 +73,35 @@ CREATE TABLE `account_banned` (
   PRIMARY KEY (`id`,`bandate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ban List';
 
+/*Table structure for table `account_battlepet` */
+
+DROP TABLE IF EXISTS `account_battlepet`;
+
+CREATE TABLE `account_battlepet` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `account` int(10) unsigned NOT NULL DEFAULT '0',
+  `slot` int(11) NOT NULL DEFAULT '-1',
+  `name` varchar(50) NOT NULL,
+  `nameTimeStamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `species` int(10) unsigned NOT NULL DEFAULT '0',
+  `quality` int(10) unsigned NOT NULL DEFAULT '0',
+  `breed` int(10) unsigned NOT NULL DEFAULT '0',
+  `level` int(10) unsigned NOT NULL DEFAULT '0',
+  `xp` int(10) unsigned NOT NULL DEFAULT '0',
+  `display` int(10) unsigned NOT NULL DEFAULT '0',
+  `health` int(11) NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `infoPower` int(11) NOT NULL DEFAULT '0',
+  `infoMaxHealth` int(11) NOT NULL DEFAULT '0',
+  `infoSpeed` int(11) NOT NULL DEFAULT '0',
+  `infoGender` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `account` (`account`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 /*Table structure for table `account_log_ip` */
+
+DROP TABLE IF EXISTS `account_log_ip`;
 
 CREATE TABLE `account_log_ip` (
   `accountid` int(11) unsigned NOT NULL,
@@ -70,6 +111,8 @@ CREATE TABLE `account_log_ip` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `account_premium` */
+
+DROP TABLE IF EXISTS `account_premium`;
 
 CREATE TABLE `account_premium` (
   `id` int(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
@@ -83,6 +126,8 @@ CREATE TABLE `account_premium` (
 
 /*Table structure for table `account_spell` */
 
+DROP TABLE IF EXISTS `account_spell`;
+
 CREATE TABLE `account_spell` (
   `accountId` int(11) NOT NULL,
   `spell` int(10) NOT NULL,
@@ -95,12 +140,16 @@ CREATE TABLE `account_spell` (
 
 /*Table structure for table `firewall_farms` */
 
+DROP TABLE IF EXISTS `firewall_farms`;
+
 CREATE TABLE `firewall_farms` (
   `ip` tinytext NOT NULL,
   `type` tinyint(1) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `ip_banned` */
+
+DROP TABLE IF EXISTS `ip_banned`;
 
 CREATE TABLE `ip_banned` (
   `ip` varchar(15) NOT NULL DEFAULT '127.0.0.1',
@@ -113,6 +162,8 @@ CREATE TABLE `ip_banned` (
 
 /*Table structure for table `ip_to_country` */
 
+DROP TABLE IF EXISTS `ip_to_country`;
+
 CREATE TABLE `ip_to_country` (
   `IP_FROM` double NOT NULL,
   `IP_TO` double NOT NULL,
@@ -124,6 +175,8 @@ CREATE TABLE `ip_to_country` (
 
 /*Table structure for table `log_vote` */
 
+DROP TABLE IF EXISTS `log_vote`;
+
 CREATE TABLE `log_vote` (
   `top_name` varchar(15) NOT NULL DEFAULT 'top',
   `ip` varchar(15) NOT NULL DEFAULT '0.0.0.0',
@@ -132,6 +185,8 @@ CREATE TABLE `log_vote` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `logs` */
+
+DROP TABLE IF EXISTS `logs`;
 
 CREATE TABLE `logs` (
   `time` int(10) unsigned NOT NULL,
@@ -143,6 +198,8 @@ CREATE TABLE `logs` (
 
 /*Table structure for table `realmcharacters` */
 
+DROP TABLE IF EXISTS `realmcharacters`;
+
 CREATE TABLE `realmcharacters` (
   `realmid` int(10) unsigned NOT NULL DEFAULT '0',
   `acctid` int(10) unsigned NOT NULL,
@@ -152,6 +209,8 @@ CREATE TABLE `realmcharacters` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Realm Character Tracker';
 
 /*Table structure for table `realmlist` */
+
+DROP TABLE IF EXISTS `realmlist`;
 
 CREATE TABLE `realmlist` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -171,12 +230,16 @@ CREATE TABLE `realmlist` (
 
 /*Table structure for table `stat_lifetime_retention` */
 
+DROP TABLE IF EXISTS `stat_lifetime_retention`;
+
 CREATE TABLE `stat_lifetime_retention` (
   `minutes` int(11) NOT NULL,
   `usersPercentage` float(11,8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `transferts` */
+
+DROP TABLE IF EXISTS `transferts`;
 
 CREATE TABLE `transferts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -195,6 +258,8 @@ CREATE TABLE `transferts` (
 
 /*Table structure for table `transferts_logs` */
 
+DROP TABLE IF EXISTS `transferts_logs`;
+
 CREATE TABLE `transferts_logs` (
   `id` int(11) DEFAULT NULL,
   `account` int(11) DEFAULT NULL,
@@ -206,6 +271,8 @@ CREATE TABLE `transferts_logs` (
 
 /*Table structure for table `uptime` */
 
+DROP TABLE IF EXISTS `uptime`;
+
 CREATE TABLE `uptime` (
   `realmid` int(10) unsigned NOT NULL,
   `starttime` int(10) unsigned NOT NULL DEFAULT '0',
@@ -216,5 +283,6 @@ CREATE TABLE `uptime` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Uptime system';
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
