@@ -3272,12 +3272,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
 
+        bool l_IsCasting = false;
         // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
             {
+                l_IsCasting = true;
                 // Stop spells on prepare or casting state
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                     target->InterruptSpell(CurrentSpellTypes(i), false);
@@ -3286,7 +3288,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
         // Glyph of Strangulate - 58618
         // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618))
+        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_IsCasting)
         {
             aurApp->GetBase()->SetMaxDuration(aurApp->GetBase()->GetMaxDuration() + 2000);
             aurApp->GetBase()->RefreshDuration();
@@ -4518,12 +4520,11 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
     Unit* target = aurApp->GetTarget();
     uint32 mechanic = 0;
 
+    if (target->HasAura(146659) && GetId() == 1953) // Glyph of Rapid Displacement
+        return;
+
     switch (GetId())
     {
-        case 1953: // Blink
-            if (target->HasAura(146659)) // Glyph of Rapid Displacement
-                return;
-            break;
         case 42292: // PvP trinket
         case 59752: // Every Man for Himself
         case 65547: // PvP trinket (Trial of Crusader)
@@ -5079,18 +5080,40 @@ void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
+    float l_Amount = GetAmount();
+
     if (apply)
     {
-        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
-        target->ModifyHealth(GetAmount());
+        if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT)
+        {
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, l_Amount, apply);
+            target->ModifyHealth(GetAmount());
+        }
+        else
+        {
+            float percent = target->GetHealthPct();
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Amount, apply);
+            if (target->isAlive())
+                target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+        }
     }
     else
     {
-        if (int32(target->GetHealth()) > GetAmount())
-            target->ModifyHealth(-GetAmount());
+        if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT)
+        {
+            if (int32(target->GetHealth()) > GetAmount())
+                target->ModifyHealth(-GetAmount());
+            else
+                target->SetHealth(1);
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
+        }
         else
-            target->SetHealth(1);
-        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
+        {
+            float percent = target->GetHealthPct();
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Amount, apply);
+            if (target->isAlive())
+                target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+        }
     }
 }
 
@@ -7481,14 +7504,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
             caster->CastSpell(caster, 120587, true);
 
-        // Deep Wounds
-        if (GetSpellInfo()->Id == 115767)
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-              if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                  damage *= 2;
-        }
-
         // Nether Tempest and Living Bomb deal 85% of damage if used on player
         if (GetSpellInfo()->Id == 44457 || GetSpellInfo()->Id == 114923)
         {
@@ -7504,7 +7519,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 int32 bp = CalculatePct(damage, 90);
                 std::list<Unit*> groupList;
 
-                _player->GetPartyMembers(groupList);
+                _player->GetRaidMembers(groupList);
 
                 if (groupList.size() > 1)
                 {

@@ -1340,28 +1340,26 @@ class ObjectMgr
             _lootViewGUID[lootview] = creature;
         }
 
-        ACE_Thread_Mutex m_GuidLock;
-
     private:
         // first free id for selected id type
-        uint32 _auctionId;
-        uint64 _equipmentSetGuid;
-        uint32 _itemTextId;
-        uint32 _mailId;
-        uint32 _hiPetNumber;
-        uint64 _voidItemId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _equipmentSetGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _mailId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetNumber;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
 
         // first free low guid for selected guid type
-        uint32 _hiCharGuid;
-        uint32 _hiCreatureGuid;
-        uint32 _hiPetGuid;
-        uint32 _hiVehicleGuid;
-        uint32 _hiItemGuid;
-        uint32 _hiGoGuid;
-        uint32 _hiDoGuid;
-        uint32 _hiCorpseGuid;
-        uint32 _hiAreaTriggerGuid;
-        uint32 _hiMoTransGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCharGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCreatureGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiVehicleGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiItemGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiGoGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiDoGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiAreaTriggerGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
 
         QuestMap _questTemplates;
 

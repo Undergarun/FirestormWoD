@@ -538,7 +538,7 @@ class mob_living_fluid : public CreatureScript
 
                                     m_StartMutagenicMethod = false;
 
-                                    l_AreaTrigger->Remove();
+                                    l_AreaTrigger->Remove(0);
                                 }
                             }
                         }

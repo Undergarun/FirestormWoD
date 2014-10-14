@@ -101,6 +101,7 @@ enum MonkSpells
     SPELL_MONK_ITEM_4_S12_MISTWEAVER            = 124487,
     SPELL_MONK_ZEN_FOCUS                        = 124488,
     SPELL_MONK_EMINENCE_HEAL                    = 126890,
+    SPELL_MONK_EMINENCE_HEAL_STATUE             = 117895,
     SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE       = 123231,
     SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE      = 123232,
     SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE      = 123234,
@@ -1161,13 +1162,7 @@ class spell_monk_serpents_zeal : public SpellScriptLoader
                     std::list<Creature*> statueList;
                     Creature* statue = NULL;
 
-                    if (AuraPtr serpentsZeal = _player->GetAura(aurEff->GetSpellInfo()->Id))
-                    {
-                        if (serpentsZeal->GetStackAmount() < 2)
-                            bp /= 4;
-                        else
-                            bp /= 2;
-                    }
+                    bp /= 4;
 
                     _player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_JADE_SERPENT_STATUE, 100.0f);
                     _player->GetCreatureListWithEntryInGrid(statueList, MONK_NPC_JADE_SERPENT_STATUE, 100.0f);
@@ -1192,7 +1187,7 @@ class spell_monk_serpents_zeal : public SpellScriptLoader
 
                         if (statue && (statue->isPet() || statue->isGuardian()))
                             if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _player->GetGUID())
-                                statue->CastCustomSpell(statue, SPELL_MONK_EMINENCE_HEAL, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, _player->GetGUID()); // Eminence - statue
+                                statue->CastCustomSpell(statue, SPELL_MONK_EMINENCE_HEAL_STATUE, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, _player->GetGUID()); // Eminence - statue
                     }
                 }
             }
@@ -1503,7 +1498,7 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
                                     std::list<Unit*> targets;
                                     std::list<Unit*> tempTargets;
 
-                                    _plr->GetPartyMembers(tempTargets);
+                                    _plr->GetRaidMembers(tempTargets);
 
                                     for (auto itr : tempTargets)
                                     {
@@ -1982,7 +1977,7 @@ class spell_monk_thunder_focus_tea : public SpellScriptLoader
                         {
                             std::list<Unit*> groupList;
 
-                            _player->GetPartyMembers(groupList);
+                            _player->GetRaidMembers(groupList);
 
                             for (auto itr : groupList)
                                 if (AuraPtr renewingMistGroup = itr->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
@@ -1996,7 +1991,7 @@ class spell_monk_thunder_focus_tea : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_monk_thunder_focus_tea_SpellScript::HandleOnHit);
             }
         };
@@ -2357,7 +2352,7 @@ class spell_monk_renewing_mist : public SpellScriptLoader
                     std::list<Creature*> statueList;
                     Creature* statue;
 
-                    _player->GetPartyMembers(playerList);
+                    _player->GetRaidMembers(playerList);
 
                     if (playerList.size() > 1)
                     {
@@ -3228,7 +3223,7 @@ class spell_monk_soothing_mist : public SpellScriptLoader
                         std::list<Creature*> statueList;
                         Creature* statue;
 
-                        _player->GetPartyMembers(playerList);
+                        _player->GetRaidMembers(playerList);
 
                         if (playerList.size() > 1)
                         {
@@ -3288,7 +3283,7 @@ class spell_monk_soothing_mist : public SpellScriptLoader
                             std::list<Creature*> statueList;
                             Creature* statue;
 
-                            _player->GetPartyMembers(playerList);
+                            _player->GetRaidMembers(playerList);
 
                             if (playerList.size() > 1)
                             {
@@ -3825,6 +3820,80 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
         }
 };
 
+// Eminence 126890
+class spell_monk_eminence : public SpellScriptLoader
+{
+    public:
+        spell_monk_eminence() : SpellScriptLoader("spell_monk_eminence") { }
+
+        class spell_monk_eminence_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_eminence_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (Unit* p_caster = GetCaster())
+                    targets.remove(p_caster);
+
+                if (targets.empty())
+                    return;
+
+                std::list<Unit*> unitList;
+
+                for (auto itr : targets)
+                    if (itr->ToUnit())
+                        unitList.push_back(itr->ToUnit());
+
+                unitList.sort(JadeCore::HealthPctOrderPred(true));
+                WorldObject* l_object = unitList.front();
+
+                targets.clear();
+                targets.push_back(l_object);
+            }
+
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_eminence_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_eminence_SpellScript();
+        }
+};
+
+// Rushing Jade Wind 116847
+class spell_monk_rushing_jade_wind : public SpellScriptLoader
+{
+    public:
+        spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
+
+        class spell_monk_rushing_jade_wind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_rushing_jade_wind_SpellScript)
+
+            void HandleOnCast()
+            {
+                if (Player* l_caster = GetCaster()->ToPlayer())
+                    if (l_caster->GetSpecializationId(l_caster->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        l_caster->CastSpell(l_caster, SPELL_MONK_SPINNING_CRANE_KICK_HEAL, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_rushing_jade_wind_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_rushing_jade_wind_SpellScript();
+        }
+};
+
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_combo_breaker();
@@ -3891,4 +3960,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_provoke();
     new spell_monk_roll();
     new spell_monk_tigereye_brew_stacks();
+    new spell_monk_eminence();
+    new spell_monk_rushing_jade_wind();
 }

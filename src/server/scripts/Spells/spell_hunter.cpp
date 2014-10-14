@@ -752,7 +752,7 @@ class spell_hun_stampede : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_stampede_SpellScript);
 
-            void HandleOnHit()
+            void HandleStampede(SpellEffIndex /*effIndex*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -818,7 +818,7 @@ class spell_hun_stampede : public SpellScriptLoader
 
             void Register()
             {
-               OnHit += SpellHitFn(spell_hun_stampede_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_stampede_SpellScript::HandleStampede, EFFECT_0, SPELL_EFFECT_STAMPEDE);
             }
         };
 

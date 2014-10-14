@@ -6274,10 +6274,10 @@ void ObjectMgr::SetHighestGuids()
         _hiItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid);      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid);          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid);         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid);     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid.value());      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid.value());          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid.value());         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid.value());     // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6352,7 +6352,6 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     {
         case HIGHGUID_ITEM:
         {
-            ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
             ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
             return _hiItemGuid++;
         }
@@ -6363,7 +6362,6 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_PET:
         {
-            ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
             ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
             return _hiPetGuid++;
         }
@@ -6374,7 +6372,6 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_PLAYER:
         {
-            ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
             ASSERT(_hiCharGuid < 0xFFFFFFFE && "Player guid overflow!");
             return _hiCharGuid++;
         }
@@ -6772,7 +6769,7 @@ void ObjectMgr::LoadPetNumber()
         _hiPetNumber = fields[0].GetUInt32()+1;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber-1, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber.value()-1, GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)

@@ -398,7 +398,7 @@ bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Tar
 }
 
 template<class T>
-AchievementMgr<T>::AchievementMgr(T* owner): _owner(owner), _achievementPoints(0)
+AchievementMgr<T>::AchievementMgr(T* owner) : _owner(owner), _achievementPoints(0), m_NeedDBSync(false)
 {
 }
 
@@ -469,6 +469,7 @@ void AchievementMgr<Guild>::RemoveCriteriaProgress(CriteriaEntry const* p_Entry)
     SendPacket(&l_Data);
 
     GetCriteriaProgressMap()->erase(l_CriteriaProgress);
+    m_NeedDBSync = true;
 }
 
 template<class T>
@@ -783,13 +784,20 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 template<>
 void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
 {
+    if (!m_NeedDBSync)
+        return;
+
+    m_NeedDBSync = false;
+
     PreparedStatement* stmt;
     std::ostringstream guidstr;
 
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+    for (CompletedAchievementMap::iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
         if (!itr->second.changed)
             continue;
+
+        itr->second.changed = false;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_ACHIEVEMENT);
         stmt->setUInt32(0, GetOwner()->GetId());
@@ -813,10 +821,12 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
     if (!progressMap)
         return;
 
-    for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
+    for (CriteriaProgressMap::iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
     {
         if (!itr->second.changed)
             continue;
+
+        itr->second.changed = false;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_ACHIEVEMENT_CRITERIA);
         stmt->setUInt32(0, GetOwner()->GetId());
@@ -2073,6 +2083,8 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
 
         l_Progress = &m_criteriaProgress[p_Entry->ID];
         l_Progress->counter = p_ChangeValue;
+
+        m_NeedDBSync = true;
     }
     else
     {
@@ -2101,6 +2113,7 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
             return;
 
         l_Progress->counter = l_NewValue;
+        m_NeedDBSync = true;
     }
 
     l_Progress->changed = true;
@@ -2341,6 +2354,8 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, 0, NULL, referencePlayer);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, NULL, referencePlayer);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, NULL, referencePlayer);
+
+    m_NeedDBSync = true;
 }
 
 struct VisibleAchievementPred

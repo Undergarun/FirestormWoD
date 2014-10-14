@@ -90,6 +90,7 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
+    WUPDATE_TRANSFERT,
     WUPDATE_COUNT
 };
 
@@ -855,6 +856,7 @@ class World
         void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
         void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
         bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
+        uint64 GetCharacterGuidByName(std::string p_Name);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -987,6 +989,8 @@ class World
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
+        PreparedQueryResultFuture m_transfertsDumpCallbacks;
+        PreparedQueryResultFuture m_transfertsLoadCallbacks;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
 };
 

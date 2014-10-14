@@ -839,14 +839,16 @@ public:
             guid = sObjectMgr->GetPlayerGUIDByName(name);
         }
 
-        if (!sObjectMgr->GetPlayerAccountIdByGUID(guid))
+        uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+
+        if (!accountId)
         {
             handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid)))
+        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid), accountId))
         {
             case DUMP_SUCCESS:
                 handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);

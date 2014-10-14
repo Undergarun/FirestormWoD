@@ -3004,6 +3004,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target, constAuraEffectPtr triggered
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
 
+        if (m_damage > damageInfo.damage)
+            damageInfo.damage = m_damage;
+
         m_damage = damageInfo.damage;
         CallScriptOnHitHandlers();
         damageInfo.damage = m_damage;
@@ -4443,7 +4446,7 @@ void Spell::finish(bool ok)
                 break;
 
             // Only for Death Grip triggered to prevent dysfunctionment of the set bonus
-            if (m_spellInfo->Id == 49560)
+            if (m_spellInfo->Id == 49576)
             {
                 bool first = !m_caster->HasAura(131547);
 
@@ -6920,7 +6923,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!m_caster->_IsValidAttackTarget(target, GetSpellInfo()))
                             return SPELL_FAILED_BAD_TARGETS;
                     }
-                    else if (m_caster->HasAura(63333) && target == m_caster)
+                    else if (m_caster->HasAura(63333) && target == m_caster && m_caster->GetCreatureType() != CREATURE_TYPE_UNDEAD)
                         return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (m_spellInfo->Id == 19938)          // Awaken Peon
