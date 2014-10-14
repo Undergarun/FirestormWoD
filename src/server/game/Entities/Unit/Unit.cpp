@@ -22495,12 +22495,14 @@ float Unit::CalculateDamageDealtFactor(Player* player, Creature* target)
     if (!player || !target)
         return 1.0f;
 
-    uint32 levelDiff = player->getLevel() - target->getLevel();
     uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
+    int32 levelDiff = player->getLevel() - target->getLevel();
+    if (levelDiff < 0)
+        levelDiff = -levelDiff;
 
     float damageDealtFactor = 1.0f;
 
-    if (targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (levelDiff && targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
         if (levelDiff < 5)
         {
@@ -22535,12 +22537,14 @@ float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
     if (!player || !target)
         return 1.0f;
 
-    uint32 levelDiff = player->getLevel() - target->getLevel();
     uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
+    int32 levelDiff = player->getLevel() - target->getLevel();
+    if (levelDiff < 0)
+        levelDiff = -levelDiff;
 
     float damageTakenFactor = 1.0f;
 
-    if (targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (levelDiff && targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
         // 10% DR per level diff, with a floor of 10%
         damageTakenFactor = std::max(1.0f - 0.1f * levelDiff, 0.1f);
