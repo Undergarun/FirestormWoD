@@ -800,6 +800,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT,               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCorpseLocationFromClientQueryOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_CORPSE_TRANSPORT,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleCorpseTransportQueryOpcode );
     DEFINE_OPCODE_HANDLER(CMSG_RETURN_TO_GRAVEYARD,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleReturnToGraveyard          );
+    DEFINE_OPCODE_HANDLER(CMSG_CLOSE_INTERACTION,                               STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors

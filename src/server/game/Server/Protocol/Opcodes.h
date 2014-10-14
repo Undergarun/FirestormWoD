@@ -674,6 +674,7 @@ enum Opcodes
     CMSG_SWAP_INV_ITEM                          = 0x04ED,   ///< 6.0.2 18934
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 6.0.1
     CMSG_STAND_STATE_CHANGE                     = 0x1A94,   ///< 6.0.2 18934
+    CMSG_BINDER_ACTIVATE                        = 0x0323,   ///< 6.0.2 18934
     CMSG_REQUEST_FORCED_REACTIONS               = 0x1B83,   ///< 6.0.2 18934
     CMSG_DESTROY_ITEM                           = 0x0CC0,   ///< 6.0.2 18934
     CMSG_OPEN_ITEM                              = 0x1084,   ///< 6.0.2 18934
@@ -750,6 +751,7 @@ enum Opcodes
     CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT      = 0x02B4,   ///< 6.0.2 18934
     CMSG_QUERY_CORPSE_TRANSPORT                 = 0x11E7,   ///< 6.0.2 18934
     CMSG_RETURN_TO_GRAVEYARD                    = 0x1053,   ///< 6.0.2 18934
+    CMSG_CLOSE_INTERACTION                      = 0x0663,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors

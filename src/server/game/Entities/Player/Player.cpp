@@ -11536,18 +11536,12 @@ uint32 Player::GetXPRestBonus(uint32 xp)
     return rested_bonus;
 }
 
-void Player::SetBindPoint(uint64 guid)
+void Player::SetBindPoint(uint64 p_Guid)
 {
-    WorldPacket data(SMSG_BINDER_CONFIRM, 8);
-    ObjectGuid npcGuid = guid;
+    WorldPacket l_Data(SMSG_BINDER_CONFIRM, 2 + 16);
+    l_Data.appendPackGUID(p_Guid);
 
-    uint8 bitsOrder[8] = { 5, 0, 1, 6, 4, 2, 3, 7 };
-    data.WriteBitInOrder(guid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 6, 3, 7, 4, 5, 2, 0, 1 };
-    data.WriteBytesSeq(guid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
