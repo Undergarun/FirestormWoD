@@ -631,7 +631,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     {
         // not have spell in spellbook
         // cheater? kick? ban?
-        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell() && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS))
         {
             p_RecvPacket.rfinish(); // prevent spam at ignore packet
             return;

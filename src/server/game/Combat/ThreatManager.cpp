@@ -407,6 +407,10 @@ void ThreatManager::addThreat(Unit* victim, float threat, SpellSchoolMask school
     if (!ThreatCalcHelper::isValidProcess(victim, getOwner(), threatSpell))
         return;
 
+    // Tanks under vengeance generate 40% more threat
+    if (victim->HasAura(132365))
+        threat *= 1.4f;
+
     doAddThreat(victim, ThreatCalcHelper::calcThreat(victim, iOwner, threat, schoolMask, threatSpell));
 }
 

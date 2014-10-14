@@ -1,0 +1,1 @@
+DROP TABLE `guild_xp_for_level`;

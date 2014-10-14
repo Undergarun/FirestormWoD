@@ -2355,6 +2355,9 @@ class spell_item_pot_of_fire : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
+                
+                if (!target || !caster)
+                    return;
 
                 if (Creature* creature = target->ToCreature())
                 {
@@ -2420,6 +2423,124 @@ class spell_item_dit_da_jow : public SpellScriptLoader
         }
 };
 
+class spell_item_zuluhed_chains : public SpellScriptLoader
+{
+    public:
+        spell_item_zuluhed_chains() : SpellScriptLoader("spell_item_zuluhed_chains") { }
+
+        class spell_item_zuluhed_chains_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_zuluhed_chains_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(10866) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        player->KilledMonsterCredit(22112);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_zuluhed_chains_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_zuluhed_chains_SpellScript();
+        }
+};
+
+class spell_item_yak_s_milk : public SpellScriptLoader
+{
+    public:
+        spell_item_yak_s_milk() : SpellScriptLoader("spell_item_yak_s_milk") { }
+
+        class spell_item_yak_s_milk_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_yak_s_milk_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30953) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 61570)
+                            {
+                                player->KilledMonsterCredit(61569);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_yak_s_milk_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_yak_s_milk_SpellScript();
+        }
+};
+
+class spell_item_throw_mantra : public SpellScriptLoader
+{
+    public:
+        spell_item_throw_mantra() : SpellScriptLoader("spell_item_throw_mantra") { }
+
+        class spell_item_throw_mantra_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_throw_mantra_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+
+                if (Player* player = caster->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30066) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (Creature* creature = target->ToCreature())
+                        {
+                            if (creature->GetEntry() == 58186 || creature->GetEntry() == 57400 || creature->GetEntry() == 57326)
+                            {
+                                player->KilledMonsterCredit(57705);
+                                creature->DespawnOrUnsummon();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_throw_mantra_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_throw_mantra_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2478,4 +2599,7 @@ void AddSC_item_spell_scripts()
     new spell_item_imputting_the_final_code();
     new spell_item_pot_of_fire();
     new spell_item_dit_da_jow();
+    new spell_item_zuluhed_chains();
+    new spell_item_yak_s_milk();
+    new spell_item_throw_mantra();
 }

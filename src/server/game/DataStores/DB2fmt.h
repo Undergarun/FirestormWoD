@@ -25,7 +25,6 @@ const char ItemEffectFmt[] = "niiiiiiii";
 const char ItemModifiedAppearanceFmt[] = "niiii";
 const char ItemAppearanceFmt[] = "nii";
 const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxx";
-const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";
 const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiixx";
 const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RulesetItemUpgradeEntryfmt[] = "niii";
@@ -57,5 +56,18 @@ const char GarrPlotBuildingEntryfmt[] = "nii";
 const char GarrFollowerEntryfmt[] = "niiiiiiiiiiiiiissii";
 const char GarrAbilityEntryfmt[] = "nissiii";
 const char GarrFollowerXAbilityEntryfmt[] = "niii";
+
+const char BattlePetAbilityfmt[] = "niiiiiss";
+const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";
+const char BattlePetAbilityEffectfmt[] = "niiiiiiiiiii";
+const char BattlePetAbilityTurnfmt[] = "niiiii";
+const char BattlePetAbilityStatefmt[] = "niii";
+const char BattlePetStatefmt[] = "nisi";
+const char BattlePetEffectPropertiesfmt[] = "nissssssiiiiii";
+const char BattlePetBreedQualityfmt[] = "nif";
+const char BattlePetBreedStatefmt[] = "niii";
+const char BattlePetSpeciesfmt[] = "niiiiiiss";
+const char BattlePetSpeciesStatefmt[] = "niii";
+const char BattlePetSpeciesXAbilityfmt[] = "niiii";
 
 #endif

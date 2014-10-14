@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "DBCStores.h"
 
 enum ItemModType
 {
@@ -31,40 +32,43 @@ enum ItemModType
     ITEM_MOD_INTELLECT                = 5,
     ITEM_MOD_SPIRIT                   = 6,
     ITEM_MOD_STAMINA                  = 7,
-    ITEM_MOD_DEFENSE_SKILL_RATING     = 12,
+    ITEM_MOD_DEFENSE_SKILL_RATING     = 12, // Deprecated
     ITEM_MOD_DODGE_RATING             = 13,
     ITEM_MOD_PARRY_RATING             = 14,
     ITEM_MOD_BLOCK_RATING             = 15,
-    ITEM_MOD_HIT_MELEE_RATING         = 16, // Removed in 6.0.0
-    ITEM_MOD_HIT_RANGED_RATING        = 17, // Removed in 6.0.0
-    ITEM_MOD_HIT_SPELL_RATING         = 18, // Removed in 6.0.0
-    ITEM_MOD_CRIT_MELEE_RATING        = 19,
-    ITEM_MOD_CRIT_RANGED_RATING       = 20,
-    ITEM_MOD_CRIT_SPELL_RATING        = 21,
-    ITEM_MOD_HIT_TAKEN_MELEE_RATING   = 22,
-    ITEM_MOD_HIT_TAKEN_RANGED_RATING  = 23,
-    ITEM_MOD_HIT_TAKEN_SPELL_RATING   = 24,
-    ITEM_MOD_CRIT_TAKEN_MELEE_RATING  = 25,
-    ITEM_MOD_CRIT_TAKEN_RANGED_RATING = 26,
-    ITEM_MOD_CRIT_TAKEN_SPELL_RATING  = 27,
-    ITEM_MOD_HASTE_MELEE_RATING       = 28,
-    ITEM_MOD_HASTE_RANGED_RATING      = 29,
-    ITEM_MOD_HASTE_SPELL_RATING       = 30,
-    ITEM_MOD_HIT_RATING               = 31, // Removed in 6.0.0
+    ITEM_MOD_HIT_MELEE_RATING         = 16, // Deprecated
+    ITEM_MOD_HIT_RANGED_RATING        = 17, // Deprecated
+    ITEM_MOD_HIT_SPELL_RATING         = 18, // Deprecated
+    ITEM_MOD_CRIT_MELEE_RATING        = 19, // Deprecated, merged in ITEM_MOD_CRIT_RATING
+    ITEM_MOD_CRIT_RANGED_RATING       = 20, // Deprecated, merged in ITEM_MOD_CRIT_RATING
+    ITEM_MOD_CRIT_SPELL_RATING        = 21, // Deprecated, merged in ITEM_MOD_CRIT_RATING
+    ITEM_MOD_HIT_TAKEN_MELEE_RATING   = 22, // Deprecated
+    ITEM_MOD_HIT_TAKEN_RANGED_RATING  = 23, // Deprecated
+    ITEM_MOD_HIT_TAKEN_SPELL_RATING   = 24, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_MELEE_RATING  = 25, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_RANGED_RATING = 26, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_SPELL_RATING  = 27, // Deprecated
+    ITEM_MOD_HASTE_MELEE_RATING       = 28, // Deprecated, merged in ITEM_MOD_HASTE_RATING
+    ITEM_MOD_HASTE_RANGED_RATING      = 29, // Deprecated, merged in ITEM_MOD_HASTE_RATING
+    ITEM_MOD_HASTE_SPELL_RATING       = 30, // Deprecated, merged in ITEM_MOD_HASTE_RATING
+    ITEM_MOD_HIT_RATING               = 31, // Deprecated
     ITEM_MOD_CRIT_RATING              = 32,
-    ITEM_MOD_HIT_TAKEN_RATING         = 33,
-    ITEM_MOD_CRIT_TAKEN_RATING        = 34,
+    ITEM_MOD_HIT_TAKEN_RATING         = 33, // Deprecated
+    ITEM_MOD_CRIT_TAKEN_RATING        = 34, // Deprecated
     ITEM_MOD_RESILIENCE_RATING        = 35,
     ITEM_MOD_HASTE_RATING             = 36,
-    ITEM_MOD_EXPERTISE_RATING         = 37, // Removed in 6.0.0
+    ITEM_MOD_EXPERTISE_RATING         = 37, // Deprecated
     ITEM_MOD_ATTACK_POWER             = 38,
-    ITEM_MOD_RANGED_ATTACK_POWER      = 39,
+    ITEM_MOD_RANGED_ATTACK_POWER      = 39, // Deprecated, merged in ITEM_MOD_ATTACK_POWER
+    ITEM_MOD_VERSATILITY_RATING       = 40,
+    ITEM_MOD_SPELL_HEALING_DONE       = 41, // Deprecated
+    ITEM_MOD_SPELL_DAMAGE_DONE        = 42, // Deprecated
     ITEM_MOD_MANA_REGENERATION        = 43,
-    ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
+    ITEM_MOD_ARMOR_PENETRATION_RATING = 44, // Deprecated
     ITEM_MOD_SPELL_POWER              = 45,
     ITEM_MOD_HEALTH_REGEN             = 46,
-    ITEM_MOD_SPELL_PENETRATION        = 47,
-    ITEM_MOD_BLOCK_VALUE              = 48,
+    ITEM_MOD_SPELL_PENETRATION        = 47, // Deprecated
+    ITEM_MOD_BLOCK_VALUE              = 48, // Deprecated
     ITEM_MOD_MASTERY_RATING           = 49,
     ITEM_MOD_EXTRA_ARMOR              = 50,
     ITEM_MOD_FIRE_RESISTANCE          = 51,
@@ -74,9 +78,21 @@ enum ItemModType
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
     ITEM_MOD_PVP_POWER                = 57,
+    ITEM_MOD_MULTISTRIKE_RATING       = 59,
+    ITEM_MOD_READINESS_RATING         = 60,
+    ITEM_MOD_SPEED_RATING             = 61,
+    ITEM_MOD_LEECH_RATING             = 62,
+    ITEM_MOD_AVOIDANCE_RATING         = 63,
+    ITEM_MOD_INDESTRUCTIBLE           = 64,
+    ITEM_MOD_WOD_5                    = 65,
+    ITEM_MOD_WOD_6                    = 66,
+    ITEM_MOD_STRENGTH_AGILITY_INTELLECT = 71,
+    ITEM_MOD_STRENGTH_AGILITY         = 72,
+    ITEM_MOD_AGILITY_INTELLECT        = 73,
+    ITEM_MOD_STRENGTH_INTELLECT       = 74,
 };
 
-#define MAX_ITEM_MOD                    58
+#define MAX_ITEM_MOD                    75
 
 enum ItemSpelltriggerType
 {
@@ -844,8 +860,160 @@ struct ItemTemplate
                 return true;
         return false;
     }
-
 };
+
+//////////////////////////////////////////////////////////////
+/// ITEM SPEC
+/////////////////////////////////////////////////////////////
+
+// See Script_GetItemSpecInfo (LUA client-side function) to update to next build
+// Last update : 6.0.1 18179 internal client
+namespace ItemSpecialization
+{
+    const static uint8  ITEM_SUBCLASS_EX_COUNT = 6;
+    const static uint32 s_ItemSubClassSpec[ITEM_SUBCLASS_WEAPON_WAND] = { 0x0007, 0x0008, 0x0010, 0x000f, 0x000b, 0x000c, 0x0013, 0x0009, 0x000a, 0x001a, 0x0012, 0x001a, 0x001a, 0x000e, 0x001a, 0x000d, 0x0014, 0x001a, 0x0011 };
+    const static uint32 s_ItemSubClassSpecEx[ITEM_SUBCLASS_EX_COUNT] = { 0x0016, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
+
+    static uint32 GetItemType(const ItemTemplate* p_ItemTemplate)
+    {
+        uint32 l_ItemType = 0;
+
+        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
+            l_ItemType = 5;
+        else if (p_ItemTemplate->Class == ITEM_CLASS_ARMOR)
+        {
+            switch (p_ItemTemplate->SubClass)
+            {
+                case ITEM_SUBCLASS_ARMOR_SHIELD:
+                case ITEM_SUBCLASS_ARMOR_LIBRAM:
+                case ITEM_SUBCLASS_ARMOR_IDOL:
+                case ITEM_SUBCLASS_ARMOR_TOTEM:
+                case ITEM_SUBCLASS_ARMOR_SIGIL:
+                case ITEM_SUBCLASS_ARMOR_RELIC:
+                    l_ItemType = 6;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    l_ItemType = p_ItemTemplate->InventoryType != INVTYPE_CLOAK;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    l_ItemType = 2;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    l_ItemType = 3;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    l_ItemType = 4;
+                    break;
+                default:
+                    l_ItemType = 0;
+            }
+        }
+        return l_ItemType;
+    }
+
+    static int32 GetItemSpecStat(int32 p_Stat)
+    {
+        int32 l_ItemSpecStat = -1;
+        switch (p_Stat)
+        {
+            case ITEM_MOD_CRIT_MELEE_RATING:
+            case ITEM_MOD_CRIT_RANGED_RATING:
+            case ITEM_MOD_CRIT_SPELL_RATING:
+            case ITEM_MOD_CRIT_RATING:
+                l_ItemSpecStat = 24;
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+            case ITEM_MOD_HASTE_RANGED_RATING:
+            case ITEM_MOD_HASTE_SPELL_RATING:
+            case ITEM_MOD_HASTE_RATING:
+                l_ItemSpecStat = 25;
+                break;
+            case ITEM_MOD_AGILITY:
+                l_ItemSpecStat = 1;
+                break;
+            case ITEM_MOD_STRENGTH:
+                l_ItemSpecStat = 2;
+                break;
+            case ITEM_MOD_INTELLECT:
+                l_ItemSpecStat = 0;
+                break;
+            case ITEM_MOD_SPIRIT:
+                l_ItemSpecStat = 3;
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                l_ItemSpecStat = 5;
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                l_ItemSpecStat = 6;
+                break;
+            case ITEM_MOD_HIT_RATING:
+                l_ItemSpecStat = 4;
+                break;
+            default:
+                l_ItemSpecStat = -1;
+                break;
+        }
+
+        return l_ItemSpecStat;
+    }
+
+    static std::list<uint32> GetItemSpecStats(const ItemTemplate* p_ItemTemplate)
+    {
+        std::list<uint32> l_ItemSpecStats;
+
+        // Item stat
+        for (uint32 l_Idx = 0; l_Idx < MAX_ITEM_PROTO_STATS; l_Idx++)
+        {
+            if (p_ItemTemplate->ItemStat[l_Idx].ItemStatValue != 0)
+            {
+                int32 l_ItemSpecStat = GetItemSpecStat(p_ItemTemplate->ItemStat[l_Idx].ItemStatType);
+                if (l_ItemSpecStat != -1)
+                    l_ItemSpecStats.push_back(l_ItemSpecStat);
+            }
+        }
+
+        // Scaling stat
+        //if (const ScalingStatDistributionEntry* l_ScalingStatDistribution = sScalingStatDistributionStore.LookupEntry(p_ItemTemplate->ScalingStatDistribution))
+        //{
+        //    for (uint32 l_Idx = 0; l_Idx < MAX_ITEM_PROTO_STATS; l_Idx++)
+        //    {
+        //        if (l_ScalingStatDistribution->StatMod[l_Idx] != -1)
+        //        {
+        //            int32 l_ItemSpecStat = GetItemSpecStat(l_ScalingStatDistribution->StatMod[l_Idx]);
+        //            if (l_ItemSpecStat != -1)
+        //                l_ItemSpecStats.push_back(l_ItemSpecStat);
+        //        }
+        //    }
+        //}
+
+        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
+        {
+            if (p_ItemTemplate->SubClass <= ITEM_SUBCLASS_WEAPON_WAND)
+            {
+                l_ItemSpecStats.push_back(s_ItemSubClassSpec[p_ItemTemplate->SubClass]);
+                if (GetItemType(p_ItemTemplate) == 6)
+                {
+                    uint32 l_UnknowIndex = p_ItemTemplate->SubClass - 6;
+                    if (l_UnknowIndex <= 5)
+                        l_ItemSpecStats.push_back(s_ItemSubClassSpecEx[l_UnknowIndex]);
+                }
+            }
+        }
+
+        return l_ItemSpecStats;
+    }
+
+    static bool HasItemSpecStat(uint32 p_ItemSpecStat, std::list<uint32>& p_ItemStats)
+    {
+        for (uint32 l_ItemSpecStat : p_ItemStats)
+        {
+            if (l_ItemSpecStat == p_ItemSpecStat)
+                return true;
+        }
+
+        return false;
+    }
+}
 
 // Benchmarked: Faster than std::map (insert/find)
 typedef UNORDERED_MAP<uint32, ItemTemplate> ItemTemplateContainer;

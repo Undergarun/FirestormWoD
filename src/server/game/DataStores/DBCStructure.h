@@ -40,21 +40,21 @@
 
 struct AchievementEntry
 {
-    uint32  m_ID;                                           // 0        m_ID
-    int32   m_Faction;                                      // 1        m_Faction               -1=all, 0=horde, 1=alliance
-    int32   m_InstanceID;                                   // 2        m_InstanceID            -1=none
-    //uint32    m_Supercedes;                               // 3        m_Supercedes            Its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char*   m_TitleLang;                                    // 4        m_TitleLang
-    //char*     m_DescriptionLang;                          // 5        m_DescriptionLang
-    uint32  m_Category;                                     // 6        m_Category              unused
-    uint32  m_Points;                                       // 7        m_Points                Reward points
-    //uint32    m_UiOrder;                                  // 8        m_UiOrder
-    uint32  m_Flags;                                        // 9        m_Flags
-    //uint32    m_IconID;                                   // 10       m_IconID
-    //char*     m_RewardLang;                               // 11       m_RewardLang
-    uint32  m_MinimumCriteria;                              // 12       m_MinimumCriteria      Need this count of completed criterias (own or referenced achievement criterias)
-    uint32  m_SharesCriteria;                               // 13       m_SharesCriteria       Referenced achievement (counting of all completed criterias)
-    //uint32    m_CriteriaTree;                             // 14       m_CriteriaTree
+    uint32  ID;                                             // 0
+    int32   Faction;                                        // 1 -1=all, 0=horde, 1=alliance
+    int32   InstanceId;                                     // 2 -1=none
+    uint32  Supercedes;                                     // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    char*   TitleLang;                                      // 4
+    char*   DescriptionLang;                                // 5
+    uint32  Category;                                       // 6
+    uint32  Points;                                         // 7 reward points
+    uint32  UiOrder;                                        // 8
+    uint32  Flags;                                          // 9
+    uint32  IconID;                                         // 10 icon (from SpellIcon.dbc)
+    char*   RewardLang;                                     // 11
+    uint32  MinimumCriteria;                                // 12 - need this count of completed criterias (own or referenced achievement criterias)
+    uint32  SharesCriteria;                                 // 13 - referenced achievement (counting of all completed criterias)
+    uint32  CriteriaTree;                                   // 14
 };
 
 struct AchievementCategoryEntry
@@ -1472,6 +1472,17 @@ struct ItemSetEntry
     uint32  required_skill_value;                           // 20       m_requiredSkillRank
 };
 
+struct ItemSpecEntry
+{
+    uint32 ID;
+    uint32 MinLevel;
+    uint32 MaxLevel;
+    uint32 ItemType;
+    uint32 PrimaryStat;
+    uint32 SecondaryStat;
+    uint32 SpecializationID;
+};
+
 struct ItemSpecOverrideEntry
 {
     uint32  ID;                                             // 1        m_ID
@@ -1906,14 +1917,14 @@ struct SpellEffectScalingEntry
 struct SpellAuraOptionsEntry
 {
     uint32  Id;                                             // 0        m_ID
-    //uint32    m_SpellID;                                  // 1        m_SpellID
+    uint32    m_SpellID;                                    // 1        m_SpellID
     //uint32    m_DifficultyID;                             // 2        m_DifficultyID
-    uint32  StackAmount;                                    // 1        m_cumulativeAura
-    uint32  procChance;                                     // 2        m_procChance
-    uint32  procCharges;                                    // 3        m_procCharges
-    uint32  procFlags;                                      // 4        m_procTypeMask
-    //uint32    m_m_ProcCategoryRecovery;                   // 5        m_ProcCategoryRecovery
-    //uint32    m_SpellProcsPerMinuteID;                    // 6        m_SpellProcsPerMinuteID
+    uint32    StackAmount;                                  // 1        m_cumulativeAura
+    uint32    procChance;                                   // 2        m_procChance
+    uint32    procCharges;                                  // 3        m_procCharges
+    uint32    procFlags;                                    // 4        m_procTypeMask
+    uint32    InternalCooldown;                             // 7       m_internalCooldown
+    uint32    ProcsPerMinuteEntry;                          // 8       m_procsPerMinuteEntry
 };
 
 struct SpellEntry
@@ -2416,6 +2427,27 @@ struct WorldStateUIEntry
     char*   m_ExtendedUI;                                   // 13       m_ExtendedUI
     uint32  m_ExtendedUIStateVariable[3];                   // 14 - 16  m_ExtendedUIStateVariable
 };*/
+
+
+struct GtBattlePetTypeDamageModEntry
+{
+    //uint32 [petType][DamageType];
+    float mod;
+};
+
+struct GtBattlePetXPEntry
+{
+    //uint32 [petType][DamageType];
+    float value;
+};
+
+// SpellProcsPerMinute.dbc
+struct SpellProcsPerMinuteEntry
+{
+    uint32 Id;                                              // 0        m_ID
+    float  ProcsPerMinute;                                  // 1        m_procsPerMinute
+    //bool unk;                                             // 2
+};
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)

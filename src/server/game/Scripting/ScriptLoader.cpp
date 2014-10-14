@@ -49,6 +49,7 @@ void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
 
 void AddSC_SmartSCripts();
+void AddSC_petbattle_abilities();
 
 //Commands
 void AddSC_anticheat_commandscript();
@@ -769,6 +770,15 @@ void AddSC_boss_protectors_of_the_endless();
 void AddSC_boss_tsulong();
 void AddSC_boss_lei_shi();
 void AddSC_boss_sha_of_fear();
+void AddSC_instance_throne_of_thunder();            // Throne of Thunder
+void AddSC_throne_of_thunder();
+void AddSC_boss_jin_rokh_the_breaker();
+void AddSC_boss_council_of_elders();
+void AddSC_boss_horridon();
+void AddSC_boss_tortos();
+void AddSC_boss_megaera();
+void AddSC_boss_ji_kun();
+void AddSC_boss_primordius();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -1602,12 +1612,21 @@ void AddPandarieScripts()
     AddSC_boss_meljarak();
     AddSC_boss_unsok();
     AddSC_boss_shekzeer();
-    AddSC_instance_terrace_of_endless_spring();    // Terrace of Endless Spring
+    AddSC_instance_terrace_of_endless_spring();     // Terrace of Endless Spring
     AddSC_terrace_of_endless_spring();
     AddSC_boss_protectors_of_the_endless();
     AddSC_boss_tsulong();
     AddSC_boss_lei_shi();
     AddSC_boss_sha_of_fear();
+    AddSC_instance_throne_of_thunder();             // Throne of Thunder
+    AddSC_throne_of_thunder();
+    AddSC_boss_jin_rokh_the_breaker();
+    AddSC_boss_council_of_elders();
+    AddSC_boss_horridon();
+    AddSC_boss_tortos();
+    AddSC_boss_megaera();
+    AddSC_boss_ji_kun();
+    AddSC_boss_primordius();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();

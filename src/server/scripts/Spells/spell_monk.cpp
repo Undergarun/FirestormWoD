@@ -150,9 +150,12 @@ class spell_monk_combo_breaker : public SpellScriptLoader
                         if (caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
                         {
                             if (roll_chance_i(12))
-                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-                            else
-                                caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                            {
+                                if (urand(0, 1))
+                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
+                                else
+                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
+                            }
                         }
                     }
                 }
@@ -1249,7 +1252,7 @@ class spell_monk_dampen_harm : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_dampen_harm_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_dampen_harm_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_dampen_harm_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -1836,7 +1839,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_touch_of_karma_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_touch_of_karma_AuraScript::OnAbsorb, EFFECT_1);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_monk_touch_of_karma_AuraScript::OnAbsorb, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -3500,7 +3503,7 @@ class spell_monk_blackout_kick : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3534,14 +3537,22 @@ class spell_monk_blackout_kick : public SpellScriptLoader
                         }
                         // Brewmaster : Training - you gain Shuffle, increasing parry chance and stagger amount by 20%
                         else if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
-                            caster->CastSpell(caster, SPELL_MONK_SHUFFLE, true);
+                        {
+                            if (AuraPtr shuffle = caster->GetAura(SPELL_MONK_SHUFFLE))
+                            {
+                                shuffle->SetMaxDuration(shuffle->GetMaxDuration() + 5000);
+                                shuffle->SetDuration(shuffle->GetDuration() + 5000);
+                            }
+                            else
+                                caster->CastSpell(caster, SPELL_MONK_SHUFFLE, true);
+                        }
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_blackout_kick_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_blackout_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

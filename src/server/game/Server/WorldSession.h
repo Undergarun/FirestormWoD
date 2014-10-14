@@ -59,6 +59,8 @@ struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
 struct MovementInfo;
+struct PetBattleRequest;
+class PetBattle;
 
 enum AccountDataType
 {
@@ -637,34 +639,33 @@ class WorldSession
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
 
-        void HandleGuildQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildInviteOpcode(WorldPacket& recvPacket);
-        void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
+        void HandleQueryGuildInfoOpcode(WorldPacket& recvPacket);
+        void HandleGuildInviteByNameOpcode(WorldPacket& recvPacket);
+        void HandleGuildOfficierRemoveMemberOpcode(WorldPacket& recvPacket);
         void HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket);
-        void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
-        void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
+        void HandleAcceptGuildInviteOpcode(WorldPacket& recvPacket);
+        void HandleGuildDeclineInvitationsOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildRosterOpcode(WorldPacket& recvPacket);
-        void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
+        void HandleRequestGuildRewardsListOpcode(WorldPacket& recvPacket);
         void HandleGuildAssignRankOpcode(WorldPacket& recvPacket);
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
-        void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
-        void HandleGuildLeaderOpcode(WorldPacket& recvPacket);
-        void HandleGuildMOTDOpcode(WorldPacket& recvPacket);
+        void HandleGuildDeleteOpcode(WorldPacket& recvPacket);
+        void HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket);
+        void HandleGuildUpdateMOTDTextOpcode(WorldPacket& recvPacket);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
-        void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);
+        void HandleGuildSetMemberNoteOpcode(WorldPacket& recvPacket);
+        void HandleGuildGetRanksOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryNewsOpcode(WorldPacket& recvPacket);
-        void HandleSwapRanks(WorldPacket& recvPacket);
+        void HandleShiftRanks(WorldPacket& recvPacket);
         void HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket);
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildDelRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
-        void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
-        void HandleGuildRequestPartyState(WorldPacket& recvPacket);
-        void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
+        void HandleGuildDeleteRankOpcode(WorldPacket& recvPacket);
+        void HandleGuildUpdateInfoTextOpcode(WorldPacket& recvPacket);
+        void HandlePlayerSaveGuildEmblemOpcode(WorldPacket& recvPacket);
+        void HandleRequestGuildPartyState(WorldPacket& recvPacket);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
-        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
+        void HandleGuildChallengeUpdateRequest(WorldPacket& recvPacket);
         void HandleGuildRequestGuildRecipes(WorldPacket& recvPacket);
 
         void HandleGuildFinderAddRecruit(WorldPacket& recvPacket);
@@ -804,7 +805,6 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
-        void HandleRequestBattlePetJournal(WorldPacket& recvPacket);
         void HandleRequestGmTicket(WorldPacket& recvPakcet);
         void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
         void HandleCorpseLocationFromClientQueryOpcode(WorldPacket& recvPacket);
@@ -874,6 +874,7 @@ class WorldSession
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
         void HandleBattlemasterJoinRated(WorldPacket& recvData);
         void HandleBattleFieldRequestScoreData(WorldPacket & p_Packet);
+        void HandleWargameQueryOpcode(WorldPacket& p_RecvData);
 
         void HandleReportPvPAFK(WorldPacket& recvData);
         void HandleRequestRatedBgInfo(WorldPacket & recvData);
@@ -970,9 +971,9 @@ class WorldSession
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
         // Guild Bank
-        void HandleGuildPermissions(WorldPacket& recvData);
-        void HandleGuildBankMoneyWithdrawn(WorldPacket& recvData);
-        void HandleGuildBankerActivate(WorldPacket& recvData);
+        void HandleGuildPermissionsQueryOpcode(WorldPacket& recvData);
+        void HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket& recvData);
+        void HandleGuildBankActivate(WorldPacket& recvData);
         void HandleGuildBankQueryTab(WorldPacket& recvData);
         void HandleGuildBankLogQuery(WorldPacket& recvData);
         void HandleGuildBankDepositMoney(WorldPacket& recvData);
@@ -981,9 +982,8 @@ class WorldSession
 
         void HandleGuildBankUpdateTab(WorldPacket& recvData);
         void HandleGuildBankBuyTab(WorldPacket& recvData);
-        void HandleQueryGuildBankTabText(WorldPacket& recvData);
+        void HandleQueryGuildBankTextQuery(WorldPacket& recvData);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
-        void HandleGuildQueryXPOpcode(WorldPacket& recvData);
 
         // Refer-a-Friend
         void HandleGrantLevel(WorldPacket& recvData);
@@ -1019,7 +1019,7 @@ class WorldSession
         void SendCalendarClearPendingAction();
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void SendCalendarCommandResult(CalendarError err, char const* param = NULL);
+        void SendCalendarCommandResult(CalendarError err, char const* param = "");
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);
@@ -1093,13 +1093,45 @@ class WorldSession
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
 
+        // Pet Battle System
+        void HandlePetBattleSetAbility(WorldPacket& p_RecvData);
+        void HandlePetBattleRename(WorldPacket& p_RecvData);
+        void HandlePetBattleCagePet(WorldPacket& p_RecvData);
+        void HandlePetBattleQueryName(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestWildCallback(PreparedQueryResult& result, PetBattleRequest* request);
+        void HandleBattlePetSetBattleSlotCallBack(PreparedQueryResult& p_Result, uint8 p_DestSlot);
+        void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
+        void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestUpdate(WorldPacket& p_RecvData);
+        void HandlePetBattleCancelRequestPvPMatchmaking(WorldPacket& p_RecvData);
+        void HandlePetBattleInput(WorldPacket& p_RecvData);
+        void HandlePetBattleInputNewFrontPet(WorldPacket& p_RecvData);
+        void HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData);
+        void HandleSummonCompanion(WorldPacket& p_RecvData);
+        void SendPetBattleRequestFailed(uint8 reason);
+        void SendPetBattleJournal();
+        void SendPetBattleJournalCallback(PreparedQueryResult& result);
+        void SendPetBattleJournalBattleSlotUpdate();
+        void SendPetBattleJournalBattleSlotUpdateCallback(PreparedQueryResult& result);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* request);
+        void SendPetBattleFullUpdate(PetBattle* battle);
+        void SendPetBattleRoundResult(PetBattle* battle);
+        void SendPetBattleFirstRound(PetBattle* battle);
+        void SendPetBattleFinalRound(PetBattle* p_Battle);
+        void SendPetBattleFinished(PetBattle* battle);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture m_AccountSpellCallback;
+        PreparedQueryResultFuture m_AccountSpellCallback;       
+        PreparedQueryResultFuture _petBattleJournalCallback;
+        PreparedQueryResultFuture _petBattleJournalBattleSlotCallback;
+        QueryCallback<PreparedQueryResult, uint8> _swapPetBattleSlot;
+        QueryCallback<PreparedQueryResult, PetBattleRequest*> _petBattleRequestWildCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
@@ -1169,7 +1201,7 @@ class WorldSession
         time_t timeLastChannelUnbanCommand;
         time_t timeLastChannelAnnounceCommand;
         time_t m_TimeLastGroupInviteCommand;
-        time_t timeLastGuildInviteCommand;
+        time_t m_TimeLastGuildInviteCommand;
         time_t timeLastChannelModerCommand;
         time_t timeLastChannelOwnerCommand;
         time_t timeLastChannelSetownerCommand;
@@ -1178,7 +1210,6 @@ class WorldSession
         time_t timeLastChannelKickCommand;
         time_t timeLastServerCommand;
         time_t timeLastArenaTeamCommand;
-        time_t timeLastCalendarInvCommand;
         time_t timeLastChangeSubGroupCommand;
         time_t l_TimeLastSellItemOpcode;
 

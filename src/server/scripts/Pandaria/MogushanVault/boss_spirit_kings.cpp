@@ -17,12 +17,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-    @TODO :
-        - Event before boss, with Lorewalker Cho !
-        - http://www.youtube.com/watch?v=4xbUFstYo5g
-*/
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "mogu_shan_vault.h"
@@ -73,10 +67,11 @@ enum eSpells
     SPELL_INACTIVE_STUN         = 118319,
     SPELL_KING_BERSERK          = 120207,
     SPELL_ACTIVATION_VISUAL     = 118212,
+    SPELL_SPIRIT_KINGS_BONUS    = 132191,
 
     // Flanking Mogu
     SPELL_GHOST_VISUAL          = 117904,
-    SPELL_TRIGGER_ATTACK        = 117917,
+    SPELL_TRIGGER_ATTACK        = 117917
 };
 
 enum eEvents
@@ -318,6 +313,14 @@ class boss_spirit_kings_controler : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                // Restoring player faction
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                for (Player* player : playerList)
+                    player->RestoreFaction();
+
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
             }
@@ -432,10 +435,28 @@ class boss_spirit_kings_controler : public CreatureScript
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
                             fightInProgress = false;
 
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
+
                             if (pInstance)
                             {
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                                // Restoring player faction
+                                std::list<Player*> playerList;
+                                GetPlayerListInGrid(playerList, me, 200.0f);
+
+                                for (Player* player : playerList)
+                                    player->RestoreFaction();
+
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
+                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
 
                                 for (auto entry: spiritKingsEntry)
                                 {
@@ -452,6 +473,13 @@ class boss_spirit_kings_controler : public CreatureScript
                                         else
                                             me->Kill(spirit);
                                     }
+                                }
+
+                                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                                {
+                                    if (Player* l_Player = l_Itr->getSource())
+                                        me->CastSpell(l_Player, SPELL_SPIRIT_KINGS_BONUS, true);
                                 }
                             }
 
@@ -525,6 +553,14 @@ class boss_spirit_kings_controler : public CreatureScript
                         {
                             pInstance->SetBossState(DATA_SPIRIT_KINGS, FAIL);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MADDENING_SHOUT);
+
+                            // Restoring player faction
+                            std::list<Player*> playerList;
+                            GetPlayerListInGrid(playerList, me, 200.0f);
+
+                            for (Player* player : playerList)
+                                player->RestoreFaction();
+
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PINNED_DOWN_DOT);
                         }
@@ -672,6 +708,10 @@ class boss_spirit_kings : public CreatureScript
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 }
+                else
+                    if (pInstance)
+                        if (pInstance->GetBossState(DATA_SPIRIT_KINGS) == FAIL)
+                            pInstance->SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
              }
 
             Creature* GetControler()
@@ -790,7 +830,6 @@ class boss_spirit_kings : public CreatureScript
                         summons.DespawnAll();
                         me->SetFullHealth();
                         me->SetReactState(REACT_PASSIVE);
-                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                         vanquished      = false;
                         _introQiangDone = false;
@@ -842,10 +881,6 @@ class boss_spirit_kings : public CreatureScript
                     default:
                         break;
                 }
-            }
-
-            void JustDied(Unit* killer)
-            {
             }
 
             void JustSummoned(Creature* summon)
@@ -1542,7 +1577,7 @@ class spell_maddening_shout : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_maddening_shout_AuraScript::OnAbsorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_maddening_shout_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectRemove += AuraEffectRemoveFn(spell_maddening_shout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };

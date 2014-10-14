@@ -72,7 +72,15 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
     WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
-    WARRIOR_SPELL_GLYPH_OF_BULL_RUSH            = 94372
+    WARRIOR_SPELL_GLYPH_OF_BULL_RUSH            = 94372,
+    WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD       = 146128,
+    WARRIOR_SPELL_SHIELD_OF_WALL_HORDE          = 146127,
+    WARRIOR_SPELL_SHIELD_OF_WALL_ALLIANCE       = 147925,
+    WARRIOR_SPELL_SPELL_REFLECTION_NOSHIELD     = 146120,
+    WARRIOR_SPELL_SPELL_REFLECTION_HORDE        = 146122,
+    WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
+    WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
+    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498
 };
 
 // Slam - 1464
@@ -1342,6 +1350,181 @@ class spell_warr_charge : public SpellScriptLoader
     }
 };
 
+// Shield Wall - 871
+class spell_warr_shield_wall : public SpellScriptLoader
+{
+    public:
+        spell_warr_shield_wall() : SpellScriptLoader("spell_warr_shield_wall") { }
+
+        class spell_warr_shield_wall_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_shield_wall_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->GetShield())
+                        _player->AddAura(WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD, _player);
+                    else
+                    {
+                        if (_player->GetTeam() == HORDE)
+                            _player->AddAura(WARRIOR_SPELL_SHIELD_OF_WALL_HORDE, _player);
+                        else
+                            _player->AddAura(WARRIOR_SPELL_SHIELD_OF_WALL_ALLIANCE, _player);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->HasAura(WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD))
+                        _player->RemoveAura(WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD);
+                    else if (_player->HasAura(WARRIOR_SPELL_SHIELD_OF_WALL_HORDE))
+                        _player->RemoveAura(WARRIOR_SPELL_SHIELD_OF_WALL_HORDE);
+                    else
+                        _player->RemoveAura(WARRIOR_SPELL_SHIELD_OF_WALL_ALLIANCE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_shield_wall_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_shield_wall_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_shield_wall_AuraScript();
+        }
+};
+
+// Spell Reflection - 23920
+class spell_warr_spell_reflection : public SpellScriptLoader
+{
+    public:
+        spell_warr_spell_reflection() : SpellScriptLoader("spell_warr_spell_reflection") { }
+
+        class spell_warr_spell_reflection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_spell_reflection_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->GetShield())
+                        _player->AddAura(WARRIOR_SPELL_SPELL_REFLECTION_NOSHIELD, _player);
+                    else
+                    {
+                        if (_player->GetTeam() == HORDE)
+                            _player->AddAura(WARRIOR_SPELL_SPELL_REFLECTION_HORDE, _player);
+                        else
+                            _player->AddAura(WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE, _player);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->HasAura(WARRIOR_SPELL_SPELL_REFLECTION_NOSHIELD))
+                        _player->RemoveAura(WARRIOR_SPELL_SPELL_REFLECTION_NOSHIELD);
+                    else if (_player->HasAura(WARRIOR_SPELL_SPELL_REFLECTION_HORDE))
+                        _player->RemoveAura(WARRIOR_SPELL_SPELL_REFLECTION_HORDE);
+                    else
+                        _player->RemoveAura(WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_spell_reflection_AuraScript::OnApply, EFFECT_0, SPELL_AURA_REFLECT_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_spell_reflection_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_REFLECT_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_spell_reflection_AuraScript();
+        }
+};
+
+// Intervene - 3411
+class spell_warr_intervene : public SpellScriptLoader
+{
+    public:
+        spell_warr_intervene() : SpellScriptLoader("spell_warr_intervene") { }
+
+        class spell_warr_intervene_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_intervene_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                        caster->CastSpell(target, WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_intervene_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_intervene_SpellScript();
+        }
+};
+
+// Called by Pummel - 6552 or Heroic Throw - 57755
+class spell_warr_glyph_of_gag_order : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_gag_order() : SpellScriptLoader("spell_warr_glyph_of_gag_order") { }
+
+        class spell_warr_glyph_of_gag_order_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_gag_order_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            caster->CastSpell(target, WARRIOR_SPELL_GAG_ORDER_SILENCE, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_gag_order_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_gag_order_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1376,4 +1559,8 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_thunder_clap();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
+    new spell_warr_shield_wall();
+    new spell_warr_spell_reflection();
+    new spell_warr_intervene();
+    new spell_warr_glyph_of_gag_order();
 }

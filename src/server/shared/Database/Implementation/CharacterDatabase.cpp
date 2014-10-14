@@ -105,7 +105,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_HOMEBIND, "SELECT mapId, zoneId, posX, posY, posZ FROM character_homebind WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_SPELLCOOLDOWNS, "SELECT spell, item, time FROM character_spell_cooldown WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_DECLINEDNAMES, "SELECT genitive, dative, accusative, instrumental, prepositional FROM character_declinedname WHERE guid = ?", CONNECTION_ASYNC)
-    PREPARE_STATEMENT(CHAR_SEL_GUILD, "SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, g.experience, g.todayExperience, COUNT(gbt.guildid) FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC", CONNECTION_SYNCH)
+    PREPARE_STATEMENT(CHAR_SEL_GUILD, "SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC", CONNECTION_SYNCH)
     PREPARE_STATEMENT(CHAR_SEL_GUILD_MEMBER, "SELECT guildid, rank FROM guild_member WHERE guid = ?", CONNECTION_BOTH)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_ACHIEVEMENTS, "SELECT achievement FROM character_achievement WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_ACCOUNT_ACHIEVEMENTS, "SELECT first_guid, achievement, date FROM account_achievement WHERE account = ?", CONNECTION_ASYNC)
@@ -265,8 +265,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_GUILD_ACHIEVEMENT, "SELECT achievement, date, guids FROM guild_achievement WHERE guildId = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(CHAR_SEL_GUILD_ACHIEVEMENT_CRITERIA, "SELECT criteria, counter, date, completedGuid FROM guild_achievement_progress WHERE guildId = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD, "DELETE FROM guild_achievement_progress WHERE criteria = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_UPD_GUILD_EXPERIENCE, "UPDATE guild SET level = ?, experience = ?, todayExperience = ? WHERE guildId = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE, "UPDATE guild SET todayExperience = 0", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_LOAD_GUILD_NEWS, "SELECT id, eventType, playerGuid, data, flags, date FROM guild_news_log WHERE guild = ? ORDER BY id ASC", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SAVE_GUILD_NEWS, "INSERT INTO guild_news_log (guild, id, eventType, playerGuid, data, flags, date) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
@@ -636,6 +634,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_GOLD,       "DELETE FROM store_gold WHERE transaction = ?",                                                 CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_BOUTIQUE_GOLD_LOG,   "INSERT INTO log_store_gold (id, transaction, guid, gold) VALUES (0, ?, ?, ?);",                CONNECTION_ASYNC);
 
+    PREPARE_STATEMENT(CHAR_LOAD_BOUTIQUE_TITLE,     "SELECT title, transaction FROM store_title WHERE guid = ?",                                    CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_TITLE,      "DELETE FROM store_title WHERE transaction = ?",                                                CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_BOUTIQUE_TITLE_LOG,  "INSERT INTO log_store_title (id, transaction, guid, title) VALUES (0, ?, ?, ?);",              CONNECTION_ASYNC);
+
     PREPARE_STATEMENT(CHAR_LOAD_BOUTIQUE_METIER,    "SELECT skill, value FROM store_metier WHERE guid = ?",                                         CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_METIER,     "DELETE FROM store_metier WHERE guid = ? AND skill = ? AND value = ?",                          CONNECTION_ASYNC);
 
@@ -674,4 +676,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET follower_id = ?, level = ?, xp = ?, quality = ?, item_level_armor = ?, item_level_weapon = ?, current_mission_id = ?, current_building_id = ?, abilities = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
+
+    // Battle pets
+    PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_LAST_BATTLEPET, "SELECT lastbattlepet FROM characters WHERE guid = ? AND lastbattlepet != 0", CONNECTION_ASYNC);
 }

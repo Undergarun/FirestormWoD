@@ -4,6 +4,12 @@
 #include "ScriptedEscortAI.h"
 #include "jade_forest.h"
 
+#define REPUTATION_ORDER_OF_THE_CLOUD_SERPENT 1271
+#define GOSSIP_TEXT_I 12585
+#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel !"
+#define GOSSIP_CHOICE_1 "Challenge the Patriarch."
+
+// Shadow of Doubt - 57389
 class mob_shadow_of_doubt : public CreatureScript
 {
     public:
@@ -70,6 +76,7 @@ class mob_shadow_of_doubt : public CreatureScript
         };
 };
 
+// Kor'nas Nightsavage - 50338
 class mob_kor_nas_nightsavage : public CreatureScript
 {
     public:
@@ -132,6 +139,7 @@ class mob_kor_nas_nightsavage : public CreatureScript
         };
 };
 
+// Krax'ik - 50363
 class mob_krax_ik : public CreatureScript
 {
     public:
@@ -218,6 +226,7 @@ class mob_krax_ik : public CreatureScript
         };
 };
 
+// Mister Ferocious - 50823
 class mob_mister_ferocious : public CreatureScript
 {
     public:
@@ -291,6 +300,7 @@ class mob_mister_ferocious : public CreatureScript
         };
 };
 
+// Akkalar - 66937
 class mob_akkalar : public CreatureScript
 {
     public:
@@ -371,6 +381,7 @@ class mob_akkalar : public CreatureScript
         };
 };
 
+// Grookin Outrunner - 67149
 class mob_grookin_outrunner : public CreatureScript
 {
     public:
@@ -432,6 +443,7 @@ class mob_grookin_outrunner : public CreatureScript
         };
 };
 
+// Bamboo Python - 59769
 class mob_bamboo_python : public CreatureScript
 {
     public:
@@ -489,6 +501,7 @@ class mob_bamboo_python : public CreatureScript
         };
 };
 
+// Rakira - 66622
 class mob_rakira : public CreatureScript
 {
     public:
@@ -569,6 +582,7 @@ class mob_rakira : public CreatureScript
         };
 };
 
+// Ro'shen - 66617
 class mob_ro_shen : public CreatureScript
 {
     public:
@@ -667,6 +681,7 @@ class mob_ro_shen : public CreatureScript
         };
 };
 
+// Sha Remnant - 59434
 class mob_sha_reminant : public CreatureScript
 {
     public:
@@ -729,8 +744,7 @@ class mob_sha_reminant : public CreatureScript
         };
 };
 
-#define GOSSIP_CHOICE_1 "Challenge the Patriarch."
-
+// Pandriarch Windfur - 56206
 class mob_pandriarch_windfur : public CreatureScript
 {
     public:
@@ -867,6 +881,7 @@ class mob_pandriarch_windfur : public CreatureScript
         };
 };
 
+// Pandriarch Bramblestaff - 56209
 class mob_pandriarch_bramblestaff : public CreatureScript
 {
     public:
@@ -1012,6 +1027,7 @@ class mob_pandriarch_bramblestaff : public CreatureScript
         };
 };
 
+// Pandriarch Goldendraft - 56210
 class mob_pandriarch_goldendraft : public CreatureScript
 {
     public:
@@ -1139,8 +1155,7 @@ class mob_pandriarch_goldendraft : public CreatureScript
         };
 };
 
-#define GOSSIP_CHOICE_2 "Let's see which one of us is the better student. I challenge you to a duel !"
-
+// Big Bao - 58512
 class mob_big_bao : public CreatureScript
 {
     public:
@@ -1274,6 +1289,7 @@ class mob_big_bao : public CreatureScript
         };
 };
 
+// Hutia - 69946
 class mob_hutia : public CreatureScript
 {
     public:
@@ -1342,9 +1358,7 @@ class mob_hutia : public CreatureScript
         };
 };
 
-#define REPUTATION_ORDER_OF_THE_CLOUD_SERPENT 1271
-#define GOSSIP_TEXT_I 12585
-
+// Elder Anli - 58564
 class npc_elder_anli : public CreatureScript
 {
     public:
@@ -1410,6 +1424,7 @@ class npc_elder_anli : public CreatureScript
         }
 };
 
+// Kher Shan - 56329
 class mob_kher_shan : public CreatureScript
 {
     public:
@@ -1439,6 +1454,7 @@ class mob_kher_shan : public CreatureScript
         };
 };
 
+// Pearlfin Aqualyte - 54959/56585/56591/56592
 class mob_pearlfin_aqualyte : public CreatureScript
 {
     public:
@@ -1458,6 +1474,7 @@ class mob_pearlfin_aqualyte : public CreatureScript
         }
 };
 
+// Pearlfin Villager - 56233
 class mob_pearlfin_villager : public CreatureScript
 {
     public:
@@ -1477,6 +1494,7 @@ class mob_pearlfin_villager : public CreatureScript
         }
 };
 
+// Elder Lusshan - 54960 ## Instructor Sharpfin - 56690 ## Ot-Temmdo - 56693 ## Pearlkeeper Fujin - 59058
 class mob_pearlfin_situation : public CreatureScript
 {
     public:
@@ -1530,6 +1548,7 @@ class mob_pearlfin_situation : public CreatureScript
         }
 };
 
+// Hozen Cage - 209586
 // Initial LockId : 1979
 class gob_hozen_cage : public GameObjectScript
 {
@@ -1554,6 +1573,7 @@ class gob_hozen_cage : public GameObjectScript
         }
 };
 
+// Widow's Web - 65634
 class mob_widow_s_web : public CreatureScript
 {
     public:
@@ -1592,6 +1612,7 @@ class mob_widow_s_web : public CreatureScript
         };
 };
 
+// Freed Sri-La Villager - 65647
 class mob_freed_sri_la_villager : public CreatureScript
 {
     public:
@@ -1634,6 +1655,7 @@ class mob_freed_sri_la_villager : public CreatureScript
         };
 };
 
+// Windward Hatchling - 58220/58243/58244
 class mob_windward_hatchling : public CreatureScript
 {
     public:
@@ -1665,6 +1687,7 @@ class mob_windward_hatchling : public CreatureScript
         };
 };
 
+// Custom npc 1 - 690701
 class npc_custom_npc : public CreatureScript
 {
     public:
@@ -1738,6 +1761,7 @@ class npc_custom_npc : public CreatureScript
         };
 };
 
+// Jade Cloud Serpent - 58527
 class mob_jade_cloud_serpent : public CreatureScript
 {
     public:
@@ -1810,6 +1834,7 @@ class mob_jade_cloud_serpent : public CreatureScript
         };
 };
 
+// Instructor Windblade - 58420
 class mob_instructor_windblade : public CreatureScript
 {
     public:
@@ -1858,6 +1883,7 @@ class mob_instructor_windblade : public CreatureScript
         }
 };
 
+// Cloud Ring - 58426
 class npc_cloud_ring : public CreatureScript
 {
     public:
@@ -1911,6 +1937,7 @@ class npc_cloud_ring : public CreatureScript
         };
 };
 
+// Instructor Skythorn - 58228
 class npc_instructor_skythorn : public CreatureScript
 {
     public:
@@ -1943,6 +1970,873 @@ class npc_instructor_skythorn : public CreatureScript
 
             return true;
         }
+};
+
+// Big Bao - 66026
+class mob_second_big_bao : public CreatureScript
+{
+    public:
+        mob_second_big_bao() : CreatureScript("mob_second_big_bao")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (player->GetQuestStatus(31718) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_second_big_baoAI(creature);
+        }
+
+        struct mob_second_big_baoAI : public ScriptedAI
+        {
+            mob_second_big_baoAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31718) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(58508);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
+                        return;
+                    }
+
+                    if (player->GetQuestStatus(31718) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+// Ace Longpaw - 66025
+class mob_ace_longpaw : public CreatureScript
+{
+    public:
+        mob_ace_longpaw() : CreatureScript("mob_ace_longpaw")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (player->GetQuestStatus(31717) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_ace_longpawAI(creature);
+        }
+
+        struct mob_ace_longpawAI : public ScriptedAI
+        {
+            mob_ace_longpawAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31717) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(58506);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
+                        return;
+                    }
+
+                    if (player->GetQuestStatus(31717) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+// Ningha Darkwheel - 66027
+class mob_ningha_darkwheel : public CreatureScript
+{
+    public:
+        mob_ningha_darkwheel() : CreatureScript("mob_ningha_darkwheel")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (player->GetQuestStatus(31719) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_ningha_darkwheelAI(creature);
+        }
+
+        struct mob_ningha_darkwheelAI : public ScriptedAI
+        {
+            mob_ningha_darkwheelAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31719) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(58509);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
+                        return;
+                    }
+
+                    if (player->GetQuestStatus(31719) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+// Que-Row Whitebrow - 66028
+class mob_qua_row_whitebrow : public CreatureScript
+{
+    public:
+        mob_qua_row_whitebrow() : CreatureScript("mob_qua_row_whitebrow")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (player->GetQuestStatus(31721) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_qua_row_whitebrowAI(creature);
+        }
+
+        struct mob_qua_row_whitebrowAI : public ScriptedAI
+        {
+            mob_qua_row_whitebrowAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31721) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(58511);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
+                        return;
+                    }
+
+                    if (player->GetQuestStatus(31721) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+// Suchi The Sweet - 66029
+class mob_suchi_the_sweet : public CreatureScript
+{
+    public:
+        mob_suchi_the_sweet() : CreatureScript("mob_suchi_the_sweet")
+        {
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOICE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(69970, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CLOSE_GOSSIP_MENU();
+
+                if (player->GetQuestStatus(31720) == QUEST_STATUS_INCOMPLETE)
+                {
+                    creature->AI()->SetGUID(player ? player->GetGUID() : 0);
+                    creature->setFaction(14);
+
+                    if (creature->GetAI())
+                    {
+                        creature->AI()->Reset();
+                        creature->AI()->DoAction(ACTION_REMOVE_FLAG);
+                    }
+                }
+            }
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_suchi_the_sweetAI(creature);
+        }
+
+        struct mob_suchi_the_sweetAI : public ScriptedAI
+        {
+            mob_suchi_the_sweetAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(31720) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(58510);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void SetGUID(uint64 guid, int32 index)
+            {
+                if (index == 0)
+                    playerGuid = guid;
+            }
+
+            void IsSummonedBy(Unit* summoner)
+            {
+                events.ScheduleEvent(EVENT_DESPAWN, 600000);
+            }
+
+            void DoAction(int32 const action)
+            {
+                if (action == ACTION_REMOVE_FLAG)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                else if (action == ACTION_REINITIALIZE)
+                {
+                    me->setFaction(35);
+                    me->CombatStop();
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    if (eventId == EVENT_DESPAWN)
+                        me->DespawnOrUnsummon();
+                }
+
+                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                {
+                    if (!player->isAlive())
+                    {
+                        DoAction(ACTION_REINITIALIZE);
+                        events.Reset();
+                        return;
+                    }
+
+                    if (player->GetQuestStatus(31720) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+
+                    if (me->GetDistance2d(player) >= 25.0f)
+                    {
+                        me->DespawnOrUnsummon();
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+};
+
+// Fei - 56784
+class npc_fei : public CreatureScript
+{
+    public:
+        npc_fei() : CreatureScript("npc_fei")
+        {
+        }
+
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == 30000)
+            {
+                player->PlayScene(202, player);
+                player->KilledMonsterCredit(57243);
+
+                if (Creature* questTaker = GetClosestCreatureWithEntry(creature, 57242, 200.0f, true))
+                    player->TeleportTo(870, questTaker->GetPositionX() + 1.4f, questTaker->GetPositionY() + 1.5f, questTaker->GetPositionZ(), 0.0f, 0);
+            }
+
+            return true;
+        }
+};
+
+// Student of Chi-Ji - 60601/60602/60603
+class mob_chi_ji_student : public CreatureScript
+{
+    public:
+        mob_chi_ji_student() : CreatureScript("mob_chi_ji_student")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_chi_ji_studentAI(creature);
+        }
+
+        struct mob_chi_ji_studentAI : public ScriptedAI
+        {
+            mob_chi_ji_studentAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            EventMap events;
+            uint64 playerGuid;
+
+            void Reset()
+            {
+                events.Reset();
+
+                switch (me->GetEntry())
+                {
+                    case 60601:
+                        events.ScheduleEvent(EVENT_GIFT_OF_CHI_JI, 3000);
+                        events.ScheduleEvent(EVENT_BLESSING_OF_CHI_JI, 6000);
+                        events.ScheduleEvent(EVENT_WRATH_OF_CHI_JI, 11000);
+                        break;
+                    case 60602:
+                        events.ScheduleEvent(EVENT_BLACKOUT_KICK, 3000);
+                        events.ScheduleEvent(EVENT_FLYING_SERPENT_KICK, 8000);
+                        events.ScheduleEvent(EVENT_JAB, 13000);
+                        break;
+                    case 60603:
+                        events.ScheduleEvent(EVENT_MIGHTY_CHOP, 3000);
+                        events.ScheduleEvent(EVENT_STRIKE_FROM_THE_HEAVENS, 6000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                if (attacker->GetTypeId() == TYPEID_PLAYER)
+                    playerGuid = CAST_PLR(attacker)->GetGUID();
+            }
+
+            void DamageTaken(Unit* attacker, uint32& damage)
+            {
+                if (Player* player = attacker->ToPlayer())
+                {
+                    if (player->GetQuestStatus(30718) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (damage > me->GetHealth())
+                        {
+                            damage = 0;
+                            me->SetFullHealth();
+                            DoAction(ACTION_REINITIALIZE);
+                            player->KilledMonsterCredit(60601);
+                            me->DespawnOrUnsummon();
+                        }
+                    }
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        // Entry 60601
+                        case EVENT_GIFT_OF_CHI_JI:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(target, SPELL_GIFT_OF_CHI_JI, false);
+                            events.ScheduleEvent(EVENT_GIFT_OF_CHI_JI, 7000);
+                            break;
+                        case EVENT_BLESSING_OF_CHI_JI:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(me, SPELL_BLESSING_OF_CHI_JI, false);
+                            events.ScheduleEvent(EVENT_BLESSING_OF_CHI_JI, 7000);
+                            break;
+                        case EVENT_WRATH_OF_CHI_JI:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_WRATH_OF_CHI_JI, false);
+                            events.ScheduleEvent(EVENT_WRATH_OF_CHI_JI, 7000);
+                            break;
+                            // Entry 60602
+                        case EVENT_BLACKOUT_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_BLACKOUT_KICK, false);
+                            events.ScheduleEvent(EVENT_BLACKOUT_KICK, 15000);
+                            break;
+                        case EVENT_FLYING_SERPENT_KICK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_FLYING_SERPENT_KICK, false);
+                            events.ScheduleEvent(EVENT_FLYING_SERPENT_KICK, 15000);
+                            break;
+                        case EVENT_JAB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_JAB, false);
+                            events.ScheduleEvent(EVENT_JAB, 15000);
+                            break;
+                            // Entry 60603
+                        case EVENT_MIGHTY_CHOP:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_MIGHTY_CHOP, false);
+                            events.ScheduleEvent(EVENT_MIGHTY_CHOP, 7000);
+                            break;
+                        case EVENT_STRIKE_FROM_THE_HEAVENS:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(target, SPELL_STRIKE_FROM_THE_HEAVENS, false);
+                            events.ScheduleEvent(EVENT_STRIKE_FROM_THE_HEAVENS, 7000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
 };
 
 void AddSC_jade_forest()
@@ -1978,6 +2872,13 @@ void AddSC_jade_forest()
     new mob_instructor_windblade();
     new npc_cloud_ring();
     new npc_instructor_skythorn();
+    new mob_second_big_bao();
+    new mob_ace_longpaw();
+    new mob_ningha_darkwheel();
+    new mob_qua_row_whitebrow();
+    new mob_suchi_the_sweet();
+    new npc_fei();
+    new mob_chi_ji_student();
     // Game Objects
     new gob_hozen_cage();
 }

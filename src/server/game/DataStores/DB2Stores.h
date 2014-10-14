@@ -32,7 +32,6 @@ extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
 extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
-extern DB2Storage <BattlePetSpeciesEntry>           sBattlePetSpeciesStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
 extern DB2Storage <ItemUpgradeEntry>                sItemUpgradeStore;
 extern DB2Storage <RulesetItemUpgradeEntry>         sRulesetItemUpgradeStore;
@@ -64,6 +63,21 @@ extern DB2Storage <GarrPlotBuildingEntry>           sGarrPlotBuildingStore;
 extern DB2Storage <GarrFollowerEntry>               sGarrFollowerStore;
 extern DB2Storage <GarrAbilityEntry>                sGarrAbilityStore;
 extern DB2Storage <GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore;
+
+//////////////////////////////////////////////////////////////////////////
+/// Battle pet
+//////////////////////////////////////////////////////////////////////////
+extern DB2Storage<BattlePetAbilityEntry> sBattlePetAbilityStore;
+extern DB2Storage<BattlePetAbilityEffectEntry> sBattlePetAbilityEffectStore;
+extern DB2Storage<BattlePetAbilityTurnEntry> sBattlePetAbilityTurnStore;
+extern DB2Storage<BattlePetAbilityStateEntry> sBattlePetAbilityStateStore;
+extern DB2Storage<BattlePetStateEntry> sBattlePetStateStore;
+extern DB2Storage<BattlePetEffectPropertiesEntry> sBattlePetEffectPropertiesStore;
+extern DB2Storage<BattlePetBreedQualityEntry> sBattlePetBreedQualityStore;
+extern DB2Storage<BattlePetBreedStateEntry> sBattlePetBreedStateStore;
+extern DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore;
+extern DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore;
+extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);

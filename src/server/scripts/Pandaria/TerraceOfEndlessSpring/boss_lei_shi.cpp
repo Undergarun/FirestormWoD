@@ -42,7 +42,9 @@ enum eLeiShiSpells
     SPELL_SCARY_FOG_DOT     = 123705,
     SPELL_SCARY_FOG_STACKS  = 123712,
 
-    SPELL_LEI_SHI_TRANSFORM = 127535
+    SPELL_LEI_SHI_TRANSFORM = 127535,
+
+    SPELL_LEI_SHI_BONUS     = 132202
 };
 
 enum eLeiShiEvents
@@ -100,7 +102,7 @@ class boss_lei_shi : public CreatureScript
             boss_lei_shiAI(Creature* creature) : BossAI(creature, DATA_LEI_SHI)
             {
                 pInstance = creature->GetInstanceScript();
-                leiShiFreed = false;
+                leiShiFreed = pInstance ? pInstance->GetBossState(DATA_LEI_SHI) == DONE : false;
             }
 
             InstanceScript* pInstance;
@@ -130,6 +132,10 @@ class boss_lei_shi : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     return;
                 }
+
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_LEI_SHI) == DONE)
+                        FreeLeiShi();
 
                 if (leiShiFreed)
                     return;
@@ -225,7 +231,7 @@ class boss_lei_shi : public CreatureScript
                     DoZoneInCombat();
 
                     if (me->GetMap()->IsHeroic())
-                        me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, true);
+                        me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, false);
 
                     Talk(TALK_AGGRO);
                 }
@@ -284,14 +290,8 @@ class boss_lei_shi : public CreatureScript
                 if (me->HealthBelowPctDamaged(endCombatPct, damage))
                 {
                     damage = 0;
-                    me->setFaction(35);
-                    me->RemoveAllAreasTrigger();
-                    me->RemoveAllAuras();
-                    me->RestoreDisplayId();
-                    me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    FreeLeiShi();
 
-                    leiShiFreed = true;
                     Talk(TALK_DEFEATED);
 
                     if (pInstance)
@@ -302,6 +302,12 @@ class boss_lei_shi : public CreatureScript
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARY_FOG_STACKS);
                         pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SPRAY);
                         pInstance->SetBossState(DATA_LEI_SHI, DONE);
+
+                        if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_LEI_SHI))
+                            wall->SetGoState(GO_STATE_READY);
+
+                        if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_LEI_SHIS_VORTEX))
+                            vortex->SetGoState(GO_STATE_READY);
                     }
 
                     switch (me->GetMap()->GetSpawnMode())
@@ -322,15 +328,40 @@ class boss_lei_shi : public CreatureScript
                             break;
                     }
 
+                    Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            l_Player->CombatStop();
+                            me->CastSpell(l_Player, SPELL_LEI_SHI_BONUS, true);
+                        }
+                    }
+
+                    if (me->GetMap()->IsLFR())
+                    {
+                        me->SetLootRecipient(NULL);
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
+
                     for (auto itr : animatedProtectors)
                         if (Creature* protector = Creature::GetCreature(*me, itr))
                             protector->DespawnOrUnsummon();
-
-                    Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                        if (Player* player = itr->getSource())
-                            player->CombatStop();
                 }
+            }
+
+            void FreeLeiShi()
+            {
+                me->setFaction(35);
+                me->RemoveAllAreasTrigger();
+                me->RemoveAllAuras();
+                me->RestoreDisplayId();
+                me->SetFullHealth();
+                me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                leiShiFreed = true;
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -450,7 +481,7 @@ class boss_lei_shi : public CreatureScript
                         hidden = false;
 
                         if (me->GetMap()->IsHeroic())
-                            me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, true);
+                            me->CastSpell(me, SPELL_SCARY_FOG_CIRCLE, false);
 
                         // Only have Lei Shi (hidden) in summons
                         summons.DespawnAll();
@@ -755,13 +786,9 @@ class spell_get_away_damage : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (Unit* target = GetHitUnit())
-                    {
                         if (target->isMoving() && target->isInFront(caster))
                             SetHitDamage(GetHitDamage() / 2);
-                    }
-                }
             }
 
             void Register()
@@ -876,7 +903,8 @@ class spell_scary_fog_dot : public SpellScriptLoader
                 if (!players.isEmpty())
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         if (Player* player = itr->getSource())
-                            if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) >= HEROIC_DIST_TO_VORTEX)
+                            if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) >= HEROIC_DIST_TO_VORTEX &&
+                                !player->HasAura(SPELL_SCARY_FOG_DOT))
                                 targets.push_back(player);
 
                 for (auto itr : targets)
@@ -939,15 +967,15 @@ class spell_scary_fog_stacks : public SpellScriptLoader
             {
                 for (auto itr : targets)
                 {
-                    if (itr->ToUnit() && itr->ToUnit()->GetEntry() != NPC_LEI_SHI_HIDDEN)
+                    if (!itr->ToUnit() || itr->ToUnit()->GetEntry() == NPC_LEI_SHI_HIDDEN || itr->GetDistance2d(GetCaster()) > 10.0f)
+                        continue;
+
+                    if (AuraPtr scary = GetCaster()->GetAura(SPELL_SCARY_FOG_STACKS))
                     {
-                        if (AuraPtr scary = GetCaster()->GetAura(SPELL_SCARY_FOG_STACKS))
-                        {
-                            if (AuraPtr scaryTarget = itr->ToUnit()->GetAura(SPELL_SCARY_FOG_STACKS))
-                                scaryTarget->SetStackAmount(scary->GetStackAmount());
-                            else if (AuraPtr scaryTarget = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
-                                scaryTarget->SetStackAmount(scary->GetStackAmount());
-                        }
+                        if (AuraPtr scaryTarget = itr->ToUnit()->GetAura(SPELL_SCARY_FOG_STACKS))
+                            scaryTarget->SetStackAmount(scary->GetStackAmount());
+                        else if (AuraPtr scaryTarget = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
+                            scaryTarget->SetStackAmount(scary->GetStackAmount());
                     }
                 }
 

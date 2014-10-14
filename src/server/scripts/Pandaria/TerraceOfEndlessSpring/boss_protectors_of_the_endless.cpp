@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
+#include "LFGMgr.h"
 
 #define ENTRANCE_ORIENTATION 4.723f
 
@@ -30,6 +31,8 @@ enum eProtectorsSpells
     // Shared
     SPELL_SHA_CORRUPTION                = 117052,
     SPELL_SHA_MASK                      = 118221,
+    SPELL_PROTECTORS_BONUS              = 132200,
+    SPELL_PROTECTORS_BONUS_ELITE        = 132204,
 
     // Protector Kaolan
     SPELL_TOUCH_OF_SHA                  = 117519,
@@ -80,7 +83,8 @@ enum eProtectorsActions
     ACTION_SECOND_PROTECTOR_DIED    = 1,
     ACTION_DESPAWN_SUMMONS          = 3,
     ACTION_INIT_MINION_CONTROLLER   = 4,
-    ACTION_RESET_MINION_CONTROLLER  = 5
+    ACTION_RESET_MINION_CONTROLLER  = 5,
+    ACTION_BOSS_WIPE                = 6,
 };
 
 enum eProtectorsEvents
@@ -138,25 +142,26 @@ enum eProtectorsEquipId
     REGAIL_ITEMS    = 81389
 };
 
+enum eProtectorsType
+{
+    TYPE_SET_WIPE = 1,
+    TYPE_UNSET_WIPE,
+};
+
+uint32 bossEntries[3] = { NPC_ANCIENT_ASANI, NPC_ANCIENT_REGAIL, NPC_PROTECTOR_KAOLAN };
+
 uint8 ProtectorsAlive(InstanceScript* instance, Creature* me)
 {
     uint8 count = 0;
     if (!instance || !me)
         return count;
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-    if (asani && asani->isAlive())
-        ++count;
+    for (uint8 i = 0; i < 3; ++i)
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
+            if (protector->isAlive())
+                ++count;
 
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-    if (regail && regail->isAlive())
-        ++count;
-
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-    if (kaolan && kaolan->isAlive())
-        ++count;
-
-    return count;
+        return count;
 }
 
 void RespawnProtectors(InstanceScript* instance, Creature* me)
@@ -164,29 +169,17 @@ void RespawnProtectors(InstanceScript* instance, Creature* me)
     if (!instance || !me)
         return;
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-    if (asani)
+    for (int i = 0; i < 3; ++i)
     {
-        asani->Respawn();
-        asani->GetMotionMaster()->MoveTargetedHome();
-    }
-
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-    if (regail)
-    {
-        regail->Respawn();
-        regail->GetMotionMaster()->MoveTargetedHome();
-    }
-
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-    if (kaolan)
-    {
-        kaolan->Respawn();
-        kaolan->GetMotionMaster()->MoveTargetedHome();
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
+        {
+            protector->Respawn();
+            protector->GetMotionMaster()->MoveTargetedHome();
+        }
     }
 }
 
-void StartProtectors(InstanceScript* instance, Creature* me, Unit* /*target*/)
+void StartProtectors(InstanceScript* instance, Creature* me, Unit* target)
 {
     if (!instance)
         return;
@@ -196,17 +189,14 @@ void StartProtectors(InstanceScript* instance, Creature* me, Unit* /*target*/)
 
     instance->SetBossState(DATA_PROTECTORS, IN_PROGRESS);
 
-    Creature* asani = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_ASANI));
-    if (asani)
-        asani->SetInCombatWithZone();
-
-    Creature* regail = instance->instance->GetCreature(instance->GetData64(NPC_ANCIENT_REGAIL));
-    if (regail)
-        regail->SetInCombatWithZone();
-
-    Creature* kaolan = instance->instance->GetCreature(instance->GetData64(NPC_PROTECTOR_KAOLAN));
-    if (kaolan)
-        kaolan->SetInCombatWithZone();
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
+        {
+            protector->AI()->SetData(TYPE_UNSET_WIPE, 0);
+            protector->AI()->EnterCombat(target);
+        }
+    }
 }
 
 bool IntroDone(InstanceScript* instance, Creature* me)
@@ -217,39 +207,37 @@ bool IntroDone(InstanceScript* instance, Creature* me)
     if (instance->GetData(INTRO_DONE) > 0)
         return true;
 
-    std::list<Creature*> fear;
-    me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_FEAR, 100.0f);
-    std::list<Creature*> terror;
-    me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_TERROR, 100.0f);
-
-    bool done = true;
-    for (auto itr : fear)
-    {
-        if (itr->isAlive())
-        {
-            done = false;
-            break;
-        }
-    }
-
-    for (auto itr : terror)
-    {
-        if (itr->isAlive())
-        {
-            done = false;
-            break;
-        }
-    }
+    bool done = false;
+    if (!GetClosestCreatureWithEntry(me, NPC_APPARITION_OF_FEAR, 100.0f))
+        if (!GetClosestCreatureWithEntry(me, NPC_APPARITION_OF_TERROR, 100.0f))
+            done = true;
 
     if (done && instance)
-    {
         instance->SetData(INTRO_DONE, 1);
-        return true;
-    }
 
-    return false;
+    return done;
 }
 
+void ProtectorsWipe(InstanceScript* pInstance)
+{
+    if (!pInstance)
+        return;
+
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        if (Creature* protector = pInstance->instance->GetCreature(pInstance->GetData64(bossEntries[i])))
+        {
+            protector->SetReactState(REACT_DEFENSIVE);
+            protector->AI()->SetData(TYPE_SET_WIPE, 0);
+            protector->GetMotionMaster()->MoveTargetedHome();
+            pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, protector);
+        }
+    }
+
+    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+}
+
+//  60585 - Elder Regail
 class boss_ancient_regail : public CreatureScript
 {
     public:
@@ -267,12 +255,15 @@ class boss_ancient_regail : public CreatureScript
 
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
+            bool isInWipeState;
 			
 			void Reset()
 			{
+                if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
+                    return;
+
                 SetEquipmentSlots(false, REGAIL_ITEMS, REGAIL_ITEMS, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
-                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -311,11 +302,16 @@ class boss_ancient_regail : public CreatureScript
 			void JustReachedHome()
             {
                 _JustReachedHome();
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                Reset();
             }
-			
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        EnterCombat(attacker);
+            }
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -330,7 +326,15 @@ class boss_ancient_regail : public CreatureScript
                             minionController->AI()->DoAction(ACTION_INIT_MINION_CONTROLLER);
                 }
             }
-			
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance || isInWipeState)
+                    return;
+
+                ProtectorsWipe(pInstance);
+            }
+
 			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -413,6 +417,7 @@ class boss_ancient_regail : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -422,6 +427,21 @@ class boss_ancient_regail : public CreatureScript
                                 kaolan->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (asani)
                                 asani->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
+
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                    me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
 
                             break;
                         }
@@ -470,9 +490,37 @@ class boss_ancient_regail : public CreatureScript
                         break;
                 }
             }
-			
+
+            void SetData(uint32 type, uint32 value)
+            {
+                switch (type)
+                {
+                    case TYPE_SET_WIPE:
+                    {
+                        isInWipeState = true;
+                        break;
+                    }
+                    case TYPE_UNSET_WIPE:
+                    {
+                        isInWipeState = false;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
 			void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe() && !isInWipeState)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 if (!IntroDone(pInstance, me))
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -543,6 +591,7 @@ class boss_ancient_regail : public CreatureScript
         }
 };
 
+// 60586 - Elder Asani
 class boss_ancient_asani : public CreatureScript
 {
     public:
@@ -560,12 +609,15 @@ class boss_ancient_asani : public CreatureScript
 
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
+            bool isInWipeState;
 			
 			void Reset()
 			{
+                if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
+                    return;
+
                 SetEquipmentSlots(false, ASANI_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
-                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -601,11 +653,16 @@ class boss_ancient_asani : public CreatureScript
 			void JustReachedHome()
             {
                 _JustReachedHome();
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                Reset();
             }
-			
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        EnterCombat(attacker);
+            }
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -615,6 +672,14 @@ class boss_ancient_asani : public CreatureScript
                     DoZoneInCombat();
                     Talk(TALK_ASANI_AGGRO);
                 }
+            }
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance || isInWipeState)
+                    return;
+
+                ProtectorsWipe(pInstance);
             }
 			
 			void JustSummoned(Creature* summon)
@@ -701,6 +766,7 @@ class boss_ancient_asani : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -710,6 +776,27 @@ class boss_ancient_asani : public CreatureScript
                                 kaolan->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
                                 regail->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
+
+                            if (GameObject* wall = pInstance->instance->GetGameObject(GOB_WALL_OF_COUNCILS_VORTEX))
+                                wall->SetGoState(GO_STATE_READY);
+
+                            if (GameObject* vortex = pInstance->instance->GetGameObject(GOB_COUNCILS_VORTEX))
+                                vortex->SetGoState(GO_STATE_READY);
+
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                    me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
 
                             break;
                         }
@@ -759,8 +846,36 @@ class boss_ancient_asani : public CreatureScript
                 }
             }
 			
+            void SetData(uint32 type, uint32 value)
+            {
+                switch (type)
+                {
+                case TYPE_SET_WIPE:
+                    {
+                        isInWipeState = true;
+                        break;
+                    }
+                case TYPE_UNSET_WIPE:
+                    {
+                        isInWipeState = false;
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+
 			void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe() && !isInWipeState)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 if (!IntroDone(pInstance, me))
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -823,6 +938,7 @@ class boss_ancient_asani : public CreatureScript
         }
 };
 
+// 60583 - Protector Kaolan
 class boss_protector_kaolan : public CreatureScript
 {
     public:
@@ -841,13 +957,16 @@ class boss_protector_kaolan : public CreatureScript
 
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
+            bool isInWipeState;
             bool introDone;
 			
 			void Reset()
 			{
+                if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
+                    return;
+
                 SetEquipmentSlots(false, KAOLAN_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
-                me->ReenableEvadeMode();
 
 				_Reset();
 				
@@ -882,11 +1001,16 @@ class boss_protector_kaolan : public CreatureScript
 			void JustReachedHome()
             {
                 _JustReachedHome();
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_PROTECTORS, FAIL);
+                Reset();
             }
-			
+
+            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            {
+                if (pInstance)
+                    if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
+                        EnterCombat(attacker);
+            }
+
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
@@ -896,7 +1020,15 @@ class boss_protector_kaolan : public CreatureScript
                     DoZoneInCombat();
                 }
             }
-			
+
+            void EnterEvadeMode()
+            {
+                if (!pInstance || isInWipeState)
+                    return;
+
+                ProtectorsWipe(pInstance);
+            }
+
 			void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -988,6 +1120,7 @@ class boss_protector_kaolan : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
                             _JustDied();
 
                             if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
@@ -997,6 +1130,21 @@ class boss_protector_kaolan : public CreatureScript
                                 asani->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
                             if (regail)
                                 regail->AI()->DoAction(ACTION_DESPAWN_SUMMONS);
+
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                    me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
+                            }
+
+                            if (me->GetMap()->IsLFR())
+                            {
+                                me->SetLootRecipient(NULL);
+                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                                if (l_Player && l_Player->GetGroup())
+                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                            }
 
                             break;
                         }
@@ -1046,8 +1194,36 @@ class boss_protector_kaolan : public CreatureScript
                 }
             }
 			
+            void SetData(uint32 type, uint32 value)
+            {
+                switch (type)
+                {
+                case TYPE_SET_WIPE:
+                    {
+                        isInWipeState = true;
+                        break;
+                    }
+                case TYPE_UNSET_WIPE:
+                    {
+                        isInWipeState = false;
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+
 			void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe() && !isInWipeState)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
+
                 if (!IntroDone(pInstance, me))
                 {
                     me->SetReactState(REACT_PASSIVE);
@@ -1080,11 +1256,14 @@ class boss_protector_kaolan : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_TOUCH_OF_SHA:
+                    {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true, -SPELL_TOUCH_OF_SHA))
                             me->CastSpell(target, SPELL_TOUCH_OF_SHA, false);
                         events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
                         break;
+                    }
                     case EVENT_DEFILED_GROUND:
+                    {
                         if (!firstSpecialEnabled)
                             break;
 
@@ -1092,7 +1271,9 @@ class boss_protector_kaolan : public CreatureScript
                             me->CastSpell(target, SPELL_DEFILED_GROUND_SUMMON, true);
                         events.ScheduleEvent(EVENT_DEFILED_GROUND, 15500);
                         break;
+                    }
                     case EVENT_EXPEL_CORRUPTION:
+                    {
                         if (!secondSpecialEnabled)
                             break;
 
@@ -1100,6 +1281,7 @@ class boss_protector_kaolan : public CreatureScript
                         me->CastSpell(me, SPELL_EXPEL_CORRUPTION_SUMMON, false);
                         events.ScheduleEvent(EVENT_EXPEL_CORRUPTION, 38500);
                         break;
+                    }
                     default:
                         break;
 				}
@@ -1264,15 +1446,10 @@ class mob_minion_of_fear : public CreatureScript
                 {
                     std::list<Creature*> targets;
 
-                    if (Creature* asani = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_ASANI)))
-                        if (asani->isAlive())
-                            targets.push_back(asani);
-                    if (Creature* kaolan = pInstance->instance->GetCreature(pInstance->GetData64(NPC_PROTECTOR_KAOLAN)))
-                        if (kaolan->isAlive())
-                            targets.push_back(kaolan);
-                    if (Creature* regail = pInstance->instance->GetCreature(pInstance->GetData64(NPC_ANCIENT_REGAIL)))
-                        if (regail->isAlive())
-                            targets.push_back(regail);
+                    for (uint8 i = 0; i < 3; ++i)
+                        if (Creature* protector = pInstance->instance->GetCreature(pInstance->GetData64(bossEntries[i])))
+                            if (protector->isAlive())
+                                targets.push_back(protector);
 
                     if (targets.empty())
                     {
@@ -1302,6 +1479,10 @@ class mob_minion_of_fear : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                    if (pInstance->IsWipe())
+                        me->DespawnOrUnsummon();
+
                 if (!protectorTargetedGuid)
                     return;
 
@@ -1338,15 +1519,19 @@ class mob_minion_of_fear_controller : public CreatureScript
 
         struct mob_minion_of_fear_controllerAI : public ScriptedAI
         {
-            mob_minion_of_fear_controllerAI(Creature* creature) : ScriptedAI(creature) { }
+            mob_minion_of_fear_controllerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
+            InstanceScript* pInstance;
             EventMap events;
             bool started;
 
             void Reset()
             {
-                started = false;
                 events.Reset();
+                started = false;
             }
 
             void JustSummoned(Creature* summon)
@@ -1379,6 +1564,15 @@ class mob_minion_of_fear_controller : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
+                if (pInstance)
+                {
+                    if (pInstance->IsWipe())
+                    {
+                        DoAction(ACTION_RESET_MINION_CONTROLLER);
+                        return;
+                    }
+                }
+
                 if (!started)
                     return;
 
@@ -1392,7 +1586,7 @@ class mob_minion_of_fear_controller : public CreatureScript
                         me->GetPosition(&pos);
 
                         me->SummonCreature(NPC_MINION_OF_FEAR, pos);
-                        events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 12000);
+                        events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 15000);
                         break;
                     }
                     default:
@@ -1670,25 +1864,30 @@ class spell_corrupted_essence : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
+                Unit* caster = GetCaster();
+                if (targets.empty() || !caster)
                     return;
 
-                std::list<WorldObject*> targetsToRemove;
+                targets.clear();
 
-                for (auto itr : targets)
-                {
-                    if (!itr->ToUnit())
-                        continue;
+                // Retreiving all players in 100.0f around the caster
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, caster, 100.0f);
 
-                    if (AuraPtr corruptedEssence = itr->ToUnit()->GetAura(SPELL_CORRUPTED_ESSENCE))
-                    {
-                        corruptedEssence->ModStackAmount(1);
-                        targetsToRemove.push_back(itr);
-                    }
-                }
+                if (playerList.empty())
+                    return;
 
-                for (auto itr : targetsToRemove)
-                    targets.remove(itr);
+                // Sorting players by distance from caster
+                playerList.sort(JadeCore::DistanceCompareOrderPred(caster));
+
+                // Reducing the list (only if too big)
+                uint32 maxSize = caster->GetMap()->Is25ManRaid() ? 5 : 2;
+                if (playerList.size() > maxSize)
+                    playerList.resize(maxSize);
+
+                // Adding players to the targets list
+                for (Player* plr : playerList)
+                    targets.push_back(plr);
             }
 
             void Register()
@@ -1773,21 +1972,21 @@ class spell_cleansing_waters_regen : public SpellScriptLoader
 
 void AddSC_boss_protectors_of_the_endless()
 {
-    new boss_ancient_regail();
-    new boss_ancient_asani();
-    new boss_protector_kaolan();
-    new mob_defiled_ground();
-    new mob_coalesced_corruption();
-    new mob_cleansing_water();
-    new mob_corrupting_waters();
-    new mob_minion_of_fear();
-    new mob_minion_of_fear_controller();
-    new spell_defiled_ground_damage();
-    new spell_expelled_corruption();
-    new spell_lightning_storm_aura();
-    new spell_lightning_storm_damage();
-    new spell_lightning_prison();
-    new spell_corrupted_essence();
-    new spell_superior_corrupted_essence();
-    new spell_cleansing_waters_regen();
+    new boss_ancient_regail();              // 60585
+    new boss_ancient_asani();               // 60586
+    new boss_protector_kaolan();            // 60583
+    new mob_defiled_ground();               // 60906
+    new mob_coalesced_corruption();         // 60886
+    new mob_cleansing_water();              // 60646
+    new mob_corrupting_waters();            // 60621
+    new mob_minion_of_fear();               // 60885
+    new mob_minion_of_fear_controller();    // 60957
+    new spell_defiled_ground_damage();      // 117988
+    new spell_expelled_corruption();        // 117955
+    new spell_lightning_storm_aura();       // 118064, 118040, 118053, 118054, 118055, 118077
+    new spell_lightning_storm_damage();     // 118004, 118005, 118007, 118008
+    new spell_lightning_prison();           // 111850
+    new spell_corrupted_essence();          // 118191
+    new spell_superior_corrupted_essence(); // 117905
+    new spell_cleansing_waters_regen();     // 117283
 }

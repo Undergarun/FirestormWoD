@@ -1603,6 +1603,81 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     }
 }
 
+void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList) const
+{
+    for (LootStoreItemList::const_iterator l_Ia = Entries.begin(); l_Ia != Entries.end(); ++l_Ia)
+    {
+        if (l_Ia->type == LOOT_ITEM_TYPE_ITEM)
+        {
+            if (l_Ia->mincountOrRef > 0)
+            {
+                if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Ia->itemid))
+                {
+                    if (!l_ItemTemplate->HasSpec())
+                        continue;
+
+                    p_ItemList.push_back(l_ItemTemplate);
+                }
+            }
+            else
+            {
+                LootTemplate const* l_LootTemplate = LootTemplates_Reference.GetLootFor(-l_Ia->mincountOrRef);
+                if (l_LootTemplate == nullptr)
+                    continue;
+
+                if (!l_LootTemplate->Entries.empty())
+                {
+                    for (LootStoreItemList::const_iterator l_Ib = l_LootTemplate->Entries.begin(); l_Ib != l_LootTemplate->Entries.end(); ++l_Ib)
+                    {
+                        if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Ib->itemid))
+                        {
+                            if (!l_ItemTemplate->HasSpec())
+                                continue;
+
+                            p_ItemList.push_back(l_ItemTemplate);
+                        }
+                    }
+                }
+                else if (!l_LootTemplate->Groups.empty())
+                {
+                    for (LootGroup l_GroupLoot : l_LootTemplate->Groups)
+                    {
+                        LootStoreItemList* l_GroupList = l_GroupLoot.GetEqualChancedItemList();
+                        if (!l_GroupList->empty())
+                        {
+                            for (LootStoreItemList::const_iterator l_Ic = l_GroupList->begin(); l_Ic != l_GroupList->end(); ++l_Ic)
+                            {
+                                if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Ic->itemid))
+                                {
+                                    if (!l_ItemTemplate->HasSpec())
+                                        continue;
+
+                                    p_ItemList.push_back(l_ItemTemplate);
+                                }
+                            }
+                        }
+
+                        l_GroupList = l_GroupLoot.GetExplicitlyChancedItemList();
+                        if (!l_GroupList->empty())
+                        {
+                            for (LootStoreItemList::const_iterator l_Ic = l_GroupList->begin(); l_Ic != l_GroupList->end(); ++l_Ic)
+                            {
+                                if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Ic->itemid))
+                                {
+                                    if (!l_ItemTemplate->HasSpec())
+                                        continue;
+
+                                    p_ItemList.push_back(l_ItemTemplate);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Overall chance for the group without equal chanced items
 float LootTemplate::LootGroup::RawTotalChance() const
 {

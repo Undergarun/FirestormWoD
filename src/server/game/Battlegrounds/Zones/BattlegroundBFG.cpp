@@ -229,7 +229,10 @@ void BattlegroundBFG::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = score;
 }
 
-void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/) { }
+void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/)
+{
+}
+
 void BattlegroundBFG::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
     // this is  wrong way to implement these things. On official it done by gameobject spell cast.
@@ -292,12 +295,12 @@ void BattlegroundBFG::FillInitialWorldStates(ByteBuffer& data)
 
     // Node icons
     for (uint8 node = 0; node < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++node)
-        data << uint32(GILNEAS_BG_OP_NODEICONS[node]) << uint32((m_Nodes[node] == 0)?1:0);
+        data << uint32(GILNEAS_BG_OP_NODEICONS[node]) << uint32((m_Nodes[node] == 0) ? 1 : 0);
 
     // Node occupied states
     for (uint8 node = 0; node < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++node)
         for (uint8 i = 1; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
-            data << uint32(GILNEAS_BG_OP_NODESTATES[node] + plusArray[i]) << uint32((m_Nodes[node] == i)?1:0);
+            data << uint32(GILNEAS_BG_OP_NODESTATES[node] + plusArray[i]) << uint32((m_Nodes[node] == i) ? 1 : 0);
 
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
@@ -311,10 +314,10 @@ void BattlegroundBFG::FillInitialWorldStates(ByteBuffer& data)
     data << uint32(GILNEAS_BG_OP_OCCUPIED_BASES_HORDE) << uint32(horde);
 
     // Team scores
-    data << uint32(GILNEAS_BG_OP_RESOURCES_MAX)      << uint32(GILNEAS_BG_MAX_TEAM_SCORE);
-    data << uint32(GILNEAS_BG_OP_RESOURCES_WARNING)  << uint32(GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE);
     data << uint32(GILNEAS_BG_OP_RESOURCES_ALLY)     << uint32(m_TeamScores[BG_TEAM_ALLIANCE]);
     data << uint32(GILNEAS_BG_OP_RESOURCES_HORDE)    << uint32(m_TeamScores[BG_TEAM_HORDE]);
+    data << uint32(GILNEAS_BG_OP_RESOURCES_MAX)      << uint32(GILNEAS_BG_MAX_TEAM_SCORE);
+    data << uint32(GILNEAS_BG_OP_RESOURCES_WARNING)  << uint32(GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE);
 
     // other unknown
     //data << uint32(0x745) << uint32(0x2);           // 37 1861 unk

@@ -112,6 +112,7 @@ enum Opcodes
         SMSG_PLAY_MUSIC                             = 0x00B3,   ///< 6.0.2 18934
         SMSG_PLAY_OBJECT_SOUND                      = 0x0448,   ///< 6.0.2 18934
         SMSG_PLAY_SOUND                             = 0x02BB,   ///< 6.0.2 18934
+        SMSG_DISPLAY_TOAST                          = 0x0000,   ///< 
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 18934
@@ -157,6 +158,12 @@ enum Opcodes
 
         /// Achievement
         SMSG_ALL_ACHIEVEMENT_DATA                   = 0x01A4,   ///< 6.0.2 18934
+        SMSG_ACHIEVEMENT_DELETED                    = 0x0154,   ///< 6.0.2 18934
+        SMSG_ACHIEVEMENT_EARNED                     = 0x1617,   ///< 6.0.2 18934
+        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0727,   ///< 6.0.2 18934 (unused)
+        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x1603,   ///< 6.0.2 18934 (unused)
+        SMSG_CRITERIA_DELETED                       = 0x1454,   ///< 6.0.2 18934
+        SMSG_CRITERIA_UPDATE                        = 0x0AEC,   ///< 6.0.2 18934
 
         /// Friends
         SMSG_CONTACT_LIST                           = 0x0B00,   ///< 6.0.2 18934
@@ -234,6 +241,20 @@ enum Opcodes
         SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT  = 0x1237,   ///< 6.0.2 18934 (unused)
         SMSG_SPIRIT_HEALER_CONFIRM                          = 0x0413,   ///< 6.0.2 18934
         SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x1167,   ///< 6.0.2 18934
+
+        /// Pet Battle opcodes
+        SMSG_PETBATTLE_FULL_JOURNAL                         = 0x0000,
+        SMSG_PETBATTLE_QUERY_NAME_RESPONSE                  = 0x0000,
+        SMSG_PETBATTLE_REQUEST_FAILED                       = 0x0000,
+        SMSG_PETBATTLE_FIRST_ROUND                          = 0x0000,
+        SMSG_PETBATTLE_FULL_UPDATE                          = 0x0000,
+        SMSG_PETBATTLE_FINALIZE_LOCATION                    = 0x0000,
+        SMSG_PETBATTLE_PVP_CHALLENGE                        = 0x0000,
+        SMSG_PETBATTLE_ROUND_RESULT                         = 0x0000,
+        SMSG_PETBATTLE_REPLACEMENTS_MADE                    = 0x0000,
+        SMSG_PETBATTLE_FINAL_ROUND                          = 0x0000,
+        SMSG_PETBATTLE_FINISHED                             = 0x0000,
+        SMSG_PETBATTLE_UPDATE_BATTLESLOT                    = 0x0000,
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -241,77 +262,75 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGuild
         /// Guild Finder
-        SMSG_LFGUILD_BROWSE                         = 0x0000,
-        SMSG_LFGUILD_APPLICATIONS                   = 0x0000,
-        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x0000,
-        SMSG_LFGUILD_COMMAND_RESULT                 = 0x0000,
-        SMSG_LFGUILD_RECRUITS                       = 0x0000,
-        SMSG_LFGUILD_POST                           = 0x0000,
-        SMSG_LFGUILD_APPLICANT_LIST_CHANGED         = 0x0000,
+        SMSG_LFGUILD_BROWSE                         = 0x124A,   ///< 6.0.2 18934
+        SMSG_LFGUILD_APPLICATIONS                   = 0x0659,   ///< 6.0.2 18934
+        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x136A,   ///< 6.0.2 18934
+        SMSG_LFGUILD_COMMAND_RESULT                 = 0x1309,   ///< 6.0.2 18934 (unused)
+        SMSG_LFGUILD_RECRUITS                       = 0x0319,   ///< 6.0.2 18934
+        SMSG_LFGUILD_POST                           = 0x0209,   ///< 6.0.2 18934
+        SMSG_LFGUILD_APPLICANT_LIST_CHANGED         = 0x065A,   ///< 6.0.2 18934
 
         /// Bank
-        SMSG_GUILD_RANK                             = 0x0000,
-        SMSG_GUILD_BANK_LOG_QUERY_RESULT            = 0x0000,
-        SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0000,
-        SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x0000,
-        SMSG_GUILD_BANK_QUERY_RESULTS               = 0x0000,
-        SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x0000,
+        SMSG_GUILD_RANKS                            = 0x035A,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_LOG_QUERY_RESULT            = 0x0739,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY    = 0x0619,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_QUERY_TEXT_RESULT           = 0x134A,   ///< 6.0.2 18934
+        SMSG_GUILD_BANK_QUERY_RESULTS               = 0x1229,   ///< 6.0.2 18934
+        SMSG_GUILD_PERMISSIONS_QUERY_RESULTS        = 0x1319,   ///< 6.0.2 18934
 
         /// Achievement
-        SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x0000,
-        SMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x0000,
-        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x0000,
-        SMSG_GUILD_CRITERIA_UPDATE                  = 0x0000,
-        SMSG_GUILD_CRITERIA_DELETED                 = 0x0000,
-        SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x0000,
+        SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x1269,   ///< 6.0.2 18934
+        SMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x060A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x1379,   ///< 6.0.2 18934
+        SMSG_GUILD_CRITERIA_UPDATE                  = 0x1249,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_CRITERIA_DELETED                 = 0x0359,   ///< 6.0.2 18934
+        SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x027A,   ///< 6.0.2 18934
 
         /// Info
-        SMSG_GUILD_ROSTER                           = 0x0000,
-        SMSG_GUILD_ROSTER_UPDATE                    = 0x0000,
-        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x0000,
+        SMSG_GUILD_ROSTER                           = 0x0779,   ///< 6.0.2 18934
+        SMSG_GUILD_ROSTER_UPDATE                    = 0x025A,   ///< 6.0.2 18934 (unused)
+        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x034A,   ///< 6.0.2 18934
         SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,   ///< Debug opcode (disabled)
-        SMSG_GUILD_XPEARNED                         = 0x0000,
-        SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000,
-        SMSG_GUILD_REWARDS_LIST                     = 0x0000,
-        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0000,
-        SMSG_GUILD_CHALLENGE_UPDATED                = 0x0000,
-        SMSG_GUILD_REPUTATION_WEEKLY_CAP            = 0x0000,
-        SMSG_GUILD_MEMBER_RECIPES                   = 0x0000,
-        SMSG_GUILD_INVITE_EXPIRED                   = 0x0000,
-        SMSG_GUILD_COMMAND_RESULT                   = 0x0000,
-        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0000,
-        SMSG_GUILD_SEND_GUILD_XP                    = 0x0000,
-        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x0000,
-        SMSG_GUILD_KNOWN_RECIPES                    = 0x0000,
-        SMSG_GUILD_MEMBER_DAILY_RESET               = 0x0000,
-        SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x0000,
-        SMSG_GUILD_NAME_CHANGED                     = 0x0000,
-        SMSG_GUILD_RESET                            = 0x0000,
-        SMSG_GUILD_CHANGE_NAME_RESULT               = 0x0000,
-        SMSG_GUILD_INVITE                           = 0x0000,
-        SMSG_GUILD_INVITE_DECLINED                  = 0x0000,
-        SMSG_GUILD_PARTY_STATE                      = 0x0000,
-        SMSG_GUILD_MEMBERS_WITH_RECIPE              = 0x0000,
-        SMSG_GUILD_MOVE_STARTING                    = 0x0000,
-        SMSG_GUILD_MOVED                            = 0x0000,
-        SMSG_GUILD_NEWS                             = 0x0000,
-        SMSG_GUILD_NEWS_DELETED                     = 0x0000,
+        SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x1609,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_REWARDS_LIST                     = 0x1349,   ///< 6.0.2 18934
+        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0709,   ///< 6.0.2 18934
+        SMSG_GUILD_CHALLENGE_UPDATED                = 0x160A,   ///< 6.0.2 18934
+        SMSG_GUILD_MEMBER_RECIPES                   = 0x137A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_INVITE_EXPIRED                   = 0x077A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_COMMAND_RESULT                   = 0x020A,   ///< 6.0.2 18934
+        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0219,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x1329,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_KNOWN_RECIPES                    = 0x0679,   ///< 6.0.2 18934
+        SMSG_GUILD_MEMBER_DAILY_RESET               = 0x1239,   ///< 6.0.2 18934
+        SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x032A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_NAME_CHANGED                     = 0x022A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_RESET                            = 0x123A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_CHANGE_NAME_RESULT               = 0x1279,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_INVITE                           = 0x1209,   ///< 6.0.2 18934
+        SMSG_GUILD_INVITE_DECLINED                  = 0x1359,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_PARTY_STATE                      = 0x127A,   ///< 6.0.2 18934
+        SMSG_GUILD_MEMBERS_WITH_RECIPE              = 0x067A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_MOVE_STARTING                    = 0x061A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_MOVED                            = 0x063A,   ///< 6.0.2 18934 (unused)
+        SMSG_GUILD_NEWS                             = 0x0229,   ///< 6.0.2 18934
+        SMSG_GUILD_NEWS_DELETED                     = 0x0279,   ///< 6.0.2 18934 (unused)
 
         /// Event system
-        SMSG_GUILD_EVENT_NEW_LEADER                 = 0x0000,
-        SMSG_GUILD_EVENT_PRESENCE_CHANGE            = 0x0000,
-        SMSG_GUILD_EVENT_PLAYER_JOINED              = 0x0000,
-        SMSG_GUILD_EVENT_PLAYER_LEFT                = 0x0000,
-        SMSG_GUILD_EVENT_RANKS_UPDATED              = 0x0000,
-        SMSG_GUILD_EVENT_RANK_CHANGED               = 0x0000,
-        SMSG_GUILD_EVENT_LOG_QUERY_RESULTS          = 0x0000,
-        SMSG_GUILD_EVENT_MOTD                       = 0x0000,
-        SMSG_GUILD_EVENT_DISBANDED                  = 0x0000,
-        SMSG_GUILD_EVENT_TAB_MODIFIED               = 0x0000,
-        SMSG_GUILD_EVENT_TAB_DELETED                = 0x0000,
-        SMSG_GUILD_EVENT_TAB_TEXT_CHANGED           = 0x0000,
-        SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED      = 0x0000,
-        SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x0000,
+        SMSG_GUILD_EVENT_NEW_LEADER                 = 0x0349,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_PRESENCE_CHANGE            = 0x0649,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_PLAYER_JOINED              = 0x074A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_PLAYER_LEFT                = 0x062A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_RANKS_UPDATED              = 0x1339,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_RANK_CHANGED               = 0x161A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_LOG_QUERY_RESULTS          = 0x0719,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_MOTD                       = 0x125A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_DISBANDED                  = 0x0339,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_ADDED                  = 0x036A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_MODIFIED               = 0x0269,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_DELETED                = 0x0249,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_TAB_TEXT_CHANGED           = 0x073A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED      = 0x120A,   ///< 6.0.2 18934
+        SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x0769,   ///< 6.0.2 18934
 
         /// Misc
         SMSG_GMGUILD_SAVE_RESPONSE                  = 0x0000,   ///< Debug opcode (disabled)
@@ -639,8 +658,8 @@ enum Opcodes
     CMSG_VIOLENCE_LEVEL                         = 0x00D4,   ///< 6.0.2 18934
     CMSG_LOAD_SCREEN                            = 0x09B8,   ///< 6.0.2 18934
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x02A3,   ///< 6.0.2 18934
-    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000,   ///< 6.0.2 
-    CMSG_SET_RAID_DIFFICULTY                    = 0x0000,   ///< 6.0.2 
+    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0AEB,   ///< 6.0.2 18934
+    CMSG_SET_RAID_DIFFICULTY                    = 0x12F3,   ///< 6.0.2 18934
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0338,   ///< 6.0.2 18934
     CMSG_SHOWING_CLOAK                          = 0x0208,   ///< 6.0.2 18934
     CMSG_SHOWING_HELM                           = 0x0354,   ///< 6.0.2 18934
@@ -654,14 +673,15 @@ enum Opcodes
     CMSG_REQUEST_FORCED_REACTIONS               = 0x1B83,   ///< 6.0.2 18934
     CMSG_DESTROY_ITEM                           = 0x0CC0,   ///< 6.0.2 18934
     CMSG_OPEN_ITEM                              = 0x1084,   ///< 6.0.2 18934
+    CMSG_SET_TITLE                              = 0x05F0,   ///< 6.0.2 18934
     
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
-    CMSG_AUTOBANK_ITEM                          = 0x0000,   ///< 6.0.2 
-    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0000,   ///< 6.0.2 
-    CMSG_BUY_BANK_SLOT                          = 0x0000,   ///< 6.0.2 
-    CMSG_BUY_REAGENT_BANK                       = 0x0000,   ///< 6.0.2 
+    CMSG_AUTOBANK_ITEM                          = 0x06A5,   ///< 6.0.2 18934
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0686,   ///< 6.0.2 18934
+    CMSG_BUY_BANK_SLOT                          = 0x0677,   ///< 6.0.2 18934
+    CMSG_BUY_REAGENT_BANK                       = 0x0638,   ///< 6.0.2 18934
     CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0000,   ///< 6.0.2
 
     //////////////////////////////////////////////////////////////////////////
@@ -698,6 +718,7 @@ enum Opcodes
     CMSG_REALM_NAME_QUERY                       = 0x0AFF,   ///< 6.0.2 18934
     CMSG_GAMEOBJECT_QUERY                       = 0x0D97,   ///< 6.0.2 18934
     CMSG_PETITION_QUERY                         = 0x04D4,   ///< 6.0.2 18934
+    CMSG_QUERY_GUILD_INFO                       = 0x00E4,   ///< 6.0.2 18934
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -912,6 +933,81 @@ enum Opcodes
     CMSG_BATTLEFIELD_LEAVE                      = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
+    /// Guild
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_GUILD_INVITE_BY_NAME                      = 0x10EB,   ///< 6.0.2 18934
+    CMSG_ACCEPT_GUILD_INVITE                       = 0x0AF3,   ///< 6.0.2 18934
+    CMSG_GUILD_DECLINE_INVITATION                  = 0x08A9,   ///< 6.0.2 18934
+    CMSG_GUILD_OFFICER_REMOVE_MEMBER               = 0x009D,   ///< 6.0.2 18934
+    CMSG_GUILD_SET_GUILD_MASTER                    = 0x0C00,   ///< 6.0.2 18934
+    CMSG_GUILD_LEAVE                               = 0x00AD,   ///< 6.0.2 18934
+    CMSG_GUILD_DELETE                              = 0x08C1,   ///< 6.0.2 18934
+    CMSG_GUILD_UPDATE_MOTD_TEXT                    = 0x00A9,   ///< 6.0.2 18934
+    CMSG_GUILD_UPDATE_INFO_TEXT                    = 0x01AE,   ///< 6.0.2 18934
+    CMSG_GUILD_GET_RANKS                           = 0x018E,   ///< 6.0.2 18934
+    CMSG_GUILD_ADD_RANK                            = 0x08BD,   ///< 6.0.2 18934
+    CMSG_GUILD_DELETE_RANK                         = 0x01DE,   ///< 6.0.2 18934
+    CMSG_GUILD_SET_RANK_PERMISSIONS                = 0x0199,   ///< 6.0.2 18934
+    CMSG_GUILD_SHIFT_RANK                          = 0x08E6,   ///< 6.0.2 18934
+    CMSG_GUILD_ASSIGN_MEMBER_RANK                  = 0x08EA,   ///< 6.0.2 18934
+    CMSG_GUILD_GET_ROSTER                          = 0x01DA,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_ACTIVATE                       = 0x1024,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_BUY_TAB                        = 0x1238,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_DEPOSIT_MONEY                  = 0x0703,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_LOG_QUERY                      = 0x00F1,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY_QUERY = 0x08F6,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_QUERY_TAB                      = 0x1154,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_TEXT_QUERY                     = 0x01A2,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_SWAP_ITEMS                     = 0x0403,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_UPDATE_TAB                     = 0x0128,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_WITHDRAW_MONEY                 = 0x0348,   ///< 6.0.2 18934
+    CMSG_GUILD_BANK_SET_TAB_TEXT                   = 0x08AD,   ///< 6.0.2 18934
+    CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x00C5,   ///< 6.0.2 18934 (unused)
+    CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x08BA,   ///< 6.0.2 18934
+    CMSG_GUILD_SET_MEMBER_NOTE                     = 0x00C9,   ///< 6.0.2 18934
+    CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x00E2,   ///< 6.0.2 18934
+    CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x1183,   ///< 6.0.2 18934
+    CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x04EF,   ///< 6.0.2 18934
+    CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x08EE,   ///< 6.0.2 18934
+    CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x00D9,   ///< 6.0.2 18934 (unused)
+    CMSG_GUILD_PERMISSIONS_QUERY                   = 0x01A1,   ///< 6.0.2 18934
+    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x08C2,   ///< 6.0.2 18934
+    CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x00D5,   ///< 6.0.2 18934
+    CMSG_GUILD_QUERY_NEWS                          = 0x01F6,   ///< 6.0.2 18934
+    CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x08A6,   ///< 6.0.2 18934 (unused)
+    CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x00CA,   ///< 6.0.2 18934 (unused)
+    CMSG_QUERY_GUILD_RECIPES                       = 0x00E5,   ///< 6.0.2 18934
+    CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x04B9,   ///< 6.0.2 18934
+    
+    /// Guild finding
+    CMSG_LF_GUILD_ADD_RECRUIT                      = 0x08E4,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_BROWSE                           = 0x02B0,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x098A,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x00ED,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_GET_RECRUITS                     = 0x01B5,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_POST_REQUEST                     = 0x08BE,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x01D1,   ///< 6.0.2 18934
+    CMSG_LF_GUILD_SET_GUILD_POST                   = 0x03C0,   ///< 6.0.2 18934
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Battle pet opcodes
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_SUMMON_COMPANION                          = 0x0000,
+    CMSG_PETBATTLE_QUERY_JOURNAL                   = 0x0000,
+    CMSG_PETBATTLE_SET_ABILITY                     = 0x0000,
+    CMSG_PETBATTLE_RENAME                          = 0x0000,
+    CMSG_PETBATTLE_CAGE_PET                        = 0x0000,
+    CMSG_PETBATTLE_QUERY_NAME                      = 0x0000,
+    CMSG_PETBATTLE_REQUEST_WILD                    = 0x0000,
+    CMSG_PETBATTLE_REQUEST_PVP                     = 0x0000,
+    CMSG_PETBATTLE_JOIN_QUEUE                      = 0x0000,
+    CMSG_PETBATTLE_REQUEST_UPDATE                  = 0x0000,
+    CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING  = 0x0000,
+    CMSG_PETBATTLE_INPUT                           = 0x0000,
+    CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x0000,
+    CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x0000,
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1097,50 +1193,6 @@ enum Opcodes
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0x0000,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
-    CMSG_GUILD_ACCEPT                                 = 0x0000,
-    CMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0x0000,
-    CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY             = 0x0000,
-    CMSG_GUILD_ADD_RANK                               = 0x0000,
-    CMSG_GUILD_ASSIGN_MEMBER_RANK                     = 0x0000,
-    CMSG_GUILD_BANKER_ACTIVATE                        = 0x0000,
-    CMSG_GUILD_BANK_BUY_TAB                           = 0x0000,
-    CMSG_GUILD_BANK_DEPOSIT_MONEY                     = 0x0000,
-    CMSG_GUILD_BANK_LOG_QUERY                         = 0x0000,
-    CMSG_GUILD_BANK_MONEY_WITHDRAWN_QUERY             = 0x0000,
-    CMSG_GUILD_BANK_NOTE                              = 0x0000,
-    CMSG_GUILD_BANK_QUERY_TAB                         = 0x0000,
-    CMSG_GUILD_BANK_QUERY_TEXT                        = 0x0000,
-    CMSG_GUILD_BANK_SWAP_ITEMS                        = 0x0000,
-    CMSG_GUILD_BANK_UPDATE_TAB                        = 0x0000,
-    CMSG_GUILD_BANK_WITHDRAW_MONEY                    = 0x0000,
-    CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0x0000,
-    CMSG_GUILD_DECLINE                                = 0x0000,
-    CMSG_GUILD_DEL_RANK                               = 0x0000,
-    CMSG_GUILD_DISBAND                                = 0x0000,
-    CMSG_GUILD_EVENT_LOG_QUERY                        = 0x0000,
-    CMSG_GUILD_INFO                                   = 0x0000,
-    CMSG_GUILD_INFO_TEXT                              = 0x0000,
-    CMSG_GUILD_INVITE                                 = 0x0000,
-    CMSG_GUILD_LEADER                                 = 0x0000,
-    CMSG_GUILD_LEAVE                                  = 0x0000,
-    CMSG_GUILD_MEMBER_SEND_SOR_REQUEST                = 0x0000,
-    CMSG_GUILD_MOTD                                   = 0x0000,
-    CMSG_GUILD_NEWS_UPDATE_STICKY                     = 0x0000,
-    CMSG_GUILD_PERMISSIONS                            = 0x0000,
-    CMSG_GUILD_QUERY                                  = 0x0000,
-    CMSG_GUILD_QUERY_NEWS                             = 0x0000,
-    CMSG_GUILD_QUERY_RANKS                            = 0x0000,
-    CMSG_GUILD_REMOVE                                 = 0x0000,
-    CMSG_GUILD_REPLACE_GUILD_MASTER                   = 0x0000,
-    CMSG_GUILD_REQUEST_CHALLENGE_UPDATE               = 0x0000,
-    CMSG_GUILD_REQUEST_MAX_DAILY_XP                   = 0x0000,
-    CMSG_GUILD_REQUEST_PARTY_STATE                    = 0x0000,
-    CMSG_GUILD_ROSTER                                 = 0x0000,
-    CMSG_GUILD_SET_ACHIEVEMENT_TRACKING               = 0x0000,
-    CMSG_GUILD_SET_GUILD_MASTER                       = 0x0000,
-    CMSG_GUILD_SET_NOTE                               = 0x0000,
-    CMSG_GUILD_SET_RANK_PERMISSIONS                   = 0x0000,
-    CMSG_GUILD_SWITCH_RANK                            = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                         = 0x0000,
     CMSG_IGNORE_TRADE                                 = 0x0000,
     CMSG_INITIATE_TRADE                               = 0x0000,
@@ -1162,14 +1214,6 @@ enum Opcodes
     CMSG_LFG_SET_COMMENT                              = 0x0000,
     CMSG_LFG_SET_ROLES                                = 0x0000,
     CMSG_LFG_TELEPORT                                 = 0x0000,
-    CMSG_LF_GUILD_ADD_RECRUIT                         = 0x0000,
-    CMSG_LF_GUILD_BROWSE                              = 0x0000,
-    CMSG_LF_GUILD_DECLINE_RECRUIT                     = 0x0000,
-    CMSG_LF_GUILD_GET_APPLICATIONS                    = 0x0000,
-    CMSG_LF_GUILD_GET_RECRUITS                        = 0x0000,
-    CMSG_LF_GUILD_POST_REQUEST                        = 0x0000,
-    CMSG_LF_GUILD_REMOVE_RECRUIT                      = 0x0000,
-    CMSG_LF_GUILD_SET_GUILD_POST                      = 0x0000,
     CMSG_LIST_STABLE_PETS                             = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
@@ -1214,11 +1258,6 @@ enum Opcodes
     CMSG_PLAY_DANCE                                   = 0x0000,
     CMSG_PVP_LOG_DATA                                 = 0x0000,
     CMSG_QUERY_BATTLEFIELD_STATE                      = 0x0000,
-    CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE               = 0x0000,
-    CMSG_QUERY_GUILD_MEMBER_RECIPES                   = 0x0000,
-    CMSG_QUERY_GUILD_RECIPES                          = 0x0000,
-    CMSG_QUERY_GUILD_REWARDS                          = 0x0000,
-    CMSG_QUERY_GUILD_XP                               = 0x0000,
     CMSG_QUERY_INSPECT_ACHIEVEMENTS                   = 0x0000,
     CMSG_QUERY_QUESTS_COMPLETED                       = 0x0000,
     CMSG_QUERY_TIME                                   = 0x0000,
@@ -1269,7 +1308,6 @@ enum Opcodes
     CMSG_UNSET_FACTION_ATWAR                          = 0x0000,
     CMSG_SET_FACTION_CHEAT                            = 0x0000,
     CMSG_SET_LOOT_SPECIALIZATION                      = 0x0000,
-    CMSG_SET_GUILD_BANK_TEXT                          = 0x0000,
     CMSG_SET_LFG_COMMENT                              = 0x0000,
     CMSG_SET_PET_SLOT                                 = 0x0000,
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0x0000,
@@ -1277,7 +1315,6 @@ enum Opcodes
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
     CMSG_SET_SKILL_CHEAT                              = 0x0000,
-    CMSG_SET_TITLE                                    = 0x0000,
     CMSG_SET_TRADE_CURRENCY                           = 0x0000,
     CMSG_SET_TRADE_GOLD                               = 0x0000,
     CMSG_SET_TRADE_ITEM                               = 0x0000,
@@ -1294,7 +1331,6 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x0000,
     CMSG_SUMMON_RESPONSE                              = 0x0000,
     CMSG_SUSPEND_TOKEN                                = 0x0000,
-    CMSG_SAVE_GUILD_EMBLEM                            = 0x0000,
     CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
@@ -1340,13 +1376,9 @@ enum Opcodes
     SMSG_INITIAL_SPELLS                               = 0x0000,
     SMSG_SPELLBREAKLOG                                = 0x0000,
     SMSG_SPELLSTEALLOG                                = 0x0000,
-    SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x0000,
-    SMSG_ACCOUNT_CRITERIA_UPDATE_ALL                  = 0x0000,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x0000,
     SMSG_ACCOUNT_PROFILE                              = 0x0000,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x0000,
-    SMSG_ACHIEVEMENT_DELETED                          = 0x0000,
-    SMSG_ACHIEVEMENT_EARNED                           = 0x0000,
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
@@ -1481,8 +1513,6 @@ enum Opcodes
     SMSG_CONSOLE_WRITE                                = 0x0000,
     SMSG_CONVERT_RUNE                                 = 0x0000,
     SMSG_CORPSE_NOT_IN_INSTANCE                       = 0x0000,
-    SMSG_CRITERIA_DELETED                             = 0x0000,
-    SMSG_CRITERIA_UPDATE                              = 0x0000,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0x0000,
     SMSG_CURRENCY_LOOT_REMOVED                        = 0x0000,
     SMSG_CURRENCY_LOOT_RESTORED                       = 0x0000,

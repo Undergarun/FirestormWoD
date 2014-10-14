@@ -71,7 +71,6 @@ set(shared_STAT_SRCS
   ${shared_STAT_SRCS}
 )
 
-
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/SFMT

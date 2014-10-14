@@ -71,6 +71,7 @@ enum eSpells
     SPELL_TERRACOTTA_SKYBEAM_S  = 118063,
     SPELL_TERRACOTTA_SKYBEAM_M  = 118060,
     SPELL_TERRACOTTA_SPAWN      = 118165,
+    SPELL_WOE_BONUS             = 132193,
 
     // Visual
     SPELL_COSMETIC_LIGHTNING    = 127732
@@ -355,7 +356,7 @@ class boss_jin_qin_xi : public CreatureScript
                         killer->Kill(otherBoss);
 
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
-                        cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
+                    cho->AI()->DoAction(ACTION_EMPERORS_DEATH);
 
                 if (pInstance)
                 {
@@ -371,6 +372,14 @@ class boss_jin_qin_xi : public CreatureScript
                         if (IsHeroic())
                             anc_mogu_machine->RemoveAura(SPELL_TITAN_GAS_HEROIC);
                         me->Kill(anc_mogu_machine->ToUnit());
+                    }
+
+                    if (me->GetMap()->IsLFR())
+                    {
+                        me->SetLootRecipient(NULL);
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                     }
                 }
 
@@ -391,6 +400,9 @@ class boss_jin_qin_xi : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIZED_QIN);
 
                 _JustDied();
+
+                if (me->GetMap()->IsLFR())
+                    me->SetLootRecipient(NULL);
             }
 
             void JustSummoned(Creature* summon)
@@ -514,8 +526,13 @@ class boss_jin_qin_xi : public CreatureScript
 
                 // Check wipe
                 if (pInstance)
+                {
                     if (isActive && pInstance->IsWipe())
+                    {
                         DoAction(ACTION_REACHHOME);
+                        return;
+                    }
+                }
 
                 // Check life sharing
                 if (isActive && me->GetHealth() > 0)
@@ -1362,6 +1379,7 @@ class mob_ancient_mogu_machine : public CreatureScript
 
             mob_ancient_mogu_machineAI(Creature* creature) : ScriptedAI(creature)
             {
+                pInstance = creature->GetInstanceScript();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
@@ -1371,6 +1389,7 @@ class mob_ancient_mogu_machine : public CreatureScript
             }
 
             EventMap events;
+            InstanceScript* pInstance;
 
             // Talk
             void DoAction(const int32 action)
@@ -1385,6 +1404,14 @@ class mob_ancient_mogu_machine : public CreatureScript
                     case ACTION_MOGU_STOP:
                     {
                         events.Reset();
+                        me->RemoveAllAuras();
+                        if (pInstance)
+                        {
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_AURA);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_AURA2);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TITAN_GAS_HEROIC);
+                        }
                         break;
                     }
                     default:

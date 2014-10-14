@@ -100,7 +100,7 @@ m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
 isRecruiter(isARecruiter), timeLastWhoCommand(0),
-timeLastChannelInviteCommand(0), m_TimeLastGroupInviteCommand(0), timeLastGuildInviteCommand(0), timeLastChannelPassCommand(0),
+timeLastChannelInviteCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastGuildInviteCommand(0), timeLastChannelPassCommand(0),
 timeLastChannelMuteCommand(0), timeLastChannelBanCommand(0), timeLastChannelUnbanCommand(0), timeLastChannelAnnounceCommand(0),
 timeLastChannelModerCommand(0), timeLastChannelOwnerCommand(0),
 timeLastChannelSetownerCommand(0),
@@ -109,7 +109,7 @@ timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
 m_PlayerLoginCounter(0),
-timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastCalendarInvCommand(0), timeLastChangeSubGroupCommand(0),
+timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastChangeSubGroupCommand(0),
 m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), l_TimeLastSellItemOpcode(0)
 {
     _warden = NULL;
@@ -613,6 +613,8 @@ void WorldSession::LogoutPlayer(bool Save)
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
         if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
             guild->HandleMemberLogout(this);
+
+        m_Player->UnsummonCurrentBattlePetIfAny(true);
 
         ///- Remove pet
         if (m_Player->getClass() != CLASS_WARLOCK)
@@ -1286,6 +1288,40 @@ void WorldSession::ProcessQueryCallbacks()
         _setPetSlotCallback.GetResult(result);
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
+    }
+
+    //- SendPetBattleJournal
+    if (_petBattleJournalCallback.ready())
+    {
+        _petBattleJournalCallback.get(result);
+        SendPetBattleJournalCallback(result);
+        _petBattleJournalCallback.cancel();
+    }
+
+    //- SendPetBattleJournalBattleSlot
+    if (_petBattleJournalBattleSlotCallback.ready())
+    {
+        _petBattleJournalBattleSlotCallback.get(result);
+        SendPetBattleJournalBattleSlotUpdateCallback(result);
+        _petBattleJournalBattleSlotCallback.cancel();
+    }
+
+    //- HandlePetBattleRequestWild
+    if (_petBattleRequestWildCallback.IsReady())
+    {
+        PetBattleRequest* param = _petBattleRequestWildCallback.GetParam();
+        _petBattleRequestWildCallback.GetResult(result);
+        HandlePetBattleRequestWildCallback(result, param);
+        _petBattleRequestWildCallback.FreeResult();
+    }
+
+    //- HandleStableSwapPet
+    if (_swapPetBattleSlot.IsReady())
+    {
+        uint8 param = _swapPetBattleSlot.GetParam();
+        _swapPetBattleSlot.GetResult(result);
+        HandleBattlePetSetBattleSlotCallBack(result, param);
+        _swapPetBattleSlot.FreeResult();
     }
 }
 

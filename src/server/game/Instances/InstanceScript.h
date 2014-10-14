@@ -184,7 +184,7 @@ class InstanceScript : public ZoneScript
         void DoResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
 
         // Complete Achievement for all players in instance
-	 void DoCompleteAchievement(uint32 achievement);
+        void DoCompleteAchievement(uint32 achievement);
 
         // Update Achievement Criteria for all players in instance
         void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, uint32 miscValue3 = 0, Unit* unit = NULL);

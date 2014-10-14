@@ -694,7 +694,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         bool l_HasFacingCurveID         = false;
         bool l_HasMoveCurveID           = false;
         bool l_HasVisualRadius          = l_AreaTrigger->GetVisualRadius() != 1;
-        bool l_HasAreaTriggerBox        = false;
+        bool l_HasAreaTriggerBox        = l_AreaTrigger->IsAreaTriggerBox();;
         bool l_HasAreaTriggerPolygon    = false;
         bool l_HasAreaTriggerCylinder   = false;
         bool l_HasAreaTriggerSpline     = false;

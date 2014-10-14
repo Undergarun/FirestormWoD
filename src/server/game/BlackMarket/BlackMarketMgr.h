@@ -44,7 +44,7 @@ struct BMAuctionTemplate
     uint32 itemCount;
     uint32 seller;
     uint32 duration;
-    uint32 startBid;
+    uint64 startBid;
     uint32 chance;
 };
 
@@ -53,7 +53,7 @@ struct BMAuctionEntry
     uint32 id;
     uint32 templateId;
     uint32 startTime;
-    uint32 bid;
+    uint64 bid;
     uint32 bidder;
     uint32 bidderCount;
     BMAuctionTemplate* bm_template;
@@ -116,13 +116,13 @@ class BlackMarketMgr
 
         // Auction messages
         void SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionOutbidded(BMAuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
+        void SendAuctionOutbidded(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans);
 
         void LoadTemplates();
         void LoadAuctions();
 
         uint32 GetNewAuctionId();
-        uint32 GetAuctionOutBid(uint32 bid);
+        uint64 GetAuctionOutBid(uint64 bid);
         void CreateAuctions(uint32 number, SQLTransaction& trans);
         void UpdateAuction(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder);
 

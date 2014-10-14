@@ -500,13 +500,13 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
 
             void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                if (GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    amount = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
+                    amount = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK));
 
                     if (Unit* target = aurEff->GetBase()->GetUnitOwner())
-                        if (target->HasAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                            amount += target->GetRemainingPeriodicAmount(GetCaster()->GetGUID(), aurEff->GetSpellInfo()->Id, SPELL_AURA_SCHOOL_HEAL_ABSORB, 0);
+                        if (target->HasAura(aurEff->GetSpellInfo()->Id, caster->GetGUID()))
+                            amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), aurEff->GetSpellInfo()->Id, SPELL_AURA_SCHOOL_HEAL_ABSORB, 0);
                 }
             }
 
@@ -689,11 +689,11 @@ class spell_dk_conversion : public SpellScriptLoader
             {
                 if (GetCaster())
                 {
-                    // Drain 10 runic power to regen 3% of max health per second
+                    // Drain 5 runic power to regen 3% of max health per second
                     int32 runicPower = GetCaster()->GetPower(POWER_RUNIC_POWER);
 
-                    if (runicPower > 100)
-                        GetCaster()->SetPower(POWER_RUNIC_POWER, GetCaster()->GetPower(POWER_RUNIC_POWER) - 100);
+                    if (runicPower > 50)
+                        GetCaster()->SetPower(POWER_RUNIC_POWER, GetCaster()->GetPower(POWER_RUNIC_POWER) -50);
                     else if (runicPower > 0)
                     {
                         GetCaster()->SetPower(POWER_RUNIC_POWER, 0);
@@ -941,7 +941,7 @@ class spell_dk_death_siphon : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 bp = GetHitDamage();
+                        int32 bp = GetHitDamage() * 1.5f;
                         bool runeDeath = false;
 
                         _player->CastCustomSpell(_player, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
@@ -1187,7 +1187,7 @@ class spell_dk_purgatory_absorb : public SpellScriptLoader
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_purgatory_absorb_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_purgatory_absorb_AuraScript::Absorb, EFFECT_0);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_purgatory_absorb_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -1440,7 +1440,7 @@ class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
             void Register()
             {
                  DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_raid_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_raid_AuraScript::Absorb, EFFECT_0);
+                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_raid_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -1497,9 +1497,9 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
 
             void Register()
             {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0);
-                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -1549,8 +1549,8 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
 
             void Register()
             {
-                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_zone_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_zone_AuraScript::Absorb, EFFECT_0);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_zone_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_zone_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 

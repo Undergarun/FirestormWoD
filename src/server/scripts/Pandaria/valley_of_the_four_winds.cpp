@@ -4,6 +4,7 @@
 #include "ScriptedEscortAI.h"
 #include "valley_of_the_four_winds.h"
 
+// Bonobos - 50828
 class mob_bonobos : public CreatureScript
 {
     public:
@@ -77,6 +78,7 @@ class mob_bonobos : public CreatureScript
         };
 };
 
+// Sele'na - 50766
 class mob_sele_na : public CreatureScript
 {
     public:
@@ -150,6 +152,7 @@ class mob_sele_na : public CreatureScript
         };
 };
 
+// Blackhoof - 51059
 class mob_blackhoof : public CreatureScript
 {
     public:
@@ -223,6 +226,7 @@ class mob_blackhoof : public CreatureScript
         };
 };
 
+// Ik'thik Infestor - 56721 ## Ik'thik Warrior - 56722
 class mob_ik_thik_warrior : public CreatureScript
 {
     public:
@@ -290,6 +294,7 @@ class mob_ik_thik_warrior : public CreatureScript
         };
 };
 
+// Sheepie - 64391
 class mob_sheepie : public CreatureScript
 {
 public:
@@ -306,6 +311,7 @@ public:
     }
 };
 
+// Krungko Fingerlicker - 64389
 class mob_krungko_fingerlicker : public CreatureScript
 {
     public:
@@ -367,6 +373,7 @@ class mob_krungko_fingerlicker : public CreatureScript
         };
 };
 
+// Jim-Jim - 59128
 class mob_jim_jim : public CreatureScript
 {
     public:
@@ -434,6 +441,7 @@ class mob_jim_jim : public CreatureScript
         };
 };
 
+// Rit-Rit - 59132
 class mob_rit_rit : public CreatureScript
 {
     public:
@@ -496,6 +504,7 @@ class mob_rit_rit : public CreatureScript
         };
 };
 
+// Kunzen Soupmaster - 59125
 class mob_kunzen_soupmaster : public CreatureScript
 {
     public:
@@ -548,6 +557,7 @@ class mob_kunzen_soupmaster : public CreatureScript
         };
 };
 
+// Maaka - 59129
 class mob_maaka : public CreatureScript
 {
     public:
@@ -615,6 +625,7 @@ class mob_maaka : public CreatureScript
         };
 };
 
+// Teeku - 59130
 class mob_teeku : public CreatureScript
 {
     public:
@@ -682,6 +693,7 @@ class mob_teeku : public CreatureScript
         };
 };
 
+// Kon-Kon - 59127
 class mob_kon_kon : public CreatureScript
 {
     public:
@@ -749,6 +761,7 @@ class mob_kon_kon : public CreatureScript
         };
 };
 
+// Sheepie - 64385/64386
 class mob_second_sheepie : public CreatureScript
 {
     public:
@@ -768,6 +781,7 @@ class mob_second_sheepie : public CreatureScript
         }
 };
 
+// Hillpaw's Chicken - 58918
 class mob_hillpaw_s_chicken : public CreatureScript
 {
     public:
@@ -787,6 +801,7 @@ class mob_hillpaw_s_chicken : public CreatureScript
         }
 };
 
+// Escaped Shagskin - 59491
 class mob_escaped_shagskin : public CreatureScript
 {
     public:
@@ -805,6 +820,7 @@ class mob_escaped_shagskin : public CreatureScript
         }
 };
 
+// Spicemaster Jin Jao - 59581
 class mob_jin_jao : public CreatureScript
 {
     public:
@@ -826,6 +842,7 @@ class mob_jin_jao : public CreatureScript
         }
 };
 
+// Trader Jambeezi - 59583
 class mob_jambeezi : public CreatureScript
 {
     public:
@@ -847,6 +864,7 @@ class mob_jambeezi : public CreatureScript
         }
 };
 
+// Innkeeper Lei Lan - 59582
 class mob_lei_lan : public CreatureScript
 {
     public:
@@ -868,6 +886,7 @@ class mob_lei_lan : public CreatureScript
         }
 };
 
+// Lolo Lio - 59585
 class mob_lolo_lio : public CreatureScript
 {
     public:
@@ -887,6 +906,39 @@ class mob_lolo_lio : public CreatureScript
 
             return true;
         }
+};
+
+// Nomi - 64337
+
+#define NPC_NOMI 64337
+
+class mob_nomi : public CreatureScript
+{
+    public:
+        mob_nomi() : CreatureScript("mob_nomi")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_nomiAI(p_Creature);
+        }
+
+        struct mob_nomiAI : public ScriptedAI
+        {
+            mob_nomiAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+            }
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                std::list<Creature*> l_CreatureList;
+                GetClosestCreatureWithEntry(p_Summoner, NPC_NOMI, 20.0f, true);
+
+                if (!l_CreatureList.empty())
+                    me->DespawnOrUnsummon();
+            }
+        };
 };
 
 void AddSC_valley_of_the_four_winds()
@@ -912,4 +964,5 @@ void AddSC_valley_of_the_four_winds()
     new mob_jambeezi();
     new mob_lei_lan();
     new mob_lolo_lio();
+    new mob_nomi();
 }

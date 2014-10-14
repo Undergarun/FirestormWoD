@@ -117,6 +117,7 @@ enum SpellTargetCheckTypes
     TARGET_CHECK_RAID,
     TARGET_CHECK_RAID_CLASS,
     TARGET_CHECK_PASSENGER,
+    TARGET_CHECK_ALLY_OR_RAID
 };
 
 enum SpellTargetDirectionTypes
@@ -366,9 +367,13 @@ public:
     SpellRangeEntry const* RangeEntry;
     float  Speed;
     uint32 StackAmount;
+    uint32 InternalCooldown;
+    float ProcsPerMinute;
     uint32 Totem[2];
     int32  Reagent[MAX_SPELL_REAGENTS];
     uint32 ReagentCount[MAX_SPELL_REAGENTS];
+    uint32 CurrencyID;
+    uint32 CurrencyCount;
     int32  EquippedItemClass;
     int32  EquippedItemSubClassMask;
     int32  EquippedItemInventoryTypeMask;
@@ -573,7 +578,7 @@ public:
     bool IsBreakingCamouflageAfterHit() const;
     bool IsBreakingStealth(Unit* m_caster = NULL) const;
     bool IsPeriodicHeal() const;
-    bool IsReducingCastTime() const;
+    float GetCastTimeReduction() const;
     bool CanTriggerBladeFlurry() const;
     bool IsCustomCharged(SpellInfo const* procSpell, Unit* caster = NULL) const;
     bool IsCustomCastCanceled(Unit* caster) const;

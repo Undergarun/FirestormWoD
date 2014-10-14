@@ -108,12 +108,12 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
                 Player * plr = ObjectAccessor::FindPlayer(itr->first);
                 if (!plr || !plr->IsInWorld())
                     continue;
-                if (plr->GetPositionZ() < 1249)
+                if (plr->GetPositionZ() < 1240.f)
                 {
                     if (plr->GetBGTeam() == HORDE)
-                        plr->TeleportTo(566, 1807.73f, 1539.41f, 1267.63f, plr->GetOrientation(), 0);
+                        plr->TeleportTo(566, 1807.73f, 1539.41f, 1249.19f, plr->GetOrientation());
                     else
-                        plr->TeleportTo(566, 2523.68f, 1596.59f, 1269.35f, plr->GetOrientation(), 0);
+                        plr->TeleportTo(566, 2523.756f, 1596.13f, 1247.7f, plr->GetOrientation());
                 }
             }
             m_CheatersCheckTimer = 3000;
@@ -445,8 +445,8 @@ void BattlegroundEY::HandleAreaTrigger(Player* Source, uint32 Trigger)
 bool BattlegroundEY::SetupBattleground()
 {
         // doors
-    if (!AddObject(BG_EY_OBJECT_DOOR_A, BG_OBJECT_A_DOOR_EY_ENTRY, 2527.6f, 1596.91f, 1262.13f, -3.12414f, -0.173642f, -0.001515f, 0.98477f, -0.008594f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_EY_OBJECT_DOOR_H, BG_OBJECT_H_DOOR_EY_ENTRY, 1803.21f, 1539.49f, 1261.09f, 3.14159f, 0.173648f, 0, 0.984808f, 0, RESPAWN_IMMEDIATELY)
+    if (!AddObject(BG_EY_OBJECT_DOOR_A, BG_OBJECT_A_DOOR_EY_ENTRY, 2527.6f, 1596.91f, 1240.7f, -3.12414f, -0.173642f, -0.001515f, 0.98477f, -0.008594f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_EY_OBJECT_DOOR_H, BG_OBJECT_H_DOOR_EY_ENTRY, 1803.21f, 1539.49f, 1242.19f, 3.14159f, 0.173648f, 0, 0.984808f, 0, RESPAWN_IMMEDIATELY)
         // banners (alliance)
         || !AddObject(BG_EY_OBJECT_A_BANNER_FEL_REAVER_CENTER, BG_OBJECT_A_BANNER_EY_ENTRY, 2057.46f, 1735.07f, 1187.91f, -0.925024f, 0, 0, 0.446198f, -0.894934f, RESPAWN_ONE_DAY)
         || !AddObject(BG_EY_OBJECT_A_BANNER_FEL_REAVER_LEFT, BG_OBJECT_A_BANNER_EY_ENTRY, 2032.25f, 1729.53f, 1190.33f, 1.8675f, 0, 0, 0.803857f, 0.594823f, RESPAWN_ONE_DAY)

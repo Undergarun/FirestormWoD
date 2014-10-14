@@ -29,6 +29,7 @@ enum eSpells
     SPELL_STRENGHT_OF_SPIRIT            = 116363,
     SPELL_DRAW_ESSENCE                  = 121631,
     SPELL_NULLIFICATION_BARRIER_PLAYERS = 115811,
+    SPELL_FENG_THE_ACCURSED_BONUS       = 132189,
 
     // Visuals
     SPELL_SPIRIT_FIST                   = 115743,
@@ -54,7 +55,7 @@ enum eSpells
     SPELL_ARCANE_VELOCITY               = 116364,
     SPELL_ARCANE_RESONANCE              = 116417,
 
-    // Spirit of the Shield ( Heroic )
+    // Spirit of the Shield (Heroic)
     SPELL_SHADOWBURN                    = 131792,
     SPELL_SIPHONING_SHIELD              = 118071,
     SPELL_CHAINS_OF_SHADOW              = 118783,
@@ -311,6 +312,21 @@ class boss_feng : public CreatureScript
                             lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
                         }
                     }
+                }
+
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        me->CastSpell(l_Player, SPELL_FENG_THE_ACCURSED_BONUS, true);
+                }
+
+                if (me->GetMap()->IsLFR())
+                {
+                    me->SetLootRecipient(NULL);
+                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -829,31 +845,31 @@ class mob_siphon_shield : public CreatureScript
             {
                 switch (action)
                 {
-                case ACTION_SOUL_HOME:
-                {
-                    if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
-                        feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
-                    soulsCount--;
-                    break;
-                }
-                case ACTION_SOUL_KILLED:
-                {
-                    soulsCount--;
-                    break;
-                }
-                case ACTION_SOUL_REMOVE:
-                {
-                    std::list<Creature*> soulList;
-                    GetCreatureListWithEntryInGrid(soulList, me, NPC_SOUL_FRAGMENT, 200.0f);
+                    case ACTION_SOUL_HOME:
+                    {
+                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                            feng->SetHealth(feng->GetHealth() + feng->GetMaxHealth() / (Is25ManRaid() ? 20 : 10));
+                        soulsCount--;
+                        break;
+                    }
+                    case ACTION_SOUL_KILLED:
+                    {
+                        soulsCount--;
+                        break;
+                    }
+                    case ACTION_SOUL_REMOVE:
+                    {
+                        std::list<Creature*> soulList;
+                        GetCreatureListWithEntryInGrid(soulList, me, NPC_SOUL_FRAGMENT, 200.0f);
 
-                    for (auto soul : soulList)
-                        soul->DespawnOrUnsummon(1000);
+                        for (auto soul : soulList)
+                            soul->DespawnOrUnsummon(1000);
 
-                    soulsCount = 0;
-                    break;
-                }
-                default:
-                    break;
+                        soulsCount = 0;
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -1032,7 +1048,8 @@ class mob_soul_fragment : public CreatureScript
                 {
                     // We send positive GUID to tell shield the soul has reached it, and the player should be killed
                     if (Creature* shield = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SIPHONING_SHIELD)))
-                        shield->AI()->DoAction(ACTION_SOUL_HOME);
+                        if (me->GetDistance(shield) < 1.0f)
+                            shield->AI()->DoAction(ACTION_SOUL_HOME);
 
                     me->DespawnOrUnsummon();
                 }

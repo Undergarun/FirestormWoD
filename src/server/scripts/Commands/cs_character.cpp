@@ -717,111 +717,94 @@ public:
         return true;
     }
 
-    static bool HandlePDumpLoadCommand(ChatHandler* handler, char const* args)
+    static bool HandlePDumpLoadCommand(ChatHandler* p_Handler, char const* p_Args)
     {
-        if (!*args)
+        if (!*p_Args)
             return false;
 
-        char* fileStr = strtok((char*)args, " ");
-        if (!fileStr)
+        char* l_FileStr = strtok((char*)p_Args, " ");
+        if (!l_FileStr)
             return false;
 
-        char* accountStr = strtok(NULL, " ");
-        if (!accountStr)
+        char* l_AccountStr = strtok(NULL, " ");
+        if (!l_AccountStr)
             return false;
 
-        std::string accountName = accountStr;
-        if (!AccountMgr::normalizeString(accountName))
+        std::string l_AccountName = l_AccountStr;
+        if (!AccountMgr::normalizeString(l_AccountName))
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-            handler->SetSentErrorMessage(true);
+            p_Handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, l_AccountName.c_str());
+            p_Handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint32 accountId = AccountMgr::GetId(accountName);
-        if (!accountId)
+        uint32 l_AccountId = AccountMgr::GetId(l_AccountName);
+        if (!l_AccountId)
         {
-            accountId = atoi(accountStr);                             // use original string
-            if (!accountId)
+            l_AccountId = atoi(l_AccountStr);                             // use original string
+            if (!l_AccountId)
             {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, l_AccountName.c_str());
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
         }
 
-        if (!AccountMgr::GetName(accountId, accountName))
+        if (!AccountMgr::GetName(l_AccountId, l_AccountName))
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-            handler->SetSentErrorMessage(true);
+            p_Handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, l_AccountName.c_str());
+            p_Handler->SetSentErrorMessage(true);
             return false;
         }
 
-        char* guidStr = NULL;
-        char* nameStr = strtok(NULL, " ");
+        char* l_NameStr = strtok(NULL, " ");
+        std::string l_Name;
 
-        std::string name;
-        if (nameStr)
+        if (l_NameStr)
         {
-            name = nameStr;
+            l_Name = l_NameStr;
             // normalize the name if specified and check if it exists
-            if (!normalizePlayerName(name))
+            if (!normalizePlayerName(l_Name))
             {
-                handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            if (ObjectMgr::CheckPlayerName(name, true) != CHAR_NAME_SUCCESS)
+            if (ObjectMgr::CheckPlayerName(l_Name, true) != CHAR_NAME_SUCCESS)
             {
-                handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            guidStr = strtok(NULL, " ");
-        }
-
-        uint32 guid = 0;
-
-        if (guidStr)
-        {
-            guid = uint32(atoi(guidStr));
-            if (!guid)
-            {
-                handler->PSendSysMessage(LANG_INVALID_CHARACTER_GUID);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            if (sObjectMgr->GetPlayerAccountIdByGUID(guid))
-            {
-                handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
         }
 
-        switch (PlayerDumpReader().LoadDump(fileStr, accountId, name, guid))
+        uint32 l_Guid    = 0;
+        uint32 l_AtLogin = 0;
+        char* l_AtLoginFlagsStr = strtok(NULL, " ");
+        if (l_AtLoginFlagsStr != nullptr)
+            l_AtLogin = atoi(l_AtLoginFlagsStr);
+
+        switch (PlayerDumpReader().LoadDump(l_FileStr, l_AccountId, l_Name, l_Guid, false, l_AtLogin, true))
         {
             case DUMP_SUCCESS:
-                handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
+                p_Handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
                 break;
             case DUMP_FILE_OPEN_ERROR:
-                handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileStr);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, l_FileStr);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             case DUMP_FILE_BROKEN:
-                handler->PSendSysMessage(LANG_DUMP_BROKEN, fileStr);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_DUMP_BROKEN, l_FileStr);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             case DUMP_TOO_MANY_CHARS:
-                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName.c_str(), accountId);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, l_AccountName.c_str(), l_AccountId);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             default:
-                handler->PSendSysMessage(LANG_COMMAND_IMPORT_FAILED);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_COMMAND_IMPORT_FAILED);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
         }
 

@@ -928,13 +928,6 @@ void WorldSession::HandleReportSuggestionOpcode(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleRequestBattlePetJournal(WorldPacket& /*recvPacket*/)
-{
-    WorldPacket data;
-    GetPlayer()->GetBattlePetMgr().BuildBattlePetJournal(&data);
-    SendPacket(&data);
-}
-
 void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
 {
     // Notify player if he has a ticket in progress
@@ -1037,11 +1030,12 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 {
     uint32 triggerId;
-    uint8 unkbit1, unkbit2;
+    bool l_Enter;
+    bool l_FromClient;
 
     recvData >> triggerId;
-    unkbit1 = recvData.ReadBit();
-    unkbit2 = recvData.ReadBit();
+    l_Enter = recvData.ReadBit();
+    l_FromClient = recvData.ReadBit();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
@@ -1624,7 +1618,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     {
         ObjectGuid guildGuid = guild->GetGUID();
 
-        data << uint32(guild->GetLevel());
+        data << uint32(guild->GetAchievementMgr().GetAchievementPoints());
 
         data.WriteByteSeq(guildGuid[1]);
         data.WriteByteSeq(guildGuid[3]);
@@ -1638,7 +1632,6 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         data.WriteByteSeq(guildGuid[0]);
         data.WriteByteSeq(guildGuid[7]);
 
-        data << uint64(guild->GetExperience());
     }
 
     data.WriteByteSeq(playerGuid[6]);
@@ -1935,23 +1928,24 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
     GetPlayer()->UpdateVisibilityForPlayer();
 }
 
-void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetTitleOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
 
-    uint32 title;
-    recvData >> title;
+    uint32 l_Title = 0;
 
-    // -1 at none
-    if (title > 0 && title < MAX_TITLE_INDEX)
+    p_Packet >> l_Title;
+
+    /// -1 at none
+    if (l_Title > 0 && l_Title < MAX_TITLE_INDEX)
     {
-        if (!GetPlayer()->HasTitle(title))
+        if (!GetPlayer()->HasTitle(l_Title))
             return;
     }
     else
-        title = 0;
+        l_Title = 0;
 
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, title);
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, l_Title);
 }
 
 void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
@@ -2187,13 +2181,14 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     player->GetAchievementMgr().SendAchievementInfo(m_Player);
 }
 
-void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
+void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& p_Packet)
 {
-    uint32 achievementId;
-    recvData >> achievementId;
+    uint32 l_AchievementID = 0;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
-        guild->GetAchievementMgr().SendAchievementInfo(m_Player, achievementId);
+    p_Packet >> l_AchievementID;
+
+    if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
+        l_Guild->GetAchievementMgr().SendAchievementInfo(m_Player, l_AchievementID);
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)

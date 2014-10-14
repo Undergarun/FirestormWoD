@@ -93,6 +93,7 @@ add_executable(authserver
 )
 set_property(TARGET authserver PROPERTY FOLDER "server")
 
+set_property(TARGET authserver PROPERTY FOLDER "server")
 add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )

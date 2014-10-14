@@ -705,7 +705,7 @@ enum SpellAttr6
 enum SpellAttr7
 {
     SPELL_ATTR7_UNK0                             = 0x00000001, //  0 Shaman's new spells (Call of the ...), Feign Death.
-    SPELL_ATTR7_UNK1                             = 0x00000002, //  1 Not set in 3.2.2a.
+    SPELL_ATTR7_IGNORE_DURATION_MODS             = 0x00000002, //  1 Duration is not affected by duration modifiers
     SPELL_ATTR7_REACTIVATE_AT_RESURRECT          = 0x00000004, //  2 Paladin's auras and 65607 only.
     SPELL_ATTR7_IS_CHEAT_SPELL                   = 0x00000008, //  3 Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS
     SPELL_ATTR7_UNK4                             = 0x00000010, //  4 Only 47883 (Soulstone Resurrection) and test spell.
@@ -1255,7 +1255,7 @@ enum SpellEffects
     SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
     SPELL_EFFECT_190                                = 190, // internal spell
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
-    SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
+    SPELL_EFFECT_UNCAGE_BATTLE_PET                  = 192, // Battle pet exchange (123302)
     SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
     SPELL_EFFECT_194                                = 194, // Unused (5.0.5)
     SPELL_EFFECT_195                                = 195, // Scene related
@@ -1263,8 +1263,8 @@ enum SpellEffects
     SPELL_EFFECT_197                                = 197, // 130243 only
     SPELL_EFFECT_PLAY_CINEMATIC                     = 198,
     SPELL_EFFECT_199                                = 199, //
-    SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
-    SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
+    SPELL_EFFECT_RESURECT_BATTLE_PETS               = 200, // Battle pet Healing  125439, 125801
+    SPELL_EFFECT_CAN_PETBATTLE                      = 201, // Battle pet first slot and track
     SPELL_EFFECT_202                                = 202, // Unk 5.4.0
     SPELL_EFFECT_203                                = 203, // Unk 5.4.0
     SPELL_EFFECT_UPGRADE_BATTLEPET                  = 204, // BATTLEPET System 5.4.0
@@ -2016,7 +2016,7 @@ enum Targets
     TARGET_UNK_115                     = 115,
     TARGET_UNK_116                     = 116,
     TARGET_UNK_117                     = 117,
-    TARGET_UNK_118                     = 118,
+    TARGET_UNIT_ALLY_OR_RAID           = 118,
     TARGET_UNK_119                     = 119,
     TARGET_UNK_120                     = 120,
     TARGET_UNK_121                     = 121,

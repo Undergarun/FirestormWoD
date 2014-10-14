@@ -309,7 +309,8 @@ void Player::UpdateArmor()
 float Player::GetHealthBonusFromStamina()
 {
     float ratio = 14.0f;
-    if (GtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((getClass() - 1) * GT_MAX_LEVEL + getLevel() - 1))
+    GtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((getClass() - 1) * GT_MAX_LEVEL + getLevel() - 1);
+    if (hpBase)
         ratio = hpBase->ratio;
 
     // Taken from PaperDollFrame.lua 6.0 build 18888
@@ -895,6 +896,22 @@ void Player::UpdateManaRegen()
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, combat_regen);
 }
 
+void Player::UpdateEnergyRegen()
+{
+    if (getPowerType() != POWER_ENERGY)
+        return;
+
+    float pct = 0.0f;
+    Unit::AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (Unit::AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
+    if (Powers((*i)->GetMiscValue()) == POWER_ENERGY)
+        pct += (*i)->GetAmount();
+
+    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
+
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+}
+
 void Player::UpdateRuneRegen(RuneType rune)
 {
     if (rune > NUM_RUNE_TYPES)
@@ -930,6 +947,15 @@ void Player::UpdateAllRunesRegen()
             SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
         }
     }
+
+    float pct = 0.f;
+    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
+        if ((*i)->GetMiscValue() == POWER_RUNES)
+            pct += (*i)->GetAmount();
+
+    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1255,6 +1281,25 @@ void Guardian::UpdateArmor()
 
     // All pets gain 100% of owner's armor value
     value = m_owner->GetArmor();
+
+    switch (GetEntry())
+    {
+        case ENTRY_IMP:
+        case ENTRY_FEL_IMP:
+        case ENTRY_FELHUNTER:
+        case ENTRY_OBSERVER:
+        case ENTRY_SUCCUBUS:
+        case ENTRY_SHIVARRA:
+            value *= 3;
+            break;
+        case ENTRY_VOIDWALKER:
+        case ENTRY_VOIDLORD:
+            value *= 4;
+            break;
+        default:
+            break;
+    }
+
     value *= GetModifierValue(unitMod, BASE_PCT);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
@@ -1280,20 +1325,6 @@ void Guardian::UpdateMaxHealth()
     float multiplicator;
     switch (GetEntry())
     {
-        case ENTRY_IMP:
-            multiplicator = 8.4f;
-            break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_FELGUARD:
-            multiplicator = 11.0f;
-            break;
-        case ENTRY_SUCCUBUS:
-            multiplicator = 9.1f;
-            break;
-        case ENTRY_FELHUNTER:
-            multiplicator = 14.46f;
-            break;
-        case ENTRY_GHOUL:
         case ENTRY_GARGOYLE:
             multiplicator = 15.0f;
             break;
@@ -1313,6 +1344,32 @@ void Guardian::UpdateMaxHealth()
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
+
+    Unit* owner = GetOwner();
+    switch (GetEntry())
+    {
+        case ENTRY_IMP:
+        case ENTRY_FEL_IMP:
+            value = owner->CountPctFromMaxHealth(30);
+            break;
+        case ENTRY_FELHUNTER:
+        case ENTRY_OBSERVER:
+        case ENTRY_SUCCUBUS:
+        case ENTRY_SHIVARRA:
+            value = owner->CountPctFromMaxHealth(50);
+            break;
+        case ENTRY_VOIDWALKER:
+        case ENTRY_FELGUARD:
+        case ENTRY_GHOUL:
+            value = owner->CountPctFromMaxHealth(50);
+            break;
+        case ENTRY_WRATHGUARD:
+        case ENTRY_VOIDLORD:
+            value = owner->CountPctFromMaxHealth(60);
+            break;
+        default:
+            break;
+    }
 
     if (Unit* owner = GetOwner())
     {
@@ -1391,10 +1448,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
         }
-        else if (isPet() && GetEntry() != ENTRY_WATER_ELEMENTAL) // demons benefit from warlocks shadow or fire damage
+        else if (isPet() && GetEntry() != ENTRY_WATER_ELEMENTAL || IsTreant()) // demons benefit from warlocks shadow or fire damage
         {
             int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-            SetBonusDamage(int32(spd * 0.15f));
+            SetBonusDamage(spd);
             bonusAP = spd;
         }
         else if (GetEntry() == ENTRY_WATER_ELEMENTAL) // water elementals benefit from mage's frost damage
@@ -1415,6 +1472,34 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
+    // base attackPower for Warlock pets
+    if (owner && owner->getClass() == CLASS_WARLOCK && owner->ToPlayer())
+    {
+        switch (GetEntry())
+        {
+            case ENTRY_IMP:
+            case ENTRY_FEL_IMP:
+            case ENTRY_FELHUNTER:
+            case ENTRY_OBSERVER:
+            case ENTRY_VOIDWALKER:
+            case ENTRY_VOIDLORD:
+            case ENTRY_FELGUARD:
+                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f;
+                break;
+            case ENTRY_SUCCUBUS:
+                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 1.67f;
+                break;
+            case ENTRY_SHIVARRA:
+                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 1.11f;
+                break;
+            case ENTRY_WRATHGUARD:
+                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 2.33f;
+                break;
+            default:
+                break;
+        }
+    }
+
     //UNIT_FIELD_(RANGED)_ATTACK_POWER field
     SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
     //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
@@ -1432,13 +1517,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float bonusDamage = 0.0f;
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        if (IsTreant()) // force of nature
-        {
-            int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
-            if (spellDmg > 0)
-                bonusDamage = spellDmg * 0.09f;
-        }
-        else if (GetEntry() == ENTRY_FIRE_ELEMENTAL) // greater fire elemental
+        if (GetEntry() == ENTRY_FIRE_ELEMENTAL) // greater fire elemental
         {
             int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
             if (spellDmg > 0)
@@ -1457,6 +1536,42 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     float weapon_mindamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+
+    // Min and Max damage for Warlock pets
+    if (m_owner && m_owner->ToPlayer() && m_owner->getClass() == CLASS_WARLOCK)
+    {
+        switch (GetEntry())
+        {
+            case ENTRY_IMP:
+            case ENTRY_FELHUNTER:
+            case ENTRY_VOIDWALKER:
+            case ENTRY_FELGUARD:
+                base_value = 1068 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f) / 14.0f * 2 + bonusDamage;
+                break;
+            case ENTRY_SUCCUBUS:
+                base_value = 1068 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 1.67f) / 14.0f * 3 + bonusDamage;
+                break;
+            case ENTRY_FEL_IMP:
+            case ENTRY_VOIDLORD:
+            case ENTRY_OBSERVER:
+                base_value = (1068 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f) / 14.0f * 2 + bonusDamage) * 1.2f;
+                break;
+            case ENTRY_SHIVARRA:
+                base_value = (713 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f) / 14.0f * 3 + bonusDamage) * 1.2f;
+                break;
+            case ENTRY_WRATHGUARD:
+                base_value = (713 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 2.33f) / 14.0f * 2 + bonusDamage) * 1.2f;
+                break;
+            default:
+                break;
+        }
+
+        if (m_owner->HasAura(77219))
+        {
+            float Mastery = 1.f + m_owner->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.f;
+            base_value *= Mastery;
+        }
+    }
 
     float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;

@@ -33,6 +33,7 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), m_caster(NULL), m
     m_updateFlag = UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_AREATRIGGER;
 
     m_valuesCount = AREATRIGGER_END;
+    m_createdTime = 0;
 }
 
 AreaTrigger::~AreaTrigger()
@@ -81,34 +82,29 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
-    SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
+
+    if (spell->GetDuration() != -1)
+        SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
+
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
 
     if (float radius = sSpellMgr->GetAreaTriggerVisual(spell->Id))
         SetVisualRadius(radius);
 
-    switch (spell->Id)
-    {
-        case 123811:// Pheromones of Zeal - 2h
-            SetDuration(7200000);
-            break;
-        default:
-            break;
-    }
-
     if (!GetMap()->AddToMap(this))
         return false;
 
-    m_CreationTimeMS = getMSTime();
+    m_createdTime = getMSTime();
 
     return true;
 }
 
 void AreaTrigger::Update(uint32 p_time)
 {
+    // Don't decrease infinite durations
     if (GetDuration() > int32(p_time))
         _duration -= p_time;
-    else
+    else if (GetDuration() != -1)
         Remove(); // expired
 
     WorldObject::Update(p_time);
@@ -428,6 +424,29 @@ void AreaTrigger::Update(uint32 p_time)
 
             break;
         }
+        case 134370:// Down Draft
+        {
+            std::list<Player*> playerList;
+            GetPlayerListInGrid(playerList, 60.0f);
+
+            Position pos;
+            GetPosition(&pos);
+
+            for (auto player : playerList)
+            {
+                if (player->IsWithinDist(caster, 50.0f, false))
+                {
+                    if (player->isAlive() && !player->hasForcedMovement)
+                        player->SendApplyMovementForce(true, pos, -12.0f);
+                    else if (!player->isAlive() && player->hasForcedMovement)
+                        player->SendApplyMovementForce(false, pos);
+                }
+                else if (player->hasForcedMovement)
+                    player->SendApplyMovementForce(false, pos);
+            }
+
+            break;
+        }
         default:
             break;
     }
@@ -458,6 +477,19 @@ void AreaTrigger::Remove()
                 break;
             }
             case 123461:// Get Away!
+            {
+                std::list<Player*> playerList;
+                GetPlayerListInGrid(playerList, 100.0f);
+
+                Position pos;
+                GetPosition(&pos);
+
+                for (auto player : playerList)
+                    player->SendApplyMovementForce(false, pos);
+
+                break;
+            }
+            case 134370:// Down Draft
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, 100.0f);
