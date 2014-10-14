@@ -167,6 +167,7 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
         return 0;
 
     WorldPacket const* pkt = &pct;
+    const_cast<WorldPacket*>(pkt)->FlushBits();
 
     // TODO : Find the compress flag
     // Empty buffer used in case packet should be compressed

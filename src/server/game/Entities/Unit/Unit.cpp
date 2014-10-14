@@ -5507,7 +5507,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     WorldPacket data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
     data.appendPackGUID(GetGUID());                         // victimGuid
     data.appendPackGUID(aura->GetCasterGUID());             // casterGuid
-    data << aura->GetId();
+    data << uint32(aura->GetId());
     data << uint32(1);
 
     // Switch Loop
@@ -5558,7 +5558,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     data.WriteBit(pInfo->critical);
     data.WriteBit(0); // Multistrike
     data.WriteBit(0);
-    data.WriteBit(0); //HasLogData
+    data.WriteBit(0); // HasLogData
 
     SendMessageToSet(&data, true);
 }

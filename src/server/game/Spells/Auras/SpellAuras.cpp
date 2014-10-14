@@ -242,10 +242,10 @@ void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint
         if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
         {
             if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                data << float(eff->GetAmount());
-
-            mask |= 1 << i;
-            effectCount++;
+            {
+                mask |= 1 << i;
+                effectCount++;
+            }
         }
     }
 
