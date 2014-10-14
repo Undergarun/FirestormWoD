@@ -73,7 +73,6 @@ bool Player::UpdateStats(Stats stat)
     {
         case STAT_AGILITY:
             UpdateAllCritPercentages();
-            UpdateDodgePercentage();
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -540,38 +539,6 @@ void Player::UpdateDamagePhysical(WeaponAttackType attType)
     }
 }
 
-void Player::UpdateBlockPercentage()
-{
-    // No block
-    float value = 0.0f;
-    if (CanBlock())
-    {
-        // Base value
-        value = 5.0f;
-        // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
-        value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
-
-        // Custom MoP Script
-        // 76671 - Mastery : Divine Bulwark - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY);
-
-        // Custom MoP Script
-        // 76857 - Mastery : Critical Block - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
-
-        // Increase from rating
-        value += GetRatingBonusValue(CR_BLOCK);
-
-         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-             value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) : value;
-
-        value = value < 0.0f ? 0.0f : value;
-    }
-    SetStatFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE, value);
-}
-
 void Player::UpdateCritPercentage(WeaponAttackType attType)
 {
     BaseModGroup modGroup;
@@ -621,10 +588,10 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(RANGED_ATTACK);
 }
 
-const float m_diminishing_k[MAX_CLASSES] =
+const float k_constant[MAX_CLASSES] =
 {
     0.9560f,  // Warrior
-    0.9560f,  // Paladin
+    0.8860f,  // Paladin
     0.9880f,  // Hunter
     0.9880f,  // Rogue
     0.9830f,  // Priest
@@ -632,84 +599,146 @@ const float m_diminishing_k[MAX_CLASSES] =
     0.9880f,  // Shaman
     0.9830f,  // Mage
     0.9830f,  // Warlock
-    0.9880f,  // Monk
-    0.9720f   // Druid
+    1.4220f,  // Monk
+    1.2220f   // Druid
 };
 
 void Player::UpdateParryPercentage()
 {
-    const float parry_cap[MAX_CLASSES] =
+    const float parryCap[MAX_CLASSES] =
     {
-        65.631440f,     // Warrior
-        65.631440f,     // Paladin
-        145.560408f,    // Hunter
-        145.560408f,    // Rogue
-        0.0f,           // Priest
-        65.631440f,     // DK
-        145.560408f,    // Shaman
-        0.0f,           // Mage
-        0.0f,           // Warlock
-        65.631440f,     // Monk
-        0.0f            // Druid
+        237.1860f,    // Warrior
+        237.1860f,    // Paladin
+        145.5604f,    // Hunter
+        145.5604f,    // Rogue
+        150.3759f,    // Priest
+        237.1860f,    // DK
+        145.5604f,    // Shaman
+        150.3759f,    // Mage
+        150.3759f,    // Warlock
+        90.6425f,     // Monk
+        150.3759f     // Druid
     };
 
     // No parry
     float value = 0.0f;
-    uint32 pclass = getClass()-1;
-    if (CanParry() && parry_cap[pclass] > 0.0f)
+    uint32 pClass = getClass() - 1;
+
+    if (CanParry())
     {
-        float nondiminishing  = 5.0f;
-        // Parry from rating
-        float diminishing = GetRatingBonusValue(CR_PARRY);
+        float diminishing = 0.0f;
+        float nondiminishing = 3.0f;
+
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
         nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+
+        // Parry from rating
+        diminishing = GetRatingBonusValue(CR_PARRY);
+
         // apply diminishing formula to diminishing parry chance
-        value = nondiminishing + diminishing * parry_cap[pclass] / (diminishing + parry_cap[pclass] * m_diminishing_k[pclass]);
+        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+        if (value < 0.0f)
+            value = 0.0f;
 
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
             value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;
-
-        value = value < 0.0f ? 0.0f : value;
     }
-
-    if (pclass = CLASS_MONK)
-        value += 5.0f;
 
     SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, value);
 }
 
 void Player::UpdateDodgePercentage()
 {
-    const float dodge_cap[MAX_CLASSES] =
+    const float dodgeCap[MAX_CLASSES] =
     {
-        65.631440f,     // Warrior
-        65.631440f,     // Paladin
-        145.560408f,    // Hunter
-        145.560408f,    // Rogue
-        150.375940f,    // Priest
-        65.631440f,     // DK
-        145.560408f,    // Shaman
-        150.375940f,    // Mage
-        150.375940f,    // Warlock
-        145.560408f,    // Monk
-        116.890707f     // Druid
+        90.6425f,     // Warrior
+        66.5675f,     // Paladin
+        145.5604f,    // Hunter
+        145.5604f,    // Rogue
+        150.3759f,    // Priest
+        90.6425f,     // DK
+        145.5604f,    // Shaman
+        150.3759f,    // Mage
+        150.3759f,    // Warlock
+        501.2531f,    // Monk
+        150.3759f     // Druid
     };
 
-    float diminishing = 0.0f, nondiminishing = 0.0f;
-    GetDodgeFromAgility(diminishing, nondiminishing);
+    float diminishing = 0.0f;
+    float nondiminishing = 3.0f;
+
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
+
     // Dodge from rating
     diminishing += GetRatingBonusValue(CR_DODGE);
+
+    uint32 pClass = getClass() - 1;
+
     // apply diminishing formula to diminishing dodge chance
-    uint32 pclass = getClass()-1;
-    float value = nondiminishing + (diminishing * dodge_cap[pclass] / (diminishing + dodge_cap[pclass] * m_diminishing_k[pclass]));
+    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + dodgeCap[pClass] * k_constant[pClass]));
+    if (value < 0.0f)
+        value = 0.0f;
 
     if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
         value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
 
-    value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, value);
+}
+
+void Player::UpdateBlockPercentage()
+{
+    const float blockCap[MAX_CLASSES] =
+    {
+        90.6425f,     // Warrior
+        66.5675f,     // Paladin
+        145.5604f,    // Hunter
+        145.5604f,    // Rogue
+        150.3759f,    // Priest
+        90.6425f,     // DK
+        145.5604f,    // Shaman
+        150.3759f,    // Mage
+        150.3759f,    // Warlock
+        501.2531f,    // Monk
+        150.3759f     // Druid
+    };
+
+    // No block
+    float value = 0.0f;
+    uint32 pClass = getClass() - 1;
+
+    if (CanBlock())
+    {
+        float diminishing = 0.0f;
+        float nondiminishing = 3.0f;
+
+        // Dodge from SPELL_AURA_MOD_BLOCK_PERCENT aura
+        nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
+
+        // Dodge from rating
+        diminishing += GetRatingBonusValue(CR_BLOCK);
+
+        // apply diminishing formula to diminishing dodge chance
+        value = nondiminishing + (diminishing * blockCap[pClass] / (diminishing + blockCap[pClass] * k_constant[pClass]));
+
+        // Custom MoP Script
+        // 76671 - Mastery : Divine Bulwark - Block Percentage
+        if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
+            value += GetFloatValue(PLAYER_FIELD_MASTERY);
+
+        // Custom MoP Script
+        // 76857 - Mastery : Critical Block - Block Percentage
+        if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
+            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
+
+        if (value < 0.0f)
+            value = 0.0f;
+
+        if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
+            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) : value;
+    }
+
+    SetStatFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE, value);
 }
 
 void Player::UpdateSpellCritChance(uint32 school)
