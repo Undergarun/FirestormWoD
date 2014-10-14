@@ -29323,145 +29323,104 @@ bool Player::SetHover(bool enable)
     return true;
 }
 
-void Player::SendMovementSetCanFly(bool apply)
+void Player::SendMovementSetCanFly(bool p_Apply)
 {
-    WorldPacket data;
+    WorldPacket l_Data;
 
-    if (apply)
+    if (p_Apply)
     {
-        data.Initialize(SMSG_MOVE_SET_CAN_FLY, 1 + 8 + 4);
-        data.appendPackGUID(GetGUID());
-        data << uint32(0);
+        l_Data.Initialize(SMSG_MOVE_SET_CAN_FLY, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
     else
     {
-        data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 1 + 8 + 4);
-        data.appendPackGUID(GetGUID());
-        data << uint32(0);
+        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
-    SendDirectMessage(&data);
+
+    SendDirectMessage(&l_Data);
 }
 
-void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
+void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool p_Apply)
 {
-    ObjectGuid guid = GetGUID();
-    if (apply)
+    WorldPacket l_Data;
+
+    if (p_Apply)
     {
-        WorldPacket data(SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
-
-        uint8 bitOrder[8] = {5, 0, 2, 3, 4, 7, 6, 1};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[5]);
-        data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[0]);
-        SendDirectMessage(&data);
+        l_Data.Initialize(SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
     else
     {
-        WorldPacket data(SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
-
-        uint8 bitOrder[8] = {3, 1, 6, 2, 4, 5, 7, 0};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[2]);
-        data << uint32(0);          //! movement counter
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-        SendDirectMessage(&data);
+        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
+
+    SendDirectMessage(&l_Data);
 }
 
-void Player::SendMovementSetHover(bool apply)
+void Player::SendMovementSetHover(bool p_Apply)
 {
-    WorldPacket data;
-    ObjectGuid guid = GetGUID();
+    WorldPacket l_Data;
 
-    if (apply)
+    if (p_Apply)
     {
-        data.Initialize(SMSG_MOVE_SET_HOVER, 12);
-
-        uint8 bitOrder[8] = { 5, 6, 1, 7, 0, 2, 4, 3 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[0]);
-
-        data << uint32(0);  // Movement counter
-
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[7]);
+        l_Data.Initialize(SMSG_MOVE_SET_HOVER, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
     else
     {
-        data.Initialize(SMSG_MOVE_UNSET_HOVER, 12);
-
-        uint8 bitOrder[8] = { 1, 7, 0, 5, 2, 6, 3, 4 };
-        data.WriteBitInOrder(guid, bitOrder);
-
-        uint8 bytes[8] = { 6, 1, 3, 0, 4, 2, 5, 7 };
-        data.WriteBytesSeq(guid, bytes);
-
-        data << uint32(0);  // Movement counter
+        l_Data.Initialize(SMSG_MOVE_UNSET_HOVER, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
 
-    SendDirectMessage(&data);
+    SendDirectMessage(&l_Data);
 }
 
-void Player::SendMovementSetWaterWalking(bool apply)
+void Player::SendMovementSetWaterWalking(bool p_Apply)
 {
-    if (apply)
-    {
-        WorldPacket data(SMSG_MOVE_WATER_WALK, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint32(0);  // Movement counter
+    WorldPacket l_Data;
 
-        SendDirectMessage(&data);
+    if (p_Apply)
+    {
+        l_Data.Initialize(SMSG_MOVE_WATER_WALK, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
     else
     {
-        WorldPacket data(SMSG_MOVE_LAND_WALK, 12);
-
-        data.appendPackGUID(GetGUID());
-        data << uint32(0);  // Movement counter
-
-        SendDirectMessage(&data);
+        l_Data.Initialize(SMSG_MOVE_LAND_WALK, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
+
+    SendDirectMessage(&l_Data);
 }
 
-void Player::SendMovementSetFeatherFall(bool apply)
+void Player::SendMovementSetFeatherFall(bool p_Apply)
 {
-    WorldPacket data;
+    WorldPacket l_Data;
 
-    if (apply)
+    if (p_Apply)
     {
-        data.Initialize(SMSG_MOVE_FEATHER_FALL, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint32(0);  // Movement counter
+        l_Data.Initialize(SMSG_MOVE_FEATHER_FALL, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
     else
     {
-        data.Initialize(SMSG_MOVE_NORMAL_FALL, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint32(0);  // Movement counter
+        l_Data.Initialize(SMSG_MOVE_NORMAL_FALL, 2 + 16 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
     }
 
-    SendDirectMessage(&data);
+    SendDirectMessage(&l_Data);
 }
 
 void Player::SendMovementSetCollisionHeight(float height)

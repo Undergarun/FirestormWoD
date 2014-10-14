@@ -406,20 +406,24 @@ enum Opcodes
         SMSG_MOVE_UPDATE_KNOCK_BACK                 = 0x05EF,   ///< 6.0.2 18934
 
         /// Player
-        SMSG_MOVE_UPDATE                            = 0x019C,   ///< 6.0.2 18934
-        SMSG_MOVE_TELEPORT                          = 0x0A8B,   ///< 6.0.2 18934
-        SMSG_MOVE_UPDATE_TELEPORT                   = 0x1A9F,   ///< 6.0.2 18934
-        SMSG_MOVE_ROOT                              = 0x11D4,   ///< 6.0.2 18934
-        SMSG_MOVE_UNROOT                            = 0x008C,   ///< 6.0.2 18934
-        SMSG_MOVE_WATER_WALK                        = 0x0DA8,   ///< 6.0.2 18934
-        SMSG_MOVE_LAND_WALK                         = 0x1A87,   ///< 6.0.2 18934
-        SMSG_MOVE_FEATHER_FALL                      = 0x1ADF,   ///< 6.0.2 18934
-        SMSG_MOVE_NORMAL_FALL                       = 0x0681,   ///< 6.0.2 18934
-        SMSG_MOVE_SET_CAN_FLY                       = 0x0094,   ///< 6.0.2 18934
-        SMSG_MOVE_UNSET_CAN_FLY                     = 0x11D0,   ///< 6.0.2 18934
-        SMSG_MOVE_SET_ACTIVE_MOVER                  = 0x06D2,   ///< 6.0.2 18934
-        SMSG_MOVE_SET_HOVER                         = 0x0000,
-        SMSG_MOVE_UNSET_HOVER                       = 0x0000,
+        SMSG_MOVE_UPDATE                                    = 0x019C,   ///< 6.0.2 18934
+        SMSG_MOVE_TELEPORT                                  = 0x0A8B,   ///< 6.0.2 18934
+        SMSG_MOVE_UPDATE_TELEPORT                           = 0x1A9F,   ///< 6.0.2 18934
+        SMSG_MOVE_ROOT                                      = 0x11D4,   ///< 6.0.2 18934
+        SMSG_MOVE_UNROOT                                    = 0x008C,   ///< 6.0.2 18934
+        SMSG_MOVE_WATER_WALK                                = 0x0DA8,   ///< 6.0.2 18934
+        SMSG_MOVE_LAND_WALK                                 = 0x1A87,   ///< 6.0.2 18934
+        SMSG_MOVE_FEATHER_FALL                              = 0x1ADF,   ///< 6.0.2 18934
+        SMSG_MOVE_NORMAL_FALL                               = 0x0681,   ///< 6.0.2 18934
+        SMSG_MOVE_SET_ACTIVE_MOVER                          = 0x06D2,   ///< 6.0.2 18934
+        SMSG_MOVE_SET_CAN_FLY                               = 0x0094,   ///< 6.0.2 18934
+        SMSG_MOVE_UNSET_CAN_FLY                             = 0x11D0,   ///< 6.0.2 18934
+        SMSG_MOVE_SET_HOVER                                 = 0x0581,   ///< 6.0.2 18934
+        SMSG_MOVE_UNSET_HOVER                               = 0x00C8,   ///< 6.0.2 18934
+        SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING                = 0x04C8,   ///< 6.0.2 18934
+        SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING              = 0x1AD3,   ///< 6.0.2 18934
+        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY   = 0x0CE7,   ///< 6.0.2 18934
+        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x1BC3,   ///< 6.0.2 18934
 
         /// Creature
         SMSG_MONSTER_MOVE                           = 0x04A4,   ///< 6.0.2 18934
@@ -663,6 +667,7 @@ enum Opcodes
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0338,   ///< 6.0.2 18934
     CMSG_SHOWING_CLOAK                          = 0x0208,   ///< 6.0.2 18934
     CMSG_SHOWING_HELM                           = 0x0354,   ///< 6.0.2 18934
+    CMSG_SET_ACTIVE_MOVER                       = 0x0F45,   ///< 6.0.2 18934
     CMSG_SET_ACTIVE_MOVER                       = 0x0000,   ///< 6.0.2
     CMSG_LEARN_TALENTS                          = 0x04FB,   ///< 6.0.2 18934
     CMSG_AUTOEQUIP_ITEM                         = 0x04FE,   ///< 6.0.2 18934
@@ -1688,13 +1693,9 @@ enum Opcodes
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                 = 0x0000,
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x0000,
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x0000,
-    SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000,
-    SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING              = 0x0000,
     SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x0000,
     SMSG_MOVE_SET_COMPOUND_STATE                      = 0x0000,
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
-    SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000,
-    SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING            = 0x0000,
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
     SMSG_NEW_WORLD_ABORT                              = 0x0000,
     SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x0000,
