@@ -451,6 +451,7 @@ public:
     ~SpellInfo();
 
     bool HasEffect(SpellEffects effect) const;
+    int8 GetEffectIndex(SpellEffects effect) const;
     bool HasAura(AuraType aura) const;
     bool HasAreaAuraEffect() const;
 

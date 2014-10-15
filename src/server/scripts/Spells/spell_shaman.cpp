@@ -1008,7 +1008,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
                 JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(GetCaster(), GetCaster(), 100, SPELL_SHA_FLAME_SHOCK, false);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(GetCaster(), targets, u_check);
                 GetCaster()->VisitNearbyObject(100, searcher);
-                
+
                 return targets.size() == 0 ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_CAST_OK;
             }
 
@@ -1271,7 +1271,7 @@ class spell_sha_fulmination : public SpellScriptLoader
                         if (!spellInfo)
                             return;
                         int32 basePoints = _player->CalculateSpellDamage(target, spellInfo, 0);
-                        uint32 damage = usedCharges * _player->SpellDamageBonusDone(target, spellInfo, basePoints, SPELL_DIRECT_DAMAGE);
+                        uint32 damage = usedCharges * _player->SpellDamageBonusDone(target, spellInfo, basePoints, EFFECT_0, SPELL_DIRECT_DAMAGE);
 
                         _player->CastCustomSpell(SPELL_SHA_FULMINATION_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, target, true, NULL, fulminationAura);
                         lightningShield->SetCharges(lsCharges - usedCharges);

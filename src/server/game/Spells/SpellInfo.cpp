@@ -1070,6 +1070,14 @@ bool SpellInfo::HasEffect(SpellEffects effect) const
     return false;
 }
 
+int8 SpellInfo::GetEffectIndex(SpellEffects effect) const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].IsEffect(effect))
+            return i;
+    return -1;
+}
+
 bool SpellInfo::HasAura(AuraType aura) const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

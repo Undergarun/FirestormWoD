@@ -2444,7 +2444,7 @@ class spell_warl_ember_tap : public SpellScriptLoader
                     float pct = 0.15f * (1 + Mastery);
 
                     int32 healAmount = int32(_player->GetMaxHealth() * pct);
-                    healAmount = _player->SpellHealingBonusDone(_player, GetSpellInfo(), healAmount, HEAL);
+                    healAmount = _player->SpellHealingBonusDone(_player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
                     healAmount = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), healAmount, HEAL);
 
                     SetHitHeal(healAmount);

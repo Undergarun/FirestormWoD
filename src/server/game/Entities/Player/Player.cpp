@@ -1280,7 +1280,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             // BuyCount by default
             uint32 count = iProto->BuyCount;
 
-            // @todo remove this, use data in dbc or player_createinfoitem. 
+            // @todo remove this, use data in dbc or player_createinfoitem.
             // special amount for food/drink
             if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
             {
@@ -1436,7 +1436,7 @@ void Player::RewardCurrencyAtKill(Unit* victim)
     if (!result)
         return;
 
-    // Player won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85) 
+    // Player won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
     if ((Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS
         || Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS
         || Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS
@@ -2696,7 +2696,7 @@ void Player::SendTeleportPacket(Position &l_OldPosition)
     l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimSpeed
     l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimBack
     l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightSpeed
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightBack 
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightBack
     l_TeleportUpdatePacket.WriteBit(true);  ///< HasTurnRate
     l_TeleportUpdatePacket.WriteBit(true);  ///< HasPitchRate
     l_TeleportUpdatePacket.FlushBits();
@@ -6507,7 +6507,7 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
     {
         /// Percentage from SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER
         const AuraEffectList & l_ResurrectedHealthByGuildMember = GetAuraEffectsByType(SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER);
-        
+
         for (AuraEffectList::const_iterator l_It = l_ResurrectedHealthByGuildMember.begin(); l_It != l_ResurrectedHealthByGuildMember.end(); ++l_It)
             AddPct(p_RestorePercent, (*l_It)->GetAmount());
 
@@ -8716,12 +8716,12 @@ void Player::SendNewCurrency(uint32 p_ID)
     WorldPacket l_Data(SMSG_INIT_CURRENCY);
 
     l_Data << uint32(1);
-    
+
     CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_ID);
 
     if (!l_CurrencyEntry) // should never happen
         return;
-    
+
     uint32 l_Precision = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
     uint32 l_WeekCount = l_It->second.weekCount / l_Precision;
     uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
@@ -8763,7 +8763,7 @@ void Player::SendCurrencies()
         uint32 l_WeekCount      = l_It->second.weekCount / l_Precision;
         uint32 l_WeekCap        = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
         uint32 l_SeasonTotal    = l_It->second.seasonTotal / l_Precision;
-        
+
         l_Data << uint32(l_CurrencyEntry->ID);
         l_Data << uint32(l_It->second.totalCount / l_Precision);
 
@@ -17225,7 +17225,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         GiveXP(XP, NULL);
     else
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
-    
+
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     if (quest->GetRewOrReqMoney())
         moneyRew += quest->GetRewOrReqMoney();
@@ -19074,7 +19074,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         l_LegacyRaidDiff = LEGACY_MAN10_DIFFICULTY;
     SetLegacyRaidDifficulty(Difficulty(l_LegacyRaidDiff));
 
-    SetDungeonDifficulty(Difficulty(dungeonDiff)); 
+    SetDungeonDifficulty(Difficulty(dungeonDiff));
 
     std::string taxi_nodes = fields[38].GetString();
 
@@ -19319,7 +19319,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
             }
         }
     }
-    
+
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
     {
@@ -19924,8 +19924,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[14].GetUInt32();
-                uint8  slot     = fields[15].GetUInt8();
+                uint32 bagGuid  = fields[13].GetUInt32();
+                uint8  slot     = fields[14].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -20081,8 +20081,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[16].GetUInt32();
-    uint32 itemEntry = fields[17].GetUInt32();
+    uint32 itemGuid  = fields[15].GetUInt32();
+    uint32 itemEntry = fields[16].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -30034,7 +30034,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
     SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
 }
-/// Summon new pet 
+/// Summon new pet
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE);

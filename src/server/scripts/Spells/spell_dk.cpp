@@ -122,7 +122,7 @@ class spell_dk_death_barrier : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     amount += caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
-                    amount = int32(caster->SpellDamageBonusDone(GetUnitOwner(), sSpellMgr->GetSpellInfo(DK_SPELL_DEATH_COIL_DAMAGE), amount, SPELL_DIRECT_DAMAGE));
+                    amount = int32(caster->SpellDamageBonusDone(GetUnitOwner(), sSpellMgr->GetSpellInfo(DK_SPELL_DEATH_COIL_DAMAGE), amount, aurEff->GetEffIndex(), SPELL_DIRECT_DAMAGE));
                 }
             }
 
@@ -566,7 +566,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
                         {
                             uint32 dur = COI->GetDuration() + 6000;
                             COI->SetDuration(dur);
-                            
+
                             if (dur > uint32(COI->GetMaxDuration()))
                                 COI->SetMaxDuration(dur);
                         }
@@ -1938,7 +1938,7 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
                     if (!_player->isInCombat() && _player->HasAura(DK_SPELL_GLYPH_OF_HORN_OF_WINTER))
                         _player->CastSpell(_player, DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT, true);
             }
-			
+
             void Register()
             {
                 AfterCast += SpellCastFn(spell_dk_glyph_of_horn_of_winter_SpellScript::HandleAfterCast);

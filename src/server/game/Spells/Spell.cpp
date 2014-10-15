@@ -4641,11 +4641,11 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, SpellPo
 
             l_Data << uint32(l_MissingItem);                            /// Arg1 => first missing item
             l_Data << uint32(0);                                        /// Arg2 => NULL
-            break;                                                      
-        }                                                               
-                                                                        
-        // TODO: SPELL_FAILED_NOT_STANDING                              
-        default:                                                        
+            break;
+        }
+
+        // TODO: SPELL_FAILED_NOT_STANDING
+        default:
             l_Data << uint32(0);                                        /// Arg1 => NULL
             l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
@@ -4712,7 +4712,7 @@ void Spell::SendSpellStart()
 
             // Guess spell healing amount
             l_PredictAmount = m_caster->CalculateSpellDamage(target, m_spellInfo, 0);
-            l_PredictAmount = m_caster->SpellHealingBonusDone(target, m_spellInfo, l_PredictAmount, HEAL);
+            l_PredictAmount = m_caster->SpellHealingBonusDone(target, m_spellInfo, l_PredictAmount, m_spellInfo->GetEffectIndex(SPELL_EFFECT_HEAL), HEAL);
             l_PredictAmount = m_caster->SpellHealingBonusTaken(target, m_spellInfo, l_PredictAmount, HEAL);
         }
     }
@@ -4967,7 +4967,7 @@ void Spell::SendSpellGo()
     WorldPacket data(SMSG_SPELL_GO);
 
 //     ObjectGuid guid1, guid2, guid6;;
-// 
+//
 //     uint32 powerCount = 1;
 //     uint32 powerTypeCount = 1;
 //     uint32 runeCooldownCount = 0;
@@ -5468,7 +5468,7 @@ void Spell::SendChannelStart(uint32 p_Duration)
     if (!l_ChannelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
     {
         /// this is for TARGET_SELECT_CATEGORY_NEARBY
-        if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   
+        if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)
         {
             if (!m_UniqueTargetInfo.empty())
                 l_ChannelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
@@ -5549,7 +5549,7 @@ void Spell::SendResurrectRequest(Player* target)
 
     data << uint32(0);
     data << uint32(0);
-   
+
     data.WriteByteSeq(guid[6]);
 
     target->GetSession()->SendPacket(&data);

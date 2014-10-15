@@ -1506,7 +1506,7 @@ class spell_rog_recuperate : public SpellScriptLoader
                     if (AuraPtr recuperate = caster->GetAura(ROGUE_SPELL_RECUPERATE))
                     {
                         int32 bp = caster->CountPctFromMaxHealth(caster->HasAura(ROGUE_SPELL_GLYPH_OF_RECUPERATE) ? 4 : 3);
-                        bp = caster->SpellHealingBonusDone(caster, GetSpellInfo(), bp, HEAL);
+                        bp = caster->SpellHealingBonusDone(caster, GetSpellInfo(), bp, EFFECT_0, HEAL);
                         bp = caster->SpellHealingBonusTaken(caster, GetSpellInfo(), bp, HEAL);
                         recuperate->GetEffect(0)->ChangeAmount(bp);
                     }
