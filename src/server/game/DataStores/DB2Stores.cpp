@@ -36,6 +36,8 @@ DB2Storage <ItemUpgradeEntry>               sItemUpgradeStore(ItemUpgradeEntryfm
 DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
 DB2Storage <SceneScriptEntry>               sSceneScriptStore(SceneScriptEntryfmt);
 DB2Storage <SceneScriptPackageEntry>        sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
+DB2Storage <TaxiNodesEntry>                 sTaxiNodesStore(TaxiNodesEntryfmt);
+DB2Storage <TaxiPathEntry>                  sTaxiPathStore(TaxiPathEntryfmt);
 DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
 DB2Storage <SpellRuneCostEntry>             sSpellRuneCostStore(SpellRuneCostfmt);
 DB2Storage <SpellCastingRequirementsEntry>  sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
@@ -80,6 +82,7 @@ DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore(BattlePe
 DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
 
 // DBC used only for initialization sTaxiPathNodeStore at startup.
+TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 SpellTotemMap sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
@@ -158,6 +161,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
     LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");
     LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");
+    LoadDB2(bad_db2_files, sTaxiNodesStore,                 db2Path, "TaxiNodes.db2");
+    LoadDB2(bad_db2_files, sTaxiPathStore,                  db2Path, "TaxiPath.db2");
     LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");
     LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2");
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2");
@@ -231,6 +236,10 @@ void LoadDB2Stores(const std::string& dataPath)
 
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
+
+    for (uint32 i = 1; i < pathCount; ++i)
+        if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
+            sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
 
     // Calculate path nodes count
     std::vector<uint32> pathLength;

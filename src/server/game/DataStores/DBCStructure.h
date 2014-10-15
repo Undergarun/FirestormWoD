@@ -653,18 +653,16 @@ struct AreaTableEntry
     char*   area_name;                                      // 13       m_AreaNameLang
     uint32  team;                                           // 14       m_FactionGroupMask
     uint32  LiquidTypeOverride[4];                          // 15-18    m_LiquidTypeID          Liquid override by type
-    float   MaxDepth;                                       // 19       m_MinElevation          Determine the maximum depth that a player an reach in an area before being teleported back up.
-    //float     m_AmbientMultiplier;                        // 20       m_AmbientMultiplier
-    //uint32    m_Lightid;                                  // 21       m_Lightid               All zeros
-    //uint32    m_MountFlags;                               // 22       m_MountFlags
-    //uint32    m_UwIntroSound;                             // 23       m_UwIntroSound          All zeros
-    //uint32    m_UwZoneMusic;                              // 24       m_UwZoneMusic
-    //uint32    m_UwAmbience;                               // 25       m_UwAmbience
-    //uint32    m_WorldPvpId;                               // 26       m_WorldPvpId
-    //int32     m_PvpCombatWorldStateID;                    // 27       m_PvpCombatWorldStateID
-    //uint32    m_WildBattlePetLevelMin;                    // 28       m_WildBattlePetLevelMin
-    //uint32    m_WildBattlePetLevelMax;                    // 29       m_WildBattlePetLevelMax
-    //uint32    m_WindSettingsID;                           // 30       m_WindSettingsID
+    //float     m_AmbientMultiplier;                        // 19       m_AmbientMultiplier
+    //uint32    m_MountFlags;                               // 20       m_MountFlags
+    //uint32    m_UwIntroSound;                             // 21       m_UwIntroSound          All zeros
+    //uint32    m_UwZoneMusic;                              // 22       m_UwZoneMusic
+    //uint32    m_UwAmbience;                               // 23       m_UwAmbience
+    //uint32    m_WorldPvpId;                               // 24       m_WorldPvpId
+    //int32     m_PvpCombatWorldStateID;                    // 25       m_PvpCombatWorldStateID
+    //uint32    m_WildBattlePetLevelMin;                    // 26       m_WildBattlePetLevelMin
+    //uint32    m_WildBattlePetLevelMax;                    // 27       m_WildBattlePetLevelMax
+    //uint32    m_WindSettingsID;                           // 28       m_WindSettingsID
 
     // DeathKnightStart map, maybe AreaFlags ?
     bool IsSanctuary() const
@@ -1577,8 +1575,9 @@ struct MapEntry
     //char*     direcotry;                                  // 1        m_Directory
     uint32  instanceType;                                   // 2        m_InstanceType
     //uint32    flags;                                      // 3        m_Flags
-    //uint32    MapType;                                    // 5        m_MapType               3 = transport /  4 = Garnison
-    char*   MapNameLang;                                    // 6        m_MapName_lang
+    //uint32    MapType;                                    // 4        m_MapType               always 0
+    char*   MapNameLang;                                    // 5        m_MapName_lang
+    //int     unk_602;                                      // 6
     uint32  AreaTableID;                                    // 7        m_areaTableID
     //char*     MapDescription0Lang;                        // 8        m_MapDescription0_lang
     //char*     MapDescription1Lang;                        // 9        m_MapDescription1_lang
@@ -1770,6 +1769,7 @@ struct ScalingStatDistributionEntry
     uint32  Unk_601_18612;                                  // 3        Unk_601_18612
 };
 
+// 6.0.2 19027 - DBC doesn't exists
 struct ScalingStatValuesEntry
 {
     uint32 Id;                                              // 0        m_ID

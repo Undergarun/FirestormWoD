@@ -37,6 +37,8 @@ extern DB2Storage <ItemUpgradeEntry>                sItemUpgradeStore;
 extern DB2Storage <RulesetItemUpgradeEntry>         sRulesetItemUpgradeStore;
 extern DB2Storage <SceneScriptEntry>                sSceneScriptStore;
 extern DB2Storage <SceneScriptPackageEntry>         sSceneScriptPackageStore;
+extern DB2Storage <TaxiNodesEntry>                  sTaxiNodesStore;
+extern DB2Storage <TaxiPathEntry>                   sTaxiPathStore;
 extern DB2Storage <TaxiPathNodeEntry>               sTaxiPathNodeStore;
 extern DB2Storage <SpellRuneCostEntry>              sSpellRuneCostStore;
 extern DB2Storage <SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore;

@@ -440,8 +440,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        AreaTableEntry const* zone = GetAreaEntryByAreaID(l_PlayerMover->GetAreaId());
-        float depth = zone ? zone->MaxDepth : -500.0f;
+        //AreaTableEntry const* zone = GetAreaEntryByAreaID(l_PlayerMover->GetAreaId());
+        float depth = -500.0f; //zone ? zone->MaxDepth : -500.0f;
 
         // Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)

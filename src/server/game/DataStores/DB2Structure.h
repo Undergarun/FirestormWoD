@@ -155,6 +155,7 @@ struct ItemModifiedAppearanceEntry
     uint32 ItemID;
     uint32 Unk;
     uint32 AppearanceID;
+    uint32 Unk2;
     uint32 Index;
 };
 
@@ -210,7 +211,7 @@ struct SceneScriptPackageEntry
     const char* Name;
 };
 
-#define MAX_SPELL_REAGENTS 8
+#define MAX_SPELL_REAGENTS 7
 
 // SpellReagents.db2
 // @author Selenium: 5.4 valid
@@ -234,7 +235,6 @@ struct SpellReagent
         reagents[4] = NULL;
         reagents[5] = NULL;
         reagents[6] = NULL;
-        reagents[7] = NULL;
     }
     SpellReagentsEntry const* reagents[MAX_SPELL_REAGENTS];
 };
@@ -494,21 +494,20 @@ struct GarrMissionEntry
     uint32 RequiredItemLevel;                           // 2
     uint32 Unk1;                                        // 3
     uint32 RequiredFollowersCount;                      // 4
-    uint32 TravelDuration;                              // 5
-    uint32 MissionDuration;                             // 6
-    uint32 OfferDuration;                               // 7
-    uint32 Unk2;                                        // 8
-    uint32 Unk3;                                        // 9
-    char * Title;                                       // 10
-    char * Description;                                 // 11
-    char * Location;                                    // 12
-    uint32 Unk4;                                        // 13
-    uint32 Unk5;                                        // 14
-    uint32 StartCost;                                   // 15
-    uint32 Quality;                                     // 16
-    uint32 RewardPlayerExperience;                      // 17
-    uint32 Unk6;                                        // 18
-    uint32 BaseBronzeChestChance;                       // 19
+    uint32 Unk_Duration;                                // 5
+    uint32 OfferDuration;                               // 6
+    uint32 Unk2;                                        // 7
+    uint32 Unk3;                                        // 8
+    char * Title;                                       // 9
+    char * Description;                                 // 10
+    char * Location;                                    // 11
+    uint32 Unk4;                                        // 12
+    uint32 Unk5;                                        // 13
+    uint32 StartCost;                                   // 14
+    uint32 Quality;                                     // 15
+    uint32 RewardPlayerExperience;                      // 16
+    uint32 Unk6;                                        // 17
+    uint32 BaseBronzeChestChance;                       // 18
 };
 
 struct GarrBuildingEntry
@@ -564,6 +563,8 @@ struct GarrFollowerEntry
     char * UnkString2;                                  // 16
     int32  Unk10;                                       // 17
     int32  Unk11;                                       // 18
+    uint32 Unk12;                                       // 19
+    uint32 Unk13;                                       // 20
 };
 
 struct GarrAbilityEntry
