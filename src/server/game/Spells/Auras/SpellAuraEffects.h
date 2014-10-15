@@ -36,6 +36,10 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         explicit AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
         ~AuraEffect();
+
+        float GetCalculatedAmountForClient_First();
+        float GetCalculatedAmountForClient_Second();
+
         Unit* GetCaster() const { return GetBase() ? GetBase()->GetCaster() : NULL; }
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         AuraPtr GetBase() const { return std::const_pointer_cast<Aura>(m_base); }
@@ -44,6 +48,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
+        SpellEffectInfo const* GetSpellEffectInfo() const { return &m_spellInfo->Effects[m_effIndex]; }
         uint32 GetId() const { return m_spellInfo->Id; }
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }

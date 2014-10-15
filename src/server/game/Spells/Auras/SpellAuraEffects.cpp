@@ -550,6 +550,56 @@ AuraEffect::~AuraEffect()
     delete m_spellmod;
 }
 
+float AuraEffect::GetCalculatedAmountForClient_First()
+{
+    return GetAmount();
+}
+
+float AuraEffect::GetCalculatedAmountForClient_Second()
+{
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_HEALING_PCT:
+        case SPELL_AURA_SCHOOL_ABSORB:
+        case SPELL_AURA_ADD_FLAT_MODIFIER:
+        case SPELL_AURA_ADD_PCT_MODIFIER:
+        case SPELL_AURA_BYPASS_ARMOR_FOR_CASTER:
+        case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_MOD_INCREASE_SPEED:
+        case SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE:
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
+        case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+        case SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL:
+        case SPELL_AURA_MOD_RATING:
+        case SPELL_AURA_OBS_MOD_POWER:
+        case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2:
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+        case SPELL_AURA_MOUNTED:
+            return GetAmount();
+            break;
+
+        case SPELL_AURA_DUMMY:
+        {
+            switch (GetBase()->GetId())
+            {
+                case 132639:
+                    return GetAmount();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        default:
+            break;
+    }
+
+    return 0.f;
+}
+
 void AuraEffect::GetTargetList(std::list<Unit*> & targetList) const
 {
     Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();

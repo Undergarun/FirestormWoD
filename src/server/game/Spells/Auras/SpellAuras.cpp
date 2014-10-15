@@ -161,6 +161,16 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
             }
         }
     }
+
+    switch (GetBase()->GetId())
+    {
+        /// Transi - sniffed on retail
+        case 7321:
+            _flags |= AFLAG_UNK_20;
+
+        default:
+            break;
+    }
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
@@ -200,13 +210,21 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
 
     uint32 l_Mask = 0;
     uint32 l_PointsCount = 0;
+    bool l_AsApModifier = false;
 
-    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
     {
-        if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I)) // NULL if effect flag not set
+        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
         {
-            if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+            /// NULL if effect flag not set
+            if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
             {
+                if (!HasEffect(l_I))
+                    continue;
+
+                if (l_Effect->GetSpellEffectInfo()->IsAPSPModified())
+                    l_AsApModifier = true;
+
                 l_Mask |= 1 << l_I;
                 l_PointsCount++;
             }
@@ -225,16 +243,39 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Aura->GetCasterLevel());                                                                 ///< Cast Level
     p_Data << uint8(l_Aura->GetSpellInfo()->StackAmount ? l_Aura->GetStackAmount() : l_Aura->GetCharges());     ///< Applications
-    p_Data << uint32(l_PointsCount);                                                                            ///< Points Count
-    p_Data << uint32(0);
+    p_Data << uint32(l_PointsCount + (l_PointsCount && (l_Flags & AFLAG_UNK_20)) ? 1 : 0);                      ///< Points Count
+    p_Data << uint32(l_AsApModifier ? l_PointsCount : 0);                                                       ///< Estimated Points
 
-    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
     {
-        /// NULL if effect flag not set
-        if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+        if (l_Flags & AFLAG_UNK_20)
+            p_Data << float(0);
+
+        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
         {
-            if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                p_Data << float(l_Effect->GetAmount());
+            if (!HasEffect(l_I))
+                continue;
+
+            /// NULL if effect flag not set
+            if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+            {
+                p_Data << float(const_cast<AuraEffect*>(l_Effect.get())->GetCalculatedAmountForClient_First());
+            }
+        }
+    }
+
+    if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT && l_AsApModifier)
+    {
+        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+        {
+            if (!HasEffect(l_I))
+                continue;
+
+            /// NULL if effect flag not set
+            if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+            {
+                p_Data << float(const_cast<AuraEffect*>(l_Effect.get())->GetCalculatedAmountForClient_Second());
+            }
         }
     }
 
