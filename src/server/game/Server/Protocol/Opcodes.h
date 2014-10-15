@@ -651,6 +651,8 @@ enum Opcodes
     CMSG_ENABLE_NAGLE                           = 0x1A75,   ///< 6.0.2 19027
     CMSG_SUSPEND_COMMS_ACK                      = 0x0000,   ///<
     CMSG_KEEP_ALIVE                             = 0x03B4,   ///< 6.0.2 19027
+    CMSG_OBJECT_UPDATE_FAILED                   = 0x0CB8,   ///< 6.0.2 19027
+    CMSG_OBJECT_UPDATE_RESCUED                  = 0x1E87,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
     /// Character
@@ -1252,8 +1254,6 @@ enum Opcodes
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x0000,
     CMSG_NEW_SPELL_SLOT                               = 0x0000,
     CMSG_NEXT_CINEMATIC_CAMERA                        = 0x0000,
-    CMSG_OBJECT_UPDATE_FAILED                         = 0x0000,
-    CMSG_OBJECT_UPDATE_RESCUED                        = 0x0000,
     CMSG_OPENING_CINEMATIC                            = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PET_ABANDON                                  = 0x0000,

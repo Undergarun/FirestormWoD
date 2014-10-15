@@ -2463,21 +2463,18 @@ void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
     // do something?
 }
 
-void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket & p_Packet)
 {
-    ObjectGuid guid;
+    uint64 l_ObjectGUID = 0;
 
-    uint8 bitOrder[8] = {2, 1, 0, 6, 3, 7, 4, 5};
-    recvPacket.ReadBitInOrder(guid, bitOrder);
+    p_Packet.readPackGUID(l_ObjectGUID);
 
-    uint8 byteOrder[8] = {7, 5, 1, 6, 4, 2, 3, 0};
-    recvPacket.ReadBytesSeq(guid, byteOrder);
+    WorldObject * l_WorldObject = ObjectAccessor::GetWorldObject(*GetPlayer(), l_ObjectGUID);
+     
+    if (l_WorldObject)
+        l_WorldObject->SendUpdateToPlayer(GetPlayer());
 
-    WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
-    if (obj)
-        obj->SendUpdateToPlayer(GetPlayer());
-
-    sLog->outError(LOG_FILTER_NETWORKIO, "Object update failed for object " UI64FMTD " (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName() : "object-not-found", GetPlayerName().c_str(), GetGuidLow());
+    sLog->outError(LOG_FILTER_NETWORKIO, "Object update failed for object " UI64FMTD " (%s) for player %s (%u)", uint64(l_ObjectGUID), l_WorldObject ? l_WorldObject->GetName() : "object-not-found", GetPlayerName().c_str(), GetGuidLow());
 }
 
 // DestrinyFrame.xml : lua function NeutralPlayerSelectFaction
