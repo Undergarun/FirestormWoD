@@ -3850,54 +3850,29 @@ bool SpellEffectInfo::IsAPSPModified() const
         {
             switch (ApplyAuraName)
             {
-                case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
-                case SPELL_AURA_MOD_INCREASE_SWIM_SPEED:
-                case SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED:
-                case SPELL_AURA_MOD_MINIMUM_SPEED:
-                case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
-                case SPELL_AURA_MOD_INCREASE_SPEED:
-                case SPELL_AURA_MOD_SPEED_ALWAYS:
-                case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
-                case SPELL_AURA_MOD_MELEE_RANGED_HASTE:
-                case SPELL_AURA_MOD_MELEE_RANGED_HASTE_2:
-                case SPELL_AURA_MELEE_SLOW:
-                case SPELL_AURA_MOD_DETECTED_RANGE:
-                case SPELL_AURA_MOD_DETECT_RANGE:
-                case SPELL_AURA_MOD_HEALING_DONE_PERCENT:
-                case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                case SPELL_AURA_MOD_HEALING_PCT:
-                case SPELL_AURA_MOD_ATTACK_POWER:
-                case SPELL_AURA_MOD_ATTACK_POWER_PCT:
-                case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
-                case SPELL_AURA_MECHANIC_IMMUNITY:
-                case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
-                case SPELL_AURA_ADD_FLAT_MODIFIER:
-                case SPELL_AURA_ADD_PCT_MODIFIER:
-                case SPELL_AURA_MOD_CRIT_PCT:
-				case SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT:
-                case SPELL_AURA_MOD_STAT:
-                case SPELL_AURA_MOD_RATING:
-                case SPELL_AURA_MOD_RATING_FROM_STAT:
-				case SPELL_AURA_MOD_RESISTANCE:
-				case SPELL_AURA_MOD_SCALE_2:
-                case SPELL_AURA_MOD_INCREASE_ENERGY:
-                    return false;
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_DAMAGE_SHIELD:
+                case SPELL_AURA_SCHOOL_ABSORB:
+                case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                    return true;
                 default:
                     break;
             }
+
             break;
         }
-
-        case SPELL_EFFECT_ADD_COMBO_POINTS:
-        case SPELL_EFFECT_HEAL_MAX_HEALTH:
-        case SPELL_EFFECT_ENERGIZE:
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_POWER_DRAIN:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_HEAL:
         case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            return false;
-
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 bool SpellInfo::IsInterruptSpell() const

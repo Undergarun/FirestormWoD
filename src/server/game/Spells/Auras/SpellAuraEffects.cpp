@@ -565,6 +565,7 @@ float AuraEffect::GetCalculatedAmountForClient_Second()
         case SPELL_AURA_ADD_PCT_MODIFIER:
         case SPELL_AURA_BYPASS_ARMOR_FOR_CASTER:
         case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_MOD_INCREASE_SPEED:
         case SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE:
         case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
