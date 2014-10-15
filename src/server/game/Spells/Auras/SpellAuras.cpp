@@ -38,7 +38,7 @@
 #include "Vehicle.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, AuraPtr aura, uint32 effMask):
-_target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
+_target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), m_Slot(MAX_AURAS),
 _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(0)
 {
     ASSERT(GetTarget() && GetBase());
@@ -71,7 +71,7 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
         // Register Visible Aura
         if (slot < MAX_AURAS)
         {
-            _slot = slot;
+            m_Slot = slot;
             GetTarget()->SetVisibleAura(slot, this);
             SetNeedClientUpdate();
         }
@@ -189,195 +189,165 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     SetNeedClientUpdate();
 }
 
-void AuraApplication::BuildBitsUpdatePacket(ByteBuffer& data, bool remove) const
+void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint32 p_OverrideSpellID) const
 {
-    data.WriteBit(!remove);
+    constAuraPtr l_Aura = GetBase();
 
-    if (remove)
-        return;
+    uint32 l_Flags = _flags;
 
-    constAuraPtr aura = GetBase();
-    uint32 flags = _flags;
-    if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
+    if (l_Aura->GetMaxDuration() > 0 && !(l_Aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
+        l_Flags |= AFLAG_DURATION;
 
-    uint8 count = 0;
-    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+    uint32 l_Mask = 0;
+    uint32 l_PointsCount = 0;
+
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
     {
-        for (uint8 i  = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I)) // NULL if effect flag not set
         {
-            if (aura->GetEffect(i))
-                ++count;
-        }
-    }
-
-    data.WriteBit(flags & AFLAG_DURATION); // duration
-    data.WriteBits(count, 22);
-    data.WriteBit((flags & AFLAG_CASTER) == 0);
-
-    if (!(flags & AFLAG_CASTER))
-    {
-        ObjectGuid casterGuid = aura->GetCasterGUID();
-        uint8 order[8] = {3, 0, 2, 6, 5, 7, 4, 1};
-
-        data.WriteBitInOrder(casterGuid, order);
-    }
-
-    data.WriteBit(flags & AFLAG_DURATION); // max duration
-    data.WriteBits(0, 22); // second effect count
-}
-
-void AuraApplication::BuildBytesUpdatePacket(ByteBuffer& data, bool remove, uint32 overrideSpell) const
-{
-    constAuraPtr aura = GetBase();
-    uint32 flags = _flags;
-    if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
-
-    uint32 mask = 0;
-    uint32 effectCount = 0;
-
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
-        {
-            if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+            if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
             {
-                mask |= 1 << i;
-                effectCount++;
+                l_Mask |= 1 << l_I;
+                l_PointsCount++;
             }
         }
     }
 
-    data << uint8(_slot);
-    data.WriteBit(!remove);
-    data.FlushBits();
+    p_Data << uint8(m_Slot);                                                                                    ///< Slot
+    p_Data.WriteBit(!p_Remove);                                                                                 ///< Has Aura Data
+    p_Data.FlushBits();
 
-    if (remove)
+    if (p_Remove)
         return;
 
-    data << uint32(overrideSpell ? overrideSpell : aura->GetId());
-    data << uint8(flags);
-    data << uint32(mask);
-    data << uint16(aura->GetCasterLevel());
-    data << uint8(aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges());
-    data << uint32(effectCount);
-    data << uint32(0);
+    p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Aura->GetId());                                  ///< SpellID
+    p_Data << uint8(l_Flags);                                                                                   ///< Flags
+    p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
+    p_Data << uint16(l_Aura->GetCasterLevel());                                                                 ///< Cast Level
+    p_Data << uint8(l_Aura->GetSpellInfo()->StackAmount ? l_Aura->GetStackAmount() : l_Aura->GetCharges());     ///< Applications
+    p_Data << uint32(l_PointsCount);                                                                            ///< Points Count
+    p_Data << uint32(0);
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
     {
-        if (constAuraEffectPtr eff = aura->GetEffect(i)) // NULL if effect flag not set
+        /// NULL if effect flag not set
+        if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
         {
-            if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                data << float(eff->GetAmount());
+            if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                p_Data << float(l_Effect->GetAmount());
         }
     }
 
-    data.WriteBit(!(flags & AFLAG_CASTER));
-    data.WriteBit(flags & AFLAG_DURATION);
-    data.WriteBit(flags & AFLAG_DURATION);
-    data.FlushBits();
+    p_Data.WriteBit(!(l_Flags & AFLAG_CASTER));                                                                 ///< Has Cast Unit
+    p_Data.WriteBit(l_Flags & AFLAG_DURATION);                                                                  ///< Has Duration
+    p_Data.WriteBit(l_Flags & AFLAG_DURATION);                                                                  ///< Has Remaining
+    p_Data.FlushBits();
 
-    if (!(flags & AFLAG_CASTER))
-        data.appendPackGUID(aura->GetCasterGUID());
+    if (!(l_Flags & AFLAG_CASTER))
+        p_Data.appendPackGUID(l_Aura->GetCasterGUID());                                                         ///< Cast Unit
 
-    if (flags & AFLAG_DURATION)
-        data << uint32(aura->GetMaxDuration());
+    if (l_Flags & AFLAG_DURATION)
+        p_Data << uint32(l_Aura->GetMaxDuration());                                                             ///< Duration
 
-    if (flags & AFLAG_DURATION)
-        data << uint32(aura->GetDuration());
+    if (l_Flags & AFLAG_DURATION)
+        p_Data << uint32(l_Aura->GetDuration());                                                                ///< Remaining
 
     // effect value 2 for
 }
 
-void AuraApplication::ClientUpdate(bool remove)
+void AuraApplication::ClientUpdate(bool p_Remove)
 {
     _needClientUpdate = false;
 
-    ObjectGuid targetGuid = GetTarget()->GetGUID();
-    WorldPacket data(SMSG_AURA_UPDATE);
+    WorldPacket l_Data(SMSG_AURA_UPDATE);
 
-    data.WriteBit(false); // full update bit
-    data.FlushBits();
-    data.appendPackGUID(targetGuid);
-    data << uint32(1);
+    l_Data.WriteBit(false);                         ///< Update All
+    l_Data.FlushBits();
+    l_Data.appendPackGUID(GetTarget()->GetGUID());  ///< Unit GUID
+    l_Data << uint32(1);                            ///< Auras count
 
-    BuildBytesUpdatePacket(data, remove);
+    BuildUpdatePacket(l_Data, p_Remove);
 
-    _target->SendMessageToSet(&data, true);
+    _target->SendMessageToSet(&l_Data, true);
 
-    AuraPtr aura = GetBase();
-    if (!aura)
+    AuraPtr l_AuraBase = GetBase();
+
+    if (!l_AuraBase)
         return;
 
-    if (aura->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
+    if (l_AuraBase->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
         return;
 
-    Mechanics mechanic = MECHANIC_NONE;
-    SpellEffIndex effIndex = EFFECT_0;
+    Mechanics l_Mechanic = MECHANIC_NONE;
+    SpellEffIndex l_EffectIndex = EFFECT_0;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
     {
-        if (constAuraEffectPtr eff = aura->GetEffect(i))
+        if (constAuraEffectPtr l_Effect = l_AuraBase->GetEffect(l_I))
         {
-            switch (eff->GetAuraType())
+            switch (l_Effect->GetAuraType())
             {
                 case SPELL_AURA_MOD_CONFUSE:
-                    mechanic = MECHANIC_DISORIENTED;
+                    l_Mechanic = MECHANIC_DISORIENTED;
                     break;
+
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_FEAR_2:
-                    mechanic = MECHANIC_FEAR;
+                    l_Mechanic = MECHANIC_FEAR;
                     break;
+
                 case SPELL_AURA_MOD_STUN:
-                    mechanic = MECHANIC_STUN;
+                    l_Mechanic = MECHANIC_STUN;
                     break;
+
                 case SPELL_AURA_MOD_ROOT:
-                    mechanic = MECHANIC_ROOT;
+                    l_Mechanic = MECHANIC_ROOT;
                     break;
+
                 case SPELL_AURA_TRANSFORM:
-                    mechanic = MECHANIC_POLYMORPH;
+                    l_Mechanic = MECHANIC_POLYMORPH;
                     break;
+
                 case SPELL_AURA_MOD_SILENCE:
-                    mechanic = MECHANIC_SILENCE;
+                    l_Mechanic = MECHANIC_SILENCE;
                     break;
+
                 case SPELL_AURA_MOD_DISARM:
                 case SPELL_AURA_MOD_DISARM_OFFHAND:
                 case SPELL_AURA_MOD_DISARM_RANGED:
-                    mechanic = MECHANIC_DISARM;
+                    l_Mechanic = MECHANIC_DISARM;
                     break;
+
                 default:
                     break;
             }
 
-            if (mechanic != MECHANIC_NONE)
+            if (l_Mechanic != MECHANIC_NONE)
             {
-                effIndex = SpellEffIndex(i);
+                l_EffectIndex = SpellEffIndex(l_I);
                 break;
             }
         }
     }
 
-    if (mechanic == MECHANIC_NONE)
+    if (l_Mechanic == MECHANIC_NONE)
         return;
 
-    _target->SendLossOfControl(this, mechanic, effIndex);
+    _target->SendLossOfControl(this, l_Mechanic, l_EffectIndex);
 }
 
-void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
+void AuraApplication::SendFakeAuraUpdate(uint32 p_AuraId, bool p_Remove)
 {
-    bool powerData = false;
-    ObjectGuid targetGuid = GetTarget()->GetGUID();
-    WorldPacket data(SMSG_AURA_UPDATE);
+    WorldPacket l_Data(SMSG_AURA_UPDATE);
 
-    data.WriteBit(false); // full update bit
-    data.FlushBits();
-    data.appendPackGUID(targetGuid);
-    data << uint32(1);
+    l_Data.WriteBit(false);                             ///< UpdateAll
+    l_Data.FlushBits();
+    l_Data.appendPackGUID(GetTarget()->GetGUID());      ///< Unit GUID
+    l_Data << uint32(1);                                ///< Auras Count
 
-    BuildBytesUpdatePacket(data, remove, auraId);
+    BuildUpdatePacket(l_Data, p_Remove, p_AuraId);
 
-    _target->SendMessageToSet(&data, true);
+    _target->SendMessageToSet(&l_Data, true);
  }
 
 uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner)

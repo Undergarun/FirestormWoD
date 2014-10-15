@@ -25862,55 +25862,55 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
     }
 }
 
-void Player::SendAurasForTarget(Unit* target)
+void Player::SendAurasForTarget(Unit* p_Target)
 {
-    if (!target || target->GetVisibleAuras()->empty())                  // speedup things
+    if (!p_Target || p_Target->GetVisibleAuras()->empty())                  // speedup things
         return;
 
-    /*! Blizz sends certain movement packets sometimes even before CreateObject
-        These movement packets are usually found in SMSG_COMPRESSED_MOVES
-    */
-    if (target->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        target->SendMovementFeatherFall();
+    /// Blizz sends certain movement packets sometimes even before CreateObject
+    /// These movement packets are usually found in SMSG_COMPRESSED_MOVES
+    if (p_Target->HasAuraType(SPELL_AURA_FEATHER_FALL))
+        p_Target->SendMovementFeatherFall();
 
-    if (target->HasAuraType(SPELL_AURA_WATER_WALK))
-        target->SendMovementWaterWalking();
+    if (p_Target->HasAuraType(SPELL_AURA_WATER_WALK))
+        p_Target->SendMovementWaterWalking();
 
-    if (target->HasAuraType(SPELL_AURA_HOVER))
-        target->SendMovementHover(true);
+    if (p_Target->HasAuraType(SPELL_AURA_HOVER))
+        p_Target->SendMovementHover(true);
 
-    ObjectGuid targetGuid = target->GetGUID();
-    Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
+    Unit::VisibleAuraMap const* l_VisibleAuras = p_Target->GetVisibleAuras();
 
-    uint32 auraCount = 0;
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    uint32 l_AuraCount = 0;
+    for (Unit::VisibleAuraMap::const_iterator itr = l_VisibleAuras->begin(); itr != l_VisibleAuras->end(); ++itr)
     {
-        AuraApplication* auraApp = itr->second;
-        if (!auraApp || !auraApp->GetBase())
+        AuraApplication * l_AuraApplication = itr->second;
+
+        if (!l_AuraApplication || !l_AuraApplication->GetBase())
             continue;
 
-        ++auraCount;
+        ++l_AuraCount;
     }
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteBit(true); // full update bit
-    data.FlushBits();
-    data.appendPackGUID(targetGuid);
-    data << uint32(auraCount);
+    WorldPacket l_Data(SMSG_AURA_UPDATE);
+    l_Data.WriteBit(true);                          ///< Update All
+    l_Data.FlushBits();
+    l_Data.appendPackGUID(p_Target->GetGUID());     ///< Unit GUID
+    l_Data << uint32(l_AuraCount);                  ///< Auras count
 
-    if (auraCount)
+    if (l_AuraCount)
     {
-        for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+        for (Unit::VisibleAuraMap::const_iterator l_It = l_VisibleAuras->begin(); l_It != l_VisibleAuras->end(); ++l_It)
         {
-            AuraApplication* auraApp = itr->second;
-            if (!auraApp || !auraApp->GetBase())
+            AuraApplication * l_AuraApplication = l_It->second;
+
+            if (!l_AuraApplication || !l_AuraApplication->GetBase())
                 continue;
 
-            auraApp->BuildBytesUpdatePacket(data, false);
+            l_AuraApplication->BuildUpdatePacket(l_Data, false);
         }
     }
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SetDailyQuestStatus(uint32 quest_id)
