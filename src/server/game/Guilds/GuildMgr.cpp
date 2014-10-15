@@ -372,10 +372,9 @@ void GuildMgr::LoadGuilds()
         // Delete orphan guild bank items
         CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-        //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, reforgeId, transmogrifyId, upgradeId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
-                                                     //          0            1                2      3         4        5      6             7                 8           9           10
-        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId,  reforgeId, transmogrifyId, upgradeId,"
-                                                     //   11       12           13      14     15     16      17          18
+                                                     //          0            1                2      3         4        5      6                  7                 8           9
+        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, upgradeId,"
+                                                     //   10       11           12      13     14     15      16          17
                                                      "durability, playedTime, text, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
 
         if (!result)
@@ -388,7 +387,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[14].GetUInt32();
+                uint32 guildId = fields[13].GetUInt32();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

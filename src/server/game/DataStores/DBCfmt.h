@@ -81,7 +81,6 @@ const char ImportPriceQualityfmt[]            = "nf";
 const char ImportPriceShieldfmt[]             = "nf";
 const char ImportPriceWeaponfmt[]             = "nf";
 const char ItemPriceBasefmt[]                 = "diff";
-const char ItemReforgefmt[]                   = "nifif";
 const char ItemBagFamilyfmt[]                 = "nx";
 const char ItemArmorQualityfmt[]              = "nfffffffi";
 const char ItemArmorShieldfmt[]               = "nifffffff";

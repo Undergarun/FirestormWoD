@@ -1602,8 +1602,6 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         if (modifiers > 0)
         {
             data << uint32(mask);
-            if (uint32 reforge = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0))
-                data << uint32(reforge);
             if (uint32 transmogrification = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1))
                 data << uint32(transmogrification);
             if (uint32 upgrade = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2))

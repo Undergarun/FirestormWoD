@@ -1031,10 +1031,6 @@ class WorldSession
         // Transmogrification
         void HandleTransmogrifyItems(WorldPacket& recvData);
 
-        // Reforge
-        void HandleReforgeItemOpcode(WorldPacket& recvData);
-        void SendReforgeResult(bool success);
-
         // Item Upgrade
         void HandleUpgradeItemOpcode(WorldPacket& recvData);
         void SendItemUpgradeResult(bool success);

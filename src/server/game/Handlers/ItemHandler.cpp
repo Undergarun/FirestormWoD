@@ -2186,100 +2186,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         player->ModifyMoney(-int64(cost));
 }
 
-void WorldSession::SendReforgeResult(bool success)
-{
-    WorldPacket data(SMSG_REFORGE_RESULT, 1);
-    data.WriteBit(success);
-    data.FlushBits();
-    SendPacket(&data);
-}
-
-void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REFORGE_ITEM");
-
-    uint32 slot, reforgeEntry;
-    ObjectGuid guid;
-    uint32 bag;
-    Player* player = GetPlayer();
-
-    recvData >> reforgeEntry >> bag >> slot;
-
-    uint8 bitOrder[8] = { 3, 5, 6, 4, 1, 7, 2, 0 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 2, 1, 7, 6, 5, 0, 3, 4 };
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(guid));
-        SendReforgeResult(false);
-        return;
-    }
-
-    Item* item = player->GetItemByPos(bag, slot);
-    if (!item)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUIDLow(), player->GetName());
-        SendReforgeResult(false);
-        return;
-    }
-
-    if (!reforgeEntry)
-    {
-        // Reset the item
-        if (item->IsEquipped() && !item->IsBroken())
-            player->ApplyReforgeEnchantment(item, false);
-
-        item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, 0);
-        item->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
-        item->SetState(ITEM_CHANGED, player);
-        SendReforgeResult(true);
-        return;
-    }
-
-    ItemReforgeEntry const* stats = sItemReforgeStore.LookupEntry(reforgeEntry);
-    if (!stats)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item with invalid reforge entry (%u).", player->GetGUIDLow(), player->GetName(), reforgeEntry);
-        SendReforgeResult(false);
-        return;
-    }
-
-    if (!item->GetReforgableStat(ItemModType(stats->SourceStat)) || item->GetReforgableStat(ItemModType(stats->FinalStat))) // Cheating, you cant reforge to a stat that the item already has, nor reforge from a stat that the item does not have
-    {
-        SendReforgeResult(false);
-        return;
-    }
-
-    if (!player->HasEnoughMoney(uint64(item->GetSpecialPrice()))) // cheating
-    {
-        SendReforgeResult(false);
-        return;
-    }
-
-    // Player has already reforged this item, must to reset it
-    if (item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0))
-    {
-        SendReforgeResult(false);
-        return;
-    }
-
-    player->ModifyMoney(-int64(item->GetSpecialPrice()));
-
-    item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, reforgeEntry);
-    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
-    item->SetState(ITEM_CHANGED, player);
-
-    SendReforgeResult(true);
-
-    if (item->IsEquipped() && !item->IsBroken())
-        player->ApplyReforgeEnchantment(item, true);
-}
-
 void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
 {
     uint32 currencyId, flags;
@@ -2349,7 +2255,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWithFlag2(npcGuid, UNIT_NPC_FLAG2_ITEM_UPGRADE))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
         SendItemUpgradeResult(false);
         return;
     }
@@ -2357,7 +2263,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     Item* item = player->GetItemByGuid(itemGuid);
     if (!item)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
         SendItemUpgradeResult(false);
         return;
     }
@@ -2367,14 +2273,14 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     {
         if (item != tempItem)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
             SendItemUpgradeResult(false);
             return;
         }
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - Item (GUID: %u) not found.", GUID_LOPART(itemGuid));
         SendItemUpgradeResult(false);
         return;
     }
@@ -2382,7 +2288,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     ItemUpgradeEntry const* itemUpEntry = sItemUpgradeStore.LookupEntry(upgradeEntry);
     if (!itemUpEntry)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - ItemUpgradeEntry (%u) not found.", upgradeEntry);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - ItemUpgradeEntry (%u) not found.", upgradeEntry);
         SendItemUpgradeResult(false);
         return;
     }
@@ -2390,7 +2296,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     // Check if player has enough currency
     if (player->GetCurrency(itemUpEntry->currencyId, false) < itemUpEntry->currencyCost)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpEntry->currencyId, itemUpEntry->currencyCost);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpEntry->currencyId, itemUpEntry->currencyCost);
         SendItemUpgradeResult(false);
         return;
     }
@@ -2398,7 +2304,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     uint32 actualUpgrade = item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2);
     if (actualUpgrade != itemUpEntry->precItemUpgradeId)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpEntry->Id, actualUpgrade);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItemOpcode - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpEntry->Id, actualUpgrade);
         SendItemUpgradeResult(false);
         return;
     }

@@ -1342,17 +1342,6 @@ struct ItemPriceBaseEntry
 };
 
 
-// delete 6.0.1 ?
-struct ItemReforgeEntry
-{
-    uint32  Id;                                             // 0
-    uint32  SourceStat;                                     // 1
-    float   SourceMultiplier;                               // 2
-    uint32  FinalStat;                                      // 3
-    float   FinalMultiplier;                                // 4
-};
-
-
 // common struct for:
 // ItemDamageAmmo.dbc
 // ItemDamageOneHand.dbc

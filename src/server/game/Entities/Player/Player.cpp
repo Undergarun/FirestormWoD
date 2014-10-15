@@ -15579,113 +15579,6 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
     }
 }
 
-void Player::ApplyReforgeEnchantment(Item* item, bool apply)
-{
-    if (!item)
-        return;
-
-    ItemReforgeEntry const* reforge = sItemReforgeStore.LookupEntry(item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0));
-    if (!reforge)
-        return;
-
-    float removeValue = item->GetReforgableStat(ItemModType(reforge->SourceStat)) * reforge->SourceMultiplier;
-    float addValue = removeValue * reforge->FinalMultiplier;
-
-    switch (reforge->SourceStat)
-    {
-        case ITEM_MOD_SPIRIT:
-            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, -removeValue, apply);
-            ApplyStatBuffMod(STAT_SPIRIT, -removeValue, apply);
-            break;
-        case ITEM_MOD_DODGE_RATING:
-            ApplyRatingMod(CR_DODGE, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_PARRY_RATING:
-            ApplyRatingMod(CR_PARRY, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_CRIT_MELEE_RATING:
-            ApplyRatingMod(CR_CRIT_MELEE, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_CRIT_RANGED_RATING:
-            ApplyRatingMod(CR_CRIT_RANGED, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_CRIT_SPELL_RATING:
-            ApplyRatingMod(CR_CRIT_SPELL, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_HASTE_SPELL_RATING:
-            ApplyRatingMod(CR_HASTE_SPELL, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_CRIT_RATING:
-            ApplyRatingMod(CR_CRIT_MELEE, -int32(removeValue), apply);
-            ApplyRatingMod(CR_CRIT_RANGED, -int32(removeValue), apply);
-            ApplyRatingMod(CR_CRIT_SPELL, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_RESILIENCE_RATING:
-            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_PVP_POWER:
-            ApplyRatingMod(CR_PVP_POWER, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_HASTE_RATING:
-            ApplyRatingMod(CR_HASTE_MELEE, -int32(removeValue), apply);
-            ApplyRatingMod(CR_HASTE_RANGED, -int32(removeValue), apply);
-            ApplyRatingMod(CR_HASTE_SPELL, -int32(removeValue), apply);
-            break;
-        case ITEM_MOD_MASTERY_RATING:
-            ApplyRatingMod(CR_MASTERY, -int32(removeValue), apply);
-            break;
-        default:
-            break;
-    }
-
-    switch (reforge->FinalStat)
-    {
-        case ITEM_MOD_SPIRIT:
-            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, addValue, apply);
-            ApplyStatBuffMod(STAT_SPIRIT, addValue, apply);
-            break;
-        case ITEM_MOD_DODGE_RATING:
-            ApplyRatingMod(CR_DODGE, int32(addValue), apply);
-            break;
-        case ITEM_MOD_PARRY_RATING:
-            ApplyRatingMod(CR_PARRY, int32(addValue), apply);
-            break;
-        case ITEM_MOD_CRIT_MELEE_RATING:
-            ApplyRatingMod(CR_CRIT_MELEE, int32(addValue), apply);
-            break;
-        case ITEM_MOD_CRIT_RANGED_RATING:
-            ApplyRatingMod(CR_CRIT_RANGED, int32(addValue), apply);
-            break;
-        case ITEM_MOD_CRIT_SPELL_RATING:
-            ApplyRatingMod(CR_CRIT_SPELL, int32(addValue), apply);
-            break;
-        case ITEM_MOD_HASTE_SPELL_RATING:
-            ApplyRatingMod(CR_HASTE_SPELL, int32(addValue), apply);
-            break;
-        case ITEM_MOD_CRIT_RATING:
-            ApplyRatingMod(CR_CRIT_MELEE, int32(addValue), apply);
-            ApplyRatingMod(CR_CRIT_RANGED, int32(addValue), apply);
-            ApplyRatingMod(CR_CRIT_SPELL, int32(addValue), apply);
-            break;
-        case ITEM_MOD_RESILIENCE_RATING:
-            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(addValue), apply);
-            break;
-        case ITEM_MOD_PVP_POWER:
-            ApplyRatingMod(CR_PVP_POWER, int32(addValue), apply);
-            break;
-        case ITEM_MOD_HASTE_RATING:
-            ApplyRatingMod(CR_HASTE_MELEE, int32(addValue), apply);
-            ApplyRatingMod(CR_HASTE_RANGED, int32(addValue), apply);
-            ApplyRatingMod(CR_HASTE_SPELL, int32(addValue), apply);
-            break;
-        case ITEM_MOD_MASTERY_RATING:
-            ApplyRatingMod(CR_MASTERY, int32(addValue), apply);
-            break;
-        default:
-            break;
-    }
-}
-
 void Player::ApplyItemUpgrade(Item* item, bool apply)
 {
     if (!item)
@@ -15813,7 +15706,6 @@ void Player::ApplyEnchantment(Item* item, bool apply)
     for (uint32 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
         ApplyEnchantment(item, EnchantmentSlot(slot), apply);
 
-    ApplyReforgeEnchantment(item, apply);
     ApplyItemUpgrade(item, apply);
 }
 
@@ -20323,8 +20215,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[14].GetUInt32();
-        uint32 itemTemplate = fields[15].GetUInt32();
+        uint32 itemGuid = fields[13].GetUInt32();
+        uint32 itemTemplate = fields[14].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -20346,7 +20238,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[15].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
 

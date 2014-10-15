@@ -1250,7 +1250,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_READ_ITEM,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReadItem                  );
     //DEFINE_OPCODE_HANDLER(CMSG_REALM_SPLIT,                             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_REDIRECTION_AUTH_PROOF,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_REFORGE_ITEM,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleReforgeItemOpcode         );
     //DEFINE_OPCODE_HANDLER(CMSG_REPORT_BUG,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportBugOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK              );
     //DEFINE_OPCODE_HANDLER(CMSG_REPORT_SUGGESTION,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportSuggestionOpcode    );
@@ -1631,7 +1630,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_REDIRECT_CLIENT,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_EXPIRED,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_FAILURE,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_REFORGE_RESULT,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REPORT_PVP_AFK_RESULT,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REQUEST_CEMETERY_LIST_RESPONSE,          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_RESEARCH_COMPLETE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
