@@ -37,42 +37,23 @@ enum ClientType
     CLIENT_TYPE_MAC64 = 0xFEEDFACF
 };
 
-const uint8_t win32_packet_disable_filter_jam_dispatch[] =  {   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-
-const uint8_t win32_packet_sending_routage[] = { 0xBB, 0x00, 0x00, 0x00, 0x00 };                           ///< mov     ebx, 0
-
+/// 19027
 const struct RewriteItem Win32Patchs[] = {
-  //{ 0x0000000, sizeof(win32_packet_disable_filter_jam_dispatch),  win32_packet_disable_filter_jam_dispatch    },   ///< Disable packet filter
-  //{ 0x0000000, sizeof(win32_packet_sending_routage),              win32_packet_sending_routage                },   ///< Don't use special routage for packets
-    { 0x0A3183C, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
-    { 0x0A5567C, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
-    { 0x0AF4764, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
-    { 0x0A60FB4, sizeof(bnet_agent_data),                           bnet_agent_data                             },   ///< Change bnet agent
-    { 0x0A30B24, sizeof(bnet_versions_data),                        bnet_versions_data                          },   ///< Change bnet versions data
-    { 0x0A30B50, sizeof(bnet_cdns_data),                            bnet_cdns_data                              },   ///< Change bnet cdns data
+    { 0x0A374D0, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
+    { 0x0A5B80C, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
+    { 0x0AFB0A4, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
+    { 0x0A6722C, sizeof(bnet_agent_data),                           bnet_agent_data                             },   ///< Change bnet agent
+    { 0x0A36760, sizeof(bnet_versions_data),                        bnet_versions_data                          },   ///< Change bnet versions data
+    { 0x0A3678C, sizeof(bnet_cdns_data),                            bnet_cdns_data                              },   ///< Change bnet cdns data
 };
 
-const uint8_t mac64_packet_disable_filter_date[]  = {0x8B, 0x55, 0x0C, 0xE9, 0x41, 0x01, 0x00, 0x00}; // mov edx, [ebp+arg_4];  jmp 141h
-const uint8_t mac64_packet_routage_data[]         = {0x33, 0xFF, 0xEB, 0x7A, 0x90, 0x90};             // xor edi, edi;  jmp short 7Ah
-
 const struct RewriteItem Mac64Patchs[] = {
-    { 0x0000000, sizeof(mac64_packet_disable_filter_date),          mac64_packet_disable_filter_date            },   ///< Disable packet filter
-    { 0x0000000, sizeof(mac64_packet_routage_data),                 mac64_packet_routage_data                   },   ///< Don't use special routage for packets
     { 0x0000000, sizeof(config_data),                               config_data                                 },   ///< Change default configuration file
     { 0x0000000, sizeof(builddate_data),                            builddate_data                              },   ///< Change build date
     { 0x0000000, sizeof(bnet_portal_data),                          bnet_portal_data                            },   ///< Change bnet portal
+    { 0x0000000, sizeof(bnet_agent_data),                           bnet_agent_data                             },   ///< Change bnet agent
+    { 0x0000000, sizeof(bnet_versions_data),                        bnet_versions_data                          },   ///< Change bnet versions data
+    { 0x0000000, sizeof(bnet_cdns_data),                            bnet_cdns_data                              },   ///< Change bnet cdns data
 };
 
 const struct SystemItem gSystems[] = {
