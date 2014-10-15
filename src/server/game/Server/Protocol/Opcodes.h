@@ -555,6 +555,31 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Lfg
     //////////////////////////////////////////////////////////////////////////
+    #pragma region JamLFG
+        SMSG_LFG_BOOT_PLAYER                              = 0x0505,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_DISABLED                                 = 0x0205,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_JOIN_RESULT                              = 0x0125,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_OFFER_CONTINUE                           = 0x1201,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_OPEN_FROM_GOSSIP                         = 0x0001,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_PARTY_INFO                               = 0x1402,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_PLAYER_INFO                              = 0x0005,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_PLAYER_REWARD                            = 0x0506,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_PROPOSAL_UPDATE                          = 0x0402,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_QUEUE_STATUS                             = 0x0106,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_ROLE_CHECK_UPDATE                        = 0x1326,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_ROLE_CHOSEN                              = 0x1322,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_SEARCH_RESULT                            = 0x0306,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_SLOT_INVALID                             = 0x1126,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_TELEPORT_DENIED                          = 0x1102,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_LIST_JOIN_RESULT                         = 0x0601,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_UPDATE_LIST                              = 0x1301,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_UPDATE_PARTY                             = 0x0000,
+        SMSG_LFG_UPDATE_PLAYER                            = 0x0000,
+        SMSG_LFG_UPDATE_SEARCH                            = 0x0000,
+        SMSG_LFG_UPDATE_STATUS                            = 0x0722,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
+        SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x1221,     ///< 6.0.2 19027 (unused)
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Garrison
@@ -799,12 +824,12 @@ enum Opcodes
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND        = 0x0001,   ///<
-    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x0002,   ///<
-    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x0003,   ///<
-    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x0004,   ///<
-    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x0005,   ///<
-    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x0006,   ///<
+    CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND        = 0x8001,   ///<
+    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x8002,   ///<
+    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x8003,   ///<
+    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x8004,   ///<
+    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x8005,   ///<
+    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x8006,   ///<
 
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0007,   ///<
@@ -1021,7 +1046,23 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x0BEC,   ///< 6.0.2 19027 (unused)
+    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x0BEC,    ///< 6.0.2 19027 (unused)
+
+    //////////////////////////////////////////////////////////////////////////
+    /// LFG
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_LFG_GET_PLAYER_INFO                       = 0x10C0,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_GET_STATUS                            = 0x18AF,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_JOIN                                  = 0x0AEF,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_LEAVE                                 = 0x02EB,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_PARTY_LOCK_INFO_REQUEST               = 0x0000,
+    CMSG_LFG_PROPOSAL_RESULT                       = 0x12F8,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_SET_BOOT_VOTE                         = 0x0BE3,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_SET_COMMENT                           = 0x0AE8,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_SET_ROLES                             = 0x09A8,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_TELEPORT                              = 0x01E4,    ///< 6.0.2 19027 (unused)
+    CMSG_SEARCH_LFG_JOIN                           = 0x08B8,    ///< 6.0.2 19027 (unused)
+    CMSG_SEARCH_LFG_LEAVE                          = 0x09E4,    ///< 6.0.2 19027 (unused)
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1220,16 +1261,6 @@ enum Opcodes
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x0000,
     CMSG_LEAVE_CHANNEL                                = 0x0000,
-    CMSG_LFG_GET_PLAYER_INFO                          = 0x0000,
-    CMSG_LFG_GET_STATUS                               = 0x0000,
-    CMSG_LFG_JOIN                                     = 0x0000,
-    CMSG_LFG_LEAVE                                    = 0x0000,
-    CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0x0000,
-    CMSG_LFG_PROPOSAL_RESULT                          = 0x0000,
-    CMSG_LFG_SET_BOOT_VOTE                            = 0x0000,
-    CMSG_LFG_SET_COMMENT                              = 0x0000,
-    CMSG_LFG_SET_ROLES                                = 0x0000,
-    CMSG_LFG_TELEPORT                                 = 0x0000,
     CMSG_LIST_STABLE_PETS                             = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
@@ -1294,14 +1325,12 @@ enum Opcodes
     CMSG_REQUEST_VEHICLE_EXIT                         = 0x0000,
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x0000,
     CMSG_REQUEST_VEHICLE_PREV_SEAT                    = 0x0000,
-    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x0000 + 1,
+    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x8000 + 1,
     CMSG_RESET_CHALLENGE_MODE                         = 0x0000,
     CMSG_RESET_FACTION_CHEAT                          = 0x0000,
     CMSG_RESET_INSTANCES                              = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
-    CMSG_SEARCH_LFG_JOIN                              = 0x0000,
-    CMSG_SEARCH_LFG_LEAVE                             = 0x0000,
     CMSG_SELECT_FACTION                               = 0x0000,
     CMSG_SELF_RES                                     = 0x0000,
     CMSG_SEND_MAIL                                    = 0x0000,
@@ -1644,28 +1673,6 @@ enum Opcodes
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x0000,
     SMSG_KICK_REASON                                  = 0x0000,
     SMSG_LEARNED_DANCE_MOVES                          = 0x0000,
-    SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0x0000,
-    SMSG_LFG_BOOT_PLAYER                              = 0x0000,
-    SMSG_LFG_DISABLED                                 = 0x0000,
-    SMSG_LFG_JOIN_RESULT                              = 0x0000,
-    SMSG_LFG_OFFER_CONTINUE                           = 0x0000,
-    SMSG_LFG_OPEN_FROM_GOSSIP                         = 0x0000,
-    SMSG_LFG_PARTY_INFO                               = 0x0000,
-    SMSG_LFG_PLAYER_INFO                              = 0x0000,
-    SMSG_LFG_PLAYER_REWARD                            = 0x0000,
-    SMSG_LFG_PROPOSAL_UPDATE                          = 0x0000,
-    SMSG_LFG_QUEUE_STATUS                             = 0x0000,
-    SMSG_LFG_ROLE_CHECK_UPDATE                        = 0x0000,
-    SMSG_LFG_ROLE_CHOSEN                              = 0x0000,
-    SMSG_LFG_SEARCH_RESULT                            = 0x0000,
-    SMSG_LFG_SLOT_INVALID                             = 0x0000,
-    SMSG_LFG_TELEPORT_DENIED                          = 0x0000,
-    SMSG_LFG_UPDATE_LIST                              = 0x0000,
-    SMSG_LFG_UPDATE_PARTY                             = 0x0000,
-    SMSG_LFG_UPDATE_PLAYER                            = 0x0000,
-    SMSG_LFG_UPDATE_SEARCH                            = 0x0000,
-    SMSG_LFG_UPDATE_STATUS                            = 0x0000,
-    SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x0000,
     SMSG_LOOT_ALL_PASSED                              = 0x0000,
@@ -1911,7 +1918,6 @@ enum Opcodes
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
     SMSG_UNIT_SPELLCAST_START                         = 0x0000,
     SMSG_UPDATE_COMBO_POINTS                          = 0x0000,
-    SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x0000,
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x0000,
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0x0000,
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x0000,
