@@ -1162,46 +1162,56 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
             player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
-void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
+void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
 
-    uint32 type, timestamp, decompressedSize, compressedSize;
-    recvData >> decompressedSize >> timestamp >> compressedSize;
+    uint64 l_CharacterGUID = 0;
 
-    type = uint8(recvData.contents()[recvData.size()-1]) >> 5;
+    uint32 l_Time               = 0;
+    uint32 l_DataType           = 0;
+    uint32 l_CompressedSize     = 0;
+    uint32 l_UncompressedSize   = 0;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
+    p_Packet.readPackGUID(l_CharacterGUID);
+    p_Packet >> l_Time;
+    p_Packet >> l_UncompressedSize;
 
-    if (decompressedSize == 0)                               // erase
+    l_DataType = p_Packet.ReadBits(3);
+
+    p_Packet >> l_CompressedSize;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", l_DataType, l_Time, l_UncompressedSize);
+
+    ///< Erase
+    if (l_UncompressedSize == 0)
     {
-        SetAccountData(AccountDataType(type), 0, "");
+        SetAccountData(AccountDataType(l_DataType), 0, "");
         return;
     }
 
-    if (decompressedSize > 0xFFFF)
+    if (l_UncompressedSize > 0xFFFF)
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
-        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", decompressedSize);
+        ///< Unnneded warning spam in this case
+        p_Packet.rfinish();
+        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", l_UncompressedSize);
         return;
     }
 
-    ByteBuffer dest;
-    dest.resize(decompressedSize);
+    ByteBuffer l_Data;
+    l_Data.resize(l_UncompressedSize);
 
-    uLongf realSize = decompressedSize;
-    if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recvData.contents() + recvData.rpos()), recvData.size() - recvData.rpos()) != Z_OK)
+    uLongf l_RealSize = l_UncompressedSize;
+    if (uncompress(const_cast<uint8*>(l_Data.contents()), &l_RealSize, const_cast<uint8*>(p_Packet.contents() + p_Packet.rpos()), p_Packet.size() - p_Packet.rpos()) != Z_OK)
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
+        ///< Unnneded warning spam in this case
+        p_Packet.rfinish();
         sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Failed to decompress account data");
         return;
     }
 
-    recvData.rfinish();                       // uncompress read (recvData.size() - recvData.rpos())
-
-    std::string adata = dest.ReadString(decompressedSize);
-
-    SetAccountData(AccountDataType(type), timestamp, adata);
+    std::string l_AccountData = l_Data.ReadString(l_UncompressedSize);
+    SetAccountData(AccountDataType(l_DataType), l_Time, l_AccountData);
 }
 
 void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)

@@ -666,6 +666,7 @@ enum Opcodes
     CMSG_VIOLENCE_LEVEL                         = 0x00D4,   ///< 6.0.2 19027
     CMSG_LOAD_SCREEN                            = 0x09B8,   ///< 6.0.2 19027
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x02A3,   ///< 6.0.2 19027
+    CMSG_UPDATE_ACCOUNT_DATA                    = 0x10EF,   ///< 6.0.2 19027
     CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0AEB,   ///< 6.0.2 19027
     CMSG_SET_RAID_DIFFICULTY                    = 0x12F3,   ///< 6.0.2 19027
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0338,   ///< 6.0.2 19027
@@ -1360,7 +1361,6 @@ enum Opcodes
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x0000,
-    CMSG_UPDATE_ACCOUNT_DATA                          = 0x0000,
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x0000,
     CMSG_UPDATE_PROJECTILE_POSITION                   = 0x0000,
     CMSG_UPGRADE_ITEM                                 = 0x0000,
