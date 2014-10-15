@@ -191,7 +191,7 @@ struct ItemExtendedCostEntry
     //uint32    RequiredFactionId;                                      // 26
     //uint32    RequiredFactionStanding;                                // 27
     //uint32    RequirementFlags;                                       // 28
-    //uint32    RequiredGuildLevel;                                     // 29 removed ?
+    //uint32    RequiredGuildLevel;                                     // 29 removed in 6.X
     //uint32    RequiredAchievement;                                    // 30 only 0
 };
 

@@ -379,6 +379,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     if (!GetCreatureAddon())
         SetSheath(SHEATH_STATE_MELEE);
 
+    SelectLevel(GetCreatureTemplate());
         setFaction(cInfo->faction);
 
     uint32 npcflag, unit_flags, unit_flags2, dynamicflags;
