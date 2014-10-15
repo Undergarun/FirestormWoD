@@ -53,18 +53,18 @@ uint8 gExpansionPerRace[] =
 
 uint8 gExpansionPerClass[] =
 {
-    MAX_EXPANSION,                  ///< CLASS_NONE
-    EXPANSION_VANILLA,              ///< CLASS_WARRIOR
-    EXPANSION_VANILLA,              ///< CLASS_PALADIN
-    EXPANSION_VANILLA,              ///< CLASS_HUNTER
-    EXPANSION_VANILLA,              ///< CLASS_ROGUE
-    EXPANSION_VANILLA,              ///< CLASS_PRIEST
-    EXPANSION_THE_BURNING_CRUSADE,  ///< CLASS_DEATH_KNIGHT
-    EXPANSION_VANILLA,              ///< CLASS_SHAMAN
-    EXPANSION_VANILLA,              ///< CLASS_MAGE
-    EXPANSION_VANILLA,              ///< CLASS_WARLOCK
-    EXPANSION_MISTS_OF_PANDARIA,    ///< CLASS_MONK
-    EXPANSION_VANILLA,              ///< CLASS_DRUID
+    MAX_EXPANSION,                      ///< CLASS_NONE
+    EXPANSION_VANILLA,                  ///< CLASS_WARRIOR
+    EXPANSION_VANILLA,                  ///< CLASS_PALADIN
+    EXPANSION_VANILLA,                  ///< CLASS_HUNTER
+    EXPANSION_VANILLA,                  ///< CLASS_ROGUE
+    EXPANSION_VANILLA,                  ///< CLASS_PRIEST
+    EXPANSION_WRATH_OF_THE_LICH_KING,   ///< CLASS_DEATH_KNIGHT
+    EXPANSION_VANILLA,                  ///< CLASS_SHAMAN
+    EXPANSION_VANILLA,                  ///< CLASS_MAGE
+    EXPANSION_VANILLA,                  ///< CLASS_WARLOCK
+    EXPANSION_MISTS_OF_PANDARIA,        ///< CLASS_MONK
+    EXPANSION_VANILLA,                  ///< CLASS_DRUID
 };
 
 void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_QueuePosition)
