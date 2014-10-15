@@ -20,7 +20,7 @@
 #include "WorldPacket.h"
 //#include "PacketStructures.h"
 
-uint8 gExpansionPerRace[] = 
+uint8 gExpansionPerRace[] =
 {
     MAX_EXPANSION,                      ///< RACE_NONE
     EXPANSION_VANILLA,                  ///< RACE_HUMAN
@@ -46,7 +46,7 @@ uint8 gExpansionPerRace[] =
     MAX_EXPANSION,                      ///< RACE_ICE_TROLL
     EXPANSION_CATACLYSM,                ///< RACE_WORGEN
     MAX_EXPANSION,                      ///< RACE_GILNEAN
-    EXPANSION_MISTS_OF_PANDARIA,        ///< RACE_PANDAREN_NEUTRAL 
+    EXPANSION_MISTS_OF_PANDARIA,        ///< RACE_PANDAREN_NEUTRAL
     EXPANSION_MISTS_OF_PANDARIA,        ///< RACE_PANDAREN_ALLI
     EXPANSION_MISTS_OF_PANDARIA,        ///< RACE_PANDAREN_HORDE
 };
@@ -105,7 +105,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
     l_Data.WriteBit(p_AuthResult == AUTH_OK);                               ///< Has Success Info
     l_Data.WriteBit(p_Queued);                                              ///< Has Wait Info
     l_Data.FlushBits();
-    
+
     if (p_AuthResult == AUTH_OK)
     {
         l_Data << uint32(realmID);                                          ///< Virtual Realm Address
@@ -116,11 +116,11 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
         l_Data << uint8(Expansion());                                       ///< Active Expansion Level
         l_Data << uint8(Expansion());                                       ///< Account Expansion Level
         l_Data << uint32(l_TimeSecondsUntilPCKick);                         ///< Time Seconds Until PC Kick
-        l_Data << uint32(l_RealmClassCount);                                ///< Available Races
         l_Data << uint32(l_RealmRaceCount);                                 ///< Available Classes
+        l_Data << uint32(l_RealmClassCount);                                ///< Available Races
         l_Data << uint32(l_TemplatesCount);                                 ///< Templates Count
         l_Data << uint32(l_CurrencyID);                                     ///< Currency ID
-        
+
         for (uint32 l_I = 0; l_I < l_VirtualRealmsCount; ++l_I)
         {
             l_Data << uint32(realmID);                                      ///< Realm Address
