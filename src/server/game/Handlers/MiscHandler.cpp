@@ -1889,28 +1889,31 @@ enum RealmQueryNameResponse
     REALM_QUERY_NAME_RESPONSE_OK_TEMP   = 3,
 };
 
-void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
+void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
 
-    uint32 realmId = recvData.read<uint32>();
+    uint32 l_RealmID = 0;
 
-    if (realmId != realmID)
-        return; // Cheater ?
+    p_Packet >> l_RealmID;
 
-    std::string realmName = sWorld->GetRealmName();
+    /// Cheater ?
+    if (l_RealmID != realmID)
+        return;
 
-    WorldPacket data(SMSG_REALM_QUERY_RESPONSE);
-    data << realmID;
-    data << uint8(REALM_QUERY_NAME_RESPONSE_OK);
-    data.WriteBit(1); // Is Locale
-    data.WriteBits(realmName.size(), 8);
-    data.WriteBits(realmName.size(), 8);
-    data.FlushBits();
-    data.append(realmName.c_str(), realmName.size());
-    data.append(realmName.c_str(), realmName.size());
+    WorldPacket l_Data(SMSG_REALM_QUERY_RESPONSE);
+    l_Data << uint32(realmID);                                      ///< Virtual Realm Address
+    l_Data << uint8(REALM_QUERY_NAME_RESPONSE_OK);                  ///< Lookup State
 
-    SendPacket(&data);
+    l_Data.WriteBit(true);                                          ///< Is Locale
+    l_Data.WriteBits(sWorld->GetRealmName().size(), 8);             ///< Realm Name Actual
+    l_Data.WriteBits(sWorld->GetNormalizedRealmName().size(), 8);   ///< Realm Name Normalized
+    l_Data.FlushBits();
+
+    l_Data.WriteString(sWorld->GetRealmName());                     ///< Realm Name Actual
+    l_Data.WriteString(sWorld->GetNormalizedRealmName());           ///< Realm Name Normalized
+
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
