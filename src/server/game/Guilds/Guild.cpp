@@ -1267,7 +1267,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
             }
         }
 
-        l_Data << uint32(realmID);                                                                      ///< Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                                                      ///< Virtual Realm Address
         l_Data << uint8(l_Flags);                                                                       ///< Status
         l_Data << uint8(l_Member->GetLevel());                                                          ///< Level
         l_Data << uint8(l_Member->GetClass());                                                          ///< Class ID
@@ -1309,7 +1309,7 @@ void Guild::HandleQuery(WorldSession* session)
     l_Data.FlushBits();
 
     l_Data.appendPackGUID(GetGUID());
-    l_Data << uint32(realmID);
+    l_Data << uint32(g_RealmID);
     l_Data << uint32(_GetRanksSize());
     l_Data << uint32(m_emblemInfo.GetStyle());
     l_Data << uint32(m_emblemInfo.GetColor());
@@ -1447,19 +1447,19 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     }
 }
 
-void Guild::HandleSetLeader(WorldSession* session, const std::string& name)
+void Guild::HandleSetLeader(WorldSession * p_Session, const std::string & p_Name)
 {
-    Player* player = session->GetPlayer();
+    Player* player = p_Session->GetPlayer();
 
     /// Only leader can assign new leader
     if (!_IsLeader(player))
-        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(p_Session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
 
     /// Old leader must be a member of guild
     else if (Member * l_OldLeader = GetMember(player->GetGUID()))
     {
         /// New leader must be a member of guild
-        if (Member* l_NewLeader = GetMember(session, name))
+        if (Member * l_NewLeader = GetMember(p_Session, p_Name))
         {
             _SetLeaderGUID(l_NewLeader);
             l_OldLeader->ChangeRank(GR_OFFICER);
@@ -1471,9 +1471,9 @@ void Guild::HandleSetLeader(WorldSession* session, const std::string& name)
             l_Data.FlushBits();
 
             l_Data.appendPackGUID(l_OldLeader->GetGUID());          ///< Old Leader GUID
-            l_Data << uint32(realmID);                              ///< Old Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< Old Leader Virtual Realm Address
             l_Data.appendPackGUID(l_NewLeader->GetGUID());          ///< New Leader GUID
-            l_Data << uint32(realmID);                              ///< New Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< New Leader Virtual Realm Address
 
             l_Data.WriteString(l_OldLeader->GetName());             ///< Old Leader Name
             l_Data.WriteString(l_NewLeader->GetName());             ///< New Leader Name
@@ -1482,7 +1482,7 @@ void Guild::HandleSetLeader(WorldSession* session, const std::string& name)
         }
     }
     else
-        SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
+        SendCommandResult(p_Session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
 }
 
 bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
@@ -1502,9 +1502,9 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
             l_Data.FlushBits();
 
             l_Data.appendPackGUID(l_OldLeader->GetGUID());          ///< Old Leader GUID
-            l_Data << uint32(realmID);                              ///< Old Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                              ///< Old Leader Virtual Realm Address
             l_Data.appendPackGUID(l_NewLeader->GetGUID());          ///< New Leader GUID
-            l_Data << uint32(realmID);                              ///< New Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                              ///< New Leader Virtual Realm Address
 
             l_Data.WriteString(l_OldLeader->GetName());             ///< Old Leader Name
             l_Data.WriteString(l_NewLeader->GetName());             ///< New Leader Name
@@ -1683,10 +1683,10 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
     l_Data.WriteBits(strlen(l_Player->GetName()), 6);
     l_Data.WriteBits(m_name.length(), 7);
     l_Data.WriteBits(p_Invitee->GetGuildName().size(), 7);
-    l_Data << uint32(realmID);
-    l_Data << uint32(realmID);
+    l_Data << uint32(g_RealmID);
+    l_Data << uint32(g_RealmID);
     l_Data.appendPackGUID(l_NewGuildGUID);
-    l_Data << uint32(realmID);
+    l_Data << uint32(g_RealmID);
     l_Data.appendPackGUID(l_OldGuildGUID);
     l_Data << uint32(m_emblemInfo.GetStyle());
     l_Data << uint32(m_emblemInfo.GetColor());
@@ -1719,7 +1719,7 @@ void Guild::HandleAcceptMember(WorldSession* p_Session)
 
         WorldPacket l_Data(SMSG_GUILD_EVENT_PLAYER_JOINED, 60);
         l_Data.appendPackGUID(p_Player->GetGUID());
-        l_Data << uint32(realmID);
+        l_Data << uint32(g_RealmID);
 
         l_Data.WriteBits(strlen(p_Player->GetName()), 6);
         l_Data.FlushBits();
@@ -1739,7 +1739,7 @@ void Guild::HandleAcceptMember(WorldSession* p_Session)
 
         l_Data.Initialize(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
         l_Data.appendPackGUID(p_Session->GetPlayer()->GetGUID());           ///< Guid
-        l_Data << uint32(realmID);                                          ///< Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                          ///< Virtual Realm Address
         l_Data.WriteBits(strlen(p_Session->GetPlayer()->GetName()), 6);     ///< Name
         l_Data.WriteBit(false);                                             ///< Mobile
         l_Data.WriteBit(true);                                              ///< Logged On
@@ -2018,7 +2018,7 @@ void Guild::HandleMemberLogout(WorldSession * p_Session)
 
     WorldPacket l_Data(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
     l_Data.appendPackGUID(p_Session->GetPlayer()->GetGUID());           ///< Guid
-    l_Data << uint32(realmID);                                          ///< Virtual Realm Address
+    l_Data << uint32(g_RealmID);                                        ///< Virtual Realm Address
     l_Data.WriteBits(strlen(p_Session->GetPlayer()->GetName()), 6);     ///< Name
     l_Data.WriteBit(false);                                             ///< Mobile
     l_Data.WriteBit(false);                                             ///< Logged On
@@ -2267,7 +2267,7 @@ void Guild::SendLoginInfo(WorldSession * p_Session)
 
     l_Data.Initialize(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
     l_Data.appendPackGUID(p_Session->GetPlayer()->GetGUID());           ///< Guid
-    l_Data << uint32(realmID);                                          ///< Virtual Realm Address
+    l_Data << uint32(g_RealmID);                                          ///< Virtual Realm Address
     l_Data.WriteBits(strlen(p_Session->GetPlayer()->GetName()), 6);     ///< Name
     l_Data.WriteBit(false);                                             ///< Mobile
     l_Data.WriteBit(true);                                              ///< Logged On
@@ -2325,7 +2325,7 @@ void Guild::SendMemberLeave(WorldSession * p_Session, uint64 p_PlayerGuid, bool 
             l_Data.FlushBits();
 
             l_Data.appendPackGUID(l_KickerPlayer->GetGUID());       ///< Remover GUID
-            l_Data << uint32(realmID);                              ///< Remover Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< Remover Virtual Realm Address
 
             if (l_KickerPlayer->GetName())
                 l_Data.WriteString(l_KickerPlayer->GetName());      ///< RemoverName
@@ -2336,7 +2336,7 @@ void Guild::SendMemberLeave(WorldSession * p_Session, uint64 p_PlayerGuid, bool 
         }
 
         l_Data.appendPackGUID(p_PlayerGuid);                        ///< Leaver GUID
-        l_Data << uint32(realmID);                                  ///< Leaver Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                ///< Leaver Virtual Realm Address
 
         l_Data.WriteString(l_Member->GetName());                    ///< Leaver Name
 
@@ -2746,9 +2746,9 @@ void Guild::DeleteMember(uint64 p_Guid, bool p_IsDisbanding, bool p_IsKicked, bo
             l_Data.FlushBits();
 
             l_Data.appendPackGUID(l_OldLeader->GetGUID());          ///< Old Leader GUID
-            l_Data << uint32(realmID);                              ///< Old Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< Old Leader Virtual Realm Address
             l_Data.appendPackGUID(l_NewLeader->GetGUID());          ///< New Leader GUID
-            l_Data << uint32(realmID);                              ///< New Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< New Leader Virtual Realm Address
 
             l_Data.WriteString(l_OldLeader->GetName());             ///< Old Leader Name
             l_Data.WriteString(l_NewLeader->GetName());             ///< New Leader Name

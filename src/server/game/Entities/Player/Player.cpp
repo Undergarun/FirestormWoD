@@ -1126,7 +1126,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetUInt32Value(PLAYER_FIELD_GUILD_RANK_ID, 0);
     SetGuildLevel(0);
     SetUInt32Value(PLAYER_FIELD_GUILD_TIME_STAMP, 0);
-    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, realmID);
+    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
 
     for (int i = 0; i < KNOWN_TITLES_SIZE; ++i)
         SetUInt64Value(PLAYER_FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
@@ -9440,8 +9440,8 @@ void Player::DuelComplete(DuelCompleteType type)
         std::string name = GetName();
         std::string opponentName = duel->opponent->GetName();
         WorldPacket data2(SMSG_DUEL_WINNER);
-        data2 << uint32(realmID);                            // winner realm ID
-        data2 << uint32(realmID);                            // opponent realm ID
+        data2 << uint32(g_RealmID);                            // winner realm ID
+        data2 << uint32(g_RealmID);                            // opponent realm ID
         data2.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
         data2.WriteBits(opponentName.size(), 6);
         data2.WriteBits(name.size(), 6);
@@ -19670,7 +19670,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
             ticket->SendResponse(GetSession());
 
     // Set realmID
-    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, realmID);
+    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
 
     return true;
 }
@@ -22633,8 +22633,8 @@ void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string
     data->appendPackGUID(guildGuid);
     data->appendPackGUID(0);// MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
     data->appendPackGUID(0);
-    *data << uint32(realmID);
-    *data << uint32(realmID);
+    *data << uint32(g_RealmID);
+    *data << uint32(g_RealmID);
     data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
     *data << uint32(0);
     *data << float(0);

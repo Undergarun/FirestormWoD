@@ -164,7 +164,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     if (target)
         target_sec = target->GetSecurity();
     else if (target_account)
-        target_sec = AccountMgr::GetSecurity(target_account, realmID);
+        target_sec = AccountMgr::GetSecurity(target_account, g_RealmID);
     else
         return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
@@ -717,8 +717,8 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     data->appendPackGUID(speakerGuildGuid);
     data->appendPackGUID(0);
     data->appendPackGUID(0);
-    *data << uint32(realmID);
-    *data << uint32(realmID);
+    *data << uint32(g_RealmID);
+    *data << uint32(g_RealmID);
     data->appendPackGUID(groupGuid);
     *data << uint32(achievementId);
     *data << float(0);

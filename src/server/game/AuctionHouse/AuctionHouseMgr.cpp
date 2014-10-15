@@ -110,7 +110,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         else
         {
             bidder_accId = sObjectMgr->GetPlayerAccountIdByGUID(bidder_guid);
-            bidder_security = AccountMgr::GetSecurity(bidder_accId, realmID);
+            bidder_security = AccountMgr::GetSecurity(bidder_accId, g_RealmID);
 
             if (!AccountMgr::IsPlayerAccount(bidder_security)) // not do redundant DB requests
             {

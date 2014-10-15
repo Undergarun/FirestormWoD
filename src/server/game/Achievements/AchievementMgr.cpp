@@ -1176,8 +1176,8 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     l_Data.appendPackGUID(firstPlayerOnAccountGuid);
     l_Data << uint32(achievement->ID);
     l_Data << uint32(secsToTimeBitFields(time(NULL)));
-    l_Data << uint32(realmID);
-    l_Data << uint32(realmID);
+    l_Data << uint32(g_RealmID);
+    l_Data << uint32(g_RealmID);
     l_Data.WriteBit(0);
     l_Data.FlushBits();
 
@@ -2265,8 +2265,8 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         data << uint32(itr->first);                                 ///< Id
         data << uint32(secsToTimeBitFields((*itr).second.date));    ///< Date
         data.appendPackGUID((*itr).second.first_guid);              ///< Owner
-        data << uint32(realmID);                                    ///< Virtual Realm Address
-        data << uint32(realmID);                                    ///< Native Realm Address
+        data << uint32(g_RealmID);                                  ///< Virtual Realm Address
+        data << uint32(g_RealmID);                                  ///< Native Realm Address
     }
 
     for (CriteriaProgressMap::const_iterator itr = l_ProgressMap->begin(); itr != l_ProgressMap->end(); ++itr)
@@ -2295,8 +2295,8 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
         l_Data << uint32(l_It->first);
         l_Data << uint32(secsToTimeBitFields(l_It->second.date));
         l_Data.appendPackGUID(l_It->second.first_guid);
-        l_Data << uint32(realmID);
-        l_Data << uint32(realmID);
+        l_Data << uint32(g_RealmID);
+        l_Data << uint32(g_RealmID);
     }
 
     receiver->GetSession()->SendPacket(&l_Data);

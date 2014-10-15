@@ -596,7 +596,7 @@ void Channel::List(Player * p_Player)
                 l_Member->IsVisibleGloballyFor(p_Player))
             {
                 l_Buffer << uint64(l_I->first);                     ///< Member guid
-                l_Buffer << uint32(realmID);                        ///< virtualRealmAddress
+                l_Buffer << uint32(g_RealmID);                      ///< virtualRealmAddress
                 l_Buffer << uint8(l_I->second.flags);               ///< Flags
 
                 ++l_MemberCount;
@@ -831,9 +831,9 @@ void Channel::MakeNotifyPacket(WorldPacket* data, uint8 notify_type, uint64 p_Se
 
     data->appendPackGUID(p_SenderGUID);
     data->appendPackGUID(l_SenderPlayer ? l_SenderPlayer->GetSession()->GetWoWAccountGUID() : 0);
-    *data << uint32(p_SenderGUID ? realmID : 0);
+    *data << uint32(p_SenderGUID ? g_RealmID : 0);
     data->appendPackGUID(p_TargetGUID);
-    *data << uint32(p_TargetGUID ? realmID : 0);
+    *data << uint32(p_TargetGUID ? g_RealmID : 0);
     *data << int32(m_channelId);
 
     if (notify_type == CHAT_MODE_CHANGE_NOTICE)

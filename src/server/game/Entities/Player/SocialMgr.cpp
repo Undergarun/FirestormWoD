@@ -150,39 +150,37 @@ void PlayerSocial::SetFriendNote(uint32 friendGuid, std::string note)
     m_playerSocialMap[friendGuid].Note = note;
 }
 
-void PlayerSocial::SendSocialList(Player* player)
+void PlayerSocial::SendSocialList(Player * p_Player)
 {
-    if (!player)
+    if (!p_Player)
         return;
 
-    uint32 size = m_playerSocialMap.size();
-
-    WorldPacket data(SMSG_CONTACT_LIST, (4+4+size*25));     // just can guess size
-    data << uint32(7);                                      // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
-    data.WriteBits(size, 8);                                // friends count
-    data.FlushBits();
+    WorldPacket l_Data(SMSG_CONTACT_LIST, (4 + 4 + m_playerSocialMap.size() * 25));
+    l_Data << uint32(7);                                                            ///< 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
+    l_Data.WriteBits(m_playerSocialMap.size(), 8);                                  ///< Friends count
+    l_Data.FlushBits();
 
     for (PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
     {
-        sSocialMgr->GetFriendInfo(player, itr->first, itr->second);
+        sSocialMgr->GetFriendInfo(p_Player, itr->first, itr->second);
 
-        data.appendPackGUID(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
-        data.appendPackGUID(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_WOW_ACCOUNT));
-        data << uint32(realmID);                            ///< Virtual Realm Addr
-        data << uint32(realmID);                            ///< Native Realm Addr
-        data << uint32(itr->second.Flags);                  ///< player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
-        data << uint8(itr->second.Status);                  ///< online/offline/etc?
-        data << uint32(itr->second.Area);                   ///< player area
-        data << uint32(itr->second.Level);                  ///< player level
-        data << uint32(itr->second.Class);                  ///< player class
+        l_Data.appendPackGUID(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+        l_Data.appendPackGUID(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_WOW_ACCOUNT));
+        l_Data << uint32(g_RealmID);                                                ///< Virtual Realm Addr
+        l_Data << uint32(g_RealmID);                                                ///< Native Realm Addr
+        l_Data << uint32(itr->second.Flags);                                        ///< player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
+        l_Data << uint8(itr->second.Status);                                        ///< online/offline/etc?
+        l_Data << uint32(itr->second.Area);                                         ///< player area
+        l_Data << uint32(itr->second.Level);                                        ///< player level
+        l_Data << uint32(itr->second.Class);                                        ///< player class
 
-        data.WriteBits(itr->second.Note.size(), 10);
-        data.FlushBits();
+        l_Data.WriteBits(itr->second.Note.size(), 10);
+        l_Data.FlushBits();
 
-        data.WriteString(itr->second.Note);                           // string note
+        l_Data.WriteString(itr->second.Note);                                       ///< String note
     }
 
-    player->GetSession()->SendPacket(&data);
+    p_Player->GetSession()->SendPacket(&l_Data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CONTACT_LIST");
 }
@@ -265,7 +263,7 @@ void SocialMgr::SendFriendStatus(Player* p_Player, FriendsResult p_Result, uint3
     l_Response << uint8(p_Result);
     l_Response.appendPackGUID(MAKE_NEW_GUID(p_FriendLowGuid, 0, HIGHGUID_PLAYER));
     l_Response.appendPackGUID(l_Friend ? l_Friend->GetSession()->GetWoWAccountGUID() : 0);
-    l_Response << uint32(realmID);
+    l_Response << uint32(g_RealmID);
     
     switch (p_Result)
     {

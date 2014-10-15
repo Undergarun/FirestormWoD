@@ -108,7 +108,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
 
     if (p_AuthResult == AUTH_OK)
     {
-        l_Data << uint32(realmID);                                          ///< Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                        ///< Virtual Realm Address
         l_Data << uint32(l_VirtualRealmsCount);                             ///< Virtual Realms Count
         l_Data << uint32(l_TimeRemain);                                     ///< TimeRemain
         l_Data << uint32(l_TimeOptions);                                    ///< TimeOptions
@@ -123,7 +123,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
 
         for (uint32 l_I = 0; l_I < l_VirtualRealmsCount; ++l_I)
         {
-            l_Data << uint32(realmID);                                      ///< Realm Address
+            l_Data << uint32(g_RealmID);                                    ///< Realm Address
 
             l_Data.WriteBit(true);                                          ///< Is Locale
             l_Data.WriteBit(false);

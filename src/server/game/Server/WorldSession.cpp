@@ -1083,7 +1083,7 @@ void WorldSession::SendFeatureSystemStatus()
     uint32 l_SORMaxPerDay = 1;
 
     uint32 l_ConfigRealmRecordID    = 640;
-    uint32 l_ConfigRealmID          = realmID;
+    uint32 l_ConfigRealmID          = g_RealmID;
 
     uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
 

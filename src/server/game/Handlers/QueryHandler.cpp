@@ -77,7 +77,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         data.appendPackGUID(player ? player->GetSession()->GetBNetAccountGUID() : 0);
         data.appendPackGUID(guid);
 
-        data << uint32(realmID);
+        data << uint32(g_RealmID);
         data << uint8(nameData->m_race);
         data << uint8(nameData->m_gender);
         data << uint8(nameData->m_class);

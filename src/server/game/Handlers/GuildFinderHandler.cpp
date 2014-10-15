@@ -153,7 +153,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket & p_Packet)
 
         l_Response.appendPackGUID(l_GuildGUID);                                                             ///< Guild GUID
 
-        l_Response << uint32(realmID);                                                                      ///< GuildVirtualRealm
+        l_Response << uint32(g_RealmID);                                                                    ///< GuildVirtualRealm
         l_Response << uint32(l_Guild->GetMembersCount());                                                   ///< GuildMembers
         l_Response << uint32(l_Guild->GetAchievementMgr().GetAchievementPoints());                          ///< GuildAchievementPoints
         l_Response << uint32(l_GuildSettings.GetInterests());                                               ///< PlayStyle
@@ -212,7 +212,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket & /*recvPacket*/
 
         l_Data.appendPackGUID(l_Guild->GetGUID());                    ///< GuildGUID
 
-        l_Data << uint32(realmID);                                    ///< Guild Virtual Realm
+        l_Data << uint32(g_RealmID);                                  ///< Guild Virtual Realm
         l_Data << uint32(l_GuildSettings.GetClassRoles());            ///< Class Roles
         l_Data << uint32(l_GuildSettings.GetInterests());             ///< Play Style
         l_Data << uint32(l_GuildSettings.GetAvailability());          ///< Availability
@@ -258,7 +258,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket & p_Packet)
 
         l_Data.appendPackGUID(l_PlayerGUID);                            ///< Recruit GUID
 
-        l_Data << uint32(realmID);                                      ///< Recruit Virtual Realm
+        l_Data << uint32(g_RealmID);                                    ///< Recruit Virtual Realm
         l_Data << uint32(l_Request.GetClass());                         ///< Character Class
         l_Data << uint32(l_Gender);                                     ///< Character Gender
         l_Data << uint32(l_Request.GetLevel());                         ///< Character Level

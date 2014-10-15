@@ -461,13 +461,13 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         bytesData.WriteByteSeq(unkGuid[5]);
         bytesData.WriteByteSeq(playerGuid[3]);
         bytesData.WriteByteSeq(playerGuid[6]);
-        bytesData << uint32(realmID);
+        bytesData << uint32(g_RealmID);
         bytesData << uint8(race);
         bytesData << uint8(lvl);
         bytesData.WriteByteSeq(playerGuid[2]);
         bytesData.WriteByteSeq(playerGuid[1]);
         bytesData << uint8(gender);
-        bytesData << uint32(realmID);
+        bytesData << uint32(g_RealmID);
         bytesData.WriteByteSeq(guildGuid[0]);
         bytesData.WriteByteSeq(guildGuid[5]);
         bytesData.WriteByteSeq(guildGuid[7]);
@@ -745,7 +745,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 
-        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmID)))
+        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, g_RealmID)))
         {
             if (friendGuid)
             {
@@ -1898,11 +1898,11 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& p_Packet)
     p_Packet >> l_RealmID;
 
     /// Cheater ?
-    if (l_RealmID != realmID)
+    if (l_RealmID != g_RealmID)
         return;
 
     WorldPacket l_Data(SMSG_REALM_QUERY_RESPONSE);
-    l_Data << uint32(realmID);                                      ///< Virtual Realm Address
+    l_Data << uint32(g_RealmID);                                    ///< Virtual Realm Address
     l_Data << uint8(REALM_QUERY_NAME_RESPONSE_OK);                  ///< Lookup State
 
     l_Data.WriteBit(true);                                          ///< Is Locale

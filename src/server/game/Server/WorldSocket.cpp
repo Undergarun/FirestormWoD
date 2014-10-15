@@ -1182,7 +1182,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     std::string l_AccountOS = l_Fields[10].GetString();
 
     /// Checks gmlevel per Realm                0        1
-    l_Result = LoginDatabase.PQuery ("SELECT RealmID, gmlevel FROM account_access WHERE id = '%d' AND (RealmID = '%d' OR RealmID = '-1')", l_AccountID, realmID);
+    l_Result = LoginDatabase.PQuery ("SELECT RealmID, gmlevel FROM account_access WHERE id = '%d' AND (RealmID = '%d' OR RealmID = '-1')", l_AccountID, g_RealmID);
 
     if (!l_Result)
         l_AccountGMLevel = 0;

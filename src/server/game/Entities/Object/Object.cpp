@@ -2552,8 +2552,8 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     data->appendPackGUID(0);
     data->appendPackGUID(0);
     data->appendPackGUID(0);
-    *data << uint32(realmID);
-    *data << uint32(realmID);
+    *data << uint32(g_RealmID);
+    *data << uint32(g_RealmID);
     data->appendPackGUID(groupGuid);
     *data << uint32(0);
     *data << float(0);

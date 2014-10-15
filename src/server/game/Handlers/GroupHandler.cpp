@@ -171,7 +171,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             uint64 l_InviterGuid             = GetPlayer()->GetGUID();
             uint64 l_InviterBNetAccountID    = GetBNetAccountGUID();
             uint32 l_LfgCompletedMask        = 0;
-            uint32 l_InviterCfgRealmID       = realmID;
+            uint32 l_InviterCfgRealmID       = g_RealmID;
             uint16 l_Unk                     = 970;    ///< Always 970 in retail sniff
             std::string l_InviterName        = GetPlayer()->GetName();
             std::string l_InviterRealmName   = sWorld->GetRealmName();
@@ -272,7 +272,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     uint64 l_InviterGuid             = GetPlayer()->GetGUID();
     uint64 l_InviterBNetAccountID    = GetBNetAccountGUID();
     uint32 l_LfgCompletedMask        = 0;
-    uint32 l_InviterCfgRealmID       = realmID;
+    uint32 l_InviterCfgRealmID       = g_RealmID;
     uint16 l_Unk                     = 970;    ///< Always 970 in retail sniff
     std::string l_InviterName        = GetPlayer()->GetName();
     std::string l_InviterRealmName   = sWorld->GetRealmName();

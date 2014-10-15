@@ -991,7 +991,7 @@ class World
         uint32 m_recordDiff[RECORD_DIFF_MAX];
 };
 
-extern uint32 realmID;
+extern uint32 g_RealmID;
 
 #define sWorld ACE_Singleton<World, ACE_Null_Mutex>::instance()
 #endif
