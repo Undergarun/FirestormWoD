@@ -5500,67 +5500,73 @@ void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVict
         victim->ProcDamageAndSpellFor(true, this, procVictim, procExtra, attType, procSpell, amount, absorb, procAura);
 }
 
-void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
+void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
 {
-    constAuraEffectPtr aura = pInfo->auraEff;
+    constAuraEffectPtr l_Aura = p_Info->auraEff;
 
-    WorldPacket data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
-    data.appendPackGUID(GetGUID());                         // victimGuid
-    data.appendPackGUID(aura->GetCasterGUID());             // casterGuid
-    data << uint32(aura->GetId());
-    data << uint32(1);
+    uint32 l_Amount              = 0;
+    uint32 l_Resisted            = 0;
+    uint32 l_OverHealOrKill      = 0;
+    uint32 l_SchoolMaskOrPower   = 0;
+    uint32 l_AbsorbedOrAmplitude = 0;
 
-    // Switch Loop
-    data << uint32(aura->GetAuraType());                    // auraId
-    switch (aura->GetAuraType())
+    switch (l_Aura->GetAuraType())
     {
-
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(pInfo->overDamage);              // overkill
-            data << uint32(aura->GetSpellInfo()->GetSchoolMask());
-            data << uint32(pInfo->absorb);                  // absorb
-            data << uint32(pInfo->resist);                  // resist
+            l_Amount                = p_Info->damage;
+            l_OverHealOrKill        = p_Info->overDamage;
+            l_SchoolMaskOrPower     = l_Aura->GetSpellInfo()->GetSchoolMask();
+            l_AbsorbedOrAmplitude   = p_Info->absorb;
+            l_Resisted              = p_Info->resist;
             break;
+
         case SPELL_AURA_PERIODIC_HEAL:
         case SPELL_AURA_OBS_MOD_HEALTH:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(pInfo->overDamage);              // overheal
-            data << uint32(aura->GetSpellInfo()->GetSchoolMask());
-            data << uint32(pInfo->absorb);                  // absorb
-            data << uint32(0);
+            l_Amount                = p_Info->damage;
+            l_OverHealOrKill        = p_Info->overDamage;
+            l_SchoolMaskOrPower     = l_Aura->GetSpellInfo()->GetSchoolMask();
+            l_AbsorbedOrAmplitude   = p_Info->absorb;
             break;
+
         case SPELL_AURA_OBS_MOD_POWER:
         case SPELL_AURA_PERIODIC_ENERGIZE:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(0);
-            data << uint32(aura->GetMiscValue());           // power type
-            data << uint32(0);
-            data << uint32(0);
+            l_Amount            = p_Info->damage;
+            l_SchoolMaskOrPower = l_Aura->GetMiscValue();
             break;
+
         case SPELL_AURA_PERIODIC_MANA_LEECH:
-            data << uint32(pInfo->damage);                  // damage
-            data << uint32(0);
-            data << uint32(aura->GetMiscValue());           // power type
-            data << uint32(0);
-            data << uint32(0);
+            l_Amount            = p_Info->damage;
+            l_SchoolMaskOrPower = l_Aura->GetMiscValue();
             break;
+
         default:
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
             break;
     }
 
-    data.WriteBit(pInfo->critical);
-    data.WriteBit(0); // Multistrike
-    data.WriteBit(0);
-    data.WriteBit(0); // HasLogData
+    WorldPacket l_Data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
+    l_Data.appendPackGUID(GetGUID());                           ///< Target GUID
+    l_Data.appendPackGUID(l_Aura->GetCasterGUID());             ///< Caster GUID
+    l_Data << uint32(l_Aura->GetId());                          ///< Spell ID
+    l_Data << uint32(1);                                        ///< Entries Count
 
-    SendMessageToSet(&data, true);
+    /// First JamPeriodicAuraLogEffect
+    l_Data << uint32(l_Aura->GetAuraType());                    ///< Effect
+    l_Data << uint32(l_Amount);                                 ///< Amount
+    l_Data << uint32(l_OverHealOrKill);                         ///< Over Heal Or Kill
+    l_Data << uint32(l_SchoolMaskOrPower);                      ///< School Mask Or Power
+    l_Data << uint32(l_AbsorbedOrAmplitude);                    ///< Absorbed Or Amplitude
+    l_Data << uint32(l_Resisted);                               ///< Resisted
+
+    l_Data.WriteBit(p_Info->critical);                          ///< Crit
+    l_Data.WriteBit(false);                                     ///< Multistrike
+    l_Data.WriteBit(false);                                     ///< Has Debug Info
+    l_Data.FlushBits();
+
+    l_Data.WriteBit(0);                                         ///< Has Log Data
+    l_Data.FlushBits();
+
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
