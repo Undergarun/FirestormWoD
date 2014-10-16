@@ -4056,6 +4056,7 @@ void Player::GiveLevel(uint8 level)
         case 60:
         case 75:
         case 90:
+        case 100:
             talent = true;
             break;
         default:
@@ -4225,6 +4226,23 @@ void Player::InitSpellForLevel()
             learnSpell(spellId, false);
     }
 
+    const std::set<MinorTalentEntry const*>* perkList = sSpellMgr->GetSpecializationPerks(specializationId);
+    if (perkList)
+    {
+        // perks are starting at level 90
+        float levelDiff = getLevel() - 90;
+        if (levelDiff > 1)
+        {
+
+            uint8 currentIndex = floor(levelDiff / float(perkList->size()));
+            for (auto perk : *perkList)
+            {
+                if (perk->orderIndex <= perk->orderIndex)
+                    learnSpell(perk->spellID, false);
+            }
+        }
+    }
+
     // Aberration, Two Forms, Darkflight, Flayer, Viciousness
     if (getRace() == RACE_WORGEN)
     {
@@ -4313,6 +4331,11 @@ void Player::RemoveSpecializationSpells()
         if (spell && !spell->SpecializationIdList.empty())
             spellToRemove.push_back(itr.first);
     }
+
+    for (uint32 i = 0; i < sMinorTalentStore.GetNumRows(); i++)
+        if (MinorTalentEntry const* minorTalent = sMinorTalentStore.LookupEntry(i))
+            if (HasSpell(minorTalent->spellID))
+                spellToRemove.push_back(minorTalent->spellID);
 
     spellToRemove.push_back(48517); // Lunar eclipse
     spellToRemove.push_back(48518); // Solar eclipse

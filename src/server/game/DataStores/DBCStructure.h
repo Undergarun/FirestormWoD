@@ -890,7 +890,7 @@ struct CinematicCameraEntry
     float       EndPosX;                                    // 3
     float       EndPosY;                                    // 4
     float       EndPosZ;                                    // 5
-    float       GlobalRotation;                             // 6 
+    float       GlobalRotation;                             // 6
 };
 
 struct CinematicSequencesEntry
@@ -1621,7 +1621,7 @@ struct MapEntry
     // @todo : use m_ContinentID from AreTable.dbc used for SPELL_ATTR4_CAST_ONLY_IN_OUTLAND issue #281
     bool IsContinent() const
     {
-        return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 860 || MapID == 870;
+        return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 860 || MapID == 870 || MapID == 1116;
     }
 };
 
@@ -1635,6 +1635,14 @@ struct MapDifficultyEntry
     uint32  maxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
     //uint32    LockID;                                     // 6        m_LockID
     //uint32    Unk_601_18612;                              // 7        Unk_601_18612           m_message_lang for WOD
+};
+
+struct MinorTalentEntry
+{
+    // uint32 ID;               // 0
+    uint32 specializationID;    // 1
+    uint32 spellID;             // 2
+    uint32 orderIndex;          // 3
 };
 
 struct MountCapabilityEntry

@@ -1368,6 +1368,12 @@ SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id)
     return mSpellAreaForAreaMap.equal_range(area_id);
 }
 
+const std::set<MinorTalentEntry const*>* SpellMgr::GetSpecializationPerks(uint32 specializationId) const
+{
+    SpecializatioPerkMap::const_iterator iter = mSpecializationPerks.find(specializationId);
+    return iter != mSpecializationPerks.end() ? &(iter->second) : nullptr;
+}
+
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // not in expected gender
@@ -3127,6 +3133,17 @@ void SpellMgr::LoadSpellClassInfo()
 
             mSpellClassInfo[chrSpec->classId].insert(specializationInfo->LearnSpell);
         }
+
+        for (uint32 i = 0; i < sMinorTalentStore.GetNumRows(); i++)
+        {
+            MinorTalentEntry const* minorTalent = sMinorTalentStore.LookupEntry(i);
+
+            if (!minorTalent)
+                continue;
+
+            mSpecializationPerks[minorTalent->specializationID].insert(minorTalent);
+        }
+
     }
 }
 

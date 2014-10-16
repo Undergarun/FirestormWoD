@@ -1,4 +1,4 @@
-/*
+•/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -102,6 +102,7 @@ const char PhaseEntryfmt[]                    = "ni";
 const char MailTemplateEntryfmt[]             = "nxs";
 const char MapEntryfmt[]                      = "nxixxsixxixiffxiiiixx";
 const char MapDifficultyEntryfmt[]            = "diisiixx";
+const char MinorTalentfmt[]                   = "diii";
 const char MovieEntryfmt[]                    = "nxxxx";
 const char MountCapabilityfmt[]               = "niiiiiii";
 const char MountTypefmt[]                     = "niiiiiiiiiiiiiiiiiiiiiiii";
