@@ -8,8 +8,9 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if (USE_COREPCH)
+  set(shared_STAT_PCH_HDR PrecompiledHeaders/sharedPCH.h)
+  set(shared_STAT_PCH_SRC PrecompiledHeaders/sharedPCH.cpp)
 endif()
 
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
@@ -94,7 +95,10 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_library(shared STATIC ${shared_STAT_SRCS})
+add_library(shared STATIC
+  ${shared_STAT_SRCS}
+  ${shared_STAT_PCH_SRC}
+)
 set_property(TARGET shared PROPERTY FOLDER "server")
 
 target_link_libraries(shared
@@ -102,11 +106,6 @@ target_link_libraries(shared
 )
 
 # Generate precompiled header
-if( USE_COREPCH )
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(shared ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/sharedPCH.h)
-  elseif(MSVC)
-    add_native_precompiled_header(shared ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/sharedPCH)
-  endif()
-endif()
-
+if (USE_COREPCH)
+  add_cxx_pch(shared ${shared_STAT_PCH_HDR} ${shared_STAT_PCH_SRC})
+endif ()

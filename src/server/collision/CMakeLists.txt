@@ -8,9 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-endif()
+if (USE_COREPCH)
+  set(collision_STAT_PCH_HDR PrecompiledHeaders/collisionPCH.h)
+  set(collision_STAT_PCH_SRC PrecompiledHeaders/collisionPCH.cpp)
+endif ()
 
 file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
 file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
@@ -103,17 +104,13 @@ add_library(collision STATIC
   ${collision_STAT_SRCS}
   ${collision_STAT_PCH_SRC}
 )
-
 set_property(TARGET collision PROPERTY FOLDER "server")
+
 target_link_libraries(collision
   shared
 )
 
 # Generate precompiled header
-if( USE_COREPCH )
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(collision ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/collisionPCH.h)
-  elseif(MSVC)
-    add_native_precompiled_header(collision ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/collisionPCH)
-  endif()
-endif()
+if (USE_COREPCH)
+  add_cxx_pch(collision ${collision_STAT_PCH_HDR} ${collision_STAT_PCH_SRC})
+endif ()

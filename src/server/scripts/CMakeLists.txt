@@ -9,24 +9,10 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Enable precompiled headers when using the GCC compiler.
-if( USE_SCRIPTPCH )
-  include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-  )
-endif()
-
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-std=gnu++0x)
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
-
-if( USE_SCRIPTPCH AND MSVC )
-  set(scripts_STAT_SRCS
-    PrecompiledHeaders/ScriptPCH.cpp
-    PrecompiledHeaders/ScriptPCH.h
-  )
-endif()
+if (USE_SCRIPTPCH)
+  set(scripts_STAT_PCH_HDR PrecompiledHeaders/ScriptPCH.h)
+  set(scripts_STAT_PCH_SRC PrecompiledHeaders/ScriptPCH.cpp)
+endif ()
 
 message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
@@ -181,16 +167,15 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
-add_library(scripts STATIC ${scripts_STAT_SRCS})
+add_library(scripts STATIC
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_PCH_SRC}
+)
 set_property(TARGET scripts PROPERTY FOLDER "server")
 
 add_dependencies(scripts revision.h)
 
 # Generate precompiled header
-if( USE_SCRIPTPCH )
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(scripts ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/ScriptPCH.h)
-  elseif(MSVC)
-    add_native_precompiled_header(scripts ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/ScriptPCH)
-  endif()
+if (USE_SCRIPTPCH)
+  add_cxx_pch(scripts ${scripts_STAT_PCH_HDR} ${scripts_STAT_PCH_SRC})
 endif()

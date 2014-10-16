@@ -16,15 +16,9 @@ file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
 file(GLOB_RECURSE sources_bnet Bnet2/*.cpp Bnet2/*.hpp)
 file(GLOB sources_localdir *.cpp *.h)
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-if ( USE_COREPCH AND MSVC )
-  set(authserver_SRCS
-    PrecompiledHeaders/authPCH.cpp
-    PrecompiledHeaders/authPCH.h
-  )
+if (USE_COREPCH)
+  set(authserver_PCH_HDR PrecompiledHeaders/authPCH.h)
+  set(authserver_PCH_SRC PrecompiledHeaders/authPCH.cpp)
 endif()
 
 set(authserver_SRCS
@@ -86,29 +80,19 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-set(authserver_LINK_FLAGS "")
-
 add_executable(authserver
   ${authserver_SRCS}
+  ${authserver_PCH_SRC}
 )
 set_property(TARGET authserver PROPERTY FOLDER "server")
 
-set_property(TARGET authserver PROPERTY FOLDER "server")
 add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )
-  add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
-endif()
-
-if( UNIX )
-  set(authserver_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
-endif()
-
-if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
-  set(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
-endif()
-
-set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
+  set_target_properties(authserver PROPERTIES
+    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+  )
+ endif()
 
 target_link_libraries(authserver
   shared
@@ -119,26 +103,28 @@ target_link_libraries(authserver
 )
 
 if( WIN32 )
-  add_custom_command(TARGET authserver
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-  )
+  if ( MSVC )
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
 endif()
 
 if( UNIX )
   install(TARGETS authserver DESTINATION bin)
-  install(FILES  authserver.conf.dist DESTINATION etc)
+  install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
 elseif( WIN32 )
   install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Generate precompiled header
-if( USE_COREPCH )
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(authserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/authPCH.h)
-  elseif(MSVC)
-    add_native_precompiled_header(authserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/authPCH)
-  endif()
+if (USE_COREPCH)
+  add_cxx_pch(authserver ${authserver_PCH_HDR} ${authserver_PCH_SRC})
 endif()
-
