@@ -2165,6 +2165,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void HandleAfterHit()
             {
+                return;
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
@@ -2208,6 +2209,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
+                return;
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
                     return;
@@ -2251,6 +2253,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
+                return;
                 if (Unit* target = GetUnitOwner())
                 {
                     if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
