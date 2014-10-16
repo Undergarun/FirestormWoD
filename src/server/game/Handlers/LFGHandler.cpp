@@ -90,13 +90,13 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  /*recvData*/)
 {
-    Group* grp = GetPlayer()->GetGroup();
+    Group * l_Group = GetPlayer()->GetGroup();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_LEAVE [" UI64FMTD "] in group: %u", GetPlayer()->GetGUID(), grp ? 1 : 0);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_LEAVE [" UI64FMTD "] in group: %u", GetPlayer()->GetGUID(), l_Group ? 1 : 0);
 
     // Check cheating - only leader can leave the queue
-    if (!grp || grp->GetLeaderGUID() == GetPlayer()->GetGUID())
-        sLFGMgr->Leave(GetPlayer(), grp);
+    if (!l_Group || l_Group->GetLeaderGUID() == GetPlayer()->GetGUID())
+        sLFGMgr->Leave(GetPlayer(), l_Group);
 }
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
@@ -657,52 +657,35 @@ void WorldSession::SendLfgJoinResult(uint64 guid_, const LfgJoinResultData& join
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps)
+void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 p_AvgWaitTime, int32 p_WaitTimeTanks, int32 p_WaitTimeHealer, int32 p_WaitTimeDps, uint32 p_QueuedTime, uint8 p_TankCount, uint8 p_HealerCount, uint8 p_DPSCount)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_QUEUE_STATUS [" UI64FMTD "] dungeon: %u - waitTime: %d - avgWaitTime: %d - waitTimeTanks: %d - waitTimeHealer: %d - waitTimeDps: %d - queuedTime: %u - tanks: %u - healers: %u - dps: %u", GetPlayer()->GetGUID(), dungeon, waitTime, avgWaitTime, waitTimeTanks, waitTimeHealer, waitTimeDps, queuedTime, tanks, healers, dps);
-    ObjectGuid guid = GetPlayer()->GetGUID();
-
-    LfgQueueInfo* info = sLFGMgr->GetLfgQueueInfo(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetGUID() : GetPlayer()->GetGUID());
-    if (!info)
+    LfgQueueInfo * l_Info = sLFGMgr->GetLfgQueueInfo(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetGUID() : GetPlayer()->GetGUID());
+    
+    if (!l_Info)
         return;
 
-    WorldPacket data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 +4 + 1 + 1 + 1 + 4);
-    data << uint32(dungeon);                               // Dungeon
-    data << uint32(info->joinTime);                        // Time
-    data << uint32(waitTime);
-    data << uint32(0);                                     // QueueId
-    data << uint32(3);                                     // Some Flags
-    data << uint32(avgWaitTime);
+    WorldPacket l_Data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 +4 + 1 + 1 + 1 + 4);
+    l_Data.appendPackGUID(GetPlayer()->GetGUID());          ///< Requester Guid
+    l_Data << uint32(0);                                    ///< Id
+    l_Data << uint32(2);                                    ///< Type
+    l_Data << int32(p_QueuedTime);                          ///< Time
 
-    data << int32(waitTimeTanks);                          // Wait Tanks
-    data << uint8(tanks);                                  // Tanks needed
+    l_Data << uint32(p_Dungeon);                            ///< Slot
+    l_Data << uint32(l_Info->joinTime);                     ///< Avg Wait Time Me
+    l_Data << uint32(p_AvgWaitTime);                        ///< Avg Wait Time
 
-    data << int32(waitTimeHealer);                         // Wait Healers
-    data << uint8(healers);                                // Healers needed
+    l_Data << int32(p_WaitTimeTanks);                       ///< Avg Wait Time By Role 0
+    l_Data << uint8(p_TankCount);                           ///< Last Needed 0
 
-    data << int32(waitTimeDps);                            // Wait Dps
-    data << uint8(dps);                                    // Dps needed
+    l_Data << int32(p_WaitTimeHealer);                      ///< Avg Wait Time By Role 1
+    l_Data << uint8(p_HealerCount);                         ///< Last Needed 1
 
-    data << int32(queuedTime);
+    l_Data << int32(p_WaitTimeDps);                         ///< Avg Wait Time By Role 2
+    l_Data << uint8(p_DPSCount);                            ///< Last Needed 2
 
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    l_Data << uint32(p_WaitTime);                           ///< Queued Time
 
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* qRew)

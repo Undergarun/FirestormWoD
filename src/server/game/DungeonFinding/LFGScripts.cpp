@@ -132,6 +132,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
 
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1);
         sLFGMgr->SendUpdateStatus(player, updateData);
+
         if (player->GetMap()->IsDungeon())                    // Teleport player out the dungeon
             sLFGMgr->TeleportPlayer(player, true);
     }

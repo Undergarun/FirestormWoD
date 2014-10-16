@@ -31,22 +31,28 @@ enum LfgRoles : uint8
 
 enum LfgUpdateType : uint8
 {
-    LFG_UPDATETYPE_DEFAULT                       = 0,  // Internal Use
-    LFG_UPDATETYPE_LEADER_UNK1                   = 1,  //  - FIXME: At group leave
-    LFG_UPDATETYPE_ROLECHECK_ABORTED             = 43, //  - ERR_PARTY_ROLE_NOT_AVAILABLE
-    LFG_UPDATETYPE_JOIN_QUEUE                    = 13, //  +
+    LFG_UPDATETYPE_DEFAULT                       = 0,  ///< Internal Use
+    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 24, ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 13, ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,  ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 47, ///< 6.0.2 19027 OK
+
+
+    LFG_UPDATETYPE_LEADER_UNK1                   = 1,  ///< 6.0.2 19027
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,  ///< 6.0.2 19027 
+    LFG_UPDATETYPE_GROUP_FOUND                   = 11, ///< 6.0.2 19027
+    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 14, ///< 6.0.2 19027
+
+    LFG_UPDATETYPE_ROLECHECK_ABORTED             = 30, ///< 6.0.2 19027
+    LFG_UPDATETYPE_ERROR                         = 46, ///< 6.0.2 19027
+
+
+
     LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,  //  -
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,  //  +
     LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,  //  -
-    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,  //  -
-    LFG_UPDATETYPE_GROUP_FOUND                   = 25, //  -
-    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 24, //  +
-    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 11, //  +
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 52, //  +
     LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16, //  - 6
     LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17, //  -    FIXME: Sometimes at group disband
 
-    LFG_UPDATETYPE_ERROR                         = 45, // ERR_JOIN_LFG_OBJECT_FAILED
     // 25 - related to party guid
     // 52 - update status
 };

@@ -558,25 +558,25 @@ enum Opcodes
     #pragma region JamLFG
         SMSG_LFG_BOOT_PLAYER                              = 0x0505,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_DISABLED                                 = 0x0205,     ///< 6.0.2 19027 (unused)
-        SMSG_LFG_JOIN_RESULT                              = 0x0125,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_JOIN_RESULT                              = 0x0126,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_OFFER_CONTINUE                           = 0x1201,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_OPEN_FROM_GOSSIP                         = 0x0001,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_PARTY_INFO                               = 0x1402,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_PLAYER_INFO                              = 0x0005,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_PLAYER_REWARD                            = 0x0506,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_PROPOSAL_UPDATE                          = 0x0402,     ///< 6.0.2 19027 (unused)
-        SMSG_LFG_QUEUE_STATUS                             = 0x0106,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_QUEUE_STATUS                             = 0x0106,     ///< 6.0.2 19027
         SMSG_LFG_ROLE_CHECK_UPDATE                        = 0x1326,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_ROLE_CHOSEN                              = 0x1322,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_SEARCH_RESULT                            = 0x0306,     ///< 6.0.2 19027 (unused)
-        SMSG_LFG_SLOT_INVALID                             = 0x1126,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_SLOT_INVALID                             = 0x0000,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_TELEPORT_DENIED                          = 0x1102,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_LIST_JOIN_RESULT                         = 0x0601,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_UPDATE_LIST                              = 0x1301,     ///< 6.0.2 19027 (unused)
         SMSG_LFG_UPDATE_PARTY                             = 0x0000,
         SMSG_LFG_UPDATE_PLAYER                            = 0x0000,
         SMSG_LFG_UPDATE_SEARCH                            = 0x0000,
-        SMSG_LFG_UPDATE_STATUS                            = 0x0722,     ///< 6.0.2 19027 (unused)
+        SMSG_LFG_UPDATE_STATUS                            = 0x0526,     ///< 6.0.2 19027
         SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
         SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x1221,     ///< 6.0.2 19027 (unused)
     #pragma endregion

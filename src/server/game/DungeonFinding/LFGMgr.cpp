@@ -2210,133 +2210,120 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         player->GetSession()->SendLfgTeleportError(uint8(error));
 }
 
-void LFGMgr::SendUpdateStatus(Player* player, const LfgUpdateData& updateData)
+void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateData)
 {
-    LfgQueueInfo* info = NULL;
+    LfgQueueInfo * l_Info = NULL;
 
-    ObjectGuid guid = player->GetGUID();
+    LfgQueueInfoMap::iterator l_It = m_QueueInfoMap.find(p_Player->GetGUID());
 
-    LfgQueueInfoMap::iterator itr = m_QueueInfoMap.find(guid);
-    if (itr == m_QueueInfoMap.end() && player->GetGroup())
-        itr = m_QueueInfoMap.find(player->GetGroup()->GetGUID());
+    if (l_It == m_QueueInfoMap.end() && p_Player->GetGroup())
+        l_It = m_QueueInfoMap.find(p_Player->GetGroup()->GetGUID());
 
-    info = itr != m_QueueInfoMap.end() ? itr->second : NULL;
-    if (!info)
+    l_Info = l_It != m_QueueInfoMap.end() ? l_It->second : NULL;
+
+    if (!l_Info)
         return;
 
-    bool unk = false; // true for tests
-    bool join = false;
-    bool queued = false;
-    bool quit = false;
+    uint32 l_SuspendedPlayerCount = 0;
 
-    switch (updateData.updateType)
+    bool l_NotifyUI     = false;
+    bool l_IsParty      = false;
+    bool l_Joined       = false;
+    bool l_LfgJoined    = false;
+    bool l_Queued       = false;
+
+    switch (p_UpdateData.updateType)
     {
-        case LFG_UPDATETYPE_JOIN_QUEUE:
-            join = true;
-            // without breakpoint
+        /// OK
         case LFG_UPDATETYPE_ADDED_TO_QUEUE:
-            queued = true;
+            l_NotifyUI  = true;
+            l_Joined    = true;
+            l_LfgJoined = true;
             break;
+        /// OK
+        case LFG_UPDATETYPE_JOIN_QUEUE:
+            l_NotifyUI  = true;
+            l_Joined    = true;
+            l_LfgJoined = true;
+            l_Queued    = true;
+            break;
+        /// OK
+        case LFG_UPDATETYPE_PROPOSAL_DECLINED:
+            l_NotifyUI = true;
+            break;
+        /// OK
         case LFG_UPDATETYPE_UPDATE_STATUS:
-            join = true; // todo check
-            queued = true; // todo check
-            unk = true;
+            l_NotifyUI  = true;
+            l_IsParty   = true;
+            l_Joined    = true;
+            l_LfgJoined = true;
             break;
-        case LFG_UPDATETYPE_PROPOSAL_BEGIN:
-            join = false;
-            queued = true;
-            unk = true;
+
+        case LFG_UPDATETYPE_LEADER_UNK1:
+            l_IsParty = true;
             break;
-        case LFG_UPDATETYPE_GROUP_DISBAND_UNK16:
-        case LFG_UPDATETYPE_GROUP_FOUND:
-            quit = true;
-            break;
+
         case LFG_UPDATETYPE_REMOVED_FROM_QUEUE:
-            quit = true;
+            l_NotifyUI = true;
             break;
+
+
+        case LFG_UPDATETYPE_GROUP_FOUND:
+            l_NotifyUI = true;
+            break;
+
+        case LFG_UPDATETYPE_PROPOSAL_BEGIN:
+            l_NotifyUI = true;
+            l_Joined = true;
+            l_LfgJoined = true;
+            break;
+
+        case LFG_UPDATETYPE_GROUP_DISBAND_UNK16:
+            break;
+
         default:
             break;
     }
 
-    WorldPacket data(SMSG_LFG_UPDATE_STATUS, 48);
-    for (int i = 0; i < 3; ++i)
-        data << uint8(0);
+    WorldPacket l_Data(SMSG_LFG_UPDATE_STATUS, 48);
+    l_Data.appendPackGUID(p_Player->GetGUID());
+    l_Data << uint32(0);                              // QueueId
+    l_Data << uint32(2);                              // Flags
+    l_Data << uint32(l_Info->joinTime);
 
-    data << uint32(3);                              // Flags
+    l_Data << uint8(l_Info->category);
+    l_Data << uint8(p_UpdateData.updateType);           // Update type
 
-    data << uint32(info->roles[player->GetGUID()]);
+    for (int l_I = 0; l_I < 3; ++l_I)
+        l_Data << uint8(0);
 
-    data << uint8(info->category);
-    data << uint8(updateData.updateType);           // Update type
+    l_Data << uint32(p_UpdateData.dungeons.size());
+    l_Data << uint32(l_Info->roles[p_Player->GetGUID()]);
+    l_Data << uint32(l_SuspendedPlayerCount);
 
-    data << uint32(0);                              // QueueId
-    data << uint32(info->joinTime);
-
-    data.WriteBit(guid[5]);
-    data.WriteBits(updateData.comment.size(), 8);
-    data.WriteBit(!quit);                              //!quit
-    data.WriteBit(unk);                                //related to teleport_to_dungeon icon
-    data.WriteBit(join);                               //lfg join
-    data.WriteBit(guid[3]);
-    data.WriteBits(0, 24);
-    data.WriteBit(guid[4]);
-
-    /*Unk block start*/
-
-    /*data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);*/
-
-    /*Unk block end*/
-
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
-
-    data.WriteBit(queued);
-    data.WriteBits(updateData.dungeons.size(), 22);
-    data.WriteBit(true);                               //unk bit always 1
-
-    /*Unk block start*/
-
-    /*data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);*/
-
-    /*Unk block end*/
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-
-    for (auto i = updateData.dungeons.begin(); i != updateData.dungeons.end(); ++i)
+    for (LfgDungeonSet::iterator l_I = p_UpdateData.dungeons.begin(); l_I != p_UpdateData.dungeons.end(); ++l_I)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*i);
-        data << uint32(dungeon ? dungeon->Entry() : 0); // Dungeon
+        LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(*l_I);
+
+        l_Data << uint32(l_Dungeon ? l_Dungeon->Entry() : 0); // Dungeon
     }
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[2]);
+    for (uint32 l_I = 0; l_I < l_SuspendedPlayerCount; ++l_I)
+    {
+        l_Data.appendPackGUID(0);
+    }
 
-    data.WriteString(updateData.comment);
+    l_Data.WriteBit(l_NotifyUI);
+    l_Data.WriteBit(l_IsParty);
+    l_Data.WriteBit(l_Joined);
+    l_Data.WriteBit(l_LfgJoined);
+    l_Data.WriteBit(l_Queued);
+    l_Data.WriteBits(p_UpdateData.comment.size(), 8);
+    l_Data.FlushBits();
 
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
+    l_Data.WriteString(p_UpdateData.comment);
 
-    player->GetSession()->SendPacket(&data);
+    p_Player->GetSession()->SendPacket(&l_Data);
 }
 
 /**
