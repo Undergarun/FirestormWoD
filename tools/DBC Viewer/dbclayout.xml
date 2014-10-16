@@ -1220,9 +1220,6 @@
     <field type="string" name="field2" />
   </FileData>
   <Map build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
     <field type="int" name="ID" />
     <field type="string" name="Directory" />
     <field type="int" name="InstanceType" />
@@ -1244,6 +1241,7 @@
     <field type="int" name="ParentMapID" />
     <field type="int" name="CosmeticParentMapID" />
     <field type="int" name="TimeOffset" />
+    <field type="int" name="newField" />
   </Map>
   <Phase build="0">
     <index>
@@ -1280,7 +1278,7 @@
     <field type="int" name="field21" />
     <field type="int" name="field22" />
   </QuestV2CliTask>
-  <AreaTable build="0">
+  <AreaTable build="19027">
     <index>
       <primary>ID</primary>
     </index>
@@ -1303,9 +1301,7 @@
     <field type="int" name="LiquidTypeID_1" />
     <field type="int" name="LiquidTypeID_2" />
     <field type="int" name="LiquidTypeID_3" />
-    <field type="float" name="MinElevation" />
-    <field type="int" name="UNK6.0.2" />
-    <field type="int" name="Lightid" />
+    <field type="float" name="AmbientMultiplier" />
     <field type="int" name="MountFlags" />
     <field type="int" name="UwIntroSound" />
     <field type="int" name="UwZoneMusic" />
@@ -1313,6 +1309,8 @@
     <field type="int" name="WorldPvpId" />
     <field type="int" name="PvpCombatWorldStateID" />
     <field type="int" name="WildBattlePetLevelMin" />
+    <field type="int" name="WildBattlePetLevelMax" />
+    <field type="int" name="windsetting" />
   </AreaTable>
   <BattlemasterList build="0">
     <index>
@@ -2918,4 +2916,48 @@
     <field type="int" name="field5" />
     <field type="int" name="field6" />
   </ItemSpec>
+  <ItemNameDescription build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </ItemNameDescription>
+  <AreaTable build="18179">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ContinentID" />
+    <field type="int" name="ParentAreaID" />
+    <field type="int" name="AreaBit" />
+    <field type="uint" name="Flags_0" />
+    <field type="int" name="Flags_1" />
+    <field type="int" name="SoundProviderPref" />
+    <field type="int" name="SoundProviderPrefUnderwater" />
+    <field type="int" name="AmbienceID" />
+    <field type="int" name="ZoneMusic" />
+    <field type="string" name="ZoneName" />
+    <field type="int" name="IntroSound" />
+    <field type="int" name="ExplorationLevel" />
+    <field type="string" name="AreaNameLang" />
+    <field type="int" name="FactionGroupMask" />
+    <field type="int" name="LiquidTypeID_0" />
+    <field type="int" name="LiquidTypeID_1" />
+    <field type="int" name="LiquidTypeID_2" />
+    <field type="int" name="LiquidTypeID_3" />
+    <field type="float" name="MinElevation" />
+    <field type="float" name="AmbientMultiplier;" />
+    <field type="int" name="Lightid" />
+    <field type="int" name="MountFlags" />
+    <field type="int" name="UwIntroSound" />
+    <field type="int" name="UwZoneMusic" />
+    <field type="int" name="UwAmbience" />
+    <field type="int" name="WorldPvpId" />
+    <field type="int" name="PvpCombatWorldStateID" />
+    <field type="int" name="WildBattlePetLevelMin" />
+    <field type="int" name="WildBattlePetLevelMax" />
+    <field type="int" name="WindSettingsID" />
+  </AreaTable>
 </DBFilesClient>
