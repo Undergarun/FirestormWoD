@@ -4230,16 +4230,18 @@ void Player::InitSpellForLevel()
     if (perkList)
     {
         // perks are starting at level 90
-        float levelDiff = getLevel() - 90;
+        #define PERK_START_LEVEL 90
+
+        float levelDiff = getLevel() - PERK_START_LEVEL ;
+        float coeff = (MAX_LEVEL - PERK_START_LEVEL) / float(perkList->size());
+
         if (levelDiff > 1)
         {
+            uint8 currentIndex = floor((levelDiff - 1.f) / coeff);
 
-            uint8 currentIndex = floor(levelDiff / float(perkList->size()));
             for (auto perk : *perkList)
-            {
-                if (perk->orderIndex <= perk->orderIndex)
+                if (currentIndex >= perk->orderIndex)
                     learnSpell(perk->spellID, false);
-            }
         }
     }
 
