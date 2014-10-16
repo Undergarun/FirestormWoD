@@ -452,7 +452,7 @@ public:
 
         // handler->getSession() == NULL only for console
         targetAccountId = (isAccountNameGiven) ? AccountMgr::GetId(targetAccountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
-        int32 gmRealmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
+        int32 l_GMRealmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
         uint32 playerSecurity;
         if (handler->GetSession())
             playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), gmRealmID);
@@ -461,7 +461,7 @@ public:
 
         // can set security level only for target with less security and to less security that we have
         // This is also reject self apply in fact
-        targetSecurity = AccountMgr::GetSecurity(targetAccountId, gmRealmID);
+        targetSecurity = AccountMgr::GetSecurity(targetAccountId, l_GMRealmID);
         if (targetSecurity >= playerSecurity || gm >= playerSecurity)
         {
             handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
@@ -470,7 +470,7 @@ public:
         }
 
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (gmRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
+        if (l_GMRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
 
@@ -488,7 +488,7 @@ public:
         }
 
         // Check if provided realmID has a negative value other than -1
-        if (gmRealmID < -1)
+        if (l_GMRealmID < -1)
         {
             handler->SendSysMessage(LANG_INVALID_REALMID);
             handler->SetSentErrorMessage(true);
@@ -498,7 +498,7 @@ public:
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
         PreparedStatement* stmt;
 
-        if (gmRealmID == -1)
+        if (l_GMRealmID == -1)
         {
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
 
@@ -509,7 +509,7 @@ public:
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
 
             stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt32(1, realmID);
+            stmt->setUInt32(1, g_RealmID);
         }
 
         LoginDatabase.Execute(stmt);
@@ -520,7 +520,7 @@ public:
 
             stmt->setUInt32(0, targetAccountId);
             stmt->setUInt8(1, uint8(gm));
-            stmt->setInt32(2, gmRealmID);
+            stmt->setInt32(2, l_GMRealmID);
 
             LoginDatabase.Execute(stmt);
         }

@@ -1720,7 +1720,7 @@ class misc_commandscript : public CommandScript
             std::string lastLogin = handler->GetTrinityString(LANG_ERROR);
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-            stmt->setInt32(0, int32(realmID));
+            stmt->setInt32(0, int32(g_RealmID));
             stmt->setUInt32(1, accId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
