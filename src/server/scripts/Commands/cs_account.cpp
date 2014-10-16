@@ -455,7 +455,7 @@ public:
         int32 l_GMRealmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
         uint32 playerSecurity;
         if (handler->GetSession())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), gmRealmID);
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), l_GMRealmID);
         else
             playerSecurity = SEC_CONSOLE;
 

@@ -53,7 +53,7 @@ WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 
-uint32 realmID;                                             ///< Id of the realm
+uint32 g_RealmID;                                             ///< Id of the realm
 
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
