@@ -694,7 +694,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     // Log damage > 1 000 000 on worldboss
     if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
-        sLog->OutPandashan("World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
+        sLog->outAshran("World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
 
     // Custom MoP Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
@@ -4179,7 +4179,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         if (!aurApp)
         {
-            sLog->OutPandashan("CRASH ALERT : Unit::RemoveAurasByType no AurApp pointer for Aura Id %u\n", aura->GetId());
+            sLog->outAshran("CRASH ALERT : Unit::RemoveAurasByType no AurApp pointer for Aura Id %u\n", aura->GetId());
             ++iter;
             continue;
         }
@@ -21100,7 +21100,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
         // if (!spellEntry) should be checked at npc_spellclick load
         if (!spellEntry)
         {
-            sLog->OutPandashan("HandleSpellClick: spellEntry pointer is NULL!!");
+            sLog->outAshran("HandleSpellClick: spellEntry pointer is NULL!!");
             return false;
         }
 

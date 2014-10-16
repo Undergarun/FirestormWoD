@@ -3118,7 +3118,7 @@ void World::InitCurrencyResetTime()
     }
 
     m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
-    sLog->OutPandashan("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
+    sLog->outAshran("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
 }
 
 void World::InitServerAutoRestartTime()
@@ -3181,7 +3181,7 @@ void World::ResetCurrencyWeekCap()
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
     sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 
-    sLog->OutPandashan("World::ResetCurrencyWeekCap()");
+    sLog->outAshran("World::ResetCurrencyWeekCap()");
 }
 
 void World::LoadDBAllowedSecurityLevel()

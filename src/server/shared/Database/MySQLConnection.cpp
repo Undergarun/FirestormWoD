@@ -171,7 +171,7 @@ bool MySQLConnection::Execute(const char* sql)
 
             sLog->outInfo(LOG_FILTER_SQL, "SQL: %s", sql);
             sLog->outError(LOG_FILTER_SQL, "[%u] %s", lErrno, mysql_error(m_Mysql));
-            sLog->OutPandashan("[%u] %s (%s)", lErrno, mysql_error(m_Mysql), sql);
+            sLog->outAshran("[%u] %s (%s)", lErrno, mysql_error(m_Mysql), sql);
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(sql);       // Try again
@@ -208,7 +208,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         {
             uint32 lErrno = mysql_errno(m_Mysql);
             sLog->outError(LOG_FILTER_SQL, "SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
-            sLog->OutPandashan("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
+            sLog->outAshran("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(stmt);       // Try again
@@ -221,7 +221,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         {
             uint32 lErrno = mysql_errno(m_Mysql);
             sLog->outError(LOG_FILTER_SQL, "SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
-            sLog->OutPandashan("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
+            sLog->outAshran("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(stmt);       // Try again
@@ -260,7 +260,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         {
             uint32 lErrno = mysql_errno(m_Mysql);
             sLog->outError(LOG_FILTER_SQL, "SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
-            sLog->OutPandashan("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
+            sLog->outAshran("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return _Query(stmt, pResult, pRowCount, pFieldCount);       // Try again
@@ -274,7 +274,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
             uint32 lErrno = mysql_errno(m_Mysql);
             sLog->outError(LOG_FILTER_SQL, "SQL(p): %s\n [ERROR]: [%u] %s",
                 m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
-            sLog->OutPandashan("SQL(p): %s\n [ERROR]: [%u] %s",
+            sLog->outAshran("SQL(p): %s\n [ERROR]: [%u] %s",
                 m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
@@ -326,7 +326,7 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
             uint32 lErrno = mysql_errno(m_Mysql);
             sLog->outInfo(LOG_FILTER_SQL, "SQL: %s", sql);
             sLog->outError(LOG_FILTER_SQL, "[%u] %s", lErrno, mysql_error(m_Mysql));
-            sLog->OutPandashan("[%u] %s", lErrno, mysql_error(m_Mysql));
+            sLog->outAshran("[%u] %s", lErrno, mysql_error(m_Mysql));
 
             if (_HandleMySQLErrno(lErrno))      // If it returns true, an error was handled successfully (i.e. reconnection)
                 return _Query(sql, pResult, pFields, pRowCount, pFieldCount);    // We try again

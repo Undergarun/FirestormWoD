@@ -991,7 +991,7 @@ Player::~Player()
 
             if (m_items[i] == m_items[slot] && slot != i)
             {
-                sLog->OutPandashan("Player[%u] have same item pointer in two slot ! (slot: %u, copy slot: %u)", GetGUIDLow(), i, slot);
+                sLog->outAshran("Player[%u] have same item pointer in two slot ! (slot: %u, copy slot: %u)", GetGUIDLow(), i, slot);
                 m_items[i] = NULL;
             }
         }
@@ -13805,7 +13805,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
                 if (m_items[i] == pItem)
                 {
                     ACE_Stack_Trace trace;
-                    sLog->OutPandashan("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
+                    sLog->outAshran("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
                 }
             }
             m_items[slot] = pItem;
@@ -13874,7 +13874,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
                 pItem->SetState(ITEM_REMOVED, this);
             }
             else
-                sLog->OutPandashan("Player::_StoreItem, pItem == pItem2");
+                sLog->outAshran("Player::_StoreItem, pItem == pItem2");
         }
 
         AddEnchantmentDurations(pItem2);
@@ -14145,7 +14145,7 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
         if (m_items[i] == pItem)
         {
             ACE_Stack_Trace trace;
-            sLog->OutPandashan("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
+            sLog->outAshran("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
         }
     }
 
@@ -14627,7 +14627,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         return;
     }
 
-     sLog->OutPandashan("Player::SplitItem[%u] srcbag : %u destbag : %u pSrcItem %u count %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, count);
+     sLog->outAshran("Player::SplitItem[%u] srcbag : %u destbag : %u pSrcItem %u count %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, count);
 
     if (pSrcItem->m_lootGenerated)                           // prevent split looting item (item
     {
@@ -14740,7 +14740,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     Item* pSrcItem = GetItemByPos(srcbag, srcslot);
     Item* pDstItem = GetItemByPos(dstbag, dstslot);
 
-    sLog->OutPandashan("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+    sLog->outAshran("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     if (!pSrcItem)
         return;
@@ -14839,7 +14839,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 SendEquipError(msg, pSrcItem, NULL);
                 return;
             }
-            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 1", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 1", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             StoreItem(dest, pSrcItem, true);
             if (IsBankPos(src))
@@ -14855,7 +14855,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 return;
             }
 
-            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
@@ -14870,7 +14870,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 return;
             }
 
-            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
@@ -14890,7 +14890,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 SendEquipError(msg, pSrcItem, NULL);
                 return;
             }
-            sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 3", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 3", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
@@ -15008,7 +15008,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         {
             if (pSrcItem->GetCount() + pDstItem->GetCount() <= pSrcItem->GetTemplate()->GetMaxStackSize())
             {
-                sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 4", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+                sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 4", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
                 RemoveItem(srcbag, srcslot, true);
 
                 if (IsInventoryPos(dst))
@@ -15023,7 +15023,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
             else
             {
-                sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 5", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+                sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 5", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
                 pSrcItem->SetCount(pSrcItem->GetCount() + pDstItem->GetCount() - pSrcItem->GetTemplate()->GetMaxStackSize());
                 pDstItem->SetCount(pSrcItem->GetTemplate()->GetMaxStackSize());
                 pSrcItem->SetState(ITEM_CHANGED, this);
@@ -15155,7 +15155,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         }
     }
 
-    sLog->OutPandashan("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 7", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
+    sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 7", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     // now do moves, remove...
     RemoveItem(dstbag, dstslot, false);
@@ -15261,7 +15261,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
             if (m_items[i] == pItem)
             {
                 ACE_Stack_Trace trace;
-                sLog->OutPandashan("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
+                sLog->outAshran("VisualizeItem duplicate item ptr ! Try to put item in slot %u already exist in slot %u ! StackTrace : %s", i, slot, trace.c_str());
             }
         }
         m_items[slot] = pItem;
@@ -24687,7 +24687,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 
         if ((Condition->CompareColor[i] - 1) > 3)
         {
-	    sLog->OutPandashan("curcount out of bound ! %u", Condition->CompareColor[i] - 1);
+            sLog->outAshran("curcount out of bound ! %u", Condition->CompareColor[i] - 1);
             continue;
         }
 
@@ -27882,7 +27882,7 @@ bool Player::LearnTalent(uint32 talentId)
 
         if (tInfo->rank == talentInfo->rank && HasSpell(tInfo->spellId))
         {
-            sLog->OutPandashan("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->spellId, tInfo->spellId);
+            sLog->outAshran("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->spellId, tInfo->spellId);
             return false;
         }
     }

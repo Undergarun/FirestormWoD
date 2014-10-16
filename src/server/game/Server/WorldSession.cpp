@@ -491,15 +491,15 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         {
             if ((*itr).second.nbPkt > 5)
             {
-                sLog->OutPandashan("Account [%u] has been kicked for flood of CMSG_ADD_FRIEND (count : %u)", GetAccountId(), (*itr).second.nbPkt);
+                sLog->outAshran("Account [%u] has been kicked for flood of CMSG_ADD_FRIEND (count : %u)", GetAccountId(), (*itr).second.nbPkt);
                 KickPlayer();
                 return false;
             }
         }
 
-        sLog->OutPandashan("Session of account [%u] take more than 50 ms to execute (%u ms)", GetAccountId(), sessionDiff);
+        sLog->outAshran("Session of account [%u] take more than 50 ms to execute (%u ms)", GetAccountId(), sessionDiff);
         for (auto itr : pktHandle)
-            sLog->OutPandashan("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first, WOW_CLIENT_TO_SERVER).c_str(), itr.second.totalTime);
+            sLog->outAshran("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first, WOW_CLIENT_TO_SERVER).c_str(), itr.second.totalTime);
     }
 
     return true;

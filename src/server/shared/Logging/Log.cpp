@@ -34,16 +34,17 @@ Log::Log() : worker(NULL)
     SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
-    pandashanLog = fopen("pandashan.log", "a");
+
+    std::string ashranLogPath = m_logsDir + "ashran.log";
+    ashranLog = fopen(ashranLogPath.c_str(), "a");
 }
 
 Log::~Log()
 {
     Close();
 
-    fclose(pandashanLog);
-    delete pandashanLog;
-    pandashanLog = NULL;
+    fclose(ashranLog);
+    ashranLog = NULL;
 }
 
 uint8 Log::NextAppenderId()
@@ -564,7 +565,7 @@ void Log::outArena(const char * str, ...)
     ArenaLogQueue.add(log);
 }
 
-void Log::OutPandashan(const char* str, ...)
+void Log::outAshran(const char* str, ...)
 {
     if (!str)
         return;
@@ -577,6 +578,6 @@ void Log::OutPandashan(const char* str, ...)
     va_end(ap);
 
     std::string date = GetTimestampStr();
-    fprintf(pandashanLog, "[%s] Pandashan LOG : %s\n", date.c_str(), result);
-    fflush(pandashanLog);
+    fprintf(ashranLog, "[%s] Ashran LOG : %s\n", date.c_str(), result);
+    fflush(ashranLog);
 }

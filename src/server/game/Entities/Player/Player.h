@@ -2193,7 +2193,7 @@ class Player : public Unit, public GridObject<Player>
         {
             if (slot >= MAX_PVP_SLOT)
             {
-                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
             }
 
@@ -2214,7 +2214,7 @@ class Player : public Unit, public GridObject<Player>
         {
             if (slot >= MAX_PVP_SLOT)
             {
-                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
             }
 
@@ -2230,7 +2230,7 @@ class Player : public Unit, public GridObject<Player>
         {
             if (slot >= MAX_PVP_SLOT)
             {
-                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
             }
             ++m_WeekGames[slot];
@@ -2239,7 +2239,7 @@ class Player : public Unit, public GridObject<Player>
         {
             if (slot >= MAX_PVP_SLOT)
             {
-                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
             }
             ++m_WeekWins[slot];
@@ -2248,7 +2248,7 @@ class Player : public Unit, public GridObject<Player>
         {
             if (slot >= MAX_PVP_SLOT)
             {
-                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
             }
             ++m_SeasonGames[slot];
@@ -2257,7 +2257,7 @@ class Player : public Unit, public GridObject<Player>
         {
             if (slot >= MAX_PVP_SLOT)
             {
-                sLog->OutPandashan("ARENA SLOT OVERFLOW!!");
+                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
             }
             ++m_SeasonWins[slot];

@@ -65,7 +65,7 @@ class Log
                         const char * str);
         void outCharDump(char const* str, uint32 account_id, uint32 guid, char const* name);
 
-        void OutPandashan(const char* str, ...);
+        void outAshran(const char* str, ...);
 
         void EnableDBAppenders();
         static std::string GetTimestampStr();
@@ -95,7 +95,7 @@ class Log
         uint32 realm;
         LogWorker* worker;
 
-        FILE* pandashanLog;
+        FILE* ashranLog;
 };
 
 #define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()

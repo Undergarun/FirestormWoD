@@ -46,7 +46,7 @@ void npc_escortAI::AttackStart(Unit* who)
 
     if (me->Attack(who, true))
     {
-        sLog->OutPandashan("npc_escortAI::AttackStart - attacker " UI64FMTD " (entry %u), attacking target " UI64FMTD " (entry %u)", me->GetGUID(), me->GetEntry(), who->GetGUID(), who->GetEntry());
+        sLog->outAshran("npc_escortAI::AttackStart - attacker " UI64FMTD " (entry %u), attacking target " UI64FMTD " (entry %u)", me->GetGUID(), me->GetEntry(), who->GetGUID(), who->GetEntry());
         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
             me->GetMotionMaster()->MovementExpired();
 

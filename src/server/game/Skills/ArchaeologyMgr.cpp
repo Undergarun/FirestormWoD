@@ -159,13 +159,13 @@ uint32 ArchaeologyMgr::GetSurveyBotEntry(float &orientation)
 
     if (at_pos == 0xFFFFF)
     {
-        sLog->OutPandashan("ArcheologyMgr::GetSurveyBotEntry, at_pos (%u) = 0xFFFFF for site %u !", at_pos, zoneid);
+        sLog->outAshran("ArcheologyMgr::GetSurveyBotEntry, at_pos (%u) = 0xFFFFF for site %u !", at_pos, zoneid);
         return 0;
     }
 
     if (at_pos >= 20)
     {
-        sLog->OutPandashan("ArcheologyMgr::GetSurveyBotEntry, at_pos (%u) >= 20 for site %u !", at_pos, zoneid);
+        sLog->outAshran("ArcheologyMgr::GetSurveyBotEntry, at_pos (%u) >= 20 for site %u !", at_pos, zoneid);
         return 0;
     }
 

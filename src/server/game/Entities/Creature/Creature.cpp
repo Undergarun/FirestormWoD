@@ -588,7 +588,7 @@ void Creature::Update(uint32 diff, uint32 entry)
                 i_AI->UpdateAI(diff);
 
                 if ((getMSTime() - diffAI) > 10)
-                    sLog->OutPandashan("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), (getMSTime() - diffAI));
+                    sLog->outAshran("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), (getMSTime() - diffAI));
 
                 m_AI_locked = false;
             }
@@ -752,7 +752,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     // make sure nothing can change the AI during AI update
     if (m_AI_locked)
     {
-        sLog->OutPandashan("AIM_Initialize: failed to init, locked.");
+        sLog->outAshran("AIM_Initialize: failed to init, locked.");
         return false;
     }
 

@@ -356,7 +356,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 
     if (l_QueueSlotID > PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
-        sLog->OutPandashan("HandleBattleFieldPortOpcode queueSlot %u", l_QueueSlotID);
+        sLog->outAshran("HandleBattleFieldPortOpcode queueSlot %u", l_QueueSlotID);
         return;
     }
 
@@ -370,7 +370,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 
     if (l_BGQueueTypeID >= MAX_BATTLEGROUND_QUEUE_TYPES)
     {
-        sLog->OutPandashan("HandleBattleFieldPortOpcode bgQueueTypeId %u", l_BGQueueTypeID);
+        sLog->outAshran("HandleBattleFieldPortOpcode bgQueueTypeId %u", l_BGQueueTypeID);
         return;
     }
 
@@ -723,7 +723,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
 
         if (!l_GroupQueueInfo)
         {
-            sLog->OutPandashan("NULL ginfo !!!!");
+            sLog->outAshran("NULL ginfo !!!!");
             return;
         }
 
