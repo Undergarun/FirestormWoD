@@ -494,39 +494,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
     }
 
-    if (uint32 upgradeId = fields[9].GetUInt32())
-    {
-        if (CanUpgrade())
-        {
-             SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, upgradeId);
-             SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
-        }
-    }
-    else
-    {
-        // For Item Upgrade
-        if (CanUpgrade())
-        {
-            if (IsPvPItem())
-            {
-                if (proto->Quality == ITEM_QUALITY_EPIC)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 456);
-                else
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 453);
-            }
-            else
-            {
-                if (proto->Quality == ITEM_QUALITY_EPIC)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 445);
-                else if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 465);
-                else
-                    SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
-            }
-
-            SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
-        }
-    }
+    // uint32 upgradeId = fields[9].GetUInt32(); @TODO: Remove this DB field
 
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
