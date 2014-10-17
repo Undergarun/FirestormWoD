@@ -4232,7 +4232,7 @@ void Player::InitSpellForLevel()
         // perks are starting at level 90
         #define PERK_START_LEVEL 90
 
-        float levelDiff = getLevel() - PERK_START_LEVEL ;
+        float levelDiff = getLevel() - PERK_START_LEVEL;
         float coeff = (MAX_LEVEL - PERK_START_LEVEL) / float(perkList->size());
 
         if (levelDiff > 0)
