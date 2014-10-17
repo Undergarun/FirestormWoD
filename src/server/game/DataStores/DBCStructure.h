@@ -1219,6 +1219,11 @@ struct GlyphSlotEntry
 // gtOCTClassCombatRatingScalar.dbc stores data for 32 ratings, look at MAX_COMBAT_RATING for real used amount
 #define GT_MAX_RATING   32
 
+struct gtArmorMitigationByLvlEntry
+{
+    float    ratio;
+};
+
 struct GtBarberShopCostBaseEntry
 {
     //uint32    level;

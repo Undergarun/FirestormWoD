@@ -110,6 +110,7 @@ extern DBCStorage <GemPropertiesEntry>           sGemPropertiesStore;
 extern DBCStorage <GlyphPropertiesEntry>         sGlyphPropertiesStore;
 extern DBCStorage <GlyphSlotEntry>               sGlyphSlotStore;
 
+extern DBCStorage <gtArmorMitigationByLvlEntry>  sgtArmorMitigationByLvlStore;
 extern DBCStorage <GtBarberShopCostBaseEntry>    sGtBarberShopCostBaseStore;
 extern DBCStorage <GtCombatRatingsEntry>         sGtCombatRatingsStore;
 extern DBCStorage <GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore;

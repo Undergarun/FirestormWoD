@@ -1902,23 +1902,17 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (armor < 0.0f)
         armor = 0.0f;
 
-    float tmpvalue = 0.0f;
-    if (getLevel() <= 59)
-        tmpvalue = armor / (armor + 85.0f * getLevel() + 400.0f);
-    else if (getLevel() <= 80)
-        tmpvalue = armor / (armor + 467.5f * getLevel() - 22167.5f);
-    else if (getLevel() < 90)
-        tmpvalue = armor / (armor + 2167.5f * getLevel() - 158167.5f);
-    else
-        tmpvalue = armor / (armor + 46257.5f);
+    int scalingLevel = getLevel() > GT_MAX_LEVEL ? GT_MAX_LEVEL - 1 : getLevel() - 1;
+    float tmpvalue = armor / (armor + sgtArmorMitigationByLvlStore.LookupEntry(scalingLevel)->ratio);
 
     if (tmpvalue < 0.0f)
         tmpvalue = 0.0f;
-    if (tmpvalue > 0.75f)
-        tmpvalue = 0.75f;
+
+    // Wod MaxValue
+    if (tmpvalue > 0.85f)
+        tmpvalue = 0.85f;
 
     newdamage = uint32(damage - (damage * tmpvalue));
-
     return (newdamage > 1) ? newdamage : 1;
 }
 
