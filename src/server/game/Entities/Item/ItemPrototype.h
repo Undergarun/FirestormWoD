@@ -86,10 +86,10 @@ enum ItemModType
     ITEM_MOD_INDESTRUCTIBLE           = 64,
     ITEM_MOD_WOD_5                    = 65,
     ITEM_MOD_WOD_6                    = 66,
-    ITEM_MOD_STRENGTH_AGILITY_INTELLECT = 71,
-    ITEM_MOD_STRENGTH_AGILITY         = 72,
-    ITEM_MOD_AGILITY_INTELLECT        = 73,
-    ITEM_MOD_STRENGTH_INTELLECT       = 74,
+    ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT = 71,
+    ITEM_MOD_DYNAMIC_STAT_AGI_STR     = 72,
+    ITEM_MOD_DYNAMIC_STAT_AGI_INT     = 73,
+    ITEM_MOD_DYNAMIC_STAT_STR_INT     = 74,
 };
 
 #define MAX_ITEM_MOD                    75

@@ -806,7 +806,7 @@ struct ChrClassesEntry
     //uint32    m_SelectScreenFileDataID;                   // 15       m_SelectScreenFileDataID
     //uint32    m_LowResScreenFileDataID;                   // 16       m_LowResScreenFileDataID
     //uint32    m_IconFileDataID;                           // 17       m_IconFileDataID
-    //uint32    Unk_601_18612;                              // 18       unk 6.0.1 18612
+    uint32   mainStat;                                      // 18       m_MainStat
 };
 
 struct ChrRacesEntry
@@ -877,7 +877,7 @@ struct ChrSpecializationsEntry
     //char*     m_NameLang                                  // 12       m_NameLang1
     char*   description;                                    // 13       m_DescriptionLang
     //uint32    m_MaxBuffs;                                 // 14       m_MaxBuffs
-    //uint32    Unk_601_18612;                              // 15       Unk_601_18612
+    uint32   mainStat;                                      // 15       m_MainStat
 };
 
 struct CinematicCameraEntry

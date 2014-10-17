@@ -5852,12 +5852,31 @@ void Player::ResetSpec()
     SetSpecializationResetTime(time(NULL));
 }
 
-void Player::SetSpecializationId(uint8 spec, uint32 id)
+void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
 {
-    _talentMgr->SpecInfo[spec].SpecializationId = id;
 
     if (spec == GetActiveSpec())
+    {
+        float pct = GetHealthPct();
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
+
+        if (!loading)
+            for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+                if (Item* item = m_items[i])
+                    _ApplyItemMods(item, i, false);
+
+        _talentMgr->SpecInfo[spec].SpecializationId = id;
+
+        if (!loading)
+            for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+                if (Item* item = m_items[i])
+                    _ApplyItemMods(item, i, true);
+
+        SetHealth(GetMaxHealth() * pct / 100);
+        return;
+    }
+    else
+        _talentMgr->SpecInfo[spec].SpecializationId = id;
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -9650,18 +9669,36 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_AGILITY:
+
+                if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                    break;
+
                 HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_AGILITY, float(val), apply);
                 break;
             case ITEM_MOD_STRENGTH:
+
+                if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                    break;
+
                 HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_STRENGTH, float(val), apply);
                 break;
+
             case ITEM_MOD_INTELLECT:
+
+                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                    break;
+
                 HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_INTELLECT, float(val), apply);
                 break;
+
             case ITEM_MOD_SPIRIT:
+
+                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                    break;
+
                 HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_SPIRIT, float(val), apply);
                 break;
@@ -9738,11 +9775,49 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_LEECH_RATING:
             case ITEM_MOD_AVOIDANCE_RATING:
             case ITEM_MOD_INDESTRUCTIBLE:
-            case ITEM_MOD_STRENGTH_AGILITY_INTELLECT:
-            case ITEM_MOD_STRENGTH_AGILITY:
-            case ITEM_MOD_AGILITY_INTELLECT:
-            case ITEM_MOD_STRENGTH_INTELLECT:
                 break;
+            case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+            {
+                Stats stat = GetPrimaryStat();
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
+            case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+            {
+                Stats stat = GetPrimaryStat();
+
+                if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
+                    break;
+
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
+            case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+            {
+                Stats stat = GetPrimaryStat();
+
+                if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
+                    break;
+
+
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
+            case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+            {
+                Stats stat = GetPrimaryStat();
+
+                if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
+                    break;
+
+
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
         }
     }
 
@@ -15715,10 +15790,48 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
             case ITEM_MOD_LEECH_RATING:
             case ITEM_MOD_AVOIDANCE_RATING:
             case ITEM_MOD_INDESTRUCTIBLE:
-            case ITEM_MOD_STRENGTH_AGILITY_INTELLECT:
-            case ITEM_MOD_STRENGTH_AGILITY:
-            case ITEM_MOD_AGILITY_INTELLECT:
-            case ITEM_MOD_STRENGTH_INTELLECT:
+            case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+            {
+                Stats stat = GetPrimaryStat();
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
+            case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+            {
+                Stats stat = GetPrimaryStat();
+
+                if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
+                    break;
+
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
+            case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+            {
+                Stats stat = GetPrimaryStat();
+
+                if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
+                    break;
+
+
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
+            case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+            {
+                Stats stat = GetPrimaryStat();
+
+                if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
+                    break;
+
+
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
+                ApplyStatBuffMod(stat, float(val), apply);
+                break;
+            }
                 break;
             default:
                 break;
@@ -15987,6 +16100,48 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             break;
                         case ITEM_MOD_MULTISTRIKE_RATING:
                             break;
+                        case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+                        {
+                            Stats stat = GetPrimaryStat();
+                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(stat, float(enchant_amount), apply);
+                            break;
+                        }
+                        case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+                        {
+                            Stats stat = GetPrimaryStat();
+
+                            if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
+                                break;
+
+                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(stat, float(enchant_amount), apply);
+                            break;
+                        }
+                        case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+                        {
+                            Stats stat = GetPrimaryStat();
+
+                            if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
+                                break;
+
+
+                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(stat, float(enchant_amount), apply);
+                            break;
+                        }
+                        case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+                        {
+                            Stats stat = GetPrimaryStat();
+
+                            if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
+                                break;
+
+
+                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(stat, float(enchant_amount), apply);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -19471,8 +19626,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetSpecsCount(fields[53].GetUInt8());
     SetActiveSpec(fields[54].GetUInt8());
 
-    SetSpecializationId(0, fields[55].GetUInt32());
-    SetSpecializationId(1, fields[56].GetUInt32());
+    SetSpecializationId(0, fields[55].GetUInt32(), true);
+    SetSpecializationId(1, fields[56].GetUInt32(), true);
 
     SetFreeTalentPoints(CalculateTalentsPoints());
 
@@ -30193,4 +30348,28 @@ void Player::CreateGarrison()
 
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
+}
+
+Stats Player::GetPrimaryStat() const
+{
+    int8 magicNumber = -1;
+    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(GetSpecializationId(GetActiveSpec())))
+        magicNumber = spec->mainStat;
+    else if (ChrClassesEntry const* playerClass = sChrClassesStore.LookupEntry(getClass()))
+        magicNumber = playerClass->mainStat;
+
+    // WTF is Blizzard doing ????
+    switch (magicNumber)
+    {
+        case 0:
+        case 1:
+            return STAT_INTELLECT;
+        case 2:
+        case 3:
+            return STAT_AGILITY;
+        case 4:
+        case 5:
+        default:
+            return STAT_STRENGTH;
+    }
 }
