@@ -1051,10 +1051,11 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// LFG
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LFG_GET_PLAYER_INFO                       = 0x10C0,    ///< 6.0.2 19027 (unused)
+    CMSG_DFGET_SYSTEM_INFO                         = 0x10C0,    ///< 6.0.2 19027
+    CMSG_LFG_GET_PLAYER_INFO                       = 0x0000,
     CMSG_LFG_GET_STATUS                            = 0x18AF,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_JOIN                                  = 0x0AEF,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_LEAVE                                 = 0x02EB,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_JOIN                                  = 0x0AEF,    ///< 6.0.2 19027
+    CMSG_LFG_LEAVE                                 = 0x02EB,    ///< 6.0.2 19027
     CMSG_LFG_PARTY_LOCK_INFO_REQUEST               = 0x0000,
     CMSG_LFG_PROPOSAL_RESULT                       = 0x12F8,    ///< 6.0.2 19027 (unused)
     CMSG_LFG_SET_BOOT_VOTE                         = 0x0BE3,    ///< 6.0.2 19027 (unused)
@@ -1216,7 +1217,6 @@ enum Opcodes
     CMSG_DISMISS_CRITTER                              = 0x0000,
     CMSG_DUEL_RESPONSE                                = 0x0000,
     CMSG_DUEL_PROPOSED                                = 0x0000,
-    CMSG_LFD_LOCK_INFO_REQUEST                        = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,

@@ -26,66 +26,62 @@
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 
-void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgJoinOpcode(WorldPacket & p_Packet)
 {
-    uint32 numDungeons;
-    uint32 dungeon;
-    uint32 roles;
-    uint8 length = 0;
-    uint8 unk8 = 0;
-    bool unkbit = false;
+    LfgDungeonSet l_Slots;
 
-    recvData >> unk8;
+    std::string l_Comment = "";
 
-    for (int i = 0; i < 3; ++i)
-        recvData.read_skip<uint32>();
+    uint32 l_SlotCount      = 0;
+    uint32 l_Roles          = 0;
+    uint32 l_CommentLenght  = 0;
 
-    recvData >> roles;
+    uint8 l_PartyIndex = 0;
 
-    numDungeons = recvData.ReadBits(22);
-    unkbit = recvData.ReadBit();
-    length = recvData.ReadBits(8);
+    bool l_QueueAsGroup = false;
 
-    recvData.FlushBits();
+    l_QueueAsGroup  = p_Packet.ReadBit();
+    l_CommentLenght = p_Packet.ReadBits(8);
 
-    if (!numDungeons)
+    p_Packet >> l_PartyIndex;
+    p_Packet >> l_Roles;
+    p_Packet >> l_SlotCount;
+
+    for (int l_I = 0; l_I < 3; ++l_I)
+        p_Packet.read_skip<uint32>();
+
+    l_Comment = p_Packet.ReadString(l_CommentLenght);
+
+    for (uint32 l_I = 0; l_I < l_SlotCount; ++l_I)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_JOIN [" UI64FMTD "] no dungeons selected", GetPlayer()->GetGUID());
-        recvData.rfinish();
+        /// Remove the type from the dungeon entry
+        l_Slots.insert(p_Packet.read<uint32>() & 0xFFFFFF);
+    }
+
+    if (!l_SlotCount)
         return;
-    }
 
-    LfgDungeonSet newDungeons;
-    for (uint32 i = 0; i < numDungeons; ++i)
-    {
-        recvData >> dungeon;
-        dungeon &= 0xFFFFFF;
-        newDungeons.insert(dungeon);       // remove the type from the dungeon entry
-    }
+    const LFGDungeonEntry * l_Entry = sLFGDungeonStore.LookupEntry(*l_Slots.begin() & 0xFFFFFF);
 
-    std::string comment = recvData.ReadString(length);
+    uint8 l_Type = TYPEID_DUNGEON;
+    uint8 l_MaxGroupSize = 5;
 
-    const LFGDungeonEntry* entry = sLFGDungeonStore.LookupEntry(*newDungeons.begin() & 0xFFFFFF);
-    uint8 type = TYPEID_DUNGEON;
-    uint8 maxGroupSize = 5;
-    if (entry != NULL)
-        type = entry->type;
+    if (l_Entry != NULL)
+        l_Type = l_Entry->type;
 
-    if (type == LFG_SUBTYPEID_RAID)
-        maxGroupSize = 25;
-    if (type == LFG_SUBTYPEID_SCENARIO)
-        maxGroupSize = 3;
+    if (l_Type == LFG_SUBTYPEID_RAID)
+        l_MaxGroupSize = 25;
+    if (l_Type == LFG_SUBTYPEID_SCENARIO)
+        l_MaxGroupSize = 3;
 
     if (!sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE) ||
         (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->GetLeaderGUID() != GetPlayer()->GetGUID() &&
-        (GetPlayer()->GetGroup()->GetMembersCount() == maxGroupSize || !GetPlayer()->GetGroup()->isLFGGroup())))
+        (GetPlayer()->GetGroup()->GetMembersCount() == l_MaxGroupSize || !GetPlayer()->GetGroup()->isLFGGroup())))
     {
-        recvData.rfinish();
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_JOIN [" UI64FMTD "] roles: %u, Dungeons: %u, Comment: %s", GetPlayer()->GetGUID(), roles, uint8(newDungeons.size()), comment.c_str());
-    sLFGMgr->Join(GetPlayer(), uint8(roles), newDungeons, comment);
+    sLFGMgr->Join(GetPlayer(), uint8(l_Roles), l_Slots, l_Comment);
 }
 
 void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  /*recvData*/)
@@ -94,7 +90,7 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  /*recvData*/)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_LEAVE [" UI64FMTD "] in group: %u", GetPlayer()->GetGUID(), l_Group ? 1 : 0);
 
-    // Check cheating - only leader can leave the queue
+    /// Check cheating - only leader can leave the queue
     if (!l_Group || l_Group->GetLeaderGUID() == GetPlayer()->GetGUID())
         sLFGMgr->Leave(GetPlayer(), l_Group);
 }
@@ -204,203 +200,222 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
-void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket & p_Packet)
 {
-    uint8 value;
-    bool groupPacket;
+    uint8 l_PartyIndex;
+    bool l_GroupPacket;
 
-    recvData >> value;
-    groupPacket = recvData.ReadBit();
+    l_GroupPacket = p_Packet.ReadBit();
+    p_Packet >> l_PartyIndex;
 
-    ObjectGuid guid = GetPlayer()->GetGUID();
-
-    // Get Random dungeons that can be done at a certain level and expansion
-    LfgDungeonSet randomDungeons;
-    uint8 level = GetPlayer()->getLevel();
-    uint8 expansion = GetPlayer()->GetSession()->Expansion();
-    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    if (l_GroupPacket)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
-        if (dungeon && dungeon->expansion <= expansion && dungeon->minlevel <= level && level <= dungeon->maxlevel)
+        Group * l_Group = GetPlayer()->GetGroup();
+
+        if (!l_Group)
+            return;
+
+        std::map<uint64, LfgLockMap> l_LockMap;
+
+        for (GroupReference* l_It = l_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())
         {
-            if (dungeon->flags & LFG_FLAG_SEASONAL)
-            {
-                if (HolidayIds holiday = sLFGMgr->GetDungeonSeason(dungeon->ID))
-                    if (holiday == HOLIDAY_WOTLK_LAUNCH || !IsHolidayActive(holiday))
-                        continue;
-            }
-            else if (dungeon->type != TYPEID_RANDOM_DUNGEON)
+            Player* l_CurrentGroupPlayer = l_It->getSource();
+
+            if (!l_CurrentGroupPlayer || l_CurrentGroupPlayer == m_Player)
                 continue;
 
-            randomDungeons.insert(dungeon->Entry());
+            sLFGMgr->InitializeLockedDungeons(l_CurrentGroupPlayer);
+            l_LockMap[l_CurrentGroupPlayer->GetGUID()] = sLFGMgr->GetLockedDungeons(l_CurrentGroupPlayer->GetGUID());
         }
-    }
 
-    // Get player locked Dungeons
-    LfgLockMap lock = sLFGMgr->GetLockedDungeons(guid);
+        WorldPacket l_Data(SMSG_LFG_PARTY_INFO, 1000);
 
-    uint32 rsize = uint32(randomDungeons.size());
-    uint32 lsize = uint32(lock.size());
+        l_Data << uint32(l_LockMap.size());
 
-    WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
-
-    bool hasGuid = true;
-    data.WriteBit(hasGuid);
-    if (hasGuid)
-    {
-        uint8 bitOrder[8] = {7, 2, 1, 6, 3, 5, 0, 4};
-        data.WriteBitInOrder(guid, bitOrder);
-    }
-
-    data.WriteBits(randomDungeons.size(), 17);
-
-    for (LfgDungeonSet::const_iterator it = randomDungeons.begin(); it != randomDungeons.end(); ++it)
-    {
-        LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(*it, level);
-        Quest const* qRew = NULL;
-
-        bool done = 0;
-        if (reward)
+        for (std::map<uint64, LfgLockMap>::const_iterator l_It = l_LockMap.begin(); l_It != l_LockMap.end(); ++l_It)
         {
-            qRew = sObjectMgr->GetQuestTemplate(reward->reward[0].questId);
-            if (qRew)
+            l_Data.WriteBit(l_It->first != 0);
+            l_Data.FlushBits();
+
+            l_Data << uint32(l_It->second.size());
+
+            if (l_It->first)
+                l_Data.appendPackGUID(l_It->first);
+
+            for (LfgLockMap::const_iterator l_It2 = l_It->second.begin(); l_It2 != l_It->second.end(); ++l_It2)
             {
-                done = !GetPlayer()->CanRewardQuest(qRew, false);
-                if (done)
-                    qRew = sObjectMgr->GetQuestTemplate(reward->reward[1].questId);
+                LfgLockStatus l_LockData = l_It2->second;
+                l_Data << uint32(l_It2->first);                         ///< Slot
+                l_Data << uint32(l_LockData.lockstatus);                ///< Reason
+                l_Data << uint32(l_LockData.itemLevel);                 ///< Sub Reason 1
+                l_Data << uint32(GetPlayer()->GetAverageItemLevel());   ///< Sub Reason 2
             }
         }
 
-        data.WriteBits(0, 21); // Unk count
-        data.WriteBits(qRew ? qRew->GetRewCurrencyCount() : 0, 21);
-        data.WriteBits(0, 19); // Unk count 2 - related to call to Arms
-
-        data.WriteBit(!done);
-        data.WriteBits(qRew ? qRew->GetRewItemsCount() : 0, 20);
-        data.WriteBit(0);
+        SendPacket(&l_Data);
     }
-
-    data.WriteBits(lock.size(), 20);
-
-    for (LfgDungeonSet::const_iterator it = randomDungeons.begin(); it != randomDungeons.end(); ++it)
+    else
     {
-        LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(*it, level);
-        Quest const* qRew = NULL;
-        uint8 done = 0;
-        if (reward)
-        {
-            qRew = sObjectMgr->GetQuestTemplate(reward->reward[0].questId);
-            if (qRew)
-            {
-                done = !GetPlayer()->CanRewardQuest(qRew, false);
-                if (done)
-                    qRew = sObjectMgr->GetQuestTemplate(reward->reward[1].questId);
-            }
-        }
+        /// Get Random dungeons that can be done at a certain level and expansion
+        LfgDungeonSet l_RandomDungeons;
 
-        data << uint32(0);
-        data << uint32(1);
+        uint8 l_Level = GetPlayer()->getLevel();
+        uint8 l_Expansion = GetPlayer()->GetSession()->Expansion();
 
-        if (qRew)
+        for (uint32 l_I = 0; l_I < sLFGDungeonStore.GetNumRows(); ++l_I)
         {
-            if (qRew->GetRewCurrencyCount())
+            const LFGDungeonEntry * l_Dungeon = sLFGDungeonStore.LookupEntry(l_I);
+
+            if (l_Dungeon && l_Dungeon->expansion <= l_Expansion && l_Dungeon->minlevel <= l_Level && l_Level <= l_Dungeon->maxlevel)
             {
-                for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                if (l_Dungeon->flags & LFG_FLAG_SEASONAL)
                 {
-                    if (!qRew->RewardCurrencyId[i])
-                        continue;
+                    if (HolidayIds l_Holiday = sLFGMgr->GetDungeonSeason(l_Dungeon->ID))
+                    {
+                        if (l_Holiday == HOLIDAY_WOTLK_LAUNCH || !IsHolidayActive(l_Holiday))
+                            continue;
+                    }
+                }
+                else if (l_Dungeon->type != TYPEID_RANDOM_DUNGEON)
+                    continue;
 
-                    uint32 precision = 1;
-                    if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(qRew->RewardCurrencyId[i]))
-                        precision = entry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+                l_RandomDungeons.insert(l_Dungeon->Entry());
+            }
+        }
 
-                    data << uint32(qRew->RewardCurrencyCount[i] * precision);
-                    data << uint32(qRew->RewardCurrencyId[i]);
+        // Get player locked Dungeons
+        LfgLockMap l_Lock = sLFGMgr->GetLockedDungeons(GetPlayer()->GetGUID());
+
+        uint32 l_DungeonCount = uint32(l_RandomDungeons.size());
+        uint32 l_LockCount = uint32(l_Lock.size());
+
+        bool l_HasGUID = true;
+
+        WorldPacket l_Data(SMSG_LFG_PLAYER_INFO, 3000);
+
+        l_Data << uint32(l_DungeonCount);                           ///< Dungeon Count
+
+        l_Data.WriteBit(true);                                      ///< Has GUID
+        l_Data.FlushBits();
+        l_Data << uint32(l_LockCount);                              ///< Lock Count
+
+        if (l_HasGUID)
+            l_Data.appendPackGUID(GetPlayer()->GetGUID());          ///< Player Guid
+
+        for (LfgLockMap::const_iterator l_It = l_Lock.begin(); l_It != l_Lock.end(); ++l_It)
+        {
+            LfgLockStatus l_LockData = l_It->second;
+            l_Data << uint32(l_It->first);                          ///< Slot
+            l_Data << uint32(l_LockData.lockstatus);                ///< Reason
+            l_Data << uint32(l_LockData.itemLevel);                 ///< Sub Reason 1
+            l_Data << uint32(GetPlayer()->GetAverageItemLevel());   ///< Sub Reason 2
+        }
+
+        for (LfgDungeonSet::const_iterator l_It = l_RandomDungeons.begin(); l_It != l_RandomDungeons.end(); ++l_It)
+        {
+            const LfgReward * l_Reward = sLFGMgr->GetRandomDungeonReward(*l_It, l_Level);
+            const Quest     * l_Quest = NULL;
+
+            bool l_IsDone = 0;
+            if (l_Reward)
+            {
+                l_Quest = sObjectMgr->GetQuestTemplate(l_Reward->reward[0].questId);
+
+                if (l_Quest)
+                {
+                    l_IsDone = !GetPlayer()->CanRewardQuest(l_Quest, false);
+
+                    if (l_IsDone)
+                        l_Quest = sObjectMgr->GetQuestTemplate(l_Reward->reward[1].questId);
                 }
             }
 
-            data << uint32(0);
+            uint32 l_ShortageRewardCount = 0;
 
-            if (qRew->GetRewItemsCount())
+            l_Data << uint32(*l_It);                    ///< Slots
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(l_ShortageRewardCount);
+
+            /// Rewards
             {
-                ItemTemplate const* iProto = NULL;
-                for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                if (l_Quest)
                 {
-                    if (!qRew->RewardItemId[i])
-                        continue;
-
-                    iProto = sObjectMgr->GetItemTemplate(qRew->RewardItemId[i]);
-
-                    data << uint32(iProto ? iProto->DisplayInfoID : 0);
-                    data << uint32(qRew->RewardItemId[i]);
-                    data << uint32(qRew->RewardItemIdCount[i]);
+                    l_Data << uint32(0); ///< Mask
+                    l_Data << uint32(l_Quest->GetRewOrReqMoney());
+                    l_Data << uint32(l_Quest->XPValue(GetPlayer()));
+                    l_Data << uint32(l_Quest->GetRewItemsCount());
+                    l_Data << uint32(l_Quest->GetRewCurrencyCount());
+                    l_Data << uint32(0);
                 }
+                else
+                {
+                    l_Data << uint32(0);
+                    l_Data << uint32(0);
+                    l_Data << uint32(0);
+                    l_Data << uint32(0);
+                    l_Data << uint32(0);
+                    l_Data << uint32(0);
+                }
+
+                if (l_Quest)
+                {
+                    if (l_Quest->GetRewItemsCount())
+                    {
+                        const ItemTemplate * l_ItemTemplate = NULL;
+
+                        for (uint8 l_I = 0; l_I < QUEST_REWARDS_COUNT; ++l_I)
+                        {
+                            if (!l_Quest->RewardItemId[l_I])
+                                continue;
+
+                            l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Quest->RewardItemId[l_I]);
+
+                            l_Data << uint32(l_Quest->RewardItemId[l_I]);
+                            l_Data << uint32(l_Quest->RewardItemIdCount[l_I]);
+                        }
+                    }
+
+                    if (l_Quest->GetRewCurrencyCount())
+                    {
+                        for (uint8 l_I = 0; l_I < QUEST_REWARDS_COUNT; ++l_I)
+                        {
+                            if (!l_Quest->RewardCurrencyId[l_I])
+                                continue;
+
+                            uint32 l_Precision = 1;
+
+                            if (const CurrencyTypesEntry * l_Entry = sCurrencyTypesStore.LookupEntry(l_Quest->RewardCurrencyId[l_I]))
+                                l_Precision = l_Entry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+
+                            l_Data << uint32(l_Quest->RewardCurrencyId[l_I]);
+                            l_Data << uint32(l_Quest->RewardCurrencyCount[l_I] * l_Precision);
+                        }
+                    }
+                }
+
+                l_Data.WriteBit(false);
+                l_Data.FlushBits();
             }
 
-            data << uint32(1); // 1 in sniff
-            data << uint32(1); // 1 in sniff
-
-            /*for (int j = 0; j < info.Count3; ++j)*/
-
-            data << uint32(0); // 0 in sniff
-            data << uint32(0); // related to encounter - encounter progress
-            data << uint32(*it); // Dungeon Entry (id + type) - progress
-            data << uint32(1); // 0 in sniff
-            data << uint32(1); // 0 in sniff
-            data << uint32(0); // 0 in sniff
-            data << uint32(0); // 0 in sniff
-
-            data << uint32(qRew->XPValue(GetPlayer()));
-            data << uint32(0); // 0 in sniff
-            data << uint32(0); // 0 in sniff
-            data << uint32(0); // 0 in sniff
-            data << uint32(qRew->GetRewOrReqMoney());
-
-            /*
-            data << uint32(qRew->GetRewOrReqMoney());
-            data << uint32(qRew->XPValue(GetPlayer()));
-            data << uint32(reward->reward[done].variableMoney);
-            data << uint32(reward->reward[done].variableXP);*/
+            l_Data.WriteBit(0);
+            l_Data.WriteBit(!l_IsDone);
+            l_Data.FlushBits();
         }
-        else
-        {
-            data << uint32(16);
 
-            data << uint32(1); // 1 in sniff unk4
-            data << uint32(1); // 1 in sniff unk5
-
-            data << uint32(0); // 0 in sniff unk6
-            data << uint32(0); //related to encounter - encounter progress
-            data << uint32(*it);
-            data << uint32(1); // 0 in sniff unk9
-            data << uint32(1); // 0 in sniff unk10
-            data << uint32(0); // 0 in sniff unk11
-            data << uint32(0); // 0 in sniff unk12
-
-            data << uint32(333); // 0 in sniff unk13 // xp
-            data << uint32(0); // 0 in sniff unk14
-            data << uint32(0); // 0 in sniff unk15
-            data << uint32(0); // 0 in sniff unk16
-            data << uint32(666); // money
-        }
+        SendPacket(&l_Data);
     }
-
-    for (LfgLockMap::const_iterator it = lock.begin(); it != lock.end(); ++it)
-    {
-        auto lockData = it->second;
-        data << uint32(lockData.itemLevel);
-        data << uint32(it->first);                         // Dungeon entry (id + type)
-        data << uint32(lockData.lockstatus);              // Lock status
-        data << uint32(GetPlayer()->GetAverageItemLevel());
-    }
-
-    if (hasGuid)
-    {
-        uint8 byteOrder[8] = {3, 1, 2, 6, 4, 7, 0, 5};
-        data.WriteBytesSeq(guid, byteOrder);
-    }
-
-    SendPacket(&data);
 }
 
 void WorldSession::HandleLfrSearchOpcode(WorldPacket& recvData)
@@ -668,10 +683,10 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     l_Data.appendPackGUID(GetPlayer()->GetGUID());          ///< Requester Guid
     l_Data << uint32(0);                                    ///< Id
     l_Data << uint32(2);                                    ///< Type
-    l_Data << int32(p_QueuedTime);                          ///< Time
+    l_Data << int32(l_Info->joinTime);                      ///< Time
 
     l_Data << uint32(p_Dungeon);                            ///< Slot
-    l_Data << uint32(l_Info->joinTime);                     ///< Avg Wait Time Me
+    l_Data << uint32(p_WaitTime);                           ///< Avg Wait Time Me
     l_Data << uint32(p_AvgWaitTime);                        ///< Avg Wait Time
 
     l_Data << int32(p_WaitTimeTanks);                       ///< Avg Wait Time By Role 0
@@ -683,7 +698,7 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     l_Data << int32(p_WaitTimeDps);                         ///< Avg Wait Time By Role 2
     l_Data << uint8(p_DPSCount);                            ///< Last Needed 2
 
-    l_Data << uint32(p_WaitTime);                           ///< Queued Time
+    l_Data << uint32(p_QueuedTime);                         ///< Queued Time
 
     SendPacket(&l_Data);
 }
