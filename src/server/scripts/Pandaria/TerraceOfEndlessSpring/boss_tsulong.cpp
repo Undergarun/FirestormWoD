@@ -410,7 +410,16 @@ class boss_tsulong : public CreatureScript
                 for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
                 {
                     if (Player* l_Player = l_Itr->getSource())
+                    {
+                        // Combat stop, avoid fight bug
+                        l_Player->CombatStop();
+
+                        // Tsulong bonus
                         me->CastSpell(l_Player, SPELL_TSULONG_BONUS, true);
+
+                        // Valor points
+                        l_Player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 40);
+                    }
                 }
 
                 if (me->GetMap()->IsLFR())
