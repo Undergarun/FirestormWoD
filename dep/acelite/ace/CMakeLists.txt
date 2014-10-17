@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,6 @@
 
 # NOTE: Do not use glob here, it would include files we don't want
 set(ace_STAT_SRCS
-  PrecompiledHeaders/WinAcePCH.cpp
   ACE.cpp
   ACE_crc32.cpp
   ACE_crc_ccitt.cpp
@@ -319,6 +318,11 @@ set(ace_STAT_SRCS
   XTI_ATM_Mcast.cpp
 )
 
+if (USE_COREPCH)
+  set(ace_PCH_HDR PrecompiledHeaders/WinAcePCH.h)
+  set(ace_PCH_SRC PrecompiledHeaders/WinAcePCH.cpp)
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/acelite
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
@@ -330,9 +334,18 @@ set_source_files_properties(Atomic_Op_Sparc.c Rtems_init.c PROPERTIES LANGUAGE C
 
 add_definitions(-DACE_BUILD_DLL)
 
-add_library(ace SHARED ${ace_STAT_SRCS})
-set_property(TARGET ace PROPERTY FOLDER "dep")
+add_library(ace SHARED
+  ${ace_STAT_SRCS}
+  ${ace_PCH_SRC}
+)
 
-add_cxx_pch(ace ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH.h ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH.cpp)
+if (MINGW) # GCC ignores "#prama comment"
+  target_link_libraries(ace ws2_32 iphlpapi netapi32 mswsock)
+endif()
+
+# Generate precompiled header
+if( USE_COREPCH )
+  add_cxx_pch(ace ${ace_PCH_HDR} ${ace_PCH_SRC})
+endif()
 
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

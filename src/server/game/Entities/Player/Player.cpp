@@ -4235,9 +4235,9 @@ void Player::InitSpellForLevel()
         float levelDiff = getLevel() - PERK_START_LEVEL ;
         float coeff = (MAX_LEVEL - PERK_START_LEVEL) / float(perkList->size());
 
-        if (levelDiff > 1)
+        if (levelDiff > 0)
         {
-            uint8 currentIndex = floor((levelDiff - 1.f) / coeff);
+            uint8 currentIndex = floor(((levelDiff - 1.f) > 0.f ? (levelDiff - 1.f) : 0) / coeff);
 
             for (auto perk : *perkList)
                 if (currentIndex >= perk->orderIndex)
@@ -29940,7 +29940,8 @@ void Player::SendRefreshSpellMods()
 
             ByteBuffer dataBuffer;
             WorldPacket data(opcode);
-            data.WriteBits(1, 22);  // count of different mod->op's in packet
+            data << uint32(1);  // count of different mod->op's in packet
+            data << uint8(mod->op);
 
             for (int eff = 0; eff < 128; ++eff)
             {
@@ -29979,26 +29980,8 @@ void Player::SendRefreshSpellMods()
                 }
             }
 
-            data.WriteBits(modTypeCount, 21);
-
-            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-            {
-                data << uint8(mod->op);
-
-                if (dataBuffer.size())
-                    data.append(dataBuffer);
-            }
-            else
-            {
-                if (dataBuffer.size())
-                {
-                    data.FlushBits();
-                    data.append(dataBuffer);
-                }
-
-                data << uint8(mod->op);
-            }
-
+            data << uint32(modTypeCount);
+            data.append(dataBuffer);
             SendDirectMessage(&data);
         }
     }
