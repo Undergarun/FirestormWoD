@@ -65,7 +65,7 @@ enum Roles
 {
     ROLE_DEFAULT   = 0,
     ROLE_HEALER    = 1,
-    ROLE_DAMAGE       = 2,
+    ROLE_DAMAGE    = 2,
     ROLE_TANK      = 3,
 };
 
