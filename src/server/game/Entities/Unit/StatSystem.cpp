@@ -881,7 +881,6 @@ void Player::UpdateManaRegen()
     {
         combatRegen = spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
         outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-
     }
 
     if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
