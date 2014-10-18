@@ -539,10 +539,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
 m_base(base), m_spellInfo(base->GetSpellInfo()),
 m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
+m_donePct(1.0f),
 m_spellmod(NULL), m_periodicTimer(0), m_tickNumber(0), m_effIndex(effIndex),
-m_canBeRecalculated(true), m_isPeriodic(false), hasFixedPeriodic(false), m_amount(0)
+m_canBeRecalculated(true), m_isPeriodic(false)
 {
-    m_fixed_periodic.Clear();
 }
 
 AuraEffect::~AuraEffect()
@@ -921,14 +921,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                                 float temp_crit = 0.0f;
 
                                 temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, devouringPlague->GetEffIndex(), DOT, GetBase()->GetStackAmount());
-                                temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
+                                //temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
 
                                 amount = temp_damage;
                                 amount *= modifier;
-
-                                m_fixed_periodic.SetFixedDamage(amount);
-                                m_fixed_periodic.SetCriticalChance(temp_crit);
-                                hasFixedPeriodic = true;
 
                                 return amount;
                             }
@@ -1383,40 +1379,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
     amount *= GetBase()->GetStackAmount();
-
-    // Fixate damage for periodic damage auras
-    // It's only for players now
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE ||
-        GetAuraType() == SPELL_AURA_PERIODIC_LEECH ||
-        GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-        {
-            if (GetBase()->GetType() == UNIT_AURA_TYPE)
-            {
-                Unit* target = GetBase()->GetUnitOwner();
-                int32 temp_damage = amount;
-                float temp_crit = 0.0f;
-
-                if (GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-                    temp_damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), temp_damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
-                else
-                    temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
-
-                temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
-
-                m_fixed_periodic.SetFixedDamage(temp_damage);
-                m_fixed_periodic.SetCriticalChance(temp_crit);
-
-                // Seed of Corruption and Soulburn : Seed of corruption - Set Total damage for explode
-                if (GetSpellInfo()->Id == 27243 || GetSpellInfo()->Id == 114790)
-                    m_fixed_periodic.SetFixedTotalDamage(temp_damage * (GetBase()->GetMaxDuration() / GetAmplitude()));
-
-                hasFixedPeriodic = true;
-                amount = temp_damage;
-            }
-        }
-    }
 
     return amount;
 }
@@ -1987,10 +1949,14 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
     GetBase()->CallScriptEffectUpdatePeriodicHandlers(shared_from_this());
 }
 
-bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
+bool AuraEffect::CanPeriodicTickCrit(Unit* target, Unit const* caster) const
 {
     ASSERT(caster);
-    return caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
+
+    if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, m_spellInfo))
+        return true;
+
+    return caster->IsSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask());
 }
 
 bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
@@ -7504,15 +7470,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     uint32 resist = 0;
     CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
 
-    // ignore non positive values (can be result apply spellmods to aura damage
+    // AOE spells are not affected by the new periodic system.
+    bool isAreaAura = m_spellInfo->Effects[m_effIndex].IsAreaAuraEffect() || m_spellInfo->Effects[m_effIndex].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
+    // ignore negative values (can be result apply spellmods to aura damage
     uint32 damage = std::max(GetAmount(), 0);
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        if (m_fixed_periodic.HasDamage())
-            damage = m_fixed_periodic.GetFixedDamage();
+        damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+        if (isAreaAura)
+            damage = uint32(float(damage) * caster->SpellDamagePctDone(target, m_spellInfo, DOT));
         else
-            damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+            damage = uint32(float(damage) * GetDonePct()); // Single target DOTs have their % done bonus applied in Aura::HandleAuraSpecificPeriodics
 
         damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
@@ -7837,12 +7806,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
 
+    if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
+        if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
+        {
+            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
+            if (caster->GetTypeId() != TYPEID_PLAYER)
+                damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
+        }
+
     bool crit = false;
 
-    if (m_fixed_periodic.HasCritChance())
-        crit = roll_chance_f(m_fixed_periodic.GetCriticalChance());
-    else
-        crit = IsPeriodicTickCrit(target, caster);
+    if (CanPeriodicTickCrit(target, caster))
+        crit = roll_chance_f(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
@@ -7902,30 +7877,42 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     uint32 resist = 0;
     CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
 
+    bool isAreaAura = m_spellInfo->Effects[m_effIndex].IsAreaAuraEffect() || m_spellInfo->Effects[m_effIndex].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
+    // ignore negative values (can be result apply spellmods to aura damage
     uint32 damage = std::max(GetAmount(), 0);
 
-    if (m_fixed_periodic.HasDamage())
-        damage = m_fixed_periodic.GetFixedDamage();
+    damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+
+    if (isAreaAura)
+        damage = uint32(float(damage) * caster->SpellDamagePctDone(target, m_spellInfo, DOT));
     else
-        damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+        damage = uint32(float(damage) * GetDonePct()); // Single target DOTs have their % done bonus applied in Aura::HandleAuraSpecificPeriodics
+
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
-    bool crit = false;
-    if (m_fixed_periodic.HasCritChance())
-        crit = roll_chance_f(m_fixed_periodic.GetCriticalChance());
-    else
-        crit = IsPeriodicTickCrit(target, caster);
-
-    if (crit)
-        damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
-
     // Calculate armor mitigation
-    if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), m_effIndex))
+    if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
     {
         uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
         cleanDamage.mitigated_damage += damage - damageReductedArmor;
         damage = damageReductedArmor;
     }
+
+    if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
+        if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
+        {
+            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
+            if (caster->GetTypeId() != TYPEID_PLAYER)
+                damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
+        }
+
+    bool crit = false;
+
+    if (CanPeriodicTickCrit(target, caster))
+        crit = roll_chance_f(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+
+    if (crit)
+        damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
     int32 dmg = damage;
     caster->ApplyResilience(target, &dmg);
@@ -8003,8 +7990,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     if (GetBase()->IsPermanent() && target->IsFullHealth())
         return;
 
+    bool isAreaAura = m_spellInfo->Effects[m_effIndex].IsAreaAuraEffect() || m_spellInfo->Effects[m_effIndex].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
     // ignore negative values (can be result apply spellmods to aura damage
-    int32 damage = std::max(m_amount, 0);
+    int32 damage = std::max(GetAmount(), 0);
 
     // Fix Second Wind only in AURA_STATE_HEALTHLESS_35_PERCENT
     if (m_spellInfo->Id == 16491)
@@ -8036,10 +8024,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     }
     else
     {
-        if (m_fixed_periodic.HasDamage())
-            damage = m_fixed_periodic.GetFixedDamage();
-        else
-            damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+        damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
 
         // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellIconID == 2864)
@@ -8053,6 +8038,13 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
             damage += addition;
         }
+
+        damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+
+        if (isAreaAura)
+            damage = uint32(float(damage) * caster->SpellHealingPctDone(target, m_spellInfo));
+        else
+            damage = uint32(float(damage) * GetDonePct()); // Single target HOTs have their % done bonus applied in Aura::HandleAuraSpecificPeriodics
 
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     }
@@ -8086,10 +8078,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     }
 
     bool crit = false;
-    if (m_fixed_periodic.HasCritChance())
-        crit = roll_chance_f(m_fixed_periodic.GetCriticalChance());
-    else
-        crit = IsPeriodicTickCrit(target, caster);
+
+    if (CanPeriodicTickCrit(target, caster))
+        crit = roll_chance_f(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
 
     if (crit)
         damage = caster->SpellCriticalHealingBonus(m_spellInfo, damage, target);

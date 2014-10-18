@@ -1253,7 +1253,7 @@ class spell_sha_fulmination : public SpellScriptLoader
                         if (!GetHitDamage())
                             return;
 
-                        AuraEffectPtr fulminationAura = _player->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2010, 0);
+                        AuraEffectPtr fulminationAura = _player->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2010, EFFECT_0);
                         if (!fulminationAura)
                             return;
 
@@ -1270,7 +1270,7 @@ class spell_sha_fulmination : public SpellScriptLoader
                         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE);
                         if (!spellInfo)
                             return;
-                        int32 basePoints = _player->CalculateSpellDamage(target, spellInfo, 0);
+                        int32 basePoints = _player->CalculateSpellDamage(target, spellInfo, EFFECT_0);
                         uint32 damage = usedCharges * _player->SpellDamageBonusDone(target, spellInfo, basePoints, EFFECT_0, SPELL_DIRECT_DAMAGE);
 
                         _player->CastCustomSpell(SPELL_SHA_FULMINATION_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, target, true, NULL, fulminationAura);

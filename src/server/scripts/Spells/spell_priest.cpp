@@ -1651,7 +1651,6 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                             {
                                 int32 newAmount = devouringPlague->GetAmount() * powerUsed;
                                 devouringPlague->SetAmount(newAmount);
-                                devouringPlague->m_fixed_periodic.SetFixedDamage(newAmount);
                             }
                         }
                     }

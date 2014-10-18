@@ -85,6 +85,9 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleEffect(Unit* target, uint8 mode, bool apply);
         void ApplySpellMod(Unit* target, bool apply);
 
+        void  SetDonePct(float val) { m_donePct = val; }
+        float GetDonePct() const { return m_donePct; }
+
         void Update(uint32 diff, Unit* caster);
         void UpdatePeriodic(Unit* caster);
 
@@ -107,40 +110,6 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
-        struct FixedPeriodic
-        {
-            float fx_crit_chance;
-            int32 fx_fixed_damage;
-            int32 fx_fixed_total_damage;
-            bool bCrit;
-            bool bDamage;
-
-            void Clear()
-            {
-                fx_crit_chance = 0.0f;
-                fx_fixed_damage = 0;
-                fx_fixed_total_damage = 0;
-                bCrit = false;
-                bDamage = false;
-            }
-
-            void SetCriticalChance(float value) { bCrit = true; fx_crit_chance = value; }
-            float GetCriticalChance() const { return fx_crit_chance; }
-            bool HasCritChance() const { return bCrit; }
-
-            void SetFixedDamage(int32 value) { bDamage = true; fx_fixed_damage = value; }
-            void SetFixedTotalDamage(int32 value) { fx_fixed_total_damage = value; }
-            int32 GetFixedDamage() const { return fx_fixed_damage; }
-            int32 GetFixedTotalDamage() const { return fx_fixed_total_damage; }
-            bool HasDamage() const { return bDamage; }
-        };
-
-        bool HasFixedDamageInfo() { return hasFixedPeriodic; }
-        FixedPeriodic& GetFixedDamageInfo() { return m_fixed_periodic; }
-
-        FixedPeriodic m_fixed_periodic;
-        bool hasFixedPeriodic;
-
     private:
         constAuraPtr m_base;
 
@@ -148,6 +117,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         int32 const m_baseAmount;
 
         int32 m_amount;
+        float m_donePct;
 
         SpellModifier* m_spellmod;
 
@@ -160,7 +130,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         bool m_isPeriodic;
 
     private:
-        bool IsPeriodicTickCrit(Unit* target, Unit const* caster) const;
+        bool CanPeriodicTickCrit(Unit* target, Unit const* caster) const;
 
     public:
         // aura effect apply/remove handlers
