@@ -63,10 +63,10 @@ enum SpellEffIndex
 
 enum Roles
 {
-    ROLES_DEFAULT   = 0,
-    ROLES_HEALER    = 1,
-    ROLES_DPS       = 2,
-    ROLES_TANK      = 3,
+    ROLE_DEFAULT   = 0,
+    ROLE_HEALER    = 1,
+    ROLE_DAMAGE       = 2,
+    ROLE_TANK      = 3,
 };
 
 enum SpecIndex
@@ -2065,7 +2065,7 @@ enum SpellMissInfo
     SPELL_MISS_REFLECT                 = 11
 };
 
-/// @TODO CGLCD::DisplayRangedStats (internal client) 
+/// @TODO CGLCD::DisplayRangedStats (internal client)
 enum SpellHitType
 {
     SPELL_HIT_TYPE_UNK1                = 0x00001,

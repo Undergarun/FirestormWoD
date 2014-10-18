@@ -248,12 +248,12 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* p_Data, Battleg
 
             *p_Data << uint32(l_BG->GetMapId());                                      ///< Map ID
             *p_Data << uint32(Time1);                                                 ///< Time until closed
-            
-            if (l_Role == ROLE_TANK)
+
+            if (l_Role & LFG_ROLEMASK_TANK)
                 *p_Data << uint8(0);
-            else if (l_Role == ROLE_HEALER)
+            else if (l_Role & LFG_ROLEMASK_HEALER)
                 *p_Data << uint8(1);
-            else if (l_Role == ROLE_DAMAGE)
+            else if (l_Role & LFG_ROLEMASK_DAMAGE)
                 *p_Data << uint8(2);
             else
                 *p_Data << uint8(2);

@@ -5911,7 +5911,7 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
         case SPEC_WARRIOR_FURY:
         case SPEC_DROOD_BALANCE:
         case SPEC_DROOD_CAT:
-            roleId = ROLES_DPS;
+            roleId = ROLE_DAMAGE;
             break;
         case SPEC_MONK_MISTWEAVER:
         case SPEC_PALADIN_HOLY:
@@ -5919,17 +5919,17 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
         case SPEC_PRIEST_HOLY:
         case SPEC_SHAMAN_RESTORATION:
         case SPEC_DROOD_RESTORATION:
-            roleId = ROLES_HEALER;
+            roleId = ROLE_HEALER;
             break;
         case SPEC_MONK_BREWMASTER:
         case SPEC_DK_BLOOD:
         case SPEC_WARRIOR_PROTECTION:
         case SPEC_DROOD_BEAR:
         case SPEC_PALADIN_PROTECTION:
-            roleId = ROLES_TANK;
+            roleId = ROLE_TANK;
             break;
         default: // SPEC_NONE
-            roleId = ROLES_DEFAULT;
+            roleId = ROLE_DEFAULT;
             break;
     }
 

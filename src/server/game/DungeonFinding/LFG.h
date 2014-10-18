@@ -22,11 +22,11 @@
 
 enum LfgRoles : uint8
 {
-    ROLE_NONE                                    = 0x00,
-    ROLE_LEADER                                  = 0x01,
-    ROLE_TANK                                    = 0x02,
-    ROLE_HEALER                                  = 0x04,
-    ROLE_DAMAGE                                  = 0x08
+    LFG_ROLEMASK_NONE                                    = 0x00,
+    LFG_ROLEMASK_LEADER                                  = 0x01,
+    LFG_ROLEMASK_TANK                                    = 0x02,
+    LFG_ROLEMASK_HEALER                                  = 0x04,
+    LFG_ROLEMASK_DAMAGE                                  = 0x08
 };
 
 enum LfgUpdateType : uint8
@@ -39,7 +39,7 @@ enum LfgUpdateType : uint8
 
 
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,  ///< 6.0.2 19027
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,  ///< 6.0.2 19027 
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,  ///< 6.0.2 19027
     LFG_UPDATETYPE_GROUP_FOUND                   = 11, ///< 6.0.2 19027
     LFG_UPDATETYPE_PROPOSAL_BEGIN                = 14, ///< 6.0.2 19027
 

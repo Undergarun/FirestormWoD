@@ -437,24 +437,24 @@ void LFGMgr::Update(uint32 diff)
             }
             uint32 dungeonId = (*queue->dungeons.begin());
             uint32 queuedTime = uint32(currTime - queue->joinTime);
-            uint8 role = ROLE_NONE;
+            uint8 role = LFG_ROLEMASK_NONE;
             for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
                 role |= itPlayer->second;
-            role &= ~ROLE_LEADER;
+            role &= ~LFG_ROLEMASK_LEADER;
 
             int32 waitTime = -1;
             switch (role)
             {
-                case ROLE_NONE:                             // Should not happen - just in case
+                case LFG_ROLEMASK_NONE:                             // Should not happen - just in case
                     waitTime = -1;
                     break;
-                case ROLE_TANK:
+                case LFG_ROLEMASK_TANK:
                     waitTime = m_WaitTimeTank;
                     break;
-                case ROLE_HEALER:
+                case LFG_ROLEMASK_HEALER:
                     waitTime = m_WaitTimeHealer;
                     break;
-                case ROLE_DAMAGE:
+                case LFG_ROLEMASK_DAMAGE:
                     waitTime = m_WaitTimeDps;
                     break;
                 default:
@@ -853,9 +853,9 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
             pqInfo->tanks = entry->tankNeeded;
             pqInfo->category = entry->category;
         }
-        if (roles & ROLE_TANK)
+        if (roles & LFG_ROLEMASK_TANK)
             --pqInfo->tanks;
-        else if (roles & ROLE_HEALER)
+        else if (roles & LFG_ROLEMASK_HEALER)
             --pqInfo->healers;
         else
             --pqInfo->dps;
@@ -1119,7 +1119,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
         for (LfgRolesMap::const_iterator itRoles = it->second->roles.begin(); itRoles != it->second->roles.end(); ++itRoles)
         {
             // Assign new leader
-            if (itRoles->second & ROLE_LEADER && (!leader || urand(0, 1)))
+            if (itRoles->second & LFG_ROLEMASK_LEADER && (!leader || urand(0, 1)))
                 leader = itRoles->first;
 
             rolesMap[itRoles->first] = itRoles->second;
@@ -1233,11 +1233,11 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
             for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
             {
                 uint8 roles = itPlayer->second;
-                if ((roles & ROLE_TANK) && Tanks_Needed > 0)
+                if ((roles & LFG_ROLEMASK_TANK) && Tanks_Needed > 0)
                     --Tanks_Needed;
-                else if ((roles & ROLE_HEALER) && Healers_Needed > 0)
+                else if ((roles & LFG_ROLEMASK_HEALER) && Healers_Needed > 0)
                     --Healers_Needed;
-                else if ((roles & ROLE_DAMAGE) && Dps_Needed > 0)
+                else if ((roles & LFG_ROLEMASK_DAMAGE) && Dps_Needed > 0)
                     --Dps_Needed;
             }
         }
@@ -1339,7 +1339,7 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
 
     if (!guid)
         roleCheck->state = LFG_ROLECHECK_ABORTED;
-    else if (roles < ROLE_TANK)                            // Player selected no role.
+    else if (roles < LFG_ROLEMASK_TANK)                            // Player selected no role.
         roleCheck->state = LFG_ROLECHECK_NO_ROLE;
     else
     {
@@ -1347,7 +1347,7 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
 
         // Check if all players have selected a role
         LfgRolesMap::const_iterator itRoles = roleCheck->roles.begin();
-        while (itRoles != roleCheck->roles.end() && itRoles->second != ROLE_NONE)
+        while (itRoles != roleCheck->roles.end() && itRoles->second != LFG_ROLEMASK_NONE)
             ++itRoles;
 
         if (itRoles == roleCheck->roles.end())
@@ -1423,9 +1423,9 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
         for (LfgRolesMap::const_iterator it = check_roles.begin(); it != check_roles.end(); ++it)
         {
             uint8 roles2 = it->second;
-            if (roles2 & ROLE_TANK)
+            if (roles2 & LFG_ROLEMASK_TANK)
                 --pqInfo->tanks;
-            else if (roles2 & ROLE_HEALER)
+            else if (roles2 & LFG_ROLEMASK_HEALER)
                 --pqInfo->healers;
             else
                 --pqInfo->dps;
@@ -1587,21 +1587,21 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgType type, bool removeLeade
 
     if (removeLeaderFlag)
         for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
-            it->second &= ~ROLE_LEADER;
+            it->second &= ~LFG_ROLEMASK_LEADER;
 
     for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
     {
-        if (it->second == ROLE_NONE)
+        if (it->second == LFG_ROLEMASK_NONE)
             return false;
 
-        if (it->second & ROLE_TANK)
+        if (it->second & LFG_ROLEMASK_TANK)
         {
-            if (it->second != ROLE_TANK)
+            if (it->second != LFG_ROLEMASK_TANK)
             {
-                it->second -= ROLE_TANK;
+                it->second -= LFG_ROLEMASK_TANK;
                 if (CheckGroupRoles(groles, type, false))
                     return true;
-                it->second += ROLE_TANK;
+                it->second += LFG_ROLEMASK_TANK;
             }
             else if (tank == tankNeeded)
                 return false;
@@ -1609,14 +1609,14 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgType type, bool removeLeade
                 tank++;
         }
 
-        if (it->second & ROLE_HEALER)
+        if (it->second & LFG_ROLEMASK_HEALER)
         {
-            if (it->second != ROLE_HEALER)
+            if (it->second != LFG_ROLEMASK_HEALER)
             {
-                it->second -= ROLE_HEALER;
+                it->second -= LFG_ROLEMASK_HEALER;
                 if (CheckGroupRoles(groles, type, false))
                     return true;
-                it->second += ROLE_HEALER;
+                it->second += LFG_ROLEMASK_HEALER;
             }
             else if (healer == healerNeeded)
                 return false;
@@ -1624,14 +1624,14 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgType type, bool removeLeade
                 healer++;
         }
 
-        if (it->second & ROLE_DAMAGE)
+        if (it->second & LFG_ROLEMASK_DAMAGE)
         {
-            if (it->second != ROLE_DAMAGE)
+            if (it->second != LFG_ROLEMASK_DAMAGE)
             {
-                it->second -= ROLE_DAMAGE;
+                it->second -= LFG_ROLEMASK_DAMAGE;
                 if (CheckGroupRoles(groles, type, false))
                     return true;
-                it->second += ROLE_DAMAGE;
+                it->second += LFG_ROLEMASK_DAMAGE;
             }
             else if (damage == dpsNeeded)
                 return false;
@@ -1771,22 +1771,22 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
 
             // Update timers
             uint8 role = GetRoles(pguid);
-            role &= ~ROLE_LEADER;
+            role &= ~LFG_ROLEMASK_LEADER;
             switch (role)
             {
-                case ROLE_DAMAGE:
+                case LFG_ROLEMASK_DAMAGE:
                 {
                     uint32 old_number = m_NumWaitTimeDps++;
                     m_WaitTimeDps = int32((m_WaitTimeDps * old_number + waitTimesMap[player->GetGUID()]) / m_NumWaitTimeDps);
                     break;
                 }
-                case ROLE_HEALER:
+                case LFG_ROLEMASK_HEALER:
                 {
                     uint32 old_number = m_NumWaitTimeHealer++;
                     m_WaitTimeHealer = int32((m_WaitTimeHealer * old_number + waitTimesMap[player->GetGUID()]) / m_NumWaitTimeHealer);
                     break;
                 }
-                case ROLE_TANK:
+                case LFG_ROLEMASK_TANK:
                 {
                     uint32 old_number = m_NumWaitTimeTank++;
                     m_WaitTimeTank = int32((m_WaitTimeTank * old_number + waitTimesMap[player->GetGUID()]) / m_NumWaitTimeTank);
