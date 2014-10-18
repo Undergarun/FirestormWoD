@@ -437,7 +437,7 @@ enum AuraType
     SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT                  = 376,  // SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT
     SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING                = 377,  // SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING
     SPELL_AURA_378                                          = 378,  // 5.0.5 unk aura
-    SPELL_AURA_379                                          = 379,  // 5.0.5 unk aura
+    SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT              = 379,  // SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
     SPELL_AURA_380                                          = 380,  // 5.0.5 unk aura
     SPELL_AURA_INCREASE_HEALTH_FROM_OWNER                   = 381,  // SPELL_AURA_INCREASE_HEALTH_FROM_OWNER
     SPELL_AURA_MOD_PET_STATS                                = 382,  // SPELL_AURA_MOD_PET_STATS
@@ -477,7 +477,7 @@ enum AuraType
     SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,  // SPELL_AURA_SANCTITY_OF_BATTLE
     SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
     SPELL_AURA_MOD_MAX_POWER                                = 418,  // SPELL_AURA_MOD_MAX_POWER
-    SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2                = 419,  // SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
+    SPELL_AURA_MODIFY_MANA_POOL_PCT                         = 419,  // SPELL_AURA_MODIFY_MANA_POOL_PCT
     SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)
     SPELL_AURA_MOD_ABSORPTION_PCT                           = 421,  // 5.4.0 unk aura (NYI)
     SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0 unk aura (NYI) wind Storm Iron Qon phase 2

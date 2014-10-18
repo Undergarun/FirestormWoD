@@ -435,7 +435,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //376 SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT implemented in Player::RewardHonor
     &AuraEffect::HandleNoImmediateEffect,                         //377 SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING
     &AuraEffect::HandleNULL,                                      //378 SPELL_AURA_378
-    &AuraEffect::HandleNULL,                                      //379 SPELL_AURA_379
+    &AuraEffect::HandleAuraModifyManaRegenFromManaPct,            //379 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
     &AuraEffect::HandleNULL,                                      //380 SPELL_AURA_380
     &AuraEffect::HandleNoImmediateEffect,                         //381 SPELL_AURA_INCREASE_HEALTH_FROM_OWNER
     &AuraEffect::HandleAuraModPetStats,                           //382 SPELL_AURA_MOD_PET_STATS
@@ -475,7 +475,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
     &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
-    &AuraEffect::HandleAuraModIncreaseEnergyPercent,              //419 SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT_2
+    &AuraEffect::HandleAuraModifyManaPoolPct,                     //419 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
     &AuraEffect::HandleNoImmediateEffect,                         //421 SPELL_AURA_MOD_ABSORPTION_PCT implemented in Unit
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_422
@@ -8707,4 +8707,47 @@ void AuraEffect::HandleChangeSpellVisualEffect(AuraApplication const* aurApp, ui
 
     player->SetDynamicUInt32Value(PLAYER_DYNAMIC_SPELLVISUAL_CHANGE, 0, spellToReplace);
     player->SetDynamicUInt32Value(PLAYER_DYNAMIC_SPELLVISUAL_CHANGE, 1, replacer);
+}
+
+void AuraEffect::HandleAuraModifyManaRegenFromManaPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    Player* player = target->ToPlayer();
+    if (!player)
+        return;
+
+    player->UpdateManaRegen();
+}
+
+void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    Player* player = target->ToPlayer();
+    if (!player)
+        return;
+
+    if (player->GetPowerIndexByClass(POWER_MANA, player->getClass()) == MAX_POWERS)
+        return;
+
+    float mod = 1.f;
+    uint32 hp;
+    uint32 mana = 0;
+
+    AddPct(mod, player->GetTotalAuraModifier((AuraType)m_spellInfo->Effects[GetEffIndex()].ApplyAuraName));
+    sObjectMgr->GetPlayerClassLevelInfo(player->getClass(), player->getLevel(), hp, mana);
+
+    player->SetCreateMana(mod * mana);
+    player->SetMaxPower(POWER_MANA, mod* mana);
 }

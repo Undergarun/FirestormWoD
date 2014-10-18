@@ -276,6 +276,9 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPetStats(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModifyManaRegenFromManaPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;

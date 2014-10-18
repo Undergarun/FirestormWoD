@@ -3550,11 +3550,13 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
 
-    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    if (level >= GT_MAX_LEVEL)
+        level = GT_MAX_LEVEL - 1;
+    else
+        --level;
 
-    GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((class_ - 1) * GT_MAX_LEVEL + level - 1);
-    GtOCTBaseMPByClassEntry const* mp = sGtOCTBaseMPByClassStore.LookupEntry((class_ - 1) * GT_MAX_LEVEL + level - 1);
+    GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((class_ - 1) * GT_MAX_LEVEL + level);
+    GtOCTBaseMPByClassEntry const* mp = sGtOCTBaseMPByClassStore.LookupEntry((class_ - 1) * GT_MAX_LEVEL + level);
 
     if (!hp || !mp)
     {
@@ -3564,6 +3566,7 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
 
     baseHP = uint32(hp->ratio);
     baseMana = uint32(mp->ratio);
+
 }
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
@@ -6788,7 +6791,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
     do
     {
         Field * l_Fields = l_Result->Fetch();
-    
+
         GarrisonPlotBuildingContent l_Content;
         l_Content.DB_ID         = l_Fields[0].GetUInt32();
         l_Content.PlotType      = l_Fields[1].GetUInt32();
