@@ -1349,9 +1349,9 @@ class spell_dru_symbiosis : public SpellScriptLoader
                                             break;
                                     }
 
-                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_TANK)
+                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_TANK)
                                         bpTarget = 113516;      // Wild Mushroom : Plague
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_DPS)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_DAMAGE)
                                         bpTarget = 113072;      // Might of Ursoc
 
                                     break;
@@ -1428,11 +1428,11 @@ class spell_dru_symbiosis : public SpellScriptLoader
                                             break;
                                     }
 
-                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_TANK)
+                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_TANK)
                                         bpTarget = 113306;      // Survival Instincts
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_DPS)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_DAMAGE)
                                         bpTarget = 127361;      // Bear Hug
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_HEALER)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_HEALER)
                                         bpTarget = 113275;      // Entangling Roots
 
                                     break;
@@ -1459,11 +1459,11 @@ class spell_dru_symbiosis : public SpellScriptLoader
                                             break;
                                     }
 
-                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_TANK)
+                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_TANK)
                                         bpTarget = 113075;      // Barkskin
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_DPS)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_DAMAGE)
                                         bpTarget = 122287;      // Wrath
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_HEALER)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_HEALER)
                                         bpTarget = 113269;      // Rebirth
 
                                     break;
@@ -1490,9 +1490,9 @@ class spell_dru_symbiosis : public SpellScriptLoader
                                             break;
                                     }
 
-                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_DPS)
+                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_DAMAGE)
                                         bpTarget = 113277;      // Tranquility
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_HEALER)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_HEALER)
                                         bpTarget = 113506;      // Cyclone
 
                                     break;
@@ -1544,9 +1544,9 @@ class spell_dru_symbiosis : public SpellScriptLoader
                                             break;
                                     }
 
-                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_HEALER)
+                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_HEALER)
                                         bpTarget = 113289;      // Prowl
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_DPS)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_DAMAGE)
                                         bpTarget = 113286;      // Solar Beam
 
                                     break;
@@ -1598,9 +1598,9 @@ class spell_dru_symbiosis : public SpellScriptLoader
                                             break;
                                     }
 
-                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_TANK)
+                                    if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_TANK)
                                         bpTarget = 122286;      // Savage Defense
-                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLES_DPS)
+                                    else if (target->GetRoleForGroup(target->GetSpecializationId(target->GetActiveSpec())) == ROLE_DAMAGE)
                                         bpTarget = 122294;      // Stampeding Shout
 
                                     break;

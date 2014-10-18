@@ -869,7 +869,7 @@ struct ChrSpecializationsEntry
     //uint32    m_MasterySpellID;                           // 4        m_MasterySpellID
     uint32  tabId;                                          // 5        m_OrderIndex
     //uint32    m_PetTalentType;                            // 6        m_PetTalentType
-    //uint32    m_Role;                                     // 7        m_Role
+    uint32  role;                                           // 7        m_Role
     //uint32    m_SpellIconID                               // 8        m_SpellIconID
     //uint32    RaidBuffs;                                  // 9        m_RaidBuffs
     //uint32    Flags;                                      // 10       m_Flags

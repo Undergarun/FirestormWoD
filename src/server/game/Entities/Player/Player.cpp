@@ -5881,59 +5881,14 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
-    uint32 roleId = 0;
-
     if (!specializationId)
         specializationId = GetSpecializationId(GetActiveSpec());
 
-    switch (specializationId)
-    {
-        case SPEC_MAGE_FROST:
-        case SPEC_MAGE_FIRE:
-        case SPEC_MAGE_ARCANE:
-        case SPEC_ROGUE_COMBAT:
-        case SPEC_ROGUE_ASSASSINATION:
-        case SPEC_ROGUE_SUBTLETY:
-        case SPEC_HUNTER_BEASTMASTER:
-        case SPEC_HUNTER_MARKSMAN:
-        case SPEC_HUNTER_SURVIVAL:
-        case SPEC_WARLOCK_AFFLICTION:
-        case SPEC_WARLOCK_DEMONOLOGY:
-        case SPEC_WARLOCK_DESTRUCTION:
-        case SPEC_PRIEST_SHADOW:
-        case SPEC_DK_FROST:
-        case SPEC_DK_UNHOLY:
-        case SPEC_MONK_WINDWALKER:
-        case SPEC_PALADIN_RETRIBUTION:
-        case SPEC_SHAMAN_ELEMENTAL:
-        case SPEC_SHAMAN_ENHANCEMENT:
-        case SPEC_WARRIOR_ARMS:
-        case SPEC_WARRIOR_FURY:
-        case SPEC_DROOD_BALANCE:
-        case SPEC_DROOD_CAT:
-            roleId = ROLE_DAMAGE;
-            break;
-        case SPEC_MONK_MISTWEAVER:
-        case SPEC_PALADIN_HOLY:
-        case SPEC_PRIEST_DISCIPLINE:
-        case SPEC_PRIEST_HOLY:
-        case SPEC_SHAMAN_RESTORATION:
-        case SPEC_DROOD_RESTORATION:
-            roleId = ROLE_HEALER;
-            break;
-        case SPEC_MONK_BREWMASTER:
-        case SPEC_DK_BLOOD:
-        case SPEC_WARRIOR_PROTECTION:
-        case SPEC_DROOD_BEAR:
-        case SPEC_PALADIN_PROTECTION:
-            roleId = ROLE_TANK;
-            break;
-        default: // SPEC_NONE
-            roleId = ROLE_DEFAULT;
-            break;
-    }
+   if (specializationId)
+    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(specializationId))
+        return spec->role;
 
-    return roleId;
+    return ROLE_DAMAGE;
 }
 
 Mail* Player::GetMail(uint32 id)
