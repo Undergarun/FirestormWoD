@@ -32,7 +32,7 @@ enum Spells
     SPELL_TRIGGERED = 18282
 };
 
-/*class spell_ex_5581 : public SpellScriptLoader
+class spell_ex_5581 : public SpellScriptLoader
 {
     public:
         spell_ex_5581() : SpellScriptLoader("spell_ex_5581") { }
@@ -49,7 +49,7 @@ enum Spells
 
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellInfo const* /*spellEntry*//*)
+            bool Validate(SpellInfo const* spellEntry*/)
             {
                 // check if spellid 70522 exists in dbc, we will trigger it later
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGERED))
@@ -109,12 +109,12 @@ enum Spells
             }
 
 
-            void HandleDummyLaunch(SpellEffIndex /*effIndex*//*)
+            void HandleDummyLaunch(SpellEffIndex effIndex*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Spell %u with SPELL_EFFECT_DUMMY is just launched!", GetSpellInfo()->Id);
             }
 
-            void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*//*)
+            void HandleDummyLaunchTarget(SpellEffIndex effIndex*/)
             {
                 uint64 targetGUID = 0;
                 if (Unit* unitTarget = GetHitUnit())
@@ -123,12 +123,12 @@ enum Spells
                 sLog->outInfo(LOG_FILTER_GENERAL, "Spell %u with SPELL_EFFECT_DUMMY is just launched at it's target: " UI64FMTD "!", GetSpellInfo()->Id, targetGUID);
             }
 
-            void HandleDummyHit(SpellEffIndex /*effIndex*//*)
+            void HandleDummyHit(SpellEffIndex effIndex*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Spell %u with SPELL_EFFECT_DUMMY has hit!", GetSpellInfo()->Id);
             }
 
-            void HandleDummyHitTarget(SpellEffIndex /*effIndex*//*)
+            void HandleDummyHitTarget(SpellEffIndex effIndex*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "SPELL_EFFECT_DUMMY is hits it's target!");
                 // make caster cast a spell on a unit target of effect
@@ -151,7 +151,7 @@ enum Spells
                 sLog->outInfo(LOG_FILTER_GENERAL, "Spell just finished hitting target!");
             }
 
-            void FilterTargets(std::list<Unit*>& /*targetList*//*)
+            void FilterTargets(std::list<Unit*>& targetList*/)
             {
                 // usually you want this call for Area Target spells
                 sLog->outInfo(LOG_FILTER_GENERAL, "Spell is about to add targets from targetList to final targets!");
@@ -207,7 +207,7 @@ class spell_ex_66244 : public SpellScriptLoader
             PrepareAuraScript(spell_ex_66244AuraScript);
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellInfo const* /*spellEntry*//*)
+            bool Validate(SpellInfo const* spellEntry*/)
             {
                 // check if spellid exists in dbc, we will trigger it later
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGERED))
@@ -227,20 +227,20 @@ class spell_ex_66244 : public SpellScriptLoader
             }
 
 
-            void HandleOnEffectApply(constAuraEffectPtr /*aurEff*//*, AuraEffectHandleModes /*mode*//*)
+            void HandleOnEffectApply(constAuraEffectPtr aurEff*/, AuraEffectHandleModes mode*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Aura Effect is about to be applied on target!");
                 // this hook allows you to prevent execution of AuraEffect handler, or to replace it with your own handler
                 //PreventDefaultAction();
             }
-            void HandleOnEffectRemove(constAuraEffectPtr /*aurEff*//*, AuraEffectHandleModes /*mode*//*)
+            void HandleOnEffectRemove(constAuraEffectPtr aurEff*/, AuraEffectHandleModes mode*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Aura Effect is about to be removed from target!");
                 // this hook allows you to prevent execution of AuraEffect handler, or to replace it with your own handler
                 //PreventDefaultAction();
             }
 
-            void HandleAfterEffectApply(constAuraEffectPtr /*aurEff*//*, AuraEffectHandleModes /*mode*//*)
+            void HandleAfterEffectApply(constAuraEffectPtr aurEff*/, AuraEffectHandleModes mode*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Aura Effect has just been applied on target!");
                 Unit* target = GetTarget();
@@ -248,7 +248,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 target->CastSpell(target, SPELL_TRIGGERED, true);
             }
 
-            void HandleAfterEffectRemove(constAuraEffectPtr /*aurEff*//*, AuraEffectHandleModes /*mode*//*)
+            void HandleAfterEffectRemove(constAuraEffectPtr aurEff*/, AuraEffectHandleModes mode*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Aura Effect has just been just removed from target!");
                 Unit* target = GetTarget();
@@ -260,7 +260,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 target->CastSpell(caster, SPELL_TRIGGERED, true);
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*//*)
+            void HandleEffectPeriodic(constAuraEffectPtr aurEff*/)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Perioidic Aura Effect is does a tick on target!");
                 Unit* target = GetTarget();
@@ -275,7 +275,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 aurEff->ChangeAmount(aurEff->GetAmount() * 2);
             }
 
-            void HandleEffectCalcAmount(constAuraEffectPtr /*aurEff*//*, int32& amount, bool& canBeRecalculated)
+            void HandleEffectCalcAmount(constAuraEffectPtr aurEff*/, int32& amount, bool& canBeRecalculated)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Amount of Aura Effect is being calculated now!");
                 // we're setting amount to 100
@@ -284,7 +284,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 canBeRecalculated = false;
             }
 
-            void HandleEffectCalcPeriodic(constAuraEffectPtr /*aurEff*//*, bool& isPeriodic, int32& amplitude)
+            void HandleEffectCalcPeriodic(constAuraEffectPtr aurEff*/, bool& isPeriodic, int32& amplitude)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Periodic data of Aura Effect is being calculated now!");
                 // we're setting aura to be periodic and tick every 10 seconds
@@ -292,7 +292,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 amplitude = 2 * IN_MILLISECONDS;
             }
 
-            void HandleEffectCalcSpellMod(constAuraEffectPtr /*aurEff*//*, SpellModifier*& spellMod)
+            void HandleEffectCalcSpellMod(constAuraEffectPtr aurEff*/, SpellModifier*& spellMod)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "SpellMod data of Aura Effect is being calculated now!");
                 // we don't want spellmod for example
@@ -301,7 +301,7 @@ class spell_ex_66244 : public SpellScriptLoader
                     delete spellMod;
                     spellMod = NULL;
                 }
-                /*
+
                 // alternative: we want spellmod for spell which doesn't have it
                 if (!spellMod)
                 {
@@ -311,8 +311,7 @@ class spell_ex_66244 : public SpellScriptLoader
                     spellMod->spellId = GetId();
                     spellMod->mask[1] = 0x00002000;
                 }
-                */
-            /*}
+            }
 
             // function registering
             void Register()
@@ -327,11 +326,11 @@ class spell_ex_66244 : public SpellScriptLoader
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ex_66244AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_ex_66244AuraScript::HandleEffectCalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_ex_66244AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
-                /*OnApply += AuraEffectApplyFn();
+                OnApply += AuraEffectApplyFn();
                 OnRemove += AuraEffectRemoveFn();
                 DoCheckAreaTarget += AuraCheckAreaTargetFn();*/
-            /*}
-            /*
+            }
+
             void OnApply()
             {
             }
@@ -342,8 +341,8 @@ class spell_ex_66244 : public SpellScriptLoader
 
             bool DoCheckAreaTarget(Unit* proposedTarget)
             {
-            }*/
-        /*};
+            }
+        };
 
         // function which creates AuraScript
         AuraScript* GetAuraScript() const
@@ -365,14 +364,14 @@ class spell_ex_absorb_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ex_absorb_auraAuraScript);
 
-            void HandleOnEffectAbsorb(AuraEffectPtr /*aurEff*//*, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void HandleOnEffectAbsorb(AuraEffectPtr aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Our aura is now absorbing damage done to us!");
                 // absorb whole damage done to us
                 absorbAmount = dmgInfo.GetDamage();
             }
 
-            void HandleAfterEffectAbsorb(AuraEffectPtr /*aurEff*//*, DamageInfo & /*dmgInfo*//*, uint32 & absorbAmount)
+            void HandleAfterEffectAbsorb(AuraEffectPtr aurEff*/, DamageInfo & dmgInfo*/, uint32 & absorbAmount)
             {
                 sLog->outInfo(LOG_FILTER_GENERAL, "Our aura has absorbed %u damage!", absorbAmount);
             }
@@ -418,18 +417,18 @@ class spell_ex_463 : public SpellScriptLoader
         {
             return new spell_ex_463AuraScript();
         }
-};*/
+};
 
 // this function has to be added to function set in ScriptLoader.cpp
 void AddSC_example_spell_scripts()
 {
-    /*new spell_ex_5581;
+    new spell_ex_5581;
     new spell_ex_66244;
     new spell_ex_absorb_aura;
     new spell_ex_463;*/
 }
 
-/* empty script for copypasting
+// empty script for copypasting
 class spell_ex : public SpellScriptLoader
 {
     public:
@@ -455,9 +454,8 @@ class spell_ex : public SpellScriptLoader
             return new spell_ex_SpellScript();
         }
 };
-*/
 
-/* empty script for copypasting
+// empty script for copypasting
 class spell_ex : public SpellScriptLoader
 {
     public:
@@ -487,4 +485,3 @@ class spell_ex : public SpellScriptLoader
             return new spell_ex_AuraScript();
         }
 };
-*/

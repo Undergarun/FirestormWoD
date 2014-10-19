@@ -19,7 +19,7 @@ include(Spells/CMakeLists.txt)
 
 include(Commands/CMakeLists.txt)
 
-include(Examples/CMakeLists.txt)
+# include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
