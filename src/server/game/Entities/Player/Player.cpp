@@ -9624,39 +9624,41 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_AGILITY:
-
+            {
                 if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_AGILITY, float(val), apply);
                 break;
+            }
             case ITEM_MOD_STRENGTH:
-
+            {
                 if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_STRENGTH, float(val), apply);
                 break;
-
+            }
             case ITEM_MOD_INTELLECT:
-
+            {
                 if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_INTELLECT, float(val), apply);
                 break;
-
+            }
             case ITEM_MOD_SPIRIT:
-
+            {
                 if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_SPIRIT, float(val), apply);
                 break;
+            }
             case ITEM_MOD_STAMINA:
                 HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(STAT_STAMINA, float(val), apply);
@@ -9688,6 +9690,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_VERSATILITY_RATING:
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val), apply);
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val), apply);
                 break;
             case ITEM_MOD_MANA_REGENERATION:
                 ApplyManaRegenBonus(int32(val), apply);
@@ -9702,6 +9706,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_MASTERY, int32(val), apply);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
+                //HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), apply);
@@ -9725,11 +9730,19 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
                 break;
             case ITEM_MOD_MULTISTRIKE_RATING:
+                ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
+                break;
             case ITEM_MOD_READINESS_RATING:
+                ApplyRatingMod(CR_READINESS, int32(val), apply);
+                break;
             case ITEM_MOD_SPEED_RATING:
+                ApplyRatingMod(CR_SPEED, int32(val), apply);
+                break;
             case ITEM_MOD_LEECH_RATING:
+                ApplyRatingMod(CR_LIFESTEAL, int32(val), apply);
+                break;
             case ITEM_MOD_AVOIDANCE_RATING:
-            case ITEM_MOD_INDESTRUCTIBLE:
+                ApplyRatingMod(CR_AVOIDANCE, int32(val), apply);
                 break;
             case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
             {
@@ -9741,7 +9754,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
             {
                 Stats stat = GetPrimaryStat();
-
                 if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
                     break;
 
@@ -9752,10 +9764,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
             {
                 Stats stat = GetPrimaryStat();
-
                 if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
                     break;
-
 
                 HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(stat, float(val), apply);
@@ -9764,10 +9774,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_DYNAMIC_STAT_STR_INT:
             {
                 Stats stat = GetPrimaryStat();
-
                 if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
                     break;
-
 
                 HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
                 ApplyStatBuffMod(stat, float(val), apply);
@@ -15728,6 +15736,10 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(newVal - val), apply);
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(newVal - val), apply);
                 break;
+            case ITEM_MOD_VERSATILITY_RATING:
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(newVal - val), apply);
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(newVal - val), apply);
+                break;
             case ITEM_MOD_SPELL_POWER:
                 ApplySpellPowerBonus(int32(newVal - val), apply);
                 break;
@@ -15735,59 +15747,63 @@ void Player::ApplyItemUpgrade(Item* item, bool apply)
                 ApplyRatingMod(CR_MASTERY, int32(newVal - val), apply);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
+                //HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(newVal - val), apply);
                 break;
             case ITEM_MOD_PVP_POWER:
                 ApplyRatingMod(CR_PVP_POWER, int32(newVal - val), apply);
                 break;
             case ITEM_MOD_MULTISTRIKE_RATING:
+                ApplyRatingMod(CR_MULTISTRIKE, int32(newVal - val), apply);
+                break;
             case ITEM_MOD_READINESS_RATING:
+                ApplyRatingMod(CR_READINESS, int32(newVal - val), apply);
+                break;
             case ITEM_MOD_SPEED_RATING:
+                ApplyRatingMod(CR_SPEED, int32(newVal - val), apply);
+                break;
             case ITEM_MOD_LEECH_RATING:
+                ApplyRatingMod(CR_LIFESTEAL, int32(newVal - val), apply);
+                break;
             case ITEM_MOD_AVOIDANCE_RATING:
-            case ITEM_MOD_INDESTRUCTIBLE:
+                ApplyRatingMod(CR_AVOIDANCE, int32(newVal - val), apply);
+                break;
             case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
             {
                 Stats stat = GetPrimaryStat();
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(stat, float(newVal - val), apply);
                 break;
             }
             case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
             {
                 Stats stat = GetPrimaryStat();
-
                 if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
                     break;
 
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(stat, float(newVal - val), apply);
                 break;
             }
             case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
             {
                 Stats stat = GetPrimaryStat();
-
                 if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
                     break;
 
-
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(stat, float(newVal - val), apply);
                 break;
             }
             case ITEM_MOD_DYNAMIC_STAT_STR_INT:
             {
                 Stats stat = GetPrimaryStat();
-
                 if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
                     break;
 
-
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
+                ApplyStatBuffMod(stat, float(newVal - val), apply);
                 break;
             }
-                break;
             default:
                 break;
         }
@@ -16008,6 +16024,9 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_VERSATILITY_RATING:
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, enchant_amount, apply);
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, enchant_amount, apply);
+                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u VERSATILITY", enchant_amount);
                             break;
                         case ITEM_MOD_MANA_REGENERATION:
                             ApplyManaRegenBonus(enchant_amount, apply);
@@ -16054,6 +16073,8 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u POWER JCJ", enchant_amount);
                             break;
                         case ITEM_MOD_MULTISTRIKE_RATING:
+                            ApplyRatingMod(CR_MULTISTRIKE, enchant_amount, apply);
+                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MULTISTRIKE", enchant_amount);
                             break;
                         case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
                         {
@@ -16065,7 +16086,6 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
                         {
                             Stats stat = GetPrimaryStat();
-
                             if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
                                 break;
 
@@ -16076,10 +16096,8 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
                         {
                             Stats stat = GetPrimaryStat();
-
                             if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
                                 break;
-
 
                             HandleStatModifier((UnitMods)stat, BASE_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(stat, float(enchant_amount), apply);
@@ -16088,10 +16106,8 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_DYNAMIC_STAT_STR_INT:
                         {
                             Stats stat = GetPrimaryStat();
-
                             if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
                                 break;
-
 
                             HandleStatModifier((UnitMods)stat, BASE_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(stat, float(enchant_amount), apply);
