@@ -188,6 +188,10 @@ enum eCreatures
     NPC_YELLOW_EYE                  = 67856,
     NPC_RED_EYE                     = 67855,
     NPC_BLUE_EYE                    = 67854,
+    NPC_AZURE_FOG                   = 69052,
+    NPC_AMBER_FOG                   = 69051,
+    NPC_CRIMSON_FOG                 = 69050,
+    NPC_EYEBEAM_TARGET              = 67882,
 
     NPC_PRIMORDIUS                  = 69017,
     NPC_LIVING_FLUID                = 69069,

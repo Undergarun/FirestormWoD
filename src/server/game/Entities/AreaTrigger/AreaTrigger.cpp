@@ -109,7 +109,7 @@ void AreaTrigger::Update(uint32 p_time)
     if (GetDuration() > int32(p_time))
         _duration -= p_time;
     else if (GetDuration() != -1)
-        Remove(); // expired
+        Remove(p_time); // expired
 
     WorldObject::Update(p_time);
 
@@ -119,7 +119,7 @@ void AreaTrigger::Update(uint32 p_time)
 
     if (!GetCaster())
     {
-        Remove();
+        Remove(p_time);
         return;
     }
 
@@ -140,6 +140,12 @@ void AreaTrigger::Update(uint32 p_time)
 
             for (auto itr : targetList)
                 itr->CastSpell(itr, 135299, true);
+
+            // Glyph of Black Ice
+            if (caster->GetDistance(this) <= radius && caster->HasAura(109263) && !caster->HasAura(83559))
+                caster->CastSpell(caster, 83559, true);
+            else
+                caster->RemoveAura(83559);
 
             break;
         }
@@ -475,7 +481,7 @@ void AreaTrigger::Update(uint32 p_time)
                             {
                                 if (l_AreaTrigger != this && l_AreaTrigger->GetDistance(this) < 2.5f)
                                 {
-                                    l_AreaTrigger->Remove();
+                                    l_AreaTrigger->Remove(0);
                                     SetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetUInt32Value(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 1.5f);
                                     this->SetObjectScale(m_visualRadius * 1.5f);
                                     this->SetVisualRadius(m_visualRadius * 1.5f);
@@ -499,7 +505,7 @@ void AreaTrigger::Update(uint32 p_time)
     }
 }
 
-void AreaTrigger::Remove()
+void AreaTrigger::Remove(uint32 p_time)
 {
     if (IsInWorld())
     {
@@ -509,6 +515,28 @@ void AreaTrigger::Remove()
 
         switch (m_spellInfo->Id)
         {
+            case 115460: // zen sphere
+            {
+                if (int32(GetDuration()) - int32(p_time) > 0 || GetDuration() == 0)
+                    break;
+
+                if (!m_caster)
+                    break;
+
+                m_caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135914, true);
+                break;
+            }
+            case 119031: // zen sphere
+            {
+                if (int32(GetDuration()) - int32(p_time) > 0 || GetDuration() == 0)
+                    break;
+
+                if (!m_caster)
+                    break;
+
+                m_caster->CastSpell(GetPositionX(), GetPositionY(), GetPositionZ(), 135920, true);
+                break;
+            }
             case 116011:// Rune of Power : Remove the buff if caster is still in radius
                 if (m_caster && m_caster->HasAura(116014))
                     m_caster->RemoveAura(116014);

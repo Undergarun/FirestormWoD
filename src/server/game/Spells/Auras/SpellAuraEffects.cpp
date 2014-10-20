@@ -1321,7 +1321,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster, constAuraEffectPtr triggeredByAu
                 temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));
 
                 m_fixed_periodic.SetFixedDamage(temp_damage);
-                m_fixed_periodic.SetCriticalChance(temp_crit);
+
+                // Some spells can't crit
+                if (!(GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+                    m_fixed_periodic.SetCriticalChance(temp_crit);
 
                 // Seed of Corruption and Soulburn : Seed of corruption - Set Total damage for explode
                 if (GetSpellInfo()->Id == 27243 || GetSpellInfo()->Id == 114790)
@@ -1388,7 +1391,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
                     caster->ModSpellCastTime(m_spellInfo, m_amplitude);
             }
             else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                m_amplitude = int32(m_amplitude * std::max<float>(caster->GetFloatValue(UNIT_MOD_CAST_SPEED), 0.5f));
+                m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
 
@@ -3269,12 +3272,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
 
+        bool l_IsCasting = false;
         // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
             {
+                l_IsCasting = true;
                 // Stop spells on prepare or casting state
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                     target->InterruptSpell(CurrentSpellTypes(i), false);
@@ -3283,7 +3288,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
         // Glyph of Strangulate - 58618
         // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618))
+        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_IsCasting)
         {
             aurApp->GetBase()->SetMaxDuration(aurApp->GetBase()->GetMaxDuration() + 2000);
             aurApp->GetBase()->RefreshDuration();
@@ -4377,7 +4382,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                     | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
                     | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
                     | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN) | (1 << MECHANIC_DISARM);
 
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
@@ -4391,6 +4396,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
+                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISARM, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, apply);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
@@ -4399,6 +4405,9 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_DISARM);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_DISARM_OFFHAND);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_DISARM_RANGED);
             }
             break;
         }
@@ -4510,6 +4519,9 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
 
     Unit* target = aurApp->GetTarget();
     uint32 mechanic = 0;
+
+    if (target->HasAura(146659) && GetId() == 1953) // Glyph of Rapid Displacement
+        return;
 
     switch (GetId())
     {
@@ -5068,18 +5080,40 @@ void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
+    float l_Amount = GetAmount();
+
     if (apply)
     {
-        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
-        target->ModifyHealth(GetAmount());
+        if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT)
+        {
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, l_Amount, apply);
+            target->ModifyHealth(GetAmount());
+        }
+        else
+        {
+            float percent = target->GetHealthPct();
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Amount, apply);
+            if (target->isAlive())
+                target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+        }
     }
     else
     {
-        if (int32(target->GetHealth()) > GetAmount())
-            target->ModifyHealth(-GetAmount());
+        if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT)
+        {
+            if (int32(target->GetHealth()) > GetAmount())
+                target->ModifyHealth(-GetAmount());
+            else
+                target->SetHealth(1);
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
+        }
         else
-            target->SetHealth(1);
-        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
+        {
+            float percent = target->GetHealthPct();
+            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Amount, apply);
+            if (target->isAlive())
+                target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+        }
     }
 }
 
@@ -6383,6 +6417,17 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         caster->RemoveAurasDueToSpell(86674);
                     break;
                 }
+                case 125043: // Glyph of Contemplation
+                {
+                    if (Player* _player = caster->ToPlayer())
+                    {
+                        if (apply)
+                            _player->learnSpell(121183, false);
+                        else
+                            _player->removeSpell(121183);
+                    }
+                    break;
+                }
                 default:
                     break;
             }
@@ -6956,7 +7001,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 // Hysteria
                 case 49016:
                 {
-                    uint32 damage = uint32(target->CountPctFromMaxHealth(1));
+                    uint32 damage = uint32(target->CountPctFromMaxHealth(2));
                     target->DealDamage(target, damage, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo(), false);
                     break;
                 }
@@ -7459,14 +7504,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
             caster->CastSpell(caster, 120587, true);
 
-        // Deep Wounds
-        if (GetSpellInfo()->Id == 115767)
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-              if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                  damage *= 2;
-        }
-
         // Nether Tempest and Living Bomb deal 85% of damage if used on player
         if (GetSpellInfo()->Id == 44457 || GetSpellInfo()->Id == 114923)
         {
@@ -7482,7 +7519,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 int32 bp = CalculatePct(damage, 90);
                 std::list<Unit*> groupList;
 
-                _player->GetPartyMembers(groupList);
+                _player->GetRaidMembers(groupList);
 
                 if (groupList.size() > 1)
                 {
@@ -7528,13 +7565,14 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             else if (m_tickNumber > totalTick * 2 / 3)
                 damage += (damage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
             // 5..8 ticks have normal tick damage
-            damage /= 10; // Prevent insane damage with 10 stacks
         }
         // Malefic Grasp
         if (GetSpellInfo()->Id == 103103)
         {
             int32 afflictionDamage;
             SpellInfo const* afflictionSpell;
+
+            caster->SendPlaySpellVisual(25955, target, 20.f);
 
             // Soul Leech
             if (caster->HasAura(108370) && caster->GetTypeId() == TYPEID_PLAYER)
@@ -7986,6 +8024,10 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         else
             damage = int32(damage * 0.444f); // Final:   44.4%
     }
+
+    // Glyph of Bloody Healing - Increase bandage healings by 20%
+    if (m_spellInfo->Mechanic == MECHANIC_BANDAGE && target->HasAura(126665))
+        AddPct(damage, 20);
 
     bool crit = false;
     if (m_fixed_periodic.HasCritChance())

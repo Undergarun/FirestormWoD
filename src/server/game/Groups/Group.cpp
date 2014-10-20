@@ -109,7 +109,6 @@ bool Group::Create(Player* leader)
 
     leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
-
     m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
     if (m_groupType & GROUPTYPE_RAID)
@@ -3796,6 +3795,7 @@ bool Group::CanEnterInInstance()
             case MAN25_HEROIC_DIFFICULTY:
             case RAID_TOOL_DIFFICULTY:
                 maxplayers = 25;
+                break;
             case MAN40_DIFFICULTY:
                 maxplayers = 40;
                 break;

@@ -251,7 +251,8 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS ||
+                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE)
                     return;
 
                 if (!(eventInfo.GetHealInfo()->GetHeal()))
@@ -471,7 +472,7 @@ class spell_sha_call_of_the_elements : public SpellScriptLoader
         }
 };
 
-// Called by Healing Wave - 331, Greater Healing Wave - 77472 and Healing Surge - 8004
+// Called by Healing Wave - 331, Greater Healing Wave - 77472, Healing Surge - 8004 and Chain Heal - 1064
 // Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
 // Called by Lightning Bolt - 45284, Chain Lightning - 45297
 // Conductivity - 108282
@@ -553,7 +554,8 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                 if (!eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE)
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE ||
+                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
                     return;
 
                 if (!(eventInfo.GetDamageInfo()->GetDamage()) && !(eventInfo.GetHealInfo()->GetHeal()))
@@ -855,7 +857,7 @@ class spell_sha_spirit_link : public SpellScriptLoader
                             if (Player* _player = caster->GetOwner()->ToPlayer())
                             {
                                 std::list<Unit*> memberList;
-                                _player->GetPartyMembers(memberList);
+                                _player->GetRaidMembers(memberList);
 
                                 float totalRaidHealthPct = 0;
 
@@ -1353,6 +1355,24 @@ class spell_sha_healing_stream : public SpellScriptLoader
                 return true;
             }
 
+            void CorrectTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<Unit*> unitList;
+
+                for (auto itr : targets)
+                    if (itr->ToUnit())
+                        unitList.push_back(itr->ToUnit());
+
+                unitList.sort(JadeCore::HealthPctOrderPred(true));
+                WorldObject* l_object = unitList.front();
+
+                targets.clear();
+                targets.push_back(l_object);
+            }
+
             void HandleOnHit()
             {
                 if (!GetCaster()->GetOwner())
@@ -1367,6 +1387,7 @@ class spell_sha_healing_stream : public SpellScriptLoader
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
                 OnHit += SpellHitFn(spell_sha_healing_stream_SpellScript::HandleOnHit);
             }
         };
@@ -1956,12 +1977,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                                         if (hitTargets >= 4)
                                             continue;
 
-                                        uint32 cooldownDelay = _player->GetSpellCooldownDelay(SPELL_SHA_FLAME_SHOCK);
-                                        if (_player->HasSpellCooldown(SPELL_SHA_FLAME_SHOCK))
-                                            _player->RemoveSpellCooldown(SPELL_SHA_FLAME_SHOCK, true);
-
-                                        _player->CastSpell(itr, SPELL_SHA_FLAME_SHOCK, true);
-                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, cooldownDelay * IN_MILLISECONDS);
+                                        _player->AddAura(SPELL_SHA_FLAME_SHOCK, itr);
                                         hitTargets++;
                                     }
                                 }

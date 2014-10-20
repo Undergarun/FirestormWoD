@@ -59,6 +59,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "Vehicle.h"
 #include "Player.h"
+#include "SpellScript.h"
 
 /*########
 # npc_air_force_bots
@@ -2155,7 +2156,7 @@ class npc_new_lightwell : public CreatureScript
                             {
                                 std::list<Unit*> party;
                                 std::list<Unit*> tempList;
-                                plr->GetPartyMembers(party);
+                                plr->GetRaidMembers(party);
 
                                 for (auto itr : party)
                                 {
@@ -3547,7 +3548,7 @@ class npc_demoralizing_banner : public CreatureScript
 };
 
 /*######
-# npc_frozen_orb
+# npc_frozen_orb 45322
 ######*/
 
 enum frozenOrbSpells
@@ -3582,6 +3583,13 @@ class npc_frozen_orb : public CreatureScript
                     me->AddAura(SPELL_SELF_SNARE_90, me);
 
                     frozenOrbTimer = 1000;
+
+                    float rotation = owner->GetOrientation();
+                    float x = owner->GetPositionX() + ((35.0f) * cos(rotation));
+                    float y = owner->GetPositionY() + ((35.0f) * sin(rotation));
+
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, me->GetPositionZ());
                 }
                 else
                     me->DespawnOrUnsummon();
@@ -4686,8 +4694,6 @@ class npc_void_tendrils : public CreatureScript
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
-
-                me->setFaction(14);
             }
 
             void JustDied(Unit* killer)
@@ -4755,14 +4761,14 @@ class npc_psyfiend : public CreatureScript
 
             uint64 targetGUID;
             uint32 psychicHorrorTimer;
-            EventMap events;
+            EventMap m_Events;
 
             void Reset()
             {
                 if (!me->HasAura(SPELL_ROOT_FOR_EVER))
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
 
-                events.ScheduleEvent(EVENT_FEAR, 100);
+                m_Events.ScheduleEvent(EVENT_FEAR, 100);
             }
 
             void SetGUID(uint64 guid, int32)
@@ -4794,17 +4800,22 @@ class npc_psyfiend : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                m_Events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                events.Update(diff);
-
-                switch (events.ExecuteEvent())
+                switch (m_Events.ExecuteEvent())
                 {
                     case EVENT_FEAR:
                     {
-                        me->CastSpell(me, SPELL_PSYCHIC_HORROR, false);
-                        events.ScheduleEvent(EVENT_FEAR, 100);
+                        if (Unit* l_Target = me->SelectNearbyTarget(me->ToUnit(), 20.f, SPELL_PSYCHIC_HORROR))
+                        {
+                            if (me->IsValidAttackTarget(l_Target))
+                                me->CastSpell(l_Target, SPELL_PSYCHIC_HORROR, false);
+                        }
+
+                        m_Events.ScheduleEvent(EVENT_FEAR, 2000);
                         break;
                     }
                 }

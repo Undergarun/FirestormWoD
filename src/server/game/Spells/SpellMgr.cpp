@@ -2418,6 +2418,7 @@ void SpellMgr::LoadSpellPetAuras()
             }
             if (spellInfo->Effects[eff].Effect != SPELL_EFFECT_DUMMY &&
                 (spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA ||
+                spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA_2 ||
                 spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY))
             {
                 sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
@@ -3389,6 +3390,18 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 134755:
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 133740:
+                spellInfo->Effects[1].MiscValue = 0;
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
+                spellInfo->Effects[3].TriggerSpell = 0;
+                break;
+            case 133734 :
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 133795: // Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
@@ -3399,21 +3412,35 @@ void SpellMgr::LoadSpellCustomAttr()
             case 133796: // Life Drain
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 63106: // Siphon Life (heal)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 148017:// Icicle
+            case 148018:// Icicle
+            case 148019:// Icicle
+            case 148020:// Icicle
+            case 148021:// Icicle
+            case 148022:// Icicle hit
+                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED;
+                break;
             case 83381: // Kill Command
-                spellInfo->AttackPowerBonus = 1.632f;
+                spellInfo->AttackPowerBonus = 0.938f;
+                spellInfo->m_IsScaled = true;
+                break;
+            case 86121: // Soul Swap
+                spellInfo->OverrideSpellList.push_back(86213);
                 break;
             case 115921:// Legacy of the Emperor
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
                 spellInfo->Effects[0].TriggerSpell = spellInfo->Effects[0].BasePoints;
                 break;
             case 117667:// Legacy of the Emperor (buff)
-                spellInfo->Effects[0].TargetA = TARGET_CHECK_ALLY_OR_RAID;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_ALLY_OR_RAID;
                 break;
             case 45477: // Icy Touch
                 spellInfo->AttackPowerBonus = 0.319f;
-                break;
-            case 49184: // Howling Blast
-                spellInfo->AttackPowerBonus = 0.428f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 140495:// Lingering Gaze
                 spellInfo->Effects[0].BasePoints *= 2.9f;
@@ -3456,6 +3483,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             case 121673:// Fire Shot
+            case 145153:
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050:// Malformed Blood
@@ -3753,6 +3781,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 149575:// Explosive Trap (knock back)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[1].TargetA = TARGET_DEST_DEST;
+                break;
+            case 13812:
+                spellInfo->m_IsScaled = true;
                 break;
             case 108287:// Totemic Projection
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
@@ -4252,6 +4283,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 24858: // Moonkin form - hotfix 5.4.2
                 spellInfo->Effects[2].BasePoints = 100;
                 break;
+            case 51963: // Gargoyle's Strike
+                spellInfo->AttackPowerBonus = 0.83f;
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                break;
             case 50887: // Icy Talons - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 45;
                 break;
@@ -4259,7 +4294,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].BasePoints = 215;
                 break;
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
-                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[0].Effect = 0;
                 break;
             case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 35;
@@ -4477,6 +4512,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 88767: // Fulmination (triggered)
+            case 50273: // Arcane Barrage (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 51514: // Hex
@@ -4487,10 +4523,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Dispel = DISPEL_MAGIC;
                 break;
             case 113792:// Pyschic Horror - Psyfiend
-                spellInfo->MaxAffectedTargets = 1;
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(216); // 1.9s
-                spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Effects[1].TargetB = 0;
+                spellInfo->Effects[2].TargetB = 0;
                 break;
             case 125972:// Felin Grace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_SAFE_FALL;
@@ -4614,6 +4654,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108503:// Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 52610: // Savage Roar (basic)
+                spellInfo->Effects[2].BasePoints = 40;
                 break;
             case 119905:// Cauterize (Command Demon)
             case 119907:// Disarm (Command Demon)
@@ -4869,6 +4912,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Mechanic = 0;
                 break;
+            case 115072: // Expel Harm
+                spellInfo->m_IsScaled = true;
+                break;
             case 20066: // Repentence
             case 115175:// Soothing Mists
             case 116694:// Surging Mists
@@ -4876,7 +4922,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                spellInfo->AttackPowerBonus = 2.316f;
+                spellInfo->AttackPowerBonus = 0.386f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -4894,6 +4941,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 34433: // Shadowfiend
                 spellInfo->Effects[EFFECT_0].MiscValueB = 1561;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->OverrideSpellList.push_back(123040); // Add Mindbender to override spell list of Shadowfiend
                 break;
             case 64904: // Hymn of Hope
@@ -5108,15 +5156,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 33745: // Lacerate
                 spellInfo->AttackPowerBonus = 0.616f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 20167: // Seal of Insight (heal)
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->AttackPowerBonus = 0.15f;
                 spellInfo->Effects[0].EffectSpellPowerBonus = 0.15f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 132467:// Chi Wave (damage)
             case 132463:// Chi Wave (heal)
                 spellInfo->AttackPowerBonus = 0.45f;
+                spellInfo->m_IsScaled = true;
                 break;
             case 113890:// Demonic Gateway (purple)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
@@ -5160,6 +5211,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 52042: // Healing Stream - Totem
                 spellInfo->Effects[0].BasePoints = 31;
+                break;
+            case 121818:
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 135920: // Healing sphere at end
+            case 135914:
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 115460:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DYNOBJ_NONE;
                 break;
             case 324:   // Lightning Shield
                 spellInfo->ProcCharges = 0;
@@ -5428,12 +5491,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 147362:// Counter Shot
                 spellInfo->Speed = 0;
                 break;
-            case 132626: // Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: // Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
-                break;
             // Magic Barrier, Lady Vashj
             case 38112:
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -5476,6 +5533,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].TargetA = 0;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 116011:
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[2].TargetA = 0;
                 break;
             // Cauterizing Flame
             case 99152:
@@ -5802,6 +5863,32 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 69198: // Raging Spirit Visual
                 spellInfo->SetRangeIndex(13); // 50000yd
+                break;
+            case 77758: // Trash (bear)
+            case 106830:// Trash (cat)
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                break;
+            case 2944:  // Devouring Plague
+                spellInfo->Effects[3].EffectSpellPowerBonus = 0.f;
+                spellInfo->Effects[4].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                break;
+            case 23922: // Shield Slam
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->AttackPowerBonus = 1.5f;
+                break;
+            case 63733: // Serendipity
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 131081:// Frostfire Bolt (triggered)
+            case 131080:// Ice Lance (triggered)
+            case 131079:// Frost bolt (triggered)
+            case 131581:// Water bolt (triggered)
+                spellInfo->Effects[0].EffectSpellPowerBonus = 0.f;
+                spellInfo->m_IsScaled = false;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED;
                 break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls

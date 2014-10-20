@@ -1307,7 +1307,7 @@ enum Opcodes
     SMSG_PLAY_ORPHAN_SPELL_VISUAL                     = 0x8AE,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_PLAY_SCENE                                   = 0x1A9,  // 5.4.0 17399 (JamList) SCENE System (NYI)
     SMSG_PLAY_SOUND                                   = 0x4A1,  // 5.4.0 17399
-    SMSG_PLAY_SPELL_VISUAL                            = 0x800,  // 5.4.0 17399 (JamList)
+    SMSG_PLAY_SPELL_VISUAL                            = 0x800,  // 5.4.0 17399
     SMSG_PLAY_SPELL_VISUAL_KIT                        = 0x1A5,  // 5.4.0 17399
     SMSG_PLAY_TIME_WARNING                            = 0x18A,  // 5.4.0 17399 (JamList)
     SMSG_PONG                                         = 0x043,  // 5.4.0 17399

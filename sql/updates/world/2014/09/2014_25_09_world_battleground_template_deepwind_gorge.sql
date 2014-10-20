@@ -1,0 +1,1 @@
+UPDATE battleground_template SET AllianceStartLoc = 4487, HordeStartLoc = 4486, Weight = 12 WHERE id = 754;

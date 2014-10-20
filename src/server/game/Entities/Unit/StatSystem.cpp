@@ -74,6 +74,8 @@ bool Player::UpdateStats(Stats stat)
         case STAT_AGILITY:
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
+            UpdateAttackPowerAndDamage(false);
+            UpdateAttackPowerAndDamage(true);
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -83,18 +85,13 @@ bool Player::UpdateStats(Stats stat)
             UpdateAllSpellCritChances();
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
-        case STAT_SPIRIT:
+        case STAT_STRENGTH:
+            UpdateRating(CR_PARRY);
+            UpdateAttackPowerAndDamage(false);
             break;
+        case STAT_SPIRIT:
         default:
             break;
-    }
-
-    if (stat == STAT_STRENGTH)
-        UpdateAttackPowerAndDamage(false);
-    else if (stat == STAT_AGILITY)
-    {
-        UpdateAttackPowerAndDamage(false);
-        UpdateAttackPowerAndDamage(true);
     }
 
     UpdateSpellDamageAndHealingBonus();
@@ -666,7 +663,7 @@ void Player::UpdateParryPercentage()
     uint32 pclass = getClass()-1;
     if (CanParry() && parry_cap[pclass] > 0.0f)
     {
-        float nondiminishing  = 5.0f;
+        float nondiminishing = 5.0f;
         // Parry from rating
         float diminishing = GetRatingBonusValue(CR_PARRY);
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura

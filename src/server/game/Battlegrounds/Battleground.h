@@ -191,11 +191,12 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_5v5            = 12,
     BATTLEGROUND_QUEUE_KT             = 13,
     BATTLEGROUND_QUEUE_CTF3           = 14,
-    BATTLEGROUND_QUEUE_SSM            = 15,
+    BATTLEGROUND_QUEUE_SM             = 15,
     BATTLEGROUND_QUEUE_TV             = 16,
-    BATTLEGROUND_QUEUE_RATED_10_VS_10 = 17,
-    BATTLEGROUND_QUEUE_RATED_15_VS_15 = 18,
-    BATTLEGROUND_QUEUE_RATED_25_VS_25 = 19,
+    BATTLEGROUND_QUEUE_DG             = 17,
+    BATTLEGROUND_QUEUE_RATED_10_VS_10 = 18,
+    BATTLEGROUND_QUEUE_RATED_15_VS_15 = 19,
+    BATTLEGROUND_QUEUE_RATED_25_VS_25 = 20,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
 
@@ -205,16 +206,16 @@ enum ScoreType
     SCORE_DEATHS                = 2,
     SCORE_HONORABLE_KILLS       = 3,
     SCORE_BONUS_HONOR           = 4,
-    //EY, but in MSG_PVP_LOG_DATA opcode!
+    // EY, but in MSG_PVP_LOG_DATA opcode!
     SCORE_DAMAGE_DONE           = 5,
     SCORE_HEALING_DONE          = 6,
-    //WS
+    // WS
     SCORE_FLAG_CAPTURES         = 7,
     SCORE_FLAG_RETURNS          = 8,
-    //AB and IC
+    // AB and IC
     SCORE_BASES_ASSAULTED       = 9,
     SCORE_BASES_DEFENDED        = 10,
-    //AV
+    // AV
     SCORE_GRAVEYARDS_ASSAULTED  = 11,
     SCORE_GRAVEYARDS_DEFENDED   = 12,
     SCORE_TOWERS_ASSAULTED      = 13,
@@ -222,14 +223,19 @@ enum ScoreType
     SCORE_MINES_CAPTURED        = 15,
     SCORE_LEADERS_KILLED        = 16,
     SCORE_SECONDARY_OBJECTIVES  = 17,
-    //SOTA
+    // SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
     SCORE_DESTROYED_WALL        = 19,
-    //SM
+    // SM
     SCORE_CARTS_HELPED          = 20,
-    //TK
+    // TK
     SCORE_ORB_HANDLES           = 21,
-    SCORE_ORB_SCORE             = 22
+    SCORE_ORB_SCORE             = 22,
+    // DG
+    SCORE_CART_CAPTURES         = 21,
+    SCORE_CART_RETURNS          = 22,
+    // SM
+    SCORE_CART_CONTROLLED       = 23
 };
 
 enum BattlegroundType
@@ -555,6 +561,7 @@ class Battleground
         // Battleground events
         virtual void EventPlayerDroppedFlag(Player* /*player*/) {}
         virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) {}
+        virtual void EventPlayerClickedOnFlag(Player* /*player*/, Unit* /*target_unit*/) {}
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
         virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/, uint32 /*eventType*/) {}

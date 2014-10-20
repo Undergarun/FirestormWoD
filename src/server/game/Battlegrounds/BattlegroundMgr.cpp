@@ -25,6 +25,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
+#include "BattlegroundDG.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundNA.h"
@@ -40,7 +41,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
 #include "BattlegroundKT.h"
-#include "BattlegroundSSM.h"
+#include "BattlegroundSM.h"
 #include "BattlegroundTV.h"
 #include "BattlegroundTTP.h"
 #include "Chat.h"
@@ -564,6 +565,12 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             case BATTLEGROUND_KT:
                 data->WriteBits(0x00000002, 22);
                 break;
+            case BATTLEGROUND_DG:
+                data->WriteBits(0x00000004, 22);
+                break;
+            case BATTLEGROUND_SM:
+                data->WriteBits(0x00000001, 22);
+                break;
             default:
                 data->WriteBits(0, 22);
                 break;
@@ -760,6 +767,17 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             case BATTLEGROUND_KT:
                 *data << uint32(((BattleGroundKTScore*)itr2->second)->OrbHandles);
                 *data << uint32(((BattleGroundKTScore*)itr2->second)->Score * 10);
+                break;
+            case BATTLEGROUND_DG:
+                *data << uint32(((BattlegroundDGScore*)itr2->second)->m_AssaultedMines);
+                *data << uint32(((BattlegroundDGScore*)itr2->second)->m_DefendedMines);
+                *data << uint32(((BattlegroundDGScore*)itr2->second)->m_CapturedCart);
+                *data << uint32(((BattlegroundDGScore*)itr2->second)->m_ReturnedCart);
+                break;
+            case BATTLEGROUND_SM:
+                *data << uint32(((BattlegroundSMScore*)itr2->second)->MineCartCaptures);    // mine carts captured
+                break;
+            default:
                 break;
         }
 
@@ -1094,11 +1112,14 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
         case BATTLEGROUND_KT:
             bg = new BattlegroundKT(*(BattlegroundKT*)bg_template);
             break;
-        case BATTLEGROUND_SSM:
-            bg = new BattlegroundSSM(*(BattlegroundSSM*)bg_template);
+        case BATTLEGROUND_SM:
+            bg = new BattlegroundSM(*(BattlegroundSM*)bg_template);
             break;
         case BATTLEGROUND_RATED_10_VS_10:
             bg = new BattlegroundRBG(*(BattlegroundRBG*)bg_template);
+            break;
+        case BATTLEGROUND_DG:
+            bg = new BattlegroundDG(*(BattlegroundDG*)bg_template);
             break;
         default:
             //error, but it is handled few lines above
@@ -1146,6 +1167,12 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_EY:
         case BATTLEGROUND_EYR:
             bg = new BattlegroundEY;
+            break;
+        case BATTLEGROUND_DG:
+            bg = new BattlegroundDG;
+            break;
+        case BATTLEGROUND_SM:
+            bg = new BattlegroundSM;
             break;
         case BATTLEGROUND_RL: bg = new BattlegroundRL; break;
         case BATTLEGROUND_SA: bg = new BattlegroundSA; break;
@@ -1251,7 +1278,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             data.Team1StartLocX = start->x;
             data.Team1StartLocY = start->y;
             data.Team1StartLocZ = start->z;
-            data.Team1StartLocO = fields[6].GetFloat();
+            data.Team1StartLocO = start->o;
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
@@ -1272,7 +1299,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             data.Team2StartLocX = start->x;
             data.Team2StartLocY = start->y;
             data.Team2StartLocZ = start->z;
-            data.Team2StartLocO = fields[8].GetFloat();
+            data.Team2StartLocO = start->o;
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
@@ -1471,8 +1498,10 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_KT;
         case BATTLEGROUND_CTF3:
             return BATTLEGROUND_QUEUE_CTF3;
-        case BATTLEGROUND_SSM:
-            return BATTLEGROUND_QUEUE_SSM;
+        case BATTLEGROUND_SM:
+            return BATTLEGROUND_QUEUE_SM;
+        case BATTLEGROUND_DG:
+            return BATTLEGROUND_QUEUE_DG;
         case BATTLEGROUND_AA:
         case BATTLEGROUND_NA:
         case BATTLEGROUND_TV:
@@ -1529,8 +1558,8 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_KT;
         case BATTLEGROUND_QUEUE_CTF3:
             return BATTLEGROUND_CTF3;
-        case BATTLEGROUND_QUEUE_SSM:
-            return BATTLEGROUND_SSM;
+        case BATTLEGROUND_QUEUE_SM:
+            return BATTLEGROUND_SM;
         case BATTLEGROUND_QUEUE_2v2:
         case BATTLEGROUND_QUEUE_3v3:
         case BATTLEGROUND_QUEUE_5v5:

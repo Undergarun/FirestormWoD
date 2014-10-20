@@ -4279,12 +4279,12 @@ void Player::InitSpellForLevel()
     // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
     if (level == 90 && getClass() == CLASS_MAGE)
     {
-        if (TeamForRace(getRace()) == ALLIANCE)
+        if (TeamForRace(getRace()) == HORDE)
         {
             learnSpell(132627, false); // Teleport: Vale of Eternal Blossoms
             learnSpell(132626, false); // Portal: Vale of Eternal Blossoms
 
-            // Only for horde
+            // Only for alliance
             if (HasSpell(132621))
                 removeSpell(132621, false, false);
             if (HasSpell(132620))
@@ -4295,7 +4295,7 @@ void Player::InitSpellForLevel()
             learnSpell(132621, false); // Teleport: Vale of Eternal Blossoms
             learnSpell(132620, false); // Portal: Vale of Eternal Blossoms
 
-            // Only for alliance
+            // Only for horde
             if (HasSpell(132626))
                 removeSpell(132626, false, false);
             if (HasSpell(132627))
@@ -7343,10 +7343,21 @@ void Player::UpdateRating(CombatRating cr)
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
+    {
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+    }
+
     if (amount < 0)
         amount = 0;
+
+    if (cr == CR_PARRY &&
+        (getClass() == CLASS_WARRIOR || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_PALADIN))
+    {
+        uint32 l_BonusValue = uint32(GetStat(STAT_STRENGTH) * 0.27f);
+        amount += l_BonusValue;
+    }
+
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
 
     if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
@@ -11665,6 +11676,25 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             data << uint32(0x1958) << uint32(0x1);
             data << uint32(0x1959) << uint32(0x4);
             break;
+        // Silvershard Mines
+        case 6126:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_SM)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(0x1924) << uint32(1);            // SM_MINE_CARTS_DISPLAY
+                data << uint32(0x1925) << uint32(0);            // SM_ALLIANCE_RESOURCES
+                data << uint32(0x1926) << uint32(0);            // SM_HORDE_RESOURCES
+                data << uint32(0x1927) << uint32(1);            // SM_MINE_CART_1
+                data << uint32(0x1928) << uint32(1);            // SM_MINE_CART_2
+                data << uint32(0x1929) << uint32(1);            // SM_DISPLAY_ALLIANCE_RESSOURCES
+                data << uint32(0x192a) << uint32(1);            // SM_MINE_CART_3
+                data << uint32(0x192b) << uint32(1);            // SM_DISPLAY_HORDE_RESSOURCES
+                data << uint32(0x1adb) << uint32(0);            // SM_DISPLAY_PROGRESS_BAR
+                data << uint32(0x1adc) << uint32(0);            // SM_PROGRESS_BAR_STATUS
+                data << uint32(0x1add) << uint32(0);            // SM_UNK
+            }
+            break;
         // Tol'Viron Arena
         case 6296:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_TV)
@@ -11687,6 +11717,23 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0xE1A) << uint32(0x0);           // 9 show
             }
             break;
+        // Deepwind Gorge
+        case 6665:
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_DG)
+                bg->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(7938) << uint32(1);          // WORLDSTATE_DG_GOLBIN_MINE
+                data << uint32(7939) << uint32(1);          // WORLDSTATE_DG_CENTER_MINE
+                data << uint32(7935) << uint32(1);          // WORLDSTATE_DG_PANDA_MINE
+                data << uint32(8230) << uint32(0);          // WORLDSTATE_DG_BASE_ALLIANCE
+                data << uint32(8231) << uint32(0);          // WORLDSTATE_DG_BASE_HORDE
+                data << uint32(7880) << uint32(0);          // WORLDSTATE_DG_SCORE_ALLIANCE
+                data << uint32(7881) << uint32(0);          // WORLDSTATE_DG_SCORE_HORDE
+                data << uint32(7904) << uint32(1);          // WORLDSTATE_DG_CART_ALLIANCE
+                data << uint32(7887) << uint32(1);          // WORLDSTATE_DG_CART_HORDE
+            }
+            break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
             data << uint32(0x913) << uint32(0x0);           // 8
@@ -11694,7 +11741,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             data << uint32(0x915) << uint32(0x0);           // 10
             break;
     }
+
     GetSession()->SendPacket(&data);
+
     SendBGWeekendWorldStates();
 }
 

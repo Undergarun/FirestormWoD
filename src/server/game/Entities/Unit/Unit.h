@@ -1322,7 +1322,6 @@ class Unit : public WorldObject
         typedef std::list<AuraApplication *> AuraApplicationList;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
-        typedef std::vector<uint32> AuraIdList;
 
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
@@ -1395,7 +1394,7 @@ class Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
-        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExcludeAura = 0) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
@@ -1508,6 +1507,7 @@ class Unit : public WorldObject
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
         void GetPartyMembers(std::list<Unit*> &units);
+        void GetRaidMembers(std::list<Unit*> &units);
         bool IsContestedGuard() const
         {
             if (FactionTemplateEntry const* entry = getFactionTemplateEntry())
@@ -1695,6 +1695,7 @@ class Unit : public WorldObject
         AuraPtr AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisualKit(uint32 id, uint32 unkParam);
+        void SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos = false, bool p_SpeedAsTime = false);
 
         void DeMorph();
 
@@ -2463,7 +2464,31 @@ class Unit : public WorldObject
         AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
-        AuraIdList _SoulSwapDOTList;
+
+        struct SoulSwapAuraInfo
+        {
+            SoulSwapAuraInfo(uint32 p_ID, uint32 p_Duration, uint32 p_MaxDuration, uint32 p_Charges, uint32 p_Stacks) :
+                m_ID(p_ID), m_Duration(p_Duration), m_MaxDuration(p_MaxDuration), m_Charges(p_Charges), m_Stacks(p_Stacks)
+            {
+                memset(m_FixedDamages, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+                memset(m_FixedTotalDamages, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+                memset(m_FixedCritical, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+                memset(m_FixedAmplitude, 0, sizeof(uint32) * MAX_SPELL_EFFECTS);
+            }
+
+            uint32 m_ID;
+            uint32 m_Duration;
+            uint32 m_MaxDuration;
+            uint32 m_Charges;
+            uint32 m_Stacks;
+
+            uint32 m_FixedDamages[MAX_SPELL_EFFECTS];
+            uint32 m_FixedTotalDamages[MAX_SPELL_EFFECTS];
+            uint32 m_FixedCritical[MAX_SPELL_EFFECTS];
+            uint32 m_FixedAmplitude[MAX_SPELL_EFFECTS];
+        };
+
+        std::vector<SoulSwapAuraInfo> m_SoulSwapDOTList;
 
         typedef std::list<HealDone*> HealDoneList;
         typedef std::list<HealTaken*> HealTakenList;

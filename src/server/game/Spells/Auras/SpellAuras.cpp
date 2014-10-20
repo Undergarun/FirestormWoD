@@ -1290,6 +1290,14 @@ bool Aura::CanBeSaved() const
         case 37025: // Water, Coilfang Raid
         case 36444: // Water, Lake Wintergrasp
         case 28801: // Slime, Naxxramas
+        case 121164:// Kotmogu orb
+        case 121175:// Kotmogu orb
+        case 121176:// Kotmogu orb
+        case 121177:// Kotmogu orb
+        case 121219:// Kotmogu orb
+        case 121221:// Kotmogu orb
+        case 121220:// Kotmogu orb
+        case 121217:// Kotmogu orb
             return false;
         default:
             break;
@@ -1881,6 +1889,26 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                 break;
             }
+            case SPELLFAMILY_WARLOCK:
+            {
+                if (!caster)
+                    break;
+
+                switch (m_spellInfo->Id)
+                {
+                    case 5697:
+                        if (caster->HasAura(74434))
+                        {
+                            caster->CastSpell(caster, 104242, true);
+                            caster->RemoveAura(74434);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                break;
+            }
             default:
                 break;
         }
@@ -2400,7 +2428,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             // area auras should not stack (shaman totem)
-            if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA
+            if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA_2
                 && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_PERSISTENT_AREA_AURA)
                 continue;
 
@@ -2501,6 +2529,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
         {
             if ((m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
                 (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2 || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2 || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
                 m_spellInfo->Effects[i].ApplyAuraName == existingSpellInfo->Effects[i].ApplyAuraName)
             {
                 switch (m_spellInfo->Effects[i].ApplyAuraName)
@@ -3308,7 +3338,8 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
             continue;
         UnitList targetList;
         // non-area aura
-        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA ||
+            GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA_2)
         {
             targetList.push_back(GetUnitOwner());
         }

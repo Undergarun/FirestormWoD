@@ -75,7 +75,8 @@ enum DeathKnightSpells
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920,
     DK_SPELL_DEATH_COIL_DAMAGE                  = 47632,
     DK_SPELL_GLYPH_OF_DEATH_AND_DECAY           = 58629,
-    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375
+    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375,
+    DK_SPELL_MASTERY_DREADBLADE                 = 77515
 };
 
 // Death and Decay - 43265
@@ -657,7 +658,7 @@ class spell_dk_howling_blast : public SpellScriptLoader
                     return;
 
                 if (target->GetGUID() == tar)
-                    SetHitDamage(GetHitDamage()*2);
+                    SetHitDamage(GetHitDamage() * 2);
 
                 caster->CastSpell(target, DK_SPELL_FROST_FEVER, true);
             }
@@ -1207,58 +1208,55 @@ class spell_dk_plague_leech : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_plague_leech_SpellScript);
 
+            std::queue<uint8> m_RunesInCharge;
+
             SpellCastResult CheckRunes()
             {
-                int32 runesUsed = 0;
-
-                if (GetCaster() && GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    for (uint8 i = 0; i < MAX_RUNES; ++i)
-                        if (GetCaster()->ToPlayer()->GetRuneCooldown(i))
-                            runesUsed++;
+                    for (uint8 l_Index = 0; l_Index < MAX_RUNES; ++l_Index)
+                    {
+                        if (l_Player->GetRuneCooldown(l_Index))
+                            m_RunesInCharge.push(l_Index);
+                    }
 
-                    if (runesUsed != 6)
+                    if (m_RunesInCharge.empty())
                         return SPELL_FAILED_DONT_REPORT;
-                    else
-                        return SPELL_CAST_OK;
 
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) && !target->HasAura(DK_SPELL_FROST_FEVER))
+                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) || !target->HasAura(DK_SPELL_FROST_FEVER))
                             return SPELL_FAILED_DONT_REPORT;
-                        else
-                            return SPELL_CAST_OK;
                     }
                 }
                 else
                     return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
             }
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        target->RemoveAura(DK_SPELL_FROST_FEVER);
-                        target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
+                        l_Target->RemoveAura(DK_SPELL_FROST_FEVER);
+                        l_Target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
 
-                        uint32 runeRandom;
-                        bool runeOff = true;
+                        uint8 l_Count = std::min(uint8(2), uint8(m_RunesInCharge.size()));
 
-                        while (runeOff)
+                        while (l_Count)
                         {
-                            runeRandom = urand(0, 5);
+                            uint8 l_RuneID = m_RunesInCharge.front();
 
-                            if (_player->GetRuneCooldown(runeRandom))
-                            {
-                                _player->SetRuneCooldown(runeRandom, 0);
-                                _player->ConvertRune(runeRandom, RUNE_DEATH);
-                                runeOff = false;
-                            }
+                            l_Player->SetRuneCooldown(l_RuneID, 0);
+                            l_Player->ConvertRune(l_RuneID, RUNE_DEATH);
+                            --l_Count;
+                            m_RunesInCharge.pop();
                         }
 
-                        _player->ResyncRunes(MAX_RUNES);
+                        l_Player->ResyncRunes(MAX_RUNES);
                     }
                 }
             }
@@ -1491,7 +1489,7 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
                 Unit* target = GetTarget();
                 // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                 // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-                int32 bp = absorbAmount * 2 / 10;
+                int32 bp = absorbAmount * 2 / 100;
                 target->CastCustomSpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
             }
 
@@ -1733,6 +1731,12 @@ class spell_dk_scourge_strike : public SpellScriptLoader
 
                     if (AuraEffectPtr aurEff = caster->GetAuraEffectOfRankedSpell(DK_SPELL_BLACK_ICE_R1, EFFECT_0))
                         AddPct(bp, aurEff->GetAmount());
+
+                    if (caster->HasAura(DK_SPELL_MASTERY_DREADBLADE))
+                    {
+                        float Mastery = caster->GetFloatValue(PLAYER_MASTERY) * 2.5f;
+                        AddPct(bp, Mastery);
+                    }
 
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
