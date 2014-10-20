@@ -2818,7 +2818,7 @@ public:
             if (Miss && tAnimate <= diff)
             {
                 //me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
-                me->PlayDistanceSound(SOUND_WORGEN_ATTACK);
+                me->PlayDistanceSound(me, SOUND_WORGEN_ATTACK);
                 tAnimate = DELAY_ANIMATE;
             }
             else
