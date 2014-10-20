@@ -399,27 +399,21 @@ void ObjectMgr::LoadCreatureTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0              1                 2                  3                 4                      5                   6
-    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, difficulty_entry_4, difficulty_entry_5, difficulty_entry_6, "
-    //                                                 7                  8                    9                  10                11                     12
-                                             "difficulty_entry_7, difficulty_entry_8, difficulty_entry_9, difficulty_entry_10, difficulty_entry_11, difficulty_entry_12, "
-    //                                                  13                  14              15                       16                    17                   18                    19                  20
-                                             "difficulty_entry_13, difficulty_entry_14, difficulty_entry_15, difficulty_entry_16, difficulty_entry_17, difficulty_entry_18, difficulty_entry_19, difficulty_entry_20, "
-
-                                             "KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
-    //                                           21      22      23       24           25           26        27     28      29        30        31         32         33        34         35
+    //                                                 0           1          2           3          4       5 
+    QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
+    //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19         20
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction_A, faction_H, npcflag, npcflag2, speed_walk, speed_run, "
-    //                                             36      37    38     39     40        41           42            43              44               45            46         47          48
+    //                                             21       22   23     24      25       26          27             28            29              30               31           32        33
                                              "speed_fly, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, "
-    //                                             49         50         51             52             53             54          55           56              57           58
+    //                                             34         35          36           37            38              39          40           41             42              43
                                              "dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, "
-    //                                            59           60        61         62            63          64          65           66           67           68           69
+    //                                            44           45        46          47           48          49           50          51          52             53         54
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                          70      71      72      73      74      75      76      77         78            79       80       81       82         83
+    //                                           55      56      57     58       59     60       61     62       63              64        65         66     68       69
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                             84          85          86         87            88            89          90           91          92          93           94          95
+    //                                             70          71            72        73        74             75           76           77          78          79          80           81
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            96           97            98         99               100                  101         102
+    //                                            82          83           84            85           86                   87          88
                                              " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -444,7 +438,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.Entry = entry;
 
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-            creatureTemplate.DifficultyEntry[i] = fields[index++].GetUInt32();
+            creatureTemplate.DifficultyEntry[i] = 0;
 
         for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
             creatureTemplate.KillCredit[i] = fields[index++].GetUInt32();
@@ -530,11 +524,51 @@ void ObjectMgr::LoadCreatureTemplates()
     }
     while (result->NextRow());
 
-    // Checking needs to be done after loading because of the difficulty self referencing
-    for (CreatureTemplateContainer::const_iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
-        CheckCreatureTemplate(&itr->second);
+    /// /!\ This part moved to LoadCreatureTemplatesDifficulties()
+    //// Checking needs to be done after loading because of the difficulty self referencing
+    //for (CreatureTemplateContainer::const_iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
+    //    CheckCreatureTemplate(&itr->second);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+void ObjectMgr::LoadCreatureTemplatesDifficulties()
+{
+    uint32 l_OldMSTime = getMSTime();
+    
+    //                                                  0           1          2  
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, difficulty_entry FROM creature_template_difficulty");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature template difficulties definitions. DB table `creature_template_difficulty` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        uint8 l_Index = 0;
+        Field * l_Fields = l_Result->Fetch();
+
+        uint32 l_Entry = l_Fields[l_Index++].GetUInt32();
+        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32();
+        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32() - 1;
+
+        if (l_DifficultyIndex > MAX_DIFFICULTY)
+            continue;
+
+        CreatureTemplate& l_CreatureTemplate = _creatureTemplateStore[l_Entry];
+
+        l_CreatureTemplate.DifficultyEntry[l_DifficultyIndex] = l_DifficultyEntry;
+
+        ++l_Count;
+    } while (l_Result->NextRow());
+
+    // Checking needs to be done after loading because of the difficulty self referencing
+    for (CreatureTemplateContainer::const_iterator l_It = _creatureTemplateStore.begin(); l_It != _creatureTemplateStore.end(); ++l_It)
+        CheckCreatureTemplate(&l_It->second);
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature difficulties definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
