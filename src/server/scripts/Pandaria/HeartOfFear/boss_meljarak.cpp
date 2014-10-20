@@ -303,7 +303,7 @@ public:
             windBombScheduled = false;
             inCombat = false;
             me->RemoveAllDynObjects();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TAYAK_MELJARAK);
 
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
@@ -422,8 +422,8 @@ public:
 
             if (!rackList.empty())
                 for (std::list<GameObject*>::iterator itr = rackList.begin(); itr != rackList.end(); ++itr)
-                    if ((*itr)->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
-                        (*itr)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if ((*itr)->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                        (*itr)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
             me->DeleteThreatList();
             me->CombatStop(true);
@@ -785,7 +785,7 @@ public:
         {
             inCombat = false;
             respawn = true;
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
         }
@@ -925,8 +925,8 @@ public:
             events.Reset();
             inCombat = false;
             respawn = true;
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, EQUIP_TRASH_9);
             if (!me->HasAura(SPELL_RED_MANTID_WINGS))
                 DoCast(SPELL_RED_MANTID_WINGS);
         }
@@ -1086,7 +1086,7 @@ public:
             events.Reset();
             inCombat = false;
             respawn = true;
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_ZORLOK);
             if (!me->HasAura(SPELL_BLUE_MANTID_WINGS))
                 DoCast(me, SPELL_BLUE_MANTID_WINGS);
         }
@@ -1636,7 +1636,7 @@ class go_krithik_weapon_rack : public GameObjectScript
             {
                 player->AddAura(SPELL_IMPALING_SPEAR, player);
                 go->SetGoState(GO_STATE_READY);
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 return true;
             }
 

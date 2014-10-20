@@ -178,7 +178,7 @@ class boss_unsok : public CreatureScript
                 checkMutated = false;
                 introDone = false;
 
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_UNSOK);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_UNSOK);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -456,7 +456,7 @@ class boss_unsok : public CreatureScript
                                 {
                                     if (!(*itr)->HasAura(SPELL_RESHAPE_LIFE))
                                         // In phase 1, can only be casted on tank
-                                        if (phase > 1 || (*itr)->GetRoleForGroup() == ROLES_TANK)
+                                        if (phase > 1 || (*itr)->GetRoleForGroup() == ROLE_TANK)
                                             canCast = true;
 
                                     ++itr;

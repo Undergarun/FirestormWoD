@@ -158,7 +158,7 @@ class TankCheck : public std::unary_function<Unit*, bool>
             if (object->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
-            if (object->ToPlayer()->GetRoleForGroup() != ROLES_TANK)
+            if (object->ToPlayer()->GetRoleForGroup() != ROLE_TANK)
                 return true;
 
             return false;

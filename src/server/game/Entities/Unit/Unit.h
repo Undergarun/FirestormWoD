@@ -646,7 +646,7 @@ enum UnitFlags
     UNIT_FLAG_UNK_31                = 0x80000000
 };
 
-// Value masks for UNIT_FIELD_FLAGS_2
+// Value masks for UNIT_FIELD_FLAGS2
 enum UnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,

@@ -1084,7 +1084,7 @@ class mob_dark_winds : public CreatureScript
                     me->CastSpell(me, SPELL_DARK_WINDS_SMALL, true);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1935,7 +1935,7 @@ class mob_mysterious_mushroom : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_SIZE_95_120, true);
                 me->CastSpell(me, SPELL_FUNGAL_EXPLOSION, true);
 

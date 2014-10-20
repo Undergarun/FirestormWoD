@@ -878,13 +878,13 @@ class npc_lorewalker_cho : public CreatureScript
                         {
                             me->SetOrientation(4.68f);
                             me->SetFacingTo(4.68f);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             SetEscortPaused(true);
                         }
                         break;
                     }
                     case 39:
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     // Stop and wait for the event, and the for the spirit kings, to be done before restarting
                     case 42:
@@ -1021,7 +1021,7 @@ class npc_lorewalker_cho : public CreatureScript
                     {
                         if (pInstance->GetBossState(DATA_ELEGON) != DONE)
                         {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             SetEscortPaused(true);
                         }
                         break;
@@ -1031,7 +1031,7 @@ class npc_lorewalker_cho : public CreatureScript
                     {
                         if (pInstance->GetBossState(DATA_ELEGON) != DONE)
                         {
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             SetEscortPaused(true);
                         }
                         break;
@@ -1119,11 +1119,11 @@ class npc_lorewalker_cho : public CreatureScript
                         // Previous boss not done
                         if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
                         {
-                            sLog->OutPandashan("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
-                            sLog->OutPandashan("CheckRequiredBosses fail, player in raid : ");
+                            sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
+                            sLog->outAshran("CheckRequiredBosses fail, player in raid : ");
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                sLog->OutPandashan("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
-                            sLog->OutPandashan("=============================================");
+                                sLog->outAshran("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
+                            sLog->outAshran("=============================================");
                             break;
                         }
                         else
@@ -1136,26 +1136,26 @@ class npc_lorewalker_cho : public CreatureScript
                                 {
                                     button->Use(me);
                                     button->SetGoState(GO_STATE_ACTIVE);
-                                    button->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    button->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                                 }
                                 // Console hasn't right GoState
                                 else
                                 {
-                                    sLog->OutPandashan("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
-                                    sLog->OutPandashan("Invalid button GO_STATE, player in raid : ");
+                                    sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
+                                    sLog->outAshran("Invalid button GO_STATE, player in raid : ");
                                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                        sLog->OutPandashan("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
-                                    sLog->OutPandashan("=============================================");
+                                        sLog->outAshran("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
+                                    sLog->outAshran("=============================================");
                                 }
                             }
                             // Can't find button
                             else
                             {
-                                sLog->OutPandashan("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
-                                sLog->OutPandashan("Can't get button GO, player in raid : ");
+                                sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
+                                sLog->outAshran("Can't get button GO, player in raid : ");
                                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                    sLog->OutPandashan("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
-                                sLog->OutPandashan("=============================================");
+                                    sLog->outAshran("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
+                                sLog->outAshran("=============================================");
                             }
                         }
                         break;
@@ -1599,7 +1599,7 @@ class mob_mounted_mogu : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
                 SetEquipmentSlots(false, 0, 0, 0);
-                me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 11686);
+                me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 11686);
 
                 events.Reset();
             }
@@ -1613,7 +1613,7 @@ class mob_mounted_mogu : public CreatureScript
                         break;
                     case ACTION_SET_NATIVE_DISPLAYID:
                         me->SetDisplayId(42555);
-                        me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 41441);
+                        me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 41441);
                         SetEquipmentSlots(false, EQUIP_MOUNTED_MOGU_WEAPON, 0, EQUIP_NO_CHANGE);
                         break;
                     case ACTION_BEFORE_COMBAT:

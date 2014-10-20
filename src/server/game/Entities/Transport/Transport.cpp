@@ -322,7 +322,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetObjectScale(goinfo->size);
 
     SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, goinfo->faction);
-    //SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags); -- gunship
+    //SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, goinfo->flags); -- gunship
     SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, MAKE_PAIR32(0x28, 0x64));
     SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_period);
     SetEntry(goinfo->entry);

@@ -809,8 +809,8 @@ class boss_shekzeer : public CreatureScript
                                     next = itr;
                                     ++next;
 
-                                    if ((*itr)->GetRoleForGroup() == ROLES_TANK ||
-                                        (*itr)->GetRoleForGroup() == ROLES_DPS  ||
+                                    if ((*itr)->GetRoleForGroup() == ROLE_TANK ||
+                                        (*itr)->GetRoleForGroup() == ROLE_DAMAGE  ||
                                         (*itr)->getClass() == CLASS_HUNTER)
                                         playerList.remove(*itr);
                                 }
@@ -952,8 +952,8 @@ class mob_add_setthik_windblade : public CreatureScript
             {
                 events.Reset();
 
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_6);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, EQUIP_TRASH_6);
 
                 DoZoneInCombat();
 
@@ -1053,7 +1053,7 @@ class mob_korthik_reaver : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_4);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
 
                 events.ScheduleEvent(EVENT_POISON_BOMB, 10000);
                 events.ScheduleEvent(EVENT_TOXIC_SLIME, 14000);
@@ -1534,7 +1534,7 @@ class mob_sha_of_fear : public CreatureScript
                     {
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                        me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
 
                         me->GetMotionMaster()->MovePoint(2, highPos);
                         break;

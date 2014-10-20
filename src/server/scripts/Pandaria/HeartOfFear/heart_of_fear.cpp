@@ -1439,7 +1439,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_7);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_7);
             me->SetReactState(REACT_AGGRESSIVE);
             protectedAmberCallerGuid = 0;
             inCombat = false;
@@ -1569,7 +1569,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_9);
             me->SetReactState(REACT_PASSIVE);
         }
 
@@ -1671,7 +1671,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TAYAK_MELJARAK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TAYAK_MELJARAK);
             point = me->GetPositionY() < 460.0f ? 0 : 1;
             direction = -1;
             if (me->isAlive())
@@ -1986,7 +1986,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_ZORLOK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_ZORLOK);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -2064,8 +2064,8 @@ public:
         {
             events.Reset();
 
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, EQUIP_TRASH_5);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -2142,7 +2142,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
         }
 
         void EnterCombat(Unit* /*who*/)

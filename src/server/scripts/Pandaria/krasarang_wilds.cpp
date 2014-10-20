@@ -868,14 +868,14 @@ class mob_ellia_ravenmane : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1118,14 +1118,14 @@ class mob_fat_long_fat : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1302,14 +1302,14 @@ class mob_huck_wheelbarrow : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1463,14 +1463,14 @@ class mob_dextrous_izissha : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1623,14 +1623,14 @@ class mob_julia_bates : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1779,14 +1779,14 @@ class mob_kuo_na : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1939,14 +1939,14 @@ class mob_mindel_sunspeaker : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2094,14 +2094,14 @@ class mob_minh_do_tan : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2251,14 +2251,14 @@ class mob_thelonius : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2417,14 +2417,14 @@ class mob_tukka_tuk : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2578,14 +2578,14 @@ class mob_yan_quillpaw : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 

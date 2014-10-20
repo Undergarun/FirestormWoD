@@ -370,7 +370,7 @@ class boss_sha_of_fear : public CreatureScript
                 {
                     Position homePos = me->GetHomePosition();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                    me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                     isInSecondPhase = false;
                     submerged       = false;
                     isInTeleport    = false;
@@ -779,7 +779,7 @@ class boss_sha_of_fear : public CreatureScript
                                     Talk(TALK_BREATH_OF_FEAR);
                                 }
                                 me->SetPower(POWER_ENERGY, 0);
-                                me->SetInt32Value(UNIT_FIELD_POWER1, 0);
+                                me->SetInt32Value(UNIT_FIELD_POWER, 0);
                             }
 
                             events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
@@ -901,7 +901,7 @@ class boss_sha_of_fear : public CreatureScript
                             me->SetVisible(true);
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                             me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
                             isInTeleport = false;
 
@@ -1098,7 +1098,7 @@ class mob_return_to_the_terrace : public CreatureScript
                     if (!inDreadExpanse)
                     {
                         events.ScheduleEvent(EVENT_CHECK_GUARDIAN, 1000);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         me->RemoveFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
                         me->RemoveAura(SPELL_PURE_LIGHT_VISUAL);
                     }
@@ -1143,7 +1143,7 @@ class mob_return_to_the_terrace : public CreatureScript
                     case ACTION_ACTIVATE_RETURN:
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, SPELL_FEARLESS);
                         me->CastSpell(me, SPELL_PURE_LIGHT_VISUAL, true);
                         break;
@@ -1871,7 +1871,7 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
                     if (shrineMobs.size() > 0)
                         continue;
 
-                    if (!tankDone && player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) == ROLES_TANK)
+                    if (!tankDone && player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) == ROLE_TANK)
                     {
                         if (player != GetChampionOfLight(caster))
                             continue;
@@ -1882,7 +1882,7 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
                         continue;
                     }
 
-                    if (!healerDone && player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) == ROLES_HEALER)
+                    if (!healerDone && player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) == ROLE_HEALER)
                     {
                         healerDone = true;
                         targetsToAdd--;

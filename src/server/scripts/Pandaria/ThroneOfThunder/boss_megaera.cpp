@@ -1186,7 +1186,7 @@ class mob_cinders : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_CINDERS_AURA, true);
 
                 events.ScheduleEvent(EVENT_CHECK_ICE, 500);
@@ -1245,7 +1245,7 @@ class mob_acid_rain : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_ACID_RAIN_AURA, true);
 
                 events.ScheduleEvent(EVENT_ACID_RAIN_DAMAGE, 3000);
@@ -1292,7 +1292,7 @@ class mob_icy_ground : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_ICY_GROUND_VISUAL, true);
 
                 events.ScheduleEvent(EVENT_CHECK_PLAYERS, 500);

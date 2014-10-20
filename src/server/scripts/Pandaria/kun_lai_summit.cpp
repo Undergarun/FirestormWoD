@@ -1256,14 +1256,14 @@ class mob_lun_chi : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1418,14 +1418,14 @@ class mob_brewmaster_chani : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1576,14 +1576,14 @@ class mob_kang_bramblestaff : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1749,14 +1749,14 @@ class mob_clever_ashyo : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -1939,14 +1939,14 @@ class mob_ken_ken : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2097,14 +2097,14 @@ class mob_the_wrestler : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2259,14 +2259,14 @@ class mob_master_boom_boom : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2416,14 +2416,14 @@ class mob_master_windfur : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2596,14 +2596,14 @@ class mob_tankiss : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2793,14 +2793,14 @@ class mob_healiss : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
@@ -2990,14 +2990,14 @@ class mob_hackiss : public CreatureScript
             {
                 if (action == ACTION_REMOVE_FLAG)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
 
                 else if (action == ACTION_REINITIALIZE)
                 {
                     me->setFaction(35);
                     me->CombatStop();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
