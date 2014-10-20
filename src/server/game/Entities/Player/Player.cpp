@@ -27643,8 +27643,12 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    // Un talent par tranche de 15 levels
-    return getLevel() / 15;
+    uint8 l_talentPoints = getLevel() / 15;
+
+    if ((getLevel() % 15) != 0 && getLevel() == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        l_talentPoints += 1;
+
+    return l_talentPoints;
 }
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone, uint32 spellId) const
