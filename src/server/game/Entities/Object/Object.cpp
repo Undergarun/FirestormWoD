@@ -2345,8 +2345,8 @@ void WorldObject::AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerLi
 void WorldObject::SendPlaySound(uint32 p_SoundKitID, bool p_OnlySelf)
 {
     WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
-    l_Data.appendPackGUID(GetGUID());
     l_Data << p_SoundKitID;
+    l_Data.appendPackGUID(GetGUID());
 
     if (p_OnlySelf && GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->GetSession()->SendPacket(&l_Data);
@@ -3630,10 +3630,9 @@ void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_Sound
 
 void WorldObject::PlayDirectSound(uint32 p_SoundKitID, Player * p_Target /*= NULL*/)
 {
-
     WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
-    l_Data.appendPackGUID(GetGUID());
     l_Data << p_SoundKitID;
+    l_Data.appendPackGUID(GetGUID());
 
     if (p_Target)
         p_Target->SendDirectMessage(&l_Data);

@@ -3007,15 +3007,8 @@ class misc_commandscript : public CommandScript
 
             WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
             ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
-
-            uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-            data.WriteBitInOrder(guid, bits);
-
-            uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-            data.WriteBytesSeq(guid, bytes);
-
             data << uint32(soundId);
-
+            data.appendPackGUID(guid);
             sWorld->SendGlobalMessage(&data);
 
             handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
