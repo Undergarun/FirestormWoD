@@ -1082,9 +1082,10 @@ class WorldSession
         void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
         void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonRequestBlueprintAndSpecializationDataOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);

@@ -593,7 +593,8 @@ enum Opcodes
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
         SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0079,   ///< 6.0.2 19027
-        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x147A,   ///< 6.0.2 19027
+        SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x147A,   ///< 6.0.2 19027
+        SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x051A,   ///< 6.0.2 19027
         SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
         SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x1069,   ///< 6.0.2 19027
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
@@ -610,8 +611,8 @@ enum Opcodes
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0000,   ///< 6.0.2
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0129,   ///< 6.0.2 19027
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x18D7,   ///< 6.0.2 19027
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -635,14 +636,14 @@ enum Opcodes
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
-    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x07C2,   ///< 6.0.2 19027
     CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
-    CMSG_GET_GARRISON_INFO                                  = 0x0000,   ///< 6.0.2
+    CMSG_GET_GARRISON_INFO                                  = 0x1A97,   ///< 6.0.2 19027
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,   ///< 6.0.2
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_REQUEST_BUILDINGS                         = 0x06C1,   ///< 6.0.2 19027
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0DC3,   ///< 6.0.2 19027
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
@@ -655,13 +656,13 @@ enum Opcodes
     CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT                     = 0x0000,
     CMSG_GARRISON_LIST_FOLLOWERS_CHEAT                      = 0x0000,
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
-    CMSG_GARRISON_START_MISSION                             = 0x0000,
+    CMSG_GARRISON_START_MISSION                             = 0x009C,   ///< 6.0.2 19027
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
     CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x01D3,   ///< 6.0.2 19027
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,   ///< 6.0.2
-    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x10D8,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

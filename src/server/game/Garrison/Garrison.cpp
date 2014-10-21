@@ -8,12 +8,12 @@ uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_CO
 {
     /// Horde
     233083,     ///< GARRISON_PLOT_TYPE_SMALL
-    0,          ///< GARRISON_PLOT_TYPE_MEDIUM
+    232425,     ///< GARRISON_PLOT_TYPE_MEDIUM
     233081,     ///< GARRISON_PLOT_TYPE_LARGE
-    0,          ///< GARRISON_PLOT_TYPE_FARM
-    0,          ///< GARRISON_PLOT_TYPE_MINE
-    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT
-    0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
+    232415,     ///< GARRISON_PLOT_TYPE_FARM
+    232447,     ///< GARRISON_PLOT_TYPE_MINE
+    232426,     ///< GARRISON_PLOT_TYPE_FISHING_HUT
+    231706,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
     /// Alliance
     229501,     ///< GARRISON_PLOT_TYPE_SMALL
     232283,     ///< GARRISON_PLOT_TYPE_MEDIUM
@@ -27,13 +27,13 @@ uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_CO
 uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
 {
     /// Horde
-    0,          ///< GARRISON_PLOT_TYPE_SMALL
-    0,          ///< GARRISON_PLOT_TYPE_MEDIUM
+    233958,     ///< GARRISON_PLOT_TYPE_SMALL
+    232373,     ///< GARRISON_PLOT_TYPE_MEDIUM
     232410,     ///< GARRISON_PLOT_TYPE_LARGE
-    0,          ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-    0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+    232373,     ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
+    232373,     ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
+    233958,     ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
+    233958,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
     /// Alliance
     233957,     ///< GARRISON_PLOT_TYPE_SMALL
     232409,     ///< GARRISON_PLOT_TYPE_MEDIUM
@@ -65,7 +65,7 @@ float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GAR
 };
 
 uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT] = {
-    0,          ///< Horde
+    233248,     ///< Horde
     233250      ///< Alliance
 };
 
@@ -78,7 +78,7 @@ GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT
     /// Alliance Level 2                                                    
     {     444,          18,         1819.583f,    231.2813f,    72.17403f,  -1.2915440f  },
     {     444,          19,         1829.896f,    197.5504f,    71.98585f,   1.8849560f  },
-    {     444,          22,         1864.955f,    320.2083f,    81.66048f,  -1.4835300f  },
+    {     444,          22,         1864.955f,    320.2083f,    81.66045f,  -1.4835300f  },
     {     444,          23,         1918.637f,    228.7674f,    76.63956f,   2.7750740f  },
     {     444,          59,         1845.083f,    146.2743f,    53.43811f,   0.3490658f  },
     {     444,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
@@ -801,6 +801,9 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     if (l_BuildingEntry->BuildCostCurrencyID != 0 && !p_Triggered)
         m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, -(int32)l_BuildingEntry->BuildCostCurrencyAmount);
 
+    if (l_BuildingEntry->MoneyCost != 0 && !p_Triggered)
+        m_Owner->ModifyMoney(-(int32)l_BuildingEntry->MoneyCost);
+
     if (!p_Triggered)
     {
         WorldPacket l_PlotRemoved(SMSG_GARRISON_PLOT_REMOVED, 4);
@@ -923,6 +926,9 @@ void Garrison::CancelConstruction(uint32 p_PlotInstanceID)
 
     if (l_BuildingEntry->BuildCostCurrencyID != 0)
         m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, (int32)l_BuildingEntry->BuildCostCurrencyAmount);
+
+    if (l_BuildingEntry->MoneyCost != 0)
+        m_Owner->ModifyMoney(l_BuildingEntry->MoneyCost);
 }
 /// Delete building
 void Garrison::DeleteBuilding(uint32 p_PlotInstanceID)
@@ -940,7 +946,7 @@ void Garrison::DeleteBuilding(uint32 p_PlotInstanceID)
     if (!l_BuildingEntry)
         return;
 
-    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_BUILDINGS);
+    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_BUILDING);
     l_Stmt->setUInt32(0, GetBuilding(p_PlotInstanceID).DB_ID);
     CharacterDatabase.AsyncQuery(l_Stmt);
 
@@ -1093,8 +1099,10 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
             l_Gob->CleanupsBeforeDelete();
             delete l_Gob;
         }
-    }
 
+        m_PlotsGob[p_PlotInstanceID] = 0;
+    }
+    
     uint32 l_GobEntry = 0;
     bool l_SpanwActivateGob = false;
     bool l_IsPlotBuilding = false;
@@ -1137,6 +1145,16 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 
             if (l_IsPlotBuilding)
             {
+                G3D::Vector3 l_NonRotatedPosition;
+
+                {
+                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_PlotInfo.O);
+
+                    /// transform plot coord
+                    l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
+                }
+
                 std::vector<GarrisonPlotBuildingContent> l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
 
                 for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
@@ -1144,11 +1162,13 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     G3D::Vector3 l_Position = G3D::Vector3(l_Contents[l_I].X, l_Contents[l_I].Y, 0);
 
                     G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                    l_Mat       = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
-                    l_Position  = l_Mat * l_Position;
+                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
 
-                    l_Position.x += l_PlotInfo.X;
-                    l_Position.y += l_PlotInfo.Y;
+                    l_Position.x += l_NonRotatedPosition.x;
+                    l_Position.y += l_NonRotatedPosition.y;
+
+                    l_Position = l_Mat * l_Position;
+
                     l_Position.z = l_Contents[l_I].Z + l_PlotInfo.Z;
 
                     if (l_Contents[l_I].CreatureOrGob > 0)
@@ -1158,9 +1178,27 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     }
                     else
                     {
-                        m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
+                        GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
+
+                        m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
                     }
                 }
+            }
+            else if (m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].size() != 0)
+            {
+                for (uint32 l_I = 0; l_I < m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].size(); ++l_I)
+                {
+                    GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsBuildingCosmeticGobs[p_PlotInstanceID][l_I]);
+
+                    if (l_Gob)
+                    {
+                        l_Gob->DestroyForNearbyPlayers();
+                        l_Gob->CleanupsBeforeDelete();
+                        delete l_Gob;
+                    }
+                }
+
+                m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].clear();
             }
 
             if (l_SpanwActivateGob)

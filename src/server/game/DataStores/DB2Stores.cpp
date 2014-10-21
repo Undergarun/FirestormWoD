@@ -64,7 +64,7 @@ DB2Storage <GarrPlotBuildingEntry>          sGarrPlotBuildingStore(GarrPlotBuild
 DB2Storage <GarrFollowerEntry>              sGarrFollowerStore(GarrFollowerEntryfmt);
 DB2Storage <GarrAbilityEntry>               sGarrAbilityStore(GarrAbilityEntryfmt);
 DB2Storage <GarrFollowerXAbilityEntry>      sGarrFollowerXAbilityStore(GarrFollowerXAbilityEntryfmt);
-
+DB2Storage <GarrBuildingPlotInstEntry>      sGarrBuildingPlotInstStore(GarrBuildingPlotInstEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
@@ -189,7 +189,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2");
     LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2");
     LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2");
- 
+    LoadDB2(bad_db2_files, sGarrBuildingPlotInstStore,      db2Path, "GarrBuildingPlotInst.db2");
+    
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet
     //////////////////////////////////////////////////////////////////////////

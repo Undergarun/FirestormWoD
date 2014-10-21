@@ -2220,19 +2220,19 @@
   </WorldMapArea>
   <GarrSiteLevel build="0">
     <index>
-      <primary>field0</primary>
+      <primary>SiteLevelID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
+    <field type="int" name="SiteLevelID" />
+    <field type="int" name="Level" />
+    <field type="int" name="MapID" />
+    <field type="int" name="SiteID" />
+    <field type="int" name="MapTextureUiTextureKitID" />
+    <field type="float" name="field5" />
+    <field type="float" name="field6" />
     <field type="int" name="field7" />
     <field type="int" name="field8" />
-    <field type="int" name="qsdfqsd" />
-    <field type="int" name="sqfds" />
+    <field type="int" name="UpgradeCost" />
+    <field type="int" name="UpgradeMoneyCost" />
   </GarrSiteLevel>
   <FriendshipReputation build="0">
     <index>
@@ -2491,6 +2491,8 @@
     <field type="string" name="field15" />
     <field type="string" name="field16" />
     <field type="int" name="field17" />
+    <field type="int" name="dfg" />
+    <field type="int" name="dfgdfg" />
     <field type="int" name="field18" />
   </GarrFollower>
   <GarrFollowerQuality build="0">
@@ -2583,57 +2585,56 @@
   </GarrMechanic>
   <GarrMission build="0">
     <index>
-      <primary>field0</primary>
+      <primary>MissionRecID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="MissionRecID" />
+    <field type="int" name="RequiredLevel" />
+    <field type="int" name="RequiredItemLevel" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="RequiredFollowersCount" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
+    <field type="int" name="Duration" />
+    <field type="int" name="OfferDuration" />
     <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="string" name="field10" />
-    <field type="string" name="field11" />
+    <field type="string" name="Title" />
+    <field type="string" name="Description" />
+    <field type="string" name="Location" />
     <field type="int" name="field12" />
     <field type="int" name="field13" />
     <field type="int" name="field14" />
-    <field type="int" name="field15" />
+    <field type="int" name="GarrisonCurrencyStartCost" />
     <field type="int" name="field16" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
+    <field type="int" name="RewardFollowerExperience" />
+    <field type="int" name="BaseBronzeChestChance" />
   </GarrMission>
   <GarrBuilding build="0">
     <index>
-      <primary>field0</primary>
+      <primary>BuildingID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="BuildingID" />
+    <field type="int" name="GameObjectsA" />
+    <field type="int" name="GameObjectsB" />
     <field type="int" name="field3" />
     <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
-    <field type="int" name="field11" />
-    <field type="int" name="field12" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
+    <field type="int" name="BuildingLevel" />
+    <field type="string" name="NameA" />
+    <field type="string" name="NameH" />
+    <field type="string" name="Brief" />
+    <field type="string" name="Description" />
+    <field type="int" name="BuildTime" />
+    <field type="int" name="BuildCostCurrencyID" />
+    <field type="int" name="BuildCostCurrencyAmount" />
+    <field type="int" name="TexturePrefixA" />
+    <field type="int" name="TexturePrefixB" />
+    <field type="int" name="IconID" />
     <field type="int" name="field16" />
     <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
+    <field type="int" name="BuiltSceneA" />
+    <field type="int" name="BuiltSceneH" />
     <field type="int" name="field20" />
     <field type="int" name="field21" />
     <field type="int" name="field22" />
-    <field type="int" name="field23" />
+    <field type="int" name="MoneyCost" />
   </GarrBuilding>
   <GarrFollowerLevelXP build="0">
     <index>
@@ -2960,4 +2961,104 @@
     <field type="int" name="WildBattlePetLevelMax" />
     <field type="int" name="WindSettingsID" />
   </AreaTable>
+  <CharShipment build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </CharShipment>
+  <GarrBuildingPlotInst build="0">
+    <index>
+      <primary>BuildingPlotInstaneID</primary>
+    </index>
+    <field type="int" name="BuildingPlotInstaneID" />
+    <field type="int" name="BuildingID" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="float" name="GarrSiteLevelPlotInst" />
+    <field type="float" name="field5" />
+  </GarrBuildingPlotInst>
+  <GarrPlotBuilding build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </GarrPlotBuilding>
+  <GarrPlotInstance build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </GarrPlotInstance>
+  <GarrSiteLevelPlotInst build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="PlotInstanceID" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+  </GarrSiteLevelPlotInst>
+  <GarrPlot build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+  </GarrPlot>
+  <GarrPlotUICategory build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </GarrPlotUICategory>
+  <UiTextureAtlasMember build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+  </UiTextureAtlasMember>
+  <GarrMissionReward build="0">
+    <index>
+      <primary>MissionRewardID</primary>
+    </index>
+    <field type="int" name="MissionRewardID" />
+    <field type="int" name="MissionID" />
+    <field type="int" name="PlayerRewardXP" />
+    <field type="int" name="ItemID" />
+    <field type="int" name="ItemQuantity" />
+    <field type="int" name="RewardCurrencyID" />
+    <field type="int" name="RewardCurrencyAmount" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+  </GarrMissionReward>
 </DBFilesClient>

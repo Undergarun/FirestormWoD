@@ -65,6 +65,7 @@ extern DB2Storage <GarrPlotBuildingEntry>           sGarrPlotBuildingStore;
 extern DB2Storage <GarrFollowerEntry>               sGarrFollowerStore;
 extern DB2Storage <GarrAbilityEntry>                sGarrAbilityStore;
 extern DB2Storage <GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore;
+extern DB2Storage <GarrBuildingPlotInstEntry>       sGarrBuildingPlotInstStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet

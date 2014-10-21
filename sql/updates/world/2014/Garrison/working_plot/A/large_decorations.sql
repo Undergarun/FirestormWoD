@@ -1,0 +1,11 @@
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, -4.683105   ,11.627991, 9.659803, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, 0.780762    , 6.817017, 3.401663, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, -8.725464   ,-1.952911, 3.281643, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, 17.414795   ,-5.708588, 3.575793, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, 1.604736    ,-9.844238, 9.318493, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, 8.429077    ,-10.320862 ,3.057053, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, 2.718262    ,-11.491638 ,3.146123, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, 0.248291    ,-5.229523, 3.393923, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, -13.139648, 2.216217 ,10.332183, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, -7.996704 , 3.193726 ,17.202763, 0);
+INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES (2, 1, -230867, -4.468872  ,11.056000, 3.492393, 0);
