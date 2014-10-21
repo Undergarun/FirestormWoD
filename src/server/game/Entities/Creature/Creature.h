@@ -182,7 +182,6 @@ struct CreatureTemplate
     uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
     bool    RegenHealth;
-    uint32  equipmentId;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
@@ -271,7 +270,8 @@ struct EquipmentInfo
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint16, EquipmentInfo> EquipmentInfoContainer;
+typedef UNORDERED_MAP<uint8, EquipmentInfo> EquipmentInfoContainerInternal;
+typedef UNORDERED_MAP<uint32, EquipmentInfoContainerInternal> EquipmentInfoContainer;
 
 // from `creature` table
 struct CreatureData
@@ -283,7 +283,7 @@ struct CreatureData
     uint16 areaId;
     uint32 phaseMask;
     uint32 displayid;
-    int32 equipmentId;
+    int8 equipmentId;
     float posX;
     float posY;
     float posZ;
@@ -494,13 +494,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureTemplate* cinfo);
-        void LoadEquipment(uint32 equip_entry, bool force=false);
+        void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void Update(uint32 time, uint32 entry);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
-        uint32 GetEquipmentId() const { return GetCreatureTemplate()->equipmentId; }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
@@ -607,8 +606,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
-        uint32 GetCurrentEquipmentId() { return m_equipmentId; }
-        void SetCurrentEquipmentId(uint32 entry) { m_equipmentId = entry; }
+
+        int8 GetOriginalEquipmentId() const { return m_OriginalEquipmentId; }
+        uint8 GetCurrentEquipmentId() { return m_equipmentId; }
+        void SetCurrentEquipmentId(uint8 p_ID) { m_equipmentId = p_ID; }
 
         float GetSpellDamageMod(int32 Rank) const;
 
@@ -817,7 +818,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void Regenerate(Powers power);
         MovementGeneratorType m_defaultMovementType;
         uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
-        uint32 m_equipmentId;
+        uint8 m_equipmentId;
+        int8 m_OriginalEquipmentId; // can be -1
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;

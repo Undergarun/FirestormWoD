@@ -1560,31 +1560,31 @@ void World::SetInitialWorldSettings()
     LoadRandomEnchantmentsTable();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Disables");
-    DisableMgr::LoadDisables();                                 // must be before loading quests and items
+    DisableMgr::LoadDisables();                                                             // must be before loading quests and items
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                          ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                           ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                 ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                  ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                          ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                           ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                   ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                    ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecsOverride();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                            ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                             ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");
-    sObjectMgr->LoadEquipmentTemplates();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");             // Must be after LoadCreatureTemplate
+    sObjectMgr->LoadEquipmentTemplates();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates difficulties...");
     sObjectMgr->LoadCreatureTemplatesDifficulties();
