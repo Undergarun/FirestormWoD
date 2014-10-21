@@ -28651,6 +28651,9 @@ bool Player::LearnTalent(uint32 talentId)
     if (!talentInfo)
         return false;
 
+    if (CalculateTalentsPoints() < (talentInfo->rank + 1) )
+        return false;
+
     if (talentInfo->classId != getClass())
         return false;
 
