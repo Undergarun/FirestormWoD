@@ -396,7 +396,7 @@ namespace BNet2 {
                                 case WOW_PASSWORD_AUTH_MODULE_ID:
                                 case WOW_THUMBPRINT_AUTH_MODULE_ID:
                                     l_ProofRequest.WriteFourCC((*l_It)->GetTypeStr());
-                                    l_ProofRequest.WriteFourCC("\0\0XX");
+                                    l_ProofRequest.WriteFourCC_BattleGroup("XX");
                                     l_ProofRequest.AppendByteArray((*l_It)->GetHashData(), (*l_It)->GetHashDataSize());
                                     l_ProofRequest.WriteBits((*l_It)->GetSize(this), 10);
 
@@ -479,7 +479,7 @@ namespace BNet2 {
                                 case WOW_PASSWORD_AUTH_MODULE_ID:
                                 case WOW_RISKFINGERPRINT_AUTH_MODULE_ID:
                                     l_ProofVerification.WriteFourCC((*l_It)->GetTypeStr());
-                                    l_ProofVerification.WriteFourCC("\0\0XX");
+                                    l_ProofVerification.WriteFourCC_BattleGroup("XX");
                                     l_ProofVerification.AppendByteArray((*l_It)->GetHashData(), (*l_It)->GetHashDataSize());
                                     l_ProofVerification.WriteBits((*l_It)->GetSize(this), 10);
 

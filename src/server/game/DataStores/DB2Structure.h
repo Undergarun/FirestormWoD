@@ -282,18 +282,17 @@ struct SpellCastingRequirementsEntry
 };
 
 // SpellAuraRestrictions.dbc/
-// @author Selenium: 5.4 valid
 struct SpellAuraRestrictionsEntry
 {
     //uint32    Id;                                         // 0       m_ID
-    uint32    CasterAuraStateNot;                           // 1       m_excludeCasterAuraState
-    uint32    TargetAuraStateNot;                           // 2       m_excludeTargetAuraState
-    uint32    casterAuraSpell;                              // 3       m_casterAuraSpell
-    uint32    targetAuraSpell;                              // 4       m_targetAuraSpell
-    uint32    excludeCasterAuraSpell;                       // 5       m_excludeCasterAuraSpell
-    uint32    excludeTargetAuraSpell;                       // 6       m_excludeTargetAuraSpell
-    //uint32    unk_flag_1                                  // 7       Flag
-    //uint32    unk_flag_2                                  // 8       Flag
+    uint32    CasterAuraState;                              // 1       Flag
+    uint32    TargetAuraState;                              // 2       Flag
+    uint32    CasterAuraStateNot;                           // 3       m_excludeCasterAuraState
+    uint32    TargetAuraStateNot;                           // 4       m_excludeTargetAuraState
+    uint32    casterAuraSpell;                              // 5       m_casterAuraSpell
+    uint32    targetAuraSpell;                              // 6       m_targetAuraSpell
+    uint32    excludeCasterAuraSpell;                       // 7      m_excludeCasterAuraSpell
+    uint32    excludeTargetAuraSpell;                       // 8      m_excludeTargetAuraSpell
 };
 
 struct AreaPOIEntry

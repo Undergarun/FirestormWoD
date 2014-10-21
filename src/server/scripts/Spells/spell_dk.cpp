@@ -157,9 +157,18 @@ class spell_dk_plague_strike : public SpellScriptLoader
                 }
             }
 
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetCaster() || !GetHitUnit())
+                    return;
+
+                GetCaster()->CastSpell(GetHitUnit(), DK_SPELL_BLOOD_PLAGUE, true);
+            }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dk_plague_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_plague_strike_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1951,6 +1960,36 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
         }
 };
 
+// Icy touch 45477
+class spell_dk_icy_touch : public SpellScriptLoader
+{
+    public:
+        spell_dk_icy_touch() : SpellScriptLoader("spell_dk_icy_touch") { }
+
+        class spell_dk_icy_touch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_icy_touch_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetCaster() || !GetHitUnit())
+                    return;
+
+                GetCaster()->CastSpell(GetHitUnit(), DK_SPELL_FROST_FEVER, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_icy_touch_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_icy_touch_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_and_decay();
@@ -1996,4 +2035,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_corpse_explosion();
     new spell_dk_glyph_of_corpse_explosion();
     new spell_dk_glyph_of_horn_of_winter();
+    new spell_dk_icy_touch();
 }
