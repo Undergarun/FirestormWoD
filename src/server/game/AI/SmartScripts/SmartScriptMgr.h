@@ -488,8 +488,11 @@ enum SMART_ACTION
     SMART_ACTION_SET_HOME_POS                       = 101,    // none
     SMART_ACTION_SET_HEALTH_REGEN                   = 102,    // 0/1
     SMART_ACTION_SET_ROOT                           = 103,    // off/on
+    SMART_ACTION_SET_GO_FLAG                        = 104,    // Flags
+    SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
+    SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
 
-    SMART_ACTION_END                                = 104
+    SMART_ACTION_END                                = 107
 };
 
 struct SmartAction
@@ -932,6 +935,11 @@ struct SmartAction
 
         //! Note for any new future actions
         //! All parameters must have type uint32
+
+        struct
+        {
+            uint32 flag;
+        } goFlag;
 
         struct
         {

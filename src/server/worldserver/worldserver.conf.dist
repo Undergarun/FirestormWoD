@@ -835,9 +835,9 @@ StartArenaPoints = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     80
+#        Default:     85
 
-RecruitAFriend.MaxLevel = 80
+RecruitAFriend.MaxLevel = 85
 
 #
 #    RecruitAFriend.MaxDifference

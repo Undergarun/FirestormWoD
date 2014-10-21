@@ -1996,32 +1996,75 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
 
         case SMART_ACTION_SET_HOME_POS:
-            {
-                if (!me)
-                    break;
-
-                if (e.GetTargetType() == SMART_TARGET_SELF)
-                    me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                else if (e.GetTargetType() == SMART_TARGET_POSITION)
-                    me->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
-                else
-                    sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
-
+        {
+            if (!me)
                 break;
-            }
+
+            if (e.GetTargetType() == SMART_TARGET_SELF)
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            else if (e.GetTargetType() == SMART_TARGET_POSITION)
+                me->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
+            else
+                sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
+
+            break;
+        }
+
         case SMART_ACTION_SET_HEALTH_REGEN:
-            {
-                if (!me || me->GetTypeId() != TYPEID_UNIT)
-                    break;
-                me->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+        {
+            if (!me || me->GetTypeId() != TYPEID_UNIT)
                 break;
-            }
+            me->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+            break;
+        }
+
         case SMART_ACTION_SET_ROOT:
-            {
-                if (me)
-                    me->SetControlled(e.action.setRoot.root ? true : false, UNIT_STATE_ROOT);
+        {
+            if (me)
+                me->SetControlled(e.action.setRoot.root ? true : false, UNIT_STATE_ROOT);
+            break;
+        }
+
+        case SMART_ACTION_SET_GO_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
                 break;
-            }
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, e.action.goFlag.flag);
+
+            delete targets;
+            break;
+        }
+
+        case SMART_ACTION_ADD_GO_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetFlag(GAMEOBJECT_FIELD_FLAGS, e.action.goFlag.flag);
+
+            delete targets;
+            break;
+        }
+
+        case SMART_ACTION_REMOVE_GO_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, e.action.goFlag.flag);
+            delete targets;
+            break;
+        }
         default:
             sLog->outDebug(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
