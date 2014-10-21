@@ -4190,7 +4190,12 @@ void Player::InitTalentForLevel()
 
 void Player::InitSpellForLevel()
 {
-    auto spellList = sSpellMgr->GetSpellClassList(getClass());
+    std::set<uint32> spellList = sSpellMgr->GetSpellClassList(getClass());
+
+    // Add talent placeholders spells to spelllist
+    for (uint32 l_TalentPlaceHolderSpell : sSpellMgr->GetTalentPlaceHoldersSpell())
+        spellList.insert(l_TalentPlaceHolderSpell);
+
     uint8 level = getLevel();
     uint32 specializationId = GetSpecializationId(GetActiveSpec());
 

@@ -1685,6 +1685,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Classes Info...");
     sSpellMgr->LoadSpellClassInfo();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Talent Place Holder spell...");
+    sSpellMgr->LoadSpellPlaceHolder();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
