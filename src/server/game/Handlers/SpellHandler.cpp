@@ -850,9 +850,15 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         p_RecvPacket.rfinish();
         m_Player->CastSpell(targets.GetUnitTarget(), 116995, true);
         m_Player->EnergizeBySpell(m_Player, 116995, 1, POWER_CHI);
-        int32 powerCost = spellInfo->CalcPowerCost(m_Player, spellInfo->GetSchoolMask(), m_Player->GetSpellPowerEntryBySpell(spellInfo));
-        m_Player->ModifyPower(POWER_MANA, -powerCost);
-        return;
+        int32 powerCost[MAX_POWERS_COST];
+        memset(powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+        powerCost[MAX_POWERS_COST - 1] = 0;
+        for (auto itr : spellInfo->SpellPowers)
+        {
+            spellInfo->CalcPowerCost(m_Player, spellInfo->GetSchoolMask(), powerCost);
+            m_Player->ModifyPower(POWER_MANA, -powerCost[itr->PowerType]);
+            return;
+        }
     }
     // Enveloping Mist - 124682 and Enveloping Mist - 132120
     // Enveloping Mist is instantly casted if player is channeling Soothing Mist
@@ -860,9 +866,15 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     {
         p_RecvPacket.rfinish();
         m_Player->CastSpell(targets.GetUnitTarget(), 132120, true);
-        int32 powerCost = spellInfo->CalcPowerCost(m_Player, spellInfo->GetSchoolMask(), m_Player->GetSpellPowerEntryBySpell(spellInfo));
-        m_Player->ModifyPower(POWER_CHI, -powerCost);
-        return;
+        int32 powerCost[MAX_POWERS_COST];
+        memset(powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+        powerCost[MAX_POWERS_COST - 1] = 0;
+        for (auto itr : spellInfo->SpellPowers)
+        {
+            spellInfo->CalcPowerCost(m_Player, spellInfo->GetSchoolMask(), powerCost);
+            m_Player->ModifyPower(POWER_CHI, -powerCost[itr->PowerType]);
+            return;
+        }
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);

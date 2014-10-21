@@ -294,6 +294,10 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT_TARGET,
 };
 
+#define MAX_POWERS_COST MAX_POWERS + 1
+#define POWER_TO_INDEX(i) (i & 0xF000000 ? MAX_POWERS_COST - 1 : i)
+#define INDEX_TO_POWER(i) (i == MAX_POWERS_COST - 1 ? POWER_HEALTH : i)
+
 class Spell
 {
     friend void Unit::SetCurrentCastedSpell(Spell* pSpell);
@@ -520,7 +524,7 @@ class Spell
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
         bool LOSAdditionalRules(Unit const* target, int8 eff = -1) const;
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, SpellPowerEntry const* powerData, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
         void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
@@ -584,7 +588,7 @@ class Spell
         Unit* GetCaster() const { return m_caster; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
-        int32 GetPowerCost() const { return m_powerCost; }
+        int32 GetPowerCost(Powers power) const { return m_powerCost[POWER_TO_INDEX(power)]; }
 
         void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
 
@@ -616,7 +620,7 @@ class Spell
         //Spell data
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
         WeaponAttackType m_attackType;                      // For weapon based attack
-        int32 m_powerCost;                                  // Calculated spell cost initialized only in Spell::prepare
+        int32 m_powerCost[MAX_POWERS_COST];                 // Calculated spell cost per power initialized only in Spell::prepare
         int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
@@ -787,7 +791,6 @@ class Spell
 
         typedef std::map<uint32, SpellLogHelper> LogHelperMap;
         LogHelperMap m_effectExecuteData;
-        SpellPowerEntry const* m_spellPowerData;
 
         bool m_redirected;
 #ifdef MAP_BASED_RAND_GEN

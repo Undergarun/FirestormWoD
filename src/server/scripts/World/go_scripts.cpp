@@ -967,7 +967,7 @@ class go_soulwell : public GameObjectScript
                 if (player->HasItemCount(_stoneId, 1))
                 {
                     if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(_stoneSpell))
-                        Spell::SendCastResult(player, spell, NULL, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);
+                        Spell::SendCastResult(player, spell, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);
                     return true;
                 }
 

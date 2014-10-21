@@ -3178,14 +3178,10 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-    std::set<uint32> alreadySet;
     for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); i++)
     {
         SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(i);
         if (!spellPower)
-            continue;
-
-        if (alreadySet.find(spellPower->SpellId) != alreadySet.end())
             continue;
 
         for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
@@ -3194,18 +3190,8 @@ void SpellMgr::LoadSpellInfoStore()
             if (!spell)
                 continue;
 
-            spell->ManaCost = spellPower->manaCost;
-            spell->ManaCostPercentage = spellPower->ManaCostPercentage;
-            spell->ManaPerSecond = spellPower->manaPerSecond;
-            spell->PowerType = spellPower->powerType;
-
-            spell->spellPower->manaCost = spellPower->manaCost;
-            spell->spellPower->ManaCostPercentage = spellPower->ManaCostPercentage;
-            spell->spellPower->manaPerSecond = spellPower->manaPerSecond;
-            spell->spellPower->powerType = spellPower->powerType;
+            spell->SpellPowers.push_back(spellPower);
         }
-
-        alreadySet.insert(spellPower->SpellId);
     }
 
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
@@ -6244,10 +6230,9 @@ SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Power
         if (!spellPower)
             continue;
 
-        if (spellPower->powerType == power)
+        if (spellPower->PowerType == power)
             return spellPower;
     }
 
-    SpellInfo const* spell = sSpellMgr->GetSpellInfo(id);
-    return spell->spellPower;
+    return NULL;
 }

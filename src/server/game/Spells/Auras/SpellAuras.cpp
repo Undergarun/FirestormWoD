@@ -421,7 +421,7 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     return effMask & avalibleEffectMask;
 }
 
-AuraPtr Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, SpellPowerEntry const* spellPowerData, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/)
+AuraPtr Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -450,10 +450,10 @@ AuraPtr Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEff
         return foundAura;
     }
     else
-        return Create(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID);
+        return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
 }
 
-AuraPtr Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, SpellPowerEntry const* spellPowerData, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
+AuraPtr Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -462,10 +462,10 @@ AuraPtr Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObj
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
         return NULLAURA;
-    return Create(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID);
+    return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
 }
 
-AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, SpellPowerEntry const* spellPowerData, int32* baseAmount, Item* castItem, uint64 casterGUID)
+AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID)
 {
     ASSERT(effMask);
     ASSERT(spellproto);
@@ -495,13 +495,13 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            aura = AuraPtr(new UnitAura(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID));
+            aura = AuraPtr(new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID));
             aura->GetUnitOwner()->_AddAura(TO_UNITAURA(aura), caster);
             aura->LoadScripts();
             aura->_InitEffects(effMask, caster, baseAmount);
             break;
         case TYPEID_DYNAMICOBJECT:
-            aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, spellPowerData, baseAmount, castItem, casterGUID));
+            aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID));
             aura->GetDynobjOwner()->SetAura(aura);
             aura->_InitEffects(effMask, caster, baseAmount);
 
@@ -520,15 +520,21 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
     return aura;
 }
 
-Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, SpellPowerEntry const* spellPowerData, Item* castItem, uint64 casterGUID) :
+Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID) :
 m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
 {
-    if (spellPowerData->manaPerSecond)
-        m_timeCla = 1 * IN_MILLISECONDS;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->SpellId == m_spellInfo->Id && (itr->CostPerSecond || itr->CostPerSecondPercentage))
+        {
+            m_timeCla = 1 * IN_MILLISECONDS;
+            break;
+        }
+    }
 
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
@@ -869,35 +875,35 @@ void Aura::Update(uint32 diff, Unit* caster)
                 m_timeCla -= diff;
             else if (caster)
             {
-                if (!m_spellPowerData)
+                for (auto itr : m_spellInfo->SpellPowers)
                 {
-                    printf("Probleme dans l'aura %u, m_spellPowerData NULL", this->GetId());
-                    return;
-                }
+                    if (itr->RequiredAuraSpellId && !caster->HasAura(itr->RequiredAuraSpellId))
+                        continue;
 
-                if (int32 manaPerSecond = m_spellPowerData->manaPerSecond)
-                {
-                    m_timeCla += 1000 - diff;
-
-                    Powers powertype = Powers(m_spellPowerData->powerType);
-                    if (powertype == POWER_HEALTH)
+                    Powers powerType = Powers(itr->PowerType);
+                    if (int32 powerPerSecond = itr->CostPerSecond + int32(itr->CostPerSecondPercentage * caster->GetCreatePowers(powerType) / 100))
                     {
-                        if (int32(caster->CountPctFromMaxHealth(manaPerSecond)) < caster->GetHealth())
-                            caster->ModifyHealth(-1 * caster->CountPctFromMaxHealth(manaPerSecond));
-                        else
+                        m_timeCla += 1000 - diff;
+
+                        if (powerType == POWER_HEALTH)
                         {
-                            Remove();
-                            return;
+                            if (int32(caster->GetHealth()) > powerPerSecond)
+                                caster->ModifyHealth(-powerPerSecond);
+                            else
+                            {
+                                Remove();
+                                return;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (int32(caster->CountPctFromMaxPower(manaPerSecond, powertype)) <= caster->GetPower(powertype))
-                            caster->ModifyPower(powertype, -1 * int32(caster->CountPctFromMaxPower(manaPerSecond, powertype)));
                         else
                         {
-                            Remove();
-                            return;
+                            if (int32(caster->GetPower(powerType)) >= powerPerSecond)
+                                caster->ModifyPower(powerType, -powerPerSecond);
+                            else
+                            {
+                                Remove();
+                                return;
+                            }
                         }
                     }
                 }
@@ -970,8 +976,14 @@ void Aura::RefreshDuration(bool withMods)
     else
         SetDuration(GetMaxDuration());
 
-    if (m_spellPowerData->manaPerSecond)
-        m_timeCla = 1 * IN_MILLISECONDS;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->CostPerSecond || itr->CostPerSecondPercentage)
+        {
+            m_timeCla = 1 * IN_MILLISECONDS;
+            break;
+        }
+    }
 }
 
 void Aura::RefreshTimers()
@@ -3227,10 +3239,9 @@ void Aura::CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraAppl
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, SpellPowerEntry const* spellPowerData, int32 *baseAmount, Item* castItem, uint64 casterGUID)
-    : Aura(spellproto, owner, caster, spellPowerData, castItem, casterGUID)
+UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID)
+    : Aura(spellproto, owner, caster, castItem, casterGUID)
 {
-    m_spellPowerData = spellPowerData;
     m_AuraDRGroup = DIMINISHING_NONE;
 }
 
@@ -3347,10 +3358,9 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
     }
 }
 
-DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, SpellPowerEntry const* spellPowerData, int32 *baseAmount, Item* castItem, uint64 casterGUID)
-    : Aura(spellproto, owner, caster, spellPowerData, castItem, casterGUID)
+DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID)
+    : Aura(spellproto, owner, caster, castItem, casterGUID)
 {
-    m_spellPowerData = spellPowerData;
 }
 
 void DynObjAura::Remove(AuraRemoveMode removeMode)

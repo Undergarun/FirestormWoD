@@ -8135,13 +8135,17 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
 
     // Special case: draining x% of mana (up to a maximum of 2*x% of the caster's maximum mana)
     // It's mana percent cost spells, m_amount is percent drain from target
-    if (m_base->GetSpellPowerData()->ManaCostPercentage)
+    for (auto itr : GetSpellInfo()->SpellPowers)
     {
-        // max value
-        int32 maxmana = CalculatePct(caster->GetMaxPower(powerType), drainAmount * 2.0f);
-        ApplyPct(drainAmount, target->GetMaxPower(powerType));
-        if (drainAmount > maxmana)
-            drainAmount = maxmana;
+        if (itr->PowerType == POWER_MANA && itr->CostBasePercentage)
+        {
+            // max value
+            int32 maxmana = CalculatePct(caster->GetMaxPower(powerType), drainAmount * 2.0f);
+            ApplyPct(drainAmount, target->GetMaxPower(powerType));
+            if (drainAmount > maxmana)
+                drainAmount = maxmana;
+            break;
+        }
     }
 
     int32 drainedAmount = -target->ModifyPower(powerType, -drainAmount);

@@ -494,7 +494,6 @@ m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
 m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
 , m_spellValue(new SpellValue(m_spellInfo))
 {
-    m_spellPowerData = m_caster->GetSpellPowerEntryBySpell(m_spellInfo);
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_skipCheck = skipCheck;
     m_selfContainer = NULL;
@@ -574,7 +573,6 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
 
     m_runesState = 0;
-    m_powerCost = 0;                                        // setup to correct value in Spell::prepare, must not be used before.
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
     m_periodicDamageModifier = 0.0f;
@@ -3251,7 +3249,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             bool refresh = false;
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, m_spellPowerData, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh);
+                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -3568,7 +3566,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // Fill cost data (not use power for item casts
-    m_powerCost = m_CastItem ? 0 : m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, m_spellPowerData);
+    memset(m_powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+    m_powerCost[MAX_POWERS_COST - 1] = 0;
+    if (m_CastItem == 0)
+        m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, m_powerCost);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
 
@@ -4468,10 +4469,10 @@ void Spell::SendCastResult(SpellCastResult result)
     if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
         return;
 
-    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_spellPowerData, m_cast_count, result, m_customError);
+    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, SpellPowerEntry const* powerData, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
 {
     if (result == SPELL_CAST_OK)
         return;
@@ -4484,7 +4485,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, SpellPo
     {
         case SPELL_FAILED_NO_POWER:
         {
-            l_Data << uint32(powerData->powerType);                     /// Power type
+            l_Data << uint32(p_SpellInfo->GetMainPower());              /// Power type
             l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
         }
@@ -4660,12 +4661,22 @@ void Spell::SendSpellStart()
     if (/*(IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || */m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 
+    bool health = false;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->PowerType == POWER_HEALTH)
+        {
+            health = true;
+            break;
+        }
+    }
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
-        && m_spellPowerData->powerType != POWER_HEALTH)
+        && !health)
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
-    if (m_spellInfo->RuneCostID && m_spellPowerData->powerType == POWER_RUNES)
+    if (m_spellInfo->RuneCostID && m_spellInfo->GetMainPower() == POWER_RUNES)
         castFlags |= CAST_FLAG_UNKNOWN_19;
 
     if (m_targets.HasTraj())
@@ -4891,7 +4902,7 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
-        && m_spellPowerData->powerType != POWER_HEALTH)
+        && m_spellInfo->GetMainPower() != POWER_HEALTH)
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
     // Hack fix to avoid wow error
@@ -4901,7 +4912,7 @@ void Spell::SendSpellGo()
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
-        && m_spellPowerData->powerType == POWER_RUNES)
+        && m_spellInfo->GetMainPower() == POWER_RUNES)
     {
         castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
@@ -5622,71 +5633,73 @@ void Spell::TakePower()
     else if (m_caster->GetEntry() == 69680 || m_caster->GetEntry() == 69792 || m_caster->GetEntry() == 69791)
         return;
 
-    Powers powerType = Powers(m_spellPowerData->powerType);
-    bool hit = true;
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_spellInfo->SpellPowers.empty())
+        return;
+
+    for (auto itr : m_spellInfo->SpellPowers)
     {
-        if (powerType == POWER_HOLY_POWER || powerType == POWER_ENERGY || powerType == POWER_RUNES)
+        Powers powerType = Powers(itr->PowerType);
+        bool hit = true;
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
+            if (powerType == POWER_HOLY_POWER || powerType == POWER_ENERGY || powerType == POWER_RUNES || powerType == POWER_CHI ||
+                powerType == POWER_SHADOW_ORB || powerType == POWER_BURNING_EMBERS || powerType == POWER_DEMONIC_FURY || powerType == POWER_SOUL_SHARDS)
             {
-                for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
                 {
-                    if (ihit->targetGUID == targetGUID)
+                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                     {
-                        if (ihit->missCondition != SPELL_MISS_NONE)
+                        if (ihit->targetGUID == targetGUID)
                         {
-                            hit = false;
-                            //lower spell cost on fail (by talent aura)
-                            if (Player* modOwner = m_caster->ToPlayer()->GetSpellModOwner())
-                                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
+                            if (ihit->missCondition != SPELL_MISS_NONE)
+                            {
+                                hit = false;
+                                //lower spell cost on fail (by talent aura)
+                                if (Player* modOwner = m_caster->ToPlayer()->GetSpellModOwner())
+                                    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost[POWER_TO_INDEX(powerType)]);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
         }
-    }
 
-    if (powerType == POWER_RUNES)
-    {
-        TakeRunePower(hit);
-        return;
-    }
-
-    // In Spell::HandleHolyPower
-    if (m_spellInfo->PowerType == POWER_HOLY_POWER)
-    {
-        if (m_spellInfo->Id == 85222)
+        if (powerType == POWER_RUNES)
         {
-            m_powerCost = m_caster->GetPower(POWER_HOLY_POWER);
-
-            if (m_powerCost > 3)
-                m_powerCost = 3;
+            TakeRunePower(hit);
+            continue;
         }
+
+        if (!m_powerCost[POWER_TO_INDEX(powerType)])
+            continue;
+
+        // Check requiredAura for power which area restricted to this
+        if (itr->RequiredAuraSpellId && !m_caster->HasAura(itr->RequiredAuraSpellId))
+            continue;
+
+        // health as power used
+        if (powerType == POWER_HEALTH)
+        {
+            m_caster->ModifyHealth(-(int32)m_powerCost[POWER_TO_INDEX(powerType)]);
+            continue;
+        }
+
+        if (powerType >= MAX_POWERS)
+        {
+            sLog->outAshran("Spel::TakePower -> Unknown power type [%u]", powerType);
+            continue;
+        }
+
+        int32 pct = 20;
+        if (powerType == POWER_RUNIC_POWER)
+            pct = 10;
+
+        if (hit)
+            m_caster->ModifyPower(powerType, -m_powerCost[POWER_TO_INDEX(powerType)]);
+        else
+            m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost[POWER_TO_INDEX(powerType)], pct)); // Refund 80% of power on fail 4.x
     }
-
-    if (!m_powerCost)
-        return;
-
-    // health as power used
-    if (powerType == POWER_HEALTH)
-    {
-        m_caster->ModifyHealth(-(int32)m_powerCost);
-        return;
-    }
-
-    if (powerType >= MAX_POWERS)
-        return;
-
-    int32 pct = 20;
-    if (powerType == POWER_RUNIC_POWER)
-        pct = 10;
-
-    if (hit)
-        m_caster->ModifyPower(powerType, -m_powerCost);
-    else
-        m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost, pct)); // Refund 80% of power on fail 4.x
 }
 
 void Spell::TakeAmmo()
@@ -5718,7 +5731,19 @@ void Spell::TakeAmmo()
 
 SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
 {
-    if (m_spellPowerData->powerType != POWER_RUNES || !runeCostID)
+    bool runesOk = false;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->PowerType == POWER_RUNES)
+        {
+            runesOk = false;
+            break;
+        }
+        else if (itr->PowerType != POWER_RUNES)
+            runesOk = true;
+    }
+
+    if (runesOk || !runeCostID)
         return SPELL_CAST_OK;
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -6022,8 +6047,8 @@ void Spell::HandleHolyPower(Player* caster)
 
     bool hit = true;
     Player* modOwner = caster->GetSpellModOwner();
-    m_powerCost = caster->GetPower(POWER_HOLY_POWER); // Always use all the holy power we have
-    if (!m_powerCost || !modOwner)
+    m_powerCost[POWER_TO_INDEX(POWER_HOLY_POWER)] = caster->GetPower(POWER_HOLY_POWER); // Always use all the holy power we have
+    if (!m_powerCost[POWER_TO_INDEX(POWER_HOLY_POWER)] || !modOwner)
         return;
 
     if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
@@ -6041,8 +6066,8 @@ void Spell::HandleHolyPower(Player* caster)
         // The spell did hit the target, apply aura cost mods if there are any.
         if (hit)
         {
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost);
-            m_caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost[POWER_TO_INDEX(POWER_HOLY_POWER)]);
+            m_caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost[POWER_TO_INDEX(POWER_HOLY_POWER)]);
         }
     }
 }
@@ -7367,22 +7392,32 @@ SpellCastResult Spell::CheckPower()
         return SPELL_CAST_OK;
 
     // health as power used - need check health amount
-    if (m_spellPowerData->powerType == POWER_HEALTH)
+    for (auto itr : m_spellInfo->SpellPowers)
     {
-        if (int32(m_caster->GetHealth()) <= m_powerCost)
-            return SPELL_FAILED_CASTER_AURASTATE;
-        return SPELL_CAST_OK;
+        if (itr->PowerType == POWER_HEALTH)
+        {
+            if (int32(m_caster->GetHealth()) <= m_powerCost[POWER_TO_INDEX(POWER_HEALTH)])
+                return SPELL_FAILED_CASTER_AURASTATE;
+            return SPELL_CAST_OK;
+        }
     }
-    // Check valid power type
-    if (m_spellPowerData->powerType >= MAX_POWERS)
-        return SPELL_FAILED_UNKNOWN;
 
-    //check rune cost only if a spell has PowerType == POWER_RUNES
-    if (m_spellPowerData->powerType == POWER_RUNES)
+    // Check valid power type
+    for (auto itr : m_spellInfo->SpellPowers)
     {
-        SpellCastResult failReason = CheckRuneCost(m_spellInfo->RuneCostID);
-        if (failReason != SPELL_CAST_OK)
-            return failReason;
+        if (itr->PowerType >= MAX_POWERS)
+            return SPELL_FAILED_UNKNOWN;
+    }
+
+    // Check rune cost only if a spell has PowerType == POWER_RUNES
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->PowerType == POWER_RUNES)
+        {
+            SpellCastResult failReason = CheckRuneCost(m_spellInfo->RuneCostID);
+            if (failReason != SPELL_CAST_OK)
+                return failReason;
+        }
     }
 
     switch (m_spellInfo->Id)
@@ -7399,11 +7434,17 @@ SpellCastResult Spell::CheckPower()
     }
 
     // Check power amount
-    Powers powerType = Powers(m_spellPowerData->powerType);
-    if (int32(m_caster->GetPower(powerType)) < m_powerCost)
-        return SPELL_FAILED_NO_POWER;
-    else
-        return SPELL_CAST_OK;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->RequiredAuraSpellId && !m_caster->HasAura(itr->RequiredAuraSpellId))
+            continue;
+
+        Powers powerType = Powers(itr->PowerType);
+        if (int32(m_caster->GetPower(powerType)) < m_powerCost[POWER_TO_INDEX(powerType)])
+            return SPELL_FAILED_NO_POWER;
+    }
+
+    return SPELL_CAST_OK;
 }
 
 SpellCastResult Spell::CheckItems()

@@ -403,7 +403,6 @@ public:
     uint32 SpellEquippedItemsId;
     uint32 SpellInterruptsId;
     uint32 SpellLevelsId;
-    uint32 SpellPowerId;
     uint32 SpellReagentsId;
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
@@ -419,7 +418,7 @@ public:
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
-    SpellPowerEntry* spellPower;
+    std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
 
     // SpecializationSpellEntry
@@ -552,7 +551,14 @@ public:
     uint32 CalcCastTime(Unit* caster = NULL, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
 
-    uint32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, SpellPowerEntry const* spellPower) const;
+    void CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, int32* m_powerCost) const;
+    Powers GetMainPower() const
+    {
+        for (auto itr : SpellPowers)
+            return Powers(itr->PowerType);
+
+        return POWER_MANA;
+    }
 
     bool IsRanked() const;
     uint8 GetRank() const;

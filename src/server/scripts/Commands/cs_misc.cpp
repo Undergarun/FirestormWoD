@@ -398,7 +398,7 @@ class misc_commandscript : public CommandScript
             uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target, sSpellPowerStore.LookupEntry(spellInfo->SpellPowerId));
+                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
 
             return true;
         }
@@ -2843,7 +2843,7 @@ class misc_commandscript : public CommandScript
                 }
 
                 if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
-                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player, sSpellPowerStore.LookupEntry(spellInfo->SpellPowerId));
+                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
                 // save player
                 player->SaveToDB();

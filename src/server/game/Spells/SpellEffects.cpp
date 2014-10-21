@@ -2259,18 +2259,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                     if (player->HasSkill(SKILL_ENGINEERING))
                         AddPct(addhealth, 25);
                 break;
-            case 85222: // Light of Dawn
-                addhealth *= GetPowerCost();
-
-                if (!caster)
-                    break;
-
-                if (caster->HasAura(54940))
-                    AddPct(addhealth, 25);
-
-                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-                break;
             case 86961: // Cleansing Waters
             {
                 addhealth = m_caster->CountPctFromMaxHealth(4);
@@ -2811,7 +2799,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        AuraPtr aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, m_spellPowerData, &m_spellValue->EffectBasePoints[0]);
+        AuraPtr aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]);
         if (aura != NULLAURA)
         {
             m_spellAura = aura;
@@ -7821,8 +7809,11 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_TOTEM))
             continue;
 
-        int32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask(), m_spellPowerData);
-        if (m_caster->GetPower(POWER_MANA) < cost)
+        int32 cost[MAX_POWERS_COST];
+        memset(cost, 0, sizeof(uint32)* MAX_POWERS_COST);
+        cost[MAX_POWERS_COST - 1] = 0;
+        spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask(), cost);
+        if (m_caster->GetPower(POWER_MANA) < cost[POWER_MANA])
             continue;
 
         TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
