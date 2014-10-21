@@ -125,6 +125,8 @@ namespace BNet2 {
 
             /// Write 4 character
             void WriteFourCC(const std::string & p_Str);
+            /// Write 4 character
+            void WriteFourCC_BattleGroup(const std::string & p_Str);
             /// Write string
             void WriteString(const std::string & p_Str, int p_Bits, bool p_IsCString = true, int p_AdditionalCount = 0);
 

@@ -145,6 +145,15 @@ namespace BNet2 {
         Write<uint8_t>(p_Str[2]);
         Write<uint8_t>(p_Str[3]);
     }
+
+    /// Write 4 character
+    void Packet::WriteFourCC_BattleGroup(const std::string & p_Str)
+    {
+        Write<uint8_t>(0);
+        Write<uint8_t>(0);
+        Write<uint8_t>(p_Str[0]);
+        Write<uint8_t>(p_Str[1]);
+    }
     /// Write string
     void Packet::WriteString(const std::string & p_Str, int p_Bits, bool p_IsCString, int p_AdditionalCount)
     {
