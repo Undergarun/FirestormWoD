@@ -265,11 +265,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
-                                if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
+                                if ((*itr)->ToCreature()->getFaction() != ci->faction)
                                 {
-                                    (*itr)->ToCreature()->setFaction(ci->faction_A);
+                                    (*itr)->ToCreature()->setFaction(ci->faction);
                                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction_A);
+                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction);
                                 }
                             }
                         }

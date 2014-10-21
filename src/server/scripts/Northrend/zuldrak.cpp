@@ -158,7 +158,7 @@ public:
 
                 me->RemoveAurasDueToSpell(SPELL_KNEEL);
 
-                me->setFaction(me->GetCreatureTemplate()->faction_H);
+                me->setFaction(me->GetCreatureTemplate()->faction);
 
                 DoCast(me, SPELL_UNSHACKLED, true);
                 me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, 0);

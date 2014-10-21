@@ -441,8 +441,7 @@ public:
             cInfo->maxlevel            = fields[l_Index++].GetUInt8();
             cInfo->expansion           = fields[l_Index++].GetUInt16();
             cInfo->expansionUnknown    = fields[l_Index++].GetUInt16();
-            cInfo->faction_A           = fields[l_Index++].GetUInt16();
-            cInfo->faction_H           = fields[l_Index++].GetUInt16();
+            cInfo->faction             = fields[l_Index++].GetUInt16();
             cInfo->npcflag             = fields[l_Index++].GetUInt32();
             cInfo->npcflag2            = fields[l_Index++].GetUInt32();
             cInfo->speed_walk          = fields[l_Index++].GetFloat();
