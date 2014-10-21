@@ -401,19 +401,19 @@ void ObjectMgr::LoadCreatureTemplates()
 
     //                                                 0           1          2           3          4       5 
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
-    //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19         20
-                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction_A, faction_H, npcflag, npcflag2, speed_walk, speed_run, "
-    //                                             21       22   23     24      25       26          27             28            29              30               31           32        33
+    //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19
+                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
+    //                                             20       21   22     23      24       25          26             27            28              29               30         31          32
                                              "speed_fly, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, "
-    //                                             34         35          36           37            38              39          40           41             42              43
+    //                                             33         34          35           36            37              38          39           40             41              42
                                              "dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, "
-    //                                            44           45        46          47           48          49           50          51          52             53         54
+    //                                            43           44        45          46           47          48           49          50          51             52         53
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           55      56      57     58       59     60       61     62       63              64        65         66     68       69
+    //                                           54      55      56     57       58     59       60     61       62              63        64         65     66       67
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                             70          71            72        73        74             75           76           77          78          79          80           81
+    //                                             68          69            70        71        72             73           74           75          76          77          78           79
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            82          83           84            85           86                   87          88
+    //                                            80          81           82            83           84                   85          86
                                              " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -455,8 +455,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.maxlevel          = fields[index++].GetUInt8();
         creatureTemplate.expansion         = uint32(fields[index++].GetInt16());
         creatureTemplate.expansionUnknown  = uint32(fields[index++].GetUInt16());
-        creatureTemplate.faction_A         = uint32(fields[index++].GetUInt16());
-        creatureTemplate.faction_H         = uint32(fields[index++].GetUInt16());
+        creatureTemplate.faction         = uint32(fields[index++].GetUInt16());
         creatureTemplate.npcflag           = fields[index++].GetUInt32();
         creatureTemplate.npcflag2          = fields[index++].GetUInt32();
         creatureTemplate.speed_walk        = fields[index++].GetFloat();
@@ -745,13 +744,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
+    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
     if (!factionTemplate)
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing faction_A template (%u).", cInfo->Entry, cInfo->faction_A);
-
-    factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
-    if (!factionTemplate)
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing faction_H template (%u).", cInfo->Entry, cInfo->faction_H);
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing faction template (%u).", cInfo->Entry, cInfo->faction);
 
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
@@ -1707,7 +1702,7 @@ void ObjectMgr::LoadCreatures()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-            //WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         ++count;
@@ -1974,7 +1969,7 @@ void ObjectMgr::LoadGameobjects()
             uint32 areaId = 0;
 
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
-            //WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
+            WorldDatabase.PExecute("UPDATE gameobject SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
 
         if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
