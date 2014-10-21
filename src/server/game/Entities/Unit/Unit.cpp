@@ -15137,6 +15137,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     if (main_speed_mod)
         AddPct(speed, main_speed_mod);
 
+    if (GetTypeId() == TYPEID_PLAYER)
+        speed += CalculatePct(speed, ToPlayer()->GetRatingBonusValue(CR_SPEED));
+
     switch (mtype)
     {
         case MOVE_RUN:
