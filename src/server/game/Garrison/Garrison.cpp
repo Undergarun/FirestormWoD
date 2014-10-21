@@ -565,7 +565,7 @@ bool Garrison::AddMission(uint32 p_MissionRecID)
 
     l_Mission.MissionID         = p_MissionRecID;
     l_Mission.OfferTime         = time(0);
-    l_Mission.OfferMaxDuration  = l_MissionEntry->OfferDuration;
+    l_Mission.OfferMaxDuration  = l_MissionEntry->OfferTime;
     l_Mission.State             = GARRISON_MISSION_AVAILABLE;
     l_Mission.StartTime         = 0;
 

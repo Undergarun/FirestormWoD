@@ -326,7 +326,7 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
     uint32 l_FollowerCount  = 0;
     uint32 l_MissionID      = 0;
 
-    std::list<uint64> l_Followers;
+    std::vector<uint64> l_Followers;
 
     p_RecvData.readPackGUID(l_NpcGUID);
     p_RecvData >> l_FollowerCount;
