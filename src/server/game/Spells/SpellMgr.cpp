@@ -4075,7 +4075,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 72445: // Mark of the Fallen Champion (Deathbringer Saurfang)
             case 72446: // Mark of the Fallen Champion (Deathbringer Saurfang)
             case 62775: // Tympanic Tantrum (XT-002 encounter)
-            case 102598: // Void Strike, Infinite Warden
+            case 102598:// Void Strike, Infinite Warden
+            case 154448:// Shrapnel Nova (Orebender Gor'Ashan)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             case 64422: // Sonic Screech (Auriaya)
@@ -4173,6 +4174,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 51699: // Honor Among Thieves (triggered)
             case 57934: // Tricks of the Trade
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
+            case 154294:// Power Conduit
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO | SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
             case 57723: // Exhaustion
             case 57724: // Sated

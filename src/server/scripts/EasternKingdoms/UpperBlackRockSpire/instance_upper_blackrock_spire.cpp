@@ -22,7 +22,9 @@
 
 static const DoorData doordata[] = 
 {
-    { 0,         0,              DOOR_TYPE_ROOM,     0 }, // EOF
+    { GOB_OREBENDER_ENTRANCE,   DATA_OREBENDER_GORASHAN,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+    { GOB_OREBENDER_EXIT,       DATA_OREBENDER_GORASHAN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { 0,                        0,                          DOOR_TYPE_ROOM,     0             }  // EOF
 };
 
 class instance_upper_blackrock_spire : public InstanceMapScript
@@ -35,12 +37,14 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             instance_upper_blackrock_spireInstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
             {
                 SetBossNumber(DATA_MAX_ENCOUNTERS);
-                //LoadDoorData(doordata);
+                LoadDoorData(doordata);
 
-                m_OrebenderGorashanGuid = 0;
+                m_OrebenderGorashanGuid     = 0;
+                m_ThunderingCacophonyCasted = 0;
             }
 
             uint64 m_OrebenderGorashanGuid;
+            uint8  m_ThunderingCacophonyCasted;
 
             void OnCreatureCreate(Creature* p_Creature)
             {
@@ -63,15 +67,41 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 if (!InstanceScript::SetBossState(p_ID, p_State))
                     return false;
 
+                switch (p_ID)
+                {
+                    case DATA_OREBENDER_GORASHAN:
+                        if (p_State != DONE)
+                            m_ThunderingCacophonyCasted = 0;
+                        break;
+                    default:
+                        break;
+                }
+
                 return true;
             }
 
             void SetData(uint32 p_Type, uint32 p_Data)
             {
+                switch (p_Type)
+                {
+                    case DATA_MAGNETS_ACHIEVEMENT:
+                        ++m_ThunderingCacophonyCasted;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             uint32 GetData(uint32 p_Type)
             {
+                switch (p_Type)
+                {
+                    case DATA_MAGNETS_ACHIEVEMENT:
+                        return m_ThunderingCacophonyCasted;
+                    default:
+                        break;
+                }
+
                 return 0;
             }
 

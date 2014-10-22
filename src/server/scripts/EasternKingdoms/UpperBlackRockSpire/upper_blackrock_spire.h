@@ -27,7 +27,9 @@ enum eDatas
     DATA_COMMANDER_THARBEK,
     DATA_RAGEWING_THE_UNTAMED,
     DATA_WARLORD_ZAELA,
-    DATA_MAX_ENCOUNTERS
+    DATA_MAX_ENCOUNTERS,
+
+    DATA_MAGNETS_ACHIEVEMENT
 };
 
 enum eCreatures
@@ -40,15 +42,27 @@ enum eCreatures
     NPC_BLACK_IRON_WARCASTER    = 76151,
 
     // Orebender Gor'Ashan
-    NPC_OREBENDER_GORASHAN      = 76413
+    NPC_OREBENDER_GORASHAN      = 76413,
+    NPC_BLACK_IRON_APPRENTICE   = 76773,
+    NPC_RUNE_OF_POWER           = 76417,
+    NPC_LIGHTNING_FIELD         = 76464
 };
 
 enum eGameObjects
 {
+    GOB_OREBENDER_ENTRANCE      = 175705,
+    GOB_OREBENDER_EXIT          = 175153,
+
+    GOB_RUNIC_CONDUIT           = 226704
 };
 
 enum eSharedSpells
 {
+};
+
+enum eAchievements
+{
+    ACHIEV_MAGNETS_HOW_DO_THEY_WORK = 9045
 };
 
 #endif

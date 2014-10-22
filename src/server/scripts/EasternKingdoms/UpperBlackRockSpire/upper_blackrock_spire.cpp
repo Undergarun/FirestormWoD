@@ -228,6 +228,8 @@ class mob_sentry_cannon : public CreatureScript
                 me->ReenableEvadeMode();
 
                 m_Events.Reset();
+
+                me->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void EnterCombat(Unit* p_Attacker)
