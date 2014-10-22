@@ -410,8 +410,8 @@ void GameObject::Update(uint32 diff)
                     /// Force send SMSG_UPDATE_OBJECT with updatefield
                     if (visualStateBefore != visualStateAfter)
                     {
-                        ForceValuesUpdateAtIndex(GAMEOBJECT_LEVEL);
-                        ForceValuesUpdateAtIndex(GAMEOBJECT_BYTES_1);
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_PERCENT_HEALTH);
                     }
                 }
             }

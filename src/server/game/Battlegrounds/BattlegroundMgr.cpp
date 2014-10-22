@@ -42,6 +42,7 @@
 #include "BattlegroundKT.h"
 #include "BattlegroundTV.h"
 #include "BattlegroundTTP.h"
+#include "BattlegroundSSM.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
