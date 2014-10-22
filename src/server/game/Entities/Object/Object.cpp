@@ -338,19 +338,19 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
     target->GetSession()->SendPacket(&data);
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
+void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 l_UpdateFlags) const
 {
     const Player* player = ToPlayer();
     const Unit* unit = ToUnit();
     const GameObject* go = ToGameObject();
     const DynamicObject* dob = ToDynObject();
-    const AreaTrigger *atr = ToAreaTrigger();
+    const AreaTrigger *l_AreaTrigger = ToAreaTrigger();
 
     const WorldObject* wo =
         player ? (const WorldObject*)player : (
         unit ? (const WorldObject*)unit : (
         go ? (const WorldObject*)go : dob ? (const WorldObject*)dob : (
-        atr ? (const WorldObject*)atr : (const WorldObject*)ToCorpse())));
+        l_AreaTrigger ? (const WorldObject*)l_AreaTrigger : (const WorldObject*)ToCorpse())));
 
     bool isTransport = false;
     if (go)
@@ -361,50 +361,49 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     uint32 bitCounter2 = 0;
-    bool hasAreaTriggerData = isType(TYPEMASK_AREATRIGGER);
     bool isSceneObject = false;
 
-    data->WriteBit(hasAreaTriggerData);                         // isAreaTrigger
-    data->WriteBit(isSceneObject);                              // isScenario
-    data->WriteBit(0);                                          // unk bit 676
-    data->WriteBit(flags & UPDATEFLAG_TRANSPORT);               // isTransport
-    data->WriteBit(0);                                          // unk bit 810
-    data->WriteBit(flags & UPDATEFLAG_ANIMKITS);                // HasAnimKits
-    data->WriteBit(flags & UPDATEFLAG_SELF);                    // unk bit 680
-    data->WriteBit(0);                                          // unk bit 1044
-    data->WriteBits(uint32(isTransport ? 1 : 0), 22);
-    data->WriteBit(0);                                          // unk bit
-    data->WriteBit(0);                                          // unk bit
-    data->WriteBit((flags & UPDATEFLAG_LIVING) && unit);        // isAlive
-    data->WriteBit((flags & UPDATEFLAG_STATIONARY_POSITION) && wo);     // hasStationaryPosition
-    data->WriteBit((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo);   // hasGameObjectData
-    data->WriteBit((flags & UPDATEFLAG_ROTATION) && go);                // hasRotation
-    data->WriteBit((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim());  // hasTarget
-    data->WriteBit(0);                                          // unk bit 1064
-    data->WriteBit(0);                                          // unk bit
-    data->WriteBit(0);                                          // unk bit
-    data->WriteBit(0);                                          // isSelf
-    data->WriteBit((flags & UPDATEFLAG_VEHICLE) && unit);       // hasVehicleData
+    p_Data->WriteBit(l_UpdateFlags & UPDATEFLAG_AREATRIGGER);             // isAreaTrigger
+    p_Data->WriteBit(isSceneObject);                              // isScenario
+    p_Data->WriteBit(0);                                          // unk bit 676
+    p_Data->WriteBit(l_UpdateFlags & UPDATEFLAG_TRANSPORT);               // isTransport
+    p_Data->WriteBit(0);                                          // unk bit 810
+    p_Data->WriteBit(l_UpdateFlags & UPDATEFLAG_ANIMKITS);                // HasAnimKits
+    p_Data->WriteBit(l_UpdateFlags & UPDATEFLAG_SELF);                    // unk bit 680
+    p_Data->WriteBit(0);                                          // unk bit 1044
+    p_Data->WriteBits(uint32(isTransport ? 1 : 0), 22);
+    p_Data->WriteBit(0);                                          // unk bit
+    p_Data->WriteBit(0);                                          // unk bit
+    p_Data->WriteBit((l_UpdateFlags & UPDATEFLAG_LIVING) && unit);        // isAlive
+    p_Data->WriteBit((l_UpdateFlags & UPDATEFLAG_STATIONARY_POSITION) && wo);     // hasStationaryPosition
+    p_Data->WriteBit((l_UpdateFlags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo);   // hasGameObjectData
+    p_Data->WriteBit((l_UpdateFlags & UPDATEFLAG_ROTATION) && go);                // hasRotation
+    p_Data->WriteBit((l_UpdateFlags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim());  // hasTarget
+    p_Data->WriteBit(0);                                          // unk bit 1064
+    p_Data->WriteBit(0);                                          // unk bit
+    p_Data->WriteBit(0);                                          // unk bit
+    p_Data->WriteBit(0);                                          // isSelf
+    p_Data->WriteBit((l_UpdateFlags & UPDATEFLAG_VEHICLE) && unit);       // hasVehicleData
 
     if (unit)
     {
         const_cast<Unit*>(unit)->m_movementInfo.Normalize();
     }
 
-    if ((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo)
+    if ((l_UpdateFlags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo)
     {
         ObjectGuid transGuid = wo->m_movementInfo.t_guid;
 
-        data->WriteBit(transGuid[5]);
-        data->WriteBit(transGuid[0]);
-        data->WriteBit(transGuid[6]);
-        data->WriteBit(wo->m_movementInfo.t_time2 != 0);              // HasTransportTime2
-        data->WriteBit(transGuid[7]);
-        data->WriteBit(transGuid[3]);
-        data->WriteBit(transGuid[2]);
-        data->WriteBit(wo->m_movementInfo.t_time3 != 0);             // HasTransportTime3
-        data->WriteBit(transGuid[4]);
-        data->WriteBit(transGuid[1]);
+        p_Data->WriteBit(transGuid[5]);
+        p_Data->WriteBit(transGuid[0]);
+        p_Data->WriteBit(transGuid[6]);
+        p_Data->WriteBit(wo->m_movementInfo.t_time2 != 0);              // HasTransportTime2
+        p_Data->WriteBit(transGuid[7]);
+        p_Data->WriteBit(transGuid[3]);
+        p_Data->WriteBit(transGuid[2]);
+        p_Data->WriteBit(wo->m_movementInfo.t_time3 != 0);             // HasTransportTime3
+        p_Data->WriteBit(transGuid[4]);
+        p_Data->WriteBit(transGuid[1]);
     }
 
     if (isSceneObject)
@@ -414,24 +413,35 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         */
     }
 
-    if (hasAreaTriggerData)
+    if (l_UpdateFlags & UPDATEFLAG_AREATRIGGER)
     {
-        data->WriteBit(atr->GetVisualRadius() != 0.0f);
-        data->WriteBit(false);
-        data->WriteBit(false);
-        data->WriteBit(false);
-        data->WriteBit(false);
-        data->WriteBit(false);
-        data->WriteBit(atr->IsAreaTriggerBox());
-        data->WriteBit(false);
-        data->WriteBit(false);   // unk, always true on retail sniff
-        data->WriteBit(false);
-        data->WriteBit(false);
-        data->WriteBit(false);
-        data->WriteBit(false);
+        p_Data->WriteBit(l_AreaTrigger->GetVisualRadius() != 0.0f);
+        p_Data->WriteBit(l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE); // unkBit560
+        p_Data->WriteBit(l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0);
+        p_Data->WriteBit(false);
+
+        if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0)
+            p_Data->WriteBits(l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval(), 20);
+
+        p_Data->WriteBit(l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX);
+        p_Data->WriteBit(l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE); // followsTerrain ? unkBit527
+
+        if (l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON)
+        {
+            p_Data->WriteBits(l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesTargetCount, 21);
+            p_Data->WriteBits(l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesCount, 21);
+        }
+
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(false);
+        p_Data->WriteBit(false);
     }
 
-    if ((flags & UPDATEFLAG_LIVING) && unit)
+    if ((l_UpdateFlags & UPDATEFLAG_LIVING) && unit)
     {
         ObjectGuid guid = GetGUID();
 
@@ -442,284 +452,340 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
 
         bool isSplineEnabled = unit->movespline->Initialized() && !unit->movespline->Finalized();
-        data->WriteBit(guid[5]);
-        data->WriteBit(isSplineEnabled);
-        data->WriteBit(0);                                          // unk
-        data->WriteBit(guid[1]);
-        data->WriteBit(guid[3]);
-        data->WriteBit(G3D::fuzzyEq(unit->GetOrientation(), 0.0f)); // Has Orientation bit
-        data->WriteBit(0);                                          // unk
+        p_Data->WriteBit(guid[5]);
+        p_Data->WriteBit(isSplineEnabled);
+        p_Data->WriteBit(0);                                          // unk
+        p_Data->WriteBit(guid[1]);
+        p_Data->WriteBit(guid[3]);
+        p_Data->WriteBit(G3D::fuzzyEq(unit->GetOrientation(), 0.0f)); // Has Orientation bit
+        p_Data->WriteBit(0);                                          // unk
 
         if (isSplineEnabled)
-            Movement::PacketBuilder::WriteCreateBits(*unit->movespline, *data);
+            Movement::PacketBuilder::WriteCreateBits(*unit->movespline, *p_Data);
 
-        data->WriteBits(0, 22);
-        data->WriteBit(guid[6]);
-        data->WriteBit(guid[7]);
-        data->WriteBit(unit->m_movementInfo.t_guid != 0LL);         // Has transport data
-        data->WriteBit(!unit->m_movementInfo.HavePitch);
+        p_Data->WriteBits(0, 22);
+        p_Data->WriteBit(guid[6]);
+        p_Data->WriteBit(guid[7]);
+        p_Data->WriteBit(unit->m_movementInfo.t_guid != 0LL);         // Has transport data
+        p_Data->WriteBit(!unit->m_movementInfo.HavePitch);
 
         if (unit->m_movementInfo.t_guid)
         {
             ObjectGuid transGuid = unit->m_movementInfo.t_guid;
 
-            data->WriteBit(unit->m_movementInfo.t_time3);                                                  // Has transport time 3
-            data->WriteBit(transGuid[6]);
-            data->WriteBit(transGuid[2]);
-            data->WriteBit(transGuid[1]);
-            data->WriteBit(transGuid[0]);
-            data->WriteBit(transGuid[5]);
-            data->WriteBit(unit->m_movementInfo.t_time2);                                                  // Has transport time 2
-            data->WriteBit(transGuid[3]);
-            data->WriteBit(transGuid[7]);
-            data->WriteBit(transGuid[4]);
+            p_Data->WriteBit(unit->m_movementInfo.t_time3);                                                  // Has transport time 3
+            p_Data->WriteBit(transGuid[6]);
+            p_Data->WriteBit(transGuid[2]);
+            p_Data->WriteBit(transGuid[1]);
+            p_Data->WriteBit(transGuid[0]);
+            p_Data->WriteBit(transGuid[5]);
+            p_Data->WriteBit(unit->m_movementInfo.t_time2);                                                  // Has transport time 2
+            p_Data->WriteBit(transGuid[3]);
+            p_Data->WriteBit(transGuid[7]);
+            p_Data->WriteBit(transGuid[4]);
         }
 
-        data->WriteBits(0, 19);
-        data->WriteBit(!movementFlagsExtra);
-        data->WriteBit(guid[2]);
-        data->WriteBit(!movementFlags);
-        data->WriteBit(!unit->m_movementInfo.time);
+        p_Data->WriteBits(0, 19);
+        p_Data->WriteBit(!movementFlagsExtra);
+        p_Data->WriteBit(guid[2]);
+        p_Data->WriteBit(!movementFlags);
+        p_Data->WriteBit(!unit->m_movementInfo.time);
 
         if (movementFlags)
-            data->WriteBits(movementFlags, 30);
+            p_Data->WriteBits(movementFlags, 30);
 
-        data->WriteBit(unit->m_movementInfo.hasFallData); // IsInterpolated ?
+        p_Data->WriteBit(unit->m_movementInfo.hasFallData); // IsInterpolated ?
 
         if (movementFlagsExtra)
-            data->WriteBits(movementFlagsExtra, 13);
+            p_Data->WriteBits(movementFlagsExtra, 13);
 
-        data->WriteBit(guid[4]);
+        p_Data->WriteBit(guid[4]);
 
         if (unit->m_movementInfo.hasFallData)
-            data->WriteBit(unit->m_movementInfo.hasFallDirection);
+            p_Data->WriteBit(unit->m_movementInfo.hasFallDirection);
 
-        data->WriteBit(guid[0]);
-        data->WriteBit(0); // Unk
-        data->WriteBit(1); // unk
-        data->WriteBit(!unit->m_movementInfo.HaveSplineElevation);
+        p_Data->WriteBit(guid[0]);
+        p_Data->WriteBit(0); // Unk
+        p_Data->WriteBit(1); // unk
+        p_Data->WriteBit(!unit->m_movementInfo.HaveSplineElevation);
     }
 
-    if ((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim())
+    if ((l_UpdateFlags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim())
     {
         ObjectGuid victimGuid = unit->getVictim()->GetGUID();   // checked in BuildCreateUpdateBlockForPlayer
     
         uint8 bitOrder[8] = {6, 4, 5, 2, 3, 7, 0, 1};
-        data->WriteBitInOrder(victimGuid, bitOrder);
+        p_Data->WriteBitInOrder(victimGuid, bitOrder);
     }
 
-    if (flags & UPDATEFLAG_ANIMKITS)
+    if (l_UpdateFlags & UPDATEFLAG_ANIMKITS)
     {
-        data->WriteBit(1);                                                      // Missing AnimKit1
-        data->WriteBit(1);                                                      // Missing AnimKit2
-        data->WriteBit(1);                                                      // Missing AnimKit3
+        p_Data->WriteBit(1);                                                      // Missing AnimKit1
+        p_Data->WriteBit(1);                                                      // Missing AnimKit2
+        p_Data->WriteBit(1);                                                      // Missing AnimKit3
     }
 
-    data->FlushBits();
+    p_Data->FlushBits();
 
     if (isTransport)
         if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(go->GetEntry()))
             if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
-                (*data) << (uint32)goinfo->transport.pause;
+                (*p_Data) << (uint32)goinfo->transport.pause;
 
-    if (hasAreaTriggerData)
+    if (l_UpdateFlags & UPDATEFLAG_AREATRIGGER)
     {
-        if (atr->IsAreaTriggerBox())
+        AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
+        if (l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX)
         {
-            G3D::Vector3 extents(20.f, 25.f, 5.f);
-            G3D::Vector3 extentsTarget(20.f, 25.f, 5.f);
-
-            *data << float(extentsTarget.x);
-            *data << float(extents.z);
-            *data << float(extentsTarget.y);
-            *data << float(extents.y);
-            *data << float(extentsTarget.z);
-            *data << float(extents.x);
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[0]);
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[2]);
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[1]);
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[1]);
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[2]);
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[0]);
         }
 
-        *data << uint32(GetMSTimeDiffToNow(atr->GetCreatedTime()));
-
-        if (((AreaTrigger*)this)->GetVisualRadius() != 0.0f)
+        if (l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON)
         {
-            *data << float(atr->GetVisualRadius());    // scale X/Y
-            *data << float(atr->GetVisualRadius());    // scale Y/X
+            AreaTriggerTemplateList l_Templates = l_AreaTrigger->GetTemplates();
+
+            if (l_MainTemplate.m_PolygonDatas.m_VerticesCount > 0)
+            {
+                for (AreaTriggerTemplate l_Template : l_Templates)
+                {
+                    *p_Data << float(l_Template.m_PolygonDatas.m_Vertices[0]);
+                    *p_Data << float(l_Template.m_PolygonDatas.m_Vertices[1]);
+                }
+            }
+
+            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_HeightTarget);
+
+            if (l_MainTemplate.m_PolygonDatas.m_VerticesTargetCount > 0)
+            {
+                for (AreaTriggerTemplate l_Template : l_Templates)
+                {
+                    *p_Data << float(l_Template.m_PolygonDatas.m_VerticesTarget[0]);
+                    *p_Data << float(l_Template.m_PolygonDatas.m_VerticesTarget[1]);
+                }
+            }
+
+            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_Height);
+        }
+
+        /*
+        if (unkBit552)
+            packet.ReadInt32("AreaTrigger::unkBit552::UInt32");
+
+        if (unkBit536)
+            packet.ReadInt32("AreaTrigger::unkBit536::UInt32");
+        */
+
+        *p_Data << uint32(l_AreaTrigger->GetCreatedTime());
+
+        if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0)
+        {
+            uint32 l_NumFrames = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+
+            for (uint32 l_FrameID = 0; l_FrameID < l_NumFrames; ++l_FrameID)
+            {
+                Position l_Pos;
+                l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_FrameID / l_NumFrames, &l_Pos);
+
+                *p_Data << float(l_Pos.m_positionX);
+                *p_Data << float(l_Pos.m_positionZ);
+                *p_Data << float(l_Pos.m_positionY);
+            }
+        }
+
+        if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE)
+            *p_Data << uint32(l_AreaTrigger->GetEntry() == 1316 ? 393 : 392); // Hack fix for Chi Burst
+
+        /*
+        if (unkBit544)
+            packet.ReadInt32("AreaTrigger::unkBit544::UInt32");
+        */
+
+        if (l_AreaTrigger->GetVisualRadius() != 0.0f)
+        {
+            *p_Data << float(l_AreaTrigger->GetVisualRadius());    // scale X/Y
+            *p_Data << float(l_AreaTrigger->GetVisualRadius());    // scale Y/X
         }
     }
 
-    if ((flags & UPDATEFLAG_LIVING) && unit)
+    if ((l_UpdateFlags & UPDATEFLAG_LIVING) && unit)
     {
         ObjectGuid guid = GetGUID();
 
         if (unit->movespline->Initialized() && !unit->movespline->Finalized())
-            Movement::PacketBuilder::WriteCreateData(*unit->movespline, *data, (Unit*)unit);
+            Movement::PacketBuilder::WriteCreateData(*unit->movespline, *p_Data, (Unit*)unit);
 
         if (unit->m_movementInfo.t_guid != 0LL)
         {
             ObjectGuid transGuid = unit->m_movementInfo.t_guid;
 
-            *data << float(unit->GetTransOffsetX());
+            *p_Data << float(unit->GetTransOffsetX());
             if (unit->m_movementInfo.t_time2)
             {
-                *data << uint32(unit->m_movementInfo.t_time2);
+                *p_Data << uint32(unit->m_movementInfo.t_time2);
             }
-            *data << uint32(unit->GetTransTime());
-            *data << float(unit->GetTransOffsetZ());
-            data->WriteByteSeq(transGuid[4]);
-            data->WriteByteSeq(transGuid[3]);
-            *data << int8(unit->GetTransSeat());
-            *data << float(unit->GetTransOffsetY());
-            *data << float(unit->GetTransOffsetO());
-            data->WriteByteSeq(transGuid[0]);
-            data->WriteByteSeq(transGuid[7]);
-            data->WriteByteSeq(transGuid[6]);
-            data->WriteByteSeq(transGuid[5]);
-            data->WriteByteSeq(transGuid[1]);
-            data->WriteByteSeq(transGuid[2]);
+            *p_Data << uint32(unit->GetTransTime());
+            *p_Data << float(unit->GetTransOffsetZ());
+            p_Data->WriteByteSeq(transGuid[4]);
+            p_Data->WriteByteSeq(transGuid[3]);
+            *p_Data << int8(unit->GetTransSeat());
+            *p_Data << float(unit->GetTransOffsetY());
+            *p_Data << float(unit->GetTransOffsetO());
+            p_Data->WriteByteSeq(transGuid[0]);
+            p_Data->WriteByteSeq(transGuid[7]);
+            p_Data->WriteByteSeq(transGuid[6]);
+            p_Data->WriteByteSeq(transGuid[5]);
+            p_Data->WriteByteSeq(transGuid[1]);
+            p_Data->WriteByteSeq(transGuid[2]);
             if (unit->m_movementInfo.t_time3)
             {
-                *data << uint32(unit->m_movementInfo.t_time3);
+                *p_Data << uint32(unit->m_movementInfo.t_time3);
             }
         }
 
-        data->WriteByteSeq(guid[2]);
-        data->WriteByteSeq(guid[6]);
-        data->WriteByteSeq(guid[0]);
+        p_Data->WriteByteSeq(guid[2]);
+        p_Data->WriteByteSeq(guid[6]);
+        p_Data->WriteByteSeq(guid[0]);
 
         if (unit->m_movementInfo.hasFallData)
         {
             if (unit->m_movementInfo.hasFallDirection)
             {
-                *data << float(unit->m_movementInfo.j_cosAngle);
-                *data << float(unit->m_movementInfo.j_sinAngle);
-                *data << float(unit->m_movementInfo.j_xyspeed);
+                *p_Data << float(unit->m_movementInfo.j_cosAngle);
+                *p_Data << float(unit->m_movementInfo.j_sinAngle);
+                *p_Data << float(unit->m_movementInfo.j_xyspeed);
             }
 
-            *data << float(unit->m_movementInfo.j_zspeed);
-            *data << uint32(unit->m_movementInfo.fallTime);
+            *p_Data << float(unit->m_movementInfo.j_zspeed);
+            *p_Data << uint32(unit->m_movementInfo.fallTime);
         }
 
-        *data << float(unit->GetPositionY());
+        *p_Data << float(unit->GetPositionY());
 
         if (unit->m_movementInfo.time)
-            *data << uint32(unit->m_movementInfo.time);
+            *p_Data << uint32(unit->m_movementInfo.time);
 
-        *data << unit->GetSpeed(MOVE_PITCH_RATE);
+        *p_Data << unit->GetSpeed(MOVE_PITCH_RATE);
 
-        data->WriteByteSeq(guid[7]);
+        p_Data->WriteByteSeq(guid[7]);
 
         if (!G3D::fuzzyEq(unit->GetOrientation(), 0.0f))
-            *data << float(unit->GetOrientation());
+            *p_Data << float(unit->GetOrientation());
 
-        *data << unit->GetSpeed(MOVE_FLIGHT_BACK);
-        *data << unit->GetSpeed(MOVE_SWIM);
+        *p_Data << unit->GetSpeed(MOVE_FLIGHT_BACK);
+        *p_Data << unit->GetSpeed(MOVE_SWIM);
 
-        data->WriteByteSeq(guid[1]);
+        p_Data->WriteByteSeq(guid[1]);
 
-        *data << float(unit->GetPositionZMinusOffset());
+        *p_Data << float(unit->GetPositionZMinusOffset());
 
         if (unit->m_movementInfo.HavePitch)
-            *data << float(unit->m_movementInfo.pitch);
+            *p_Data << float(unit->m_movementInfo.pitch);
 
-        data->WriteByteSeq(guid[4]);
+        p_Data->WriteByteSeq(guid[4]);
 
-        *data << unit->GetSpeed(MOVE_FLIGHT);
-        *data << unit->GetSpeed(MOVE_RUN);
-        *data << unit->GetSpeed(MOVE_RUN_BACK);
-        *data << unit->GetSpeed(MOVE_TURN_RATE);
-        *data << unit->GetSpeed(MOVE_SWIM_BACK);
+        *p_Data << unit->GetSpeed(MOVE_FLIGHT);
+        *p_Data << unit->GetSpeed(MOVE_RUN);
+        *p_Data << unit->GetSpeed(MOVE_RUN_BACK);
+        *p_Data << unit->GetSpeed(MOVE_TURN_RATE);
+        *p_Data << unit->GetSpeed(MOVE_SWIM_BACK);
 
-        *data << float(unit->GetPositionX());
+        *p_Data << float(unit->GetPositionX());
 
-        data->WriteByteSeq(guid[5]);
-        data->WriteByteSeq(guid[3]);
+        p_Data->WriteByteSeq(guid[5]);
+        p_Data->WriteByteSeq(guid[3]);
 
         if (unit->m_movementInfo.HaveSplineElevation)
-            *data << float(unit->m_movementInfo.splineElevation);
+            *p_Data << float(unit->m_movementInfo.splineElevation);
 
-        *data << unit->GetSpeed(MOVE_WALK);
+        *p_Data << unit->GetSpeed(MOVE_WALK);
     }
 
-    if ((flags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo)
+    if ((l_UpdateFlags & UPDATEFLAG_GO_TRANSPORT_POSITION) && wo)
     {
         ObjectGuid transGuid = wo->m_movementInfo.t_guid;
 
-        *data << uint32(wo->GetTransTime());
-        *data << float(wo->GetTransOffsetY());
+        *p_Data << uint32(wo->GetTransTime());
+        *p_Data << float(wo->GetTransOffsetY());
 
-        data->WriteByteSeq(transGuid[0]);
-        data->WriteByteSeq(transGuid[5]);
+        p_Data->WriteByteSeq(transGuid[0]);
+        p_Data->WriteByteSeq(transGuid[5]);
 
         if (wo->m_movementInfo.t_time3)
-            *data << uint32(wo->m_movementInfo.t_time3);
+            *p_Data << uint32(wo->m_movementInfo.t_time3);
 
-        data->WriteByteSeq(transGuid[7]);
-        data->WriteByteSeq(transGuid[4]);
+        p_Data->WriteByteSeq(transGuid[7]);
+        p_Data->WriteByteSeq(transGuid[4]);
 
-        *data << float(wo->GetTransOffsetO());
-        *data << float(wo->GetTransOffsetX());
+        *p_Data << float(wo->GetTransOffsetO());
+        *p_Data << float(wo->GetTransOffsetX());
 
-        data->WriteByteSeq(transGuid[1]);
-        data->WriteByteSeq(transGuid[3]);
-        data->WriteByteSeq(transGuid[6]);
+        p_Data->WriteByteSeq(transGuid[1]);
+        p_Data->WriteByteSeq(transGuid[3]);
+        p_Data->WriteByteSeq(transGuid[6]);
 
-        *data << int8(wo->GetTransSeat());
+        *p_Data << int8(wo->GetTransSeat());
 
         if (wo->m_movementInfo.t_time2)
-            *data << uint32(wo->m_movementInfo.t_time2);
+            *p_Data << uint32(wo->m_movementInfo.t_time2);
 
-        data->WriteByteSeq(transGuid[2]);
+        p_Data->WriteByteSeq(transGuid[2]);
 
-        *data << float(wo->GetTransOffsetZ());
+        *p_Data << float(wo->GetTransOffsetZ());
     }
 
-    if ((flags & UPDATEFLAG_STATIONARY_POSITION) && wo)
+    if ((l_UpdateFlags & UPDATEFLAG_STATIONARY_POSITION) && wo)
     {
-        *data << float(wo->GetOrientation());
+        *p_Data << float(wo->GetOrientation());
 
         if (unit)
-            *data << float(unit->GetPositionZMinusOffset());
+            *p_Data << float(unit->GetPositionZMinusOffset());
         else
-            *data << float(wo->GetPositionZ());
-        *data << float(wo->GetPositionX());
-        *data << float(wo->GetPositionY());
+            *p_Data << float(wo->GetPositionZ());
+        *p_Data << float(wo->GetPositionX());
+        *p_Data << float(wo->GetPositionY());
     }
 
-    if ((flags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim())
+    if ((l_UpdateFlags & UPDATEFLAG_HAS_TARGET) && unit && unit->getVictim())
     {
         ObjectGuid victimGuid = unit->getVictim()->GetGUID();   // checked in BuildCreateUpdateBlockForPlayer
 
-        data->WriteByteSeq(victimGuid[1]);
-        data->WriteByteSeq(victimGuid[5]);
-        data->WriteByteSeq(victimGuid[4]);
-        data->WriteByteSeq(victimGuid[7]);
-        data->WriteByteSeq(victimGuid[6]);
-        data->WriteByteSeq(victimGuid[2]);
-        data->WriteByteSeq(victimGuid[0]);
-        data->WriteByteSeq(victimGuid[3]);
+        p_Data->WriteByteSeq(victimGuid[1]);
+        p_Data->WriteByteSeq(victimGuid[5]);
+        p_Data->WriteByteSeq(victimGuid[4]);
+        p_Data->WriteByteSeq(victimGuid[7]);
+        p_Data->WriteByteSeq(victimGuid[6]);
+        p_Data->WriteByteSeq(victimGuid[2]);
+        p_Data->WriteByteSeq(victimGuid[0]);
+        p_Data->WriteByteSeq(victimGuid[3]);
     }
 
-    if (flags & UPDATEFLAG_TRANSPORT)
-        *data << uint32(getMSTime());
+    if (l_UpdateFlags & UPDATEFLAG_TRANSPORT)
+        *p_Data << uint32(getMSTime());
 
-    if ((flags & UPDATEFLAG_ROTATION) && go)
-        *data << uint64(go->GetRotation());
+    if ((l_UpdateFlags & UPDATEFLAG_ROTATION) && go)
+        *p_Data << uint64(go->GetRotation());
 
-    if ((flags & UPDATEFLAG_VEHICLE) && unit)
+    if ((l_UpdateFlags & UPDATEFLAG_VEHICLE) && unit)
     {
-        *data << float(unit->GetOrientation());
-        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->m_ID);
+        *p_Data << float(unit->GetOrientation());
+        *p_Data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->m_ID);
     }
 
-    if (flags & UPDATEFLAG_ANIMKITS)
+    if (l_UpdateFlags & UPDATEFLAG_ANIMKITS)
     {
-        *data << uint16(1);                                                      // Missing AnimKit1
-        *data << uint16(1);                                                      // Missing AnimKit2
-        *data << uint16(1);                                                      // Missing AnimKit3
+        *p_Data << uint16(1);                                                      // Missing AnimKit1
+        *p_Data << uint16(1);                                                      // Missing AnimKit2
+        *p_Data << uint16(1);                                                      // Missing AnimKit3
     }
 
-    if ((flags & UPDATEFLAG_LIVING) && unit && unit->movespline->Initialized() && !unit->movespline->Finalized())
+    if ((l_UpdateFlags & UPDATEFLAG_LIVING) && unit && unit->movespline->Initialized() && !unit->movespline->Finalized())
     {
-        Movement::PacketBuilder::WriteCreateGuid(*unit->movespline, *data);
+        Movement::PacketBuilder::WriteCreateGuid(*unit->movespline, *p_Data);
     }
 
     /*
@@ -1309,6 +1375,14 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 
     // ASSERT must fail after function call
     return false;
+}
+
+bool Position::operator==(Position const &a) const
+{
+    return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
+        G3D::fuzzyEq(a.m_positionY, m_positionY) &&
+        G3D::fuzzyEq(a.m_positionZ, m_positionZ) &&
+        G3D::fuzzyEq(a.m_orientation, m_orientation));
 }
 
 bool Position::HasInLine(WorldObject const* target, float width) const

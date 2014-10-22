@@ -1558,6 +1558,8 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_KT;
         case BATTLEGROUND_QUEUE_CTF3:
             return BATTLEGROUND_CTF3;
+        case BATTLEGROUND_QUEUE_DG:
+            return BATTLEGROUND_DG;
         case BATTLEGROUND_QUEUE_SM:
             return BATTLEGROUND_SM;
         case BATTLEGROUND_QUEUE_2v2:

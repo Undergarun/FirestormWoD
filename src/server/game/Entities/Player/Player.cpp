@@ -5069,8 +5069,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             pet.UpdateStats();
             pet.Health = pet.InfoMaxHealth;
 
-            pet.AddToPlayer(this);
-            GetSession()->SendPetBattleJournal();
+            pet.AddToPlayer(this); 
+            ReloadPetBattles();
             break;
         }
     }
@@ -28651,6 +28651,9 @@ bool Player::LearnTalent(uint32 talentId)
     if (!talentInfo)
         return false;
 
+    if (CalculateTalentsPoints() < (talentInfo->rank + 1) )
+        return false;
+
     if (talentInfo->classId != getClass())
         return false;
 
@@ -31021,12 +31024,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
         return;
 
     if (!p_Unvolontary)
-    {
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LAST_BATTLEPET);
-        l_Statement->setUInt64(0, 0);
-        l_Statement->setUInt32(1, GetGUIDLow());
-        CharacterDatabase.Execute(l_Statement);
-    }
+        m_LastSummonedBattlePet = 0;
 
     Creature * l_Pet = GetSummonedBattlePet();
 
@@ -31044,7 +31042,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 /// Summon new pet 
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
-    if (!IsInWorld())
+    if (!IsInWorld() || m_LastSummonedBattlePet == 0)
         return;
 
     std::vector<BattlePet::Ptr>::iterator l_It = std::find_if(m_BattlePets.begin(), m_BattlePets.end(), [p_JournalID](BattlePet::Ptr & p_Ptr)
@@ -31172,6 +31170,12 @@ std::shared_ptr<BattlePet> * Player::GetBattlePetCombatTeam()
 /// Reload pet battles
 void Player::ReloadPetBattles()
 {
+    for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
+    {
+        BattlePet::Ptr l_Pet = (*l_It);
+        l_Pet->Save();
+    }
+
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
     stmt->setUInt32(0, GetSession()->GetAccountId());
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);

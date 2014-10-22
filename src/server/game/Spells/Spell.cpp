@@ -6508,7 +6508,7 @@ void Spell::HandleHolyPower(Player* caster)
         return;
 
     // Word of Glory - Don't remove power twice (idem for Light of Dawn)
-    if (m_spellInfo->Id == 85673 || m_spellInfo->Id == 85222)
+    if (m_spellInfo->Id == 85673 || m_spellInfo->Id == 85222 || m_spellInfo->Id == 136494)
         return;
 
     // Shield of the Righteous - Don't remove power twice

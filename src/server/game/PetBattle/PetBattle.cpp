@@ -1275,7 +1275,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
             l_Player->GetSession()->SendPetBattleFinalRound(this);
             l_Player->SetControlled(false, UNIT_STATE_ROOT);
             l_Player->SummonLastSummonedBattlePet();
-            l_Player->GetSession()->SendPetBattleJournal();
+            l_Player->ReloadPetBattles();
             l_Player->_petBattleId = 0;
         }
         else
@@ -1756,6 +1756,7 @@ void PetBattleSystem::RemoveRequest(uint64 p_RequesterGuid)
     if (l_Request)
     {
         delete l_Request;
+        l_Request = NULL;
 
         m_Requests[p_RequesterGuid] = 0;
         m_Requests.erase(p_RequesterGuid);

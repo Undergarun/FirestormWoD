@@ -1977,12 +1977,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
                                         if (hitTargets >= 4)
                                             continue;
 
-                                        uint32 cooldownDelay = _player->GetSpellCooldownDelay(SPELL_SHA_FLAME_SHOCK);
-                                        if (_player->HasSpellCooldown(SPELL_SHA_FLAME_SHOCK))
-                                            _player->RemoveSpellCooldown(SPELL_SHA_FLAME_SHOCK, true);
-
-                                        _player->CastSpell(itr, SPELL_SHA_FLAME_SHOCK, true);
-                                        _player->AddSpellCooldown(SPELL_SHA_FLAME_SHOCK, 0, cooldownDelay * IN_MILLISECONDS);
+                                        _player->AddAura(SPELL_SHA_FLAME_SHOCK, itr);
                                         hitTargets++;
                                     }
                                 }

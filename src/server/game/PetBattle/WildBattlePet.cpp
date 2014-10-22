@@ -62,7 +62,7 @@ void WildBattlePetZonePools::LoadPoolTemplate(Field* l_Fields)
 
 void WildBattlePetZonePools::Populate()
 {
-    // TMP DISABLE    
+    // TMP DISABLE
     if (realmID != 5)
         return;
 
@@ -355,7 +355,7 @@ void WildBattlePetMgr::Load()
 
 void WildBattlePetMgr::PopulateAll()
 {
-    // TMP DISABLE    
+    // TMP DISABLE
     if (realmID != 5)
         return;
 
@@ -365,7 +365,7 @@ void WildBattlePetMgr::PopulateAll()
 }
 void WildBattlePetMgr::PopulateMap(uint32 p_MapID)
 {
-    // TMP DISABLE    
+    // TMP DISABLE
     if (realmID != 5)
         return;
 

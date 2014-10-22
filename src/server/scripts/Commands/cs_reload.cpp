@@ -158,6 +158,7 @@ public:
             { "waypoint_data",                SEC_ADMINISTRATOR, true,  &HandleReloadWpCommand,                         "", NULL },
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
             { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
+            { "areatrigger_template",         SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerTemplateCommand,        "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -166,6 +167,12 @@ public:
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
+    }
+
+    static bool HandleReloadAreatriggerTemplateCommand(ChatHandler* /*p_Handler*/, const char* /*p_Args*/)
+    {
+        sObjectMgr->LoadAreaTriggerTemplates();
+        return true;
     }
 
     //reload commands

@@ -2163,36 +2163,52 @@ class spell_dru_lifebloom : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_lifebloom_SpellScript);
 
+            uint8 m_Stacks;
+
+            bool Load()
+            {
+                m_Stacks = 0;
+                return true;
+            }
+
+            void HandleBeforeCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    // remove other single target auras
+                    Unit::AuraList& l_SCAuras = l_Caster->GetSingleCastAuras();
+                    for (Unit::AuraList::iterator l_Iter = l_SCAuras.begin(); l_Iter != l_SCAuras.end();)
+                    {
+                        if ((*l_Iter)->GetId() == GetSpellInfo()->Id)
+                        {
+                            m_Stacks = (*l_Iter)->GetStackAmount();
+                            break;
+                        }
+                        else
+                            ++l_Iter;
+                    }
+                }
+            }
+
             void HandleAfterHit()
             {
+                return;
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
                         AuraPtr l_LifeBloom = l_Target->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID());
-                        if (l_LifeBloom == NULLAURA)
+                        if (l_LifeBloom == NULLAURA || m_Stacks == 0)
                             return;
 
-                        l_Caster->GetSingleCastAuras().push_back(l_LifeBloom);
-                        // remove other single target auras
-                        Unit::AuraList& l_SCAuras = l_Caster->GetSingleCastAuras();
-                        for (Unit::AuraList::iterator l_Iter = l_SCAuras.begin(); l_Iter != l_SCAuras.end();)
-                        {
-                            if ((*l_Iter)->GetUnitOwner() && (*l_Iter)->GetUnitOwner() != l_Target)
-                            {
-                                l_LifeBloom->SetStackAmount((*l_Iter)->GetStackAmount());
-                                (*l_Iter)->Remove();
-                                break;
-                            }
-                            else
-                                ++l_Iter;
-                        }
+                        l_LifeBloom->SetStackAmount(m_Stacks);
                     }
                 }
             }
 
             void Register()
             {
+                BeforeCast += SpellCastFn(spell_dru_lifebloom_SpellScript::HandleBeforeCast);
                 AfterHit += SpellHitFn(spell_dru_lifebloom_SpellScript::HandleAfterHit);
             }
         };
@@ -2208,11 +2224,10 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
+                return;
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
                     return;
-
-                l_Caster->GetSingleCastAuras().remove(aurEff->GetBase());
 
                 // Final heal only on duration end
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
@@ -2251,6 +2266,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
+                return;
                 if (Unit* target = GetUnitOwner())
                 {
                     if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
@@ -3949,7 +3965,8 @@ class spell_dru_eclipse : public SpellScriptLoader
                     {
                         int32 bp = GetHitDamage();
 
-                        plr->CastCustomSpell(plr, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
+                        if (Unit* target = plr->GetNextRandomRaidMember(15.0f))
+                            plr->CastCustomSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, &bp, NULL, NULL, true);
                     }
                 }
             }
