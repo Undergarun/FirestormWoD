@@ -3390,31 +3390,64 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 134755:
+            case 134755:// Eye Sore
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 133740:
+            case 133740:// Bright Light
                 spellInfo->Effects[1].MiscValue = 0;
                 spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
                 spellInfo->Effects[3].TriggerSpell = 0;
                 break;
-            case 133734 :
+            case 133734:// Infrared Light
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133795: // Life Drain
+            case 133795:// Life Drain
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133798: // Life Drain
+            case 133798:// Life Drain
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 133796: // Life Drain
+            case 133796:// Life Drain
+            case 138908:// Transfusion
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 138378:// Transfusion
+                spellInfo->ExplicitTargetMask = 0;
+                break;
+            case 136954:// Anima Ring
+                for (uint8 l_Iter = 0; l_Iter <= 11; l_Iter++)
+                    spellInfo->Effects[l_Iter].TriggerSpell = 0;
+                break;
+            case 136955:// Anima Ring (Triggered)
+            case 136956:// Anima Ring (Triggered)
+            case 136957:// Anima Ring (Triggered)
+            case 136958:// Anima Ring (Triggered)
+            case 136959:// Anima Ring (Triggered)
+            case 136960:// Anima Ring (Triggered)
+            case 138671:// Anima Ring (Triggered)
+            case 138672:// Anima Ring (Triggered)
+            case 138673:// Anima Ring (Triggered)
+            case 138674:// Anima Ring (Triggered)
+            case 138675:// Anima Ring (Triggered)
+            case 138676:// Anima Ring (Triggered)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_DEST_LOCATION;
+                break;
+            case 136962:// Anima Ring (debuff)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 138613:// Matter Swap (Teleport)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetB = 0;
                 break;
             case 63106: // Siphon Life (heal)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 33763: // Lifebloom
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
             case 148017:// Icicle
             case 148018:// Icicle
@@ -4657,6 +4690,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 52610: // Savage Roar (basic)
                 spellInfo->Effects[2].BasePoints = 40;
+                break;
+            case 140016:// Drop Feathers
+                spellInfo->Effects[0].MiscValue = 218543;
                 break;
             case 119905:// Cauterize (Command Demon)
             case 119907:// Disarm (Command Demon)

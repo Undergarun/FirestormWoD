@@ -779,6 +779,7 @@ void AddSC_boss_tortos();
 void AddSC_boss_megaera();
 void AddSC_boss_ji_kun();
 void AddSC_boss_primordius();
+void AddSC_boss_dark_animus();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -1628,6 +1629,7 @@ void AddPandarieScripts()
     AddSC_boss_ji_kun();
     AddSC_boss_durumu();
     AddSC_boss_primordius();
+    AddSC_boss_dark_animus();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();

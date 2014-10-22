@@ -977,6 +977,7 @@ class ObjectMgr
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
+        void LoadAreaTriggerTemplates();
 
         void LoadGossipText();
 
@@ -1319,7 +1320,6 @@ class ObjectMgr
             return _skipUpdateCount;
         }
 
-
         UpdateSkipData skipData;
 
         ///Temporaire pour la création des Z, a remettre en private après
@@ -1338,6 +1338,16 @@ class ObjectMgr
         void setLootViewGUID(uint64 lootview, uint64 creature)
         {
             _lootViewGUID[lootview] = creature;
+        }
+
+        ACE_Thread_Mutex m_GuidLock;
+
+        AreaTriggerTemplateList GetAreaTriggerTemplatesForSpell(uint32 p_SpellID)
+        {
+            if (m_AreaTriggerTemplates.find(p_SpellID) != m_AreaTriggerTemplates.end())
+                return m_AreaTriggerTemplates[p_SpellID];
+
+            return AreaTriggerTemplateList();
         }
 
     private:
@@ -1418,6 +1428,8 @@ class ObjectMgr
 
         uint32 _skipUpdateCount;
         std::map<uint64, uint64> _lootViewGUID;
+
+        AreaTriggerTemplateContainer m_AreaTriggerTemplates;
 
         ResearchZoneMap _researchZoneMap;
         ResearchLootVector _researchLoot;

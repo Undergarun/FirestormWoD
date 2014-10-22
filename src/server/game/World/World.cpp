@@ -1883,8 +1883,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
-
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger templates...");
+    sObjectMgr->LoadAreaTriggerTemplates();
 
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
@@ -2238,7 +2238,8 @@ void World::Update(uint32 diff)
             m_transfertsLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
         }
 
-        m_timers[WUPDATE_TRANSFERT].SetInterval(15 * MINUTE * IN_MILLISECONDS);
+
+        m_timers[WUPDATE_TRANSFERT].SetInterval(HOUR * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFERT].Reset();
     }
 

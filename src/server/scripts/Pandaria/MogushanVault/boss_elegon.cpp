@@ -1688,18 +1688,18 @@ class go_celestial_control_console : public GameObjectScript
             {
                 for (auto player: playerList)
                 {
-                        if (InstanceScript* pInstance = player->GetInstanceScript())
-                        {
-                            if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
-                                infiniteEnergy->AI()->DoAction(ACTION_INFINITE_GO_DOWN);
+                    if (InstanceScript* pInstance = player->GetInstanceScript())
+                    {
+                        if (Creature* infiniteEnergy = pInstance->instance->GetCreature(pInstance->GetData64(NPC_INFINITE_ENERGY)))
+                            infiniteEnergy->AI()->DoAction(ACTION_INFINITE_GO_DOWN);
 
-                            if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
-                                titanDisk->SetGoState(GO_STATE_READY);
+                        if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
+                            titanDisk->SetGoState(GO_STATE_READY);
 
-                            // go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        // go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-                            return;
-                        }
+                        return;
+                    }
                 }
             }
         }

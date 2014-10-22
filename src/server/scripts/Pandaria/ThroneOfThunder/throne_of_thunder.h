@@ -96,6 +96,9 @@ enum eCreatures
     NPC_GASTROPOD                   = 68220,
     NPC_WEB                         = 68249,
     NPC_CORPSE_SPIDER               = 68248,
+    NPC_QUIVERING_BLOB              = 69383,
+    NPC_MALIGNANT_OOZE              = 69382,
+    NPC_RITUAL_GUARD                = 70179,
 
     // Jin'Rokh the Breaker
     NPC_JIN_ROKH_THE_BREAKER        = 69465,
@@ -110,21 +113,25 @@ enum eCreatures
     NPC_HORRIDON                    = 68476,
     NPC_WAR_GOD_JALAK               = 69374,
     NPC_DIREHORN_SPIRIT             = 70688,
+
     // Farraki tribe
     NPC_SUL_LITHUZ_STONEGAZER       = 69172,
     NPC_FARRAKI_SKIRMICHER          = 69173,
     NPC_FARRAKI_WASTEWALKER         = 69175,
     NPC_ZANDALARI_DINOMANCER        = 69221,
     NPC_SAND_TRAP                   = 69346,
+
     // Gurubashi tribe
     NPC_GURUBASHI_BLOODLORD         = 69167,
     NPC_GURUBASHI_VENOM_PRIEST      = 69164,
     NPC_VENOMOUS_EFFUSION           = 69314,
+
     // Drakkari tribe
     NPC_RISEN_DRAKKARI_WARRIOR      = 69184,
     NPC_RISEN_DRAKKARI_CHAMPION     = 69185,
     NPC_DRAKKARI_FROZEN_WARLORD     = 69178,
     NPC_FROZEN_ORB                  = 69268,
+
     // Amani tribe
     NPC_AMANI_SHI_FLAME_CASTER      = 69168,
     NPC_AMANI_SHI_PROTECTOR         = 69169,
@@ -168,18 +175,24 @@ enum eCreatures
     NPC_ICY_GROUND                  = 70446,
     NPC_NETHER_WYRM                 = 70507,
 
+    // Ji-Kun
     NPC_JI_KUN                      = 69712,
-    NPC_FEED_POOL                   = 70216,
+    NPC_FEED_POOL                   = 68188,
     NPC_FEED                        = 68178,
-    NPC_KI_KUN_FLEDGLING_S_EGG      = 68202,
+    NPC_JI_KUN_FLEDGLING_S_EGG      = 68202,
     NPC_HATCHLING                   = 68192,
     NPC_FLEDGLING                   = 68193, // Hatchling evolution or spawned by Fledgling egg
     NPC_YOUNG_EGG_OF_JI_KUN         = 68194, // Is spawned above hatchlings
+    NPC_INCUBATER                   = 69626, // Middle of nest
     NPC_MATURE_EGG_OF_JI_KUN        = 69628, // Spawned by Fledgling
     NPC_JUVENILE                    = 69836, // Spawned by Mature Egg
+    NPC_FLEGLING_JUVENILE           = 70095, // Juvenile spawned by Fledgling's egg
     NPC_JI_KUN_FLEDGING_S_EGG       = 68202,
     NPC_FALL_CATCHER                = 69839, // Catch falling players and resend them on Ji-kun platform
+    NPC_EXIT_CHAMBER                = 70734, // Spawns
+    NPC_NEST_GUARDIAN               = 701734, // Heroic mode
 
+    // Durumu the Forgotten
     NPC_DURUMU_THE_FORGOTTEN        = 68036,
     NPC_APPARAISING_EYE             = 67858,
     NPC_HUNGRY_EYE                  = 67859,
@@ -193,11 +206,19 @@ enum eCreatures
     NPC_CRIMSON_FOG                 = 69050,
     NPC_EYEBEAM_TARGET              = 67882,
 
+    // Primordius
     NPC_PRIMORDIUS                  = 69017,
     NPC_LIVING_FLUID                = 69069,
     NPC_VISCOUS_HORROR              = 69070,
 
+    // Dark Animus
     NPC_DARK_ANIMUS                 = 69427,
+    NPC_DARK_RITUALIST              = 69702,
+    NPC_ANIMA_GOLEM                 = 69701,
+    NPC_LARGE_ANIMA_GOLEM           = 69700,
+    NPC_MASSIVE_ANIMA_GOLEM         = 69699,
+    NPC_CRIMSON_WAKE                = 69951,
+    NPC_ANIMA_ORB                   = 69756,
 
     NPC_IRON_QON                    = 68078,
 
@@ -254,7 +275,10 @@ enum eGameObjects
     GOB_MEGAERA_CHEST_10_NORMAL     = 218805,
     GOB_MEGAERA_CHEST_25_NORMAL     = 218806,
     GOB_MEGAERA_CHEST_10_HEROIC     = 218807,
-    GOB_MEGAERA_CHEST_25_HEROIC     = 218808
+    GOB_MEGAERA_CHEST_25_HEROIC     = 218808,
+
+    GOB_FEATHER_OF_JI_KUN           = 218543,
+    GOB_JI_KUN_EXIT_DOOR            = 218888,
 };
 
 enum eAchievementData

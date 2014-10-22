@@ -701,7 +701,7 @@ enum Opcodes
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x81A,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_TRIGGER_DENIED                          = 0x0A2,  // 5.4.0 17399 (JamList) (NYI) or SMSG_AREA_TRIGGER_MESSAGE ?
     SMSG_AREA_TRIGGER_MESSAGE                         = 0x000,  // 5.0.5 16048
-    SMSG_AREA_TRIGGER_MOVEMENT_UPDATE                 = 0x01D,  // 5.4.0 17399 (JamList)
+    SMSG_AREA_TRIGGER_MOVEMENT_UPDATE                 = 0x01D,  // 5.4.0 17399
     SMSG_AREA_TRIGGER_NO_CORPSE                       = 0x43D,  // 5.4.0 17399 (JamList) (NYI)
     SMSG_AREA_TRIGGER_RESET                           = 0x8B7,  // 5.4.0 17399 (JamList)
     SMSG_ARENA_ERROR                                  = 0x91C,  // 5.4.0 17399 (JamList)
@@ -768,7 +768,7 @@ enum Opcodes
     SMSG_BATTLEPET_DELETE                             = 0x8AC,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_ERROR                              = 0x491,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_HEALED                             = 0x108,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
-    SMSG_BATTLEPET_JOURNAL                            = 0x5B5,  // 5.4.0 17399
+    //SMSG_BATTLEPET_JOURNAL                            = 0x5B5,  // 5.4.0 17399
     SMSG_BATTLEPET_JOURNAL_LOCK_ACQUIRED              = 0x1B1,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_JOURNAL_LOCK_DENIED                = 0x107,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)
     SMSG_BATTLEPET_LICENSE_CHANGED                    = 0x103,  // 5.4.0 17399 (JamList) BATTLEPET System (NYI)

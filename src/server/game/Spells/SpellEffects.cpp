@@ -2077,6 +2077,10 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
         int32 gain = int32(newDamage* gainMultiplier);
 
+        // Hack fix for Dark Animus
+        if (m_caster->GetEntry() == 69427)
+            gain = 1;
+
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, gainMultiplier);
@@ -8027,17 +8031,31 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Position pos;
+    Position l_Source, l_Dest;
     if (!m_targets.HasDst())
-        GetCaster()->GetPosition(&pos);
+        m_caster->GetPosition(&l_Source);
     else
-        destTarget->GetPosition(&pos);
+        destTarget->GetPosition(&l_Source);
+    l_Dest = l_Source;
 
     // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
-    uint32 triggerEntry = GetSpellInfo()->Effects[effIndex].MiscValue;
+    uint32 l_MiscValue = GetSpellInfo()->Effects[effIndex].MiscValue;
+
+    switch (l_MiscValue)
+    {
+        case 719:  // Anima Ring
+            m_caster->GetPosition(&l_Dest);
+            break;
+        case 1315: // Chi Burst
+        case 1316: // Chi Burst
+            m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
+            break;
+        default:
+            break;
+    }
 
     AreaTrigger* areaTrigger = new AreaTrigger;
-    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), triggerEntry, m_caster, GetSpellInfo(), pos))
+    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), m_originalCaster && m_caster != m_originalCaster ? m_originalCaster : m_caster, GetSpellInfo(), effIndex, l_Source, l_Dest))
         delete areaTrigger;
 
     // Custom MoP Script

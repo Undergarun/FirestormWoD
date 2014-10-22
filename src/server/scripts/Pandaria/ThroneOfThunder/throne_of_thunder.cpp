@@ -190,7 +190,14 @@ enum eSpells
     // Web and Corpse Spider
     SPELL_CORPSE_SPIDER_WEB_SPAWN       = 134483,
     SPELL_CORPSE_SPIDER_SPAWN           = 134481,
-    SPELL_WEB_SPRAY                     = 139498
+    SPELL_WEB_SPRAY                     = 139498,
+
+    // Quivering Blob
+    SPELL_OOZE_EXPLOSION                = 136841,
+
+    // Ritual Guard
+    SPELL_SHADOW_NOVA                   = 137998,
+    SPELL_SHOCKWAVE                     = 139215
 };
 
 enum eEvents
@@ -306,7 +313,14 @@ enum eEvents
     EVENT_SLIME_TRAIL,
 
     // Web and Corpse Spider
-    EVENT_WEB_SPRAY
+    EVENT_WEB_SPRAY,
+
+    // Quivering Blob
+    EVENT_OOZE_EXPLOSION,
+
+    // Ritual Guard
+    EVENT_SHADOW_NOVA,
+    EVENT_SHOCKWAVE
 };
 
 enum eActions
@@ -361,7 +375,10 @@ enum eEquipIds
 
     // Zandalari Prelate
     PRELATE_MAIN_HAND   = 94122,
-    PRELATE_OFF_HAND    = 94193
+    PRELATE_OFF_HAND    = 94193,
+
+    // Ritual Guard
+    RITUAL_GUARD_WEAPON = 85756
 };
 
 // Zandalari Water-Binder - 69455
@@ -2739,6 +2756,122 @@ class mob_corpse_spider : public CreatureScript
         }
 };
 
+// Quivering Blob - 69383
+class mob_quivering_blob : public CreatureScript
+{
+    public:
+        mob_quivering_blob() : CreatureScript("mob_quivering_blob") { }
+
+        struct mob_quivering_blobAI : public ScriptedAI
+        {
+            mob_quivering_blobAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_OOZE_EXPLOSION, 5000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_OOZE_EXPLOSION:
+                        me->CastSpell(me, SPELL_OOZE_EXPLOSION, true);
+                        m_Events.ScheduleEvent(EVENT_OOZE_EXPLOSION, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_quivering_blobAI(p_Creature);
+        }
+};
+
+// Ritual Guard - 70179
+class mob_ritual_guard : public CreatureScript
+{
+    public:
+        mob_ritual_guard() : CreatureScript("mob_ritual_guard") { }
+
+        struct mob_ritual_guardAI : public ScriptedAI
+        {
+            mob_ritual_guardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+
+                SetEquipmentSlots(false, RITUAL_GUARD_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_SHADOW_NOVA, 5000);
+                m_Events.ScheduleEvent(EVENT_SHOCKWAVE, 10000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_SHADOW_NOVA:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_SHADOW_NOVA, false);
+                        m_Events.ScheduleEvent(EVENT_SHADOW_NOVA, 10000);
+                        break;
+                    case EVENT_SHOCKWAVE:
+                        me->CastSpell(me, SPELL_SHOCKWAVE, true);
+                        m_Events.ScheduleEvent(EVENT_SHOCKWAVE, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_ritual_guardAI(p_Creature);
+        }
+};
+
 // Water Bolt - 139231
 class spell_water_bolt : public SpellScriptLoader
 {
@@ -3411,6 +3544,8 @@ void AddSC_throne_of_thunder()
     new mob_gastropod();
     new mob_web();
     new mob_corpse_spider();
+    new mob_quivering_blob();
+    new mob_ritual_guard();
     new spell_storm_weapon();
     new spell_water_bolt();
     new spell_focused_lightning_aoe();
