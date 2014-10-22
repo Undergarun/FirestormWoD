@@ -498,18 +498,6 @@ class boss_king_malakk : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_SUL_THE_SANDCRAWLER, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_HIGH_PRIESTRESS_MAR_LI, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_KAZRA_JIN, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
                 if (me->GetMap()->IsLFR())
                 {
                     me->SetLootRecipient(NULL);
@@ -518,11 +506,13 @@ class boss_king_malakk : public CreatureScript
                         sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
 
-                if (pInstance)
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
-
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
+                else
+                {
+                    if (pInstance)
+                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                }
 
                 Talk(7);
             }
@@ -807,21 +797,6 @@ class boss_kazra_jin : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_SUL_THE_SANDCRAWLER, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_HIGH_PRIESTRESS_MAR_LI, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_FROST_KING_MALAKK, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
-
                 if (me->GetMap()->IsLFR())
                 {
                     me->SetLootRecipient(NULL);
@@ -832,6 +807,11 @@ class boss_kazra_jin : public CreatureScript
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
+                else
+                {
+                    if (pInstance)
+                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                }
 
                 Talk(7);
             }
@@ -1241,21 +1221,6 @@ class boss_sul_the_sandcrawler : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_KAZRA_JIN, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_HIGH_PRIESTRESS_MAR_LI, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_FROST_KING_MALAKK, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
-
                 if (me->GetMap()->IsLFR())
                 {
                     me->SetLootRecipient(NULL);
@@ -1266,6 +1231,11 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
+                else
+                {
+                    if (pInstance)
+                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                }
 
                 Talk(7);
             }
@@ -1788,21 +1758,6 @@ class boss_high_priestress_mar_li : public CreatureScript
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_KAZRA_JIN, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_SUL_THE_SANDCRAWLER, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_FROST_KING_MALAKK, 200.0f))
-                    if (creature->isAlive())
-                        return;
-
-                if (pInstance)
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
-
                 if (me->GetMap()->IsLFR())
                 {
                     me->SetLootRecipient(NULL);
@@ -1813,6 +1768,11 @@ class boss_high_priestress_mar_li : public CreatureScript
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
+                else
+                {
+                    if (pInstance)
+                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                }
 
                 Talk(8);
             }
