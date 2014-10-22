@@ -1396,6 +1396,11 @@ struct ItemBagFamilyEntry
     //char*     m_NameLang;                                 // 1        m_NameLang
 };
 
+struct gtItemSocketCostPerLevelEntry
+{
+    float cost;
+};
+
 // we have no data in 6.0.1 18612
 struct ItemDisplayInfoEntry
 {

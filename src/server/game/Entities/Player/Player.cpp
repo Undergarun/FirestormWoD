@@ -971,6 +971,12 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_needSummonPetAfterStopFlying = false;
 
     m_LastPlayedScene = NULL;
+
+    m_PvPCombatTimer = 0;
+    m_pvpCombat = false;
+
+    for (int i = 0; i < INVENTORY_SLOT_BAG_END; i++)
+        m_itemScale[i] = 0;
 }
 
 Player::~Player()
@@ -2020,6 +2026,8 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
     CheckDuelDistance(now);
 
     UpdateAfkReport(now);
+
+    UpdatePvP(p_time);
 
     if (isCharmed())
         if (Unit* charmer = GetCharmer())
@@ -9581,40 +9589,38 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     ApplyEnchantment(item, apply);
 }
 
-void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale /*= false*/)
+void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel)
 {
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
-    ScalingStatDistributionEntry const* ssd = nullptr;// proto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(proto->ScalingStatDistribution) : NULL;
-    if (only_level_scale && !ssd)
+    if (!m_itemScale[slot] && apply)
+        m_itemScale[slot] = GetEquipItemLevelFor(proto);
+
+    uint32 ilvl = m_itemScale[slot];
+
+    if (!apply && !rescaleToItemLevel)
+        m_itemScale[slot] = 0;
+
+    if (ilvl == rescaleToItemLevel)
         return;
 
-    // req. check at equip, but allow use for extended range if range limit max level, set proper level
-    uint32 ssd_level = getLevel();
-    if (ssd && ssd_level > ssd->MaxLevel)
-        ssd_level = ssd->MaxLevel;
-
-    ScalingStatValuesEntry const* ssv = nullptr;//ssd ? sScalingStatValuesStore.LookupEntry(ssd_level) : NULL;
-    if (only_level_scale && !ssv)
-        return;
+     bool applyStats = rescaleToItemLevel < ilvl && rescaleToItemLevel ? !apply : apply;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        uint32 statType = 0;
-        int32  val = 0;
-        // If set ScalingStatDistribution need get stats and values from it
-        if (ssd && ssv)
+        uint32 statType;
+        int32 val;
+
+        if (!rescaleToItemLevel)
         {
-            //if (ssd->StatMod[i] < 0)
-            //    continue;
-            //statType = ssd->StatMod[i];
-            //val = (ssv->GetStatMultiplier(proto->InventoryType) * ssd->Modifier[i]) / 10000;
+            statType = proto->ItemStat[i].ItemStatType;
+            val = proto->CalculateStatScaling(i, ilvl);
         }
         else
         {
             statType = proto->ItemStat[i].ItemStatType;
-            val = proto->ItemStat[i].ItemStatValue;
+            val = abs(int32(proto->CalculateStatScaling(i, rescaleToItemLevel) - proto->CalculateStatScaling(i, ilvl)));
         }
 
         if (val == 0)
@@ -9623,18 +9629,18 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         switch (statType)
         {
             case ITEM_MOD_MANA:
-                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_HEALTH:
-                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_AGILITY:
             {
                 if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_AGILITY, float(val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(STAT_AGILITY, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_STRENGTH:
@@ -9642,8 +9648,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_STRENGTH, float(val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(STAT_STRENGTH, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_INTELLECT:
@@ -9651,8 +9657,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_INTELLECT, float(val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(STAT_INTELLECT, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_SPIRIT:
@@ -9660,100 +9666,100 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_SPIRIT, float(val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(STAT_SPIRIT, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_STAMINA:
-                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_STAMINA, float(val), apply);
+                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(STAT_STAMINA, float(val), applyStats);
                 break;
             case ITEM_MOD_DODGE_RATING:
-                ApplyRatingMod(CR_DODGE, int32(val), apply);
+                ApplyRatingMod(CR_DODGE, int32(val), applyStats);
                 break;
             case ITEM_MOD_PARRY_RATING:
-                ApplyRatingMod(CR_PARRY, int32(val), apply);
+                ApplyRatingMod(CR_PARRY, int32(val), applyStats);
                 break;
             case ITEM_MOD_BLOCK_RATING:
-                ApplyRatingMod(CR_BLOCK, int32(val), apply);
+                ApplyRatingMod(CR_BLOCK, int32(val), applyStats);
                 break;
             case ITEM_MOD_CRIT_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_MELEE, int32(val), applyStats);
+                ApplyRatingMod(CR_CRIT_RANGED, int32(val), applyStats);
+                ApplyRatingMod(CR_CRIT_SPELL, int32(val), applyStats);
                 break;
             case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
+                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), applyStats);
                 break;
             case ITEM_MOD_HASTE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_HASTE_MELEE, int32(val), applyStats);
+                ApplyRatingMod(CR_HASTE_RANGED, int32(val), applyStats);
+                ApplyRatingMod(CR_HASTE_SPELL, int32(val), applyStats);
                 break;
             case ITEM_MOD_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), applyStats);
+                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_VERSATILITY_RATING:
-                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val), apply);
-                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val), apply);
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val), applyStats);
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val), applyStats);
                 break;
             case ITEM_MOD_MANA_REGENERATION:
-                ApplyManaRegenBonus(int32(val), apply);
+                ApplyManaRegenBonus(int32(val), applyStats);
                 break;
             case ITEM_MOD_SPELL_POWER:
-                ApplySpellPowerBonus(int32(val), apply);
+                ApplySpellPowerBonus(int32(val), applyStats);
                 break;
             case ITEM_MOD_HEALTH_REGEN:
-                ApplyHealthRegenBonus(int32(val), apply);
+                ApplyHealthRegenBonus(int32(val), applyStats);
                 break;
             case ITEM_MOD_MASTERY_RATING:
-                ApplyRatingMod(CR_MASTERY, int32(val), apply);
+                ApplyRatingMod(CR_MASTERY, int32(val), applyStats);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
                 //HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
-                HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_FROST_RESISTANCE:
-                HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_HOLY_RESISTANCE:
-                HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_SHADOW_RESISTANCE:
-                HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_NATURE_RESISTANCE:
-                HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_ARCANE_RESISTANCE:
-                HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_PVP_POWER:
-                ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
+                ApplyRatingMod(CR_PVP_POWER, int32(val), applyStats);
                 break;
             case ITEM_MOD_MULTISTRIKE_RATING:
-                ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
+                ApplyRatingMod(CR_MULTISTRIKE, int32(val), applyStats);
                 break;
             case ITEM_MOD_READINESS_RATING:
-                ApplyRatingMod(CR_READINESS, int32(val), apply);
+                ApplyRatingMod(CR_READINESS, int32(val), applyStats);
                 break;
             case ITEM_MOD_SPEED_RATING:
-                ApplyRatingMod(CR_SPEED, int32(val), apply);
+                ApplyRatingMod(CR_SPEED, int32(val), applyStats);
                 break;
             case ITEM_MOD_LEECH_RATING:
-                ApplyRatingMod(CR_LIFESTEAL, int32(val), apply);
+                ApplyRatingMod(CR_LIFESTEAL, int32(val), applyStats);
                 break;
             case ITEM_MOD_AVOIDANCE_RATING:
-                ApplyRatingMod(CR_AVOIDANCE, int32(val), apply);
+                ApplyRatingMod(CR_AVOIDANCE, int32(val), applyStats);
                 break;
             case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
             {
                 Stats stat = GetPrimaryStat();
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(stat, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
@@ -9762,8 +9768,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
                     break;
 
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(stat, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
@@ -9772,8 +9778,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
                     break;
 
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(stat, float(val), applyStats);
                 break;
             }
             case ITEM_MOD_DYNAMIC_STAT_STR_INT:
@@ -9782,22 +9788,17 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
                     break;
 
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(stat, float(val), apply);
+                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(val), applyStats);
+                ApplyStatBuffMod(stat, float(val), applyStats);
                 break;
             }
         }
     }
 
-    // Apply Spell Power from ScalingStatValue if set
-    if (ssv && proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
-        if (int32 spellbonus = int32(ssv->Spellpower))
-            ApplySpellPowerBonus(spellbonus, apply);
 
-    // If set ScalingStatValue armor get it or use item armor
-    uint32 armor = proto->Armor;
-    if (ssv && proto->Class == ITEM_CLASS_ARMOR)
-        armor = ssv->GetArmor(proto->InventoryType, proto->SubClass - 1);
+    uint32 armor = proto->CalculateArmorScaling(ilvl);
+    if (rescaleToItemLevel)
+        armor = abs(int32(proto->CalculateArmorScaling(ilvl) - proto->CalculateArmorScaling(rescaleToItemLevel)));
 
     if (armor)
     {
@@ -9815,12 +9816,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             }
         }
-        HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), apply);
+        HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), applyStats);
     }
-
-    // Add armor bonus from ArmorDamageModifier if > 0
-    if (proto->ArmorDamageModifier > 0)
-        HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->ArmorDamageModifier), apply);
 
     WeaponAttackType attType = BASE_ATTACK;
 
@@ -9831,15 +9828,19 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         attType = RANGED_ATTACK;
     }
     else if (slot == EQUIPMENT_SLOT_OFFHAND)
-    {
         attType = OFF_ATTACK;
-    }
+
+    uint32 minDamage = 0;
+    uint32 maxDamage = 0;
+
+    if (applyStats)
+        proto->CalculateMinMaxDamageScaling(rescaleToItemLevel ? rescaleToItemLevel : ilvl, minDamage, maxDamage);
 
     if (CanUseAttackType(attType))
-        _ApplyWeaponDamage(slot, proto, ssv, apply);
+        _ApplyWeaponDamage(slot, proto, apply, minDamage, maxDamage);
 }
 
-void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply)
+void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage, uint32 maxDamage)
 {
     WeaponAttackType attType = BASE_ATTACK;
     float damage = 0.0f;
@@ -9855,21 +9856,10 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
         attType = OFF_ATTACK;
     }
 
-    float minDamage = proto->DamageMin;
-    float maxDamage = proto->DamageMax;
-
-    // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
-    int32 extraDPS = 0;
-    if (ssv)
+    if (!maxDamage)
     {
-        float damageMultiplier = 0.0f;
-        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->SubClass, proto->Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON, &damageMultiplier);
-        if (extraDPS)
-        {
-            float average = extraDPS * proto->Delay / 1000.0f;
-            minDamage = (1.0f - damageMultiplier) * average;
-            maxDamage = (1.0f + damageMultiplier) * average;
-        }
+        minDamage = proto->DamageMin;
+        maxDamage = proto->DamageMax;
     }
 
     if (minDamage > 0)
@@ -10487,7 +10477,7 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
             if (!proto)
                 continue;
 
-            _ApplyItemBonuses(proto, i, apply, true);
+            //_ApplyItemBonuses(proto, i, apply, true);
         }
     }
 }
@@ -15647,180 +15637,12 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
     }
 }
 
-void Player::ApplyItemUpgrade(Item* item, bool apply)
-{
-    if (!item)
-        return;
-
-    ItemUpgradeEntry const* itemUpgrade = sItemUpgradeStore.LookupEntry(item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2));
-    if (!itemUpgrade || itemUpgrade->itemLevelUpgrade == 0)
-        return;
-
-    ItemUpgradeEntry const* prevItemUpgrade = sItemUpgradeStore.LookupEntry(itemUpgrade->precItemUpgradeId);
-    ItemTemplate const* proto = item->GetTemplate();
-    if (!proto)
-        return;
-
-    uint16 itemLevel = (prevItemUpgrade && prevItemUpgrade->itemLevelUpgrade) ? (proto->ItemLevel + prevItemUpgrade->itemLevelUpgrade) : proto->ItemLevel;
-    uint16 nextItemLevel = proto->ItemLevel + itemUpgrade->itemLevelUpgrade;
-
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-    {
-        uint32 statType = proto->ItemStat[i].ItemStatType;
-        int32 baseVal = proto->ItemStat[i].ItemStatValue;
-        int32 val = 0;
-
-        if (prevItemUpgrade && prevItemUpgrade->itemLevelUpgrade != 0)
-            val = baseVal * float(float(sSpellMgr->GetDatasForILevel(itemLevel)) / float(sSpellMgr->GetDatasForILevel(proto->ItemLevel)));
-
-        if (!sSpellMgr->GetDatasForILevel(itemLevel))
-            continue;
-
-        int32 newVal = 0;
-        if (val == 0)
-            newVal = baseVal * float(float(sSpellMgr->GetDatasForILevel(nextItemLevel)) / float(sSpellMgr->GetDatasForILevel(itemLevel)));
-        else
-            newVal = val * float(float(sSpellMgr->GetDatasForILevel(nextItemLevel)) / float(sSpellMgr->GetDatasForILevel(itemLevel)));
-
-        if (baseVal == 0 || newVal == 0)
-            continue;
-
-        val = baseVal;
-
-        switch (statType)
-        {
-            case ITEM_MOD_MANA:
-                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_HEALTH:
-                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_AGILITY:
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_AGILITY, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_STRENGTH:
-                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_STRENGTH, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_INTELLECT:
-                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_INTELLECT, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_SPIRIT:
-                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_SPIRIT, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_STAMINA:
-                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(STAT_STAMINA, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_DODGE_RATING:
-                ApplyRatingMod(CR_DODGE, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_PARRY_RATING:
-                ApplyRatingMod(CR_PARRY, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_BLOCK_RATING:
-                ApplyRatingMod(CR_BLOCK, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_CRIT_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_CRIT_RANGED, int32(newVal - val), apply);
-                ApplyRatingMod(CR_CRIT_SPELL, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_HASTE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HASTE_RANGED, int32(newVal - val), apply);
-                ApplyRatingMod(CR_HASTE_SPELL, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(newVal - val), apply);
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_VERSATILITY_RATING:
-                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(newVal - val), apply);
-                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_SPELL_POWER:
-                ApplySpellPowerBonus(int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_MASTERY_RATING:
-                ApplyRatingMod(CR_MASTERY, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_EXTRA_ARMOR:
-                //HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(newVal - val), apply);
-                break;
-            case ITEM_MOD_PVP_POWER:
-                ApplyRatingMod(CR_PVP_POWER, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_MULTISTRIKE_RATING:
-                ApplyRatingMod(CR_MULTISTRIKE, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_READINESS_RATING:
-                ApplyRatingMod(CR_READINESS, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_SPEED_RATING:
-                ApplyRatingMod(CR_SPEED, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_LEECH_RATING:
-                ApplyRatingMod(CR_LIFESTEAL, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_AVOIDANCE_RATING:
-                ApplyRatingMod(CR_AVOIDANCE, int32(newVal - val), apply);
-                break;
-            case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
-            {
-                Stats stat = GetPrimaryStat();
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(stat, float(newVal - val), apply);
-                break;
-            }
-            case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
-            {
-                Stats stat = GetPrimaryStat();
-                if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
-                    break;
-
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(stat, float(newVal - val), apply);
-                break;
-            }
-            case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
-            {
-                Stats stat = GetPrimaryStat();
-                if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
-                    break;
-
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(stat, float(newVal - val), apply);
-                break;
-            }
-            case ITEM_MOD_DYNAMIC_STAT_STR_INT:
-            {
-                Stats stat = GetPrimaryStat();
-                if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
-                    break;
-
-                HandleStatModifier((UnitMods)stat, BASE_VALUE, float(newVal - val), apply);
-                ApplyStatBuffMod(stat, float(newVal - val), apply);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-}
-
 void Player::ApplyEnchantment(Item* item, bool apply)
 {
     for (uint32 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
         ApplyEnchantment(item, EnchantmentSlot(slot), apply);
 
-    ApplyItemUpgrade(item, apply);
+    //ApplyItemUpgrade(item, apply);
 }
 
 void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
@@ -30348,4 +30170,83 @@ Stats Player::GetPrimaryStat() const
         default:
             return STAT_STRENGTH;
     }
+}
+
+/*
+ *          WARNING !!!!!!
+ *
+ *
+ *
+ *  Never use _ApplyItemBonuses for rescaling, use those the functions below, unless you know how it works and trust me you dont
+ *
+ */
+
+uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto) const
+{
+    if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
+        if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemProto->ItemId))
+            return itemProto->ItemLevel + pvpItem->ilvl;
+
+    return itemProto->ItemLevel;
+}
+
+void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
+{
+    if (slot >= EQUIPMENT_SLOT_END)
+        return;
+
+    Item* item = m_items[slot];
+
+    if (!item)
+        return;
+
+    ItemTemplate const* proto = item->GetTemplate();
+
+    if(!proto)
+
+    _ApplyItemBonuses(proto, slot, false, proto->ItemLevel);
+    _ApplyItemBonuses(proto, slot, true, ilvl);
+    m_itemScale[slot] = ilvl;
+}
+
+void Player::SetInPvPCombat(bool set)
+{
+    if (m_pvpCombat == set)
+        return;
+
+    m_pvpCombat = set;
+
+    if (m_pvpCombat)
+        OnEnterPvPCombat();
+}
+
+void Player::OnEnterPvPCombat()
+{
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        if (Item* item = m_items[i])
+            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
+                RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
+}
+
+void Player::UpdatePvP(uint32 diff)
+{
+    if (!m_PvPCombatTimer || !IsInPvPCombat())
+        return;
+
+    if (m_PvPCombatTimer <= diff)
+    {
+        SetInPvPCombat(false);
+        OnLeavePvPCombat();
+        m_PvPCombatTimer = 0;
+    }
+    else
+        m_PvPCombatTimer -= diff;
+}
+
+void Player::OnLeavePvPCombat()
+{
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        if (Item* item = m_items[i])
+            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
+                RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
 }

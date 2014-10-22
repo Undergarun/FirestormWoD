@@ -468,20 +468,17 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    bool dualWield = mainItem && offItem && CanDualWield();
-
     float att_speed = GetAPMultiplier(attType, normalized);
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-    float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier;
+    float weapon_normalized_min = weapon_with_ap_min * att_speed ;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed;
 
     if (IsInFeralForm())
     {
@@ -875,7 +872,6 @@ void Player::UpdateManaRegen()
     {
         combatRegen = 0.004f * mana + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
         outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-
     }
     else
     {

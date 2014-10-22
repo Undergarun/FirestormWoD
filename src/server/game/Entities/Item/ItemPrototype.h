@@ -638,8 +638,8 @@ struct _ItemStat
 {
     uint32  ItemStatType;
     int32   ItemStatValue;
-    int32   ItemStatUnk1;
-    int32   ItemStatUnk2;
+    int32   ScalingValue;
+    float   SocketCostRate;
 };
 
 struct _Spell
@@ -853,6 +853,7 @@ struct ItemTemplate
                 return true;
         return false;
     }
+
     bool HasSpec(SpecIndex index) const
     {
         for (auto itr : specs)
@@ -860,6 +861,16 @@ struct ItemTemplate
                 return true;
         return false;
     }
+
+    bool IsWeapon() const { return Class == ITEM_CLASS_WEAPON; }
+
+    float GetScalingDamageValue(uint32 ilvl) const;
+    uint32 GetRandomPointsOffset() const;
+    float GetSocketCost(uint32 ilvl) const;
+    uint32 CalculateStatScaling(uint32 index, uint32 ilvl) const;
+    uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
+    uint32 CalculateArmorScaling(uint32 ilvl) const;
+    void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;
 };
 
 //////////////////////////////////////////////////////////////
