@@ -27445,28 +27445,29 @@ void Player::RestoreBaseRune(uint8 index)
     SetRuneConvertSpell(index, 0);
 }
 
-void Player::ConvertRune(uint8 index, RuneType newType)
+void Player::ConvertRune(uint8 p_Index, RuneType p_NewType)
 {
-    SetCurrentRune(index, newType);
+    SetCurrentRune(p_Index, p_NewType);
 
-    WorldPacket data(SMSG_CONVERT_RUNE, 2);
-    data << uint8(index);
-    data << uint8(newType);
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_CONVERT_RUNE, 2);
+    l_Data << uint8(p_Index);
+    l_Data << uint8(p_NewType);
+
+    GetSession()->SendPacket(&l_Data);
 }
 
-void Player::ResyncRunes(uint8 count)
+void Player::ResyncRunes(uint8 p_Count)
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data.WriteBits(count, 23);
+    WorldPacket l_Data(SMSG_RESYNC_RUNES, 4 + p_Count * 2);
+    l_Data << uint32(p_Count);
 
-    for (uint32 i = 0; i < count; ++i)
+    for (uint32 l_I = 0; l_I < p_Count; ++l_I)
     {
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
-        data << uint8(GetCurrentRune(i));                   // rune type
+        l_Data << uint8(GetCurrentRune(l_I));                   // rune type
+        l_Data << uint8(255 - (GetRuneCooldown(l_I) * 51));     // passed cooldown time (0-255)
     }
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendDeathRuneUpdate()
@@ -27474,15 +27475,16 @@ void Player::SendDeathRuneUpdate()
     if (getClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
     {
-        if (m_runes.runes[i].CurrentRune != RUNE_DEATH)
+        if (m_runes.runes[l_I].CurrentRune != RUNE_DEATH)
             continue;
 
-        WorldPacket data(SMSG_CONVERT_RUNE, 2);
-        data << uint8(i);
-        data << uint8(RUNE_DEATH);
-        GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_CONVERT_RUNE, 2);
+        l_Data << uint8(l_I);
+        l_Data << uint8(RUNE_DEATH);
+
+        GetSession()->SendPacket(&l_Data);
     }
 }
 

@@ -188,6 +188,12 @@ enum Opcodes
         /// Bank
         SMSG_SHOW_BANK                              = 0x10A7,   ///< 6.0.2 19027
 
+        /// Rune
+        SMSG_RESYNC_RUNES                           = 0x0BA8,   ///< 6.0.2 19027
+        SMSG_DEBUG_RUNE_REGEN                       = 0x1243,   ///< 6.0.2 19027
+        SMSG_ADD_RUNE_POWER                         = 0x11EB,   ///< 6.0.2 19027
+        SMSG_CONVERT_RUNE                           = 0x1674,   ///< 6.0.2 19027
+
         /// Group
         SMSG_PARTY_UPDATE                           = 0x00AC,   ///< 6.0.2 19027
         SMSG_PARTY_MEMBER_STATE_FULL                = 0x02B8,   ///< 6.0.2 19027
@@ -1422,7 +1428,6 @@ enum Opcodes
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
-    SMSG_ADD_RUNE_POWER                               = 0x0000,
     SMSG_AE_LOOT_TARGETS                              = 0x0000,
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x0000,
     SMSG_APPLY_MOVEMENT_FORCE                         = 0x0000,
@@ -1550,7 +1555,6 @@ enum Opcodes
     SMSG_COMSAT_DISCONNECT                            = 0x0000,
     SMSG_COMSAT_RECONNECT_TRY                         = 0x0000,
     SMSG_CONSOLE_WRITE                                = 0x0000,
-    SMSG_CONVERT_RUNE                                 = 0x0000,
     SMSG_CORPSE_NOT_IN_INSTANCE                       = 0x0000,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0x0000,
     SMSG_CURRENCY_LOOT_REMOVED                        = 0x0000,
@@ -1560,7 +1564,6 @@ enum Opcodes
     SMSG_DAMAGE_DONE_OBSOLETE                         = 0x0000,
     SMSG_DANCE_QUERY_RESPONSE                         = 0x0000,
     SMSG_DB_LOOKUP_RESULT                             = 0x0000,
-    SMSG_DEBUG_RUNE_REGEN                             = 0x0000,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x0000,
     SMSG_DISENCHANT_CREDIT                            = 0x0000,
@@ -1816,7 +1819,6 @@ enum Opcodes
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x0000,
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
-    SMSG_RESYNC_RUNES                                 = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
     SMSG_SCENARIO_POI                                 = 0x0000,
     SMSG_SCENARIO_PROGRESS_UPDATE                     = 0x0000,
