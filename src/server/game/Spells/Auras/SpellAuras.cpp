@@ -212,22 +212,21 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     uint32 l_PointsCount = 0;
     bool l_AsApModifier = false;
 
-    if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
     {
-        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+        /// NULL if effect flag not set
+        if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
         {
-            /// NULL if effect flag not set
-            if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
-            {
-                if (!HasEffect(l_I))
-                    continue;
+            if (!HasEffect(l_I))
+                continue;
 
-                if (l_Effect->GetSpellEffectInfo()->IsAPSPModified())
-                    l_AsApModifier = true;
+            if (l_Effect->GetSpellEffectInfo()->CanScale())
+                l_AsApModifier = true;
 
-                l_Mask |= 1 << l_I;
+            l_Mask |= 1 << l_I;
+
+            if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 l_PointsCount++;
-            }
         }
     }
 
@@ -246,11 +245,11 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     p_Data << uint32(l_PointsCount + (l_PointsCount && (l_Flags & AFLAG_UNK_20)) ? 1 : 0);                      ///< Points Count
     p_Data << uint32(l_AsApModifier ? l_PointsCount : 0);                                                       ///< Estimated Points
 
+    if (l_Flags & AFLAG_UNK_20)
+        p_Data << float(0);
+
     if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
     {
-        if (l_Flags & AFLAG_UNK_20)
-            p_Data << float(0);
-
         for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
         {
             if (!HasEffect(l_I))
@@ -292,8 +291,6 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
 
     if (l_Flags & AFLAG_DURATION)
         p_Data << uint32(l_Aura->GetDuration());                                                                ///< Remaining
-
-    // effect value 2 for
 }
 
 void AuraApplication::ClientUpdate(bool p_Remove)

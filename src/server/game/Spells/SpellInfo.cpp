@@ -3844,7 +3844,7 @@ bool SpellEffectInfo::IsPeriodicEffect() const
     return false;
 }
 
-bool SpellEffectInfo::IsAPSPModified() const
+bool SpellEffectInfo::CanScale() const
 {
     switch (Effect)
     {
