@@ -484,7 +484,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags           = p_RecvPacket.ReadBits(20);
+    l_TargetFlags           = p_RecvPacket.ReadBits(21);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
     l_HasDestinationTarget  = p_RecvPacket.ReadBit();
     l_HasUnkFloat           = p_RecvPacket.ReadBit();
