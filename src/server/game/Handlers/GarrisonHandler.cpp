@@ -107,6 +107,22 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         l_Infos << int32(l_CompletedMission[l_I].MissionID);
 
     SendPacket(&l_Infos);
+
+    std::vector<int32> l_KnownBlueprints = l_Garrison->GetKnownBlueprints();
+    std::vector<int32> l_KnownSpecializations = l_Garrison->GetKnownSpecializations();
+
+    WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 200);
+
+    l_Data << uint32(l_KnownBlueprints.size());
+    l_Data << uint32(l_KnownSpecializations.size());
+
+    for (uint32 l_I = 0; l_I < l_KnownBlueprints.size(); ++l_I)
+        l_Data << int32(l_KnownBlueprints[l_I]);
+
+    for (uint32 l_I = 0; l_I < l_KnownSpecializations.size(); ++l_I)
+        l_Data << int32(l_KnownSpecializations[l_I]);
+
+    SendPacket(&l_Data);
 }
 void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
 {
@@ -152,26 +168,51 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 
     SendGarrisonOpenMissionNpc(l_NpcGUID);
 }
-void WorldSession::HandleGarrisonRequestBlueprintAndSpecializationDataOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
 {
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
 
-    std::vector<int32> l_KnownBlueprints        = l_Garrison->GetKnownBlueprints();
-    std::vector<int32> l_KnownSpecializations   = l_Garrison->GetKnownSpecializations();
+    std::vector<GarrisonBuilding> l_Buildings = l_Garrison->GetBuildings();
 
-    WorldPacket l_Data(SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT, 200);
+    WorldPacket l_Data(SMSG_GARRISON_GET_BUILDINGS_DATA, 200);
+    l_Data << uint32(l_Buildings.size());
 
-    l_Data << uint32(l_KnownBlueprints.size());
-    l_Data << uint32(l_KnownSpecializations.size());
+    for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
+    {
+        GarrisonPlotInstanceInfoLocation l_PlotLocation = l_Garrison->GetPlot(l_Buildings[l_I].PlotInstanceID);
+        uint32 l_SiteLevelPlotInstanceID = 0;
+        uint32 l_BuildingPlotInstanceID  = 0;
 
-    for (uint32 l_I = 0; l_I < l_KnownBlueprints.size(); ++l_I)
-        l_Data << int32(l_KnownBlueprints[l_I]);
+        for (uint32 l_Y = 0; l_Y < sGarrSiteLevelPlotInstStore.GetNumRows(); ++l_Y)
+        {
+            const GarrSiteLevelPlotInstEntry * l_Entry = sGarrSiteLevelPlotInstStore.LookupEntry(l_Y);
 
-    for (uint32 l_I = 0; l_I < l_KnownSpecializations.size(); ++l_I)
-        l_Data << int32(l_KnownSpecializations[l_I]);
+            if (l_Entry && l_Entry->PlotInstanceID == l_Buildings[l_I].PlotInstanceID && l_Entry->SiteLevelID == l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID)
+            {
+                l_SiteLevelPlotInstanceID = l_Entry->ID;
+                break;
+            }
+        }
+
+        for (uint32 l_Y = 0; l_Y < sGarrBuildingPlotInstStore.GetNumRows(); ++l_Y)
+        {
+            const GarrBuildingPlotInstEntry * l_Entry = sGarrBuildingPlotInstStore.LookupEntry(l_Y);
+
+            if (l_Entry && l_Entry->SiteLevelPlotInstID == l_SiteLevelPlotInstanceID && l_Entry->BuildingID == l_Buildings[l_I].BuildingID)
+            {
+                l_BuildingPlotInstanceID = l_Entry->ID;
+                break;
+            }
+        }
+
+        l_Data << uint32(l_BuildingPlotInstanceID);
+        l_Data << float(l_PlotLocation.X);
+        l_Data << float(l_PlotLocation.Y);
+        l_Data << float(l_PlotLocation.Z);
+    }
 
     SendPacket(&l_Data);
 }
@@ -264,7 +305,7 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
     p_RecvData.readPackGUID(l_NpcGUID);
     p_RecvData >> l_PlotInstanceID;
 
-    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
     if (!l_Unit)
     {
@@ -273,6 +314,87 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
     }
 
     l_Garrison->CancelConstruction(l_PlotInstanceID);
+}
+void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID        = 0;
+    uint32 l_FollowerCount  = 0;
+    uint32 l_MissionID      = 0;
+
+    std::vector<uint64> l_Followers;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_FollowerCount;
+    p_RecvData >> l_MissionID;
+
+    for (uint32 l_I = 0; l_I < l_FollowerCount; ++l_I)
+    {
+        uint64 l_FollowerDBID = 0;
+        p_RecvData >> l_FollowerDBID;
+
+        l_Followers.push_back(l_FollowerDBID);
+    }
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonStartMissionOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    if (!l_Garrison->HaveMission(l_MissionID))
+    {
+        /// TODO ERROR dont have the mission
+        return;
+    }
+
+    const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(l_MissionID);
+
+    if (l_Followers.size() < l_MissionTemplate->RequiredFollowersCount)
+    {
+        /// TODO ERROR not enought follower
+        return;
+    }
+
+    std::vector<GarrisonFollower> l_GarrFollowers = l_Garrison->GetFollowers();
+    
+    for (uint32 l_I = 0; l_I < l_FollowerCount; ++l_I)
+    {
+        std::vector<GarrisonFollower>::iterator l_It = std::find_if(l_GarrFollowers.begin(), l_GarrFollowers.end(), [this, l_Followers, l_I](const GarrisonFollower p_Follower) -> bool
+        {
+            if (p_Follower.DB_ID == l_Followers[l_I])
+                return true;
+
+            return false;
+        });
+
+        if (l_It == l_GarrFollowers.end())
+        {
+            /// TODO ERROR follower not found
+            return;
+        }
+
+        if (l_It->CurrentBuildingID != 0 || l_It->CurrentMissionID != 0)
+        {
+            /// TODO ERROR follower busy
+            return;
+        }
+
+        uint32 l_FollowerItemLevel = (l_It->ItemLevelWeapon + l_It->ItemLevelArmor) / 2;
+
+        if (l_FollowerItemLevel)
+        {
+            /// TODO ERROR follower busy
+            return;
+        }
+    }
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -299,8 +421,10 @@ void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
         return;
 
     WorldPacket l_Data(SMSG_GARRISON_OPEN_MISSION_NPC, 18);
-
-    l_Data.appendPackGUID(p_CreatureGUID);
+    l_Data << uint32(1);
+    l_Data << uint32(0);
+    l_Data.WriteBit(false);
+    l_Data.FlushBits();
 
     SendPacket(&l_Data);
 }

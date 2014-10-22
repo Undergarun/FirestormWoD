@@ -1,0 +1,9 @@
+    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -2.0420350f);
+
+    G3D::Vector3 l_PlotPosition = G3D::Vector3(5645.124f, 4508.9600f, 0);
+    l_PlotPosition = l_Mat * l_PlotPosition;
+    l_PlotPosition.z = 119.27010f;
+
+    G3D::Vector3 p1 = l_Mat * G3D::Vector3(5651.121, 4514.561, 0);
+    p1 -= l_PlotPosition; p1.z = 121.7217 - l_PlotPosition.z;

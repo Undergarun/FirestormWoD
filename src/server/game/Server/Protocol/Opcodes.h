@@ -188,6 +188,12 @@ enum Opcodes
         /// Bank
         SMSG_SHOW_BANK                              = 0x10A7,   ///< 6.0.2 19027
 
+        /// Rune
+        SMSG_RESYNC_RUNES                           = 0x0BA8,   ///< 6.0.2 19027
+        SMSG_DEBUG_RUNE_REGEN                       = 0x1243,   ///< 6.0.2 19027
+        SMSG_ADD_RUNE_POWER                         = 0x11EB,   ///< 6.0.2 19027
+        SMSG_CONVERT_RUNE                           = 0x1674,   ///< 6.0.2 19027
+
         /// Group
         SMSG_PARTY_UPDATE                           = 0x00AC,   ///< 6.0.2 19027
         SMSG_PARTY_MEMBER_STATE_FULL                = 0x02B8,   ///< 6.0.2 19027
@@ -593,7 +599,8 @@ enum Opcodes
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
         SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0079,   ///< 6.0.2 19027
-        SMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA_RESULT  = 0x147A,   ///< 6.0.2 19027
+        SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x147A,   ///< 6.0.2 19027
+        SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x051A,   ///< 6.0.2 19027
         SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
         SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x1069,   ///< 6.0.2 19027
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
@@ -610,8 +617,8 @@ enum Opcodes
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000,   ///< 6.0.1
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0000,   ///< 6.0.2
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0129,   ///< 6.0.2 19027
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x18D7,   ///< 6.0.2 19027
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -635,14 +642,14 @@ enum Opcodes
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
-    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x07C2,   ///< 6.0.2 19027
     CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
-    CMSG_GET_GARRISON_INFO                                  = 0x0000,   ///< 6.0.2
+    CMSG_GET_GARRISON_INFO                                  = 0x1A97,   ///< 6.0.2 19027
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BLUEPRINT_AND_SPECIALIZATION_DATA = 0x0000,   ///< 6.0.2
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_REQUEST_BUILDINGS                         = 0x06C1,   ///< 6.0.2 19027
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0DC3,   ///< 6.0.2 19027
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
@@ -655,13 +662,13 @@ enum Opcodes
     CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT                     = 0x0000,
     CMSG_GARRISON_LIST_FOLLOWERS_CHEAT                      = 0x0000,
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
-    CMSG_GARRISON_START_MISSION                             = 0x0000,
+    CMSG_GARRISON_START_MISSION                             = 0x009C,   ///< 6.0.2 19027
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
     CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x01D3,   ///< 6.0.2 19027
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,   ///< 6.0.2
-    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///< 6.0.2
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x10D8,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router
@@ -1421,7 +1428,6 @@ enum Opcodes
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
-    SMSG_ADD_RUNE_POWER                               = 0x0000,
     SMSG_AE_LOOT_TARGETS                              = 0x0000,
     SMSG_AE_LOOT_TARGETS_ACK                          = 0x0000,
     SMSG_APPLY_MOVEMENT_FORCE                         = 0x0000,
@@ -1549,7 +1555,6 @@ enum Opcodes
     SMSG_COMSAT_DISCONNECT                            = 0x0000,
     SMSG_COMSAT_RECONNECT_TRY                         = 0x0000,
     SMSG_CONSOLE_WRITE                                = 0x0000,
-    SMSG_CONVERT_RUNE                                 = 0x0000,
     SMSG_CORPSE_NOT_IN_INSTANCE                       = 0x0000,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0x0000,
     SMSG_CURRENCY_LOOT_REMOVED                        = 0x0000,
@@ -1559,7 +1564,6 @@ enum Opcodes
     SMSG_DAMAGE_DONE_OBSOLETE                         = 0x0000,
     SMSG_DANCE_QUERY_RESPONSE                         = 0x0000,
     SMSG_DB_LOOKUP_RESULT                             = 0x0000,
-    SMSG_DEBUG_RUNE_REGEN                             = 0x0000,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x0000,
     SMSG_DISENCHANT_CREDIT                            = 0x0000,
@@ -1815,7 +1819,6 @@ enum Opcodes
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x0000,
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
-    SMSG_RESYNC_RUNES                                 = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
     SMSG_SCENARIO_POI                                 = 0x0000,
     SMSG_SCENARIO_PROGRESS_UPDATE                     = 0x0000,

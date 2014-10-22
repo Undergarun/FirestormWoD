@@ -281,7 +281,7 @@ public:
     bool IsFarDestTargetEffect() const;
     bool IsUnitOwnedAuraEffect() const;
     bool IsPeriodicEffect() const;
-    bool IsAPSPModified() const;
+    bool CanScale() const;
 
     int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL) const;
     int32 CalcBaseValue(int32 value) const;

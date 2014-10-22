@@ -1363,6 +1363,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     else if (this->GetTypeId() == TYPEID_UNIT && victim->GetTypeId() == TYPEID_PLAYER)
         damage *= CalculateDamageTakenFactor(victim->ToPlayer(), this->ToCreature());
 
+    // Apply Versatility damage bonus done/taken
+    if (this->GetTypeId() == TYPEID_PLAYER)
+        damage += CalculatePct(damage, this->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) / 2);
+
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
     if (IsDamageReducedByArmor(damageSchoolMask, spellInfo))
@@ -1541,6 +1547,12 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damage *= CalculateDamageDealtFactor(this->ToPlayer(), victim->ToCreature());
     else if (this->GetTypeId() == TYPEID_UNIT && victim->GetTypeId() == TYPEID_PLAYER)
         damage *= CalculateDamageTakenFactor(victim->ToPlayer(), this->ToCreature());
+
+    // Apply Versatility damage bonus done/taken
+    if (this->GetTypeId() == TYPEID_PLAYER)
+        damage += CalculatePct(damage, this->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) / 2);
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -2209,6 +2221,10 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellInfo(), false);
         }
     }
+
+    // Apply Versatility absorb bonus
+    if (this->GetTypeId() == TYPEID_PLAYER)
+        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), this->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE)));
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
@@ -12781,10 +12797,13 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    if (spellProto->IsTargetingArea())
+    if (ToPlayer() && spellProto->IsTargetingArea())
     {
+        AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
+
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         AddPct(TakenTotalMod, mult);
+
         if (caster->GetTypeId() == TYPEID_UNIT)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
@@ -12818,7 +12837,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
             coeff /= 100.0f;
         }
-        TakenTotal+= int32(TakenAdvertisedBenefit * coeff * factorMod);
+        TakenTotal += int32(TakenAdvertisedBenefit * coeff * factorMod);
     }
 
     float tmpDamage = 0.0f;
@@ -13589,6 +13608,9 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
         for (AuraEffectList::const_iterator i = mHealingDonebyAP.begin(); i != mHealingDonebyAP.end(); ++i)
             if ((*i)->GetMiscValue() & schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
+
+        // Apply Versatility healing bonus
+        AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) / 100);
     }
     return AdvertisedBenefit;
 }
@@ -15122,6 +15144,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     float speed = std::max(non_stack_bonus, stack_bonus);
     if (main_speed_mod)
         AddPct(speed, main_speed_mod);
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        speed += CalculatePct(speed, ToPlayer()->GetRatingBonusValue(CR_SPEED));
 
     switch (mtype)
     {

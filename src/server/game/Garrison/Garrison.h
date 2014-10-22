@@ -220,6 +220,7 @@ class Garrison
 
         std::map<uint32, uint64> m_PlotsGob;
         std::map<uint32, uint64> m_PlotsActivateGob;
+        std::map<uint32, std::vector<uint64>> m_PlotsBuildingCosmeticGobs;
 };
 
 

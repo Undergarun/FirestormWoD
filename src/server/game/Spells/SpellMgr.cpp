@@ -2508,6 +2508,27 @@ void SpellMgr::LoadEnchantCustomAttr()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u custom enchant attributes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void SpellMgr::LoadSpellPlaceHolder()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+
+    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    {
+        SpellInfo const* spellInfo = GetSpellInfo(i);
+        if (!spellInfo)
+            continue;
+
+        if (spellInfo->AttributesEx8 & SPELL_ATTR8_UNK13 && spellInfo->AttributesEx10 & SPELL_ATTR10_UNK15)
+        {
+            mPlaceHolderSpells.insert(spellInfo->Id);
+            ++count;
+        }
+    }
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u talent place holder in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void SpellMgr::LoadSpellEnchantProcData()
 {
     uint32 oldMSTime = getMSTime();

@@ -438,7 +438,7 @@ struct GarrSiteLevelEntry
     uint32      Level;                                  // 1
     uint32      MapID;                                  // 2
     uint32      SiteID;                                 // 3
-    uint32      Unk1;                                   // 4
+    uint32      MapTextureUiTextureKitID;               // 4
     float       Unk2;                                   // 5
     float       Unk3;                                   // 6
     uint32      Unk4;                                   // 7
@@ -491,8 +491,8 @@ struct GarrMissionEntry
     uint32 RequiredItemLevel;                           // 2
     uint32 Unk1;                                        // 3
     uint32 RequiredFollowersCount;                      // 4
-    uint32 Unk_Duration;                                // 5
-    uint32 OfferDuration;                               // 6
+    uint32 Duration;                                    // 5
+    uint32 OfferTime;                                   // 6
     uint32 Unk2;                                        // 7
     uint32 Unk3;                                        // 8
     char * Title;                                       // 9
@@ -500,10 +500,10 @@ struct GarrMissionEntry
     char * Location;                                    // 11
     uint32 Unk4;                                        // 12
     uint32 Unk5;                                        // 13
-    uint32 StartCost;                                   // 14
-    uint32 Quality;                                     // 15
-    uint32 RewardPlayerExperience;                      // 16
-    uint32 Unk6;                                        // 17
+    uint32 Unk6;                                        // 14
+    uint32 StartCost;                                   // 15
+    uint32 Quality;                                     // 16
+    uint32 RewardFollowerExperience;                    // 17
     uint32 BaseBronzeChestChance;                       // 18
 };
 
@@ -521,16 +521,16 @@ struct GarrBuildingEntry
     uint32 BuildTime;                                   // 10
     uint32 BuildCostCurrencyID;                         // 11
     uint32 BuildCostCurrencyAmount;                     // 12
-    uint32 Unk4;                                        // 13
-    uint32 Unk5;                                        // 14
-    uint32 Unk6;                                        // 15
+    uint32 TexturePrefixA;                              // 13
+    uint32 TexturePrefixH;                              // 14
+    uint32 IconID;                                      // 15
     uint32 Unk7;                                        // 16
     uint32 Unk8;                                        // 17
     uint32 BuiltScene[2];                               // 18 - 19
     uint32 Unk11;                                       // 20
     uint32 Unk12;                                       // 21
     uint32 Unk13;                                       // 22
-    uint32 Unk14;                                       // 23
+    uint32 MoneyCost;                                   // 23
 };
 
 struct GarrPlotBuildingEntry
@@ -581,6 +581,16 @@ struct GarrFollowerXAbilityEntry
     uint32 FollowerID;                                  // 1
     uint32 AbilityID;                                   // 2
     uint32 FactionIndex;                                // 3
+};
+
+struct GarrBuildingPlotInstEntry
+{
+    uint32 ID;                                          // 0
+    uint32 BuildingID;                                  // 1
+    uint32 UIAtlasTextureMemberID;                      // 2
+    uint32 SiteLevelPlotInstID;                         // 3
+    uint32 MinimapX;                                    // 4
+    uint32 MinimapY;                                    // 5
 };
 
 #define MAX_BATTLEPET_PROPERTIES 6

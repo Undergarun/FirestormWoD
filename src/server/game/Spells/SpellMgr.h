@@ -602,6 +602,7 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 typedef std::vector<std::set<uint32> > SpellClassList;
 typedef std::map<uint32, std::set<MinorTalentEntry const*> > SpecializatioPerkMap;
 typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
+typedef std::set<uint32> TalentsPlaceHoldersSpell;
 typedef std::set<uint32> TalentSpellSet;
 typedef std::vector<std::list<uint32> > SpellPowerVector;
 
@@ -702,7 +703,7 @@ class SpellMgr
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[NONE_DIFFICULTY].size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
-        std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
+        TalentsPlaceHoldersSpell GetTalentPlaceHoldersSpell() const { return mPlaceHolderSpells; }
         const std::set<MinorTalentEntry const*>* GetSpecializationPerks(uint32 specializationId) const;
 
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
@@ -745,6 +746,7 @@ class SpellMgr
         void LoadSpellPowerInfo();
         void LoadForbiddenSpells();
         void InitializeItemUpgradeDatas();
+        void LoadSpellPlaceHolder();
 
         std::vector<uint32>        mSpellCreateItemList;
 
@@ -779,10 +781,10 @@ class SpellMgr
         SpellInfoMap               mSpellInfoMap[MAX_DIFFICULTY];
         SpellClassList             mSpellClassInfo;
         SpecializatioPerkMap       mSpecializationPerks;
-        SpellOverrideInfo          mSpellOverrideInfo;
         TalentSpellSet             mTalentSpellInfo;
         SpellPowerVector           mSpellPowerInfo;
         std::list<uint32>          mForbiddenSpells;
+        TalentsPlaceHoldersSpell   mPlaceHolderSpells;
         ItemUpgradeDatas           mItemUpgradeDatas;
         AreaTriggerVisuals         mAreaTriggerVisuals;
 };
