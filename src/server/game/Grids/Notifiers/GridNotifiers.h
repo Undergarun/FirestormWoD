@@ -113,16 +113,25 @@ namespace JadeCore
                 iter->getSource()->Update(i_timeDiff);
         }
 
-        void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
         void Visit(CreatureMapType &m)
         {
             for (GridRefManager<Creature>::iterator iter = m.begin(); iter != m.end(); ++iter)
-                iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
+                iter->getSource()->Update(i_timeDiff);
         }
-        void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
+
+        void Visit(GameObjectMapType &m)
+        {
+            for (GridRefManager<GameObject>::iterator iter = m.begin(); iter != m.end(); ++iter)
+            {
+                if (!iter->getSource()->IsTransport())
+                    iter->getSource()->Update(i_timeDiff);
+            }
+        }
+
+        void Visit(PlayerMapType &m)        { updateObjects<Player>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
-        void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
-        void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(CorpseMapType &m)        { updateObjects<Corpse>(m); }
+        void Visit(AreaTriggerMapType &m)   { updateObjects<AreaTrigger>(m); }
     };
 
     struct MessageDistDeliverer
@@ -202,6 +211,7 @@ namespace JadeCore
         void Visit(PlayerMapType &) {}
         void Visit(CorpseMapType &) {}
         void Visit(CreatureMapType &);
+        void Visit(GameObjectMapType &);
     };
 
     // SEARCHERS & LIST SEARCHERS & WORKERS

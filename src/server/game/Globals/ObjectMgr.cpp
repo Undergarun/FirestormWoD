@@ -6045,8 +6045,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->CorpseX)*(entry->x - mapEntry->CorpseX)
-                +(entry->y - mapEntry->CorpseY)*(entry->y - mapEntry->CorpseY);
+            float dist2 = (entry->m_PositionX - mapEntry->CorpseX)*(entry->m_PositionX - mapEntry->CorpseX)
+                + (entry->m_PositionY - mapEntry->CorpseY)*(entry->m_PositionY - mapEntry->CorpseY);
+
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6065,7 +6066,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            float dist2 = (entry->m_PositionX - x)*(entry->m_PositionX - x)+(entry->m_PositionY - y)*(entry->m_PositionY - y)+(entry->m_PositionZ - z)*(entry->m_PositionZ - z);
             if (foundNear)
             {
                 if (dist2 < distNear)

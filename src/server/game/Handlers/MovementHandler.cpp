@@ -344,30 +344,23 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         {
             if (!l_PlayerMover->GetTransport())
             {
-                // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
-                for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+
+                if (Transport* transport = l_PlayerMover->GetMap()->GetTransport(l_MovementInfo.t_guid))
                 {
-                    if ((*iter)->GetGUID() == l_MovementInfo.t_guid)
-                    {
-                        l_PlayerMover->m_transport = *iter;
-                        (*iter)->AddPassenger(l_PlayerMover);
-                        break;
-                    }
+                    l_PlayerMover->m_transport = transport;
+                    transport->AddPassenger(l_PlayerMover);
                 }
             }
             else if (l_PlayerMover->GetTransport()->GetGUID() != l_MovementInfo.t_guid)
             {
                 bool foundNewTransport = false;
                 l_PlayerMover->m_transport->RemovePassenger(l_PlayerMover);
-                for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+
+                if (Transport* transport = l_PlayerMover->GetMap()->GetTransport(l_MovementInfo.t_guid))
                 {
-                    if ((*iter)->GetGUID() == l_MovementInfo.t_guid)
-                    {
-                        foundNewTransport = true;
-                        l_PlayerMover->m_transport = *iter;
-                        (*iter)->AddPassenger(l_PlayerMover);
-                        break;
-                    }
+                    foundNewTransport = true;
+                    l_PlayerMover->m_transport = transport;
+                    transport->AddPassenger(l_PlayerMover);
                 }
 
                 if (!foundNewTransport)
@@ -824,12 +817,6 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
 
     p_MovementInformation->guid     = l_MoverGuid;
     p_MovementInformation->t_guid   = l_TransportGuid;
-
-    if (l_HasTransportData && p_MovementInformation->pos.m_positionX != p_MovementInformation->t_pos.m_positionX)
-    {
-        if (GetPlayer()->GetTransport())
-            GetPlayer()->GetTransport()->UpdatePosition(p_MovementInformation);
-    }
 
     //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
     //! Might be subject to latency, so just remove improper flags.

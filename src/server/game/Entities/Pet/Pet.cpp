@@ -750,7 +750,7 @@ void Pet::Update(uint32 diff, uint32 entry)
             break;
     }
 
-    Creature::Update(diff, entry);
+    Creature::Update(diff);
 }
 
 void Creature::Regenerate(Powers power)

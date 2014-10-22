@@ -1341,7 +1341,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void PrepareGunshipEvent(Player* player)
             {
-                Transport* hammerShip;
+               /* Transport* hammerShip;
                 Transport* skybreakerShip;
 
                 // need for next data checks
@@ -1546,7 +1546,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 else   
                 {
                     sMapMgr->LoadTransportForPlayers(player);
-                }
+                }*/
             }
 
         protected:

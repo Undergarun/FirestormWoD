@@ -2174,7 +2174,7 @@ void Battleground::RelocateDeadPlayers(uint64 queueIndex)
                 closestGrave = GetClosestGraveYard(player);
 
             if (closestGrave)
-                player->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
+                player->TeleportTo(GetMapId(), closestGrave->m_PositionX, closestGrave->m_PositionY, closestGrave->m_PositionZ, player->GetOrientation());
         }
         ghostList.clear();
     }

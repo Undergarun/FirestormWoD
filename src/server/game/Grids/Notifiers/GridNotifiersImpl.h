@@ -41,7 +41,14 @@ inline void JadeCore::ObjectUpdater::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if (iter->getSource()->IsInWorld())
-            iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
+            iter->getSource()->Update(i_timeDiff);
+}
+
+inline void JadeCore::ObjectUpdater::Visit(GameObjectMapType &m)
+{
+    for (GameObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        if (iter->getSource()->IsInWorld() && !iter->getSource()->IsTransport())
+            iter->getSource()->Update(i_timeDiff);
 }
 
 // SEARCHERS & LIST SEARCHERS & WORKERS
