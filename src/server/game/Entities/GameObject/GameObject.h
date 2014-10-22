@@ -199,11 +199,17 @@ struct GameObjectTemplate
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
-            uint32 pause;                                   //0
+            int32 stopFrame1;                               //0
             uint32 startOpen;                               //1
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 pause1EventID;                           //3
             uint32 pause2EventID;                           //4
+            uint32 mapId;                                   //5
+            int32 stopFrame2;                               //6
+            uint32 unknown;
+            int32 stopFrame3;                               //8
+            uint32 unknown2;
+            int32 stopFrame4;                               //10
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -634,8 +640,11 @@ union GameObjectValue
     struct
     {
         uint32 PathProgress;
+        uint32 StateUpdateTimer;
         TransportAnimation const* AnimationInfo;
         uint32 CurrentSeg;
+        std::vector<uint32>* StopFrames;
+        bool ClientUpdate;
     } Transport;
     //29 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct
@@ -668,10 +677,13 @@ enum GOState
 {
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2                         // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_TRANSPORT_STOPPED  = 24,
+    GO_STATE_TRANSPORT_ACTIVE   = 25,
 };
 
-#define MAX_GO_STATE              3
+#define MAX_GO_STATE                       3
+#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 // from `gameobject`
 struct GameObjectData
@@ -930,6 +942,11 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         float GetStationaryY() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
         float GetStationaryZ() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
         float GetStationaryO() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
+
+        void SetTransportState(GOState state, uint32 stopFrame = 0);
+        uint32 GetTransportPeriod() const;
+
+        void SendTransportToOutOfRangePlayers();
 
     protected:
         bool AIM_Initialize();

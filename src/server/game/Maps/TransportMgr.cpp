@@ -70,6 +70,10 @@ void TransportMgr::LoadTransportTemplates()
             continue;
         }
 
+        // Hackfix, but new transport system crash only with this entry, idk why ... It's depholm Alliance Gunship
+        if (entry == 204018)
+            continue;
+
         // paths are generated per template, saves us from generating it again in case of instanced transports
         TransportTemplate& transport = _transportTemplates[entry];
         transport.entry = entry;

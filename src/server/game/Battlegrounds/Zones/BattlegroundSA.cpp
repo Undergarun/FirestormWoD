@@ -99,10 +99,6 @@ bool BattlegroundSA::SetupBattleground()
 
 bool BattlegroundSA::ResetObjs()
 {
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            SendTransportsRemove(player);
-
     uint32 atF = BG_SA_Factions[Attackers];
     uint32 defF = BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE];
 
@@ -155,16 +151,11 @@ bool BattlegroundSA::ResetObjs()
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-
-
-
     GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
     GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
-    SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
-    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
-    //GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_LEVEL, 514639468);
-    //GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_LEVEL, 514639468);
+    GetBGObject(BG_SA_BOAT_ONE)->SetGoState(GO_STATE_TRANSPORT_STOPPED);
+    GetBGObject(BG_SA_BOAT_TWO)->SetGoState(GO_STATE_TRANSPORT_STOPPED);
 
     GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192920);
     GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192920);
@@ -172,11 +163,8 @@ bool BattlegroundSA::ResetObjs()
     GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
     GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
 
-   // GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0);
-   // GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0);
-
-   // GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(OBJECT_FIELD_TYPE, 33);
-   // GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(OBJECT_FIELD_TYPE, 33);
+    SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
+    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
@@ -292,11 +280,6 @@ bool BattlegroundSA::ResetObjs()
     UpdateWorldState(BG_SA_YELLOW_GATEWS, 1);
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
 
-    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                SendTransportInit(player);
-
     // set status manually so preparation is cast correctly in 2nd round too
     SetStatus(STATUS_WAIT_JOIN);
 
@@ -309,29 +292,9 @@ void BattlegroundSA::StartShips()
     if (ShipsStarted)
         return;
 
-    //GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_LEVEL, 515495825);
-    //GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_LEVEL, 515495825);
+    GetBGObject(BG_SA_BOAT_ONE)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+    GetBGObject(BG_SA_BOAT_TWO)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
 
-   // DoorOpen(BG_SA_BOAT_ONE);
-   // DoorOpen(BG_SA_BOAT_TWO);
-
-    GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192921);
-    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192921);
-
-    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
-    {
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        {
-            if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-            {
-                UpdateData data(GetMapId());
-                WorldPacket pkt;
-                GetBGObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
-                if (data.BuildPacket(&pkt))
-                    p->GetSession()->SendPacket(&pkt);
-            }
-        }
-    }
     ShipsStarted = true;
 }
 
@@ -508,7 +471,6 @@ void BattlegroundSA::AddPlayer(Player* player)
     //create score and add it to map, default values are set in constructor
     BattlegroundSAScore* sc = new BattlegroundSAScore;
 
-    SendTransportInit(player);
     PlayerScores[player->GetGUID()] = sc;
 }
 
@@ -1000,50 +962,5 @@ void BattlegroundSA::UpdateDemolisherSpawns()
                 }
             }
         }
-    }
-}
-
-void BattlegroundSA::SendTransportInit(Player* player)
-{
-    if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
-    {
-        UpdateData transData(GetMapId());
-        if (BgObjects[BG_SA_BOAT_ONE])
-            GetBGObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
-        if (BgObjects[BG_SA_BOAT_TWO])
-            GetBGObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
-        WorldPacket packet;
-        if (transData.BuildPacket(&packet))
-            player->GetSession()->SendPacket(&packet);
-    }
-}
-
-void BattlegroundSA::SendTransportsRemove(Player* player)
-{
-    if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO]
-        || BgObjects[BG_SA_GREEN_GATE] || BgObjects[BG_SA_YELLOW_GATE]
-        || BgObjects[BG_SA_BLUE_GATE] || BgObjects[BG_SA_RED_GATE]
-        || BgObjects[BG_SA_PURPLE_GATE] || BgObjects[BG_SA_ANCIENT_GATE])
-    {
-        UpdateData transData(GetMapId());
-        if (BgObjects[BG_SA_BOAT_ONE])
-            GetBGObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_BOAT_TWO])
-            GetBGObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_GREEN_GATE])
-            GetBGObject(BG_SA_GREEN_GATE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_YELLOW_GATE])
-            GetBGObject(BG_SA_YELLOW_GATE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_BLUE_GATE])
-            GetBGObject(BG_SA_BLUE_GATE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_RED_GATE])
-            GetBGObject(BG_SA_RED_GATE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_PURPLE_GATE])
-            GetBGObject(BG_SA_PURPLE_GATE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_ANCIENT_GATE])
-            GetBGObject(BG_SA_ANCIENT_GATE)->BuildOutOfRangeUpdateBlock(&transData);
-        WorldPacket packet;
-        if (transData.BuildPacket(&packet))
-            player->GetSession()->SendPacket(&packet);
     }
 }

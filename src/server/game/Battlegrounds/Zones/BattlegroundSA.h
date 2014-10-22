@@ -614,11 +614,6 @@ class BattlegroundSA : public Battleground
         /// Respawn dead demolisher
         void UpdateDemolisherSpawns();
 
-        /// Send packet to player for create boats (client part)
-        void SendTransportInit(Player* player);
-        /// Send packet to player for destroy boats (client part)
-        void SendTransportsRemove(Player* player);
-
         /// Totale elapsed time of current round
         uint32 TotalTime;
         /// Max time of round

@@ -330,16 +330,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     const DynamicObject * l_DynamicObject   = ToDynObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
 
+    uint32 l_FrameCount = l_GameObject && l_GameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT ? l_GameObject->GetGOValue()->Transport.StopFrames->size() : 0;
     const WorldObject   * l_WorldObject = (const WorldObject*)this;
-
-    bool l_IsTransport = false;
-
-    if (l_GameObject)
-    {
-        if (GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(l_GameObject->GetEntry()))
-            if (l_GameObjectTemplate->type == GAMEOBJECT_TYPE_TRANSPORT && l_GameObjectTemplate->transport.pause)
-                l_IsTransport = false;
-    }
 
     /// Normalize movement to avoid client crash
     if (l_Unit)
@@ -371,7 +363,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->FlushBits();
 
-    *p_Data << uint32(l_IsTransport ? 1 : 0);                       ///< Transport frame count
+    *p_Data << uint32(l_FrameCount);                                ///< Transport frame count
 
     if (p_Flags & UPDATEFLAG_LIVING)
     {
@@ -778,10 +770,11 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         /// TODO
     }
 
-    /// Here unk block
-
-    if (l_IsTransport)
-        *p_Data << uint32(sObjectMgr->GetGameObjectTemplate(l_GameObject->GetEntry())->transport.pause);
+    if (l_FrameCount > 0)
+    {
+        for (uint32 l_Frame : *l_GameObject->GetGOValue()->Transport.StopFrames)
+            *p_Data << uint32(l_Frame);
+    }
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -3742,14 +3735,23 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
-    CellCoord p = JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY());
-    Cell cell(p);
-    cell.SetNoCreate();
-    WorldObjectChangeAccumulator notifier(*this, data_map);
-    TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
-    Map& map = *GetMap();
-    //we must build packets for all visible players
-    cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    if (ToGameObject() && ToGameObject()->IsTransport())
+    {
+        Map::PlayerList const& players = GetMap()->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            BuildFieldsUpdate(itr->getSource(), data_map);
+    }
+    else
+    {
+        CellCoord p = JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY());
+        Cell cell(p);
+        cell.SetNoCreate();
+        WorldObjectChangeAccumulator notifier(*this, data_map);
+        TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
+        Map& map = *GetMap();
+        //we must build packets for all visible players
+        cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    }
 
     ClearUpdateMask(false);
 }

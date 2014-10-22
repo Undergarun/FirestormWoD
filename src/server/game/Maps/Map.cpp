@@ -210,8 +210,8 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
 _creatureToMoveLock(false), _gameObjectsToMoveLock(false), i_mapEntry(sMapStore.LookupEntry(id)),
 i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
-m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()), i_gridExpiry(expiry),
-i_scriptLock(false)
+m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()), _transportsGameObjectUpdateIter(_transportsGameObject.end()),
+i_gridExpiry(expiry), i_scriptLock(false)
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -527,6 +527,12 @@ bool Map::AddToMap(T* obj)
     if (obj->ToCreature())
         sWildBattlePetMgr->OnAddToMap(obj->ToCreature());
 
+    if (obj->ToGameObject() && obj->ToGameObject()->IsTransport())
+    {
+        _transportsGameObject.insert(obj->ToGameObject());
+        obj->ToGameObject()->SendTransportToOutOfRangePlayers();
+    }
+
     return true;
 }
 
@@ -635,6 +641,17 @@ void Map::Update(const uint32 t_diff)
         VisitNearbyCellsOf(obj, grid_object_update, world_object_update);
     }
 
+    for (_transportsGameObjectUpdateIter = _transportsGameObject.begin(); _transportsGameObjectUpdateIter != _transportsGameObject.end();)
+    {
+        GameObject* gameObj = *_transportsGameObjectUpdateIter;
+        ++_transportsGameObjectUpdateIter;
+
+        if (!gameObj->IsInWorld())
+            continue;
+
+        gameObj->Update(t_diff);
+    }
+
     for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
     {
         WorldObject* obj = *_transportsUpdateIter;
@@ -687,6 +704,35 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->RemoveFromWorld();
     if (obj->isActiveObject())
         RemoveFromActive(obj);
+
+    if (obj->ToGameObject() && obj->ToGameObject()->IsTransport())
+    {
+        // Send delete pkt to out of range players
+        Map::PlayerList const& players = GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
+            if (itr->getSource()->GetDistance(*obj) < obj->GetVisibilityRange())
+                continue;
+
+            UpdateData transData(obj->GetMapId());
+            WorldPacket pkt;
+            obj->BuildOutOfRangeUpdateBlock(&transData);
+            if (transData.BuildPacket(&pkt))
+                itr->getSource()->GetSession()->SendPacket(&pkt);
+        }
+
+        if (_transportsGameObjectUpdateIter != _transportsGameObject.end())
+        {
+            TransportGameObjectContainer::iterator itr = _transportsGameObject.find(obj->ToGameObject());
+            if (itr == _transportsGameObject.end())
+                return;
+            if (itr == _transportsGameObjectUpdateIter)
+                ++_transportsGameObjectUpdateIter;
+            _transportsGameObject.erase(itr);
+        }
+        else
+            _transportsGameObject.erase(obj->ToGameObject());
+    }
 
     obj->UpdateObjectVisibility(true);
     obj->RemoveFromGrid();
@@ -2256,16 +2302,21 @@ void Map::SendInitSelf(Player* player)
         player->GetSession()->SendPacket(&packet);
 }
 
+/// Hack to send out transports
 void Map::SendInitTransports(Player* player)
 {
-    // Hack to send out transports
-
     UpdateData transData(player->GetMapId());
+
+    // GAMEOBJECT_TYPE_MO_TRANSPORT
     for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
     {
         if (*i != player->GetTransport())
             (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
     }
+
+    // GAMEOBJECT_TYPE_TRANSPORT
+    for (TransportGameObjectContainer::const_iterator i = _transportsGameObject.begin(); i != _transportsGameObject.end(); ++i)
+        (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
 
     WorldPacket packet;
     if (transData.BuildPacket(&packet))
@@ -2275,11 +2326,17 @@ void Map::SendInitTransports(Player* player)
 void Map::SendRemoveTransports(Player* player)
 {
     UpdateData transData(player->GetMapId());
+
+    // GAMEOBJECT_TYPE_MO_TRANSPORT
     for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
     {
         if (*i != player->GetTransport())
             (*i)->BuildOutOfRangeUpdateBlock(&transData);
     }
+
+    // GAMEOBJECT_TYPE_TRANSPORT
+    for (TransportGameObjectContainer::const_iterator i = _transportsGameObject.begin(); i != _transportsGameObject.end(); ++i)
+        (*i)->BuildOutOfRangeUpdateBlock(&transData);
 
     WorldPacket packet;
     if (transData.BuildPacket(&packet))
