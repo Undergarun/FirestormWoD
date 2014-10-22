@@ -2956,8 +2956,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
 
                 data << uint32(mapid);
-                data.WriteBit(0);
                 data.WriteBit(m_transport != NULL);
+                data.WriteBit(0);
                 data.FlushBits();
 
                 if (m_transport)
