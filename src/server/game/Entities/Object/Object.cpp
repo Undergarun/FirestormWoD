@@ -241,9 +241,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
                 case GAMEOBJECT_TYPE_FLAGDROP:
                     updateType = UPDATETYPE_CREATE_OBJECT2;
                     break;
-                case GAMEOBJECT_TYPE_TRANSPORT:
-                    flags |= UPDATEFLAG_TRANSPORT;
-                    break;
                 default:
                     break;
             }
@@ -333,10 +330,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     const DynamicObject * l_DynamicObject   = ToDynObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
 
-    const WorldObject* l_WorldObject =  l_Player        ? (const WorldObject*)l_Player : (
-                                        l_Unit          ? (const WorldObject*)l_Unit : (
-                                        l_GameObject    ? (const WorldObject*)l_GameObject : l_DynamicObject ? (const WorldObject*)l_DynamicObject : (
-                                        l_AreaTrigger   ? (const WorldObject*)l_AreaTrigger : (const WorldObject*)ToCorpse())));
+    const WorldObject   * l_WorldObject = (const WorldObject*)this;
 
     bool l_IsTransport = false;
 
@@ -615,23 +609,25 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_STATIONARY_POSITION)
     {
-        *p_Data << float(l_WorldObject->GetPositionX());                    ///< Stationary position X
-        *p_Data << float(l_WorldObject->GetPositionY());                    ///< Stationary position Y
-
-        if (l_Unit)
-            *p_Data << float(l_Unit->GetPositionZMinusOffset());            ///< Stationary position Z
-        else
-            *p_Data << float(l_WorldObject->GetPositionZ());                ///< Stationary position Z
-
-        *p_Data << float(l_WorldObject->GetOrientation());                  ///< Stationary position O
+        *p_Data << float(l_WorldObject->GetStationaryX());                  ///< Stationary position X
+        *p_Data << float(l_WorldObject->GetStationaryY());                  ///< Stationary position Y
+        *p_Data << float(l_WorldObject->GetStationaryZ());                  ///< Stationary position Z
+        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O            
     }
 
     if (p_Flags & UPDATEFLAG_HAS_TARGET)
         p_Data->appendPackGUID(l_Unit->getVictim()->GetGUID());             ///< Target victim guid
 
     if (p_Flags & UPDATEFLAG_TRANSPORT)
-        *p_Data << uint32(getMSTime());                                     ///< Transport time
+    {
+        uint32 l_TransportTime = getMSTime();
 
+        if (l_GameObject && l_GameObject->IsTransport())
+            l_TransportTime = l_GameObject->GetGOValue()->Transport.PathProgress;
+
+        *p_Data << uint32(l_TransportTime);                                 ///< Transport time
+    }
+                                    
     if (p_Flags & UPDATEFLAG_VEHICLE)
     {
         *p_Data << uint32(l_Unit->GetVehicleKit()->GetVehicleInfo()->m_ID); ///< Vehicle ID

@@ -61,6 +61,37 @@ void BattlegroundSA::Reset()
     Status = BG_SA_WARMUP;
 }
 
+void BattlegroundSA::GetTeamStartLoc(uint32 p_TeamID, float &p_PositionX, float &p_PositionY, float &p_PositionZ, float &p_Orientation) const
+{
+    if (p_TeamID != Attackers)
+    {
+        WorldSafeLocsEntry const* l_DefenderStartPosition = sWorldSafeLocsStore.LookupEntry(BG_SA_WORLDSAFELOC_DEFENDER_START);
+        if (!l_DefenderStartPosition)
+        {
+            p_PositionX = 0.0f;
+            p_PositionY = 0.0f;
+            p_PositionZ = 0.0f;
+            p_Orientation = 0.0f;
+
+            return;
+        }
+
+        p_PositionX   = l_DefenderStartPosition->m_PositionX;
+        p_PositionY   = l_DefenderStartPosition->m_PositionY;
+        p_PositionZ   = l_DefenderStartPosition->m_PositionZ;
+        p_Orientation = l_DefenderStartPosition->m_Facing;
+        return;
+    }
+    else
+    {
+        uint8 l_Roll  = urand(0, 1);
+        p_PositionX   = g_BG_SA_AttackerPosition[l_Roll][0];
+        p_PositionY   = g_BG_SA_AttackerPosition[l_Roll][1];
+        p_PositionZ   = g_BG_SA_AttackerPosition[l_Roll][2];
+        p_Orientation = g_BG_SA_AttackerPosition[l_Roll][3];
+    }
+}
+
 bool BattlegroundSA::SetupBattleground()
 {
     return ResetObjs();
@@ -68,9 +99,9 @@ bool BattlegroundSA::SetupBattleground()
 
 bool BattlegroundSA::ResetObjs()
 {
-    /*for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            SendTransportsRemove(player);*/
+            SendTransportsRemove(player);
 
     uint32 atF = BG_SA_Factions[Attackers];
     uint32 defF = BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE];
@@ -93,7 +124,7 @@ bool BattlegroundSA::ResetObjs()
             return false;
     }
 
-    /*for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
         uint32 boatid = 0;
         switch (i)
@@ -112,7 +143,7 @@ bool BattlegroundSA::ResetObjs()
           BG_SA_ObjSpawnlocs[i][2]+(Attackers ? -3.750f: 0),
           BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
-    }*/
+    }
 
     for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_LEFT_FLAGPOLE; i++)
     {
@@ -124,10 +155,28 @@ bool BattlegroundSA::ResetObjs()
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-    //GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
-    //GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
-    //SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
-    //SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
+
+
+
+    GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
+    GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
+    SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
+    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
+
+    //GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_LEVEL, 514639468);
+    //GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_LEVEL, 514639468);
+
+    GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192920);
+    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192920);
+
+    GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
+    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
+
+   // GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0);
+   // GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0);
+
+   // GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(OBJECT_FIELD_TYPE, 33);
+   // GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(OBJECT_FIELD_TYPE, 33);
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
@@ -170,12 +219,12 @@ bool BattlegroundSA::ResetObjs()
         if (i == BG_SA_BEACH_GY)
         {
             GraveyardStatus[i] = Attackers;
-            AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? HORDE : ALLIANCE));
+            AddSpiritGuide(i + BG_SA_MAXNPC, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? HORDE : ALLIANCE));
         }
         else
         {
             GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
-            AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE));
+            AddSpiritGuide(i + BG_SA_MAXNPC, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE));
         }
     }
 
@@ -243,15 +292,15 @@ bool BattlegroundSA::ResetObjs()
     UpdateWorldState(BG_SA_YELLOW_GATEWS, 1);
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
 
-    /*for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                SendTransportInit(player);*/
+                SendTransportInit(player);
 
     // set status manually so preparation is cast correctly in 2nd round too
     SetStatus(STATUS_WAIT_JOIN);
 
-    TeleportPlayers();
+    //TeleportPlayers();
     return true;
 }
 
@@ -260,8 +309,14 @@ void BattlegroundSA::StartShips()
     if (ShipsStarted)
         return;
 
-    /*DoorOpen(BG_SA_BOAT_ONE);
-    DoorOpen(BG_SA_BOAT_TWO);
+    //GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_LEVEL, 515495825);
+    //GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_LEVEL, 515495825);
+
+   // DoorOpen(BG_SA_BOAT_ONE);
+   // DoorOpen(BG_SA_BOAT_TWO);
+
+    GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192921);
+    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_PERCENT_HEALTH, 4278192921);
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
@@ -276,7 +331,7 @@ void BattlegroundSA::StartShips()
                     p->GetSession()->SendPacket(&pkt);
             }
         }
-    }*/
+    }
     ShipsStarted = true;
 }
 
@@ -453,26 +508,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     //create score and add it to map, default values are set in constructor
     BattlegroundSAScore* sc = new BattlegroundSAScore;
 
-    if (!ShipsStarted)
-    {
-        if (player->GetTeamId() == Attackers)
-        {
-            player->CastSpell(player, 12438, true);//Without this player falls before boat loads...
-
-            player->TeleportTo(607, 1828.809f, -28.069f, 57.951f, 3.11f, 0);
-
-        }
-        else
-            player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
-    }
-    else
-    {
-        if (player->GetTeamId() == Attackers)
-            player->TeleportTo(607, 1600.381f, -106.263f, 8.8745f, 3.78f, 0);
-        else
-            player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
-    }
-    //SendTransportInit(player);
+    SendTransportInit(player);
     PlayerScores[player->GetGUID()] = sc;
 }
 
@@ -704,7 +740,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
         safeloc = BG_SA_GYEntries[BG_SA_DEFENDER_LAST_GY];
 
     closest = sWorldSafeLocsStore.LookupEntry(safeloc);
-    nearest = sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y)+(closest->z - z)*(closest->z - z));
+    nearest = sqrt((closest->m_PositionX - x)*(closest->m_PositionX - x) + (closest->m_PositionY - y)*(closest->m_PositionY - y)+(closest->m_PositionZ - z)*(closest->m_PositionZ - z));
 
     for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
@@ -712,7 +748,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
             continue;
 
         ret = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
-        dist = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
+        dist = sqrt((ret->m_PositionX - x)*(ret->m_PositionX - x) + (ret->m_PositionY - y)*(ret->m_PositionY - y)+(ret->m_PositionZ - z)*(ret->m_PositionZ - z));
         if (dist < nearest)
         {
             closest = ret;
@@ -770,7 +806,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
     if (!sg)
         return;
 
-    AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
+    AddSpiritGuide(i + BG_SA_MAXNPC, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
     uint32 npc = 0;
     uint32 flag = 0;
 
@@ -969,7 +1005,7 @@ void BattlegroundSA::UpdateDemolisherSpawns()
 
 void BattlegroundSA::SendTransportInit(Player* player)
 {
-    /*if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
+    if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
     {
         UpdateData transData(GetMapId());
         if (BgObjects[BG_SA_BOAT_ONE])
@@ -979,12 +1015,12 @@ void BattlegroundSA::SendTransportInit(Player* player)
         WorldPacket packet;
         if (transData.BuildPacket(&packet))
             player->GetSession()->SendPacket(&packet);
-    }*/
+    }
 }
 
 void BattlegroundSA::SendTransportsRemove(Player* player)
 {
-    /*if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO]
+    if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO]
         || BgObjects[BG_SA_GREEN_GATE] || BgObjects[BG_SA_YELLOW_GATE]
         || BgObjects[BG_SA_BLUE_GATE] || BgObjects[BG_SA_RED_GATE]
         || BgObjects[BG_SA_PURPLE_GATE] || BgObjects[BG_SA_ANCIENT_GATE])
@@ -1009,5 +1045,5 @@ void BattlegroundSA::SendTransportsRemove(Player* player)
         WorldPacket packet;
         if (transData.BuildPacket(&packet))
             player->GetSession()->SendPacket(&packet);
-    }*/
+    }
 }

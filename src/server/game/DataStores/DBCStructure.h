@@ -2226,6 +2226,28 @@ struct TotemCategoryEntry
     uint32    categoryMask;                                 // 3        m_totemCategoryMask     (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
+struct TransportAnimationEntry
+{
+    //uint32  Id;
+    uint32  TransportEntry;
+    uint32  TimeSeg;
+    float   X;
+    float   Y;
+    float   Z;
+    //uint32  MovementId;
+};
+
+struct TransportRotationEntry
+{
+    //uint32  Id;
+    uint32  TransportEntry;
+    uint32  TimeSeg;
+    float   X;
+    float   Y;
+    float   Z;
+    float   W;
+};
+
 #define MAX_VEHICLE_SEATS 8
 
 struct VehicleEntry
@@ -2400,13 +2422,13 @@ struct WorldMapOverlayEntry
 
 struct WorldSafeLocsEntry
 {
-    uint32  ID;                                             // 0        m_ID
-    uint32  map_id;                                         // 1        m_Continent
-    float   x;                                              // 2        m_LocX
-    float   y;                                              // 3        m_LocY
-    float   z;                                              // 4        m_LocZ
-    //float     m_Facing;                                   // 5        m_Facing
-    //char*     m_AreaNameLang;                             // 6        m_AreaNameLang
+    uint32    ID;                                           // 0
+    uint32    map_id;                                       // 1
+    float     m_PositionX;                                  // 2
+    float     m_PositionY;                                  // 3
+    float     m_PositionZ;                                  // 4
+    float     m_Facing;                                     // 5
+    //char*   name;                                         // 6 m_AreaName_lang
 };
 
 //UNUSED ACTUALY

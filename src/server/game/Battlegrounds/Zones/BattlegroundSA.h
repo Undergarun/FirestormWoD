@@ -33,6 +33,17 @@ class BattlegroundSAScore : public BattlegroundScore
 #define BG_SA_FLAG_AMOUNT           3
 #define BG_SA_DEMOLISHER_AMOUNT     4
 
+enum BG_SA_WorldSafeLocs
+{
+    BG_SA_WORLDSAFELOC_DEFENDER_START = 1399,
+};
+
+static const float g_BG_SA_AttackerPosition[2][4] =
+{
+    { 2682.936f, -830.368f, 15.0f, 2.895f },
+    { 2577.003f, 980.261f, 15.0f, 0.807f }
+};
+
 enum BG_SA_Status
 {
     BG_SA_NOTSTARTED = 0,
@@ -457,6 +468,8 @@ class BattlegroundSA : public Battleground
         void PostUpdateImpl(uint32 diff);
 
         /* inherited from BattlegroundClass */
+        /// Called to retreive start location by team
+        virtual void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const;
         /// Called when a player join battle
         virtual void AddPlayer(Player* player);
         /// Called when battle start

@@ -40,7 +40,6 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
 #include "BattlegroundKT.h"
-#include "BattlegroundSSM.h"
 #include "BattlegroundTV.h"
 #include "BattlegroundTTP.h"
 #include "Chat.h"
@@ -942,10 +941,10 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[5].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team1StartLocX = start->x;
-            data.Team1StartLocY = start->y;
-            data.Team1StartLocZ = start->z;
-            data.Team1StartLocO = fields[6].GetFloat();
+            data.Team1StartLocX = start->m_PositionX;
+            data.Team1StartLocY = start->m_PositionY;
+            data.Team1StartLocZ = start->m_PositionZ;
+            data.Team1StartLocO = start->m_Facing;
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
@@ -963,10 +962,10 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[7].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team2StartLocX = start->x;
-            data.Team2StartLocY = start->y;
-            data.Team2StartLocZ = start->z;
-            data.Team2StartLocO = fields[8].GetFloat();
+            data.Team2StartLocX = start->m_PositionX;
+            data.Team2StartLocY = start->m_PositionY;
+            data.Team2StartLocZ = start->m_PositionZ;
+            data.Team2StartLocO = start->m_Facing;
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {

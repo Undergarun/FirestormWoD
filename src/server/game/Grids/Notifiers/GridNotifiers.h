@@ -117,7 +117,7 @@ namespace JadeCore
         void Visit(CreatureMapType &m)
         {
             for (GridRefManager<Creature>::iterator iter = m.begin(); iter != m.end(); ++iter)
-                iter->getSource()->Update(i_timeDiff, iter->getSource()->GetEntry());
+                iter->getSource()->Update(i_timeDiff);
         }
         void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
