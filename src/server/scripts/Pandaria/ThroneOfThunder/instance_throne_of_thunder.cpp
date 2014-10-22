@@ -245,6 +245,16 @@ class instance_throne_of_thunder : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
+                    case GOB_JIN_ROKH_ENTRANCE_DOOR:
+                    case GOB_JIN_ROKH_EXIT_DOOR:
+                    case GOB_HORRIDON_ENTRANCE_DOOR:
+                    case GOB_HORRIDON_EXIT_DOOR:
+                    case GOB_COUNCIL_ENTRANCE_DOOR_LEFT:
+                    case GOB_COUNCIL_ENTRANCE_DOOR_RIGHT:
+                    case GOB_COUNCIL_EXIT_DOOR:
+                    case GOB_TORTOS_EXIT_DOOR:
+                        AddDoor(go, true);
+                        break;
                     case GOB_MOGU_FOUNTAIN_NE:
                         moguFountainsGuids[0] = go->GetGUID();
                         go->SetGoState(GO_STATE_READY);
@@ -307,6 +317,7 @@ class instance_throne_of_thunder : public InstanceMapScript
                         tenthMoguBloodVatGuid = go->GetGUID();
                         break;
                     case  GOB_JI_KUN_EXIT_DOOR:
+                        AddDoor(go, true);
                         jiKunExitDoorGuid = go->GetGUID();
                         break;
                     default:
