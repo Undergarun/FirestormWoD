@@ -262,17 +262,32 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             m_goValue->Transport.StateUpdateTimer     = 0;
             m_goValue->Transport.StopFrames           = new std::vector<uint32>();
 
-            if (goinfo->transport.stopFrame1 > 0)
-                m_goValue->Transport.StopFrames->push_back(goinfo->transport.stopFrame1);
+            if (goinfo->transport.pauseTime1 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime1);
 
-            if (goinfo->transport.stopFrame2 > 0)
-                m_goValue->Transport.StopFrames->push_back(goinfo->transport.stopFrame2);
+            if (goinfo->transport.pauseTime2 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime2);
 
-            if (goinfo->transport.stopFrame3 > 0)
-                m_goValue->Transport.StopFrames->push_back(goinfo->transport.stopFrame3);
+            if (goinfo->transport.pauseTime3 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime3);
 
-            if (goinfo->transport.stopFrame4 > 0)
-                m_goValue->Transport.StopFrames->push_back(goinfo->transport.stopFrame4);
+            if (goinfo->transport.pauseTime4 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime4);
+
+            if (goinfo->transport.pauseTime5 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime5);
+
+            if (goinfo->transport.pauseTime6 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime6);
+
+            if (goinfo->transport.pauseTime7 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime7);
+
+            if (goinfo->transport.pauseTime8 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime8);
+
+            if (goinfo->transport.pauseTime9 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime9);
 
             if (!goinfo->transport.startOpen)
                 SetGoState(GO_STATE_TRANSPORT_ACTIVE);
@@ -2362,7 +2377,7 @@ void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* 
         *ori = GetOrientation();
 }
 
-void GameObject::SendTransportToOutOfRangePlayers()
+void GameObject::SendTransportToOutOfRangePlayers() const
 {
     Map::PlayerList const& players = GetMap()->GetPlayers();
     if (players.isEmpty())

@@ -199,17 +199,30 @@ struct GameObjectTemplate
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
-            int32 stopFrame1;                               //0
+            int32 pauseTime1;                               //0
             uint32 startOpen;                               //1
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 pause1EventID;                           //3
             uint32 pause2EventID;                           //4
             uint32 mapId;                                   //5
-            int32 stopFrame2;                               //6
-            uint32 unknown;
-            int32 stopFrame3;                               //8
-            uint32 unknown2;
-            int32 stopFrame4;                               //10
+            int32 pauseTime2;                               //6
+            uint32 gameEvent2;                              //7
+            int32 pauseTime3;                               //8
+            uint32 gameEvent3;                              //9
+            int32 pauseTime4;                               //10
+            uint32 gameEvent4;                              //11
+            int32 pauseTime5;                               //12
+            uint32 gameEvent5;                              //13
+            int32 pauseTime6;                               //14
+            uint32 gameEvent6;                              //15
+            int32 pauseTime7;                               //16
+            uint32 gameEvent7;                              //17
+            int32 pauseTime8;                               //18
+            uint32 gameEvent8;                              //19
+            int32 pauseTime9;                               //20
+            uint32 gameEvent9;                              //21
+            uint32 onlyChargeWhenZWithin;                   //22
+            uint32 onlyChargeWhenTime;                      //23
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -946,7 +959,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetTransportState(GOState state, uint32 stopFrame = 0);
         uint32 GetTransportPeriod() const;
 
-        void SendTransportToOutOfRangePlayers();
+        void SendTransportToOutOfRangePlayers() const;
 
     protected:
         bool AIM_Initialize();
