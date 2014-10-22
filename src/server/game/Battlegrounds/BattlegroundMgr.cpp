@@ -889,8 +889,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     BattlemasterListEntry const* bl;
     BattlemasterListEntry const* rated_bl = sBattlemasterListStore.LookupEntry(BATTLEGROUND_RATED_10_VS_10);
 
-    //                                               0   1                  2                  3       4       5                 6               7              8            9             10      11       12
-    QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, holiday, ScriptName FROM battleground_template");
+    //                                               0   1                  2                  3       4       5                 6               7              8      9        10
+    QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, holiday, ScriptName FROM battleground_template");
 
     if (!result)
     {
@@ -952,7 +952,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             data.Team1StartLocX = 0;
             data.Team1StartLocY = 0;
             data.Team1StartLocZ = 0;
-            data.Team1StartLocO = fields[6].GetFloat();
+            data.Team1StartLocO = 0;
         }
         else
         {
@@ -960,7 +960,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             continue;
         }
 
-        startId = fields[7].GetUInt32();
+        startId = fields[6].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
             data.Team2StartLocX = start->m_PositionX;
@@ -973,7 +973,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             data.Team2StartLocX = 0;
             data.Team2StartLocY = 0;
             data.Team2StartLocZ = 0;
-            data.Team2StartLocO = fields[8].GetFloat();
+            data.Team2StartLocO = 0;
         }
         else
         {
@@ -981,11 +981,11 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             continue;
         }
 
-        data.StartMaxDist = fields[9].GetFloat();
+        data.StartMaxDist = fields[7].GetFloat();
 
-        selectionWeight = fields[10].GetUInt8();
-        data.holiday = fields[11].GetUInt32();
-        data.scriptId = sObjectMgr->GetScriptId(fields[12].GetCString());
+        selectionWeight = fields[8].GetUInt8();
+        data.holiday = fields[9].GetUInt32();
+        data.scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
 
         //data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
         data.MapID = bl->mapid[0];
