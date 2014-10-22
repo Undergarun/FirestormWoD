@@ -12797,9 +12797,10 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    if (ToPlayer() && spellProto->IsTargetingArea())
+    if (spellProto->IsTargetingArea())
     {
-        AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
+        if (GetTypeId() == TYPEID_PLAYER)
+            AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
 
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         AddPct(TakenTotalMod, mult);
