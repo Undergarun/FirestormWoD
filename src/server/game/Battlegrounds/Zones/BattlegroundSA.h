@@ -36,6 +36,7 @@ class BattlegroundSAScore : public BattlegroundScore
 enum BG_SA_WorldSafeLocs
 {
     BG_SA_WORLDSAFELOC_DEFENDER_START = 1399,
+    BG_SA_WORLDSAFELOC_ATTACKER_START = 1350
 };
 
 static const float g_BG_SA_AttackerPosition[2][4] =

@@ -38,6 +38,8 @@ BattlegroundSA::BattlegroundSA()
     SignaledRoundTwoHalfMin = false;
     InitSecondRound = false;
 
+    Attackers = ((urand(0, 1)) ? TEAM_ALLIANCE : TEAM_HORDE);
+
     //! This is here to prevent an uninitialised variable warning
     //! The warning only occurs when SetUpBattleGround fails though.
     //! In the future this function should be called BEFORE sending initial worldstates.
@@ -51,7 +53,6 @@ BattlegroundSA::~BattlegroundSA()
 void BattlegroundSA::Reset()
 {
     TotalTime = 0;
-    Attackers = ((urand(0, 1)) ? TEAM_ALLIANCE : TEAM_HORDE);
     for (uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
@@ -63,33 +64,31 @@ void BattlegroundSA::Reset()
 
 void BattlegroundSA::GetTeamStartLoc(uint32 p_TeamID, float &p_PositionX, float &p_PositionY, float &p_PositionZ, float &p_Orientation) const
 {
-    if (p_TeamID != Attackers)
+    uint32 l_AttackersTeam = Attackers == TEAM_ALLIANCE ? ALLIANCE : HORDE;
+    if (p_TeamID == l_AttackersTeam && !ShipsStarted)
     {
-        WorldSafeLocsEntry const* l_DefenderStartPosition = sWorldSafeLocsStore.LookupEntry(BG_SA_WORLDSAFELOC_DEFENDER_START);
-        if (!l_DefenderStartPosition)
-        {
-            p_PositionX = 0.0f;
-            p_PositionY = 0.0f;
-            p_PositionZ = 0.0f;
-            p_Orientation = 0.0f;
-
-            return;
-        }
-
-        p_PositionX   = l_DefenderStartPosition->m_PositionX;
-        p_PositionY   = l_DefenderStartPosition->m_PositionY;
-        p_PositionZ   = l_DefenderStartPosition->m_PositionZ;
-        p_Orientation = l_DefenderStartPosition->m_Facing;
+        uint8 l_Boat  = urand(0, 1);
+        p_PositionX   = g_BG_SA_AttackerPosition[l_Boat][0];
+        p_PositionY   = g_BG_SA_AttackerPosition[l_Boat][1];
+        p_PositionZ   = g_BG_SA_AttackerPosition[l_Boat][2];
+        p_Orientation = g_BG_SA_AttackerPosition[l_Boat][3];
         return;
     }
-    else
+
+    WorldSafeLocsEntry const* l_DefenderStartPosition = sWorldSafeLocsStore.LookupEntry(p_TeamID == l_AttackersTeam ? BG_SA_WORLDSAFELOC_ATTACKER_START : BG_SA_WORLDSAFELOC_DEFENDER_START);
+    if (!l_DefenderStartPosition)
     {
-        uint8 l_Roll  = urand(0, 1);
-        p_PositionX   = g_BG_SA_AttackerPosition[l_Roll][0];
-        p_PositionY   = g_BG_SA_AttackerPosition[l_Roll][1];
-        p_PositionZ   = g_BG_SA_AttackerPosition[l_Roll][2];
-        p_Orientation = g_BG_SA_AttackerPosition[l_Roll][3];
+        p_PositionX = 0.0f;
+        p_PositionY = 0.0f;
+        p_PositionZ = 0.0f;
+        p_Orientation = 0.0f;
+        return;
     }
+
+    p_PositionX   = l_DefenderStartPosition->m_PositionX;
+    p_PositionY   = l_DefenderStartPosition->m_PositionY;
+    p_PositionZ   = l_DefenderStartPosition->m_PositionZ;
+    p_Orientation = l_DefenderStartPosition->m_Facing;
 }
 
 bool BattlegroundSA::SetupBattleground()
@@ -126,17 +125,17 @@ bool BattlegroundSA::ResetObjs()
         switch (i)
         {
             case BG_SA_BOAT_ONE:
-                boatid = Attackers ? BG_SA_BOAT_ONE_H : BG_SA_BOAT_ONE_A;
+                boatid = BG_SA_BOAT_ONE_A;
                 break;
             case BG_SA_BOAT_TWO:
-                boatid = Attackers ? BG_SA_BOAT_TWO_H : BG_SA_BOAT_TWO_A;
+                boatid = BG_SA_BOAT_TWO_A;
                 break;
             default:
                 break;
         }
         if (!AddObject(i, boatid, BG_SA_ObjSpawnlocs[i][0],
           BG_SA_ObjSpawnlocs[i][1],
-          BG_SA_ObjSpawnlocs[i][2]+(Attackers ? -3.750f: 0),
+          BG_SA_ObjSpawnlocs[i][2],
           BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
     }
@@ -472,6 +471,25 @@ void BattlegroundSA::AddPlayer(Player* player)
     BattlegroundSAScore* sc = new BattlegroundSAScore;
 
     PlayerScores[player->GetGUID()] = sc;
+
+    // Set player on transport if needed
+    uint32 l_AttackersTeam = Attackers == TEAM_ALLIANCE ? ALLIANCE : HORDE;
+    if (l_AttackersTeam == player->GetBGTeam() && Status != BG_SA_ROUND_ONE && Status != BG_SA_ROUND_TWO)
+    {
+        if (GetBGObject(BG_SA_BOAT_ONE) == nullptr || GetBGObject(BG_SA_BOAT_TWO) == nullptr)
+            return;
+
+        float l_BoatOneDistance = player->GetDistance(GetBGObject(BG_SA_BOAT_ONE));
+        float l_BoatTwoDistance = player->GetDistance(GetBGObject(BG_SA_BOAT_TWO));
+
+        GameObject* l_Boat = GetBGObject(BG_SA_BOAT_TWO);
+        if (l_BoatOneDistance < l_BoatTwoDistance)
+            l_Boat = GetBGObject(BG_SA_BOAT_ONE);
+
+        player->m_movementInfo.t_guid = l_Boat->GetGUID();
+        player->m_movementInfo.t_seat = 255;
+        player->m_movementInfo.t_pos.Relocate(-6.0f, -3.0f, 0.0f, 0.0f);
+    }
 }
 
 void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
