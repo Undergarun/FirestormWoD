@@ -19,11 +19,15 @@
 
 #include "ScriptPCH.h"
 #include "upper_blackrock_spire.h"
+#include "ObjectAccessor.h"
 
 static const DoorData doordata[] = 
 {
     { GOB_OREBENDER_ENTRANCE,   DATA_OREBENDER_GORASHAN,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
     { GOB_OREBENDER_EXIT,       DATA_OREBENDER_GORASHAN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GOB_OREBENDER_EXIT,       DATA_KYRAK_THE_CORRUPTOR,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+    { GOB_KYRAK_EXIT_01,        DATA_KYRAK_THE_CORRUPTOR,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GOB_KYRAK_EXIT_02,        DATA_KYRAK_THE_CORRUPTOR,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { 0,                        0,                          DOOR_TYPE_ROOM,     0             }  // EOF
 };
 
@@ -39,12 +43,18 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 SetBossNumber(DATA_MAX_ENCOUNTERS);
                 LoadDoorData(doordata);
 
+                m_PreOrebenderDoorGuid      = 0;
+                m_OrebenderEntranceGuid     = 0;
                 m_OrebenderGorashanGuid     = 0;
                 m_ThunderingCacophonyCasted = 0;
+                m_RunesToDisable            = 5;
             }
 
+            uint64 m_PreOrebenderDoorGuid;
+            uint64 m_OrebenderEntranceGuid;
             uint64 m_OrebenderGorashanGuid;
             uint8  m_ThunderingCacophonyCasted;
+            uint8  m_RunesToDisable;
 
             void OnCreatureCreate(Creature* p_Creature)
             {
@@ -60,6 +70,23 @@ class instance_upper_blackrock_spire : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* p_Gameobject)
             {
+                switch (p_Gameobject->GetEntry())
+                {
+                    case GOB_EMBERSEER_IN:
+                        m_PreOrebenderDoorGuid = p_Gameobject->GetGUID();
+                        break;
+                    case GOB_OREBENDER_ENTRANCE:
+                        m_OrebenderEntranceGuid = p_Gameobject->GetGUID();
+                        AddDoor(p_Gameobject, true);
+                        break;
+                    case GOB_OREBENDER_EXIT:
+                    case GOB_KYRAK_EXIT_01:
+                    case GOB_KYRAK_EXIT_02:
+                        AddDoor(p_Gameobject, true);
+                        break;
+                    default:
+                        break;
+                }
             }
             
             bool SetBossState(uint32 p_ID, EncounterState p_State)
@@ -87,6 +114,25 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     case DATA_MAGNETS_ACHIEVEMENT:
                         ++m_ThunderingCacophonyCasted;
                         break;
+                    case DATA_RUNES_DISABLED:
+                    {
+                        if (!m_RunesToDisable)
+                            break;
+
+                        --m_RunesToDisable;
+
+                        Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
+                        if (!m_RunesToDisable && l_Orebender != nullptr)
+                        {
+                            if (GameObject* l_PreDoor = GameObject::GetGameObject(*l_Orebender, m_PreOrebenderDoorGuid))
+                                l_PreDoor->SetGoState(GO_STATE_ACTIVE);
+                            if (GameObject* l_Entrance = GameObject::GetGameObject(*l_Orebender, m_OrebenderEntranceGuid))
+                                l_Entrance->SetGoState(GO_STATE_ACTIVE);
+                            break;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }

@@ -3877,6 +3877,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[2].TargetB = 0;
                 break;
+            case 161209:// Vileblood Serum (missile)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;

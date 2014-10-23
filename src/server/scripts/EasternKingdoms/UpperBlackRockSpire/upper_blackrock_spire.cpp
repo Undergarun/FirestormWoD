@@ -38,7 +38,12 @@ enum eSpells
     // Black Iron Warcaster
     SPELL_BOLT_OF_STEEL             = 153642,
     SPELL_SHRAPNEL_STORM            = 153942,
-    SPELL_SHRAPNEL_STORM_MISSILE    = 153941
+    SPELL_SHRAPNEL_STORM_MISSILE    = 153941,
+    // Black Iron Alchemist
+    SPELL_DEBILITATING_RAY          = 155505,
+    SPELL_REJUVENATING_SERUM        = 155498,
+    // Drakonid Monstrosity
+    SPELL_ERUPTION                  = 155037
 };
 
 enum eEvents
@@ -56,7 +61,14 @@ enum eEvents
     EVENT_FRANTIC_MAULING,
     // Black Iron Warcaster
     EVENT_BOLT_OF_STEEL,
-    EVENT_SHRAPNEL_STORM
+    EVENT_SHRAPNEL_STORM,
+    // Rune Glow
+    EVENT_CHECK_ADDS,
+    // Black Iron Alchemist
+    EVENT_DEBILITATING_RAY,
+    EVENT_REJUVENATING_SERUM,
+    // Drakonid Monstrosity
+    EVENT_ERUPTION
 };
 
 enum eActions
@@ -393,6 +405,229 @@ class mob_black_iron_warcaster : public CreatureScript
         }
 };
 
+// Rune Glow - 76396
+class mob_rune_glow : public CreatureScript
+{
+    public:
+        mob_rune_glow() : CreatureScript("mob_rune_glow") { }
+
+        struct mob_rune_glowAI : public ScriptedAI
+        {
+            mob_rune_glowAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            EventMap m_Events;
+            InstanceScript* m_Instance;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                me->SetReactState(REACT_PASSIVE);
+
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+
+                m_Events.ScheduleEvent(EVENT_CHECK_ADDS, 1000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_CHECK_ADDS:
+                    {
+                        if (Unit* l_Creature = me->SelectNearbyAlly(me, 10.f))
+                        {
+                            m_Events.ScheduleEvent(EVENT_CHECK_ADDS, 1000);
+                            break;
+                        }
+
+                        me->DespawnOrUnsummon();
+                        if (m_Instance)
+                            m_Instance->SetData(DATA_RUNES_DISABLED, 1);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_rune_glowAI(p_Creature);
+        }
+};
+
+// Black Iron Alchemist - 76100
+class mob_black_iron_alchemist : public CreatureScript
+{
+    public:
+        mob_black_iron_alchemist() : CreatureScript("mob_black_iron_alchemist") { }
+
+        struct mob_black_iron_alchemistAI : public ScriptedAI
+        {
+            mob_black_iron_alchemistAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 5000);
+                m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 20000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_DEBILITATING_RAY:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_DEBILITATING_RAY, false);
+                        m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 30000);
+                        break;
+                    case EVENT_REJUVENATING_SERUM:
+                        if (Unit* l_Target = me->SelectNearbyAlly(me))
+                            me->CastSpell(l_Target, SPELL_REJUVENATING_SERUM, false);
+                        m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_alchemistAI(p_Creature);
+        }
+};
+
+// Black Iron Engineer - 76101
+class mob_black_iron_engineer : public CreatureScript
+{
+    public:
+        mob_black_iron_engineer() : CreatureScript("mob_black_iron_engineer") { }
+
+        struct mob_black_iron_engineerAI : public ScriptedAI
+        {
+            mob_black_iron_engineerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 5000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_DEBILITATING_RAY:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_DEBILITATING_RAY, false);
+                        m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 30000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_engineerAI(p_Creature);
+        }
+};
+
+// Drakonid Monstrosity - 76018
+// Drakonid Monstrosity - 82556
+class mob_drakonid_monstrosity : public CreatureScript
+{
+    public:
+        mob_drakonid_monstrosity() : CreatureScript("mob_drakonid_monstrosity") { }
+
+        struct mob_drakonid_monstrosityAI : public ScriptedAI
+        {
+            mob_drakonid_monstrosityAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_ERUPTION, 7000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_ERUPTION:
+                        me->CastSpell(me, SPELL_ERUPTION, false);
+                        m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_drakonid_monstrosityAI(p_Creature);
+        }
+};
+
 // Shrapnel Storm - 153942
 class spell_shrapnel_storm : public SpellScriptLoader
 {
@@ -424,6 +659,51 @@ class spell_shrapnel_storm : public SpellScriptLoader
         }
 };
 
+// Eruption - 155037
+class spell_eruption : public SpellScriptLoader
+{
+    public:
+        spell_eruption() : SpellScriptLoader("spell_eruption") { }
+
+        class spell_eruption_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_eruption_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (!p_Object)
+                        return true;
+
+                    if (!l_Caster->isInFront(p_Object, M_PI / 12.f))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_eruption_SpellScript();
+        }
+};
+
 void AddSC_upper_blackrock_spire()
 {
     new mob_black_iron_grunt();
@@ -431,5 +711,10 @@ void AddSC_upper_blackrock_spire()
     new mob_sentry_cannon();
     new mob_ragemaw_worg();
     new mob_black_iron_warcaster();
+    new mob_rune_glow();
+    new mob_black_iron_alchemist();
+    new mob_black_iron_engineer();
+    new mob_drakonid_monstrosity();
     new spell_shrapnel_storm();
+    new spell_eruption();
 }

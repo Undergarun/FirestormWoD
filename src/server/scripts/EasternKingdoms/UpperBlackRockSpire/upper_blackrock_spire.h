@@ -29,31 +29,44 @@ enum eDatas
     DATA_WARLORD_ZAELA,
     DATA_MAX_ENCOUNTERS,
 
-    DATA_MAGNETS_ACHIEVEMENT
+    DATA_MAGNETS_ACHIEVEMENT,
+    DATA_RUNES_DISABLED
 };
 
 enum eCreatures
 {
     // Trashs mobs
+    NPC_RUNE_GLOW               = 76396,
     NPC_BLACK_IRON_GRUNT        = 76179,
     NPC_BLACK_IRON_LEADBELCHER  = 76157,
     NPC_SENTRY_CANNON           = 76314,
     NPC_RAGEMAW_WORG            = 76181,
     NPC_BLACK_IRON_WARCASTER    = 76151,
+    NPC_BLACK_IRON_ALCHEMIST    = 76100,
+    NPC_BLACK_IRON_ENGINEER     = 76101,
+    NPC_DRAKONID_MONSTROSITY    = 76018,
 
     // Orebender Gor'Ashan
     NPC_OREBENDER_GORASHAN      = 76413,
     NPC_BLACK_IRON_APPRENTICE   = 76773,
     NPC_RUNE_OF_POWER           = 76417,
-    NPC_LIGHTNING_FIELD         = 76464
+    NPC_LIGHTNING_FIELD         = 76464,
+
+    // Kyrak The Corruptor
+    NPC_KYRAK_THE_CORRUPTOR     = 76021,
+    NPC_DRAKONID_MONSTROSITY_2  = 82556
 };
 
 enum eGameObjects
 {
+    GOB_EMBERSEER_IN            = 175244,
     GOB_OREBENDER_ENTRANCE      = 175705,
     GOB_OREBENDER_EXIT          = 175153,
 
-    GOB_RUNIC_CONDUIT           = 226704
+    GOB_RUNIC_CONDUIT           = 226704,
+
+    GOB_KYRAK_EXIT_01           = 225945,
+    GOB_KYRAK_EXIT_02           = 225944
 };
 
 enum eSharedSpells
