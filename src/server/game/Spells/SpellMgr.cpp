@@ -3769,9 +3769,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 15286: // Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
-            case 29858: // Soulshatter
-                spellInfo->OverrideSpellList.push_back(97827); // Add Taunt (Metamorphosis)
-                break;
             case 119403:// Glyph of Explosive Trap
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5201,7 +5198,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(121828); // Override List with Chi Torpedo - Talent
                 break;
             case 109132:// Roll
-                spellInfo->OverrideSpellList.push_back(115008); // Override List with Chi Torpedo
                 spellInfo->OverrideSpellList.push_back(121827); // Override List with Roll - Talent
                 break;
             case 115295:// Guard
@@ -5248,7 +5244,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
                 spellInfo->Effects[1].BasePoints = -30;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                spellInfo->OverrideSpellList.push_back(116847);
                 break;
             case 125084:// Charging Ox Wave
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // radius 30

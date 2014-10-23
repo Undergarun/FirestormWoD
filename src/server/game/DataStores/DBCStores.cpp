@@ -597,6 +597,21 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");                                                       // 17399
 
+    /// Load talents override spell
+    for (uint32 l_I = 0; l_I < sTalentStore.GetNumRows(); ++l_I)
+    {
+        TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_I);
+        if (l_TalentEntry == nullptr)
+            continue;
+
+        if (l_TalentEntry->OverridesSpellID)
+        {
+            SpellInfo* l_SpellInfo = (SpellInfo*)sSpellMgr->GetSpellInfo(l_TalentEntry->OverridesSpellID);
+            if (l_SpellInfo)
+                l_SpellInfo->OverrideSpellList.push_back(l_TalentEntry->SpellID);
+        }
+    }
+
     // Initialize global taxinodes mask
     // Include existed nodes that have at least single not spell base (scripted) path
     {
