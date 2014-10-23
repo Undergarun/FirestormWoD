@@ -191,9 +191,9 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(gy->map_id, gy->x, gy->y, gy->z))
+        if (!MapManager::IsValidMapCoord(gy->map_id, gy->m_PositionX, gy->m_PositionY, gy->m_PositionZ))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->x, gy->y, gy->map_id);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->m_PositionX, gy->m_PositionY, gy->map_id);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -208,7 +208,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, player->GetOrientation());
+        player->TeleportTo(gy->map_id, gy->m_PositionX, gy->m_PositionY, gy->m_PositionZ, gy->m_Facing);
         return true;
     }
 

@@ -399,7 +399,7 @@ void ObjectMgr::LoadCreatureTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0           1          2           3          4       5 
+    //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
@@ -532,8 +532,8 @@ void ObjectMgr::LoadCreatureTemplates()
 void ObjectMgr::LoadCreatureTemplatesDifficulties()
 {
     uint32 l_OldMSTime = getMSTime();
-    
-    //                                                  0           1          2  
+
+    //                                                  0           1          2
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, difficulty_entry FROM creature_template_difficulty");
 
     if (!l_Result)
@@ -2500,8 +2500,8 @@ void ObjectMgr::LoadItemTemplates()
         {
             itemTemplate.ItemStat[i].ItemStatType = sparse->ItemStatType[i];
             itemTemplate.ItemStat[i].ItemStatValue = sparse->ItemStatValue[i];
-            itemTemplate.ItemStat[i].ItemStatUnk1 = sparse->ItemStatUnk1[i];
-            itemTemplate.ItemStat[i].ItemStatUnk2 = sparse->ItemStatUnk2[i];
+            itemTemplate.ItemStat[i].ScalingValue = sparse->ScalingValue[i];
+            itemTemplate.ItemStat[i].SocketCostRate = sparse->SocketCostRate[i];
         }
 
         itemTemplate.ScalingStatDistribution = sparse->ScalingStatDistribution;
@@ -2665,8 +2665,8 @@ void ObjectMgr::LoadItemTemplates()
             {
                 itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt32());
                 itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt32());
-                itemTemplate.ItemStat[i].ItemStatUnk1  = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].ItemStatUnk2  = fields[29 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].ScalingValue  = fields[29 + i * 4 + 2].GetInt32();
+                itemTemplate.ItemStat[i].SocketCostRate  = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
@@ -6045,8 +6045,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->CorpseX)*(entry->x - mapEntry->CorpseX)
-                +(entry->y - mapEntry->CorpseY)*(entry->y - mapEntry->CorpseY);
+            float dist2 = (entry->m_PositionX - mapEntry->CorpseX)*(entry->m_PositionX - mapEntry->CorpseX)
+                + (entry->m_PositionY - mapEntry->CorpseY)*(entry->m_PositionY - mapEntry->CorpseY);
+
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6065,7 +6066,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            float dist2 = (entry->m_PositionX - x)*(entry->m_PositionX - x)+(entry->m_PositionY - y)*(entry->m_PositionY - y)+(entry->m_PositionZ - z)*(entry->m_PositionZ - z);
             if (foundNear)
             {
                 if (dist2 < distNear)

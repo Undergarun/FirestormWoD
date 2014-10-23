@@ -3638,6 +3638,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     // set timer base at cast time
     ReSetTimer();
 
+    CallScriptOnPrepareHandlers();
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channeled triggers channeled
@@ -3647,7 +3648,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     {
         // stealth must be removed at cast starting (at show channel bar)
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) && (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
+        if (CheckInterrupt())
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -3675,6 +3676,17 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         if (!m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
             cast(true);
     }
+}
+
+bool Spell::CheckInterrupt()
+{
+    if (!CallScriptCheckInterruptHandlers())
+        return false;
+
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) && (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
+        return true;
+
+    return true;
 }
 
 void Spell::cancel()
@@ -8616,6 +8628,51 @@ void Spell::CallScriptAfterCastHandlers()
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
+
+bool Spell::CallScriptCheckInterruptHandlers()
+{
+    uint32 l_ScriptExecuteTime = getMSTime();
+    bool l_CanInterrupt = true;
+
+    for (std::list<SpellScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
+    {
+        (*l_Scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CHECK_INTERRUPT);
+        std::list<SpellScript::CheckInterruptHandler>::iterator l_HookItrEnd = (*l_Scritr)->OnCheckInterrupt.end(), l_HookItr = (*l_Scritr)->OnCheckInterrupt.begin();
+        for (; l_HookItr != l_HookItrEnd; ++l_HookItr)
+        {
+            bool l_TempResult = (*l_HookItr).Call(*l_Scritr);
+            if (l_TempResult == false)
+                l_CanInterrupt = l_TempResult;
+        }
+
+        (*l_Scritr)->_FinishScriptCall();
+    }
+
+    l_ScriptExecuteTime = getMSTime() - l_ScriptExecuteTime;
+    if (l_ScriptExecuteTime > 10)
+        sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, l_ScriptExecuteTime);
+    return l_CanInterrupt;
+}
+
+void Spell::CallScriptOnPrepareHandlers()
+{
+    uint32 scriptExecuteTime = getMSTime();
+
+    for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_PREPARE);
+
+        std::list<SpellScript::OnPrepareHandler>::iterator hookItrEnd = (*scritr)->OnPrepare.end(), hookItr = (*scritr)->OnPrepare.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    if (scriptExecuteTime > 10)
+        sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
+}
+
 
 SpellCastResult Spell::CallScriptCheckCastHandlers()
 {

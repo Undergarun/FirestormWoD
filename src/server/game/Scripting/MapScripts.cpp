@@ -314,6 +314,7 @@ void Map::ScriptsProcess()
                 case HIGHGUID_PLAYER:
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
+                case HIGHGUID_TRANSPORT:
                 case HIGHGUID_GAMEOBJECT:
                     source = HashMapHolder<GameObject>::Find(step.sourceGUID);
                     break;
@@ -321,15 +322,11 @@ void Map::ScriptsProcess()
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_MO_TRANSPORT:
-                    for (MapManager::TransportSet::iterator itr2 = sMapMgr->m_Transports.begin(); itr2 != sMapMgr->m_Transports.end(); ++itr2)
-                    {
-                        if ((*itr2)->GetGUID() == step.sourceGUID)
-                        {
-                            source = *itr2;
-                            break;
-                        }
-                    }
+                {
+                    GameObject* go = HashMapHolder<GameObject>::Find(step.sourceGUID);
+                    source = go ? go->ToTransport() : NULL;
                     break;
+                }
                 default:
                     sLog->outError(LOG_FILTER_TSCR, "%s source with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
                         step.script->GetDebugInfo().c_str(), step.sourceGUID, GUID_HIPART(step.sourceGUID));
@@ -352,12 +349,19 @@ void Map::ScriptsProcess()
                 case HIGHGUID_PLAYER:                       // empty GUID case also
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
+                case HIGHGUID_TRANSPORT:
                 case HIGHGUID_GAMEOBJECT:
                     target = HashMapHolder<GameObject>::Find(step.targetGUID);
                     break;
                 case HIGHGUID_CORPSE:
                     target = HashMapHolder<Corpse>::Find(step.targetGUID);
                     break;
+                case HIGHGUID_MO_TRANSPORT:
+                {
+                    GameObject* go = HashMapHolder<GameObject>::Find(step.targetGUID);
+                    target = go ? go->ToTransport() : NULL;
+                    break;
+                }
                 default:
                     sLog->outError(LOG_FILTER_TSCR, "%s target with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
                         step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));

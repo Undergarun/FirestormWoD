@@ -479,7 +479,7 @@ class Battleground
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
         void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
-        void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
+        virtual void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
         {
             BattlegroundTeamId idx = GetTeamIndexByTeamId(TeamID);
             X = m_TeamStartLocX[idx];

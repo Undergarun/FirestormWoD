@@ -48,7 +48,7 @@ void Totem::Update(uint32 time, uint32 entry)
     else
         m_duration -= time;
 
-    Creature::Update(time, entry);
+    Creature::Update(time);
 }
 
 void Totem::InitStats(uint32 duration)

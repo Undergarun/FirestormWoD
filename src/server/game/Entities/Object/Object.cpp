@@ -241,9 +241,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
                 case GAMEOBJECT_TYPE_FLAGDROP:
                     updateType = UPDATETYPE_CREATE_OBJECT2;
                     break;
-                case GAMEOBJECT_TYPE_TRANSPORT:
-                    flags |= UPDATEFLAG_TRANSPORT;
-                    break;
                 default:
                     break;
             }
@@ -333,19 +330,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     const DynamicObject * l_DynamicObject   = ToDynObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
 
-    const WorldObject* l_WorldObject =  l_Player        ? (const WorldObject*)l_Player : (
-                                        l_Unit          ? (const WorldObject*)l_Unit : (
-                                        l_GameObject    ? (const WorldObject*)l_GameObject : l_DynamicObject ? (const WorldObject*)l_DynamicObject : (
-                                        l_AreaTrigger   ? (const WorldObject*)l_AreaTrigger : (const WorldObject*)ToCorpse())));
-
-    bool l_IsTransport = false;
-
-    if (l_GameObject)
-    {
-        if (GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(l_GameObject->GetEntry()))
-            if (l_GameObjectTemplate->type == GAMEOBJECT_TYPE_TRANSPORT && l_GameObjectTemplate->transport.pause)
-                l_IsTransport = false;
-    }
+    uint32 l_FrameCount = l_GameObject && l_GameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT ? l_GameObject->GetGOValue()->Transport.StopFrames->size() : 0;
+    const WorldObject   * l_WorldObject = (const WorldObject*)this;
 
     /// Normalize movement to avoid client crash
     if (l_Unit)
@@ -377,7 +363,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->FlushBits();
 
-    *p_Data << uint32(l_IsTransport ? 1 : 0);                       ///< Transport frame count
+    *p_Data << uint32(l_FrameCount);                                ///< Transport frame count
 
     if (p_Flags & UPDATEFLAG_LIVING)
     {
@@ -615,23 +601,25 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_STATIONARY_POSITION)
     {
-        *p_Data << float(l_WorldObject->GetPositionX());                    ///< Stationary position X
-        *p_Data << float(l_WorldObject->GetPositionY());                    ///< Stationary position Y
-
-        if (l_Unit)
-            *p_Data << float(l_Unit->GetPositionZMinusOffset());            ///< Stationary position Z
-        else
-            *p_Data << float(l_WorldObject->GetPositionZ());                ///< Stationary position Z
-
-        *p_Data << float(l_WorldObject->GetOrientation());                  ///< Stationary position O
+        *p_Data << float(l_WorldObject->GetStationaryX());                  ///< Stationary position X
+        *p_Data << float(l_WorldObject->GetStationaryY());                  ///< Stationary position Y
+        *p_Data << float(l_WorldObject->GetStationaryZ());                  ///< Stationary position Z
+        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O            
     }
 
     if (p_Flags & UPDATEFLAG_HAS_TARGET)
         p_Data->appendPackGUID(l_Unit->getVictim()->GetGUID());             ///< Target victim guid
 
     if (p_Flags & UPDATEFLAG_TRANSPORT)
-        *p_Data << uint32(getMSTime());                                     ///< Transport time
+    {
+        uint32 l_TransportTime = getMSTime();
 
+        if (l_GameObject && l_GameObject->IsTransport())
+            l_TransportTime = l_GameObject->GetGOValue()->Transport.PathProgress;
+
+        *p_Data << uint32(l_TransportTime);                                 ///< Transport time
+    }
+                                    
     if (p_Flags & UPDATEFLAG_VEHICLE)
     {
         *p_Data << uint32(l_Unit->GetVehicleKit()->GetVehicleInfo()->m_ID); ///< Vehicle ID
@@ -782,10 +770,11 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         /// TODO
     }
 
-    /// Here unk block
-
-    if (l_IsTransport)
-        *p_Data << uint32(sObjectMgr->GetGameObjectTemplate(l_GameObject->GetEntry())->transport.pause);
+    if (l_FrameCount > 0)
+    {
+        for (uint32 l_Frame : *l_GameObject->GetGOValue()->Transport.StopFrames)
+            *p_Data << uint32(l_Frame);
+    }
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -3746,14 +3735,23 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
-    CellCoord p = JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY());
-    Cell cell(p);
-    cell.SetNoCreate();
-    WorldObjectChangeAccumulator notifier(*this, data_map);
-    TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
-    Map& map = *GetMap();
-    //we must build packets for all visible players
-    cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    if (ToGameObject() && ToGameObject()->IsTransport())
+    {
+        Map::PlayerList const& players = GetMap()->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            BuildFieldsUpdate(itr->getSource(), data_map);
+    }
+    else
+    {
+        CellCoord p = JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY());
+        Cell cell(p);
+        cell.SetNoCreate();
+        WorldObjectChangeAccumulator notifier(*this, data_map);
+        TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
+        Map& map = *GetMap();
+        //we must build packets for all visible players
+        cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    }
 
     ClearUpdateMask(false);
 }
