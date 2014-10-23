@@ -3221,7 +3221,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!talentInfo)
             continue;
 
-        SpellInfo * spellEntry = mSpellInfoMap[NONE_DIFFICULTY][talentInfo->spellId];
+        SpellInfo * spellEntry = mSpellInfoMap[NONE_DIFFICULTY][talentInfo->SpellID];
         if (spellEntry)
             spellEntry->talentId = talentInfo->Id;
     }
@@ -6218,7 +6218,7 @@ void SpellMgr::LoadTalentSpellInfo()
         if (!talent)
             continue;
 
-        mTalentSpellInfo.insert(talent->spellId);
+        mTalentSpellInfo.insert(talent->SpellID);
     }
 }
 

@@ -28011,10 +28011,10 @@ bool Player::LearnTalent(uint32 talentId)
     if (!talentInfo)
         return false;
 
-    if (talentInfo->classId != getClass())
+    if (talentInfo->ClassID != getClass())
         return false;
 
-    uint32 spellid = talentInfo->spellId;
+    uint32 spellid = talentInfo->SpellID;
     if (spellid == 0)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Talent.dbc have for talent: %uspell id = 0", talentId);
@@ -28032,12 +28032,12 @@ bool Player::LearnTalent(uint32 talentId)
         if (!tInfo)
             continue;
 
-        if (tInfo->classId != getClass())
+        if (tInfo->ClassID != getClass())
             continue;
 
-        if (tInfo->rank == talentInfo->rank && HasSpell(tInfo->spellId))
+        if (tInfo->TierID == talentInfo->TierID && HasSpell(tInfo->SpellID))
         {
-            sLog->outAshran("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->spellId, tInfo->spellId);
+            sLog->outAshran("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->SpellID, tInfo->SpellID);
             return false;
         }
     }

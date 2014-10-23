@@ -3061,4 +3061,20 @@
     <field type="int" name="field8" />
     <field type="int" name="field9" />
   </GarrMissionReward>
+  <Talent build="0">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="SpecID" />
+    <field type="int" name="TierID" />
+    <field type="int" name="ColumnIndex" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="Flags" />
+    <field type="int" name="CategoryMask1" />
+    <field type="int" name="CategoryMask2" />
+    <field type="int" name="ClassID" />
+    <field type="int" name="OverridesSpellID" />
+    <field type="string" name="DescriptionLang" />
+  </Talent>
 </DBFilesClient>
