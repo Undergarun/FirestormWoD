@@ -2061,7 +2061,8 @@ enum SpellMissInfo
     SPELL_MISS_IMMUNE2                 = 8, // one of these 2 is MISS_TEMPIMMUNE
     SPELL_MISS_DEFLECT                 = 9,
     SPELL_MISS_ABSORB                  = 10,
-    SPELL_MISS_REFLECT                 = 11
+    SPELL_MISS_REFLECT                 = 11,
+    SPELL_MISS_UNK12                   = 12 // Added in WoD, see CUnitDisplay::AddWorldText in internal client, assert "reason < MISS_NUMMISSTYPES" with condition if (reason >= 13)
 };
 
 /// @TODO CGLCD::DisplayRangedStats (internal client)
