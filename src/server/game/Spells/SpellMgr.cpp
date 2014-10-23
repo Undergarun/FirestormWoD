@@ -4338,8 +4338,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 16246: // Clearcasting - hotfix 5.4.2
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
-            case 105284:// Ancestral Vigor - fix 5.4.1
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30s
+            case 105284:// Ancestral Vigor
+                spellInfo->AttributesEx11 |= SPELL_ATTR11_INCREASE_HEALTH_FLAT;
                 break;
             case 78976: // Solar Beam
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
