@@ -481,7 +481,7 @@ void WorldSession::SendSpiritResurrect()
             m_Player->GetPositionX(), m_Player->GetPositionY(), m_Player->GetPositionZ(), m_Player->GetMapId(), m_Player->GetTeam());
 
         if (corpseGrave != ghostGrave)
-            m_Player->TeleportTo(corpseGrave->map_id, corpseGrave->x, corpseGrave->y, corpseGrave->z, m_Player->GetOrientation());
+            m_Player->TeleportTo(corpseGrave->map_id, corpseGrave->m_PositionX, corpseGrave->m_PositionY, corpseGrave->m_PositionZ, m_Player->GetOrientation());
         // or update at original position
         else
             m_Player->UpdateObjectVisibility();

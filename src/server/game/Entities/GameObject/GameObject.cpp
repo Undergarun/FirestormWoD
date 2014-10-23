@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <G3D/Quat.h>
 #include "GameObjectAI.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
@@ -34,8 +35,10 @@
 #include "DynamicTree.h"
 #include "SpellAuraEffects.h"
 #include "UpdateFieldFlags.h"
+#include "Transport.h"
 
-GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
+GameObject::GameObject() : WorldObject(false), MapObject(),
+m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -70,8 +73,12 @@ GameObject::~GameObject()
     delete m_goValue;
     delete m_AI;
     delete m_model;
-    //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
-    //    CleanupsBeforeDelete();
+
+    if (m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+        delete m_goValue->Transport.StopFrames;
+
+    if (GetTransport() && !ToTransport())
+        GetTransport()->RemovePassenger(this);
 }
 
 bool GameObject::AIM_Initialize()
@@ -138,6 +145,7 @@ void GameObject::AddToWorld()
             m_zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
+
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
         bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
         if (m_model)
@@ -171,6 +179,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetMap(map);
 
     Relocate(x, y, z, ang);
+    m_stationaryPosition.Relocate(x, y, z, ang);
+
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_GENERAL, "Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, name_id, x, y);
@@ -193,6 +203,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: %u Entry: %u) not created: non-existing entry in `gameobject_template`. Map: %u (X: %f Y: %f Z: %f)", guidlow, name_id, map->GetId(), x, y, z);
         return false;
     }
+
+    if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+        m_updateFlag |= UPDATEFLAG_TRANSPORT;
 
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);
@@ -239,10 +252,50 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             SetUInt32Value(GAMEOBJECT_FIELD_PARENT_ROTATION, m_goInfo->building.destructibleData);
             break;
         case GAMEOBJECT_TYPE_TRANSPORT:
-            SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, goinfo->transport.pause);
-            if (goinfo->transport.startOpen)
-                SetGoState(GO_STATE_ACTIVE);
-            SetGoAnimProgress(animprogress);
+            m_goValue->Transport.AnimationInfo = sTransportMgr->GetTransportAnimInfo(goinfo->entry);
+            m_goValue->Transport.PathProgress = getMSTime();
+
+            if (m_goValue->Transport.AnimationInfo)
+                m_goValue->Transport.PathProgress -= m_goValue->Transport.PathProgress % GetTransportPeriod();
+
+            m_goValue->Transport.CurrentSeg           = 0;
+            m_goValue->Transport.StateUpdateTimer     = 0;
+            m_goValue->Transport.StopFrames           = new std::vector<uint32>();
+
+            if (goinfo->transport.pauseTime1 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime1);
+
+            if (goinfo->transport.pauseTime2 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime2);
+
+            if (goinfo->transport.pauseTime3 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime3);
+
+            if (goinfo->transport.pauseTime4 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime4);
+
+            if (goinfo->transport.pauseTime5 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime5);
+
+            if (goinfo->transport.pauseTime6 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime6);
+
+            if (goinfo->transport.pauseTime7 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime7);
+
+            if (goinfo->transport.pauseTime8 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime8);
+
+            if (goinfo->transport.pauseTime9 > 0)
+                m_goValue->Transport.StopFrames->push_back(goinfo->transport.pauseTime9);
+
+            if (!goinfo->transport.startOpen)
+                SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+            /// When startOpen is egal to one, the transport muse be activate with a script, state stopped at spawn.
+            else
+                SetGoState(GO_STATE_TRANSPORT_STOPPED);     ///< Do not use SetTransportState here, we need clean PathProgress
+
+            SetGoAnimProgress(0xFF);
             break;
         case GAMEOBJECT_TYPE_FISHINGNODE:
             SetGoAnimProgress(0);
@@ -270,6 +323,40 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     return true;
 }
 
+uint32 GameObject::GetTransportPeriod() const
+{
+    ASSERT(GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT);
+    if (m_goValue->Transport.AnimationInfo)
+        return m_goValue->Transport.AnimationInfo->TotalTime;
+
+    // return something that will nicely divide for GAMEOBJECT_DYNAMIC value calculation
+    return m_goValue->Transport.PathProgress;
+}
+
+void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
+{
+    if (GetGoState() == state)
+        return;
+
+    ASSERT(GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT);
+    ASSERT(state >= GO_STATE_TRANSPORT_ACTIVE);
+    if (state == GO_STATE_TRANSPORT_ACTIVE)
+    {
+        m_goValue->Transport.StateUpdateTimer = 0;
+        m_goValue->Transport.PathProgress =  getMSTime();
+        if (GetGoState() >= GO_STATE_TRANSPORT_STOPPED)
+            m_goValue->Transport.PathProgress += m_goValue->Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
+        SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+    }
+    else
+    {
+        ASSERT(state < GO_STATE_TRANSPORT_STOPPED + MAX_GO_STATE_TRANSPORT_STOP_FRAMES);
+        ASSERT(stopFrame < m_goValue->Transport.StopFrames->size());
+        m_goValue->Transport.PathProgress = getMSTime() + m_goValue->Transport.StopFrames->at(stopFrame);
+        SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame));
+    }
+}
+
 void GameObject::Update(uint32 diff)
 {
     if (!AI())
@@ -278,12 +365,57 @@ void GameObject::Update(uint32 diff)
             sLog->outError(LOG_FILTER_GENERAL, "Could not initialize GameObjectAI");
     }
     else
-        AI()->UpdateAI(diff);
 
-    if (IS_MO_TRANSPORT(GetGUID()))
+    if (AI())
+        AI()->UpdateAI(diff);
+    else if (!AIM_Initialize())
+        sLog->outError(LOG_FILTER_GENERAL, "Could not initialize GameObjectAI");
+
+    if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
     {
-        //((Transport*)this)->Update(p_time);
-        return;
+        if (m_goValue->Transport.AnimationInfo != nullptr)
+        {
+            /// Update PathProgress at every tick, and send update to client every 20 sec (blizz value, find in retail sniff 6.0.x)
+            if (GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
+            {
+                m_goValue->Transport.PathProgress += diff;
+
+                // TODO: Fix movement in unloaded grid - currently GO will just disappear
+                /*{
+                    uint32 timer = m_goValue->Transport.PathProgress % m_goValue->Transport.AnimationInfo->TotalTime;
+                    TransportAnimationEntry const* node = m_goValue->Transport.AnimationInfo->GetAnimNode(timer);
+                    if (node && m_goValue->Transport.CurrentSeg != node->TimeSeg)
+                    {
+                        m_goValue->Transport.CurrentSeg = node->TimeSeg;
+
+                        G3D::Quat rotation = m_goValue->Transport.AnimationInfo->GetAnimRotation(timer);
+                        G3D::Vector3 pos = rotation.toRotationMatrix()
+                            * G3D::Matrix3::fromEulerAnglesZYX(GetOrientation(), 0.0f, 0.0f)
+                            * G3D::Vector3(node->X, node->Y, node->Z);
+
+                        pos += G3D::Vector3(GetStationaryX(), GetStationaryY(), GetStationaryZ());
+
+                        G3D::Vector3 src(GetPositionX(), GetPositionY(), GetPositionZ());
+
+                        GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
+                    }
+                }*/
+
+                if (!m_goValue->Transport.StopFrames->empty())
+                {
+                    uint32 visualStateBefore = (m_goValue->Transport.StateUpdateTimer / 20000) & 1;
+                    m_goValue->Transport.StateUpdateTimer += diff;
+                    uint32 visualStateAfter = (m_goValue->Transport.StateUpdateTimer / 20000) & 1;
+
+                    /// Force send SMSG_UPDATE_OBJECT with updatefield
+                    if (visualStateBefore != visualStateAfter)
+                    {
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_PERCENT_HEALTH);
+                    }
+                }
+            }
+        }
     }
 
     switch (m_lootState)
@@ -872,7 +1004,7 @@ bool GameObject::IsDynTransport() const
     if (!gInfo)
         return false;
 
-    return gInfo->type ==GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && !gInfo->transport.pause);
+    return gInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT || (gInfo->type == GAMEOBJECT_TYPE_TRANSPORT && m_goValue->Transport.StopFrames->empty());
 }
 
 bool GameObject::IsDestructibleBuilding() const
@@ -2146,6 +2278,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
 
     bool forcedFlags = GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.groupLootRules && HasLootRecipient();
     bool targetIsGM = target->isGameMaster();
+    bool isStoppableTransport = GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !m_goValue->Transport.StopFrames->empty();
 
     ByteBuffer fieldBuffer;
 
@@ -2161,13 +2294,14 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     {
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
-            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_FIELD_PERCENT_HEALTH)
+            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_FIELD_PERCENT_HEALTH || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
         {
             updateMask.SetBit(index);
 
             if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
             {
                 uint16 dynFlags = 0;
+                int16 pathProgress = -1;
                 switch (GetGoType())
                 {
                     case GAMEOBJECT_TYPE_CHEST:
@@ -2181,10 +2315,19 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         if (ActivateToQuest(target))
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         break;
+                    case GAMEOBJECT_TYPE_TRANSPORT:
+                    {
+                        float timer = float(m_goValue->Transport.PathProgress % GetTransportPeriod());
+                        pathProgress = int16(timer / float(GetTransportPeriod()) * 65535.0f);
+                        break;
+                    }
+                    case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
+                        pathProgress = int16(float(m_goValue->Transport.PathProgress) / float(GetUInt32Value(GAMEOBJECT_FIELD_LEVEL)) * 65535.0f);
+                        break;
                 }
 
                 fieldBuffer << uint16(dynFlags);
-                fieldBuffer << uint16(-1);
+                fieldBuffer << uint16(pathProgress);
             }
             else if (index == GAMEOBJECT_FIELD_FLAGS)
             {
@@ -2195,6 +2338,13 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
 
                 fieldBuffer << flags;
             }
+            else if (index == GAMEOBJECT_FIELD_LEVEL)
+            {
+                if (isStoppableTransport)
+                    fieldBuffer << uint32(m_goValue->Transport.PathProgress);
+                else
+                    fieldBuffer << m_uint32Values[index];
+            }
             else
                 fieldBuffer << m_uint32Values[index]; // other cases
         }
@@ -2203,4 +2353,45 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     *data << uint8(updateMask.GetBlockCount());
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
+}
+
+void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = NULL*/) const
+{
+    if (m_DBTableGuid)
+    {
+        if (GameObjectData const* data = sObjectMgr->GetGOData(GetDBTableGUIDLow()))
+        {
+            x = data->posX;
+            y = data->posY;
+            z = data->posZ;
+            if (ori)
+                *ori = data->orientation;
+            return;
+        }
+    }
+
+    x = GetPositionX();
+    y = GetPositionY();
+    z = GetPositionZ();
+    if (ori)
+        *ori = GetOrientation();
+}
+
+void GameObject::SendTransportToOutOfRangePlayers() const
+{
+    Map::PlayerList const& players = GetMap()->GetPlayers();
+    if (players.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+    {
+        if (GetDistance(*itr->getSource()) < GetVisibilityRange())
+            continue;
+
+        UpdateData data(GetMapId());
+        WorldPacket pkt;
+        BuildCreateUpdateBlockForPlayer(&data, itr->getSource());
+        if (data.BuildPacket(&pkt))
+            itr->getSource()->GetSession()->SendPacket(&pkt);
+    }
 }

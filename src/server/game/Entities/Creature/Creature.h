@@ -449,36 +449,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 450                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
 
-enum CreatureCellMoveState
-{
-    CREATURE_CELL_MOVE_NONE, //not in move list
-    CREATURE_CELL_MOVE_ACTIVE, //in move list
-    CREATURE_CELL_MOVE_INACTIVE, //in move list but should not move
-};
-
-class MapCreature
-{
-    friend class Map; //map for moving creatures
-    friend class ObjectGridLoader; //grid loader for loading creatures
-
-protected:
-    MapCreature() : _moveState(CREATURE_CELL_MOVE_NONE) {}
-
-private:
-    Cell _currentCell;
-    Cell const& GetCurrentCell() const { return _currentCell; }
-    void SetCurrentCell(Cell const& cell) { _currentCell = cell; }
-
-    CreatureCellMoveState _moveState;
-    Position _newPosition;
-    void SetNewCellPosition(float x, float y, float z, float o)
-    {
-        _moveState = CREATURE_CELL_MOVE_ACTIVE;
-        _newPosition.Relocate(x, y, z, o);
-    }
-};
-
-class Creature : public Unit, public GridObject<Creature>, public MapCreature
+class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
 
@@ -497,7 +468,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
-        void Update(uint32 time, uint32 entry);                         // overwrited Unit::Update
+        void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }

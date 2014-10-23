@@ -68,7 +68,7 @@ MySQLConnection::~MySQLConnection()
 
     mysql_close(m_Mysql);
     delete m_Mysql;
-    m_Mysql = NULL;
+      m_Mysql = NULL;
 }
 
 void MySQLConnection::Close()

@@ -87,8 +87,8 @@ struct ItemSparseEntry
     uint32     ContainerSlots;                               // 24
     int32      ItemStatType[MAX_ITEM_PROTO_STATS];           // 25 - 34
     int32      ItemStatValue[MAX_ITEM_PROTO_STATS];          // 35 - 44
-    int32      ItemStatUnk1[MAX_ITEM_PROTO_STATS];           // 45 - 54
-    int32      ItemStatUnk2[MAX_ITEM_PROTO_STATS];           // 55 - 64
+    int32      ScalingValue[MAX_ITEM_PROTO_STATS];           // 45 - 54
+    float      SocketCostRate[MAX_ITEM_PROTO_STATS];         // 55 - 64
     uint32     ScalingStatDistribution;                      // 65
     uint32     DamageType;                                   // 66
     uint32     Delay;                                        // 67
@@ -137,6 +137,12 @@ struct ItemEffectEntry
     uint32 SpellCooldown;                                   // 6
     uint32 SpellCategory;                                   // 7
     uint32 SpellCategoryCooldown;                           // 8
+};
+
+struct PvpItemEntry
+{
+    uint32 itemId;
+    uint32 ilvl;
 };
 
 struct ItemUpgradeEntry

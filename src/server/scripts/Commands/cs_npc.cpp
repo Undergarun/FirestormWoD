@@ -200,7 +200,7 @@ public:
     //add spawn of creature
     static bool HandleNpcAddCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
+        /*if (!*args)
             return false;
 
         char* charID = handler->extractKeyFromLink((char*)args, "Hcreature_entry");
@@ -260,7 +260,7 @@ public:
             return false;
         }
 
-        sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
+        sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));*/
         return true;
     }
 

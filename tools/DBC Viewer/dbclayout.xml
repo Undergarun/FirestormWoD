@@ -1224,6 +1224,7 @@
     <field type="string" name="Directory" />
     <field type="int" name="InstanceType" />
     <field type="int" name="Flags" />
+    <field type="int" name="newField" />
     <field type="int" name="MapType" />
     <field type="string" name="MapNameLang" />
     <field type="int" name="AreaTableID" />
@@ -1241,7 +1242,6 @@
     <field type="int" name="ParentMapID" />
     <field type="int" name="CosmeticParentMapID" />
     <field type="int" name="TimeOffset" />
-    <field type="int" name="newField" />
   </Map>
   <Phase build="0">
     <index>
@@ -1689,52 +1689,6 @@
     <field type="int" name="field2" />
     <field type="string" name="field3" />
   </ItemSubClassMask>
-  <Vehicle build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
-    <field type="int" name="field11" />
-    <field type="int" name="field12" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
-    <field type="int" name="field20" />
-    <field type="int" name="field21" />
-    <field type="int" name="field22" />
-    <field type="int" name="field23" />
-    <field type="int" name="field24" />
-    <field type="int" name="field25" />
-    <field type="int" name="field26" />
-    <field type="int" name="field27" />
-    <field type="int" name="field28" />
-    <field type="int" name="field29" />
-    <field type="int" name="field30" />
-    <field type="int" name="field31" />
-    <field type="int" name="field32" />
-    <field type="int" name="field33" />
-    <field type="int" name="field34" />
-    <field type="int" name="field35" />
-    <field type="int" name="field36" />
-    <field type="int" name="field37" />
-    <field type="int" name="field38" />
-    <field type="int" name="field39" />
-    <field type="int" name="field40" />
-  </Vehicle>
   <SpellItemEnchantment build="0">
     <index>
       <primary>ID</primary>
@@ -2455,12 +2409,12 @@
   </SkillLine>
   <TotemCategory build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="string" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
+    <field type="int" name="ID" />
+    <field type="string" name="NameLang" />
+    <field type="int" name="TotemCategoryType" />
+    <field type="int" name="TotemCategoryMask" />
   </TotemCategory>
   <ItemPetFood build="0">
     <index>
@@ -3061,4 +3015,61 @@
     <field type="int" name="field8" />
     <field type="int" name="field9" />
   </GarrMissionReward>
+  <SummonProperties build="19045">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="Control" />
+    <field type="int" name="Faction" />
+    <field type="int" name="Title" />
+    <field type="int" name="Slot" />
+    <field type="int" name="Flags" />
+  </SummonProperties>
+  <Vehicle build="19027">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="int" name="FlagsB" />
+    <field type="float" name="TurnSpeed" />
+    <field type="float" name="PitchSpeed" />
+    <field type="float" name="PitchMin" />
+    <field type="float" name="PitchMax" />
+    <field type="int" name="SeatID1" />
+    <field type="int" name="SeatID2" />
+    <field type="int" name="SeatID3" />
+    <field type="int" name="SeatID4" />
+    <field type="int" name="SeatID5" />
+    <field type="int" name="SeatID6" />
+    <field type="int" name="SeatID7" />
+    <field type="int" name="SeatID8" />
+    <field type="float" name="MouseLookOffsetPitch" />
+    <field type="float" name="CameraFadeDistScalarMin" />
+    <field type="float" name="CameraFadeDistScalarMax" />
+    <field type="float" name="CameraPitchOffset" />
+    <field type="float" name="FacingLimitRight" />
+    <field type="float" name="FacingLimitLeft" />
+    <field type="float" name="MsslTrgtTurnLingering" />
+    <field type="float" name="MsslTrgtPitchLingering" />
+    <field type="float" name="MsslTrgtMouseLingering" />
+    <field type="float" name="MsslTrgtEndOpacity" />
+    <field type="float" name="MsslTrgtArcSpeed" />
+    <field type="float" name="MsslTrgtArcRepeat" />
+    <field type="float" name="MsslTrgtArcWidth" />
+    <field type="float" name="MsslTrgtImpactRadius1" />
+    <field type="float" name="MsslTrgtImpactRadius2" />
+    <field type="string" name="MsslTrgtArcTexture" />
+    <field type="string" name="MsslTrgtImpactTexture" />
+    <field type="string" name="MsslTrgtImpactModel1" />
+    <field type="string" name="m_msslTrgtImpactModel2" />
+    <field type="float" name="CameraYawOffset" />
+    <field type="int" name="UiLocomotionType" />
+    <field type="float" name="MsslTrgtImpactTexRadius" />
+    <field type="int" name="VehicleUIIndicatorID" />
+    <field type="int" name="PowerDisplayID1" />
+    <field type="int" name="PowerDisplayID2" />
+    <field type="int" name="PowerDisplayID3" />
+  </Vehicle>
 </DBFilesClient>

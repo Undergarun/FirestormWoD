@@ -13208,7 +13208,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
     // only players use intelligence for critical chance computations
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRITICAL_CHANCE, crit_chance);
-    
+
     return crit_chance > 0.0f ? crit_chance : 0.0f;
 }
 
@@ -14617,6 +14617,15 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
 
         if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
             Dismount();
+    }
+    else if (Player* player = ToPlayer())
+    {
+        if (PvP)
+        {
+           player->SetPvPTimer(15000); // 5 + 10 secs
+            if (!player->IsInPvPCombat() && PvP)
+                player->SetInPvPCombat(true);
+        }
     }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
@@ -22024,6 +22033,8 @@ void Unit::SetFacingTo(float ori)
 {
     Movement::MoveSplineInit init(*this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    if (GetTransGUID())
+        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
     init.Launch();
 }
@@ -22035,7 +22046,10 @@ void Unit::SetFacingToObject(WorldObject* object)
         return;
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    SetFacingTo(GetAngle(object));
+    Movement::MoveSplineInit init(*this);
+    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    init.SetFacing(GetAngle(object));   // when on transport, GetAngle will still return global coordinates (and angle) that needs transforming
+    init.Launch();
 }
 
 bool Unit::SetWalk(bool enable)

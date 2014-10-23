@@ -82,6 +82,8 @@
 #include "BlackMarketMgr.h"
 #include "CinematicPathMgr.h"
 #include "WildBattlePet.h"
+#include "PlayerDump.h"
+#include "TransportMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1504,7 +1506,6 @@ void World::SetInitialWorldSettings()
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
 
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
 
@@ -1514,6 +1515,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
     sObjectMgr->LoadGarrisonPlotBuildingContent();
     
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
+    sTransportMgr->LoadTransportTemplates();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
@@ -1965,10 +1969,7 @@ void World::SetInitialWorldSettings()
     sBattlefieldMgr->InitBattlefield();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
-    sMapMgr->LoadTransports();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport NPCs...");
-    sMapMgr->LoadTransportNPCs();
+    sTransportMgr->SpawnContinentTransports();
 
     ///- Initialize Warden
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Warden Checks...");
