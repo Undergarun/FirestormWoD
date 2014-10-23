@@ -993,11 +993,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, constAuraEffectPtr triggeredByAu
                 amount += int32(multiplier * level_diff);
             break;
         }
-        case SPELL_AURA_MOD_INCREASE_HEALTH:
-            // Vampiric Blood
-            if (GetId() == 55233)
-                amount = GetBase()->GetUnitOwner()->CountPctFromMaxHealth(amount);
-            break;
         case SPELL_AURA_MOD_INCREASE_SPEED:
             // Dash - do not set speed if not in cat form
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
