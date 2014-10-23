@@ -1580,9 +1580,9 @@ struct MapEntry
     //char*     direcotry;                                  // 1        m_Directory
     uint32  instanceType;                                   // 2        m_InstanceType
     //uint32    flags;                                      // 3        m_Flags
-    //uint32    MapType;                                    // 4        m_MapType               always 0
-    char*   MapNameLang;                                    // 5        m_MapName_lang
-    //int     unk_602;                                      // 6
+    //int     unk_602;                                      // 4
+    //uint32    MapType;                                    // 5        m_MapType               always 0
+    char*   MapNameLang;                                    // 6        m_MapName_lang
     uint32  AreaTableID;                                    // 7        m_areaTableID
     //char*     MapDescription0Lang;                        // 8        m_MapDescription0_lang
     //char*     MapDescription1Lang;                        // 9        m_MapDescription1_lang
