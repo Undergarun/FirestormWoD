@@ -3772,6 +3772,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 29858: // Soulshatter
                 spellInfo->OverrideSpellList.push_back(97827); // Add Taunt (Metamorphosis)
                 break;
+            case 45438:
+                spellInfo->OverrideSpellList.push_back(157913);
+                break;
             case 119403:// Glyph of Explosive Trap
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;

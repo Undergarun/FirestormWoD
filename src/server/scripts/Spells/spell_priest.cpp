@@ -2095,6 +2095,13 @@ class spell_pri_cascade_first : public SpellScriptLoader
                             }
                             case 121135:
                             {
+                                // Cast shaow cascade if needed
+                                if (_player->HasAura(15473))
+                                {
+                                    _player->CastSpell(target, 127632, true);
+                                    return;
+                                }
+
                                 // First missile
                                 if (_player->IsValidAttackTarget(target))
                                     _player->CastSpell(target, PRIEST_CASCADE_HOLY_DAMAGE, true, 0, NULLAURA_EFFECT, _player->GetGUID());

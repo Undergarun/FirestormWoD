@@ -1963,13 +1963,21 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
 {
     if (!spell)
         return false;
-    // Check family name
+
+    /// Check family name
     if (spell->SpellFamilyName != m_spellInfo->SpellFamilyName)
         return false;
 
-    // Check EffectClassMask
+    /// Check EffectClassMask
     if (m_spellInfo->Effects[m_effIndex].SpellClassMask & spell->SpellFamilyFlags)
         return true;
+
+    /// In case of SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, we need to check MiscValue as spell id too
+    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)
+    {
+        if (m_spellInfo->Effects[m_effIndex].MiscValue == spell->Id)
+            return true;
+    }
 
     return false;
 }
