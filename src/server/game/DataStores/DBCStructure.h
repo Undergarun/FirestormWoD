@@ -1396,6 +1396,11 @@ struct ItemBagFamilyEntry
     //char*     m_NameLang;                                 // 1        m_NameLang
 };
 
+struct gtItemSocketCostPerLevelEntry
+{
+    float cost;
+};
+
 // we have no data in 6.0.1 18612
 struct ItemDisplayInfoEntry
 {
@@ -1580,7 +1585,7 @@ struct MapEntry
     //char*     direcotry;                                  // 1        m_Directory
     uint32  instanceType;                                   // 2        m_InstanceType
     //uint32    flags;                                      // 3        m_Flags
-    //uint32    MapType;                                    // 4        m_MapType               always 0
+    //uint32    MapType;                                    // 4        m_MapType 4 Garison, 3 Transport 2/1 unk usage
     char*   MapNameLang;                                    // 5        m_MapName_lang
     //int     unk_602;                                      // 6
     uint32  AreaTableID;                                    // 7        m_areaTableID
@@ -2257,31 +2262,31 @@ struct VehicleEntry
     float   m_pitchSpeed;                                   // 4        m_PitchSpeed
     float   m_pitchMin;                                     // 5        m_PitchMin
     float   m_pitchMax;                                     // 6        m_PitchMax
-    uint32  m_seatID[MAX_VEHICLE_SEATS];                    // 7-15     m_SeatID
-    float   m_mouseLookOffsetPitch;                         // 16       m_MouseLookOffsetPitch
-    float   m_cameraFadeDistScalarMin;                      // 17       m_CameraFadeDistScalarMin
-    float   m_cameraFadeDistScalarMax;                      // 18       m_CameraFadeDistScalarMax
-    float   m_cameraPitchOffset;                            // 19       m_CameraPitchOffset
-    float   m_facingLimitRight;                             // 20       m_FacingLimitRight
-    float   m_facingLimitLeft;                              // 21       m_FacingLimitLeft
-    float   m_msslTrgtTurnLingering;                        // 22       m_MsslTrgtTurnLingering
-    float   m_msslTrgtPitchLingering;                       // 23       m_MsslTrgtPitchLingering
-    float   m_msslTrgtMouseLingering;                       // 24       m_MsslTrgtMouseLingering
-    float   m_msslTrgtEndOpacity;                           // 25       m_MsslTrgtEndOpacity
-    float   m_msslTrgtArcSpeed;                             // 26       m_MsslTrgtArcSpeed
-    float   m_msslTrgtArcRepeat;                            // 27       m_MsslTrgtArcRepeat
-    float   m_msslTrgtArcWidth;                             // 28       m_MsslTrgtArcWidth
-    float   m_msslTrgtImpactRadius[2];                      // 29-30    m_MsslTrgtImpactRadius
-    char*   m_msslTrgtArcTexture;                           // 31       m_MsslTrgtArcTexture
-    char*   m_msslTrgtImpactTexture;                        // 32       m_MsslTrgtImpactTexture
-    char*   m_msslTrgtImpactModel[2];                       // 33-34    m_MsslTrgtImpactModel
-    float   m_cameraYawOffset;                              // 35       m_CameraYawOffset
-    uint32  m_uiLocomotionType;                             // 36       m_UiLocomotionType
-    float   m_msslTrgtImpactTexRadius;                      // 37       m_MsslTrgtImpactTexRadius
-    uint32  m_uiSeatIndicatorType;                          // 38       m_VehicleUIIndicatorID
-    uint32  m_PowerDisplayID;                               // 39       m_PowerDisplayID
+    uint32  m_seatID[MAX_VEHICLE_SEATS];                    // 7-14     m_SeatID
+    float   m_mouseLookOffsetPitch;                         // 15       m_MouseLookOffsetPitch
+    float   m_cameraFadeDistScalarMin;                      // 16       m_CameraFadeDistScalarMin
+    float   m_cameraFadeDistScalarMax;                      // 17       m_CameraFadeDistScalarMax
+    float   m_cameraPitchOffset;                            // 18       m_CameraPitchOffset
+    float   m_facingLimitRight;                             // 19       m_FacingLimitRight
+    float   m_facingLimitLeft;                              // 20       m_FacingLimitLeft
+    float   m_msslTrgtTurnLingering;                        // 21       m_MsslTrgtTurnLingering
+    float   m_msslTrgtPitchLingering;                       // 22       m_MsslTrgtPitchLingering
+    float   m_msslTrgtMouseLingering;                       // 23       m_MsslTrgtMouseLingering
+    float   m_msslTrgtEndOpacity;                           // 24       m_MsslTrgtEndOpacity
+    float   m_msslTrgtArcSpeed;                             // 25       m_MsslTrgtArcSpeed
+    float   m_msslTrgtArcRepeat;                            // 26       m_MsslTrgtArcRepeat
+    float   m_msslTrgtArcWidth;                             // 27       m_MsslTrgtArcWidth
+    float   m_msslTrgtImpactRadius[2];                      // 28-29    m_MsslTrgtImpactRadius
+    char*   m_msslTrgtArcTexture;                           // 30       m_MsslTrgtArcTexture
+    char*   m_msslTrgtImpactTexture;                        // 31       m_MsslTrgtImpactTexture
+    char*   m_msslTrgtImpactModel[2];                       // 32-33    m_MsslTrgtImpactModel
+    float   m_cameraYawOffset;                              // 34       m_CameraYawOffset
+    uint32  m_uiLocomotionType;                             // 35       m_UiLocomotionType
+    float   m_msslTrgtImpactTexRadius;                      // 36       m_MsslTrgtImpactTexRadius
+    uint32  m_uiSeatIndicatorType;                          // 37       m_VehicleUIIndicatorID
+    uint32  m_PowerDisplayID;                               // 38       m_PowerDisplayID
+    //uint32    m_PowerDisplayID;                           // 39       m_PowerDisplayID
     //uint32    m_PowerDisplayID;                           // 40       m_PowerDisplayID
-    //uint32    m_PowerDisplayID;                           // 41       m_PowerDisplayID
 };
 
 struct VehicleSeatEntry

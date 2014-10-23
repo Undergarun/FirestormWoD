@@ -134,6 +134,8 @@ DBCStorage <ItemDamageEntry>              sItemDamageThrownStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageTwoHandStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageTwoHandCasterStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageWandStore(ItemDamagefmt);
+DBCStorage <gtItemSocketCostPerLevelEntry> sgtItemSocketCostPerLevelStore(gtItemSocketCostPerLevelfmt);
+
 DBCStorage <ItemDisenchantLootEntry>      sItemDisenchantLootStore(ItemDisenchantLootfmt);
 //DBCStorage <ItemDisplayInfoEntry>       sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); // Not used currently
 DBCStorage <ItemLimitCategoryEntry>       sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
@@ -423,6 +425,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDamageTwoHandCasterStore,dbcPath, "ItemDamageTwoHandCaster.dbc");                                      // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDamageWandStore,         dbcPath, "ItemDamageWand.dbc");                                               // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDisenchantLootStore,     dbcPath, "ItemDisenchantLoot.dbc");                                           // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sgtItemSocketCostPerLevelStore, dbcPath, "gtItemSocketCostPerLevel.dbc");                                   // 19034
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sLFGDungeonStore,             dbcPath, "LFGDungeons.dbc");                                                  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sLiquidTypeStore,             dbcPath, "LiquidType.dbc");                                                   // 17399

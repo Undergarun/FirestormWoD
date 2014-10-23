@@ -109,7 +109,9 @@ class debug_commandscript : public CommandScript
                 { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,            "", NULL },
                 { "boss",           SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,            "", NULL },
                 { "lfg",            SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,             "", NULL },
-                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+                { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
+
+                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL },
             };
             static ChatCommand commandTable[] =
             {
@@ -451,7 +453,7 @@ class debug_commandscript : public CommandScript
                 case SMSG_SERVER_FIRST_ACHIEVEMENT:
                 {
                     data.WriteBits(1, 21);
-                    
+
                     uint8 bits[8] = { 7, 5, 0, 3, 6, 2, 1, 4 };
                     data.WriteBitInOrder(playerGuid, bits);
 
@@ -2112,7 +2114,7 @@ class debug_commandscript : public CommandScript
                 handler->PSendSysMessage("Max creature::update diff limit activate !");
             else
                 handler->PSendSysMessage("Max creature::update diff limit disable !");
-    
+
             return true;
         }
 
@@ -2129,6 +2131,32 @@ class debug_commandscript : public CommandScript
                 p_Handler->PSendSysMessage("Lfg debug mode is now enable");
             }
 
+            return true;
+        }
+
+        static bool HandleDebugScaleItem(ChatHandler* handler, char const* args)
+        {
+            char* arg1 = strtok((char*)args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1)
+                return false;
+
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(args ? atoi(args) : 0);
+            if (!proto)
+                return false;
+
+            uint32 ilvl = arg2 ? atoi(arg2) : proto->ItemLevel;
+            ilvl = ilvl > 1000 ? 300 : ilvl;
+
+           uint32 minDamage, maxDamage;
+           proto->CalculateMinMaxDamageScaling(ilvl, minDamage, maxDamage);
+           handler->PSendSysMessage("%s(%i): %i", proto->Name1.c_str(), proto->ItemId, ilvl);
+           handler->PSendSysMessage("%i - %i", minDamage, maxDamage);
+           handler->PSendSysMessage("Armor: %i", proto->CalculateArmorScaling(ilvl));
+           for (int i = 0; i < 10; i++)
+            if (proto->ItemStat[i].ItemStatType != -1)
+                handler->PSendSysMessage("Stat(%i): %i", proto->ItemStat[i].ItemStatType, proto->CalculateStatScaling(i, ilvl));
             return true;
         }
 };

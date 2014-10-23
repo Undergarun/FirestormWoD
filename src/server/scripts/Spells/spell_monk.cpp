@@ -2271,9 +2271,22 @@ class spell_monk_enveloping_mist : public SpellScriptLoader
                         _player->CastSpell(target, SPELL_MONK_ENVELOPING_MIST_HEAL, true);
             }
 
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
+            }
+
             void Register()
             {
                 AfterCast += SpellCastFn(spell_monk_enveloping_mist_SpellScript::HandleAfterCast);
+                OnPrepare += SpellOnPrepareFn(spell_monk_enveloping_mist_SpellScript::HandleOnPrepare);
             }
         };
 
@@ -2300,9 +2313,22 @@ class spell_monk_surging_mist : public SpellScriptLoader
                         _player->CastSpell(target, SPELL_MONK_SURGING_MIST_HEAL, true);
             }
 
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == 115175)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
+            }
+
             void Register()
             {
                 AfterCast += SpellCastFn(spell_monk_surging_mist_SpellScript::HandleAfterCast);
+                OnPrepare += SpellOnPrepareFn(spell_monk_surging_mist_SpellScript::HandleOnPrepare);
             }
         };
 

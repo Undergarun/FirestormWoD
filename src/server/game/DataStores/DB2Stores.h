@@ -30,6 +30,7 @@ extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
 extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
+extern DB2Storage<PvpItemEntry>                     sPvpItemStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;

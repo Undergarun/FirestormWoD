@@ -88,6 +88,7 @@ const char ItemArmorShieldfmt[]               = "nifffffff";
 const char ItemArmorTotalfmt[]                = "niffff";
 const char ItemClassfmt[]                     = "difx";
 const char ItemDamagefmt[]                    = "nfffffffi";
+const char gtItemSocketCostPerLevelfmt[]      = "df";
 const char ItemDisenchantLootfmt[]            = "niiiiii";
 //const char ItemDisplayInfoEntryfmt[]        = "nxxxxxxxxxxxxxxxxxxxxxx";
 const char ItemLimitCategoryEntryfmt[]        = "nxii";

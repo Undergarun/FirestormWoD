@@ -493,6 +493,8 @@ class Spell
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
 
+        bool CheckInterrupt();
+
         // handlers
         void handle_immediate();
         uint64 handle_delayed(uint64 t_offset);
@@ -514,6 +516,9 @@ class Spell
         void DelayedChannel();
         uint32 getState() const { return m_spellState; }
         void setState(uint32 state) { m_spellState = state; }
+
+        void setTriggerCastFlags(TriggerCastFlags p_Flags) { _triggeredCastFlags = p_Flags; }
+        TriggerCastFlags getTriggerCastFlags() const { return _triggeredCastFlags; }
 
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
@@ -745,6 +750,8 @@ class Spell
         void CallScriptBeforeCastHandlers();
         void CallScriptOnCastHandlers();
         void CallScriptAfterCastHandlers();
+        void CallScriptOnPrepareHandlers();
+        bool CallScriptCheckInterruptHandlers();
         SpellCastResult CallScriptCheckCastHandlers();
         void PrepareScriptHitHandlers();
         bool CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode);
