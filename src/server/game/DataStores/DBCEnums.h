@@ -347,7 +347,7 @@ enum AreaFlags
 
 enum AreaFlags2
 {
-    AREA_FLAG2_UNK1             = 0x00000001,                // mine / underground ?
+    AREA_FLAG2_UNK1             = 0x00000001,                //
     AREA_FLAG2_UNK2             = 0x00000002,                // PattymackLand only
     AREA_FLAG2_UNK3             = 0x00000004,                // donjons / raids
     AREA_FLAG2_UNK4             = 0x00000008,                // OrgrimmarRaid and DraenorAuchindoun
@@ -448,7 +448,7 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
-enum MapTypes                                               // Lua_IsInInstance
+enum InstanceTypes                                          // m_InstanceTypes (Map.dbc)
 {
     MAP_COMMON          = 0,                                // none
     MAP_INSTANCE        = 1,                                // party
@@ -519,7 +519,8 @@ enum SummonPropGroup
     SUMMON_PROP_GROUP_UNKNOWN2       = 1,                   // 861 spells in 3.0.3
     SUMMON_PROP_GROUP_PETS           = 2,                   // 52 spells in 3.0.3, pets mostly
     SUMMON_PROP_GROUP_CONTROLLABLE   = 3,                   // 13 spells in 3.0.3, mostly controllable
-    SUMMON_PROP_GROUP_UNKNOWN3       = 4                    // 86 spells in 3.0.3, taxi/mounts
+    SUMMON_PROP_GROUP_UNKNOWN3       = 4,                   // 86 spells in 3.0.3, taxi/mounts
+    SUMMON_PROP_GROUP_UNKNOWN4       = 5                    // 86 spells in 3.0.3, taxi/mounts
 };
 
 // SummonProperties.dbc, col 3
@@ -543,7 +544,13 @@ enum SummonPropType
     SUMMON_PROP_TYPE_UNKNOWN_2       = 15,                  // unk
     SUMMON_PROP_TYPE_UNKNOWN_3       = 16,                  // unk
     SUMMON_PROP_TYPE_UNKNOWN_4       = 17,                  // unk
-    SUMMON_PROP_TYPE_UNKNOWN_5       = 18                   // unk
+    SUMMON_PROP_TYPE_UNKNOWN_5       = 18,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_6       = 19,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_7       = 20,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_8       = 21,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_9       = 24,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_10      = 25,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_10      = 26,                  // unk
 };
 
 // SummonProperties.dbc, col 5
@@ -625,42 +632,61 @@ enum VehicleSeatFlagsB
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {
-    CURRENCY_TYPE_DALARAN_JEWEL             = 61,  // Jewelcrafting token WoTLK
-    CURRENCY_TYPE_EPICUREAN                 = 81,  // Cook token WoTLK
-    CURRENCY_TYPE_CHAMPION_SEAL             = 241, // Argent tournament token
-    CURRENCY_TYPE_ILLUSTROUS_JEWEL          = 361, // Jewelcrafting token Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_DWARF         = 384, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_TROLL         = 385, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_CONQUEST_POINTS           = 390, // PvP
-    CURRENCY_TYPE_TOL_BARAD                 = 391, // Battleground Cataclysm
-    CURRENCY_TYPE_HONOR_POINTS              = 392, // PvP
-    CURRENCY_TYPE_ARCHAEOLOGY_FOSSIL        = 393, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_NIGHT_ELF     = 394, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_JUSTICE_POINTS            = 395, // PvE
-    CURRENCY_TYPE_VALOR_POINTS              = 396, // PvE
-    CURRENCY_TYPE_ARCHAEOLOGY_ORC           = 397, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_DRAENEI       = 398, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_VRYKUL        = 399, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_NERUBIAN      = 400, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR        = 401, // ARCHAEOLOGY Cataclysm
-    CURRENCY_TYPE_IRONPAW                   = 402, // Cook token MoP
-    CURRENCY_TYPE_WORLD_TREE                = 416, // 4.2 token Molten front
-    CURRENCY_TYPE_CONQUEST_META_ARENA       = 483, // PvP
-    CURRENCY_TYPE_CONQUEST_META_RBG         = 484, // PvP
-    CURRENCY_TYPE_DARKMOON_TICKET           = 515, // Darkmoon fair
-    CURRENCY_TYPE_MOTE_OF_DARKNESS          = 614, // 4.3.4 token Dragon soul
-    CURRENCY_TYPE_CORRUPTED_ESSENCE         = 615, // 4.3.4 Deathwing token
-    CURRENCY_TYPE_ARCHAEOLOGY_PANDAREN      = 676, // ARCHAEOLOGY MoP
-    CURRENCY_TYPE_ARCHAEOLOGY_MOGU          = 677, // ARCHAEOLOGY MoP
-    CURRENCY_TYPE_ELDER_CHARM_GOOD_FORTUNE  = 697, // LFR roll chance MoP
-    CURRENCY_TYPE_CONQUEST_META_RANDOM_BG   = 692,
-    CURRENCY_TYPE_ZEN_JEWEL                 = 698, // Jewelcrafting token MoP NYI
-    CURRENCY_TYPE_LESSER_CHARM_GOOD_FORTUNE = 738, // LFR roll chance MoP
-    CURRENCY_TYPE_MOGU_RUNE_FATE            = 752, // roll chance token for T15 boss
-    CURRENCY_TYPE_ARCHAEOLOGY_MANTID        = 754, // ARCHAEOLOGY MoP
-    CURRENCY_TYPE_WARFORGED_SEAL            = 776, // roll chance token for T16 boss
-    CURRENCY_TYPE_TIMELESS_COIN             = 777, // timeless isle token
-    CURRENCY_TYPE_BLOODY_COIN               = 789  // timeless isle token
+    CURRENCY_TYPE_DALARAN_JEWEL                    = 61,  // Jewelcrafting token WoTLK
+    CURRENCY_TYPE_EPICUREAN                        = 81,  // Cook token WoTLK
+    CURRENCY_TYPE_CHAMPION_SEAL                    = 241, // Argent tournament token
+    ///< WotLK Currency
+    CURRENCY_TYPE_ILLUSTROUS_JEWEL                 = 361, // Jewelcrafting token Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_DWARF                = 384, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_TROLL                = 385, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_CONQUEST_POINTS                  = 390, // PvP
+    CURRENCY_TYPE_TOL_BARAD                        = 391, // Battleground Cataclysm
+    CURRENCY_TYPE_HONOR_POINTS                     = 392, // PvP
+    CURRENCY_TYPE_ARCHAEOLOGY_FOSSIL               = 393, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_NIGHT_ELF            = 394, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_JUSTICE_POINTS                   = 395, // PvE
+    CURRENCY_TYPE_VALOR_POINTS                     = 396, // PvE
+    CURRENCY_TYPE_ARCHAEOLOGY_ORC                  = 397, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_DRAENEI              = 398, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_VRYKUL               = 399, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_NERUBIAN             = 400, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR               = 401, // ARCHAEOLOGY Cataclysm
+    CURRENCY_TYPE_IRONPAW                          = 402, // Cook token MoP
+    CURRENCY_TYPE_WORLD_TREE                       = 416, // 4.2 token Molten front
+    CURRENCY_TYPE_CONQUEST_META_ARENA              = 483, // PvP
+    CURRENCY_TYPE_CONQUEST_META_RBG                = 484, // PvP
+    CURRENCY_TYPE_DARKMOON_TICKET                  = 515, // Darkmoon fair
+    CURRENCY_TYPE_MOTE_OF_DARKNESS                 = 614, // 4.3.4 token Dragon soul
+    CURRENCY_TYPE_CORRUPTED_ESSENCE                = 615, // 4.3.4 Deathwing token
+    ///< MoP Currency
+    CURRENCY_TYPE_ARCHAEOLOGY_PANDAREN             = 676, // ARCHAEOLOGY MoP
+    CURRENCY_TYPE_ARCHAEOLOGY_MOGU                 = 677, // ARCHAEOLOGY MoP
+    CURRENCY_TYPE_ELDER_CHARM_GOOD_FORTUNE         = 697, // LFR roll chance MoP
+    CURRENCY_TYPE_CONQUEST_META_RANDOM_BG          = 692, //
+    CURRENCY_TYPE_ZEN_JEWEL                        = 698, // Jewelcrafting token MoP NYI
+    CURRENCY_TYPE_LESSER_CHARM_GOOD_FORTUNE        = 738, // LFR roll chance MoP
+    CURRENCY_TYPE_MOGU_RUNE_FATE                   = 752, // roll chance token for T15 boss
+    CURRENCY_TYPE_ARCHAEOLOGY_MANTID               = 754, // ARCHAEOLOGY MoP
+    CURRENCY_TYPE_WARFORGED_SEAL                   = 776, // roll chance token for T16 boss
+    CURRENCY_TYPE_TIMELESS_COIN                    = 777, // timeless isle token
+    CURRENCY_TYPE_BLOODY_COIN                      = 789, // timeless isle token
+    ///< WoD Currency
+    CURRENCY_TYPE_BLACK_IRON_FRAGEMENT             = 810, //
+    CURRENCY_TYPE_DRAENOR_CLANS_ARCHAEOLOGY        = 821, // ARCHAEOLOGY WoD
+    CURRENCY_TYPE_APEXIS_CRYSTAL                   = 823, // Set currency
+    CURRENCY_TYPE_GARRISON_RESSOURCES              = 824, // Garrison currency
+    CURRENCY_TYPE_OGRE_ARCHAEOLOGY_FRAGEMENT       = 828, // ARCHAEOLOGY WoD
+    CURRENCY_TYPE_ARAKKOA_ARCHAEOLOGY              = 829, // ARCHAEOLOGY WoD
+    CURRENCY_TYPE_UNUSED                           = 830, //
+    CURRENCY_TYPE_UNUSED_2                         = 897, //
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_ALCHEMY        = 910, // Professions
+    CURRENCY_TYPE_ARTIFACT_FRAGEMENT               = 944, //
+    CURRENCY_TYPE_DINGY_IRON_COINS                 = 980, //
+    CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE            = 994, //
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_TAILORING      = 999, // Professions
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_JEWELCRAFTING  = 1008,// Professions
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_LEATHERWORKING = 1017,// Professions
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_BLACKSMITHING  = 1020,// Professions
 };
 
 #endif
