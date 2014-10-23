@@ -100,8 +100,8 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         if (!item)
             continue;
 
-        ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFT_CREATOR);
-        ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+        ObjectGuid giftCreatorGuid = item->GetGuidValue(ITEM_FIELD_GIFT_CREATOR);
+        ObjectGuid creatorGuid = item->GetGuidValue(ITEM_FIELD_CREATOR);
 
         data.WriteBit(giftCreatorGuid[3]);
         data.WriteBit(giftCreatorGuid[0]);
@@ -497,12 +497,12 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         {
             if (myItems[i])
             {
-                myItems[i]->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
+                myItems[i]->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
                 m_Player->MoveItemFromInventory(myItems[i]->GetBagSlot(), myItems[i]->GetSlot(), true);
             }
             if (hisItems[i])
             {
-                hisItems[i]->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, trader->GetGUID());
+                hisItems[i]->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, trader->GetGUID());
                 trader->MoveItemFromInventory(hisItems[i]->GetBagSlot(), hisItems[i]->GetSlot(), true);
             }
         }

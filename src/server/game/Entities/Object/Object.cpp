@@ -155,7 +155,7 @@ void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
         _InitValues();
 
     uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
-    SetUInt64Value(OBJECT_FIELD_GUID, guid);
+    SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
     m_PackGUID.clear();
     m_PackGUID.appendPackGUID(GetGUID());
@@ -982,6 +982,118 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     return visibleFlag;
 }
 
+bool Object::AddGuidValue(uint16 index, uint64 value)
+{
+    if (value && !*((uint64*)&(m_uint32Values[index])) && !*((uint64*)&(m_uint32Values[index + 2])))
+    {
+        Guid128 l_Value = Guid64To128(value);
+        bool l_Changed = false;
+
+        if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
+        {
+            m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
+            _changedFields[index] = true;
+            l_Changed = true;
+        }
+        if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
+        {
+            m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
+            _changedFields[index + 1] = true;
+            l_Changed = true;
+        }
+        if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
+        {
+            m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
+            _changedFields[index + 2] = true;
+            l_Changed = true;
+        }
+        if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
+        {
+            m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
+            _changedFields[index + 3] = true;
+            l_Changed = true;
+        }
+
+        if (l_Changed && m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Object::RemoveGuidValue(uint16 index, uint64 value)
+{
+    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+
+    uint64 l_StoredValue = Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+    if (value && l_StoredValue == value)
+    {
+        m_uint32Values[index + 0] = 0;
+        m_uint32Values[index + 1] = 0;
+        m_uint32Values[index + 2] = 0;
+        m_uint32Values[index + 3] = 0;
+
+        _changedFields[index + 0] = true;
+        _changedFields[index + 1] = true;
+        _changedFields[index + 2] = true;
+        _changedFields[index + 3] = true;
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void Object::SetGuidValue(uint16 index, uint64 value)
+{
+    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+
+    Guid128 l_Value = Guid64To128(value);
+    bool l_Changed = false;
+
+    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
+        _changedFields[index] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
+        _changedFields[index + 1] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
+        _changedFields[index + 2] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
+        _changedFields[index + 3] = true;
+        l_Changed = true;
+    }
+
+    if (l_Changed && m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
 void Object::SetInt32Value(uint16 index, int32 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
@@ -1027,29 +1139,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
 void Object::SetUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-
-    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || index == PLAYER_FIELD_WOW_ACCOUNT || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-        goto Append128Guid;
-    else if (*((uint64*)&(m_uint32Values[index])) != value)
+    if (*((uint64*)&(m_uint32Values[index])) != value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
@@ -1061,72 +1151,13 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
             sObjectAccessor->AddUpdateObject(this);
             m_objectUpdated = true;
         }
-    }
-
-    return;
-
-Append128Guid:
-    Guid128 l_Value = Guid64To128(value);
-    bool l_Changed = false;
-
-    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
-        _changedFields[index] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
-        _changedFields[index + 1] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
-        _changedFields[index + 2] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
-        _changedFields[index + 3] = true;
-        l_Changed = true;
-    }
-
-    if (l_Changed && m_inWorld && !m_objectUpdated)
-    {
-        sObjectAccessor->AddUpdateObject(this);
-        m_objectUpdated = true;
     }
 }
 
 bool Object::AddUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-
-    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || index == PLAYER_FIELD_WOW_ACCOUNT || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-        goto Append128Guid;
-    else if (value && !*((uint64*)&(m_uint32Values[index])))
+    if (value && !*((uint64*)&(m_uint32Values[index])))
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
@@ -1143,101 +1174,17 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
     }
 
     return false;
-
-Append128Guid:
-    Guid128 l_Value = Guid64To128(value);
-    bool l_Changed = false;
-
-    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
-        _changedFields[index] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
-        _changedFields[index + 1] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
-        _changedFields[index + 2] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
-        _changedFields[index + 3] = true;
-        l_Changed = true;
-    }
-
-    if (l_Changed && m_inWorld && !m_objectUpdated)
-    {
-        sObjectAccessor->AddUpdateObject(this);
-        m_objectUpdated = true;
-    }
-
-    return true;
 }
 
 bool Object::RemoveUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-
-    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-        goto Remove128Guid;
-    else if (value && *((uint64*)&(m_uint32Values[index])) == value)
+    if (value && *((uint64*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
         _changedFields[index] = true;
         _changedFields[index + 1] = true;
-
-        if (m_inWorld && !m_objectUpdated)
-        {
-            sObjectAccessor->AddUpdateObject(this);
-            m_objectUpdated = true;
-        }
-
-        return true;
-    }
-
-    return false;
-
-Remove128Guid:
-    uint64 l_StoredValue = Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-
-    if (value && l_StoredValue == value)
-    {
-        m_uint32Values[index] = 0;
-        m_uint32Values[index + 1] = 0;
-        m_uint32Values[index + 2] = 0;
-        m_uint32Values[index + 3] = 0;
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
-        _changedFields[index + 2] = true;
-        _changedFields[index + 3] = true;
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -3714,7 +3661,7 @@ struct WorldObjectChangeAccumulator
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT) == source->GetGUID())
+                    if (caster->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }

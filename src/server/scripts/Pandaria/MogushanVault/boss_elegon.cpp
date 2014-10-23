@@ -1357,7 +1357,7 @@ class mob_energy_charge : public CreatureScript
                 {
                     case POINT_EMPYEREAN_FOCUS:
                     {
-                        if (Unit* focus = ObjectAccessor::FindUnit(me->GetUInt64Value(UNIT_FIELD_TARGET)))
+                        if (Unit* focus = ObjectAccessor::FindUnit(me->GetGuidValue(UNIT_FIELD_TARGET)))
                         {
                             Position pos;
                             focus->GetPosition(&pos);
@@ -1378,7 +1378,7 @@ class mob_energy_charge : public CreatureScript
                 {
                     case ACTION_ENERGIZE_EMPYREAL_FOCUS:
                     {
-                        if (Unit* focus = ObjectAccessor::FindUnit(me->GetUInt64Value(UNIT_FIELD_TARGET)))
+                        if (Unit* focus = ObjectAccessor::FindUnit(me->GetGuidValue(UNIT_FIELD_TARGET)))
                             if (focus->GetAI())
                                 focus->GetAI()->DoAction(ACTION_ACTIVATE_EMPYREAL_FOCUS);
 

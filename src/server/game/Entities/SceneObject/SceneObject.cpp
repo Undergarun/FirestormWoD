@@ -54,7 +54,7 @@ SceneObject* SceneObject::CreateSceneObject(uint32 sceneId, WorldObject* spectat
     sceneObject->SetEntry(sceneId);
     sceneObject->SetUInt32Value(SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID, sceneId);
     sceneObject->SetUInt32Value(SCENEOBJECT_FIELD_RND_SEED_VAL, rand() % 0xFFFFFFFF);
-    sceneObject->SetUInt64Value(SCENEOBJECT_FIELD_CREATED_BY, spectator->GetGUID());
+    sceneObject->SetGuidValue(SCENEOBJECT_FIELD_CREATED_BY, spectator->GetGUID());
     sceneObject->SetUInt32Value(SCENEOBJECT_FIELD_SCENE_TYPE, 0);
 
     return sceneObject;

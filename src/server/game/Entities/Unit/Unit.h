@@ -1775,19 +1775,19 @@ class Unit : public WorldObject
         DeathState getDeathState() { return m_deathState; };
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
-        uint64 GetOwnerGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMONED_BY); }
+        uint64 GetOwnerGUID() const { return GetGuidValue(UNIT_FIELD_SUMMONED_BY); }
         void SetOwnerGUID(uint64 owner);
-        uint64 GetCreatorGUID() const { return GetUInt64Value(UNIT_FIELD_CREATED_BY); }
-        void SetCreatorGUID(uint64 creator) { SetUInt64Value(UNIT_FIELD_CREATED_BY, creator); }
-        uint64 GetMinionGUID() const { return GetUInt64Value(UNIT_FIELD_SUMMON); }
-        void SetMinionGUID(uint64 guid) { SetUInt64Value(UNIT_FIELD_SUMMON, guid); }
-        uint64 GetCharmerGUID() const { return GetUInt64Value(UNIT_FIELD_CHARMED_BY); }
-        void SetCharmerGUID(uint64 owner) { SetUInt64Value(UNIT_FIELD_CHARMED_BY, owner); }
-        uint64 GetCharmGUID() const { return  GetUInt64Value(UNIT_FIELD_CHARM); }
+        uint64 GetCreatorGUID() const { return GetGuidValue(UNIT_FIELD_CREATED_BY); }
+        void SetCreatorGUID(uint64 creator) { SetGuidValue(UNIT_FIELD_CREATED_BY, creator); }
+        uint64 GetMinionGUID() const { return GetGuidValue(UNIT_FIELD_SUMMON); }
+        void SetMinionGUID(uint64 guid) { SetGuidValue(UNIT_FIELD_SUMMON, guid); }
+        uint64 GetCharmerGUID() const { return GetGuidValue(UNIT_FIELD_CHARMED_BY); }
+        void SetCharmerGUID(uint64 owner) { SetGuidValue(UNIT_FIELD_CHARMED_BY, owner); }
+        uint64 GetCharmGUID() const { return  GetGuidValue(UNIT_FIELD_CHARM); }
         void SetPetGUID(uint64 guid) { m_SummonSlot[SUMMON_SLOT_PET] = guid; }
         uint64 GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
-        void SetCritterGUID(uint64 guid) { SetUInt64Value(UNIT_FIELD_CRITTER, guid); }
-        uint64 GetCritterGUID() const { return GetUInt64Value(UNIT_FIELD_CRITTER); }
+        void SetCritterGUID(uint64 guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
+        uint64 GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         uint64 GetCharmerOrOwnerGUID() const { return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID(); }
@@ -2378,7 +2378,7 @@ class Unit : public WorldObject
         void SetTarget(uint64 guid)
         {
             if (!_focusSpell)
-                SetUInt64Value(UNIT_FIELD_TARGET, guid);
+                SetGuidValue(UNIT_FIELD_TARGET, guid);
         }
 
         // Handling caster facing during spell cast

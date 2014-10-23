@@ -379,7 +379,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
             uint32 l_Entry = l_Fields[0].GetUInt32();
             uint32 l_Flags = l_Fields[1].GetUInt32();
 
-            l_Item->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, 0);
+            l_Item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, 0);
             l_Item->SetEntry(l_Entry);
             l_Item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, l_Flags);
             l_Item->SetState(ITEM_CHANGED, m_Player);

@@ -1007,7 +1007,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
     {
         case TARGET_UNIT_CHANNEL_TARGET:
         {
-            WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT));
+            WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT));
             CallScriptObjectTargetSelectHandlers(target, effIndex);
             // unit target may be no longer available - teleported out of map for example
             if (target && target->ToUnit())
@@ -1017,7 +1017,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
         case TARGET_DEST_CHANNEL_TARGET:
             if (channeledSpell->m_targets.HasDst())
                 m_targets.SetDst(channeledSpell->m_targets);
-            else if (WorldObject* target = ObjectAccessor::GetWorldObject(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+            else if (WorldObject* target = ObjectAccessor::GetWorldObject(*m_caster, m_originalCaster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT)))
             {
                 CallScriptObjectTargetSelectHandlers(target, effIndex);
                 if (target)
@@ -5453,7 +5453,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
 {
     if (p_Time == 0)
     {
-        //m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
+        //m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
@@ -5508,7 +5508,7 @@ void Spell::SendChannelStart(uint32 p_Duration)
     m_timer = p_Duration;
 
     if (l_ChannelTarget)
-        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, l_ChannelTarget);
+        m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, l_ChannelTarget);
 
     /// 101546 Spinning Crane Kick
     if (m_spellInfo->Id != 101546)
