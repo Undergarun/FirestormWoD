@@ -222,13 +222,13 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& p_RecvData)
     uint16 l_Src = l_SrcItem->GetPos();
 
     // prevent equip in same slot, only at cheat
-    if (l_Dest == l_Src)                                           
+    if (l_Dest == l_Src)
         return;
 
     Item* l_DestItem = m_Player->GetItemByPos(l_Dest);
 
     // empty slot, simple case
-    if (!l_DestItem)                                         
+    if (!l_DestItem)
     {
         m_Player->RemoveItem(l_PackSlot, l_Slot, true);
         m_Player->EquipItem(l_Dest, l_SrcItem, true);
@@ -236,7 +236,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& p_RecvData)
         m_Player->AutoUnequipOffhandIfNeed();
     }
     // have currently equipped item, not simple case
-    else                                                    
+    else
     {
         uint8 l_DestBag = l_DestItem->GetBagSlot();
         uint8 l_DestSlot = l_DestItem->GetSlot();
@@ -445,10 +445,10 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
         buff << int32(proto->ItemStat[x].ItemStatValue);
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-        buff << int32(proto->ItemStat[x].ItemStatUnk1);
+        buff << int32(proto->ItemStat[x].ScalingValue);
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-        buff << int32(proto->ItemStat[x].ItemStatUnk2);
+        buff << int32(proto->ItemStat[x].SocketCostRate);
 
     buff << uint32(proto->ScalingStatDistribution);
     buff << uint32(proto->DamageType);
@@ -604,7 +604,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
     if (l_PlayerItem)
     {
         sLog->outAshran("HandleSellItemOpcode[%u] %u %u", GetPlayer()->GetGUIDLow(), l_PlayerItem->GetEntry(), l_Amount);
-        
+
         // prevent sell not owner item
         if (m_Player->GetGUID() != l_PlayerItem->GetOwnerGUID())
         {
@@ -1273,7 +1273,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
     sLog->outAshran("HandleAutoStoreBankItemOpcode[%u] %u %u %u", m_Player->GetGUID(), l_PackSlot, l_Slot, l_Item->GetEntry());
 
     // moving from bank to inventory
-    if (m_Player->IsBankPos(l_PackSlot, l_Slot))                 
+    if (m_Player->IsBankPos(l_PackSlot, l_Slot))
     {
         ItemPosCountVec l_Dest;
         InventoryResult l_Msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item, false);
@@ -1289,7 +1289,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
         m_Player->ItemAddedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
     }
     // moving from inventory to bank
-    else                                                    
+    else
     {
         ItemPosCountVec l_Dest;
         InventoryResult l_Msg = m_Player->CanBankItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item, false);
@@ -1528,7 +1528,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (item->GetUInt64Value(ITEM_FIELD_GIFT_CREATOR))        // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
+    if (item->GetGuidValue(ITEM_FIELD_GIFT_CREATOR))        // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
     {
         m_Player->SendEquipError(EQUIP_ERR_CANT_WRAP_WRAPPED, item, NULL);
         return;
@@ -1592,7 +1592,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
             break;
     }
 
-    item->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
+    item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, m_Player);
 
@@ -2316,8 +2316,8 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     // Don't forget to remove currency cost
     SendItemUpgradeResult(true);
 
-    if (item->IsEquipped())
-        player->ApplyItemUpgrade(item, true);
+    //if (item->IsEquipped())
+    //    player->ApplyItemUpgrade(item, true);
 
     player->ModifyCurrency(itemUpEntry->currencyId, -int32(itemUpEntry->currencyCost), false, true, true);
 }

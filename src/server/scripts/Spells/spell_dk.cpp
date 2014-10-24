@@ -32,14 +32,11 @@ enum DeathKnightSpells
     DK_SPELL_SCOURGE_STRIKE_TRIGGERED           = 70890,
     DK_SPELL_BLOOD_BOIL_TRIGGERED               = 65658,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
-    DK_SPELL_BLACK_ICE_R1                       = 49140,
     DK_SPELL_BLOOD_PLAGUE                       = 55078,
     DK_SPELL_FROST_FEVER                        = 55095,
-    DK_SPELL_MASTER_OF_GHOULS                   = 52143,
     DK_SPELL_GHOUL_AS_GUARDIAN                  = 46585,
     DK_SPELL_GHOUL_AS_PET                       = 52150,
-    DK_SPELL_ROILING_BLOOD                      = 108170,
-    DK_SPELL_PESTILENCE                         = 50842,
+    DK_SPELL_BLOOD_BOIL                         = 50842,
     DK_SPELL_CHILBLAINS                         = 50041,
     DK_SPELL_CHAINS_OF_ICE_ROOT                 = 53534,
     DK_SPELL_PLAGUE_LEECH                       = 123693,
@@ -55,8 +52,7 @@ enum DeathKnightSpells
     DK_SPELL_REMORSELESS_WINTER_STUN            = 115001,
     DK_SPELL_REMORSELESS_WINTER                 = 115000,
     DK_SPELL_CONVERSION                         = 119975,
-    DK_SPELL_WEAKENED_BLOWS                     = 115798,
-    DK_SPELL_SCARLET_FEVER                      = 81132,
+    DK_SPELL_SCENT_OF_BLOOD                     = 49509,
     DK_SPELL_SCENT_OF_BLOOD_AURA                = 50421,
     DK_SPELL_CHAINS_OF_ICE                      = 45524,
     DK_SPELL_EBON_PLAGUEBRINGER                 = 51160,
@@ -66,7 +62,6 @@ enum DeathKnightSpells
     DK_SPELL_DARK_INFUSION_STACKS               = 91342,
     DK_SPELL_DARK_INFUSION_AURA                 = 93426,
     DK_NPC_WILD_MUSHROOM                        = 59172,
-    DK_SPELL_RUNIC_CORRUPTION_REGEN             = 51460,
     DK_SPELL_RUNIC_EMPOWERMENT                  = 81229,
     DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL       = 114869,
     DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 146599,
@@ -75,7 +70,8 @@ enum DeathKnightSpells
     DK_SPELL_GLYPH_OF_HORN_OF_WINTER_EFFECT     = 121920,
     DK_SPELL_DEATH_COIL_DAMAGE                  = 47632,
     DK_SPELL_GLYPH_OF_DEATH_AND_DECAY           = 58629,
-    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375
+    DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375,
+    DK_SPELL_DEATH_STRIKE_HEAL                  = 45470
 };
 
 // Death and Decay - 43265
@@ -281,155 +277,6 @@ class spell_dk_runic_empowerment : public SpellScriptLoader
         }
 };
 
-// Called by Death Coil (damage) - 47632, Frost Strike - 49143 and Runic Strike - 56815
-// Runic Corruption - 51462
-class spell_dk_runic_corruption : public SpellScriptLoader
-{
-    public:
-        spell_dk_runic_corruption() : SpellScriptLoader("spell_dk_runic_corruption") { }
-
-        class spell_dk_runic_corruption_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_runic_corruption_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (constAuraEffectPtr runicCorruption = _player->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 4068, 0))
-                    {
-                        if (roll_chance_i(45))
-                        {
-                            int32 basepoints0 = runicCorruption->GetAmount();
-                            if (AuraPtr aur = _player->GetAura(DK_SPELL_RUNIC_CORRUPTION_REGEN))
-                                aur->SetDuration(aur->GetDuration() + 3000);
-                            else
-                                _player->CastCustomSpell(_player, DK_SPELL_RUNIC_CORRUPTION_REGEN, &basepoints0, NULL, NULL, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_runic_corruption_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_runic_corruption_SpellScript();
-        }
-};
-
-// Might of Ursoc - 113072
-class spell_dk_might_of_ursoc : public SpellScriptLoader
-{
-    public:
-        spell_dk_might_of_ursoc() : SpellScriptLoader("spell_dk_might_of_ursoc") { }
-
-        class spell_dk_might_of_ursoc_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_might_of_ursoc_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->GetHealthPct() < 15.0f)
-                        caster->SetHealth(caster->CountPctFromMaxHealth(15));
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_dk_might_of_ursoc_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_might_of_ursoc_AuraScript();
-        }
-};
-
-// Wild Mushroom : Plague - 113517
-class spell_dk_wild_mushroom_plague : public SpellScriptLoader
-{
-    public:
-        spell_dk_wild_mushroom_plague() : SpellScriptLoader("spell_dk_wild_mushroom_plague") { }
-
-        class spell_dk_wild_mushroom_plague_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_wild_mushroom_plague_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                std::list<Creature*> tempList;
-                std::list<Creature*> mushroomlist;
-                std::list<Unit*> tempUnitList;
-                std::list<Unit*> targetList;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->GetCreatureListWithEntryInGrid(tempList, DK_NPC_WILD_MUSHROOM, 500.0f);
-
-                    for (auto itr : tempList)
-                        mushroomlist.push_back(itr);
-
-                    // Remove other players mushrooms
-                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                    {
-                        Unit* owner = (*i)->GetOwner();
-                        if (owner && owner == _player && (*i)->isSummon())
-                            continue;
-
-                        mushroomlist.remove((*i));
-                    }
-
-                    if (!mushroomlist.empty())
-                    {
-                        for (auto itr : mushroomlist)
-                        {
-                            itr->GetAttackableUnitListInRange(tempUnitList, 10.0f);
-
-                            for (auto itr2 : tempUnitList)
-                            {
-                                if (itr2->GetGUID() == _player->GetGUID())
-                                    continue;
-
-                                if (itr2->GetGUID() == itr->GetGUID())
-                                    continue;
-
-                                if (!_player->IsValidAttackTarget(itr2))
-                                    continue;
-
-                                targetList.push_back(itr2);
-                            }
-
-                            for (auto itr2 : targetList)
-                            {
-                                _player->CastSpell(itr2, DK_SPELL_BLOOD_PLAGUE, true);
-                                _player->CastSpell(itr2, DK_SPELL_FROST_FEVER, true);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_wild_mushroom_plague_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_wild_mushroom_plague_AuraScript();
-        }
-};
-
 // Dark transformation - transform pet spell - 63560
 class spell_dk_dark_transformation_form : public SpellScriptLoader
 {
@@ -497,40 +344,6 @@ class spell_dk_desecrated_ground : public SpellScriptLoader
         }
 };
 
-// Necrotic Strike - 73975
-class spell_dk_necrotic_strike : public SpellScriptLoader
-{
-    public:
-        spell_dk_necrotic_strike() : SpellScriptLoader("spell_dk_necrotic_strike") { }
-
-        class spell_dk_necrotic_strike_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_necrotic_strike_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    amount = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK));
-
-                    if (Unit* target = aurEff->GetBase()->GetUnitOwner())
-                        if (target->HasAura(aurEff->GetSpellInfo()->Id, caster->GetGUID()))
-                            amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), aurEff->GetSpellInfo()->Id, SPELL_AURA_SCHOOL_HEAL_ABSORB, 0);
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_necrotic_strike_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_necrotic_strike_AuraScript();
-        }
-};
-
 // Festering Strike - 85948
 class spell_dk_festering_strike : public SpellScriptLoader
 {
@@ -543,41 +356,35 @@ class spell_dk_festering_strike : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (AuraPtr BP = target->GetAura(DK_SPELL_BLOOD_PLAGUE, _player->GetGUID()))
+                        if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
                         {
-                            uint32 dur = BP->GetDuration() + 6000;
-                            BP->SetDuration(dur);
+                            uint32 dur = l_AuraBloodPlague->GetDuration() + 6000;
+                            l_AuraBloodPlague->SetDuration(dur);
 
-                            if (dur > uint32(BP->GetMaxDuration()))
-                                BP->SetMaxDuration(dur);
-
-                            if (AuraPtr PV = target->GetAura(81326, _player->GetGUID()))
-                            {
-                                PV->SetDuration(dur);
-
-                                if (dur > uint32(PV->GetMaxDuration()))
-                                    PV->SetMaxDuration(dur);
-                            }
+                            if (dur > uint32(l_AuraBloodPlague->GetMaxDuration()))
+                                l_AuraBloodPlague->SetMaxDuration(dur);
                         }
-                        if (AuraPtr FF = target->GetAura(DK_SPELL_FROST_FEVER, _player->GetGUID()))
-                        {
-                            uint32 dur = FF->GetDuration() + 6000;
-                            FF->SetDuration(dur);
 
-                            if (dur > uint32(FF->GetMaxDuration()))
-                                FF->SetMaxDuration(dur);
+                        if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
+                        {
+                            uint32 dur = l_AuraFrostFever->GetDuration() + 6000;
+                            l_AuraFrostFever->SetDuration(dur);
+
+                            if (dur > uint32(l_AuraFrostFever->GetMaxDuration()))
+                                l_AuraFrostFever->SetMaxDuration(dur);
                         }
-                        if (AuraPtr COI = target->GetAura(DK_SPELL_CHAINS_OF_ICE, _player->GetGUID()))
-                        {
-                            uint32 dur = COI->GetDuration() + 6000;
-                            COI->SetDuration(dur);
 
-                            if (dur > uint32(COI->GetMaxDuration()))
-                                COI->SetMaxDuration(dur);
+                        if (AuraPtr l_AuraChainsOfIce = l_Target->GetAura(DK_SPELL_CHAINS_OF_ICE, l_Player->GetGUID()))
+                        {
+                            uint32 dur = l_AuraChainsOfIce->GetDuration() + 6000;
+                            l_AuraChainsOfIce->SetDuration(dur);
+
+                            if (dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
+                                l_AuraChainsOfIce->SetMaxDuration(dur);
                         }
                     }
                 }
@@ -665,8 +472,8 @@ class spell_dk_howling_blast : public SpellScriptLoader
                 if (!caster || !target || !tar)
                     return;
 
-                if (target->GetGUID() == tar)
-                    SetHitDamage(GetHitDamage()*2);
+                if (target->GetGUID() != tar)
+                    SetHitDamage(GetHitDamage()/2);
 
                 caster->CastSpell(target, DK_SPELL_FROST_FEVER, true);
             }
@@ -825,41 +632,26 @@ class spell_dk_pillar_of_frost : public SpellScriptLoader
         }
 };
 
-// Called by Death Coil - 47541, Rune Strike - 56815 and Frost Strike - 49143
-// Blood Charges - 114851 for Blood Tap - 45529
-class spell_dk_blood_charges : public SpellScriptLoader
+// Blood Tap - 45529
+class PlayerScript_Blood_Tap : public PlayerScript
 {
     public:
-        spell_dk_blood_charges() : SpellScriptLoader("spell_dk_blood_charges") { }
+        PlayerScript_Blood_Tap() :PlayerScript("PlayerScript_Blood_Tap") {}
 
-        class spell_dk_blood_charges_SpellScript : public SpellScript
+        uint16 m_RunicPower = 0;
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
         {
-            PrepareSpellScript(spell_dk_blood_charges_SpellScript);
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529))
+                return;
 
-            void HandleOnHit()
+            m_RunicPower += p_Value;
+
+            if (m_RunicPower >= 150)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasSpell(45529))
-                        {
-                            _player->CastSpell(_player, DK_SPELL_BLOOD_CHARGE, true);
-                            _player->CastSpell(_player, DK_SPELL_BLOOD_CHARGE, true);
-                        }
-                    }
-                }
+                p_Player->CastSpell(p_Player, DK_SPELL_BLOOD_CHARGE, true);
+                m_RunicPower -= 150;
             }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_blood_charges_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_blood_charges_SpellScript();
         }
 };
 
@@ -1069,39 +861,41 @@ class spell_dk_death_strike : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
+                        l_Player->CastSpell(l_Player, DK_SPELL_DEATH_STRIKE_HEAL, true);
+
                         // Apply Blood Rites effects
-                        if (_player->HasAura(DK_SPELL_BLOOD_RITES))
+                        if (l_Player->HasAura(DK_SPELL_BLOOD_RITES))
                         {
                             SetHitDamage(int32(GetHitDamage() * 1.4f));
 
-                            bool runeFrost = false;
-                            bool runeUnholy = false;
+                            bool l_RuneFrost = false;
+                            bool l_RuneUnholy = false;
 
                             for (uint8 i = 0; i < MAX_RUNES; ++i)
                             {
-                                if (_player->GetCurrentRune(i) == RUNE_DEATH
-                                    || _player->GetCurrentRune(i) == RUNE_BLOOD
-                                    || _player->GetBaseRune(i) == RUNE_BLOOD)
+                                if (l_Player->GetCurrentRune(i) == RUNE_DEATH
+                                    || l_Player->GetCurrentRune(i) == RUNE_BLOOD
+                                    || l_Player->GetBaseRune(i) == RUNE_BLOOD)
                                     continue;
 
-                                if (runeUnholy && _player->GetCurrentRune(i) == RUNE_UNHOLY)
+                                if (l_RuneUnholy && l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
                                     continue;
 
-                                if (runeFrost && _player->GetCurrentRune(i) == RUNE_FROST)
+                                if (l_RuneFrost && l_Player->GetCurrentRune(i) == RUNE_FROST)
                                     continue;
 
-                                if (_player->GetRuneCooldown(i))
+                                if (l_Player->GetRuneCooldown(i))
                                 {
-                                    if (_player->GetCurrentRune(i) == RUNE_FROST)
-                                        runeFrost = true;
+                                    if (l_Player->GetCurrentRune(i) == RUNE_FROST)
+                                        l_RuneFrost = true;
                                     else
-                                        runeUnholy = true;
+                                        l_RuneUnholy = true;
 
-                                    _player->ConvertRune(i, RUNE_DEATH);
+                                    l_Player->ConvertRune(i, RUNE_DEATH);
                                 }
                             }
                         }
@@ -1396,12 +1190,12 @@ class spell_dk_raise_dead : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (_player->HasAura(DK_SPELL_MASTER_OF_GHOULS))
-                        _player->CastSpell(_player, DK_SPELL_GHOUL_AS_PET, true);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_UNHOLY)
+                        l_Player->CastSpell(l_Player, DK_SPELL_GHOUL_AS_PET, true);
                     else
-                        _player->CastSpell(_player, DK_SPELL_GHOUL_AS_GUARDIAN, true);
+                        l_Player->CastSpell(l_Player, DK_SPELL_GHOUL_AS_GUARDIAN, true);
                 }
             }
 
@@ -1740,9 +1534,6 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 {
                     int32 bp = GetHitDamage() * multiplier;
 
-                    if (AuraEffectPtr aurEff = caster->GetAuraEffectOfRankedSpell(DK_SPELL_BLACK_ICE_R1, EFFECT_0))
-                        AddPct(bp, aurEff->GetAmount());
-
                     caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
                 }
             }
@@ -1760,7 +1551,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
         }
 };
 
-// Blood Boil - 48721
+// Blood Boil - 50842
 class spell_dk_blood_boil : public SpellScriptLoader
 {
     public:
@@ -1770,31 +1561,55 @@ class spell_dk_blood_boil : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_blood_boil_SpellScript);
 
+            int32 m_FrostFever  = 0;
+            int32 m_BloodPlague = 0;
+
+            void HandleTargets(std::list<WorldObject*>& targets)
+            {
+                for (WorldObject* l_Object : targets)
+                {
+                    Unit* l_Target = l_Object->ToUnit();
+
+                    if (!l_Target)
+                        continue;
+
+                    if (AuraPtr l_auraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
+                    {
+                        if (l_auraBloodPlague->GetDuration() > m_BloodPlague)
+                            m_BloodPlague = l_auraBloodPlague->GetDuration();
+                    }
+
+
+                   if (AuraPtr l_auraIceFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
+                   {
+                       if (l_auraIceFever->GetDuration() > m_BloodPlague)
+                           m_FrostFever = l_auraIceFever->GetDuration();
+                   }
+                }
+            }
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        _player->CastSpell(_player, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+                        // Add diseases on all targets
+                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE)->GetDuration() < m_FrostFever) && m_FrostFever > 0)
+                            l_Player->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
 
-                        if (_player->HasAura(DK_SPELL_SCARLET_FEVER))
+                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE)->GetDuration() < m_FrostFever) && m_BloodPlague > 0)
+                            l_Player->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
+
+                        l_Player->CastSpell(l_Player, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+
+                        // Refresh diseases
+                        if (l_Player->HasAura(DK_SPELL_SCENT_OF_BLOOD))
                         {
-                            _player->CastSpell(target, DK_SPELL_WEAKENED_BLOWS, true);
-
-                            if (AuraPtr aura = target->GetAura(DK_SPELL_BLOOD_PLAGUE))
-                                aura->RefreshDuration();
-                            if (AuraPtr aura = target->GetAura(DK_SPELL_FROST_FEVER))
-                                aura->RefreshDuration();
-                        }
-                        // Deals 50% additional damage to targets infected with Blood Plague or Frost Fever
-                        if (target->HasAura(DK_SPELL_FROST_FEVER) || target->HasAura(DK_SPELL_BLOOD_PLAGUE))
-                        {
-                            SetHitDamage(int32(GetHitDamage() * 1.5f));
-
-                            // Roiling Blood
-                            if (_player->HasAura(DK_SPELL_ROILING_BLOOD))
-                                _player->CastSpell(target, DK_SPELL_PESTILENCE, true);
+                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
+                                l_AuraBloodPlague->RefreshDuration();
+                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
+                                l_AuraFrostFever->RefreshDuration();
                         }
                     }
                 }
@@ -1802,6 +1617,7 @@ class spell_dk_blood_boil : public SpellScriptLoader
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_blood_boil_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_dk_blood_boil_SpellScript::HandleOnHit);
             }
         };
@@ -1997,12 +1813,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
     new spell_dk_runic_empowerment();
-    new spell_dk_runic_corruption();
-    new spell_dk_might_of_ursoc();
-    new spell_dk_wild_mushroom_plague();
     new spell_dk_dark_transformation_form();
     new spell_dk_desecrated_ground();
-    new spell_dk_necrotic_strike();
     new spell_dk_festering_strike();
     new spell_dk_death_strike_heal();
     new spell_dk_howling_blast();
@@ -2010,7 +1822,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_remorseless_winter();
     new spell_dk_soul_reaper();
     new spell_dk_pillar_of_frost();
-    new spell_dk_blood_charges();
     new spell_dk_blood_tap();
     new spell_dk_death_siphon();
     new spell_dk_improved_blood_presence();
@@ -2036,4 +1847,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_corpse_explosion();
     new spell_dk_glyph_of_horn_of_winter();
     new spell_dk_icy_touch();
+
+    /// Player script
+    new PlayerScript_Blood_Tap();
 }

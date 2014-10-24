@@ -87,8 +87,8 @@ struct ItemSparseEntry
     uint32     ContainerSlots;                               // 24
     int32      ItemStatType[MAX_ITEM_PROTO_STATS];           // 25 - 34
     int32      ItemStatValue[MAX_ITEM_PROTO_STATS];          // 35 - 44
-    int32      ItemStatUnk1[MAX_ITEM_PROTO_STATS];           // 45 - 54
-    int32      ItemStatUnk2[MAX_ITEM_PROTO_STATS];           // 55 - 64
+    int32      ScalingValue[MAX_ITEM_PROTO_STATS];           // 45 - 54
+    float      SocketCostRate[MAX_ITEM_PROTO_STATS];         // 55 - 64
     uint32     ScalingStatDistribution;                      // 65
     uint32     DamageType;                                   // 66
     uint32     Delay;                                        // 67
@@ -137,6 +137,12 @@ struct ItemEffectEntry
     uint32 SpellCooldown;                                   // 6
     uint32 SpellCategory;                                   // 7
     uint32 SpellCategoryCooldown;                           // 8
+};
+
+struct PvpItemEntry
+{
+    uint32 itemId;
+    uint32 ilvl;
 };
 
 struct ItemUpgradeEntry
@@ -376,24 +382,22 @@ struct SpellMiscEntry
     //uint32    Unknown;                                    // 24       unk 601 18612
 };
 
-// SpellPower.dbc
-// @author Selenium: 5.4 valid
 struct SpellPowerEntry
 {
-    uint32    Id;                                           // 0        m_ID
+    uint32    Id;                                           // 0
     uint32    SpellId;                                      // 1
     //uint32    unk_1;                                      // 2
-    uint32    powerType;                                    // 3
-    uint32    manaCost;                                     // 4
-    //uint32    unk_2;                                      // 5
-    //uint32    unk_3;                                      // 6
+    uint32    PowerType;                                    // 3
+    uint32    Cost;                                         // 4
+    uint32    CostPerlevel;                                 // 5
+    uint32    CostPerSecond;                                // 6
     //uint32    unk_4;                                      // 7
     //uint32    unk_5;                                      // 8
     //uint32    unk_5;                                      // 9
-    float ManaCostPercentage;                               // 10
-    float manaPerSecond;                                    // 11
-    //uint32    requireShapeshift;                          // 12 Shapeshift required (spellID)
-    //float     unk_7;                                      // 13
+    float     CostBasePercentage;                           // 10
+    float     CostPerSecondPercentage;                      // 11
+    uint32    RequiredAuraSpellId;                          // 12
+    float     CostMaxPercentage;                            // 13
 };
 
 #define MAX_SPELL_TOTEMS            2

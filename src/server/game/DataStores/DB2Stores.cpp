@@ -29,6 +29,7 @@ DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyC
 DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage <ItemSparseEntry>                sItemSparseStore (ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
+DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
 DB2Storage <SpellReagentsEntry>             sSpellReagentsStore(SpellReagentsEntryfmt);
@@ -161,6 +162,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");
     LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
     LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");

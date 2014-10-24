@@ -278,6 +278,13 @@ void AddSC_undercity();
 void AddSC_western_plaguelands();
 void AddSC_westfall();
 void AddSC_wetlands();
+void AddSC_upper_blackrock_spire();
+void AddSC_instance_upper_blackrock_spire();
+void AddSC_boss_orebender_gorashan();
+void AddSC_boss_kyrak_the_corruptor();
+void AddSC_boss_commander_tharbek();
+void AddSC_boss_ragewing_the_untamed();
+void AddSC_boss_warlord_zaela();
 
 //kalimdor
 void AddSC_blackfathom_deeps();              //Blackfathom Depths
@@ -1100,6 +1107,13 @@ void AddEasternKingdomsScripts()
     AddSC_western_plaguelands();
     AddSC_westfall();
     AddSC_wetlands();
+    AddSC_upper_blackrock_spire();
+    AddSC_instance_upper_blackrock_spire();
+    AddSC_boss_orebender_gorashan();
+    AddSC_boss_kyrak_the_corruptor();
+    AddSC_boss_commander_tharbek();
+    AddSC_boss_ragewing_the_untamed();
+    AddSC_boss_warlord_zaela();
 
     AddSC_instance_throne_of_the_tides(); // Throne of the Tides
     AddSC_throne_of_the_tides();

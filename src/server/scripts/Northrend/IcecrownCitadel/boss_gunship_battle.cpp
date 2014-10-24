@@ -344,7 +344,7 @@ Player* SelectRandomPlayerInTheMaps(Map* map)
 //Function start motion of the ship
 void StartFlyShip(Transport* ship)
 {
-    ship->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
+    /*ship->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
     ship->SetGoState(GO_STATE_ACTIVE);
     ship->SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0x10830010); // Seen in sniffs
     ship->SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 3, 1.0f);
@@ -360,7 +360,7 @@ void StartFlyShip(Transport* ship)
 
     Map::PlayerList const &lPlayers = map->GetPlayers();
     if (lPlayers.isEmpty())
-        return;
+        return;*/
 
     /*for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
     {
@@ -410,7 +410,7 @@ void RelocateTransport(Transport* transport)
             break;
     }
 
-    transport->Update(0);
+    /*transport->Update(0);
     transport->UpdateNPCPositions();
     transport->UpdatePlayerPositions();
 
@@ -420,13 +420,13 @@ void RelocateTransport(Transport* transport)
 
     for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
         if (Player* player = itr->getSource())
-            player->UpdateObjectVisibility();
+            player->UpdateObjectVisibility();*/
 }
 
 //Function stop motion of the ship
 void StopFlyShip(Transport* ship)
 {
-    Map* map = ship->GetMap();
+    /*Map* map = ship->GetMap();
     ship->m_WayPoints.clear();
     RelocateTransport(ship);
     ship->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
@@ -483,7 +483,7 @@ void TeleportPlayers(Map* map, uint64 teamInInstance)
 //Ship explosion
 void DoShipExplosion(Transport* ship)
 {
-    for (Transport::CreatureSet::iterator itr = ship->m_NPCPassengerSet.begin(); itr != ship->m_NPCPassengerSet.end();)
+    /*for (Transport::CreatureSet::iterator itr = ship->m_NPCPassengerSet.begin(); itr != ship->m_NPCPassengerSet.end();)
     {
         if (Creature* npc = *itr)
         {
@@ -491,20 +491,20 @@ void DoShipExplosion(Transport* ship)
                 npc->CastSpell(npc, SPELL_SHIP_EXPLOSION, true);
         }
         ++itr;
-    }
+    }*/
 }
 
 //Wipe check
 bool DoWipeCheck(Transport* ship)
 {
-    for (Transport::PlayerSet::const_iterator itr = ship->GetPassengers().begin(); itr != ship->GetPassengers().end();)
+   /* for (Transport::PlayerSet::const_iterator itr = ship->GetPassengers().begin(); itr != ship->GetPassengers().end();)
     {
         Player* plr = *itr;
         ++itr;
 
         if (plr && plr->isAlive())
             return true;
-    }
+    }*/
     return false;
 }
 
@@ -532,7 +532,7 @@ void DoCheckFallingPlayer(Creature* me)
 // Restart event
 void RestartEvent(Transport* firstShip, Transport* secondShip, Map* instance, uint64 teamInInstance)
 {
-    sMapMgr->UnLoadTransportFromMap(firstShip);
+    /*sMapMgr->UnLoadTransportFromMap(firstShip);
     sMapMgr->UnLoadTransportFromMap(secondShip);
 
     Map::PlayerList const& players = instance->GetPlayers();
@@ -731,13 +731,13 @@ void RestartEvent(Transport* firstShip, Transport* secondShip, Map* instance, ui
             hordeHammerShip->SetStopped(true);
             hordeHammerShip->BuildStopMovePacket(hordeHammerShip->GetMap());
         }
-    }
+    }*/
 }
 
 //Stop Fight
 void StopFight(Transport* t1, Transport* t2)
 {
-    Map* map = t1->GetMap();
+   /* Map* map = t1->GetMap();
 
     for (Transport::CreatureSet::iterator itr = t1->m_NPCPassengerSet.begin(); itr != t1->m_NPCPassengerSet.end();)
     {
@@ -768,7 +768,7 @@ void StopFight(Transport* t1, Transport* t2)
     {
         if (Player* player = itr->getSource())
             player->CombatStop();
-    }
+    }*/
 }
 
 // Muradin Bronzebeard
@@ -1026,7 +1026,7 @@ class npc_muradin_gunship : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (eventId)
+                    /*switch (eventId)
                     {
                         case EVENT_SEND_UPDATE:
                             // Code below need for ship vision problem
@@ -1180,7 +1180,7 @@ class npc_muradin_gunship : public CreatureScript
                                 skybreaker->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER_RIFLEMAN, 0.15231f, -22.9462f, 21.659f, 4.72416f);
                             }
                             break;
-                      }
+                      }*/
                 }
 
                 if (me->getVictim() && !me->GetCurrentSpell(CURRENT_MELEE_SPELL))
@@ -2249,7 +2249,7 @@ class npc_saurfang_gunship : public CreatureScript
                             events.ScheduleEvent(EVENT_SEND_UPDATE, 3000);*/
                             //hordeShip->BuildStopMovePacket(me->GetMap());
                             break;
-                        case EVENT_WIPE_CHECK:
+                      /*  case EVENT_WIPE_CHECK:
                             DoCheckFallingPlayer(me);
                             if (DoWipeCheck(hordeShip))
                                 events.ScheduleEvent(EVENT_WIPE_CHECK, 3000);
@@ -2384,7 +2384,7 @@ class npc_saurfang_gunship : public CreatureScript
                             }
                             break;
                         default:
-                            break;
+                            break;*/
                       }
                 }
 

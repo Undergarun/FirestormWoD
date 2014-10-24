@@ -1815,7 +1815,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     if (Creature* creature = AddCreature(entry, type, team, x, y, z, o))
     {
         creature->setDeathState(DEAD);
-        creature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
+        creature->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
         // aura
         // TODO: Fix display here
         // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
@@ -2174,7 +2174,7 @@ void Battleground::RelocateDeadPlayers(uint64 queueIndex)
                 closestGrave = GetClosestGraveYard(player);
 
             if (closestGrave)
-                player->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
+                player->TeleportTo(GetMapId(), closestGrave->m_PositionX, closestGrave->m_PositionY, closestGrave->m_PositionZ, player->GetOrientation());
         }
         ghostList.clear();
     }

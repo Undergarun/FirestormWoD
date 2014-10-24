@@ -155,7 +155,7 @@ void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
         _InitValues();
 
     uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
-    SetUInt64Value(OBJECT_FIELD_GUID, guid);
+    SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
     m_PackGUID.clear();
     m_PackGUID.appendPackGUID(GetGUID());
@@ -240,9 +240,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
                 case GAMEOBJECT_TYPE_FLAGSTAND:
                 case GAMEOBJECT_TYPE_FLAGDROP:
                     updateType = UPDATETYPE_CREATE_OBJECT2;
-                    break;
-                case GAMEOBJECT_TYPE_TRANSPORT:
-                    flags |= UPDATEFLAG_TRANSPORT;
                     break;
                 default:
                     break;
@@ -333,19 +330,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     const DynamicObject * l_DynamicObject   = ToDynObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
 
-    const WorldObject* l_WorldObject =  l_Player        ? (const WorldObject*)l_Player : (
-                                        l_Unit          ? (const WorldObject*)l_Unit : (
-                                        l_GameObject    ? (const WorldObject*)l_GameObject : l_DynamicObject ? (const WorldObject*)l_DynamicObject : (
-                                        l_AreaTrigger   ? (const WorldObject*)l_AreaTrigger : (const WorldObject*)ToCorpse())));
-
-    bool l_IsTransport = false;
-
-    if (l_GameObject)
-    {
-        if (GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(l_GameObject->GetEntry()))
-            if (l_GameObjectTemplate->type == GAMEOBJECT_TYPE_TRANSPORT && l_GameObjectTemplate->transport.pause)
-                l_IsTransport = false;
-    }
+    uint32 l_FrameCount = l_GameObject && l_GameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT ? l_GameObject->GetGOValue()->Transport.StopFrames->size() : 0;
+    const WorldObject   * l_WorldObject = (const WorldObject*)this;
 
     /// Normalize movement to avoid client crash
     if (l_Unit)
@@ -377,7 +363,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->FlushBits();
 
-    *p_Data << uint32(l_IsTransport ? 1 : 0);                       ///< Transport frame count
+    *p_Data << uint32(l_FrameCount);                                ///< Transport frame count
 
     if (p_Flags & UPDATEFLAG_LIVING)
     {
@@ -615,23 +601,25 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_STATIONARY_POSITION)
     {
-        *p_Data << float(l_WorldObject->GetPositionX());                    ///< Stationary position X
-        *p_Data << float(l_WorldObject->GetPositionY());                    ///< Stationary position Y
-
-        if (l_Unit)
-            *p_Data << float(l_Unit->GetPositionZMinusOffset());            ///< Stationary position Z
-        else
-            *p_Data << float(l_WorldObject->GetPositionZ());                ///< Stationary position Z
-
-        *p_Data << float(l_WorldObject->GetOrientation());                  ///< Stationary position O
+        *p_Data << float(l_WorldObject->GetStationaryX());                  ///< Stationary position X
+        *p_Data << float(l_WorldObject->GetStationaryY());                  ///< Stationary position Y
+        *p_Data << float(l_WorldObject->GetStationaryZ());                  ///< Stationary position Z
+        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O            
     }
 
     if (p_Flags & UPDATEFLAG_HAS_TARGET)
         p_Data->appendPackGUID(l_Unit->getVictim()->GetGUID());             ///< Target victim guid
 
     if (p_Flags & UPDATEFLAG_TRANSPORT)
-        *p_Data << uint32(getMSTime());                                     ///< Transport time
+    {
+        uint32 l_TransportTime = getMSTime();
 
+        if (l_GameObject && l_GameObject->IsTransport())
+            l_TransportTime = l_GameObject->GetGOValue()->Transport.PathProgress;
+
+        *p_Data << uint32(l_TransportTime);                                 ///< Transport time
+    }
+                                    
     if (p_Flags & UPDATEFLAG_VEHICLE)
     {
         *p_Data << uint32(l_Unit->GetVehicleKit()->GetVehicleInfo()->m_ID); ///< Vehicle ID
@@ -782,10 +770,11 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         /// TODO
     }
 
-    /// Here unk block
-
-    if (l_IsTransport)
-        *p_Data << uint32(sObjectMgr->GetGameObjectTemplate(l_GameObject->GetEntry())->transport.pause);
+    if (l_FrameCount > 0)
+    {
+        for (uint32 l_Frame : *l_GameObject->GetGOValue()->Transport.StopFrames)
+            *p_Data << uint32(l_Frame);
+    }
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -993,6 +982,118 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     return visibleFlag;
 }
 
+bool Object::AddGuidValue(uint16 index, uint64 value)
+{
+    if (value && !*((uint64*)&(m_uint32Values[index])) && !*((uint64*)&(m_uint32Values[index + 2])))
+    {
+        Guid128 l_Value = Guid64To128(value);
+        bool l_Changed = false;
+
+        if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
+        {
+            m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
+            _changedFields[index] = true;
+            l_Changed = true;
+        }
+        if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
+        {
+            m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
+            _changedFields[index + 1] = true;
+            l_Changed = true;
+        }
+        if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
+        {
+            m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
+            _changedFields[index + 2] = true;
+            l_Changed = true;
+        }
+        if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
+        {
+            m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
+            _changedFields[index + 3] = true;
+            l_Changed = true;
+        }
+
+        if (l_Changed && m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Object::RemoveGuidValue(uint16 index, uint64 value)
+{
+    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+
+    uint64 l_StoredValue = Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+    if (value && l_StoredValue == value)
+    {
+        m_uint32Values[index + 0] = 0;
+        m_uint32Values[index + 1] = 0;
+        m_uint32Values[index + 2] = 0;
+        m_uint32Values[index + 3] = 0;
+
+        _changedFields[index + 0] = true;
+        _changedFields[index + 1] = true;
+        _changedFields[index + 2] = true;
+        _changedFields[index + 3] = true;
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void Object::SetGuidValue(uint16 index, uint64 value)
+{
+    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+
+    Guid128 l_Value = Guid64To128(value);
+    bool l_Changed = false;
+
+    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
+        _changedFields[index] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
+    {
+        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
+        _changedFields[index + 1] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
+        _changedFields[index + 2] = true;
+        l_Changed = true;
+    }
+    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
+    {
+        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
+        _changedFields[index + 3] = true;
+        l_Changed = true;
+    }
+
+    if (l_Changed && m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
 void Object::SetInt32Value(uint16 index, int32 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
@@ -1038,29 +1139,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
 void Object::SetUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-
-    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || index == PLAYER_FIELD_WOW_ACCOUNT || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-        goto Append128Guid;
-    else if (*((uint64*)&(m_uint32Values[index])) != value)
+    if (*((uint64*)&(m_uint32Values[index])) != value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
@@ -1072,72 +1151,13 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
             sObjectAccessor->AddUpdateObject(this);
             m_objectUpdated = true;
         }
-    }
-
-    return;
-
-Append128Guid:
-    Guid128 l_Value = Guid64To128(value);
-    bool l_Changed = false;
-
-    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
-        _changedFields[index] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
-        _changedFields[index + 1] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
-        _changedFields[index + 2] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
-        _changedFields[index + 3] = true;
-        l_Changed = true;
-    }
-
-    if (l_Changed && m_inWorld && !m_objectUpdated)
-    {
-        sObjectAccessor->AddUpdateObject(this);
-        m_objectUpdated = true;
     }
 }
 
 bool Object::AddUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-
-    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || index == PLAYER_FIELD_WOW_ACCOUNT || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-        goto Append128Guid;
-    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-        goto Append128Guid;
-    else if (value && !*((uint64*)&(m_uint32Values[index])))
+    if (value && !*((uint64*)&(m_uint32Values[index])))
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
@@ -1154,101 +1174,17 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
     }
 
     return false;
-
-Append128Guid:
-    Guid128 l_Value = Guid64To128(value);
-    bool l_Changed = false;
-
-    if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
-        _changedFields[index] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
-    {
-        m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
-        _changedFields[index + 1] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
-        _changedFields[index + 2] = true;
-        l_Changed = true;
-    }
-    if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
-    {
-        m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
-        _changedFields[index + 3] = true;
-        l_Changed = true;
-    }
-
-    if (l_Changed && m_inWorld && !m_objectUpdated)
-    {
-        sObjectAccessor->AddUpdateObject(this);
-        m_objectUpdated = true;
-    }
-
-    return true;
 }
 
 bool Object::RemoveUInt64Value(uint16 index, uint64 value)
 {
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
-
-    if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-        || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID || index == UNIT_FIELD_CHANNEL_OBJECT))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-        goto Remove128Guid;
-    else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-        goto Remove128Guid;
-    else if (value && *((uint64*)&(m_uint32Values[index])) == value)
+    if (value && *((uint64*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
         _changedFields[index] = true;
         _changedFields[index + 1] = true;
-
-        if (m_inWorld && !m_objectUpdated)
-        {
-            sObjectAccessor->AddUpdateObject(this);
-            m_objectUpdated = true;
-        }
-
-        return true;
-    }
-
-    return false;
-
-Remove128Guid:
-    uint64 l_StoredValue = Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-
-    if (value && l_StoredValue == value)
-    {
-        m_uint32Values[index] = 0;
-        m_uint32Values[index + 1] = 0;
-        m_uint32Values[index + 2] = 0;
-        m_uint32Values[index + 3] = 0;
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
-        _changedFields[index + 2] = true;
-        _changedFields[index + 3] = true;
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -2345,8 +2281,8 @@ void WorldObject::AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerLi
 void WorldObject::SendPlaySound(uint32 p_SoundKitID, bool p_OnlySelf)
 {
     WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
-    l_Data.appendPackGUID(GetGUID());
     l_Data << p_SoundKitID;
+    l_Data.appendPackGUID(GetGUID());
 
     if (p_OnlySelf && GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->GetSession()->SendPacket(&l_Data);
@@ -3630,10 +3566,9 @@ void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_Sound
 
 void WorldObject::PlayDirectSound(uint32 p_SoundKitID, Player * p_Target /*= NULL*/)
 {
-
     WorldPacket l_Data(SMSG_PLAY_SOUND, 2 + 16 + 4);
-    l_Data.appendPackGUID(GetGUID());
     l_Data << p_SoundKitID;
+    l_Data.appendPackGUID(GetGUID());
 
     if (p_Target)
         p_Target->SendDirectMessage(&l_Data);
@@ -3726,7 +3661,7 @@ struct WorldObjectChangeAccumulator
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT) == source->GetGUID())
+                    if (caster->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }
@@ -3747,14 +3682,23 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
-    CellCoord p = JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY());
-    Cell cell(p);
-    cell.SetNoCreate();
-    WorldObjectChangeAccumulator notifier(*this, data_map);
-    TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
-    Map& map = *GetMap();
-    //we must build packets for all visible players
-    cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    if (ToGameObject() && ToGameObject()->IsTransport())
+    {
+        Map::PlayerList const& players = GetMap()->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            BuildFieldsUpdate(itr->getSource(), data_map);
+    }
+    else
+    {
+        CellCoord p = JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY());
+        Cell cell(p);
+        cell.SetNoCreate();
+        WorldObjectChangeAccumulator notifier(*this, data_map);
+        TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
+        Map& map = *GetMap();
+        //we must build packets for all visible players
+        cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    }
 
     ClearUpdateMask(false);
 }

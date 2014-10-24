@@ -36,14 +36,25 @@ void VisibleNotifier::SendToSelf()
     // but exist one case when this possible and object not out of range: transports
     if (Transport* transport = i_player.GetTransport())
     {
-        for (Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr != transport->GetPassengers().end();++itr)
+        for (std::set<WorldObject*>::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
         {
             if (vis_guids.find((*itr)->GetGUID()) != vis_guids.end())
             {
                 vis_guids.erase((*itr)->GetGUID());
 
-                i_player.UpdateVisibilityOf((*itr), i_data, i_visibleNow);
-                (*itr)->UpdateVisibilityOf(&i_player);
+                switch ((*itr)->GetTypeId())
+                {
+                    case TYPEID_GAMEOBJECT:
+                        i_player.UpdateVisibilityOf((*itr)->ToGameObject(), i_data, i_visibleNow);
+                        break;
+                    case TYPEID_PLAYER:
+                        i_player.UpdateVisibilityOf((*itr)->ToPlayer(), i_data, i_visibleNow);
+                        (*itr)->ToPlayer()->UpdateVisibilityOf(&i_player);
+                        break;
+                    case TYPEID_UNIT:
+                        i_player.UpdateVisibilityOf((*itr)->ToCreature(), i_data, i_visibleNow);
+                        break;
+                }
             }
         }
     }
@@ -290,6 +301,7 @@ bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Creature* u)
     return AnyDeadUnitObjectInRangeCheck::operator()(u) && i_check(u);
 }
 
+template void ObjectUpdater::Visit<Creature>(CreatureMapType&);
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);
 template void ObjectUpdater::Visit<AreaTrigger>(AreaTriggerMapType &);

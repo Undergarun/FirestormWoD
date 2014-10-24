@@ -376,7 +376,7 @@ void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& tra
     }
 
     Item* pItem = Item::CreateItem(auction->bm_template->itemEntry, auction->bm_template->itemCount, bidder);
-    pItem->SetUInt64Value(ITEM_FIELD_OWNER, bidderGUID);
+    pItem->SetGuidValue(ITEM_FIELD_OWNER, bidderGUID);
     pItem->SaveToDB(trans);
 
     MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_WON), auction->BuildAuctionMailBody(auction->bidder))

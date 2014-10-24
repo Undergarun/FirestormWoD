@@ -82,6 +82,8 @@
 #include "BlackMarketMgr.h"
 #include "CinematicPathMgr.h"
 #include "WildBattlePet.h"
+#include "PlayerDump.h"
+#include "TransportMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1504,7 +1506,6 @@ void World::SetInitialWorldSettings()
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
 
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
 
@@ -1514,6 +1515,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
     sObjectMgr->LoadGarrisonPlotBuildingContent();
     
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
+    sTransportMgr->LoadTransportTemplates();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
@@ -1560,31 +1564,31 @@ void World::SetInitialWorldSettings()
     LoadRandomEnchantmentsTable();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Disables");
-    DisableMgr::LoadDisables();                                 // must be before loading quests and items
+    DisableMgr::LoadDisables();                                                             // must be before loading quests and items
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                          ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                           ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                 ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                  ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                          ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Scripts...");                           ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                   ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                    ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecsOverride();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                            ///< must be after LoadItemPrototypes
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                             ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");
-    sObjectMgr->LoadEquipmentTemplates();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");             // Must be after LoadCreatureTemplate
+    sObjectMgr->LoadEquipmentTemplates();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates difficulties...");
     sObjectMgr->LoadCreatureTemplatesDifficulties();
@@ -1965,10 +1969,7 @@ void World::SetInitialWorldSettings()
     sBattlefieldMgr->InitBattlefield();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
-    sMapMgr->LoadTransports();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport NPCs...");
-    sMapMgr->LoadTransportNPCs();
+    sTransportMgr->SpawnContinentTransports();
 
     ///- Initialize Warden
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Warden Checks...");

@@ -20,8 +20,9 @@
 
 const char Itemfmt[] = "niiiiiiii";
 const char ItemCurrencyCostfmt[] = "xn";
-const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
+const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiii";
+const char PvpItemfmt[] = "xni";
 const char ItemModifiedAppearanceFmt[] = "niiiii";
 const char ItemAppearanceFmt[] = "nii";
 const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxx";
@@ -40,7 +41,7 @@ const char AreaPOIEntryfmt[] = "nxxxiixffxxixxx";
 const char Holidaysfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxisix";
 const char OverrideSpellDatafmt[] = "niiiiiiiiiixx";
 const char SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
-const char SpellPowerEntryfmt[] = "nixiixxxxxffxx";
+const char SpellPowerEntryfmt[] = "nixiiiixxxffif";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
 

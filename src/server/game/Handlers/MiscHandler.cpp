@@ -1511,7 +1511,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+        ObjectGuid itemCreator = item->GetGuidValue(ITEM_FIELD_CREATOR);
 
         data.WriteBit(itemCreator[0]);
         data.WriteBit(0);               // unk bit 32
@@ -1549,7 +1549,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+        ObjectGuid itemCreator = item->GetGuidValue(ITEM_FIELD_CREATOR);
 
         // related to random stats
         // if (unkBit)
@@ -1923,11 +1923,11 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", m_Player->GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT), m_Player->GetGUIDLow());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", m_Player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT), m_Player->GetGUIDLow());
         if (WorldObject* target = m_Player->GetViewpoint())
             m_Player->SetSeer(target);
         else
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, m_Player->GetName(), m_Player->GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, m_Player->GetName(), m_Player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT));
     }
 
     GetPlayer()->UpdateVisibilityForPlayer();

@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 
 class GameObjectAI;
+class Transport;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -198,11 +199,30 @@ struct GameObjectTemplate
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
-            uint32 pause;                                   //0
+            int32 pauseTime1;                               //0
             uint32 startOpen;                               //1
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 pause1EventID;                           //3
             uint32 pause2EventID;                           //4
+            uint32 mapId;                                   //5
+            int32 pauseTime2;                               //6
+            uint32 gameEvent2;                              //7
+            int32 pauseTime3;                               //8
+            uint32 gameEvent3;                              //9
+            int32 pauseTime4;                               //10
+            uint32 gameEvent4;                              //11
+            int32 pauseTime5;                               //12
+            uint32 gameEvent5;                              //13
+            int32 pauseTime6;                               //14
+            uint32 gameEvent6;                              //15
+            int32 pauseTime7;                               //16
+            uint32 gameEvent7;                              //17
+            int32 pauseTime8;                               //18
+            uint32 gameEvent8;                              //19
+            int32 pauseTime9;                               //20
+            uint32 gameEvent9;                              //21
+            uint32 onlyChargeWhenZWithin;                   //22
+            uint32 onlyChargeWhenTime;                      //23
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -236,6 +256,7 @@ struct GameObjectTemplate
             uint32 transportPhysics;                        //5
             uint32 mapID;                                   //6
             uint32 worldState1;                             //7
+            uint32 canBeStopped;                            //8
         } moTransport;
         //16 GAMEOBJECT_TYPE_DUELFLAG - empty
         //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
@@ -624,9 +645,20 @@ struct GameObjectTemplate
 typedef UNORDERED_MAP<uint32, GameObjectTemplate> GameObjectTemplateContainer;
 
 class OPvPCapturePoint;
+struct TransportAnimation;
 
 union GameObjectValue
 {
+    //11 GAMEOBJECT_TYPE_TRANSPORT
+    struct
+    {
+        uint32 PathProgress;
+        uint32 StateUpdateTimer;
+        TransportAnimation const* AnimationInfo;
+        uint32 CurrentSeg;
+        std::vector<uint32>* StopFrames;
+        bool ClientUpdate;
+    } Transport;
     //29 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct
     {
@@ -658,10 +690,13 @@ enum GOState
 {
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2                         // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_TRANSPORT_STOPPED  = 24,
+    GO_STATE_TRANSPORT_ACTIVE   = 25,
 };
 
-#define MAX_GO_STATE              3
+#define MAX_GO_STATE                       3
+#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 // from `gameobject`
 struct GameObjectData
@@ -707,7 +742,7 @@ class GameObjectModel;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
-class GameObject : public WorldObject, public GridObject<GameObject>
+class GameObject : public WorldObject, public GridObject<GameObject>, public MapObject
 {
     public:
         explicit GameObject();
@@ -757,9 +792,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                 ASSERT(false);
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY, owner);
+            SetGuidValue(GAMEOBJECT_FIELD_CREATED_BY, owner);
         }
-        uint64 GetOwnerGUID() const { return GetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY); }
+        uint64 GetOwnerGUID() const { return GetGuidValue(GAMEOBJECT_FIELD_CREATED_BY); }
         Unit* GetOwner() const;
 
         void SetSpellId(uint32 id)
@@ -911,8 +946,24 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetDisplayId() const { return GetUInt32Value(GAMEOBJECT_FIELD_DISPLAY_ID); }
 
         GameObjectModel * m_model;
+        void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
+
+        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
+        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
+
+        float GetStationaryX() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
+        float GetStationaryY() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
+        float GetStationaryZ() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
+        float GetStationaryO() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
+
+        void SetTransportState(GOState state, uint32 stopFrame = 0);
+        uint32 GetTransportPeriod() const;
+
+        void SendTransportToOutOfRangePlayers() const;
+
     protected:
         bool AIM_Initialize();
+        void UpdateModel();                                 // updates model in case displayId were changed
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
         uint32      m_respawnDelayTime;                     // (secs) if 0 then current GO state no dependent from timer
@@ -935,6 +986,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue * const m_goValue;
 
         uint64 m_rotation;
+        Position m_stationaryPosition;
 
         uint64 m_lootRecipient;
         uint32 m_lootRecipientGroup;
@@ -942,7 +994,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
-        void UpdateModel();                                 // updates model in case displayId were changed
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const

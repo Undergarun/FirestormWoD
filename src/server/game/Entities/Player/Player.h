@@ -1624,7 +1624,6 @@ class Player : public Unit, public GridObject<Player>
         void AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 duration);
         void ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false);
         void ApplyEnchantment(Item* item, bool apply);
-        void ApplyItemUpgrade(Item* item, bool apply);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
         void BuildEnchantmentsInfoData(WorldPacket* data);
@@ -1827,7 +1826,7 @@ class Player : public Unit, public GridObject<Player>
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
-        uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
+        uint64 GetMoney() const { return GetGuidValue(PLAYER_FIELD_COINAGE); }
         void ModifyMoney(int64 d);
         bool HasEnoughMoney(uint64 amount) const { return GetMoney() >= amount; }
         bool HasEnoughMoney(int64 amount) const
@@ -1856,7 +1855,7 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetSelection() const { return m_curSelection; }
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
-        void SetSelection(uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }
@@ -2515,8 +2514,8 @@ class Player : public Unit, public GridObject<Player>
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
-        void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
-        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply);
+        void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
+        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
@@ -3101,7 +3100,18 @@ class Player : public Unit, public GridObject<Player>
 
         PreparedQueryResultFuture _PetBattleCountBattleSpeciesCallback;
 
+        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
+        void RescaleItemTo(uint8 slot, uint32 ilvl);
+
+        void SetInPvPCombat(bool set);
+        bool IsInPvPCombat() const { return m_pvpCombat; }
+        void UpdatePvP(uint32 diff);
+        void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
+
     protected:
+        void OnEnterPvPCombat();
+        void OnLeavePvPCombat();
+
         /// Summon new pet (call back)
         void SummonBattlePetCallback(PreparedQueryResult& p_Result);
         /// Summon last summoned battle pet
@@ -3256,6 +3266,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_atLoginFlags;
 
         Item* m_items[PLAYER_SLOTS_COUNT];
+        uint32 m_itemScale[INVENTORY_SLOT_BAG_END];
+
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
@@ -3541,6 +3553,9 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         SceneObject* m_LastPlayedScene;
+
+        uint32 m_PvPCombatTimer;
+        bool m_pvpCombat;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

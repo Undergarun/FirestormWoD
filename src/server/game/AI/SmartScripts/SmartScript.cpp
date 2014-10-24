@@ -34,6 +34,7 @@
 #include "Vehicle.h"
 #include "ScriptedGossip.h"
 #include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
 
 class TrinityStringTextBuilder
 {
@@ -1362,7 +1363,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             ObjectList* targets = GetTargets(e, unit);
             if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetFacingTo(me->GetHomePosition().GetOrientation());
+                me->SetFacingTo((me->GetTransGUID() ?
+                me->GetTransportHomePosition() : me->GetHomePosition()).GetOrientation());
             else if (e.GetTargetType() == SMART_TARGET_POSITION)
                 me->SetFacingTo(e.target.o);
             else if (targets && !targets->empty())
@@ -1411,7 +1413,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
 
             if (!target)
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, e.target.x, e.target.y, e.target.z);
+            {
+                float orientation;
+                G3D::Vector3 dest(e.target.x, e.target.y, e.target.z);
+                if (e.action.MoveToPos.transport)
+                    if (TransportBase* trans = me->GetDirectTransport())
+                        trans->CalculatePassengerPosition(dest.x, dest.y, dest.z, orientation);
+
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest.x, dest.y, dest.z);
+            }
             else
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
             break;
@@ -1458,9 +1468,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* npc = (*itr)->ToCreature())
                 {
                     uint32 slot[3];
-                    if (e.action.equip.entry)
+                    int8 l_EquipID = (int8)e.action.equip.entry;
+                    if (l_EquipID)
                     {
-                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.action.equip.entry);
+                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(npc->GetEntry(), l_EquipID);
                         if (!einfo)
                         {
                             sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);
@@ -1468,7 +1479,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             hasDelete = true;
                             break;
                         }
-                        npc->SetCurrentEquipmentId(e.action.equip.entry);
+                        npc->SetCurrentEquipmentId(l_EquipID);
                         slot[0] = einfo->ItemEntry[0];
                         slot[1] = einfo->ItemEntry[1];
                         slot[2] = einfo->ItemEntry[2];
@@ -1479,11 +1490,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         slot[1] = e.action.equip.slot2;
                         slot[2] = e.action.equip.slot3;
                     }
-                    if (!e.action.equip.mask || e.action.equip.mask & 1)
+                    if (!e.action.equip.mask || (e.action.equip.mask & 1))
                         npc->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, slot[0]);
-                    if (!e.action.equip.mask || e.action.equip.mask & 2)
+                    if (!e.action.equip.mask || (e.action.equip.mask & 2))
                         npc->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, slot[1]);
-                    if (!e.action.equip.mask || e.action.equip.mask & 4)
+                    if (!e.action.equip.mask || (e.action.equip.mask & 4))
                         npc->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, slot[2]);
                 }
             }

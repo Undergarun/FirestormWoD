@@ -398,7 +398,7 @@ class misc_commandscript : public CommandScript
             uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target, sSpellPowerStore.LookupEntry(spellInfo->SpellPowerId));
+                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
 
             return true;
         }
@@ -2687,7 +2687,7 @@ class misc_commandscript : public CommandScript
             creatureTarget->RemoveCorpse();
             creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-            pet->SetUInt64Value(UNIT_FIELD_CREATED_BY, player->GetGUID());
+            pet->SetGuidValue(UNIT_FIELD_CREATED_BY, player->GetGUID());
             pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, player->getFaction());
 
             if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
@@ -2843,7 +2843,7 @@ class misc_commandscript : public CommandScript
                 }
 
                 if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
-                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player, sSpellPowerStore.LookupEntry(spellInfo->SpellPowerId));
+                    Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
                 // save player
                 player->SaveToDB();
@@ -3007,15 +3007,8 @@ class misc_commandscript : public CommandScript
 
             WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
             ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
-
-            uint8 bits[8] = { 6, 7, 5, 2, 1, 4, 0, 3 };
-            data.WriteBitInOrder(guid, bits);
-
-            uint8 bytes[8] = { 7, 0, 5, 4, 3, 1, 2, 6 };
-            data.WriteBytesSeq(guid, bytes);
-
             data << uint32(soundId);
-
+            data.appendPackGUID(guid);
             sWorld->SendGlobalMessage(&data);
 
             handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);

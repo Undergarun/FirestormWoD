@@ -117,6 +117,15 @@ GameObject* ObjectAccessor::GetGameObject(WorldObject const& u, uint64 guid)
     return GetObjectInMap(guid, u.GetMap(), (GameObject*)NULL);
 }
 
+Transport* ObjectAccessor::GetTransport(WorldObject const& u, uint64 guid)
+{
+    if (GUID_HIPART(guid) != HIGHGUID_MO_TRANSPORT)
+        return NULL;
+
+    GameObject* go = GetGameObject(u, guid);
+    return go ? go->ToTransport() : NULL;
+}
+
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, uint64 guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (DynamicObject*)NULL);
@@ -145,11 +154,6 @@ Pet* ObjectAccessor::GetPet(WorldObject const& u, uint64 guid)
 Player* ObjectAccessor::GetPlayer(WorldObject const& u, uint64 guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (Player*)NULL);
-}
-
-Transport* ObjectAccessor::GetTransport(WorldObject const& u, uint64 guid)
-{
-    return GetObjectInMap(guid, u.GetMap(), (Transport*)NULL);
 }
 
 Creature* ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const& u, uint64 guid)
@@ -340,7 +344,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
         bones->SetPhaseMask(corpse->GetPhaseMask(), false);
 
         bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);
-        bones->SetUInt64Value(CORPSE_FIELD_OWNER, 0);
+        bones->SetGuidValue(CORPSE_FIELD_OWNER, 0);
 
         for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {

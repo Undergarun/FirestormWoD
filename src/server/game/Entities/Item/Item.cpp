@@ -282,8 +282,8 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
-    SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
-    SetUInt64Value(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
+    SetGuidValue(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
+    SetGuidValue(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
 
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
@@ -367,8 +367,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
             stmt->setUInt32(++index, GUID_LOPART(GetOwnerGUID()));
-            stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_CREATOR)));
-            stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_GIFT_CREATOR)));
+            stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_CREATOR)));
+            stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_GIFT_CREATOR)));
             stmt->setUInt32(++index, GetCount());
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_EXPIRATION));
 
@@ -458,8 +458,8 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    SetUInt64Value(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
-    SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER));
+    SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
+    SetGuidValue(ITEM_FIELD_GIFT_CREATOR, MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();
@@ -1712,4 +1712,212 @@ bool Item::IsLegendaryCloak() const
     }
 
     return false;
+}
+
+float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
+{
+    if (Quality > ITEM_QUALITY_HEIRLOOM)
+        return 0.f;
+
+    ItemDamageEntry const* damageEntry = NULL;
+
+    switch (InventoryType)
+    {
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+            if (Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            {
+                damageEntry =  sItemDamageOneHandCasterStore.LookupEntry(ilvl);
+                break;
+            }
+            damageEntry = sItemDamageOneHandStore.LookupEntry(ilvl);
+            break;
+    case INVTYPE_RANGED:
+    case INVTYPE_THROWN:
+    case INVTYPE_RANGEDRIGHT:
+        if (SubClass < 4)
+        {
+            if (Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            {
+                damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(ilvl);
+                break;
+            }
+            damageEntry = sItemDamageTwoHandStore.LookupEntry(ilvl);
+            break;
+        }
+        else if (SubClass == 19)
+        {
+            damageEntry = sItemDamageOneHandCasterStore.LookupEntry(ilvl);
+            break;
+        }
+        else
+        {
+            if (Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            {
+                damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(ilvl);
+                break;
+            }
+            damageEntry = sItemDamageTwoHandStore.LookupEntry(ilvl);
+            break;
+        }
+    case INVTYPE_AMMO:
+        damageEntry = sItemDamageAmmoStore.LookupEntry(ilvl);
+        break;
+    case INVTYPE_2HWEAPON:
+        if (Flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+        {
+            damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(ilvl);
+            break;
+        }
+        damageEntry = sItemDamageTwoHandStore.LookupEntry(ilvl);
+        break;
+    default:
+        break;
+    }
+    return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.f;
+}
+
+uint32 ItemTemplate::GetRandomPointsOffset() const
+{
+    switch (InventoryType)
+    {
+        case INVTYPE_NECK:
+        case INVTYPE_WRISTS:
+        case INVTYPE_FINGER:
+        case INVTYPE_SHIELD:
+        case INVTYPE_CLOAK:
+        case INVTYPE_HOLDABLE:
+            return 2;
+        case INVTYPE_SHOULDERS:
+        case INVTYPE_WAIST:
+        case INVTYPE_FEET:
+        case INVTYPE_HANDS:
+        case INVTYPE_TRINKET:
+            return 1;
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+            return 3;
+        case INVTYPE_RANGEDRIGHT:
+            return 3 * (SubClass == 19 ? 1 : 0);
+        case INVTYPE_RELIC:
+            return 4;
+        case INVTYPE_HEAD:
+        case INVTYPE_BODY:
+        case INVTYPE_CHEST:
+        case INVTYPE_LEGS:
+        case INVTYPE_RANGED:
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_ROBE:
+        case INVTYPE_THROWN:
+            return 0;
+        default:
+            return -1;
+    }
+}
+
+uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
+{
+    uint32 offset = GetRandomPointsOffset();
+    if (offset == -1)
+        return 0;
+
+    RandomPropertiesPointsEntry const* randProperty = sRandomPropertiesPointsStore.LookupEntry(ilvl);
+
+    if (!randProperty)
+        return 0;
+
+    switch (Quality)
+    {
+        case ITEM_QUALITY_UNCOMMON:
+        return randProperty->UncommonPropertiesPoints[offset];
+        case ITEM_QUALITY_RARE:
+            return randProperty->RarePropertiesPoints[offset];
+        case ITEM_QUALITY_EPIC:
+        case ITEM_QUALITY_HEIRLOOM:
+            return randProperty->EpicPropertiesPoints[offset];
+        default:
+            return 0;
+    }
+}
+
+float ItemTemplate::GetSocketCost(uint32 ilvl) const
+{
+    gtItemSocketCostPerLevelEntry const* socket = sgtItemSocketCostPerLevelStore.LookupEntry(ilvl);
+    return socket ? socket->cost : 0.f;
+}
+
+uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
+{
+    _ItemStat const& itemStat = ItemStat[index];
+
+    if (ilvl == ItemLevel)
+        return ItemStat[index].ItemStatValue;
+
+    return floor((((float)itemStat.ScalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * itemStat.SocketCostRate)) + 0.5f);
+}
+
+uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
+{
+    if (ilvl == ItemLevel)
+        return Armor;
+
+    uint32 quality = Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_EPIC : Quality;
+    uint32 inventoryType = InventoryType;
+
+    if (Class != ITEM_CLASS_ARMOR || SubClass != ITEM_SUBCLASS_ARMOR_SHIELD)
+    {
+        if (inventoryType == 1 || inventoryType == 5 || inventoryType == 3 || inventoryType == 7 || inventoryType == 8 || inventoryType == 9 || inventoryType == 10 || inventoryType == 6 || inventoryType == 16 || inventoryType == 20)
+        {
+            ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(ilvl);
+            ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(ilvl);
+            ArmorLocationEntry const* armorLoc = sArmorLocationStore.LookupEntry(inventoryType == 20 ? 5 : inventoryType);
+
+            if (SubClass == 0 || SubClass > 4)
+                return 0.0f;
+
+            return (int)floor(armorQuality->Value[quality] * armorTotal->Value[SubClass - 1] * armorLoc->Value[SubClass - 1] + 0.5f);
+        }
+        return 0;
+    }
+    else
+    {
+        ItemArmorShieldEntry const* shieldEntry = sItemArmorShieldStore.LookupEntry(ilvl);
+        return shieldEntry->Value[quality];
+    }
+}
+
+void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const
+{
+    minDamage = 0;
+    maxDamage = 0;
+
+    if (ilvl == ItemLevel)
+    {
+        minDamage = DamageMin;
+        maxDamage = DamageMax;
+        return;
+    }
+
+    if (!IsWeapon())
+        return;
+
+    float weaponMinDamageCalc = (float)Delay * GetScalingDamageValue(ilvl) * 0.001f;
+    float weaponMaxDamageCalc = (((StatScalingFactor * 0.5f) + 1.f) * weaponMinDamageCalc) + 0.5f;
+
+    if (Delay != 0)
+    {
+        float delayModifier = 1000.0f / (float)Delay;
+        float midCalc = (delayModifier * ((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc)) + ArmorDamageModifier;
+        midCalc = midCalc > 1.f ? midCalc : 1.f;
+        float delayCoeff = 1.f / delayModifier;
+        minDamage = floor((delayCoeff * midCalc) + 0.5f);
+        maxDamage = floor((delayCoeff * ((delayModifier * weaponMaxDamageCalc) + ArmorDamageModifier)) + 0.5f);
+    }
+    else
+    {
+        maxDamage = floor(weaponMaxDamageCalc + 0.5f);
+        minDamage = floor(((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
+    }
 }

@@ -4138,7 +4138,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
                 if (aura->IsSingleTarget())
                     aura->UnregisterSingleTarget();
 
-                AuraPtr newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, NULL, aura->GetSpellInfo()->spellPower, &baseDamage[0], NULL, aura->GetCasterGUID());
+                AuraPtr newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
                 if (newAura != NULLAURA)
                 {
                     // created aura must not be single target aura,, so stealer won't loose it on recast
@@ -7724,7 +7724,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell)
                         return false;
 
-                    basepoints0 = CalculatePct(procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask), procSpell->spellPower), triggerAmount);
+                    int32 powerCost[MAX_POWERS_COST];
+                    memset(powerCost, 0, sizeof(uint32)* MAX_POWERS_COST);
+                    powerCost[MAX_POWERS_COST - 1] = 0;
+                    for (auto itr : procSpell->SpellPowers)
+                    {
+                        procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask), powerCost);
+                        basepoints0 = CalculatePct(powerCost[itr->PowerType], triggerAmount);
+                        break;
+                    }
 
                     if (basepoints0 <= 0)
                         return false;
@@ -8604,7 +8612,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     || (attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK))
                     return false;
 
-                float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f));
+                float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0].CalcValue(), 1.0f));
 
                 float add_spellpower = (float)(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE)
                                      + victim->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE));
@@ -9309,7 +9317,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, AuraPtr triggeredByAu
                 // Swift Hand of Justice
                 case 59906:
                 {
-                    int32 bp0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_0]. CalcValue());
+                    int32 bp0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_0].CalcValue());
                     CastCustomSpell(this, 59913, &bp0, NULL, NULL, true);
                     *handled = true;
                     break;
@@ -9392,7 +9400,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, AuraPtr triggeredByAu
                 // Item - Warrior T10 Protection 4P Bonus
                 case 70844:
                 {
-                    int32 basepoints0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_1]. CalcValue());
+                    int32 basepoints0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_1].CalcValue());
                     CastCustomSpell(this, 70845, &basepoints0, NULL, NULL, true);
                     break;
                 }
@@ -11435,7 +11443,7 @@ void Unit::SetOwnerGUID(uint64 owner)
     if (GetOwnerGUID() == owner)
         return;
 
-    SetUInt64Value(UNIT_FIELD_SUMMONED_BY, owner);
+    SetGuidValue(UNIT_FIELD_SUMMONED_BY, owner);
     if (!owner)
         return;
 
@@ -11525,7 +11533,7 @@ Unit* Unit::GetCharm() const
         if (Unit* pet = ObjectAccessor::GetUnit(*this, charm_guid))
             return pet;
 
-        const_cast<Unit*>(this)->SetUInt64Value(UNIT_FIELD_CHARM, 0);
+        const_cast<Unit*>(this)->SetGuidValue(UNIT_FIELD_CHARM, 0);
     }
 
     return NULL;
@@ -11590,7 +11598,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
         }
 
         if (minion->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-            AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID());
+            AddGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID());
 
         if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
             SetCritterGUID(minion->GetGUID());
@@ -11664,7 +11672,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
 
         //if (minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         {
-            if (RemoveUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
+            if (RemoveGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
                 // Check if there is another minion
                 for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -11686,7 +11694,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                     if (!(*itr)->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                         continue;
 
-                    if (AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
+                    if (AddGuidValue(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                     {
                         // show another pet bar if there is no charm bar
                         if (GetTypeId() == TYPEID_PLAYER && !GetCharmGUID())
@@ -11735,7 +11743,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
     {
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            if (!AddUInt64Value(UNIT_FIELD_CHARM, charm->GetGUID()))
+            if (!AddGuidValue(UNIT_FIELD_CHARM, charm->GetGUID()))
                 sLog->outFatal(LOG_FILTER_UNITS, "Player %s is trying to charm unit %u, but it already has a charmed unit " UI64FMTD "", GetName(), charm->GetEntry(), GetCharmGUID());
 
             charm->m_ControlledByPlayer = true;
@@ -11748,7 +11756,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         // PvP, FFAPvP
         charm->SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 1, GetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 1));
 
-        if (!charm->AddUInt64Value(UNIT_FIELD_CHARMED_BY, GetGUID()))
+        if (!charm->AddGuidValue(UNIT_FIELD_CHARMED_BY, GetGUID()))
             sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is being charmed, but it already has a charmer " UI64FMTD "", charm->GetEntry(), charm->GetCharmerGUID());
 
         _isWalkingBeforeCharm = charm->IsWalking();
@@ -11764,11 +11772,11 @@ void Unit::SetCharm(Unit* charm, bool apply)
     {
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            if (!RemoveUInt64Value(UNIT_FIELD_CHARM, charm->GetGUID()))
+            if (!RemoveGuidValue(UNIT_FIELD_CHARM, charm->GetGUID()))
                 sLog->outFatal(LOG_FILTER_UNITS, "Player %s is trying to uncharm unit %u, but it has another charmed unit " UI64FMTD "", GetName(), charm->GetEntry(), GetCharmGUID());
         }
 
-        if (!charm->RemoveUInt64Value(UNIT_FIELD_CHARMED_BY, GetGUID()))
+        if (!charm->RemoveGuidValue(UNIT_FIELD_CHARMED_BY, GetGUID()))
             sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is being uncharmed, but it has another charmer " UI64FMTD "", charm->GetEntry(), charm->GetCharmerGUID());
 
         if (charm->GetTypeId() == TYPEID_PLAYER)
@@ -12498,7 +12506,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Check for table values
     float coeff = 0;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-    if (bonus)
+    if (bonus && (spellProto->Effects[effIndex].BonusMultiplier == 0.0f && spellProto->Effects[effIndex].AttackPowerMultiplier == 0.0f))
     {
         if (damagetype == DOT)
         {
@@ -12522,20 +12530,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
                 DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
             }
         }
-    }
-    // Default calculation
-    if (DoneAdvertisedBenefit)
-    {
-        if (!coeff)
-            coeff = spellProto->Effects[effIndex].BonusMultiplier;
-
-        if (Player* modOwner = GetSpellModOwner())
-        {
-            coeff *= 100.0f;
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
-            coeff /= 100.0f;
-        }
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * stack);
     }
 
     // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
@@ -12789,9 +12783,10 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    if (ToPlayer() && spellProto->IsTargetingArea())
+    if (spellProto->IsTargetingArea())
     {
-        AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
+        if (GetTypeId() == TYPEID_PLAYER)
+            AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
 
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         AddPct(TakenTotalMod, mult);
@@ -13199,7 +13194,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
     // only players use intelligence for critical chance computations
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRITICAL_CHANCE, crit_chance);
-    
+
     return crit_chance > 0.0f ? crit_chance : 0.0f;
 }
 
@@ -13317,10 +13312,10 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     }
 
     // Check for table values
-    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     float coeff = 0.f;
+    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     float factorMod = 1.0f;
-    if (bonus)
+    if (bonus && (spellProto->Effects[effIndex].BonusMultiplier == 0.0f && spellProto->Effects[effIndex].AttackPowerMultiplier == 0.0f))
     {
         if (damagetype == DOT)
         {
@@ -13341,22 +13336,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
         if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
             return healamount;
-    }
-
-    // Default calculation
-    if (DoneAdvertisedBenefit)
-    {
-        if (!coeff)
-            coeff = spellProto->Effects[effIndex].BonusMultiplier;
-
-        if (Player* modOwner = GetSpellModOwner())
-        {
-            coeff *= 100.0f;
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
-            coeff /= 100.0f;
-        }
-
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * stack);
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -14609,6 +14588,15 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
         if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
             Dismount();
     }
+    else if (Player* player = ToPlayer())
+    {
+        if (PvP)
+        {
+           player->SetPvPTimer(15000); // 5 + 10 secs
+            if (!player->IsInPvPCombat() && PvP)
+                player->SetInPvPCombat(true);
+        }
+    }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
         ToPlayer()->SwitchToWorgenForm();
@@ -14948,24 +14936,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     if (dVal == 0 && power != POWER_ENERGY) // The client will always regen energy if we don't send him the actual value
         return 0;
 
-    if (power == POWER_CHI)
-    {
-        if (dVal < 0)
-        {
-            if (AuraPtr tigereyeBrew = this->GetAura(123980))
-                tigereyeBrew->SetScriptData(0, -dVal);
-            else if (AuraPtr manaTea = this->GetAura(123766))
-                manaTea->SetScriptData(0, -dVal);
-        }
-    }
-    /*else if (power == POWER_HOLY_POWER)
-    {
-        if (dVal < 0)
-        {
-            if (AuraPtr unbreakableSpirit = this->GetAura(114154))
-                unbreakableSpirit->SetScriptData(0, -dVal);
-        }
-    }*/
+    // Hook playerScript OnModifyPower
+    if (GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnModifyPower(this->ToPlayer(), power, dVal);
 
     int32 curPower = GetPower(power);
 
@@ -14987,24 +14960,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     {
         SetPower(power, maxPower);
         gain = maxPower - curPower;
-    }
-
-    if (power == POWER_SHADOW_ORB)
-    {
-        if (GetPower(POWER_SHADOW_ORB) > 0)
-        {
-            // Shadow Orb visual
-            if (!HasAura(77487) && !HasAura(57985))
-                CastSpell(this, 77487, true);
-            // Glyph of Shadow Ravens
-            else if (!HasAura(77487) && HasAura(57985))
-                CastSpell(this, 127850, true);
-        }
-        else
-        {
-            RemoveAurasDueToSpell(77487);
-            RemoveAurasDueToSpell(127850);
-        }
     }
 
     return gain;
@@ -16808,34 +16763,6 @@ int32 Unit::GetCreatePowers(Powers power) const
     }
 
     return 0;
-}
-
-SpellPowerEntry const* Unit::GetSpellPowerEntryBySpell(SpellInfo const* spell) const
-{
-    auto list = sSpellMgr->GetSpellPowerList(spell->Id);
-
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (getClass() == CLASS_WARLOCK)
-        {
-            if (spell->Id == 686)
-            {
-                if (GetShapeshiftForm() == FORM_METAMORPHOSIS)
-                    return sSpellMgr->GetSpellPowerEntryByIdAndPower(spell->Id, POWER_DEMONIC_FURY);
-                else
-                    return sSpellMgr->GetSpellPowerEntryByIdAndPower(spell->Id, POWER_MANA);
-            }
-        }
-        else if (getClass() == CLASS_MONK)
-        {
-            if (GetShapeshiftForm() == FORM_WISE_SERPENT)
-                return sSpellMgr->GetSpellPowerEntryByIdAndPower(spell->Id, POWER_MANA);
-
-            return sSpellMgr->GetSpellPowerEntryByIdAndPower(spell->Id, POWER_ENERGY);
-        }
-    }
-
-    return spell->spellPower;
 }
 
 void Unit::AddToWorld()
@@ -19936,7 +19863,7 @@ AuraPtr Unit::AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target)
             effMask &= ~(1<<i);
     }
 
-    AuraPtr aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this, spellInfo->spellPower);
+    AuraPtr aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this);
     if (aura != NULLAURA)
     {
         aura->ApplyForTargets();
@@ -21212,7 +21139,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
                 for (int eff = 0; eff < MAX_SPELL_EFFECTS; eff++)
                     bp0[eff] = spellEntry->Effects[i].BasePoints;
                 bp0[i] = seatId + 1;
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, &bp0[0], NULL, origCasterGUID);
+                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, &bp0[0], NULL, origCasterGUID);
             }
         }
         else
@@ -21220,7 +21147,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             if (IsInMap(caster))
                 caster->CastSpell(target, spellEntry, false, NULL, NULLAURA_EFFECT, origCasterGUID);
             else
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, spellEntry->spellPower, NULL, NULL, origCasterGUID);
+                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, NULL, NULL, origCasterGUID);
         }
     }
 
@@ -22043,6 +21970,8 @@ void Unit::SetFacingTo(float ori)
 {
     Movement::MoveSplineInit init(*this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    if (GetTransGUID())
+        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
     init.Launch();
 }
@@ -22054,7 +21983,10 @@ void Unit::SetFacingToObject(WorldObject* object)
         return;
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    SetFacingTo(GetAngle(object));
+    Movement::MoveSplineInit init(*this);
+    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    init.SetFacing(GetAngle(object));   // when on transport, GetAngle will still return global coordinates (and angle) that needs transforming
+    init.Launch();
 }
 
 bool Unit::SetWalk(bool enable)
@@ -22143,7 +22075,7 @@ void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
     if (_focusSpell)
         return;
     _focusSpell = focusSpell;
-    SetUInt64Value(UNIT_FIELD_TARGET, target);
+    SetGuidValue(UNIT_FIELD_TARGET, target);
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         AddUnitState(UNIT_STATE_ROTATING);
 }
@@ -22155,9 +22087,9 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
         return;
     _focusSpell = NULL;
     if (Unit* victim = getVictim())
-        SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
+        SetGuidValue(UNIT_FIELD_TARGET, victim->GetGUID());
     else
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
+        SetGuidValue(UNIT_FIELD_TARGET, 0);
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         ClearUnitState(UNIT_STATE_ROTATING);
 }

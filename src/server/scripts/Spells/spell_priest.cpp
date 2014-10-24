@@ -125,7 +125,35 @@ enum PriestSpells
     PRIEST_SPELL_HOLY_NOVA_HEAL                     = 23455,
     PRIEST_SPELL_CONFESSION                         = 126123,
     PRIEST_TRAIN_OF_THOUGHT                         = 92297,
-    PRIEST_INNER_FOCUS                              = 89485
+    PRIEST_INNER_FOCUS                              = 89485,
+    PRIEST_SHADOW_ORB_AURA                          = 77487,
+    PRIEST_SHADOW_ORB_DUMMY                         = 127850,
+    PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985
+};
+
+// Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
+class PlayerScript_Shadow_Orb : public PlayerScript
+{
+    public:
+        PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_Value*/)
+        {
+            if (p_Power == POWER_SHADOW_ORB && p_Player->GetPower(POWER_SHADOW_ORB) > 0)
+            {
+                // Shadow Orb visual
+                if (!p_Player->HasAura(PRIEST_SHADOW_ORB_AURA) && !p_Player->HasAura(PRIEST_GLYPH_OF_SHADOW_RAVENS))
+                    p_Player->CastSpell(p_Player, PRIEST_SHADOW_ORB_AURA, true);
+                // Glyph of Shadow Ravens
+                else if (!p_Player->HasAura(PRIEST_SHADOW_ORB_AURA) && p_Player->HasAura(PRIEST_GLYPH_OF_SHADOW_RAVENS))
+                    p_Player->CastSpell(p_Player, PRIEST_SHADOW_ORB_DUMMY, true);
+            }
+            else
+            {
+                p_Player->RemoveAurasDueToSpell(PRIEST_SHADOW_ORB_AURA);
+                p_Player->RemoveAurasDueToSpell(PRIEST_SHADOW_ORB_DUMMY);
+            }
+        }
 };
 
 // Confession (Glyph) - 126123
@@ -1638,11 +1666,11 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                                 powerUsed = devouringPlague->GetAmount();
 
                                 // Shadow Orb visual
-                                if (_player->HasAura(77487))
-                                    _player->RemoveAura(77487);
+                                if (_player->HasAura(PRIEST_SHADOW_ORB_AURA))
+                                    _player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
                                 // Glyph of Shadow Ravens
-                                else if (_player->HasAura(127850))
-                                    _player->RemoveAura(127850);
+                                else if (_player->HasAura(PRIEST_SHADOW_ORB_DUMMY))
+                                    _player->RemoveAura(PRIEST_SHADOW_ORB_DUMMY);
 
                                 // Instant damage equal to amount of shadow orb
                                 SetHitDamage(int32(GetHitDamage() * powerUsed / 3));
@@ -2095,6 +2123,13 @@ class spell_pri_cascade_first : public SpellScriptLoader
                             }
                             case 121135:
                             {
+                                // Cast shaow cascade if needed
+                                if (_player->HasAura(15473))
+                                {
+                                    _player->CastSpell(target, 127632, true);
+                                    return;
+                                }
+
                                 // First missile
                                 if (_player->IsValidAttackTarget(target))
                                     _player->CastSpell(target, PRIEST_CASCADE_HOLY_DAMAGE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
@@ -2753,4 +2788,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_evangelism();
     new spell_pri_archangel();
     new spell_pri_levitate();
+
+    // Player Script
+    new PlayerScript_Shadow_Orb();
 }

@@ -105,6 +105,7 @@ class instance_deadmines : public InstanceMapScript
             {
                 WorldPacket data(SMSG_PLAY_SOUND, 4);
                 data << uint32(sound);
+                data.appendPackGUID(unit->GetGUID());
                 unit->SendMessageToSet(&data, false);
             }
 

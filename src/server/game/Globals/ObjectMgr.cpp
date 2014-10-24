@@ -399,7 +399,7 @@ void ObjectMgr::LoadCreatureTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0           1          2           3          4       5 
+    //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
@@ -413,8 +413,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             68          69            70        71        72             73           74           75          76          77          78           79
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            80          81           82            83           84                   85          86
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
+    //                                            80          81           82               82                 83          84
+                                             " questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -514,7 +514,6 @@ void ObjectMgr::LoadCreatureTemplates()
 
         creatureTemplate.movementId         = fields[index++].GetUInt32();
         creatureTemplate.RegenHealth        = fields[index++].GetBool();
-        creatureTemplate.equipmentId        = fields[index++].GetUInt32();
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();
         creatureTemplate.ScriptID           = GetScriptId(fields[index++].GetCString());
@@ -533,8 +532,8 @@ void ObjectMgr::LoadCreatureTemplates()
 void ObjectMgr::LoadCreatureTemplatesDifficulties()
 {
     uint32 l_OldMSTime = getMSTime();
-    
-    //                                                  0           1          2  
+
+    //                                                  0           1          2
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, difficulty_entry FROM creature_template_difficulty");
 
     if (!l_Result)
@@ -909,15 +908,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->MovementType = IDLE_MOTION_TYPE;
     }
 
-    if (cInfo->equipmentId > 0)                          // 0 no equipment
-    {
-        if (!GetEquipmentInfo(cInfo->equipmentId))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `equipment_id` %u not found in table `creature_equip_template`, set to no equipment.", cInfo->Entry, cInfo->equipmentId);
-            const_cast<CreatureTemplate*>(cInfo)->equipmentId = 0;
-        }
-    }
-
     /// if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
     if (cInfo->scale <= 0.0f)
     {
@@ -1043,11 +1033,28 @@ CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
     return NULL;
 }
 
-EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
+EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 p_Entry, int8& p_ID)
 {
-    EquipmentInfoContainer::const_iterator itr = _equipmentInfoStore.find(entry);
-    if (itr != _equipmentInfoStore.end())
-        return &(itr->second);
+    EquipmentInfoContainer::const_iterator itr = _equipmentInfoStore.find(p_Entry);
+    if (itr == _equipmentInfoStore.end())
+        return NULL;
+
+    if (itr->second.empty())
+        return NULL;
+
+    if (p_ID == -1) // Select a random element
+    {
+        EquipmentInfoContainerInternal::const_iterator l_Iter = itr->second.begin();
+        std::advance(l_Iter, urand(0, itr->second.size() - 1));
+        p_ID = std::distance(itr->second.begin(), l_Iter) + 1;
+        return &l_Iter->second;
+    }
+    else
+    {
+        EquipmentInfoContainerInternal::const_iterator l_Iter = itr->second.find(p_ID);
+        if (l_Iter != itr->second.end())
+            return &l_Iter->second;
+    }
 
     return NULL;
 }
@@ -1056,7 +1063,8 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
+    //                                                 0     1       2           3           4
+    QueryResult result = WorldDatabase.Query("SELECT entry, id, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
 
     if (!result)
     {
@@ -1068,14 +1076,28 @@ void ObjectMgr::LoadEquipmentTemplates()
     do
     {
         Field* fields = result->Fetch();
+        uint8 l_Index = 0;
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[l_Index++].GetUInt32();
 
-        EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry];
+        if (!sObjectMgr->GetCreatureTemplate(entry))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature template (Entry: %u) does not exist but has a record in `creature_equip_template`", entry);
+            continue;
+        }
 
-        equipmentInfo.ItemEntry[0] = fields[1].GetUInt32();
-        equipmentInfo.ItemEntry[1] = fields[2].GetUInt32();
-        equipmentInfo.ItemEntry[2] = fields[3].GetUInt32();
+        uint8 id = fields[l_Index++].GetUInt8();
+        if (!id)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature equipment template with ID 0 found for creature %u, skipped.", entry);
+            continue;
+        }
+
+        EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry][id];
+
+        equipmentInfo.ItemEntry[0] = fields[l_Index++].GetUInt32();
+        equipmentInfo.ItemEntry[1] = fields[l_Index++].GetUInt32();
+        equipmentInfo.ItemEntry[2] = fields[l_Index++].GetUInt32();
 
         for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
         {
@@ -1086,8 +1108,8 @@ void ObjectMgr::LoadEquipmentTemplates()
 
             if (!dbcItem)
             {
-                sLog->outError(LOG_FILTER_SQL, "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u, forced to 0.",
-                    equipmentInfo.ItemEntry[i], i+1, entry);
+                sLog->outError(LOG_FILTER_SQL, "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id=%u, forced to 0.",
+                    equipmentInfo.ItemEntry[i], i + 1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
                 continue;
             }
@@ -1102,8 +1124,8 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_THROWN &&
                 dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
-                sLog->outError(LOG_FILTER_SQL, "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u is not equipable in a hand, forced to 0.",
-                    equipmentInfo.ItemEntry[i], i+1, entry);
+                sLog->outError(LOG_FILTER_SQL, "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id = %u is not equipable in a hand, forced to 0.",
+                    equipmentInfo.ItemEntry[i], i + 1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
             }
         }
@@ -1604,7 +1626,7 @@ void ObjectMgr::LoadCreatures()
         data.zoneId         = fields[index++].GetUInt16();
         data.areaId         = fields[index++].GetUInt16();
         data.displayid      = fields[index++].GetUInt32();
-        data.equipmentId    = fields[index++].GetInt32();
+        data.equipmentId    = fields[index++].GetInt8();
         data.posX           = fields[index++].GetFloat();
         data.posY           = fields[index++].GetFloat();
         data.posZ           = fields[index++].GetFloat();
@@ -1648,13 +1670,13 @@ void ObjectMgr::LoadCreatures()
         if (!ok)
             continue;
 
-        // -1 no equipment, 0 use default
-        if (data.equipmentId > 0)
+        // -1 random, 0 no equipment,
+        if (data.equipmentId != 0)
         {
-            if (!GetEquipmentInfo(data.equipmentId))
+            if (!GetEquipmentInfo(data.id, data.equipmentId))
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", data.id, data.equipmentId);
-                data.equipmentId = -1;
+                data.equipmentId = 0;
             }
         }
 
@@ -1838,7 +1860,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.id = entry;
     data.mapid = mapId;
     data.displayid = 0;
-    data.equipmentId = cInfo->equipmentId;
+    data.equipmentId = 0;
     data.posX = x;
     data.posY = y;
     data.posZ = z;
@@ -2478,8 +2500,8 @@ void ObjectMgr::LoadItemTemplates()
         {
             itemTemplate.ItemStat[i].ItemStatType = sparse->ItemStatType[i];
             itemTemplate.ItemStat[i].ItemStatValue = sparse->ItemStatValue[i];
-            itemTemplate.ItemStat[i].ItemStatUnk1 = sparse->ItemStatUnk1[i];
-            itemTemplate.ItemStat[i].ItemStatUnk2 = sparse->ItemStatUnk2[i];
+            itemTemplate.ItemStat[i].ScalingValue = sparse->ScalingValue[i];
+            itemTemplate.ItemStat[i].SocketCostRate = sparse->SocketCostRate[i];
         }
 
         itemTemplate.ScalingStatDistribution = sparse->ScalingStatDistribution;
@@ -2643,8 +2665,8 @@ void ObjectMgr::LoadItemTemplates()
             {
                 itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt32());
                 itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt32());
-                itemTemplate.ItemStat[i].ItemStatUnk1  = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].ItemStatUnk2  = fields[29 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].ScalingValue  = fields[29 + i * 4 + 2].GetInt32();
+                itemTemplate.ItemStat[i].SocketCostRate  = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
@@ -6023,8 +6045,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->CorpseX)*(entry->x - mapEntry->CorpseX)
-                +(entry->y - mapEntry->CorpseY)*(entry->y - mapEntry->CorpseY);
+            float dist2 = (entry->m_PositionX - mapEntry->CorpseX)*(entry->m_PositionX - mapEntry->CorpseX)
+                + (entry->m_PositionY - mapEntry->CorpseY)*(entry->m_PositionY - mapEntry->CorpseY);
+
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6043,7 +6066,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            float dist2 = (entry->m_PositionX - x)*(entry->m_PositionX - x)+(entry->m_PositionY - y)*(entry->m_PositionY - y)+(entry->m_PositionZ - z)*(entry->m_PositionZ - z);
             if (foundNear)
             {
                 if (dist2 < distNear)

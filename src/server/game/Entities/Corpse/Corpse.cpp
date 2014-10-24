@@ -90,7 +90,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
     WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());
 
     SetObjectScale(1);
-    SetUInt64Value(CORPSE_FIELD_OWNER, owner->GetGUID());
+    SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
 
     _gridCoord = JadeCore::ComputeGridCoord(GetPositionX(), GetPositionY());
 
@@ -179,7 +179,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_FACIAL_HAIR_STYLE_ID, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
-    SetUInt64Value(CORPSE_FIELD_OWNER, MAKE_NEW_GUID(ownerGuid, 0, HIGHGUID_PLAYER));
+    SetGuidValue(CORPSE_FIELD_OWNER, MAKE_NEW_GUID(ownerGuid, 0, HIGHGUID_PLAYER));
 
     m_time = time_t(fields[11].GetUInt32());
 

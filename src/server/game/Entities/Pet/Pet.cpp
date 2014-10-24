@@ -750,7 +750,7 @@ void Pet::Update(uint32 diff, uint32 entry)
             break;
     }
 
-    Creature::Update(diff, entry);
+    Creature::Update(diff);
 }
 
 void Creature::Regenerate(Powers power)
@@ -1718,7 +1718,7 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 }
             }
 
-            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, spellInfo->spellPower, &baseDamage[0], NULL, caster_guid);
+            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
             if (aura != NULLAURA)
             {
                 if (!aura->CanBeSaved())
