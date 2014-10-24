@@ -1232,6 +1232,11 @@ void ScriptMgr::OnPVPKill(Player* killer, Player* killed)
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(killer, killed);
 }
 
+void ScriptMgr::OnModifyPower(Player* killer, Powers power, int32 value)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(killer, power, value);
+}
+
 void ScriptMgr::OnCreatureKill(Player* killer, Creature* killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnCreatureKill(killer, killed);

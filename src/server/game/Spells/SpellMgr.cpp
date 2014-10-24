@@ -3457,6 +3457,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 45477: // Icy touch
+                spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
+                break;
+            case 45470: // Death strike heal
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
+                break;
             case 65075: // Tower of Flames
             case 65077: // Tower of Frost
             case 64482: // Tower of Life
@@ -3880,6 +3886,23 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetB = 0;
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[2].TargetB = 0;
+                break;
+            case 161209:// Vileblood Serum (missile)
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 161199:// Debilitating Fixation (Kyrak)
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[1].ApplyAuraName = 0;
+                spellInfo->ChannelInterruptFlags |= 0x1008;
+                break;
+            case 155498:// Rejuvenating Serum
+            case 161203:// Rejuvenating Serum (Kyrak)
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+                break;
+            case 161288:// Vileblood Serum (DoT)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;

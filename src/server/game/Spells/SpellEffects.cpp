@@ -1265,27 +1265,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     return;
                 }
-                case 49998: // Death Strike
-                {
-                    if ((m_caster->CountPctFromMaxHealth(7)) > (20 * m_caster->GetDamageTakenInPastSecs(5) / 100))
-                        bp = m_caster->CountPctFromMaxHealth(7);
-                    else
-                        bp = (20 * m_caster->GetDamageTakenInPastSecs(5) / 100);
-
-                    // Item - Death Knight T14 Blood 4P bonus
-                    if (m_caster->HasAura(123080))
-                        bp *= 1.1f;
-
-                    // Glyph of Dark Succor
-                    if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(101568, 0))
-                        if (bp < int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount())))
-                            if (m_caster->HasAura(48265) || m_caster->HasAura(48266)) // Only in frost/unholy presence
-                                bp = m_caster->CountPctFromMaxHealth(aurEff->GetAmount());
-
-                    m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
-
-                    return;
-                }
                 default:
                     break;
             }
