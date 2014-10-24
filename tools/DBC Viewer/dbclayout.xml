@@ -1224,6 +1224,7 @@
     <field type="string" name="Directory" />
     <field type="int" name="InstanceType" />
     <field type="int" name="Flags" />
+    <field type="int" name="newField" />
     <field type="int" name="MapType" />
     <field type="string" name="MapNameLang" />
     <field type="int" name="AreaTableID" />
@@ -1241,7 +1242,6 @@
     <field type="int" name="ParentMapID" />
     <field type="int" name="CosmeticParentMapID" />
     <field type="int" name="TimeOffset" />
-    <field type="int" name="newField" />
   </Map>
   <Phase build="0">
     <index>
@@ -2487,7 +2487,7 @@
     <field type="int" name="ItemLevelWeapon" />
     <field type="int" name="ItemLevelArmor" />
     <field type="int" name="field13" />
-    <field type="int" name="field14" />
+    <field type="int" name="Bias" />
     <field type="string" name="field15" />
     <field type="string" name="field16" />
     <field type="int" name="field17" />
@@ -2505,37 +2505,37 @@
   </GarrFollowerQuality>
   <GarrFollowerXAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
+    <field type="int" name="ID" />
+    <field type="int" name="FollowerID" />
+    <field type="int" name="AbilityID" />
+    <field type="int" name="FactionIndex" />
   </GarrFollowerXAbility>
   <GarrAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="string" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="int" name="IconID" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
+    <field type="int" name="Category" />
   </GarrAbility>
   <GarrAbilityEffect build="0">
     <index>
-      <primary>field0</primary>
+      <primary>EffectID</primary>
     </index>
-    <field type="int" name="field0" />
+    <field type="int" name="EffectID" />
     <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="AbilityID" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="CounterMechanicTypeID" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
+    <field type="float" name="field6" />
+    <field type="float" name="field7" />
     <field type="int" name="field8" />
     <field type="int" name="field9" />
     <field type="int" name="field10" />
@@ -2547,8 +2547,9 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
     <field type="string" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="float" name="field3" />
+    <field type="float" name="field4" />
+    <field type="int" name="newField" />
   </GarrEncounter>
   <GarrEncounterXMechanic build="0">
     <index>
@@ -2571,17 +2572,17 @@
     </index>
     <field type="int" name="field0" />
     <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="string" name="field3" />
-    <field type="int" name="field4" />
+    <field type="string" name="Environment" />
+    <field type="string" name="EnvironmentDesc" />
+    <field type="int" name="EnvironmentTexture" />
   </GarrMechanicType>
   <GarrMechanic build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="ID" />
+    <field type="int" name="MechanicTypeID" />
+    <field type="float" name="field2" />
   </GarrMechanic>
   <GarrMission build="0">
     <index>
@@ -2590,20 +2591,20 @@
     <field type="int" name="MissionRecID" />
     <field type="int" name="RequiredLevel" />
     <field type="int" name="RequiredItemLevel" />
-    <field type="int" name="field3" />
+    <field type="int" name="GarrMechanicTypeRecID" />
     <field type="int" name="RequiredFollowersCount" />
     <field type="int" name="field5" />
     <field type="int" name="Duration" />
     <field type="int" name="OfferDuration" />
-    <field type="int" name="field8" />
-    <field type="string" name="Title" />
+    <field type="int" name="LocPrefixID" />
+    <field type="int" name="field9" />
+    <field type="string" name="Name" />
     <field type="string" name="Description" />
     <field type="string" name="Location" />
-    <field type="int" name="field12" />
     <field type="int" name="field13" />
     <field type="int" name="field14" />
     <field type="int" name="GarrisonCurrencyStartCost" />
-    <field type="int" name="field16" />
+    <field type="int" name="Flags" />
     <field type="int" name="RewardFollowerExperience" />
     <field type="int" name="BaseBronzeChestChance" />
   </GarrMission>
@@ -3061,4 +3062,20 @@
     <field type="int" name="field8" />
     <field type="int" name="field9" />
   </GarrMissionReward>
+  <GarrMissionType build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </GarrMissionType>
+  <GarrMissionXEncounter build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </GarrMissionXEncounter>
 </DBFilesClient>

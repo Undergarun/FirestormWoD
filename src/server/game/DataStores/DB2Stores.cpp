@@ -63,8 +63,13 @@ DB2Storage <GarrBuildingEntry>              sGarrBuildingStore(GarrBuildingEntry
 DB2Storage <GarrPlotBuildingEntry>          sGarrPlotBuildingStore(GarrPlotBuildingEntryfmt);
 DB2Storage <GarrFollowerEntry>              sGarrFollowerStore(GarrFollowerEntryfmt);
 DB2Storage <GarrAbilityEntry>               sGarrAbilityStore(GarrAbilityEntryfmt);
+DB2Storage <GarrAbilityEffectEntry>         sGarrAbilityEffectStore(GarrAbilityEffectEntryfmt);
 DB2Storage <GarrFollowerXAbilityEntry>      sGarrFollowerXAbilityStore(GarrFollowerXAbilityEntryfmt);
 DB2Storage <GarrBuildingPlotInstEntry>      sGarrBuildingPlotInstStore(GarrBuildingPlotInstEntryfmt);
+DB2Storage <GarrMechanicTypeEntry>          sGarrMechanicTypeStore(GarrMechanicTypeEntryfmt);
+DB2Storage <GarrMechanicEntry>              sGarrMechanicStore(GarrMechanicEntryfmt);
+DB2Storage <GarrMissionXEncouterEntry>      sGarrMissionXEncouterStore(GarrMissionXEncouterEntryfmt);
+DB2Storage <GarrEncouterXMechanicEntry>     sGarrEncouterXMechanicStore(GarrEncouterXMechanicEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
@@ -188,9 +193,14 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2");
     LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2");
     LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2");
+    LoadDB2(bad_db2_files, sGarrAbilityEffectStore,         db2Path, "GarrAbilityEffect.db2");
     LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2");
     LoadDB2(bad_db2_files, sGarrBuildingPlotInstStore,      db2Path, "GarrBuildingPlotInst.db2");
-    
+    LoadDB2(bad_db2_files, sGarrMechanicTypeStore,          db2Path, "GarrMechanicType.db2");
+    LoadDB2(bad_db2_files, sGarrMechanicStore,              db2Path, "GarrMechanic.db2");
+    LoadDB2(bad_db2_files, sGarrMissionXEncouterStore,      db2Path, "GarrMissionXEncounter.db2");
+    LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2");
+
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet
     //////////////////////////////////////////////////////////////////////////

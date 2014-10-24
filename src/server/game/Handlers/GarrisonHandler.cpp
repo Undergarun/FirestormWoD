@@ -89,8 +89,8 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
         if (l_Missions[l_I].State == GARRISON_MISSION_IN_PROGRESS && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
         {
-            //l_TravelDuration    = sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID)->TravelDuration;
-            //l_MissionDuration   = sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID)->MissionDuration;
+            l_TravelDuration    = sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID)->Duration / 2;
+            l_MissionDuration   = sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID)->Duration / 2;
         }
 
         l_Infos << uint64(l_Missions[l_I].DB_ID);
@@ -340,7 +340,7 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
         l_Followers.push_back(l_FollowerDBID);
     }
 
-    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
 
     if (!l_Unit)
     {
@@ -348,53 +348,30 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
         return;
     }
 
-    if (!l_Garrison->HaveMission(l_MissionID))
+    l_Garrison->StartMission(l_MissionID, l_Followers);
+}
+void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID   = 0;
+    uint32 l_MissionID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_MissionID;
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+
+    if (!l_Unit)
     {
-        /// TODO ERROR dont have the mission
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonCompleteMissionOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
         return;
     }
-
-    const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(l_MissionID);
-
-    if (l_Followers.size() < l_MissionTemplate->RequiredFollowersCount)
-    {
-        /// TODO ERROR not enought follower
-        return;
-    }
-
-    std::vector<GarrisonFollower> l_GarrFollowers = l_Garrison->GetFollowers();
     
-    for (uint32 l_I = 0; l_I < l_FollowerCount; ++l_I)
-    {
-        std::vector<GarrisonFollower>::iterator l_It = std::find_if(l_GarrFollowers.begin(), l_GarrFollowers.end(), [this, l_Followers, l_I](const GarrisonFollower p_Follower) -> bool
-        {
-            if (p_Follower.DB_ID == l_Followers[l_I])
-                return true;
-
-            return false;
-        });
-
-        if (l_It == l_GarrFollowers.end())
-        {
-            /// TODO ERROR follower not found
-            return;
-        }
-
-        if (l_It->CurrentBuildingID != 0 || l_It->CurrentMissionID != 0)
-        {
-            /// TODO ERROR follower busy
-            return;
-        }
-
-        uint32 l_FollowerItemLevel = (l_It->ItemLevelWeapon + l_It->ItemLevelArmor) / 2;
-
-        if (l_FollowerItemLevel)
-        {
-            /// TODO ERROR follower busy
-            return;
-        }
-    }
-
+    l_Garrison->CompleteMission(l_MissionID);
 }
 
 //////////////////////////////////////////////////////////////////////////
