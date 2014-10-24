@@ -29,154 +29,65 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 
-void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
+void WorldSession::HandleSendDuelRequest(WorldPacket& p_Packet)
 {
-    ObjectGuid guid;
+    uint64 l_TargetGUID;
 
-    uint8 bitOrder[8] = { 6, 2, 4, 1, 5, 3, 0, 7 };
-    recvPacket.ReadBitInOrder(guid, bitOrder);
+    p_Packet.readPackGUID(l_TargetGUID);
 
-    recvPacket.FlushBits();
+    Player* l_Caster   = GetPlayer();
+    Unit* l_UnitTarget = nullptr;
 
-    uint8 byteOrder[8] = { 5, 2, 3, 6, 1, 0, 4, 7 };
-    recvPacket.ReadBytesSeq(guid, byteOrder);
-
-    Player* caster = GetPlayer();
-    Unit* unitTarget = NULL;
-
-    unitTarget = sObjectAccessor->GetUnit(*caster, guid);
-
-    if (!unitTarget || caster->GetTypeId() != TYPEID_PLAYER || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    l_UnitTarget = sObjectAccessor->GetUnit(*l_Caster, l_TargetGUID);
+    if (!l_UnitTarget || l_Caster->GetTypeId() != TYPEID_PLAYER || l_UnitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
-    Player* target = unitTarget->ToPlayer();
+
+    Player* l_Target = l_UnitTarget->ToPlayer();
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()))
+    if (l_Caster->duel || l_Target->duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
         return;
-    caster->CastSpell(unitTarget, 7266, false);
 
-    // Players can only fight a duel in zones with this flag
-    /*AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetAreaId());
-    if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
-    {
-        //SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
-        return;
-    }
-
-    AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetAreaId());
-    if (targetAreaEntry && !(targetAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
-    {
-        //SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
-        return;
-    }
-
-    //CREATE DUEL FLAG OBJECT
-    GameObject* pGameObj = new GameObject;
-
-    uint32 gameobject_id = 21680;//m_spellInfo->Effects[effIndex].MiscValue;
-
-    Map* map = caster->GetMap();
-    if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
-        map, caster->GetPhaseMask(),
-        caster->GetPositionX()+(unitTarget->GetPositionX()-caster->GetPositionX())/2,
-        caster->GetPositionY()+(unitTarget->GetPositionY()-caster->GetPositionY())/2,
-        caster->GetPositionZ(),
-        caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
-    {
-        delete pGameObj;
-        return;
-    }
-
-    pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, caster->getFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, caster->getLevel()+1);
-    pGameObj->SetRespawnTime(0);
-
-    caster->AddGameObject(pGameObj);
-    map->AddToMap(pGameObj);
-    //END
-
-    // Send request
-    WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8);
-    data << uint64(pGameObj->GetGUID());
-    data << uint64(caster->GetGUID());
-    caster->GetSession()->SendPacket(&data);
-    target->GetSession()->SendPacket(&data);
-
-    // create duel-info
-    DuelInfo* duel   = new DuelInfo;
-    duel->initiator  = caster;
-    duel->opponent   = target;
-    duel->startTime  = 0;
-    duel->startTimer = 0;
-    duel->isMounted  = 0;//(GetSpellInfo()->Id == 62875); // Mounted Duel
-    caster->duel     = duel;
-
-    DuelInfo* duel2   = new DuelInfo;
-    duel2->initiator  = caster;
-    duel2->opponent   = caster;
-    duel2->startTime  = 0;
-    duel2->startTimer = 0;
-    duel2->isMounted  = 0;//(GetSpellInfo()->Id == 62875); // Mounted Duel
-    target->duel      = duel2;
-
-    caster->SetGuidValue(PLAYER_FIELD_DUELARBITER, pGameObj->GetGUID());
-    target->SetGuidValue(PLAYER_FIELD_DUELARBITER, pGameObj->GetGUID());
-
-    sScriptMgr->OnPlayerDuelRequest(target, caster);*/
+    l_Caster->CastSpell(l_UnitTarget, 7266, false);
 }
 
-void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelResponseOpcode(WorldPacket& p_Packet)
 {
-    Player* player;
-    Player* plTarget;
+    uint64 l_TargetGUID;
+    bool l_Result;
 
-    ObjectGuid guid;
-    uint8 byteOrder[8] = {4, 6, 0, 3, 5, 1, 2, 7};
-    guid[5] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    bool accept = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    recvPacket.FlushBits();
-    recvPacket.ReadBitInOrder(guid, byteOrder);
+    p_Packet.readPackGUID(l_TargetGUID);
+    l_Result = p_Packet.ReadBit();
 
-    if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
+    Player* l_Player = GetPlayer();
+    if (l_Player->duel == nullptr)                        ///< ignore accept from duel-sender
         return;
 
-    if (accept)
+    if (l_Result)
     {
-        player       = GetPlayer();
-        plTarget = player->duel->opponent;
-
-        if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
+        Player* l_Target = l_Player->duel->opponent;
+        if (l_Player == l_Player->duel->initiator || !l_Target || l_Player == l_Target || l_Player->duel->startTime != 0 || l_Target->duel->startTime != 0)
             return;
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName());
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
+        time_t l_Now = time(NULL);
+        l_Player->duel->startTimer = l_Now;
+        l_Target->duel->startTimer = l_Now;
 
-        time_t now = time(NULL);
-        player->duel->startTimer = now;
-        plTarget->duel->startTimer = now;
-
-        player->SendDuelCountdown(3000);
-        plTarget->SendDuelCountdown(3000);
+        l_Player->SendDuelCountdown(3000);
+        l_Target->SendDuelCountdown(3000);
     }
     else
     {
         // player surrendered in a duel using /forfeit
-        if (GetPlayer()->duel->startTime != 0)
+        if (l_Player->duel->startTime != 0)
         {
-            GetPlayer()->CombatStopWithPets(true);
-            if (GetPlayer()->duel->opponent)
-                GetPlayer()->duel->opponent->CombatStopWithPets(true);
+            l_Player->CombatStopWithPets(true);
+            if (l_Player->duel->opponent)
+                l_Player->duel->opponent->CombatStopWithPets(true);
 
-            GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
-            GetPlayer()->DuelComplete(DUEL_WON);
+            l_Player->CastSpell(l_Player, 7267, true);    ///< beg
+            l_Player->DuelComplete(DUEL_WON);
             return;
         }
-        GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
+        l_Player->DuelComplete(DUEL_INTERRUPTED);
     }
 }

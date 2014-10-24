@@ -5732,7 +5732,7 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
 
-void Spell::EffectDuel(SpellEffIndex effIndex)
+void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5740,122 +5740,91 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* caster = m_caster->ToPlayer();
-    Player* target = unitTarget->ToPlayer();
+    Player* l_Caster = m_caster->ToPlayer();
+    Player* l_Target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()))
+    if (l_Caster->duel || l_Target->duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
         return;
 
     // Players can only fight a duel in zones with this flag
-    AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetAreaId());
-    if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    AreaTableEntry const* l_CasterAreaEntry = GetAreaEntryByAreaID(l_Caster->GetAreaId());
+    if (l_CasterAreaEntry && !(l_CasterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
     {
-        SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
+        SendCastResult(SPELL_FAILED_NO_DUELING);            ///< Dueling isn't allowed here
         return;
     }
 
-    AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetAreaId());
-    if (targetAreaEntry && !(targetAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    AreaTableEntry const* l_TargetAreaEntry = GetAreaEntryByAreaID(l_Target->GetAreaId());
+    if (l_TargetAreaEntry && !(l_TargetAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
     {
-        SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
+        SendCastResult(SPELL_FAILED_NO_DUELING);            ///< Dueling isn't allowed here
         return;
     }
 
     //CREATE DUEL FLAG OBJECT
-    GameObject* pGameObj = new GameObject;
+    GameObject* l_GameObj = new GameObject;
 
-    uint32 gameobject_id = m_spellInfo->Effects[effIndex].MiscValue;
+    uint32 l_GameobjectId = m_spellInfo->Effects[p_EffectIndex].MiscValue;
 
-    Map* map = m_caster->GetMap();
-    if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
-        map, m_caster->GetPhaseMask(),
+    Map* l_CasterMap = m_caster->GetMap();
+    if (!l_GameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), l_GameobjectId,
+        l_CasterMap, m_caster->GetPhaseMask(),
         m_caster->GetPositionX()+(unitTarget->GetPositionX()-m_caster->GetPositionX())/2,
         m_caster->GetPositionY()+(unitTarget->GetPositionY()-m_caster->GetPositionY())/2,
         m_caster->GetPositionZ(),
         m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
-        delete pGameObj;
+        delete l_GameObj;
         return;
     }
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, m_caster->getFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_caster->getLevel()+1);
-    int32 duration = m_spellInfo->GetDuration();
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
-    pGameObj->SetSpellId(m_spellInfo->Id);
+    l_GameObj->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, m_caster->getFaction());
+    l_GameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_caster->getLevel()+1);
+    int32 l_Duration = m_spellInfo->GetDuration();
+    l_GameObj->SetRespawnTime(l_Duration > 0 ? l_Duration/IN_MILLISECONDS : 0);
+    l_GameObj->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effIndex, pGameObj);
+    ExecuteLogEffectSummonObject(p_EffectIndex, l_GameObj);
 
-    m_caster->AddGameObject(pGameObj);
-    map->AddToMap(pGameObj);
+    m_caster->AddGameObject(l_GameObj);
+    l_CasterMap->AddToMap(l_GameObj);
     //END
 
     // Send request
-    WorldPacket data(SMSG_DUEL_REQUESTED);
+    uint64 l_ArbiterGUID       = l_GameObj->GetGUID();
+    uint64 l_RequestedByGUID   = l_Caster->GetGUID();
+    uint64 l_RequestByBNetGUID = l_Caster->GetSession()->GetBNetAccountGUID();
 
-    ObjectGuid gameobjectGUID = pGameObj->GetGUID();
-    ObjectGuid casterGUID = caster->GetGUID();
+    WorldPacket l_Data(SMSG_DUEL_REQUESTED);
+    l_Data.appendPackGUID(l_ArbiterGUID);
+    l_Data.appendPackGUID(l_RequestedByGUID);
+    l_Data.appendPackGUID(l_RequestByBNetGUID);
 
-    data.WriteBit(gameobjectGUID[1]);
-    data.WriteBit(gameobjectGUID[4]);
-    data.WriteBit(casterGUID[5]);
-    data.WriteBit(casterGUID[0]);
-    data.WriteBit(gameobjectGUID[3]);
-    data.WriteBit(casterGUID[2]);
-    data.WriteBit(gameobjectGUID[5]);
-    data.WriteBit(casterGUID[7]);
-    data.WriteBit(gameobjectGUID[0]);
-    data.WriteBit(casterGUID[1]);
-    data.WriteBit(gameobjectGUID[2]);
-    data.WriteBit(casterGUID[3]);
-    data.WriteBit(gameobjectGUID[7]);
-    data.WriteBit(casterGUID[4]);
-    data.WriteBit(casterGUID[6]);
-    data.WriteBit(gameobjectGUID[6]);
-
-    data.WriteByteSeq(casterGUID[6]);
-    data.WriteByteSeq(gameobjectGUID[3]);
-    data.WriteByteSeq(casterGUID[7]);
-    data.WriteByteSeq(casterGUID[4]);
-    data.WriteByteSeq(casterGUID[0]);
-    data.WriteByteSeq(gameobjectGUID[0]);
-    data.WriteByteSeq(gameobjectGUID[5]);
-    data.WriteByteSeq(gameobjectGUID[1]);
-    data.WriteByteSeq(casterGUID[2]);
-    data.WriteByteSeq(gameobjectGUID[6]);
-    data.WriteByteSeq(casterGUID[5]);
-    data.WriteByteSeq(casterGUID[1]);
-    data.WriteByteSeq(gameobjectGUID[4]);
-    data.WriteByteSeq(gameobjectGUID[2]);
-    data.WriteByteSeq(gameobjectGUID[7]);
-    data.WriteByteSeq(casterGUID[3]);
-
-
-    caster->GetSession()->SendPacket(&data);
-    target->GetSession()->SendPacket(&data);
+    l_Caster->GetSession()->SendPacket(&l_Data);
+    l_Target->GetSession()->SendPacket(&l_Data);
 
     // create duel-info
-    DuelInfo* duel   = new DuelInfo;
-    duel->initiator  = caster;
-    duel->opponent   = target;
-    duel->startTime  = 0;
-    duel->startTimer = 0;
-    duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
-    caster->duel     = duel;
+    DuelInfo* l_Duel   = new DuelInfo;
+    l_Duel->initiator  = l_Caster;
+    l_Duel->opponent   = l_Target;
+    l_Duel->startTime  = 0;
+    l_Duel->startTimer = 0;
+    l_Duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    l_Caster->duel     = l_Duel;
 
-    DuelInfo* duel2   = new DuelInfo;
-    duel2->initiator  = caster;
-    duel2->opponent   = caster;
-    duel2->startTime  = 0;
-    duel2->startTimer = 0;
-    duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
-    target->duel      = duel2;
+    DuelInfo* l_Duel2   = new DuelInfo;
+    l_Duel2->initiator  = l_Caster;
+    l_Duel2->opponent   = l_Caster;
+    l_Duel2->startTime  = 0;
+    l_Duel2->startTimer = 0;
+    l_Duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    l_Target->duel      = l_Duel2;
 
-    caster->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
+    l_Caster->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, l_GameObj->GetGUID());
+    l_Target->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, l_GameObj->GetGUID());
 
-    sScriptMgr->OnPlayerDuelRequest(target, caster);
+    sScriptMgr->OnPlayerDuelRequest(l_Target, l_Caster);
 }
 
 void Spell::EffectStuck(SpellEffIndex /*effIndex*/)

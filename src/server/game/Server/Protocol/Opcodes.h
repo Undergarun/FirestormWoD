@@ -151,6 +151,9 @@ enum Opcodes
         SMSG_AI_REACTION                            = 0x1654,   ///< 6.0.2 19027
         SMSG_ATTACK_SWING_ERROR                     = 0x0603,   ///< 6.0.2 19027
 
+        /// Duel
+        SMSG_DUEL_REQUESTED                         = 0x1444,   ///< 6.0.2 19027
+
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0103,   ///< 6.0.2 19027
         SMSG_BUY_FAILED                             = 0x0254,   ///< 6.0.2 19027
@@ -741,6 +744,13 @@ enum Opcodes
     CMSG_ATTACKSWING                            = 0x1C97,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
+    /// Duel
+    //////////////////////////////////////////////////////////////////////////
+
+    CMSG_DUEL_PROPOSED                          = 0x00F4,   ///< 6.0.2 19027
+    CMSG_DUEL_RESPONSE                          = 0x0124,   ///< 6.0.2 19027
+
+    //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
     CMSG_CAST_SPELL                             = 0x10C8,   ///< 6.0.2 19027
@@ -1222,8 +1232,6 @@ enum Opcodes
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x0000,
     CMSG_DISMISS_CRITTER                              = 0x0000,
-    CMSG_DUEL_RESPONSE                                = 0x0000,
-    CMSG_DUEL_PROPOSED                                = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
@@ -1578,7 +1586,6 @@ enum Opcodes
     SMSG_DUEL_COUNTDOWN                               = 0x0000,
     SMSG_DUEL_INBOUNDS                                = 0x0000,
     SMSG_DUEL_OUT_OF_BOUNDS                           = 0x0000,
-    SMSG_DUEL_REQUESTED                               = 0x0000,
     SMSG_DUEL_WINNER                                  = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
     SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
