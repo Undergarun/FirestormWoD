@@ -2061,7 +2061,8 @@ enum SpellMissInfo
     SPELL_MISS_IMMUNE2                 = 8, // one of these 2 is MISS_TEMPIMMUNE
     SPELL_MISS_DEFLECT                 = 9,
     SPELL_MISS_ABSORB                  = 10,
-    SPELL_MISS_REFLECT                 = 11
+    SPELL_MISS_REFLECT                 = 11,
+    SPELL_MISS_MISFIRED                = 12 // Added in 4.3.4, we don't know when we must use it instead of SPELL_MISS_MISS
 };
 
 /// @TODO CGLCD::DisplayRangedStats (internal client)

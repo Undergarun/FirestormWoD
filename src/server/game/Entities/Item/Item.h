@@ -223,8 +223,8 @@ class Item : public Object
 
         ItemTemplate const* GetTemplate() const;
 
-        uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
-        void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
+        uint64 GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
+        void SetOwnerGUID(uint64 guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_SOULBOUND, val); }

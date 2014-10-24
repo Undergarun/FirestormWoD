@@ -709,8 +709,8 @@ void SmartAI::OnCharmed(bool apply)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 
-    if (!apply && !me->IsInEvadeMode() && me->GetUInt64Value(UNIT_FIELD_CHARMED_BY))
-        if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetUInt64Value(UNIT_FIELD_CHARMED_BY)))
+    if (!apply && !me->IsInEvadeMode() && me->GetGuidValue(UNIT_FIELD_CHARMED_BY))
+        if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetGuidValue(UNIT_FIELD_CHARMED_BY)))
             AttackStart(charmer);
 }
 

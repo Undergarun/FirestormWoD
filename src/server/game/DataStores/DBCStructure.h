@@ -2186,18 +2186,16 @@ struct SummonPropertiesEntry
 
 struct TalentEntry
 {
-    uint32  Id;                                             // 0        m_ID
-    //uint32    m_SpecID;                                   // 1        m_SpecID
-    uint32  rank;                                           // 2        m_TierID
-    //uint32    m_ColumnIndex;                              // 3        m_ColumnIndex
-    uint32  spellId;                                        // 4        m_SpellID
-    //uint32    m_Flags;                                    // 5        m_Flags
-    //uint32    m_CategoryMask;                             // 6        m_CategoryMask
-    //uint32    m_CategoryMask;                             // 7        m_CategoryMask
-    uint32  classId;                                        // 8        m_ClassID
-    uint32  spellOverride;                                  // 9        m_OverridesSpellID
-    char*   description;                                    // 10       m_DescriptionLang
-
+    uint32  Id;                 // 0
+    uint32  SpecID;             // 1
+    uint32  TierID;             // 2
+    uint32  ColumnIndex;        // 3
+    uint32  SpellID;            // 4
+    uint32  Flags;              // 5
+    uint32  CategoryMask[2];    // 6-7
+    uint32  ClassID;            // 8
+    uint32  OverridesSpellID;   // 9
+    char*   DescriptionLang;    // 10
 };
 
 struct TaxiNodesEntry

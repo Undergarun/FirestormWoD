@@ -1415,7 +1415,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                     player->CLOSE_GOSSIP_MENU();
                     ((npc_jaina_and_sylvana_hor_part2AI*)creature->AI())->Start(false, true);
                     creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER|UNIT_NPC_FLAG_GOSSIP);
-                    creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
                     creature->setActive(true);
 
                     _instance->SetData64(DATA_ESCAPE_LIDER, creature->GetGUID());
@@ -1720,7 +1720,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                     case 0:
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(DATA_LICH_LING_PART2) : 0))
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, lichking->GetGUID());
+                            me->SetGuidValue(UNIT_FIELD_TARGET, lichking->GetGUID());
                         JumpNextStep(100);
                         break;
                     case 1:
@@ -1809,7 +1809,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                             if (!lichking->HasAura(SPELL_JAINA_ICEPRISON) && !lichking->HasAura(SPELL_SYLVANAS_DARKBINDING))
                             {
                                 lichking->AddAura(me->GetEntry() == NPC_JAINA_PART2 ? SPELL_JAINA_ICEPRISON : SPELL_SYLVANAS_DARKBINDING, lichking);
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, lichking->GetGUID());
+                                me->SetGuidValue(UNIT_FIELD_TARGET, lichking->GetGUID());
                             }
                         }
                         JumpNextStep(10000);
@@ -1820,7 +1820,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                             if (!lichking->HasAura(SPELL_JAINA_ICEPRISON) && !lichking->HasAura(SPELL_SYLVANAS_DARKBINDING))
                             {
                                 lichking->AddAura(me->GetEntry() == NPC_JAINA_PART2 ? SPELL_JAINA_ICEPRISON : SPELL_SYLVANAS_DARKBINDING, lichking);
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, lichking->GetGUID());
+                                me->SetGuidValue(UNIT_FIELD_TARGET, lichking->GetGUID());
                             }
                         }
                         me->RemoveAllAuras();
