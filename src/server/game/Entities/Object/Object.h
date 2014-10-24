@@ -169,11 +169,11 @@ class Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
-        uint64 GetGUID() const { return GetUInt64Value(0); }
-        uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
-        uint32 GetGUIDMid() const { return GUID_ENPART(GetUInt64Value(0)); }
-        uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
-        ObjectGuid GetObjectGuid() const { return ObjectGuid(GetUInt64Value(0)); }
+        uint64 GetGUID() const { return GetGuidValue(0); }
+        uint32 GetGUIDLow() const { return GUID_LOPART(GetGuidValue(0)); }
+        uint32 GetGUIDMid() const { return GUID_ENPART(GetGuidValue(0)); }
+        uint32 GetGUIDHigh() const { return GUID_HIPART(GetGuidValue(0)); }
+        ObjectGuid GetObjectGuid() const { return ObjectGuid(GetGuidValue(0)); }
         const ByteBuffer& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY_ID); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }
@@ -190,6 +190,18 @@ class Object
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
 
         virtual void DestroyForPlayer(Player* target, bool onDeath = false) const;
+
+        // GUIDS 128
+        bool AddGuidValue(uint16 index, uint64 value);
+        bool RemoveGuidValue(uint16 index, uint64 value);
+        void SetGuidValue(uint16 index, uint64 value);
+        uint64 GetGuidValue(uint16 index) const
+        {
+            if (!m_uint32Values)
+                return uint64(0);
+
+            return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
+        }
 
         int32 GetInt32Value(uint16 index) const
         {
@@ -212,29 +224,7 @@ class Object
             if (!m_uint32Values)
                 return uint64(0);
 
-            if (index == OBJECT_FIELD_GUID || index == OBJECT_FIELD_DATA)
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_UNIT && (index == UNIT_FIELD_CHARM         || index == UNIT_FIELD_SUMMON || index == UNIT_FIELD_CRITTER                    || index == UNIT_FIELD_CHARMED_BY || index == UNIT_FIELD_SUMMONED_BY || index == UNIT_FIELD_CREATED_BY
-                                                   || index == UNIT_FIELD_DEMON_CREATOR || index == UNIT_FIELD_TARGET || index == UNIT_FIELD_BATTLE_PET_COMPANION_GUID  || index == UNIT_FIELD_CHANNEL_OBJECT))
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_PLAYER && (index == PLAYER_FIELD_DUEL_ARBITER || index == PLAYER_FIELD_FARSIGHT_OBJECT || index == PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID || index == PLAYER_FIELD_WOW_ACCOUNT || (index >= PLAYER_FIELD_INV_SLOTS && index < PLAYER_FIELD_FARSIGHT_OBJECT)))
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_ITEM && (index == ITEM_FIELD_OWNER || index == ITEM_FIELD_CONTAINED_IN || index == ITEM_FIELD_CREATOR || index == ITEM_FIELD_GIFT_CREATOR))
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_GAMEOBJECT && index == GAMEOBJECT_FIELD_CREATED_BY)
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_DYNAMICOBJECT && index == DYNAMICOBJECT_FIELD_CASTER)
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_CORPSE && (index == CORPSE_FIELD_OWNER || index == CORPSE_FIELD_PARTY_GUID))
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_AREATRIGGER && index == AREATRIGGER_FIELD_CASTER)
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_SCENEOBJECT && index == SCENEOBJECT_FIELD_CREATED_BY)
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else if (m_objectType & TYPEMASK_CONTAINER && index >= CONTAINER_FIELD_SLOTS && index < CONTAINER_FIELD_NUM_SLOTS)
-                return Guid128To64(Guid128(*((uint64*)&(m_uint32Values[index])), *((uint64*)&(m_uint32Values[index + 2]))));
-            else
-                return *((uint64*)&(m_uint32Values[index]));
+            return *((uint64*)&(m_uint32Values[index]));
         }
 
         float GetFloatValue(uint16 index) const

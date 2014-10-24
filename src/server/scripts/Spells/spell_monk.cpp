@@ -130,6 +130,24 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768
 };
 
+// Tiger Eye Brew - 123980 & Mana Tea - 123766
+class PlayerScript_TigereEyeBrew_ManaTea : public PlayerScript
+{
+    public:
+        PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        {
+            if (p_Power == POWER_CHI && p_Value < 0)
+            {
+                if (AuraPtr tigereyeBrew = p_Player->GetAura(123980))
+                    tigereyeBrew->SetScriptData(0, -p_Value);
+                else if (AuraPtr manaTea = p_Player->GetAura(123766))
+                    manaTea->SetScriptData(0, -p_Value);
+            }
+        }
+};
+
 // Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
 // 115636 - Mastery : Combo Breaker
 class spell_monk_combo_breaker : public SpellScriptLoader
@@ -1429,7 +1447,7 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
                     summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));
@@ -2054,7 +2072,7 @@ class spell_monk_jade_serpent_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
                     summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));
@@ -3980,4 +3998,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_provoke();
     new spell_monk_roll();
     new spell_monk_tigereye_brew_stacks();
+
+    // Player Script
+    new PlayerScript_TigereEyeBrew_ManaTea();
 }

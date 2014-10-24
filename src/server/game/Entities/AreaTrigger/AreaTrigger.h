@@ -41,7 +41,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SetDuration(int32 newDuration) { _duration = newDuration; }
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
         Unit* GetCaster() const { return m_caster; }
-        uint64 GetCasterGUID() const { return GetUInt64Value(AREATRIGGER_FIELD_CASTER); }
+        uint64 GetCasterGUID() const { return GetGuidValue(AREATRIGGER_FIELD_CASTER); }
         void BindToCaster();
         void UnbindFromCaster();
 

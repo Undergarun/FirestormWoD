@@ -282,8 +282,8 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
-    SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
-    SetUInt64Value(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
+    SetGuidValue(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
+    SetGuidValue(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
 
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
@@ -367,8 +367,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
             stmt->setUInt32(++index, GUID_LOPART(GetOwnerGUID()));
-            stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_CREATOR)));
-            stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_GIFT_CREATOR)));
+            stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_CREATOR)));
+            stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_GIFT_CREATOR)));
             stmt->setUInt32(++index, GetCount());
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_EXPIRATION));
 
@@ -458,8 +458,8 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    SetUInt64Value(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
-    SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER));
+    SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
+    SetGuidValue(ITEM_FIELD_GIFT_CREATOR, MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();
@@ -1833,9 +1833,9 @@ uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
         case ITEM_QUALITY_UNCOMMON:
         return randProperty->UncommonPropertiesPoints[offset];
         case ITEM_QUALITY_RARE:
+        case ITEM_QUALITY_HEIRLOOM:
             return randProperty->RarePropertiesPoints[offset];
         case ITEM_QUALITY_EPIC:
-        case ITEM_QUALITY_HEIRLOOM:
             return randProperty->EpicPropertiesPoints[offset];
         default:
             return 0;
@@ -1863,7 +1863,7 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
     if (ilvl == ItemLevel)
         return Armor;
 
-    uint32 quality = Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_EPIC : Quality;
+    uint32 quality = Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality;
     uint32 inventoryType = InventoryType;
 
     if (Class != ITEM_CLASS_ARMOR || SubClass != ITEM_SUBCLASS_ARMOR_SHIELD)
@@ -1920,4 +1920,21 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
         maxDamage = floor(weaponMaxDamageCalc + 0.5f);
         minDamage = floor(((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
     }
+}
+
+uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
+{
+    ScalingStatDistributionEntry const* ssdEntry = sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution);
+
+    if (!ssdEntry)
+        return ItemLevel;
+
+    if (level < ssdEntry->MinLevel)
+        level = ssdEntry->MinLevel;
+
+    if (level > ssdEntry->MaxLevel)
+        level = ssdEntry->MaxLevel;
+
+    uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
+    return ilvl ? ilvl : ItemLevel;
 }

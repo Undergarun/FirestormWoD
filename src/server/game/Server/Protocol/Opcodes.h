@@ -608,8 +608,8 @@ enum Opcodes
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x103A,   ///< 6.0.2 19027
-        SMSG_GARRISON_START_MISSION_RESULT                              = 0x0000,
-        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0000,
+        SMSG_GARRISON_START_MISSION_RESULT                              = 0x0459,   ///< 6.0.2 19027
+        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x055A,   ///< 6.0.2 19027
         SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0000,
         SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0000,
         SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
@@ -663,8 +663,7 @@ enum Opcodes
     CMSG_GARRISON_LIST_FOLLOWERS_CHEAT                      = 0x0000,
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
     CMSG_GARRISON_START_MISSION                             = 0x009C,   ///< 6.0.2 19027
-    CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,
-    CMSG_GARRISON_COMPLETE_MISSION_CHEAT                    = 0x0000,
+    CMSG_GARRISON_COMPLETE_MISSION                          = 0x109B,   ///< 6.0.2 19027
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x01D3,   ///< 6.0.2 19027
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,   ///< 6.0.2
@@ -874,6 +873,7 @@ enum Opcodes
     CMSG_MOVE_JUMP                              = 0x0835,   ///< 6.0.2 19027
     CMSG_MOVE_FALL_LAND                         = 0x0A56,   ///< 6.0.2 19027
     CMSG_WORLD_PORT_RESPONSE                    = 0x00BF,   ///< 6.0.2 19027
+    CMSG_MOVE_TIME_SKIPPED                      = 0x0F46,   ///< 6.0.2 19027
 
     /// Update
     CMSG_MOVE_HEARTBEAT                         = 0x0E36,   ///< 6.0.2 19027
@@ -1289,7 +1289,6 @@ enum Opcodes
     CMSG_MOVE_SET_RELATIVE_POSITION                   = 0x0000,
     CMSG_MOVE_SET_VEHICLE_REC_ID_ACK                  = 0x0000,
     CMSG_MOVE_SPLINE_DONE                             = 0x0000,
-    CMSG_MOVE_TIME_SKIPPED                            = 0x0000,
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x0000,
     CMSG_NEW_SPELL_SLOT                               = 0x0000,
     CMSG_NEXT_CINEMATIC_CAMERA                        = 0x0000,

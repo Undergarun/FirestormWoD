@@ -58,8 +58,13 @@ const char GarrBuildingEntryfmt[] = "niiiiissssiiiiiiiiiiiiii";
 const char GarrPlotBuildingEntryfmt[] = "nii";
 const char GarrFollowerEntryfmt[] = "niiiiiiiiiiiiiissiiii";
 const char GarrAbilityEntryfmt[] = "nissiii";
+const char GarrAbilityEffectEntryfmt[] = "niiiiiffiii";
 const char GarrFollowerXAbilityEntryfmt[] = "niii";
 const char GarrBuildingPlotInstEntryfmt[] = "niiiii";
+const char GarrMechanicTypeEntryfmt[] = "nissi";
+const char GarrMechanicEntryfmt[] = "nif";
+const char GarrMissionXEncouterEntryfmt[] = "nii";
+const char GarrEncouterXMechanicEntryfmt[] = "nii";
 
 const char BattlePetAbilityfmt[] = "niiiiiss";
 const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";

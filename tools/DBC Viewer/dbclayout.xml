@@ -1278,7 +1278,7 @@
     <field type="int" name="field21" />
     <field type="int" name="field22" />
   </QuestV2CliTask>
-  <AreaTable build="19027">
+  <AreaTable build="19057">
     <index>
       <primary>ID</primary>
     </index>
@@ -1614,12 +1614,12 @@
     <field type="int" name="EffectSpellClassMask3" />
     <field type="int" name="EffectSpellClassMask4" />
     <field type="int" name="EffectTriggerSpell" />
-    <field type="float" name="unk_1                                         " />
+    <field type="float" name="unk_1" />
     <field type="int" name="EffectImplicitTargetA" />
     <field type="int" name="EffectImplicitTargetB" />
     <field type="int" name="EffectSpellId" />
     <field type="int" name="EffectIndex" />
-    <field type="float" name="unk_flag_2                                    " />
+    <field type="float" name="unk_flag_2" />
     <field type="int" name="newField" />
   </SpellEffect>
   <SpellItemEnchantmentCondition build="0">
@@ -2441,7 +2441,7 @@
     <field type="int" name="ItemLevelWeapon" />
     <field type="int" name="ItemLevelArmor" />
     <field type="int" name="field13" />
-    <field type="int" name="field14" />
+    <field type="int" name="Bias" />
     <field type="string" name="field15" />
     <field type="string" name="field16" />
     <field type="int" name="field17" />
@@ -2459,37 +2459,44 @@
   </GarrFollowerQuality>
   <GarrFollowerXAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
+<<<<<<< HEAD
+    <field type="int" name="ID" />
+    <field type="int" name="FollowerID" />
+    <field type="int" name="AbilityID" />
+    <field type="int" name="FactionIndex" />
+=======
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="int" name="FollowerId" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
+>>>>>>> origin/WoD2
   </GarrFollowerXAbility>
   <GarrAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="string" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="int" name="IconID" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
+    <field type="int" name="Category" />
   </GarrAbility>
   <GarrAbilityEffect build="0">
     <index>
-      <primary>field0</primary>
+      <primary>EffectID</primary>
     </index>
-    <field type="int" name="field0" />
+    <field type="int" name="EffectID" />
     <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="AbilityID" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="CounterMechanicTypeID" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
+    <field type="float" name="field6" />
+    <field type="float" name="field7" />
     <field type="int" name="field8" />
     <field type="int" name="field9" />
     <field type="int" name="field10" />
@@ -2501,8 +2508,9 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
     <field type="string" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="float" name="field3" />
+    <field type="float" name="field4" />
+    <field type="int" name="newField" />
   </GarrEncounter>
   <GarrEncounterXMechanic build="0">
     <index>
@@ -2525,17 +2533,17 @@
     </index>
     <field type="int" name="field0" />
     <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="string" name="field3" />
-    <field type="int" name="field4" />
+    <field type="string" name="Environment" />
+    <field type="string" name="EnvironmentDesc" />
+    <field type="int" name="EnvironmentTexture" />
   </GarrMechanicType>
   <GarrMechanic build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="ID" />
+    <field type="int" name="MechanicTypeID" />
+    <field type="float" name="field2" />
   </GarrMechanic>
   <GarrMission build="0">
     <index>
@@ -2544,20 +2552,20 @@
     <field type="int" name="MissionRecID" />
     <field type="int" name="RequiredLevel" />
     <field type="int" name="RequiredItemLevel" />
-    <field type="int" name="field3" />
+    <field type="int" name="GarrMechanicTypeRecID" />
     <field type="int" name="RequiredFollowersCount" />
     <field type="int" name="field5" />
     <field type="int" name="Duration" />
     <field type="int" name="OfferDuration" />
-    <field type="int" name="field8" />
-    <field type="string" name="Title" />
+    <field type="int" name="LocPrefixID" />
+    <field type="int" name="field9" />
+    <field type="string" name="Name" />
     <field type="string" name="Description" />
     <field type="string" name="Location" />
-    <field type="int" name="field12" />
     <field type="int" name="field13" />
     <field type="int" name="field14" />
     <field type="int" name="GarrisonCurrencyStartCost" />
-    <field type="int" name="field16" />
+    <field type="int" name="Flags" />
     <field type="int" name="RewardFollowerExperience" />
     <field type="int" name="BaseBronzeChestChance" />
   </GarrMission>
@@ -2903,7 +2911,7 @@
     <field type="int" name="LiquidTypeID_2" />
     <field type="int" name="LiquidTypeID_3" />
     <field type="float" name="MinElevation" />
-    <field type="float" name="AmbientMultiplier;" />
+    <field type="float" name="AmbientMultiplier" />
     <field type="int" name="Lightid" />
     <field type="int" name="MountFlags" />
     <field type="int" name="UwIntroSound" />
@@ -3015,17 +3023,35 @@
     <field type="int" name="field8" />
     <field type="int" name="field9" />
   </GarrMissionReward>
-  <SummonProperties build="19045">
+<<<<<<< HEAD
+  <GarrMissionType build="0">
+=======
+  <SummonProperties build="19057">
     <index>
       <primary>Id</primary>
-    </index>
-    <field type="int" name="Id" />
+	</index>
     <field type="int" name="Control" />
     <field type="int" name="Faction" />
     <field type="int" name="Title" />
     <field type="int" name="Slot" />
+    <field type="int" name="Flags" />	  
+   </SummonProperties>
+  <Talent build="19045">
+  <index>
+      <primary>Id</primary>
+  </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SpecID" />
+    <field type="int" name="TierID" />
+    <field type="int" name="ColumnIndex" />
+    <field type="int" name="SpellID" />
     <field type="int" name="Flags" />
-  </SummonProperties>
+    <field type="int" name="CategoryMask1" />
+    <field type="int" name="CategoryMask2" />
+    <field type="int" name="ClassID" />
+    <field type="int" name="OverridesSpellID" />
+    <field type="string" name="DescriptionLang" />
+  </Talent>
   <Vehicle build="19027">
     <index>
       <primary>ID</primary>
@@ -3072,4 +3098,149 @@
     <field type="int" name="PowerDisplayID2" />
     <field type="int" name="PowerDisplayID3" />
   </Vehicle>
+  <Stationery build="19057">
+>>>>>>> origin/WoD2
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+<<<<<<< HEAD
+    <field type="int" name="field2" />
+  </GarrMissionType>
+  <GarrMissionXEncounter build="0">
+=======
+    <field type="string" name="field2" />
+    <field type="int" name="field3" />
+  </Stationery>
+  <GarrAbility build="19057">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="field1" />
+    <field type="string" name="Name" />
+    <field type="string" name="Descripion" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="Category" />
+  </GarrAbility>
+  <GarrFollower build="19057">
+    <index>
+      <primary>FollowerID</primary>
+    </index>
+    <field type="int" name="FollowerID" />
+    <field type="int" name="EntryH" />
+    <field type="int" name="EntryA" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="Level" />
+    <field type="int" name="ItemLevelWeapon" />
+    <field type="int" name="ItemLevelArmor" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="string" name="Source_H" />
+    <field type="string" name="Source_A" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+  </GarrFollower>
+  <SkillTiers build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Value1" />
+    <field type="int" name="Value2" />
+    <field type="int" name="Value3" />
+    <field type="int" name="Value4" />
+    <field type="int" name="Value5" />
+    <field type="int" name="Value6" />
+    <field type="int" name="Value7" />
+    <field type="int" name="Value8" />
+    <field type="int" name="Value9" />
+    <field type="int" name="Value10" />
+    <field type="int" name="Value11" />
+    <field type="int" name="Value12" />
+    <field type="int" name="Value13" />
+    <field type="int" name="Value14" />
+    <field type="int" name="Value15" />
+    <field type="int" name="Value16" />
+  </SkillTiers>
+  <SkillRaceClassInfo build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SkillID" />
+    <field type="int" name="RaceMask" />
+    <field type="int" name="ClassMask" />
+    <field type="int" name="Flags" />
+    <field type="int" name="Availability" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="SkillTierID" />
+  </SkillRaceClassInfo>
+  <SkillLineAbilitySortedSpell build="19057">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="Spell" />
+  </SkillLineAbilitySortedSpell>
+  <SkillLineAbility build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SkillLine" />
+    <field type="int" name="Spell" />
+    <field type="int" name="RaceMask" />
+    <field type="int" name="ClassMask" />
+    <field type="int" name="MinSkillLineRank" />
+    <field type="int" name="SupercedesSpell" />
+    <field type="int" name="AcquireMethod" />
+    <field type="int" name="TrivialSkillLineRankHigh" />
+    <field type="int" name="TrivialSkillLineRankLow" />
+    <field type="int" name="NumSkillUps" />
+    <field type="int" name="UniqueBit" />
+    <field type="int" name="TradeSkillCategoryID" />
+  </SkillLineAbility>
+  <SkillLine build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="CategoryID" />
+    <field type="string" name="DisplayNameLang" />
+    <field type="string" name="DescriptionLang" />
+    <field type="int" name="SpellIconID" />
+    <field type="string" name="AlternateVerbLang" />
+    <field type="int" name="CanLink" />
+    <field type="int" name="ParentSkillLineID" />
+    <field type="int" name="Flags" />
+  </SkillLine>
+  <Weather build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="AmbienceID" />
+    <field type="int" name="Type" />
+    <field type="int" name="EffectType" />
+    <field type="float" name="Intensity1" />
+    <field type="float" name="Intensity2" />
+    <field type="float" name="TransitionSkyBox" />
+    <field type="float" name="EffectColor1" />
+    <field type="float" name="EffectColor2" />
+    <field type="float" name="EffectColor3" />
+    <field type="string" name="EffectTexture" />
+    <field type="int" name="SoundAmbienceID" />
+    <field type="int" name="WindSettingsID" />
+  </Weather>
 </DBFilesClient>

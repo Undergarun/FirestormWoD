@@ -985,7 +985,7 @@ void WorldSession::HandleSummonCompanion(WorldPacket& recvData)
     recvData.ReadByteSeq(l_JournalID[7]);
     recvData.ReadByteSeq(l_JournalID[5]);
 
-    if (m_Player->GetSummonedBattlePet() && m_Player->GetSummonedBattlePet()->GetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == l_JournalID)
+    if (m_Player->GetSummonedBattlePet() && m_Player->GetSummonedBattlePet()->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == l_JournalID)
         m_Player->UnsummonCurrentBattlePetIfAny(false);
     else
     {
@@ -1015,7 +1015,7 @@ void WorldSession::HandlePetBattleCagePet(WorldPacket& recvData)
     recvData.ReadByteSeq(l_Guid[7]);
     recvData.ReadByteSeq(l_Guid[2]);
 
-    if (m_Player->GetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID) == l_Guid)
+    if (m_Player->GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID) == l_Guid)
         m_Player->UnsummonCurrentBattlePetIfAny(false);
 
 

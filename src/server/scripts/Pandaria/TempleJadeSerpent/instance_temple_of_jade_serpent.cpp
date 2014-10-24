@@ -849,7 +849,7 @@ public:
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         c->CastSpell(unit, SPELL_DRAW_SHA_3, false);
-                        c->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, scroll);
+                        c->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, scroll);
                         c->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 42808);
                         c->ForcedDespawn(2000);
                     }

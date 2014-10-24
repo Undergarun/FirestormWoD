@@ -79,7 +79,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
-    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetGuidValue(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
 

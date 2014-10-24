@@ -1585,9 +1585,9 @@ struct MapEntry
     //char*     direcotry;                                  // 1        m_Directory
     uint32  instanceType;                                   // 2        m_InstanceType
     //uint32    flags;                                      // 3        m_Flags
-    //uint32    MapType;                                    // 4        m_MapType 4 Garison, 3 Transport 2/1 unk usage
-    char*   MapNameLang;                                    // 5        m_MapName_lang
-    //int     unk_602;                                      // 6
+    //int     unk_602;                                      // 4
+    //uint32    MapType;                                    // 5        m_MapType 4 Garison, 3 Transport 2/1 unk usage
+    char*   MapNameLang;                                    // 6        m_MapName_lang
     uint32  AreaTableID;                                    // 7        m_areaTableID
     //char*     MapDescription0Lang;                        // 8        m_MapDescription0_lang
     //char*     MapDescription1Lang;                        // 9        m_MapDescription1_lang
@@ -1774,9 +1774,9 @@ struct ResearchSiteEntry
 struct ScalingStatDistributionEntry
 {
     uint32  Id;                                             // 0        m_ID
-    uint32  Minlevel;                                       // 1        m_Minlevel
+    uint32  MinLevel;                                       // 1        m_Minlevel
     uint32  MaxLevel;                                       // 2        m_Maxlevel
-    uint32  Unk_601_18612;                                  // 3        Unk_601_18612
+    uint32  CurveProperties;                                // 3        m_CurveProperties
 };
 
 // 6.0.2 19027 - DBC doesn't exists
@@ -2186,18 +2186,16 @@ struct SummonPropertiesEntry
 
 struct TalentEntry
 {
-    uint32  Id;                                             // 0        m_ID
-    //uint32    m_SpecID;                                   // 1        m_SpecID
-    uint32  rank;                                           // 2        m_TierID
-    //uint32    m_ColumnIndex;                              // 3        m_ColumnIndex
-    uint32  spellId;                                        // 4        m_SpellID
-    //uint32    m_Flags;                                    // 5        m_Flags
-    //uint32    m_CategoryMask;                             // 6        m_CategoryMask
-    //uint32    m_CategoryMask;                             // 7        m_CategoryMask
-    uint32  classId;                                        // 8        m_ClassID
-    uint32  spellOverride;                                  // 9        m_OverridesSpellID
-    char*   description;                                    // 10       m_DescriptionLang
-
+    uint32  Id;                 // 0
+    uint32  SpecID;             // 1
+    uint32  TierID;             // 2
+    uint32  ColumnIndex;        // 3
+    uint32  SpellID;            // 4
+    uint32  Flags;              // 5
+    uint32  CategoryMask[2];    // 6-7
+    uint32  ClassID;            // 8
+    uint32  OverridesSpellID;   // 9
+    char*   DescriptionLang;    // 10
 };
 
 struct TaxiNodesEntry

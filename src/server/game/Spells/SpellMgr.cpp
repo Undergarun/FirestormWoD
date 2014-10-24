@@ -3180,28 +3180,27 @@ void SpellMgr::LoadSpellInfoStore()
 
     std::map<uint32, std::set<uint32> > spellDifficultyList;
 
-    for (uint32 i = 0; i < sSpellEffectStore.GetNumRows(); ++i)
-        if (SpellEffectEntry const* spellEffect = sSpellEffectStore.LookupEntry(i))
+    for (uint32 l_I = 0; l_I < sSpellEffectStore.GetNumRows(); ++l_I)
+        if (SpellEffectEntry const* spellEffect = sSpellEffectStore.LookupEntry(l_I))
             spellDifficultyList[spellEffect->EffectSpellId].insert(spellEffect->EffectDifficulty);
-
 
     UnloadSpellInfoStore();
     for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
         mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), NULL);
 
-    for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+    for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
     {
-        if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
+        if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
-            std::set<uint32> difficultyInfo = spellDifficultyList[i];
+            std::set<uint32> difficultyInfo = spellDifficultyList[l_I];
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
-                mSpellInfoMap[(*itr)][i] = new SpellInfo(spellEntry, (*itr));
+                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr));
         }
     }
 
-    for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); i++)
+    for (uint32 l_I = 0; l_I < sSpellPowerStore.GetNumRows(); l_I++)
     {
-        SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(i);
+        SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(l_I);
         if (!spellPower)
             continue;
 
@@ -3215,15 +3214,23 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+    for (uint32 l_I = 0; l_I < sTalentStore.GetNumRows(); l_I++)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-        if (!talentInfo)
+        TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_I);
+        if (!l_TalentEntry)
             continue;
 
-        SpellInfo * spellEntry = mSpellInfoMap[NONE_DIFFICULTY][talentInfo->spellId];
-        if (spellEntry)
-            spellEntry->talentId = talentInfo->Id;
+        SpellInfo * l_SpellInfo = mSpellInfoMap[NONE_DIFFICULTY][l_TalentEntry->SpellID];
+        if (l_SpellInfo)
+            l_SpellInfo->talentId = l_TalentEntry->Id;
+
+        /// Load talents override spell
+        if (l_TalentEntry->OverridesSpellID)
+        {
+            l_SpellInfo = (SpellInfo*)sSpellMgr->GetSpellInfo(l_TalentEntry->OverridesSpellID);
+            if (l_SpellInfo)
+                l_SpellInfo->OverrideSpellList.push_back(l_TalentEntry->SpellID);
+        }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3452,6 +3459,9 @@ void SpellMgr::LoadSpellCustomAttr()
         {
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
+                break;
+            case 45470: // Death strike heal
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
             case 65075: // Tower of Flames
             case 65077: // Tower of Frost
@@ -3771,12 +3781,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 15286: // Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
-            case 29858: // Soulshatter
-                spellInfo->OverrideSpellList.push_back(97827); // Add Taunt (Metamorphosis)
-                break;
-            case 45438:
-                spellInfo->OverrideSpellList.push_back(157913);
                 break;
             case 119403:// Glyph of Explosive Trap
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -5225,7 +5229,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(121828); // Override List with Chi Torpedo - Talent
                 break;
             case 109132:// Roll
-                spellInfo->OverrideSpellList.push_back(115008); // Override List with Chi Torpedo
                 spellInfo->OverrideSpellList.push_back(121827); // Override List with Roll - Talent
                 break;
             case 115295:// Guard
@@ -5272,7 +5275,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
                 spellInfo->Effects[1].BasePoints = -30;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                spellInfo->OverrideSpellList.push_back(116847);
                 break;
             case 125084:// Charging Ox Wave
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // radius 30
@@ -6242,7 +6244,7 @@ void SpellMgr::LoadTalentSpellInfo()
         if (!talent)
             continue;
 
-        mTalentSpellInfo.insert(talent->spellId);
+        mTalentSpellInfo.insert(talent->SpellID);
     }
 }
 
