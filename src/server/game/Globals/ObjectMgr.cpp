@@ -560,7 +560,8 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
         l_CreatureTemplate.DifficultyEntry[l_DifficultyIndex] = l_DifficultyEntry;
 
         ++l_Count;
-    } while (l_Result->NextRow());
+    }
+    while (l_Result->NextRow());
 
     // Checking needs to be done after loading because of the difficulty self referencing
     for (CreatureTemplateContainer::const_iterator l_It = _creatureTemplateStore.begin(); l_It != _creatureTemplateStore.end(); ++l_It)

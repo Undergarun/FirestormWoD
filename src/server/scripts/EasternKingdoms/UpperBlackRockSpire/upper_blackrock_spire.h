@@ -52,6 +52,7 @@ enum eCreatures
     NPC_BLACK_IRON_SUMMONER     = 77036,
     NPC_BLACK_IRON_ELITE        = 77037,
     NPC_BLACK_IRON_SIEGEBREAKER = 77033,
+    NPC_BLACK_IRON_BERSERKER    = 76176,
 
     // Orebender Gor'Ashan
     NPC_OREBENDER_GORASHAN      = 76413,
@@ -61,7 +62,15 @@ enum eCreatures
 
     // Kyrak The Corruptor
     NPC_KYRAK_THE_CORRUPTOR     = 76021,
-    NPC_DRAKONID_MONSTROSITY_2  = 82556
+    NPC_DRAKONID_MONSTROSITY_2  = 82556,
+
+    // Commander Tharbek
+    NPC_COMMANDER_THARBEK       = 79912,
+    NPC_IRONBARB_SKYREAVER      = 80098,
+    NPC_VILEMAW_HATCHLING       = 77096,
+
+    // Warlord Zaela
+    NPC_WARLORD_ZAELA           = 77120
 };
 
 enum eGameObjects
@@ -73,7 +82,10 @@ enum eGameObjects
     GOB_RUNIC_CONDUIT           = 226704,
 
     GOB_KYRAK_EXIT_01           = 225945,
-    GOB_KYRAK_EXIT_02           = 225944
+    GOB_KYRAK_EXIT_02           = 225944,
+
+    GOB_THARBEK_SPAWN_DOOR      = 175185,
+    GOB_THARBEK_EXIT            = 164726
 };
 
 enum eSharedSpells

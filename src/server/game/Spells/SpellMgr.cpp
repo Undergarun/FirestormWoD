@@ -3897,6 +3897,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
             case 161288:// Vileblood Serum (DoT)
+            case 176037:// Noxious Spit (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
