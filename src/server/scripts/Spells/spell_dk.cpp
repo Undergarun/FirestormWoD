@@ -632,41 +632,26 @@ class spell_dk_pillar_of_frost : public SpellScriptLoader
         }
 };
 
-// Called by Death Coil - 47541, Rune Strike - 56815 and Frost Strike - 49143
-// Blood Charges - 114851 for Blood Tap - 45529
-class spell_dk_blood_charges : public SpellScriptLoader
+// Blood Tap - 45529
+class PlayerScript_Blood_Tap : public PlayerScript
 {
     public:
-        spell_dk_blood_charges() : SpellScriptLoader("spell_dk_blood_charges") { }
+        PlayerScript_Blood_Tap() :PlayerScript("PlayerScript_Blood_Tap") {}
 
-        class spell_dk_blood_charges_SpellScript : public SpellScript
+        uint16 m_RunicPower = 0;
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
         {
-            PrepareSpellScript(spell_dk_blood_charges_SpellScript);
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529))
+                return;
 
-            void HandleOnHit()
+            m_RunicPower += p_Value;
+
+            if (m_RunicPower >= 150)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasSpell(45529))
-                        {
-                            _player->CastSpell(_player, DK_SPELL_BLOOD_CHARGE, true);
-                            _player->CastSpell(_player, DK_SPELL_BLOOD_CHARGE, true);
-                        }
-                    }
-                }
+                p_Player->CastSpell(p_Player, DK_SPELL_BLOOD_CHARGE, true);
+                m_RunicPower -= 150;
             }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_blood_charges_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_blood_charges_SpellScript();
         }
 };
 
@@ -1837,7 +1822,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_remorseless_winter();
     new spell_dk_soul_reaper();
     new spell_dk_pillar_of_frost();
-    new spell_dk_blood_charges();
     new spell_dk_blood_tap();
     new spell_dk_death_siphon();
     new spell_dk_improved_blood_presence();
@@ -1863,4 +1847,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_corpse_explosion();
     new spell_dk_glyph_of_horn_of_winter();
     new spell_dk_icy_touch();
+
+    /// Player script
+    new PlayerScript_Blood_Tap();
 }
