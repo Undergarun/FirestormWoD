@@ -3119,4 +3119,108 @@
     <field type="int" name="field19" />
     <field type="int" name="field20" />
   </GarrFollower>
+  <SkillTiers build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Value1" />
+    <field type="int" name="Value2" />
+    <field type="int" name="Value3" />
+    <field type="int" name="Value4" />
+    <field type="int" name="Value5" />
+    <field type="int" name="Value6" />
+    <field type="int" name="Value7" />
+    <field type="int" name="Value8" />
+    <field type="int" name="Value9" />
+    <field type="int" name="Value10" />
+    <field type="int" name="Value11" />
+    <field type="int" name="Value12" />
+    <field type="int" name="Value13" />
+    <field type="int" name="Value14" />
+    <field type="int" name="Value15" />
+    <field type="int" name="Value16" />
+  </SkillTiers>
+  <SkillRaceClassInfo build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SkillID" />
+    <field type="int" name="RaceMask" />
+    <field type="int" name="ClassMask" />
+    <field type="int" name="Flags" />
+    <field type="int" name="Availability" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="SkillTierID" />
+  </SkillRaceClassInfo>
+  <SkillLineAbilitySortedSpell build="19057">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="Spell" />
+  </SkillLineAbilitySortedSpell>
+  <SkillLineAbility build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SkillLine" />
+    <field type="int" name="Spell" />
+    <field type="int" name="RaceMask" />
+    <field type="int" name="ClassMask" />
+    <field type="int" name="MinSkillLineRank" />
+    <field type="int" name="SupercedesSpell" />
+    <field type="int" name="AcquireMethod" />
+    <field type="int" name="TrivialSkillLineRankHigh" />
+    <field type="int" name="TrivialSkillLineRankLow" />
+    <field type="int" name="NumSkillUps" />
+    <field type="int" name="UniqueBit" />
+    <field type="int" name="TradeSkillCategoryID" />
+  </SkillLineAbility>
+  <SkillLine build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="CategoryID" />
+    <field type="string" name="DisplayNameLang" />
+    <field type="string" name="DescriptionLang" />
+    <field type="int" name="SpellIconID" />
+    <field type="string" name="AlternateVerbLang" />
+    <field type="int" name="CanLink" />
+    <field type="int" name="ParentSkillLineID" />
+    <field type="int" name="Flags" />
+  </SkillLine>
+  <Weather build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="AmbienceID" />
+    <field type="int" name="Type" />
+    <field type="int" name="EffectType" />
+    <field type="float" name="Intensity1" />
+    <field type="float" name="Intensity2" />
+    <field type="float" name="TransitionSkyBox" />
+    <field type="float" name="EffectColor1" />
+    <field type="float" name="EffectColor2" />
+    <field type="float" name="EffectColor3" />
+    <field type="string" name="EffectTexture" />
+    <field type="int" name="SoundAmbienceID" />
+    <field type="int" name="WindSettingsID" />
+  </Weather>
+  <SpellClassOptions build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </SpellClassOptions>
 </DBFilesClient>
