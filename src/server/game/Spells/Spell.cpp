@@ -5847,16 +5847,6 @@ void Spell::TakeRunePower(bool didHit)
 
         switch (m_spellInfo->Id)
         {
-            case 45477: // Icy Touch
-            case 45902: // Blood Strike
-            case 48721: // Blood Boil
-            case 50842: // Pestilence
-            case 85948: // Festering Strike
-            {
-                // Reaping
-                player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                break;
-            }
             case 49998: // Death Strike
             {
                 // Blood Rites
@@ -5902,16 +5892,6 @@ void Spell::TakeRunePower(bool didHit)
 
                 switch (m_spellInfo->Id)
                 {
-                    case 45477: // Icy Touch
-                    case 45902: // Blood Strike
-                    case 48721: // Blood Boil
-                    case 50842: // Pestilence
-                    case 85948: // Festering Strike
-                    {
-                        // Reaping
-                        player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                        break;
-                    }
                     case 49998: // Death Strike
                     {
                         // Blood Rites

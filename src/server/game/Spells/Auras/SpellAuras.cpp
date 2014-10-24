@@ -1996,19 +1996,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             {
                 switch (GetSpellInfo()->Id)
                 {
-                    case 56835: // Reaping
-                    {
-                        if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
-                            break;
-                        if (target->GetTypeId() != TYPEID_PLAYER)
-                            break;
-                        if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
-                            break;
-
-                        // aura removed - remove death runes
-                        target->ToPlayer()->RemoveRunesBySpell(GetId());
-                        break;
-                    }
                     case 81256: // Dancing Rune Weapon
                     {
                         // Item - Death Knight T12 Tank 4P Bonus

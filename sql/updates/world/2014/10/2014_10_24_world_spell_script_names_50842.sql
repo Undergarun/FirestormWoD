@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dk_blood_boil' OR ScriptName = 'spell_dk_runic_corruption' OR spell_id IN (50842,48721);
+INSERT INTO spell_script_names VALUES (50842, 'spell_dk_blood_boil');
