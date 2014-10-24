@@ -1265,27 +1265,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     return;
                 }
-                case 49998: // Death Strike
-                {
-                    if ((m_caster->CountPctFromMaxHealth(7)) > (20 * m_caster->GetDamageTakenInPastSecs(5) / 100))
-                        bp = m_caster->CountPctFromMaxHealth(7);
-                    else
-                        bp = (20 * m_caster->GetDamageTakenInPastSecs(5) / 100);
-
-                    // Item - Death Knight T14 Blood 4P bonus
-                    if (m_caster->HasAura(123080))
-                        bp *= 1.1f;
-
-                    // Glyph of Dark Succor
-                    if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(101568, 0))
-                        if (bp < int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount())))
-                            if (m_caster->HasAura(48265) || m_caster->HasAura(48266)) // Only in frost/unholy presence
-                                bp = m_caster->CountPctFromMaxHealth(aurEff->GetAmount());
-
-                    m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
-
-                    return;
-                }
                 default:
                     break;
             }
@@ -5873,8 +5852,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
-    caster->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
+    caster->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
+    target->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);
 }
@@ -7046,7 +7025,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pGameObj->GetGUID());
+            m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, pGameObj->GetGUID());
             m_caster->AddGameObject(pGameObj);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))

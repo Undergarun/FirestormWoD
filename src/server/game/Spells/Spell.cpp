@@ -1007,7 +1007,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
     {
         case TARGET_UNIT_CHANNEL_TARGET:
         {
-            WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT));
+            WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT));
             CallScriptObjectTargetSelectHandlers(target, effIndex);
             // unit target may be no longer available - teleported out of map for example
             if (target && target->ToUnit())
@@ -1017,7 +1017,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
         case TARGET_DEST_CHANNEL_TARGET:
             if (channeledSpell->m_targets.HasDst())
                 m_targets.SetDst(channeledSpell->m_targets);
-            else if (WorldObject* target = ObjectAccessor::GetWorldObject(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+            else if (WorldObject* target = ObjectAccessor::GetWorldObject(*m_caster, m_originalCaster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT)))
             {
                 CallScriptObjectTargetSelectHandlers(target, effIndex);
                 if (target)
@@ -3638,6 +3638,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     // set timer base at cast time
     ReSetTimer();
 
+    CallScriptOnPrepareHandlers();
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channeled triggers channeled
@@ -3647,7 +3648,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     {
         // stealth must be removed at cast starting (at show channel bar)
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) && (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
+        if (CheckInterrupt())
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -3675,6 +3676,17 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         if (!m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
             cast(true);
     }
+}
+
+bool Spell::CheckInterrupt()
+{
+    if (!CallScriptCheckInterruptHandlers())
+        return false;
+
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) && (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
+        return true;
+
+    return true;
 }
 
 void Spell::cancel()
@@ -4654,36 +4666,35 @@ void Spell::SendSpellStart()
     if (!IsNeedSendToClient())
         return;
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
+    uint32 l_CastFlags = CAST_FLAG_HAS_TRAJECTORY;
 
-    uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
+    if (m_triggeredByAuraSpell)
+        l_CastFlags |= CAST_FLAG_PENDING;
 
-    if (/*(IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || */m_triggeredByAuraSpell)
-        castFlags |= CAST_FLAG_PENDING;
-
-    bool health = false;
+    bool l_IsHealthPowerSpell = false;
     for (auto itr : m_spellInfo->SpellPowers)
     {
         if (itr->PowerType == POWER_HEALTH)
         {
-            health = true;
+            l_IsHealthPowerSpell = true;
             break;
         }
     }
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
-        && !health)
-        castFlags |= CAST_FLAG_POWER_LEFT_SELF;
+        && !l_IsHealthPowerSpell)
+        l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if (m_spellInfo->RuneCostID && m_spellInfo->GetMainPower() == POWER_RUNES)
-        castFlags |= CAST_FLAG_UNKNOWN_19;
+        l_CastFlags |= CAST_FLAG_UNKNOWN_19;
 
     if (m_targets.HasTraj())
-        castFlags |= CAST_FLAG_ADJUST_MISSILE;
+        l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
 
+    //@TODO: Remove this hack
     if (m_spellInfo->Id == 147193)
-        castFlags |= CAST_FLAG_UNKNOWN_4;
+        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
 
     WorldPacket data(SMSG_SPELL_START);
 
@@ -4709,7 +4720,7 @@ void Spell::SendSpellStart()
     {
         if (Unit* target = sObjectAccessor->FindUnit(m_targets.GetObjectTargetGUID()))
         {
-            castFlags |= CAST_FLAG_HEAL_PREDICTION;
+            l_CastFlags |= CAST_FLAG_HEAL_PREDICTION;
             l_PredicType = 2;
             l_PredicOverrideTarget = target->GetGUID();
 
@@ -4724,7 +4735,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(castFlags);
+    data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
     data << uint32(0);                      ///< Missed target count
@@ -4814,74 +4825,14 @@ void Spell::SendSpellStart()
 
     data.WriteBits(0, 18);                  ///< Cast flag ex
     data.WriteBit(false);
-    data.WriteBit(castFlags & CAST_FLAG_PROJECTILE || castFlags & CAST_FLAG_VISUAL_CHAIN);
+    data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     data.FlushBits();
 
-    if (castFlags & CAST_FLAG_PROJECTILE || castFlags & CAST_FLAG_VISUAL_CHAIN)
+    if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
     {
-        data << uint32(0); // Projectile Visual 1
-        data << uint32(0); // Projectile Visual 2
+        data << uint32(0); ///< Projectile Visual 1
+        data << uint32(0); ///< Projectile Visual 2
     }
-//
-//
-//
-//     bool unkBit = false;
-//     bool unkInt = false;
-//     bool unkInt3 = false;
-//     bool unkInt4 = false;
-//     bool unkInt5 = false;
-//     bool hasRuneStateBefore = false; // don't needed in spell_start
-//     bool unkByte2 = false;
-//     bool hasRuneStateAfter = false; // don't needed in spell_start
-//     bool unkByte5 = false;
-//     bool unkByte6 = false;
-//
-//
-//
-//     data.WriteBit(!hasRuneStateBefore);                     // !has rune before
-//
-//     uint8 runeCooldownCount = 0;
-//     //if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT)
-//         //runeCooldownCount = 6;
-//
-//    data.WriteBits(runeCooldownCount, 3);                   // runeCooldownCount
-//
-//     if (hasRuneStateBefore)
-//         data << uint8(m_runesState);
-//
-//
-//
-//     if (runeCooldownCount)
-//     {
-//         if (Player* player = m_caster->ToPlayer())
-//         {
-//             for (uint8 i = 0; i < MAX_RUNES; ++i)
-//             {
-//                 float baseCd = float(player->GetRuneBaseCooldown(i));
-//                 data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-//             }
-//         }
-//         else
-//         {
-//             for (uint8 i = 0; i < MAX_RUNES; ++i)
-//                 data << uint8(0);
-//         }
-//     }
-//
-//     if (unkStringLength > 0)
-//     {
-//         std::string unkString = "";
-//         data << unkString;
-//     }
-//
-//     for (uint32 i = 0; i < powerCount; i++)
-//     {
-//         // not sure about this ...
-//         data << int32((Powers)m_spellPowerData->powerType);
-//         data << uint32(m_caster->GetPower((Powers)m_spellPowerData->powerType));
-//     }
-//     if (hasRuneStateAfter)
-//         data << uint8(m_caster->ToPlayer()->GetRunesState());
 
     m_caster->SendMessageToSet(&data, true);
 }
@@ -4892,43 +4843,43 @@ void Spell::SendSpellGo()
     if (!IsNeedSendToClient())
         return;
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
-
-    uint32 castFlags = CAST_FLAG_UNKNOWN_9;
+    uint32 l_CastFlags = CAST_FLAG_UNKNOWN_9;
 
     // triggered spells with spell visual != 0
-    if (/*(IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) ||*/ m_triggeredByAuraSpell)
-        castFlags |= CAST_FLAG_PENDING;
+    if (m_triggeredByAuraSpell)
+        l_CastFlags |= CAST_FLAG_PENDING;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
         && m_spellInfo->GetMainPower() != POWER_HEALTH)
-        castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
+        l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    //@TODO: Remove this hack
     // Hack fix to avoid wow error
     if (m_spellInfo->Id == 116803 || m_spellInfo->Id == 118327)
-        castFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
+        l_CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
         && m_spellInfo->GetMainPower() == POWER_RUNES)
     {
-        castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
     {
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
     }
 
     if (m_targets.HasTraj())
-        castFlags |= CAST_FLAG_ADJUST_MISSILE;
+        l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
 
+    //@TODO: Remove this hack
     if (m_spellInfo->Id == 147193)
-        castFlags |= CAST_FLAG_UNKNOWN_4;
+        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
 
 
     uint32 l_MissCount = 0;
@@ -4944,8 +4895,8 @@ void Spell::SendSpellGo()
         }
 
         for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-        if (ihit->missCondition != SPELL_MISS_NONE)        // Add only miss
-            ++l_MissCount;
+            if (ihit->missCondition != SPELL_MISS_NONE)        // Add only miss
+                ++l_MissCount;
 
         // ---- Hit target ---- //
         for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -4965,19 +4916,7 @@ void Spell::SendSpellGo()
             ++l_HitCount;
     }
 
-
-
     WorldPacket data(SMSG_SPELL_GO);
-
-//     ObjectGuid guid1, guid2, guid6;;
-//
-//     uint32 powerCount = 1;
-//     uint32 powerTypeCount = 1;
-//     uint32 runeCooldownCount = 0;
-//     uint32 unkStringLength = 0;
-//     uint32 counter52 = 0;
-//     uint32 counter84 = 0;
-
     uint64 l_PredicOverrideTarget = 0;
     uint32 l_PredictAmount = 0;
     uint8 l_PredicType = 0;
@@ -4993,7 +4932,7 @@ void Spell::SendSpellGo()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(castFlags);
+    data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(l_HitCount);
     data << uint32(l_MissCount);
@@ -5099,6 +5038,8 @@ void Spell::SendSpellGo()
             data.WriteBits(ihit->missCondition, 4);
             if (ihit->missCondition == SPELL_MISS_REFLECT)
                 data.WriteBits(ihit->reflectResult, 4);
+
+            data.FlushBits();
         }
     }
 
@@ -5112,10 +5053,10 @@ void Spell::SendSpellGo()
 
     data.WriteBits(0, 18);                  ///< Cast flag ex
     data.WriteBit(false);
-    data.WriteBit(castFlags & CAST_FLAG_PROJECTILE || castFlags & CAST_FLAG_VISUAL_CHAIN);
+    data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     data.FlushBits();
 
-    if (castFlags & CAST_FLAG_PROJECTILE || castFlags & CAST_FLAG_VISUAL_CHAIN)
+    if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
     {
         data << uint32(0); // Projectile Visual 1
         data << uint32(0); // Projectile Visual 2
@@ -5124,153 +5065,7 @@ void Spell::SendSpellGo()
     data.WriteBit(false);
     data.FlushBits();
 
-    //bool hasSrc = m_targets.HasSrc();
-    //bool hasDest = m_targets.HasDst();
-    //bool hasBit48 = false;
-    //bool hasBit91 = false;
-    //bool hasBit101 = false;
-    //bool hasBit102 = false;
-    //bool hasBit106 = false;
-    //bool hasRuneStateBefore = m_runesState;
-    //bool hasRuneStateAfter = false;
-    //if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT &&  m_caster->ToPlayer()->GetRunesState())
-    //    hasRuneStateAfter = true;
-    //bool hasDelayMoment = m_delayMoment;
-    //bool hasBit368 = false;
-    //bool hasBit380 = false;
-    //bool hasBit384 = false;
-    //bool hasBit428 = false;
-
-
-
-    //if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() ==  CLASS_DEATH_KNIGHT)
-    //    runeCooldownCount = 6;
-
-    //data.WriteBits(runeCooldownCount, 3);
-    //data.WriteBit(!hasRuneStateBefore);
-
-    //if (castFlags & CAST_FLAG_ADJUST_MISSILE)
-    //    data << float(m_targets.GetElevation());
-
-    //if (hasRuneStateAfter)
-    //    data << uint8(m_caster->ToPlayer()->GetRunesState());
-
-    //if (hasRuneStateBefore)
-    //    data << uint8(m_runesState);
-
-    //data << uint32(getMSTime());                            // timestamp
-
-    //if (hasBit380)
-    //{
-    //    data << uint32(0);
-    //    data << uint32(0);
-    //}
-
-    //data << uint32(m_spellInfo->Id);                        // spellId
-
-    //if (hasBit91)
-    //    data << uint32(0);
-
-
-    //if (hasBit106)
-    //    data << uint32(0);
-
-    //for (uint32 i = 0; i < powerCount; i++)
-    //{
-    //    data << uint32(m_caster->GetPower((Powers)m_spellPowerData->powerType));
-    //    data << uint8(m_spellPowerData->powerType); //Power
-    //}
-
-    //if (runeCooldownCount)
-    //{
-    //    if (Player* player = m_caster->ToPlayer())
-    //    {
-    //        for (uint8 i = 0; i < MAX_RUNES; ++i)
-    //        {
-    //            float baseCd = float(player->GetRuneBaseCooldown(i));
-    //            data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-    //        }
-    //    }
-    //    else
-    //    {
-    //        for (uint8 i = 0; i < MAX_RUNES; ++i)
-    //            data << uint8(0);
-    //    }
-    //}
-
-    //if (hasBit368)
-    //    data << uint8(0);
-
-    //if (hasDelayMoment)
-    //    data << uint32(m_delayMoment);
-
-    //if (hasBit384)
-    //    data << uint8(0);
-    //if (hasBit101)
-    //    data << uint32(0);
-
     m_caster->SendMessageToSet(&data, true);
-}
-
-/// Writes miss and hit targets for a SMSG_SPELL_GO packet
-void Spell::WriteSpellGoTargets(WorldPacket* data)
-{
-    // This function also fill data for channeled spells:
-    // m_needAliveTargetMask req for stop channeling if one target die
-    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-    {
-        if ((*ihit).effectMask == 0)                  // No effect apply - all immune add state
-
-            // possibly SPELL_MISS_IMMUNE2 for this??
-            ihit->missCondition = SPELL_MISS_IMMUNE2;
-    }
-
-    // Hit and miss target counts are both uint8, that limits us to 255 targets for each
-    // sending more than 255 targets crashes the client (since count sent would be wrong)
-    // Spells like 40647 (with a huge radius) can easily reach this limit (spell might need
-    // target conditions but we still need to limit the number of targets sent and keeping
-    // correct count for both hit and miss).
-
-    uint32 hit = 0;
-    size_t hitPos = data->wpos();
-    *data << (uint8)0; // placeholder
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit <= 255; ++ihit)
-
-    {
-        if ((*ihit).missCondition == SPELL_MISS_NONE)       // Add only hits
-        {
-            *data << uint64(ihit->targetGUID);
-            m_channelTargetEffectMask |=ihit->effectMask;
-            ++hit;
-        }
-    }
-
-    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit <= 255; ++ighit)
-    {
-        *data << uint64(ighit->targetGUID);                 // Always hits
-        ++hit;
-    }
-
-    uint32 miss = 0;
-    size_t missPos = data->wpos();
-    *data << (uint8)0; // placeholder
-    for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && miss <= 255; ++ihit)
-    {
-        if (ihit->missCondition != SPELL_MISS_NONE)        // Add only miss
-        {
-            *data << uint64(ihit->targetGUID);
-            *data << uint8(ihit->missCondition);
-            if (ihit->missCondition == SPELL_MISS_REFLECT)
-                *data << uint8(ihit->reflectResult);
-            ++miss;
-        }
-    }
-    // Reset m_needAliveTargetMask for non channeled spell
-    if (!m_spellInfo->IsChanneled())
-        m_channelTargetEffectMask = 0;
-
-    data->put<uint8>(hitPos, (uint8)hit);
-    data->put<uint8>(missPos, (uint8)miss);
 }
 
 void Spell::SendLogExecute()
@@ -5453,7 +5248,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
 {
     if (p_Time == 0)
     {
-        //m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
+        //m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
@@ -5508,7 +5303,7 @@ void Spell::SendChannelStart(uint32 p_Duration)
     m_timer = p_Duration;
 
     if (l_ChannelTarget)
-        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, l_ChannelTarget);
+        m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, l_ChannelTarget);
 
     /// 101546 Spinning Crane Kick
     if (m_spellInfo->Id != 101546)
@@ -5835,16 +5630,6 @@ void Spell::TakeRunePower(bool didHit)
 
         switch (m_spellInfo->Id)
         {
-            case 45477: // Icy Touch
-            case 45902: // Blood Strike
-            case 48721: // Blood Boil
-            case 50842: // Pestilence
-            case 85948: // Festering Strike
-            {
-                // Reaping
-                player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                break;
-            }
             case 49998: // Death Strike
             {
                 // Blood Rites
@@ -5890,16 +5675,6 @@ void Spell::TakeRunePower(bool didHit)
 
                 switch (m_spellInfo->Id)
                 {
-                    case 45477: // Icy Touch
-                    case 45902: // Blood Strike
-                    case 48721: // Blood Boil
-                    case 50842: // Pestilence
-                    case 85948: // Festering Strike
-                    {
-                        // Reaping
-                        player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                        break;
-                    }
                     case 49998: // Death Strike
                     {
                         // Blood Rites
@@ -8616,6 +8391,51 @@ void Spell::CallScriptAfterCastHandlers()
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
+
+bool Spell::CallScriptCheckInterruptHandlers()
+{
+    uint32 l_ScriptExecuteTime = getMSTime();
+    bool l_CanInterrupt = true;
+
+    for (std::list<SpellScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
+    {
+        (*l_Scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CHECK_INTERRUPT);
+        std::list<SpellScript::CheckInterruptHandler>::iterator l_HookItrEnd = (*l_Scritr)->OnCheckInterrupt.end(), l_HookItr = (*l_Scritr)->OnCheckInterrupt.begin();
+        for (; l_HookItr != l_HookItrEnd; ++l_HookItr)
+        {
+            bool l_TempResult = (*l_HookItr).Call(*l_Scritr);
+            if (l_TempResult == false)
+                l_CanInterrupt = l_TempResult;
+        }
+
+        (*l_Scritr)->_FinishScriptCall();
+    }
+
+    l_ScriptExecuteTime = getMSTime() - l_ScriptExecuteTime;
+    if (l_ScriptExecuteTime > 10)
+        sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, l_ScriptExecuteTime);
+    return l_CanInterrupt;
+}
+
+void Spell::CallScriptOnPrepareHandlers()
+{
+    uint32 scriptExecuteTime = getMSTime();
+
+    for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_PREPARE);
+
+        std::list<SpellScript::OnPrepareHandler>::iterator hookItrEnd = (*scritr)->OnPrepare.end(), hookItr = (*scritr)->OnPrepare.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    if (scriptExecuteTime > 10)
+        sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
+}
+
 
 SpellCastResult Spell::CallScriptCheckCastHandlers()
 {

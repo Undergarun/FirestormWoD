@@ -1026,9 +1026,9 @@ class npc_muradin_gunship : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch (eventId)
+                    /*switch (eventId)
                     {
-                        /*case EVENT_SEND_UPDATE:
+                        case EVENT_SEND_UPDATE:
                             // Code below need for ship vision problem
                             // When that problem reveal itself u need add some helpers to check whether the ship is flying
                             // So, is ship is flying u don't need use that code
@@ -1179,8 +1179,8 @@ class npc_muradin_gunship : public CreatureScript
                                 skybreaker->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER_RIFLEMAN, -33.0876f, -22.9462f, 21.659f, 4.72416f);
                                 skybreaker->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER_RIFLEMAN, 0.15231f, -22.9462f, 21.659f, 4.72416f);
                             }
-                            break;*/
-                      }
+                            break;
+                      }*/
                 }
 
                 if (me->getVictim() && !me->GetCurrentSpell(CURRENT_MELEE_SPELL))

@@ -1826,7 +1826,7 @@ class Player : public Unit, public GridObject<Player>
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
-        uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
+        uint64 GetMoney() const { return GetGuidValue(PLAYER_FIELD_COINAGE); }
         void ModifyMoney(int64 d);
         bool HasEnoughMoney(uint64 amount) const { return GetMoney() >= amount; }
         bool HasEnoughMoney(int64 amount) const
@@ -1855,7 +1855,7 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetSelection() const { return m_curSelection; }
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
-        void SetSelection(uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }

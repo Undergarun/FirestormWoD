@@ -79,7 +79,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
-    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetGuidValue(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
 
@@ -119,8 +119,8 @@ void AreaTrigger::Update(uint32 p_time)
         return;
     }
 
-    Unit* caster = GetCaster();
-    float radius = 0.0f;
+    Unit* l_Caster = GetCaster();
+    float l_Radius = 0.0f;
 
     // Custom MoP Script
     switch (m_spellInfo->Id)
@@ -128,11 +128,11 @@ void AreaTrigger::Update(uint32 p_time)
         case 13810: // Ice Trap
         {
             std::list<Unit*> targetList;
-            radius = 10.0f;
+            l_Radius = 10.0f;
 
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             for (auto itr : targetList)
                 itr->CastSpell(itr, 135299, true);
@@ -142,11 +142,11 @@ void AreaTrigger::Update(uint32 p_time)
         case 62618: // Power Word: Barrier
         {
             std::list<Unit*> targetList;
-            radius = 6.0f;
+            l_Radius = 6.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             for (auto itr : targetList)
                 itr->CastSpell(itr, 81782, true);
@@ -156,33 +156,33 @@ void AreaTrigger::Update(uint32 p_time)
         case 102793:// Ursol's Vortex
         {
             std::list<Unit*> targetList;
-            radius = 8.0f;
+            l_Radius = 8.0f;
 
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
                 for (auto itr : targetList)
                     if (!itr->HasAura(127797))
-                        caster->CastSpell(itr, 127797, true);
+                        l_Caster->CastSpell(itr, 127797, true);
 
             break;
         }
         case 115460:// Healing Sphere
         {
             std::list<Unit*> targetList;
-            radius = 1.0f;
+            l_Radius = 1.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
                 for (auto itr : targetList)
                 {
-                    caster->CastSpell(itr, 115464, true); // Healing Sphere heal
+                    l_Caster->CastSpell(itr, 115464, true); // Healing Sphere heal
                     SetDuration(0);
                     return;
                 }
@@ -193,11 +193,11 @@ void AreaTrigger::Update(uint32 p_time)
         case 115817:// Cancel Barrier
         {
             std::list<Unit*> targetList;
-            radius = 6.0f;
+            l_Radius = 6.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
                 for (auto itr : targetList)
@@ -208,17 +208,17 @@ void AreaTrigger::Update(uint32 p_time)
         case 116011:// Rune of Power
         {
             std::list<Unit*> targetList;
-            radius = 5.0f;
+            l_Radius = 5.0f;
 
-            if (caster->IsWithinDistInMap(this, 5.0f))
+            if (l_Caster->IsWithinDistInMap(this, 5.0f))
             {
-                if (!caster->HasAura(116014))
-                    caster->CastSpell(caster, 116014, true);
-                else if (AuraPtr runeOfPower = caster->GetAura(116014))
+                if (!l_Caster->HasAura(116014))
+                    l_Caster->CastSpell(l_Caster, 116014, true);
+                else if (AuraPtr runeOfPower = l_Caster->GetAura(116014))
                     runeOfPower->RefreshDuration();
 
-                if (caster->ToPlayer())
-                    caster->ToPlayer()->UpdateManaRegen();
+                if (l_Caster->ToPlayer())
+                    l_Caster->ToPlayer()->UpdateManaRegen();
             }
 
             break;
@@ -226,11 +226,11 @@ void AreaTrigger::Update(uint32 p_time)
         case 116235:// Amethyst Pool
         {
             std::list<Unit*> targetList;
-            radius = 5.0f;
+            l_Radius = 5.0f;
 
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
@@ -240,7 +240,7 @@ void AreaTrigger::Update(uint32 p_time)
                     if (itr->GetDistance(this) > 3.5f && itr->HasAura(130774))
                         itr->RemoveAura(130774);
                     else if (itr->GetDistance(this) <= 3.5f && !itr->HasAura(130774))
-                        caster->CastSpell(itr, 130774, true);
+                        l_Caster->CastSpell(itr, 130774, true);
                 }
             }
             break;
@@ -248,11 +248,11 @@ void AreaTrigger::Update(uint32 p_time)
         case 122731:// Create Cancelling Noise Area trigger
         {
             std::list<Unit*> targetList;
-            radius = 10.0f;
+            l_Radius = 10.0f;
 
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
@@ -262,7 +262,7 @@ void AreaTrigger::Update(uint32 p_time)
                     if (itr->GetDistance(this) > 2.0f && itr->HasAura(122706))
                         itr->RemoveAura(122706);
                     else if (itr->GetDistance(this) <= 2.0f && !itr->HasAura(122706))
-                        caster->AddAura(122706, itr);
+                        l_Caster->AddAura(122706, itr);
                 }
             }
             break;
@@ -277,7 +277,7 @@ void AreaTrigger::Update(uint32 p_time)
 
             for (auto player : playerList)
             {
-                if (player->IsWithinDist(caster, 40.0f, false))
+                if (player->IsWithinDist(l_Caster, 40.0f, false))
                 {
                     if (player->isAlive() && !player->hasForcedMovement)
                         player->SendApplyMovementForce(true, pos, -3.0f);
@@ -293,18 +293,18 @@ void AreaTrigger::Update(uint32 p_time)
         case 116546:// Draw Power
         {
             std::list<Unit*> targetList;
-            radius = 30.0f;
+            l_Radius = 30.0f;
 
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             for (auto itr : targetList)
             {
-                if (itr->IsInAxe(caster, this, 2.0f))
+                if (itr->IsInAxe(l_Caster, this, 2.0f))
                 {
                     if (!itr->HasAura(116663))
-                        caster->AddAura(116663, itr);
+                        l_Caster->AddAura(116663, itr);
                 }
                 else
                     itr->RemoveAurasDueToSpell(116663);
@@ -315,19 +315,19 @@ void AreaTrigger::Update(uint32 p_time)
         case 117032:// Healing Sphere (Afterlife)
         {
             std::list<Unit*> targetList;
-            radius = 1.0f;
+            l_Radius = 1.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
                 for (auto itr : targetList)
                 {
-                    if (itr->GetGUID() == caster->GetGUID())
+                    if (itr->GetGUID() == l_Caster->GetGUID())
                     {
-                        caster->CastSpell(itr, 125355, true); // Heal for 15% of life
+                        l_Caster->CastSpell(itr, 125355, true); // Heal for 15% of life
                         SetDuration(0);
                         return;
                     }
@@ -339,17 +339,17 @@ void AreaTrigger::Update(uint32 p_time)
         case 119031:// Gift of the Serpent (Mastery)
         {
             std::list<Unit*> targetList;
-            radius = 1.0f;
+            l_Radius = 1.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
                 for (auto itr : targetList)
                 {
-                    caster->CastSpell(itr, 124041, true); // Gift of the Serpent heal
+                    l_Caster->CastSpell(itr, 124041, true); // Gift of the Serpent heal
                     SetDuration(0);
                     return;
                 }
@@ -360,19 +360,19 @@ void AreaTrigger::Update(uint32 p_time)
         case 121286:// Chi Sphere (Afterlife)
         {
             std::list<Unit*> targetList;
-            radius = 1.0f;
+            l_Radius = 1.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
                 for (auto itr : targetList)
                 {
-                    if (itr->GetGUID() == caster->GetGUID())
+                    if (itr->GetGUID() == l_Caster->GetGUID())
                     {
-                        caster->CastSpell(itr, 121283, true); // Restore 1 Chi
+                        l_Caster->CastSpell(itr, 121283, true); // Restore 1 Chi
                         SetDuration(0);
                         return;
                     }
@@ -384,17 +384,17 @@ void AreaTrigger::Update(uint32 p_time)
         case 121536:// Angelic Feather
         {
             std::list<Unit*> targetList;
-            radius = 1.0f;
+            l_Radius = 1.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             if (!targetList.empty())
             {
                 for (auto itr : targetList)
                 {
-                    caster->CastSpell(itr, 121557, true); // Angelic Feather increase speed
+                    l_Caster->CastSpell(itr, 121557, true); // Angelic Feather increase speed
                     SetDuration(0);
                     return;
                 }
@@ -406,18 +406,18 @@ void AreaTrigger::Update(uint32 p_time)
         case 124506:// Gift of the Ox²
         {
             std::list<Unit*> targetList;
-            radius = 1.0f;
+            l_Radius = 1.0f;
 
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, caster, radius);
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(radius, searcher);
+            VisitNearbyObject(l_Radius, searcher);
 
             for (auto itr : targetList)
             {
-                if (itr->GetGUID() != caster->GetGUID())
+                if (itr->GetGUID() != l_Caster->GetGUID())
                     continue;
 
-                caster->CastSpell(itr, 124507, true); // Gift of the Ox - Heal
+                l_Caster->CastSpell(itr, 124507, true); // Gift of the Ox - Heal
                 SetDuration(0);
                 return;
             }
@@ -434,7 +434,7 @@ void AreaTrigger::Update(uint32 p_time)
 
             for (auto player : playerList)
             {
-                if (player->IsWithinDist(caster, 50.0f, false))
+                if (player->IsWithinDist(l_Caster, 50.0f, false))
                 {
                     if (player->isAlive() && !player->hasForcedMovement)
                         player->SendApplyMovementForce(true, pos, -12.0f);
@@ -443,6 +443,23 @@ void AreaTrigger::Update(uint32 p_time)
                 }
                 else if (player->hasForcedMovement)
                     player->SendApplyMovementForce(false, pos);
+            }
+
+            break;
+        }
+        case 161210:// Vileblood Serum
+        {
+            std::list<Unit*> l_TargetList;
+            l_Radius = 2.0f;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_TargetList, l_Check);
+            VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetDistance(this) <= l_Radius)
+                    l_Unit->CastSpell(l_Unit, 161288, true);
             }
 
             break;

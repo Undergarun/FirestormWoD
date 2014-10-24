@@ -71,7 +71,7 @@ enum Roles
 enum SpecIndex
 {
     SPEC_NONE                   = 0,
-    SPEC_PET                    = 1,    // not found in dbc 18671
+    SPEC_PET                    = 1,    // not in dbc
     SPEC_MAGE_ARCANE            = 62,
     SPEC_MAGE_FIRE              = 63,
     SPEC_MAGE_FROST             = 64,
@@ -220,43 +220,53 @@ inline uint8 GetClassBySpec(uint32 spec)
         case SPEC_MAGE_FIRE:
         case SPEC_MAGE_FROST:
             return CLASS_MAGE;
+
         case SPEC_PALADIN_HOLY:
         case SPEC_PALADIN_PROTECTION:
         case SPEC_PALADIN_RETRIBUTION:
             return CLASS_PALADIN;
+
         case SPEC_WARRIOR_ARMS:
         case SPEC_WARRIOR_FURY:
         case SPEC_WARRIOR_PROTECTION:
             return CLASS_WARRIOR;
+
         case SPEC_DROOD_BALANCE:
         case SPEC_DROOD_CAT:
         case SPEC_DROOD_BEAR:
         case SPEC_DROOD_RESTORATION:
             return CLASS_DRUID;
+
         case SPEC_DK_BLOOD:
         case SPEC_DK_FROST:
         case SPEC_DK_UNHOLY:
             return CLASS_DEATH_KNIGHT;
+
         case SPEC_HUNTER_BEASTMASTER:
         case SPEC_HUNTER_MARKSMAN:
         case SPEC_HUNTER_SURVIVAL:
             return CLASS_HUNTER;
+
         case SPEC_PRIEST_DISCIPLINE:
         case SPEC_PRIEST_HOLY:
         case SPEC_PRIEST_SHADOW:
             return CLASS_PRIEST;
+
         case SPEC_ROGUE_ASSASSINATION:
         case SPEC_ROGUE_COMBAT:
         case SPEC_ROGUE_SUBTLETY:
             return CLASS_ROGUE;
+
         case SPEC_SHAMAN_ELEMENTAL:
         case SPEC_SHAMAN_ENHANCEMENT:
         case SPEC_SHAMAN_RESTORATION:
             return CLASS_SHAMAN;
+
         case SPEC_WARLOCK_AFFLICTION:
         case SPEC_WARLOCK_DEMONOLOGY:
         case SPEC_WARLOCK_DESTRUCTION:
             return CLASS_WARLOCK;
+
         case SPEC_MONK_BREWMASTER:
         case SPEC_MONK_WINDWALKER:
         case SPEC_MONK_MISTWEAVER:
@@ -1066,7 +1076,7 @@ enum SpellEffects
     SPELL_EFFECT_INSTAKILL                          = 1,
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
-    SPELL_EFFECT_PORTAL_TELEPORT                    = 4, // Unused (5.0.5)
+    SPELL_EFFECT_PORTAL_TELEPORT                    = 4, // Unused 6.0.3
     SPELL_EFFECT_TELEPORT_UNITS                     = 5,
     SPELL_EFFECT_APPLY_AURA                         = 6,
     SPELL_EFFECT_ENVIRONMENTAL_DAMAGE               = 7,
@@ -1075,9 +1085,9 @@ enum SpellEffects
     SPELL_EFFECT_HEAL                               = 10,
     SPELL_EFFECT_BIND                               = 11,
     SPELL_EFFECT_PORTAL                             = 12,
-    SPELL_EFFECT_RITUAL_BASE                        = 13, // Unused (5.0.5)
-    SPELL_EFFECT_RITUAL_SPECIALIZE                  = 14, // Unused (5.0.5)
-    SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL             = 15, // Unused (5.0.5)
+    SPELL_EFFECT_RITUAL_BASE                        = 13, // Unused 6.0.3
+    SPELL_EFFECT_RITUAL_SPECIALIZE                  = 14, // Unused 6.0.3
+    SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL             = 15, // Unused 6.0.3
     SPELL_EFFECT_QUEST_COMPLETE                     = 16,
     SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL             = 17,
     SPELL_EFFECT_RESURRECT                          = 18,
@@ -1113,8 +1123,8 @@ enum SpellEffects
     SPELL_EFFECT_STEALTH                            = 48,
     SPELL_EFFECT_DETECT                             = 49,
     SPELL_EFFECT_TRANS_DOOR                         = 50,
-    SPELL_EFFECT_FORCE_CRITICAL_HIT                 = 51, // Unused (5.0.5)
-    SPELL_EFFECT_GUARANTEE_HIT                      = 52, // Unused (5.0.5)
+    SPELL_EFFECT_FORCE_CRITICAL_HIT                 = 51, // Unused 6.0.3
+    SPELL_EFFECT_GUARANTEE_HIT                      = 52, // Unused 6.0.3
     SPELL_EFFECT_ENCHANT_ITEM                       = 53,
     SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY             = 54,
     SPELL_EFFECT_TAMECREATURE                       = 55,
@@ -1184,7 +1194,7 @@ enum SpellEffects
     SPELL_EFFECT_APPLY_AREA_AURA_PET                = 119,
     SPELL_EFFECT_TELEPORT_GRAVEYARD                 = 120,
     SPELL_EFFECT_NORMALIZED_WEAPON_DMG              = 121,
-    SPELL_EFFECT_122                                = 122, // Unused (5.0.5)
+    SPELL_EFFECT_122                                = 122, // Unused 6.0.3
     SPELL_EFFECT_SEND_TAXI                          = 123,
     SPELL_EFFECT_PULL_TOWARDS                       = 124,
     SPELL_EFFECT_MODIFY_THREAT_PERCENT              = 125,
@@ -1225,7 +1235,7 @@ enum SpellEffects
     SPELL_EFFECT_160                                = 160, // forcecast trigger spell ?
     SPELL_EFFECT_TALENT_SPEC_COUNT                  = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT                 = 162,
-    SPELL_EFFECT_163                                = 163, // Unused (5.0.5)
+    SPELL_EFFECT_163                                = 163, // Unused 6.0.3
     SPELL_EFFECT_REMOVE_AURA                        = 164,
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
@@ -1240,12 +1250,12 @@ enum SpellEffects
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,
-    SPELL_EFFECT_178                                = 178, // Unused (5.0.5)
+    SPELL_EFFECT_178                                = 178, // 177249 Abandon Scenario Quest
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // "Update Area Triggers" 106584 & 1333355
     SPELL_EFFECT_UNLEARN_TALENT                     = 181,
     SPELL_EFFECT_182                                = 182, // despawwn areatrigger
-    SPELL_EFFECT_183                                = 183, // Unused (5.0.5)
+    SPELL_EFFECT_183                                = 183, // Unused 6.0.3
     SPELL_EFFECT_REPUTATION_REWARD                  = 184, // add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
     SPELL_EFFECT_PLAY_SCENEOBJECT                   = 185,
     SPELL_EFFECT_PLAY_SCENEOBJECT_2                 = 186,
@@ -1255,11 +1265,11 @@ enum SpellEffects
     SPELL_EFFECT_190                                = 190, // internal spell
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
     SPELL_EFFECT_UNCAGE_BATTLE_PET                  = 192, // Battle pet exchange (123302)
-    SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
-    SPELL_EFFECT_194                                = 194, // Unused (5.0.5)
+    SPELL_EFFECT_193                                = 193, // 157417 Launch NPC Pet Battle
+    SPELL_EFFECT_194                                = 194, // Unused 6.0.3
     SPELL_EFFECT_195                                = 195, // Scene related
     SPELL_EFFECT_196                                = 196, // summon multi NPC
-    SPELL_EFFECT_197                                = 197, // 130243 only
+    SPELL_EFFECT_197                                = 197, // Scene related
     SPELL_EFFECT_PLAY_CINEMATIC                     = 198,
     SPELL_EFFECT_199                                = 199, //
     SPELL_EFFECT_RESURECT_BATTLE_PETS               = 200, // Battle pet Healing  125439, 125801
@@ -1267,24 +1277,24 @@ enum SpellEffects
     SPELL_EFFECT_202                                = 202, // Unk 5.4.0
     SPELL_EFFECT_203                                = 203, // Unk 5.4.0
     SPELL_EFFECT_UPGRADE_BATTLEPET                  = 204, // BATTLEPET System 5.4.0
-    SPELL_EFFECT_PVE_PVP_CHOICE                     = 205, // Unk use 5.4.0
+    SPELL_EFFECT_PVE_PVP_CHOICE                     = 205, // Garrison related 6.0.3
     SPELL_EFFECT_ETERNITY_EMBRACE                   = 206, // used for TimelessIsle 5.4.0
-    SPELL_EFFECT_207                                = 207, // Unused 5.4.0
+    SPELL_EFFECT_207                                = 207, // Quest Garrison related (value = questid)
     SPELL_EFFECT_TEST_REPUTATION                    = 208, // Unk 5.4.0
-    SPELL_EFFECT_209                                = 209, // Unk 5.4.0
-    SPELL_EFFECT_LEARN_BLUE_PRINT                   = 210,
+    SPELL_EFFECT_209                                = 209, // test spell
+    SPELL_EFFECT_LEARN_BLUE_PRINT                   = 210, //
     SPELL_EFFECT_211                                = 211, // Garrison learn (specialization)
-    SPELL_EFFECT_212                                = 212, // Unk 5.4.0
-    SPELL_EFFECT_DEATH_GRIP                         = 213,
-    SPELL_EFFECT_214                                = 214, // Unk 6.0.1
+    SPELL_EFFECT_212                                = 212, // Unused 6.0.3
+    SPELL_EFFECT_DEATH_GRIP                         = 213, //
+    SPELL_EFFECT_214                                = 214, // Create Garrison
     SPELL_EFFECT_215                                = 215, // Unk 6.0.1
     SPELL_EFFECT_216                                = 216, // Unk 6.0.1
-    SPELL_EFFECT_217                                = 217, // Unk 6.0.1
+    SPELL_EFFECT_217                                = 217, // Upgrade Garrison (171905)
     SPELL_EFFECT_218                                = 218, // Unk 6.0.1
     SPELL_EFFECT_219                                = 219, // Unk 6.0.1
     SPELL_EFFECT_220                                = 220, // Unk 6.0.1
     SPELL_EFFECT_221                                = 221, // Unk 6.0.1
-    SPELL_EFFECT_222                                = 222, // Unk 6.0.1
+    SPELL_EFFECT_222                                = 222, // Create Heirloom
     SPELL_EFFECT_223                                = 223, // Unk 6.0.1
     SPELL_EFFECT_GARRISON_FINALIZE_BUILDING         = 224, // Finalize building construction
     SPELL_EFFECT_225                                = 225, // Battle-Training Stone
@@ -1296,19 +1306,19 @@ enum SpellEffects
     SPELL_EFFECT_231                                = 231, // level up an follower (debug PTR spell)
     SPELL_EFFECT_232                                = 232, // Phase related
     SPELL_EFFECT_233                                = 233, // Retrain Follower (Reroll the abilities and traits on a follower.)
-    SPELL_EFFECT_234                                = 234, // Unk 6.0.1
-    SPELL_EFFECT_235                                = 235, // Unk 6.0.1
-    SPELL_EFFECT_236                                = 236, // Burst of Experience (multiplicator ?)
+    SPELL_EFFECT_234                                = 234, // Unused 6.0.3
+    SPELL_EFFECT_235                                = 235, // Unused 6.0.3
+    SPELL_EFFECT_236                                = 236, // Burst of Experience (follower)
     SPELL_EFFECT_237                                = 237, // Unk 6.0.1
     SPELL_EFFECT_238                                = 238, // Garrison restore item (give X in skill)
     SPELL_EFFECT_239                                = 239, // Garrison skip contruction
-    SPELL_EFFECT_240                                = 240, // Unk 6.0.1
-    SPELL_EFFECT_241                                = 241, // Unk 6.0.1
-    SPELL_EFFECT_242                                = 242, // Unk 6.0.1
+    SPELL_EFFECT_240                                = 240, // Unused 6.0.3
+    SPELL_EFFECT_241                                = 241, // Unused 6.0.3
+    SPELL_EFFECT_242                                = 242, // Unused 6.0.3
     SPELL_EFFECT_243                                = 243, // Illusion spells (visual enchant)
-    SPELL_EFFECT_244                                = 244, // Unk 6.0.1
-    SPELL_EFFECT_245                                = 245, // Unk 6.0.1
-    SPELL_EFFECT_246                                = 246, // Unk 6.0.1
+    SPELL_EFFECT_TEACH_FOLLOWER_ABILITY             = 244, // learn an follower ability NYI
+    SPELL_EFFECT_245                                = 245, // Unused 6.0.3
+    SPELL_EFFECT_246                                = 246, // Unused 6.0.3
     TOTAL_SPELL_EFFECTS                             = 247
 };
 
@@ -2061,7 +2071,8 @@ enum SpellMissInfo
     SPELL_MISS_IMMUNE2                 = 8, // one of these 2 is MISS_TEMPIMMUNE
     SPELL_MISS_DEFLECT                 = 9,
     SPELL_MISS_ABSORB                  = 10,
-    SPELL_MISS_REFLECT                 = 11
+    SPELL_MISS_REFLECT                 = 11,
+    SPELL_MISS_MISFIRED                = 12 // Added in 4.3.4, we don't know when we must use it instead of SPELL_MISS_MISS
 };
 
 /// @TODO CGLCD::DisplayRangedStats (internal client)
@@ -2109,10 +2120,10 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_AREADAMAGE             = 12,
     GAMEOBJECT_TYPE_CAMERA                 = 13,
     GAMEOBJECT_TYPE_MAP_OBJECT             = 14,
-   GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT           = 15,
+    GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT      = 15,
     GAMEOBJECT_TYPE_DUEL_ARBITER           = 16,
     GAMEOBJECT_TYPE_FISHINGNODE            = 17,
-    GAMEOBJECT_TYPE_RITUAL       = 18,
+    GAMEOBJECT_TYPE_RITUAL                 = 18,
     GAMEOBJECT_TYPE_MAILBOX                = 19,
     GAMEOBJECT_TYPE_DO_NOT_USE             = 20,
     GAMEOBJECT_TYPE_GUARDPOST              = 21,
@@ -3803,66 +3814,66 @@ enum QuestTypes
 // values based at QuestSort.dbc
 enum QuestSort
 {
-    QUEST_SORT_EPIC                = 1,
-    QUEST_SORT_HALLOWS_END         = 21,
-    QUEST_SORT_SEASONAL            = 22,
-    QUEST_SORT_CATACLYSM           = 23,
-    QUEST_SORT_HERBALISM           = 24,
-    QUEST_SORT_BATTLEGROUNDS       = 25,
-    QUEST_SORT_DAY_OF_THE_DEAD     = 41,
-    QUEST_SORT_WARLOCK             = 61,
-    QUEST_SORT_WARRIOR             = 81,
-    QUEST_SORT_SHAMAN              = 82,
-    QUEST_SORT_FISHING             = 101,
-    QUEST_SORT_BLACKSMITHING       = 121,
-    QUEST_SORT_PALADIN             = 141,
-    QUEST_SORT_MAGE                = 161,
-    QUEST_SORT_ROGUE               = 162,
-    QUEST_SORT_ALCHEMY             = 181,
-    QUEST_SORT_LEATHERWORKING      = 182,
-    QUEST_SORT_ENGINEERING         = 201,
-    QUEST_SORT_TREASURE_MAP        = 221,
-    QUEST_SORT_TOURNAMENT          = 241,
-    QUEST_SORT_HUNTER              = 261,
-    QUEST_SORT_PRIEST              = 262,
-    QUEST_SORT_DRUID               = 263,
-    QUEST_SORT_TAILORING           = 264,
-    QUEST_SORT_SPECIAL             = 284,
-    QUEST_SORT_COOKING             = 304,
-    QUEST_SORT_FIRST_AID           = 324,
-    QUEST_SORT_LEGENDARY           = 344,
-    QUEST_SORT_DARKMOON_FAIRE      = 364,
-    QUEST_SORT_AHN_QIRAJ_WAR       = 365,
-    QUEST_SORT_LUNAR_FESTIVAL      = 366,
-    QUEST_SORT_REPUTATION          = 367,
-    QUEST_SORT_INVASION            = 368,
-    QUEST_SORT_MIDSUMMER           = 369,
-    QUEST_SORT_BREWFEST            = 370,
-    QUEST_SORT_INSCRIPTION         = 371,
-    QUEST_SORT_DEATH_KNIGHT        = 372,
-    QUEST_SORT_JEWELCRAFTING       = 373,
-    QUEST_SORT_NOBLEGARDEN         = 374,
-    QUEST_SORT_PILGRIMS_BOUNTY     = 375,
-    QUEST_SORT_LOVE_IS_IN_THE_AIR  = 376,
-    QUEST_SORT_ARCHAEOLOGY         = 377,
-    QUEST_SORT_CHILDRENS_WEEK      = 378,
-    QUEST_SORT_FIRELANDS_INVASION  = 379,
-    QUEST_SORT_ZANDALARI           = 380,
-    QUEST_SORT_ELEMENTAL_BONDS     = 381,
-    QUEST_SORT_BREWMASTER_PANDAREN = 391,       // 5.0.5
-    QUEST_SORT_SCENARIO            = 392,       // 5.0.5
-    QUEST_SORT_BATTLE_PET          = 394,       // 5.0.5
-    QUEST_SORT_MONK                = 395,       // 5.0.5
-    QUEST_SORT_LANDFALL            = 396,       // 5.1.0
-    QUEST_SORT_PANDAREN_CAMPAIGN   = 397,       // 5.1.0
-    QUEST_SORT_RIDING              = 398,       // 5.1.0
-    QUEST_SORT_BRAWLERS_GUILD      = 399,       // 5.1.0
-    QUEST_SORT_PROVING_GROUNDS     = 400,
-    QUEST_SORT_GARRISON_CAMPAIGN   = 401,       // 6.0.1
+    QUEST_SORT_EPIC                   = 1,
+    QUEST_SORT_HALLOWS_END            = 21,
+    QUEST_SORT_SEASONAL               = 22,
+    QUEST_SORT_CATACLYSM              = 23,
+    QUEST_SORT_HERBALISM              = 24,
+    QUEST_SORT_BATTLEGROUNDS          = 25,
+    QUEST_SORT_DAY_OF_THE_DEAD        = 41,
+    QUEST_SORT_WARLOCK                = 61,
+    QUEST_SORT_WARRIOR                = 81,
+    QUEST_SORT_SHAMAN                 = 82,
+    QUEST_SORT_FISHING                = 101,
+    QUEST_SORT_BLACKSMITHING          = 121,
+    QUEST_SORT_PALADIN                = 141,
+    QUEST_SORT_MAGE                   = 161,
+    QUEST_SORT_ROGUE                  = 162,
+    QUEST_SORT_ALCHEMY                = 181,
+    QUEST_SORT_LEATHERWORKING         = 182,
+    QUEST_SORT_ENGINEERING            = 201,
+    QUEST_SORT_TREASURE_MAP           = 221,
+    QUEST_SORT_TOURNAMENT             = 241,
+    QUEST_SORT_HUNTER                 = 261,
+    QUEST_SORT_PRIEST                 = 262,
+    QUEST_SORT_DRUID                  = 263,
+    QUEST_SORT_TAILORING              = 264,
+    QUEST_SORT_SPECIAL                = 284,
+    QUEST_SORT_COOKING                = 304,
+    QUEST_SORT_FIRST_AID              = 324,
+    QUEST_SORT_LEGENDARY              = 344,
+    QUEST_SORT_DARKMOON_FAIRE         = 364,
+    QUEST_SORT_AHN_QIRAJ_WAR          = 365,
+    QUEST_SORT_LUNAR_FESTIVAL         = 366,
+    QUEST_SORT_REPUTATION             = 367,
+    QUEST_SORT_INVASION               = 368,
+    QUEST_SORT_MIDSUMMER              = 369,
+    QUEST_SORT_BREWFEST               = 370,
+    QUEST_SORT_INSCRIPTION            = 371,
+    QUEST_SORT_DEATH_KNIGHT           = 372,
+    QUEST_SORT_JEWELCRAFTING          = 373,
+    QUEST_SORT_NOBLEGARDEN            = 374,
+    QUEST_SORT_PILGRIMS_BOUNTY        = 375,
+    QUEST_SORT_LOVE_IS_IN_THE_AIR     = 376,
+    QUEST_SORT_ARCHAEOLOGY            = 377,
+    QUEST_SORT_CHILDRENS_WEEK         = 378,
+    QUEST_SORT_FIRELANDS_INVASION     = 379,
+    QUEST_SORT_ZANDALARI              = 380,
+    QUEST_SORT_ELEMENTAL_BONDS        = 381,
+    QUEST_SORT_BREWMASTER_PANDAREN    = 391,       // 5.0.5
+    QUEST_SORT_SCENARIO               = 392,       // 5.0.5
+    QUEST_SORT_BATTLE_PET             = 394,       // 5.0.5
+    QUEST_SORT_MONK                   = 395,       // 5.0.5
+    QUEST_SORT_LANDFALL               = 396,       // 5.1.0
+    QUEST_SORT_PANDAREN_CAMPAIGN      = 397,       // 5.1.0
+    QUEST_SORT_RIDING                 = 398,       // 5.1.0
+    QUEST_SORT_BRAWLERS_GUILD         = 399,       // 5.1.0
+    QUEST_SORT_PROVING_GROUNDS        = 400,
+    QUEST_SORT_GARRISON_CAMPAIGN      = 401,       // 6.0.1
     QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1
-    QUEST_SORT_GARRISON_SUPPORT     = 403,      // 6.0.1
-    QUEST_SORT_LOGGIN               = 404,      // 6.0.1
-    QUEST_SORT_PICKPOCKETING        = 405       // 6.0.2
+    QUEST_SORT_GARRISON_SUPPORT       = 403,      // 6.0.1
+    QUEST_SORT_LOGGIN                 = 404,      // 6.0.1
+    QUEST_SORT_PICKPOCKETING          = 405       // 6.0.2
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -3898,224 +3909,224 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
 // SkillLine.dbc
 enum SkillType
 {
-    SKILL_NONE                     = 0,
+    SKILL_NONE                       = 0,
 
-    SKILL_FROST                    = 6,
-    SKILL_FIRE                     = 8,
-    SKILL_ARMS                     = 26,
-    SKILL_COMBAT                   = 38,
-    SKILL_SUBTLETY                 = 39,
-    SKILL_SWORDS                   = 43,
-    SKILL_AXES                     = 44,
-    SKILL_BOWS                     = 45,
-    SKILL_GUNS                     = 46,
-    SKILL_BEAST_MASTERY            = 50,
-    SKILL_SURVIVAL                 = 51,
-    SKILL_MACES                    = 54,
-    SKILL_2H_SWORDS                = 55,
-    SKILL_HOLY                     = 56,
-    SKILL_SHADOW                   = 78,
-    SKILL_DEFENSE                  = 95,
-    SKILL_LANG_COMMON              = 98,
-    SKILL_RACIAL_DWARVEN           = 101,
-    SKILL_LANG_ORCISH              = 109,
-    SKILL_LANG_DWARVEN             = 111,
-    SKILL_LANG_DARNASSIAN          = 113,
-    SKILL_LANG_TAURAHE             = 115,
-    SKILL_DUAL_WIELD               = 118,
-    SKILL_RACIAL_TAUREN            = 124,
-    SKILL_ORC_RACIAL               = 125,
-    SKILL_RACIAL_NIGHT_ELF         = 126,
-    SKILL_FIRST_AID                = 129,
-    SKILL_FERAL_COMBAT             = 134,
-    SKILL_STAVES                   = 136,
-    SKILL_LANG_THALASSIAN          = 137,
-    SKILL_LANG_DRACONIC            = 138,
-    SKILL_LANG_DEMON_TONGUE        = 139,
-    SKILL_LANG_TITAN               = 140,
-    SKILL_LANG_OLD_TONGUE          = 141,
-    SKILL_SURVIVAL2                = 142,
-    SKILL_RIDING_HORSE             = 148,
-    SKILL_RIDING_WOLF              = 149,
-    SKILL_RIDING_TIGER             = 150,
-    SKILL_RIDING_RAM               = 152,
-    SKILL_SWIMING                  = 155,
-    SKILL_2H_MACES                 = 160,
-    SKILL_UNARMED                  = 162,
-    SKILL_MARKSMANSHIP             = 163,
-    SKILL_BLACKSMITHING            = 164,
-    SKILL_LEATHERWORKING           = 165,
-    SKILL_ALCHEMY                  = 171,
-    SKILL_2H_AXES                  = 172,
-    SKILL_DAGGERS                  = 173,
-    SKILL_THROWN                   = 176,
-    SKILL_HERBALISM                = 182,
-    SKILL_GENERIC_DND              = 183,
-    SKILL_RETRIBUTION              = 184,
-    SKILL_COOKING                  = 185,
-    SKILL_MINING                   = 186,
-    SKILL_PET_IMP                  = 188,
-    SKILL_PET_FELHUNTER            = 189,
-    SKILL_TAILORING                = 197,
-    SKILL_ENGINEERING              = 202,
-    SKILL_PET_SPIDER               = 203,
-    SKILL_PET_VOIDWALKER           = 204,
-    SKILL_PET_SUCCUBUS             = 205,
-    SKILL_PET_INFERNAL             = 206,
-    SKILL_PET_DOOMGUARD            = 207,
-    SKILL_PET_WOLF                 = 208,
-    SKILL_PET_CAT                  = 209,
-    SKILL_PET_BEAR                 = 210,
-    SKILL_PET_BOAR                 = 211,
-    SKILL_PET_CROCILISK            = 212,
-    SKILL_PET_CARRION_BIRD         = 213,
-    SKILL_PET_CRAB                 = 214,
-    SKILL_PET_GORILLA              = 215,
-    SKILL_PET_RAPTOR               = 217,
-    SKILL_PET_TALLSTRIDER          = 218,
-    SKILL_RACIAL_UNDED             = 220,
-    SKILL_CROSSBOWS                = 226,
-    SKILL_WANDS                    = 228,
-    SKILL_POLEARMS                 = 229,
-    SKILL_PET_SCORPID              = 236,
-    SKILL_ARCANE                   = 237,
-    SKILL_PET_TURTLE               = 251,
-    SKILL_ASSASSINATION            = 253,
-    SKILL_FURY                     = 256,
-    SKILL_PROTECTION               = 257,
-    SKILL_PROTECTION2              = 267,
-    SKILL_PET_TALENTS              = 270,
-    SKILL_PLATE_MAIL               = 293,
-    SKILL_LANG_GNOMISH             = 313,
-    SKILL_LANG_TROLL               = 315,
-    SKILL_ENCHANTING               = 333,
-    SKILL_DEMONOLOGY               = 354,
-    SKILL_AFFLICTION               = 355,
-    SKILL_FISHING                  = 356,
-    SKILL_ENHANCEMENT              = 373,
-    SKILL_RESTORATION              = 374,
-    SKILL_ELEMENTAL_COMBAT         = 375,
-    SKILL_SKINNING                 = 393,
-    SKILL_MAIL                     = 413,
-    SKILL_LEATHER                  = 414,
-    SKILL_CLOTH                    = 415,
-    SKILL_SHIELD                   = 433,
-    SKILL_FIST_WEAPONS             = 473,
-    SKILL_RIDING_RAPTOR            = 533,
-    SKILL_RIDING_MECHANOSTRIDER    = 553,
-    SKILL_RIDING_UNDEAD_HORSE      = 554,
-    SKILL_RESTORATION2             = 573,
-    SKILL_BALANCE                  = 574,
-    SKILL_DESTRUCTION              = 593,
-    SKILL_HOLY2                    = 594,
-    SKILL_DISCIPLINE               = 613,
-    SKILL_LOCKPICKING              = 633,
-    SKILL_PET_BAT                  = 653,
-    SKILL_PET_HYENA                = 654,
-    SKILL_PET_BIRD_OF_PREY         = 655,
-    SKILL_PET_WIND_SERPENT         = 656,
-    SKILL_LANG_GUTTERSPEAK         = 673,
-    SKILL_RIDING_KODO              = 713,
-    SKILL_RACIAL_TROLL             = 733,
-    SKILL_RACIAL_GNOME             = 753,
-    SKILL_RACIAL_HUMAN             = 754,
-    SKILL_JEWELCRAFTING            = 755,
-    SKILL_RACIAL_BLOODELF          = 756,
-    SKILL_PET_EVENT_RC             = 758,   // SkillCategory = -1
-    SKILL_LANG_DRAENEI             = 759,
-    SKILL_RACIAL_DRAENEI           = 760,
-    SKILL_PET_FELGUARD             = 761,
-    SKILL_RIDING                   = 762,
-    SKILL_PET_DRAGONHAWK           = 763,
-    SKILL_PET_NETHER_RAY           = 764,
-    SKILL_PET_SPOREBAT             = 765,
-    SKILL_PET_WARP_STALKER         = 766,
-    SKILL_PET_RAVAGER              = 767,
-    SKILL_PET_SERPENT              = 768,
-    SKILL_INTERNAL                 = 769,
-    SKILL_DK_BLOOD                 = 770,
-    SKILL_DK_FROST                 = 771,
-    SKILL_DK_UNHOLY                = 772,
-    SKILL_INSCRIPTION              = 773,
-    SKILL_PET_MOTH                 = 775,
-    SKILL_RUNEFORGING              = 776,
-    SKILL_MOUNTS                   = 777,
-    SKILL_COMPANIONS               = 778,
-    SKILL_PET_EXOTIC_CHIMAERA      = 780,
-    SKILL_PET_EXOTIC_DEVILSAUR     = 781,
-    SKILL_PET_GHOUL                = 782,
-    SKILL_PET_EXOTIC_SILITHID      = 783,
-    SKILL_PET_EXOTIC_WORM          = 784,
-    SKILL_PET_WASP                 = 785,
-    SKILL_PET_EXOTIC_RHINO         = 786,
-    SKILL_PET_EXOTIC_CORE_HOUND    = 787,
-    SKILL_PET_EXOTIC_SPIRIT_BEAST  = 788,
-    SKILL_RACIAL_WORGEN            = 789,
-    SKILL_RACIAL_GOBLIN            = 790,
-    SKILL_LANG_WORGEN              = 791,
-    SKILL_LANG_GOBLIN              = 792,
-    SKILL_ARCHAEOLOGY              = 794,
-    SKILL_GENERAL_HUNTER           = 795,
-    SKILL_GENERAL_DEATH_KNIGHT     = 796,
-    SKILL_GENERAL_ROGUE            = 797,
-    SKILL_GENERAL_DRUID            = 798,
-    SKILL_GENERAL_MAGE             = 799,
-    SKILL_GENERAL_PALADIN          = 800,
-    SKILL_GENERAL_SHAMAN           = 801,
-    SKILL_GENERAL_WARLOCK          = 802,
-    SKILL_GENERAL_WARRIOR          = 803,
-    SKILL_GENERAL_PRIEST           = 804,
-    SKILL_PET_WATER_ELEMENTAL      = 805,
-    SKILL_PET_FOX                  = 808,
-    SKILL_ALL_GLYPHS               = 810,
-    SKILL_PET_DOG                  = 811,
-    SKILL_PET_MONKEY               = 815,
-    SKILL_PET_SHALE_SPIDER         = 817,
-    SKILL_PET_BEETLE               = 818,
-    SKILL_ALL_GUILD_PERKS          = 821,
-    SKILL_PET_HYDRA                = 824,
-    SKILL_GENERAL_MONK             = 829, // 5.0.5
-    SKILL_NEW_WARRIOR              = 840, // 5.0.5
-    SKILL_NEW_WARLOCK              = 849, // 5.0.5
-    SKILL_RACIAL_PANDAREN          = 899, // 5.0.5
-    SKILL_NEW_MAGE                 = 904, // 5.0.5
-    SKILL_LANG_PANDAREN_N          = 905, // 5.0.5
-    SKILL_LANG_PANDAREN_A          = 906, // 5.0.5
-    SKILL_LANG_PANDAREN_H          = 907, // 5.0.5
-    SKILL_NEW_ROGUE                = 921, // 5.0.5
-    SKILL_NEW_SHAMAN               = 924, // 5.0.5
-    SKILL_NEW_PET_IMP              = 927, // 5.0.5
-    SKILL_NEW_PET_VOIDWALKER       = 928, // 5.0.5
-    SKILL_NEW_PET_OBSERVER         = 930, // 5.0.5
-    SKILL_NEW_PET_WRATHGUARD       = 931, // 5.0.5
-    SKILL_ALL                      = 934, // 5.0.5 Tous - Specialisations","Les sorts gerant une combinaison de specialisation se trouvent ici.
-    SKILL_NEW_RUNEFORGING          = 960, // 5.0.5
-    SKILL_WAY_OF_GRILL             = 975, // 5.0.5 (cooking)
-    SKILL_WAY_OF_WOK               = 976, // 5.0.5 (cooking)
-    SKILL_WAY_OF_POT               = 977, // 5.0.5 (cooking)
-    SKILL_WAY_OF_STEAMER           = 978, // 5.0.5 (cooking)
-    SKILL_WAY_OF_OVEN              = 979, // 5.0.5 (cooking)
-    SKILL_WAY_OF_BREW              = 980, // 5.0.5 (cooking)
-    SKILL_APPRENTICE_COOKING       = 981, // 5.0.5 (cooking)
-    SKILL_JOURNEYMAN_COOKBOOK      = 982, // 5.0.5 (cooking)
-    SKILL_PORCUPINE                = 983, // 5.4.X
-    SKILL_CRANE                    = 984, // 5.4.X
-    SKILL_WATER_STRIDER            = 985, // 5.4.X
-    SKILL_QUILEN                   = 916, // 5.4.X
-    SKILL_GOAT                     = 987, // 5.4.X
-    SKILL_BASILIK                  = 988, // 5.4.X
-    SKILL_NO_PLAYER                = 999, // 5.4.X
-    SKILL_DIREHORN                 = 1305,// 5.4.X
+    SKILL_FROST                      = 6,
+    SKILL_FIRE                       = 8,
+    SKILL_ARMS                       = 26,
+    SKILL_COMBAT                     = 38,
+    SKILL_SUBTLETY                   = 39,
+    SKILL_SWORDS                     = 43,
+    SKILL_AXES                       = 44,
+    SKILL_BOWS                       = 45,
+    SKILL_GUNS                       = 46,
+    SKILL_BEAST_MASTERY              = 50,
+    SKILL_SURVIVAL                   = 51,
+    SKILL_MACES                      = 54,
+    SKILL_2H_SWORDS                  = 55,
+    SKILL_HOLY                       = 56,
+    SKILL_SHADOW                     = 78,
+    SKILL_DEFENSE                    = 95,
+    SKILL_LANG_COMMON                = 98,
+    SKILL_RACIAL_DWARVEN             = 101,
+    SKILL_LANG_ORCISH                = 109,
+    SKILL_LANG_DWARVEN               = 111,
+    SKILL_LANG_DARNASSIAN            = 113,
+    SKILL_LANG_TAURAHE               = 115,
+    SKILL_DUAL_WIELD                 = 118,
+    SKILL_RACIAL_TAUREN              = 124,
+    SKILL_ORC_RACIAL                 = 125,
+    SKILL_RACIAL_NIGHT_ELF           = 126,
+    SKILL_FIRST_AID                  = 129,
+    SKILL_FERAL_COMBAT               = 134,
+    SKILL_STAVES                     = 136,
+    SKILL_LANG_THALASSIAN            = 137,
+    SKILL_LANG_DRACONIC              = 138,
+    SKILL_LANG_DEMON_TONGUE          = 139,
+    SKILL_LANG_TITAN                 = 140,
+    SKILL_LANG_OLD_TONGUE            = 141,
+    SKILL_SURVIVAL2                  = 142,
+    SKILL_RIDING_HORSE               = 148,
+    SKILL_RIDING_WOLF                = 149,
+    SKILL_RIDING_TIGER               = 150,
+    SKILL_RIDING_RAM                 = 152,
+    SKILL_SWIMING                    = 155,
+    SKILL_2H_MACES                   = 160,
+    SKILL_UNARMED                    = 162,
+    SKILL_MARKSMANSHIP               = 163,
+    SKILL_BLACKSMITHING              = 164,
+    SKILL_LEATHERWORKING             = 165,
+    SKILL_ALCHEMY                    = 171,
+    SKILL_2H_AXES                    = 172,
+    SKILL_DAGGERS                    = 173,
+    SKILL_THROWN                     = 176,
+    SKILL_HERBALISM                  = 182,
+    SKILL_GENERIC_DND                = 183,
+    SKILL_RETRIBUTION                = 184,
+    SKILL_COOKING                    = 185,
+    SKILL_MINING                     = 186,
+    SKILL_PET_IMP                    = 188,
+    SKILL_PET_FELHUNTER              = 189,
+    SKILL_TAILORING                  = 197,
+    SKILL_ENGINEERING                = 202,
+    SKILL_PET_SPIDER                 = 203,
+    SKILL_PET_VOIDWALKER             = 204,
+    SKILL_PET_SUCCUBUS               = 205,
+    SKILL_PET_INFERNAL               = 206,
+    SKILL_PET_DOOMGUARD              = 207,
+    SKILL_PET_WOLF                   = 208,
+    SKILL_PET_CAT                    = 209,
+    SKILL_PET_BEAR                   = 210,
+    SKILL_PET_BOAR                   = 211,
+    SKILL_PET_CROCILISK              = 212,
+    SKILL_PET_CARRION_BIRD           = 213,
+    SKILL_PET_CRAB                   = 214,
+    SKILL_PET_GORILLA                = 215,
+    SKILL_PET_RAPTOR                 = 217,
+    SKILL_PET_TALLSTRIDER            = 218,
+    SKILL_RACIAL_UNDED               = 220,
+    SKILL_CROSSBOWS                  = 226,
+    SKILL_WANDS                      = 228,
+    SKILL_POLEARMS                   = 229,
+    SKILL_PET_SCORPID                = 236,
+    SKILL_ARCANE                     = 237,
+    SKILL_PET_TURTLE                 = 251,
+    SKILL_ASSASSINATION              = 253,
+    SKILL_FURY                       = 256,
+    SKILL_PROTECTION                 = 257,
+    SKILL_PROTECTION2                = 267,
+    SKILL_PET_TALENTS                = 270,
+    SKILL_PLATE_MAIL                 = 293,
+    SKILL_LANG_GNOMISH               = 313,
+    SKILL_LANG_TROLL                 = 315,
+    SKILL_ENCHANTING                 = 333,
+    SKILL_DEMONOLOGY                 = 354,
+    SKILL_AFFLICTION                 = 355,
+    SKILL_FISHING                    = 356,
+    SKILL_ENHANCEMENT                = 373,
+    SKILL_RESTORATION                = 374,
+    SKILL_ELEMENTAL_COMBAT           = 375,
+    SKILL_SKINNING                   = 393,
+    SKILL_MAIL                       = 413,
+    SKILL_LEATHER                    = 414,
+    SKILL_CLOTH                      = 415,
+    SKILL_SHIELD                     = 433,
+    SKILL_FIST_WEAPONS               = 473,
+    SKILL_RIDING_RAPTOR              = 533,
+    SKILL_RIDING_MECHANOSTRIDER      = 553,
+    SKILL_RIDING_UNDEAD_HORSE        = 554,
+    SKILL_RESTORATION2               = 573,
+    SKILL_BALANCE                    = 574,
+    SKILL_DESTRUCTION                = 593,
+    SKILL_HOLY2                      = 594,
+    SKILL_DISCIPLINE                 = 613,
+    SKILL_LOCKPICKING                = 633,
+    SKILL_PET_BAT                    = 653,
+    SKILL_PET_HYENA                  = 654,
+    SKILL_PET_BIRD_OF_PREY           = 655,
+    SKILL_PET_WIND_SERPENT           = 656,
+    SKILL_LANG_GUTTERSPEAK           = 673,
+    SKILL_RIDING_KODO                = 713,
+    SKILL_RACIAL_TROLL               = 733,
+    SKILL_RACIAL_GNOME               = 753,
+    SKILL_RACIAL_HUMAN               = 754,
+    SKILL_JEWELCRAFTING              = 755,
+    SKILL_RACIAL_BLOODELF            = 756,
+    SKILL_PET_EVENT_RC               = 758,   // SkillCategory = -1
+    SKILL_LANG_DRAENEI               = 759,
+    SKILL_RACIAL_DRAENEI             = 760,
+    SKILL_PET_FELGUARD               = 761,
+    SKILL_RIDING                     = 762,
+    SKILL_PET_DRAGONHAWK             = 763,
+    SKILL_PET_NETHER_RAY             = 764,
+    SKILL_PET_SPOREBAT               = 765,
+    SKILL_PET_WARP_STALKER           = 766,
+    SKILL_PET_RAVAGER                = 767,
+    SKILL_PET_SERPENT                = 768,
+    SKILL_INTERNAL                   = 769,
+    SKILL_DK_BLOOD                   = 770,
+    SKILL_DK_FROST                   = 771,
+    SKILL_DK_UNHOLY                  = 772,
+    SKILL_INSCRIPTION                = 773,
+    SKILL_PET_MOTH                   = 775,
+    SKILL_RUNEFORGING                = 776,
+    SKILL_MOUNTS                     = 777,
+    SKILL_COMPANIONS                 = 778,
+    SKILL_PET_EXOTIC_CHIMAERA        = 780,
+    SKILL_PET_EXOTIC_DEVILSAUR       = 781,
+    SKILL_PET_GHOUL                  = 782,
+    SKILL_PET_EXOTIC_SILITHID        = 783,
+    SKILL_PET_EXOTIC_WORM            = 784,
+    SKILL_PET_WASP                   = 785,
+    SKILL_PET_EXOTIC_RHINO           = 786,
+    SKILL_PET_EXOTIC_CORE_HOUND      = 787,
+    SKILL_PET_EXOTIC_SPIRIT_BEAST    = 788,
+    SKILL_RACIAL_WORGEN              = 789,
+    SKILL_RACIAL_GOBLIN              = 790,
+    SKILL_LANG_WORGEN                = 791,
+    SKILL_LANG_GOBLIN                = 792,
+    SKILL_ARCHAEOLOGY                = 794,
+    SKILL_GENERAL_HUNTER             = 795,
+    SKILL_GENERAL_DEATH_KNIGHT       = 796,
+    SKILL_GENERAL_ROGUE              = 797,
+    SKILL_GENERAL_DRUID              = 798,
+    SKILL_GENERAL_MAGE               = 799,
+    SKILL_GENERAL_PALADIN            = 800,
+    SKILL_GENERAL_SHAMAN             = 801,
+    SKILL_GENERAL_WARLOCK            = 802,
+    SKILL_GENERAL_WARRIOR            = 803,
+    SKILL_GENERAL_PRIEST             = 804,
+    SKILL_PET_WATER_ELEMENTAL        = 805,
+    SKILL_PET_FOX                    = 808,
+    SKILL_ALL_GLYPHS                 = 810,
+    SKILL_PET_DOG                    = 811,
+    SKILL_PET_MONKEY                 = 815,
+    SKILL_PET_SHALE_SPIDER           = 817,
+    SKILL_PET_BEETLE                 = 818,
+    SKILL_ALL_GUILD_PERKS            = 821,
+    SKILL_PET_HYDRA                  = 824,
+    SKILL_GENERAL_MONK               = 829, // 5.0.5
+    SKILL_NEW_WARRIOR                = 840, // 5.0.5
+    SKILL_NEW_WARLOCK                = 849, // 5.0.5
+    SKILL_RACIAL_PANDAREN            = 899, // 5.0.5
+    SKILL_NEW_MAGE                   = 904, // 5.0.5
+    SKILL_LANG_PANDAREN_N            = 905, // 5.0.5
+    SKILL_LANG_PANDAREN_A            = 906, // 5.0.5
+    SKILL_LANG_PANDAREN_H            = 907, // 5.0.5
+    SKILL_NEW_ROGUE                  = 921, // 5.0.5
+    SKILL_NEW_SHAMAN                 = 924, // 5.0.5
+    SKILL_NEW_PET_IMP                = 927, // 5.0.5
+    SKILL_NEW_PET_VOIDWALKER         = 928, // 5.0.5
+    SKILL_NEW_PET_OBSERVER           = 930, // 5.0.5
+    SKILL_NEW_PET_WRATHGUARD         = 931, // 5.0.5
+    SKILL_ALL                        = 934, // 5.0.5 Tous - Specialisations","Les sorts gerant une combinaison de specialisation se trouvent ici.
+    SKILL_NEW_RUNEFORGING            = 960, // 5.0.5
+    SKILL_WAY_OF_GRILL               = 975, // 5.0.5 (cooking)
+    SKILL_WAY_OF_WOK                 = 976, // 5.0.5 (cooking)
+    SKILL_WAY_OF_POT                 = 977, // 5.0.5 (cooking)
+    SKILL_WAY_OF_STEAMER             = 978, // 5.0.5 (cooking)
+    SKILL_WAY_OF_OVEN                = 979, // 5.0.5 (cooking)
+    SKILL_WAY_OF_BREW                = 980, // 5.0.5 (cooking)
+    SKILL_APPRENTICE_COOKING         = 981, // 5.0.5 (cooking)
+    SKILL_JOURNEYMAN_COOKBOOK        = 982, // 5.0.5 (cooking)
+    SKILL_PORCUPINE                  = 983, // 5.4.X
+    SKILL_CRANE                      = 984, // 5.4.X
+    SKILL_WATER_STRIDER              = 985, // 5.4.X
+    SKILL_QUILEN                     = 916, // 5.4.X
+    SKILL_GOAT                       = 987, // 5.4.X
+    SKILL_BASILIK                    = 988, // 5.4.X
+    SKILL_NO_PLAYER                  = 999, // 5.4.X
+    SKILL_DIREHORN                   = 1305,// 5.4.X
     SKILL_PET_PRIMAL_STORM_ELEMENTAL = 1748,// 6.0.1
     SKILL_PET_WATER_ELEMENTAL_TALENT = 1777,// 6.0.1
-    SKILL_PET_EXOTIC_RYLAK         = 1818, // 6.0.1
-    SKILL_PET_RIVERBEAST           = 1819, // 6.0.1
-    SKILL_GARRENCHANTING           = 1830, // 6.0.1
-    SKILL_LOGGING                  = 1945, // 6.0.1
-    SKILL_PET_TERRORGUARD          = 1981, // 6.0.1
-    SKILL_PET_ABYSSAL              = 1982, // 6.0.1
-    SKILL_PET_STAG                 = 1993, // 6.0.1
-    SKILL_PET_TRADING_POST         = 2000  // 6.0.1
+    SKILL_PET_EXOTIC_RYLAK           = 1818, // 6.0.1
+    SKILL_PET_RIVERBEAST             = 1819, // 6.0.1
+    SKILL_GARRENCHANTING             = 1830, // 6.0.1
+    SKILL_LOGGING                    = 1945, // 6.0.1
+    SKILL_PET_TERRORGUARD            = 1981, // 6.0.1
+    SKILL_PET_ABYSSAL                = 1982, // 6.0.1
+    SKILL_PET_STAG                   = 1993, // 6.0.1
+    SKILL_PET_TRADING_POST           = 2000  // 6.0.1
 };
 
 #define MAX_SKILL_TYPE               2001
@@ -4175,15 +4186,16 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
 
 enum SkillCategory
 {
-    SKILL_CATEGORY_UNK1          = 0,
-    SKILL_CATEGORY_ATTRIBUTES    = 5,
-    SKILL_CATEGORY_WEAPON        = 6,
-    SKILL_CATEGORY_CLASS         = 7,
-    SKILL_CATEGORY_ARMOR         = 8,
-    SKILL_CATEGORY_SECONDARY     = 9,                       // secondary professions
-    SKILL_CATEGORY_LANGUAGES     = 10,
-    SKILL_CATEGORY_PROFESSION    = 11,                      // primary professions
-    SKILL_CATEGORY_GENERIC       = 12
+    SKILL_CATEGORY_UNK1                = 0,     // not in DBC
+    SKILL_CATEGORY_ATTRIBUTES          = 5,
+    SKILL_CATEGORY_WEAPON              = 6,
+    SKILL_CATEGORY_CLASS               = 7,
+    SKILL_CATEGORY_ARMOR               = 8,
+    SKILL_CATEGORY_SECONDARY           = 9,     // secondary professions
+    SKILL_CATEGORY_LANGUAGES           = 10,
+    SKILL_CATEGORY_PROFESSION          = 11,    // primary professions
+    SKILL_CATEGORY_GENERIC             = 12,
+    SKILL_CATEGORY_JOURNEYMAN_COOKBOOK = 27
 };
 
 // TotemCategory.dbc
@@ -4228,7 +4240,7 @@ enum TotemCategory
     TC_ULTIMATE_GNOMISH_ARMY_KNIFE = 250        // 6.0.1
 };
 
-/// CGUnit_C::OnDynamicFlagsChanged
+/// CGUnit_C::OnDynamicFlagsChanged on Internal client
 enum UnitDynFlags
 {
     UNIT_DYNFLAG_NONE                       = 0x0000,
@@ -4243,7 +4255,7 @@ enum UnitDynFlags
     UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0100        // Lua_UnitIsTappedByAllThreatList
 };
 
-/// CGGameObject_C::OnUpdateDynamicFlags
+/// CGGameObject_C::OnUpdateDynamicFlags  on Internal client
 enum GameObjectDynFlags
 {
     GAMEOBJECT_DYNAMIC_FLAG_PASSIVE_HIGHLIGHT = 0x010
@@ -4617,12 +4629,12 @@ enum BattlegroundTypeId
     // 443 = "The Ruby Sanctum"
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
     BATTLEGROUND_KT                 = 699,  // Valley of Power
-    BATTLEGROUND_CTF3               = 706,  // NYI
+    BATTLEGROUND_CTF3               = 706,  // NYR
     BATTLEGROUND_SSM                = 708,  // Silver shard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
-    BATTLEGROUND_DG                 = 754,  // Deepwind Gorge   @todo NYI
+    BATTLEGROUND_DG                 = 754,  // Deepwind Gorge
     BATTLEGROUND_TTP                = 757,  // The Tiger's Peak
-    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow)
+    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow) 100 vs 100
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 790
@@ -4678,14 +4690,15 @@ enum SpellFamilyNames
     SPELLFAMILY_UNK3        = 50,
     SPELLFAMILY_MONK        = 53,
 
-    // Found on SpellClassOptions.dbc
+    // Found on SpellClassOptions.db2
     SPELLFAMILY_UNK4        = 54,
     SPELLFAMILY_UNK5        = 56,
-    SPELLFAMILY_UNK6        = 57,							// Special Ability
+    SPELLFAMILY_UNK6        = 57,                           // Special Ability
     SPELLFAMILY_UNK7        = 66,                           // 2 Only
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,
-    SPELLFAMILY_UNK10       = 97
+    SPELLFAMILY_UNK10       = 91,
+    SPELLFAMILY_UNK11       = 100,
 };
 
 // stored in character_pet.slot

@@ -137,6 +137,8 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_BEFORE_CAST,
     SPELL_SCRIPT_HOOK_ON_CAST,
     SPELL_SCRIPT_HOOK_AFTER_CAST,
+    SPELL_SCRIPT_HOOK_CHECK_INTERRUPT,
+    SPELL_SCRIPT_HOOK_ON_PREPARE
 };
 
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
@@ -151,6 +153,8 @@ class SpellScript : public _SpellScript
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
         #define SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
+            typedef bool(CLASSNAME::*SpellCheckInterruptFnType)(); \
+            typedef void(CLASSNAME::*SpellOnPrepareFnType)(); \
             typedef SpellCastResult(CLASSNAME::*SpellCheckCastFnType)(); \
             typedef void(CLASSNAME::*SpellEffectFnType)(SpellEffIndex); \
             typedef void(CLASSNAME::*SpellHitFnType)(); \
@@ -159,6 +163,24 @@ class SpellScript : public _SpellScript
             typedef void(CLASSNAME::*SpellObjectTargetSelectFnType)(WorldObject*&);
 
         SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
+
+        class CheckInterruptHandler
+        {
+            public:
+                CheckInterruptHandler(SpellCheckInterruptFnType CheckInterruptHandlerScript);
+                bool Call(SpellScript* spellScript);
+            private:
+                SpellCheckInterruptFnType _checkInterruptHandlerScript;
+        };
+
+        class OnPrepareHandler
+        {
+            public:
+                OnPrepareHandler(SpellOnPrepareFnType OnPrepareHandlerScript);
+                void Call(SpellScript* spellScript);
+            private:
+                SpellOnPrepareFnType _onPrepareHandlerScript;
+        };
 
         class CastHandler
         {
@@ -229,6 +251,8 @@ class SpellScript : public _SpellScript
 
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CastHandlerFunction : public SpellScript::CastHandler { public: CastHandlerFunction(SpellCastFnType _pCastHandlerScript) : SpellScript::CastHandler((SpellScript::SpellCastFnType)_pCastHandlerScript) {} }; \
+        class CheckInterruptHandlerFunction : public SpellScript::CheckInterruptHandler { public: CheckInterruptHandlerFunction(SpellCheckInterruptFnType _checkInterruptHandlerScript) : SpellScript::CheckInterruptHandler((SpellScript::SpellCheckInterruptFnType)_checkInterruptHandlerScript) {} }; \
+        class OnPrepareHandlerFunction : public SpellScript::OnPrepareHandler { public: OnPrepareHandlerFunction(SpellOnPrepareFnType _onPrepareHandlerScript) : SpellScript::OnPrepareHandler((SpellScript::SpellOnPrepareFnType)_onPrepareHandlerScript) {} }; \
         class CheckCastHandlerFunction : public SpellScript::CheckCastHandler { public: CheckCastHandlerFunction(SpellCheckCastFnType _checkCastHandlerScript) : SpellScript::CheckCastHandler((SpellScript::SpellCheckCastFnType)_checkCastHandlerScript) {} }; \
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) {} }; \
@@ -270,6 +294,16 @@ class SpellScript : public _SpellScript
         HookList<CheckCastHandler> OnCheckCast;
         #define SpellCheckCastFn(F) CheckCastHandlerFunction(&F)
 
+        // example: OnCheckInterrupt += SpellCheckInterruptFn();
+        // where function is bool function()
+        HookList<CheckInterruptHandler> OnCheckInterrupt;
+        #define SpellCheckInterruptFn(F) CheckInterruptHandlerFunction(&F)
+
+        // example: OnPrepare += SpellCheckInterruptFn();
+        // where function is bool function()
+        HookList<OnPrepareHandler> OnPrepare;
+        #define SpellOnPrepareFn(F) OnPrepareHandlerFunction(&F)
+
         // example: OnEffect**** += SpellEffectFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
         // where function is void function(SpellEffIndex effIndex)
         HookList<EffectHandler> OnEffectLaunch;
@@ -298,19 +332,21 @@ class SpellScript : public _SpellScript
         #define SpellObjectTargetSelectFn(F, I, N) ObjectTargetSelectHandlerFunction(&F, I, N)
 
         // hooks are executed in following order, at specified event of spell:
-        // 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
-        // 2. OnCheckCast - allows to override result of CheckCast function
-        // 3a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
-        // 3b. OnObjectTargetSelect - executed just before adding selected target to final target list (for single unit targets)
-        // 4. OnCast - executed just before spell is launched (creates missile) or executed
-        // 5. AfterCast - executed after spell missile is launched and immediate spell actions are done
-        // 6. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
-        // 7. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
-        // 8. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
-        // 9. BeforeHit - executed just before spell hits a target - called for each target from spell target map
-        // 10. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
-        // 11. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
-        // 12. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
+        // 1. OnPrepare - executed before check of flags spells (triggered, ...)
+        // 2. OnCheckInterrupt - allows to override result of checkInterrupt function
+        // 3. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled
+        // 4. OnCheckCast - allows to override result of CheckCast function
+        // 5a. OnObjectAreaTargetSelect - executed just before adding selected targets to final target list (for area targets)
+        // 5b. OnObjectTargetSelect - executed just before adding selected target to final target list (for single unit targets)
+        // 6. OnCast - executed just before spell is launched (creates missile) or executed
+        // 7. AfterCast - executed after spell missile is launched and immediate spell actions are done
+        // 8. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
+        // 9. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 10. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
+        // 11. BeforeHit - executed just before spell hits a target - called for each target from spell target map
+        // 12. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
+        // 13. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
+        // 14. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
 
         //
         // methods allowing interaction with Spell object

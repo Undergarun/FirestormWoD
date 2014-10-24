@@ -395,6 +395,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
     DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
     ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
+    AttackPowerMultiplier = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -582,6 +583,32 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 //there are many more: slow speed, -healing pct
             value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
             //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
+
+        if (CanScale())
+        {
+            bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
+            WeaponAttackType l_AttType = (_spellInfo->IsRangedWeaponSpell() && l_RangedClass) ? RANGED_ATTACK : BASE_ATTACK;
+            float l_AttackPower = caster->GetTotalAttackPowerValue(l_AttType);
+            float l_SpellPower = caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
+
+            {
+                if (l_AttackPower == 0.f)
+                    l_AttackPower = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                if (l_AttackPower == 0.f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
+                    l_AttackPower = caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
+            }
+
+            {
+                if (l_SpellPower == 0.f)
+                    l_SpellPower = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                if (l_SpellPower == 0.f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
+                    l_SpellPower = caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
+            }
+
+            float l_APBonusDamage = l_AttackPower * AttackPowerMultiplier;
+            float l_SPBonusDamage = l_SpellPower * BonusMultiplier;
+            value += l_APBonusDamage + l_SPBonusDamage;
+        }
 
         // Hack Fix Arcane Barrage triggered
         if (_spellInfo->Id == 50273)

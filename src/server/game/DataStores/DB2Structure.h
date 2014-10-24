@@ -445,8 +445,8 @@ struct GarrSiteLevelEntry
     uint32      MapID;                                  // 2
     uint32      SiteID;                                 // 3
     uint32      MapTextureUiTextureKitID;               // 4
-    float       Unk2;                                   // 5
-    float       Unk3;                                   // 6
+    float       TownHallX;                              // 5
+    float       TownHallY;                              // 6
     uint32      Unk4;                                   // 7
     uint32      Unk5;                                   // 8
     uint32      UpgradeCost;                            // 9
@@ -479,8 +479,7 @@ struct GarrPlotEntry
     uint32      Unk3;                                   // 4
     uint32      Unk4;                                   // 5
     uint32      Unk5;                                   // 6
-    uint32      BuildingGameObjectA;                    // 7
-    uint32      BuildingGameObjectH;                    // 8
+    uint32      BuildingGameObject[2];                  // 8 - 9
 };
 
 struct GarrPlotUICategoryEntry
@@ -495,20 +494,20 @@ struct GarrMissionEntry
     uint32 MissionRecID;                                // 0
     uint32 RequiredLevel;                               // 1
     uint32 RequiredItemLevel;                           // 2
-    uint32 Unk1;                                        // 3
+    uint32 GarrMechanicTypeRecID;                       // 3
     uint32 RequiredFollowersCount;                      // 4
-    uint32 Duration;                                    // 5
-    uint32 OfferTime;                                   // 6
-    uint32 Unk2;                                        // 7
-    uint32 Unk3;                                        // 8
-    char * Title;                                       // 9
-    char * Description;                                 // 10
-    char * Location;                                    // 11
-    uint32 Unk4;                                        // 12
+    uint32 Unk2;                                        // 5
+    uint32 Duration;                                    // 6
+    uint32 OfferTime;                                   // 7
+    uint32 LocPrefixID;                                 // 8
+    uint32 Unk3;                                        // 9
+    char * Name;                                        // 10
+    char * Description;                                 // 11
+    char * Location;                                    // 12
     uint32 Unk5;                                        // 13
     uint32 Unk6;                                        // 14
-    uint32 StartCost;                                   // 15
-    uint32 Quality;                                     // 16
+    uint32 GarrisonCurrencyStartCost;                   // 15
+    uint32 Flags;                                       // 16
     uint32 RewardFollowerExperience;                    // 17
     uint32 BaseBronzeChestChance;                       // 18
 };
@@ -573,12 +572,27 @@ struct GarrFollowerEntry
 struct GarrAbilityEntry
 {
     uint32 ID;                                          // 0
-    uint32 Unk1;                                        // 1
+    uint32 Flags;                                       // 1
     char * Name;                                        // 2
     char * Description;                                 // 3
-    uint32 Unk2;                                        // 4
+    uint32 IconID;                                      // 4
     uint32 Unk3;                                        // 5
-    uint32 Unk4;                                        // 6
+    uint32 Category;                                    // 6
+};
+
+struct GarrAbilityEffectEntry
+{
+    uint32 EffectID;
+    uint32 Unk1;
+    uint32 AbilityID;
+    uint32 Unk2;
+    uint32 CounterMechanicTypeID;
+    uint32 Unk3;
+    float Unk4;
+    float Unk5;
+    uint32 Unk6;
+    uint32 Unk7;
+    uint32 Unk8;
 };
 
 struct GarrFollowerXAbilityEntry
@@ -597,6 +611,36 @@ struct GarrBuildingPlotInstEntry
     uint32 SiteLevelPlotInstID;                         // 3
     uint32 MinimapX;                                    // 4
     uint32 MinimapY;                                    // 5
+};
+
+struct GarrMechanicEntry
+{
+    uint32 ID;                                          // 0
+    uint32 MechanicTypeID;                              // 1
+    float  Unk2;                                        // 2
+};
+
+struct GarrMechanicTypeEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Unk1;                                        // 1
+    char * Environment;                                 // 2
+    char * EnvironmentDesc;                             // 3
+    uint32 EnvironmentTextureID;                        // 4
+};
+
+struct GarrMissionXEncouterEntry
+{
+    uint32 ID;                                          // 0
+    uint32 MissionID;                                   // 1
+    uint32 EncounterID;                                 // 2
+};
+
+struct GarrEncouterXMechanicEntry
+{
+    uint32 ID;                                          // 0
+    uint32 EncounterID;                                 // 1
+    uint32 MechanicID;                                  // 2
 };
 
 #define MAX_BATTLEPET_PROPERTIES 6
