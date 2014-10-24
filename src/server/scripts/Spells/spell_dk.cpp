@@ -1726,9 +1726,6 @@ class spell_dk_blood_boil : public SpellScriptLoader
 
             void HandleTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
-                    return;
-
                 for (WorldObject* l_Object : targets)
                 {
                     Unit* l_Target = l_Object->ToUnit();
@@ -1736,23 +1733,18 @@ class spell_dk_blood_boil : public SpellScriptLoader
                     if (!l_Target)
                         continue;
 
-                    if (l_Target->HasAura(DK_SPELL_BLOOD_PLAGUE))
+                    if (AuraPtr l_auraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
                     {
-                        if (AuraPtr l_auraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
-                        {
-                            if (l_auraBloodPlague->GetDuration() > m_BloodPlague)
-                                m_BloodPlague = l_auraBloodPlague->GetDuration();
-                        }
+                        if (l_auraBloodPlague->GetDuration() > m_BloodPlague)
+                            m_BloodPlague = l_auraBloodPlague->GetDuration();
                     }
 
-                    if (l_Target->HasAura(DK_SPELL_FROST_FEVER))
-                    {
-                        if (AuraPtr l_auraIceFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
-                        {
-                            if (l_auraIceFever->GetDuration() > m_BloodPlague)
-                                m_FrostFever = l_auraIceFever->GetDuration();
-                        }
-                    }
+
+                   if (AuraPtr l_auraIceFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
+                   {
+                       if (l_auraIceFever->GetDuration() > m_BloodPlague)
+                           m_FrostFever = l_auraIceFever->GetDuration();
+                   }
                 }
             }
 
@@ -1763,10 +1755,10 @@ class spell_dk_blood_boil : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         // Add diseases on all targets
-                        if (!l_Target->HasAura(DK_SPELL_FROST_FEVER) && m_FrostFever > 0)
+                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE)->GetDuration() < m_FrostFever) && m_FrostFever > 0)
                             l_Player->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
 
-                        if (!l_Target->HasAura(DK_SPELL_BLOOD_PLAGUE) && m_BloodPlague > 0)
+                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE)->GetDuration() < m_FrostFever) && m_BloodPlague > 0)
                             l_Player->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
 
                         l_Player->CastSpell(l_Player, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
@@ -1774,10 +1766,10 @@ class spell_dk_blood_boil : public SpellScriptLoader
                         // Refresh diseases
                         if (l_Player->HasAura(DK_SPELL_SCENT_OF_BLOOD))
                         {
-                            if (AuraPtr aura = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
-                                aura->RefreshDuration();
-                            if (AuraPtr aura = l_Target->GetAura(DK_SPELL_FROST_FEVER))
-                                aura->RefreshDuration();
+                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
+                                l_AuraBloodPlague->RefreshDuration();
+                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
+                                l_AuraFrostFever->RefreshDuration();
                         }
                     }
                 }
