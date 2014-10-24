@@ -1332,8 +1332,8 @@ class Unit : public WorldObject
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
         typedef std::vector<uint32> AuraIdList;
-
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
+        typedef std::set<Powers> PowerTypeSet;
 
         virtual ~Unit();
 
@@ -1487,6 +1487,7 @@ class Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
 
+        PowerTypeSet GetUsablePowers() const;
         uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
 
         uint32 GetAttackTime(WeaponAttackType att) const
