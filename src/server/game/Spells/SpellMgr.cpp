@@ -3461,6 +3461,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
             case 45470: // Death strike heal
+            case 116783:// Death Siphon heal
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
             case 65075: // Tower of Flames
