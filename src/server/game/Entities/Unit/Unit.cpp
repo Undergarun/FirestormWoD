@@ -14936,24 +14936,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     if (dVal == 0 && power != POWER_ENERGY) // The client will always regen energy if we don't send him the actual value
         return 0;
 
-    if (power == POWER_CHI)
-    {
-        if (dVal < 0)
-        {
-            if (AuraPtr tigereyeBrew = this->GetAura(123980))
-                tigereyeBrew->SetScriptData(0, -dVal);
-            else if (AuraPtr manaTea = this->GetAura(123766))
-                manaTea->SetScriptData(0, -dVal);
-        }
-    }
-    /*else if (power == POWER_HOLY_POWER)
-    {
-        if (dVal < 0)
-        {
-            if (AuraPtr unbreakableSpirit = this->GetAura(114154))
-                unbreakableSpirit->SetScriptData(0, -dVal);
-        }
-    }*/
+    // Hook playerScript OnModifyPower
+    if (GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnModifyPower(this->ToPlayer(), power, dVal);
 
     int32 curPower = GetPower(power);
 
@@ -14975,24 +14960,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     {
         SetPower(power, maxPower);
         gain = maxPower - curPower;
-    }
-
-    if (power == POWER_SHADOW_ORB)
-    {
-        if (GetPower(POWER_SHADOW_ORB) > 0)
-        {
-            // Shadow Orb visual
-            if (!HasAura(77487) && !HasAura(57985))
-                CastSpell(this, 77487, true);
-            // Glyph of Shadow Ravens
-            else if (!HasAura(77487) && HasAura(57985))
-                CastSpell(this, 127850, true);
-        }
-        else
-        {
-            RemoveAurasDueToSpell(77487);
-            RemoveAurasDueToSpell(127850);
-        }
     }
 
     return gain;

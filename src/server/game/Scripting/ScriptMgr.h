@@ -673,6 +673,9 @@ class PlayerScript : public ScriptObject
         // Called when a player kills another player
         virtual void OnPVPKill(Player* /*killer*/, Player* /*killed*/) { }
 
+        // Called when a player kills another player
+        virtual void OnModifyPower(Player* /*killer*/, Powers /*power*/, int32 /*value*/) { }
+
         // Called when a player kills a creature
         virtual void OnCreatureKill(Player* /*killer*/, Creature* /*killed*/) { }
 
@@ -990,6 +993,7 @@ class ScriptMgr
     public: /* PlayerScript */
 
         void OnPVPKill(Player* killer, Player* killed);
+        void OnModifyPower(Player* player, Powers power, int32 value);
         void OnCreatureKill(Player* killer, Creature* killed);
         void OnPlayerKilledByCreature(Creature* killer, Player* killed);
         void OnPlayerLevelChanged(Player* player, uint8 oldLevel);
