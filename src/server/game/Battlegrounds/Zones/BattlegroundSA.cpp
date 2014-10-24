@@ -487,7 +487,7 @@ void BattlegroundSA::AddPlayer(Player* player)
             l_Boat = GetBGObject(BG_SA_BOAT_ONE);
 
         player->m_movementInfo.t_guid = l_Boat->GetGUID();
-        player->m_movementInfo.t_seat = 255;
+        player->m_movementInfo.t_seat = -1;
         player->m_movementInfo.t_pos.Relocate(-6.0f, -3.0f, 0.0f, 0.0f);
     }
 }

@@ -43,7 +43,26 @@ enum eSpells
     SPELL_DEBILITATING_RAY          = 155505,
     SPELL_REJUVENATING_SERUM        = 155498,
     // Drakonid Monstrosity
-    SPELL_ERUPTION                  = 155037
+    SPELL_ERUPTION                  = 155037,
+    // Black Iron Veteran
+    SPELL_SUNDER_ARMOR              = 155581,
+    SPELL_SHIELD_SMASH              = 155575,
+    // Black Iron Dreadweaver
+    SPELL_SHADOW_BOLT               = 155587,
+    SPELL_SHADOW_BOLT_VOLLEY        = 155588,
+    SPELL_VEIL_OF_SHADOW            = 155586,
+    // Black Iron Summoner
+    SPELL_FIREBALL                  = 155590,
+    SPELL_FROST_NOVA                = 155589,
+    SPELL_SUMMON_VETERAN            = 169151,
+    SPELL_SUMMON_DREADWEAVER        = 169088,
+    // Black Iron Elite
+    SPELL_BERSERKER_CHARGE          = 155584,
+    SPELL_BESTIAL_ROAR              = 139385,
+    SPELL_INTIMIDATING_SHOUT        = 167259,
+    // Black Iron Siegebreaker
+    SPELL_SMASH                     = 155572,
+    SPELL_FRENZY                    = 81173
 };
 
 enum eEvents
@@ -68,7 +87,26 @@ enum eEvents
     EVENT_DEBILITATING_RAY,
     EVENT_REJUVENATING_SERUM,
     // Drakonid Monstrosity
-    EVENT_ERUPTION
+    EVENT_ERUPTION,
+    // Black Iron Veteran
+    EVENT_SUNDER_ARMOR,
+    EVENT_SHIELD_SMASH,
+    // Black Iron Dreadweaver
+    EVENT_SHADOW_BOLT,
+    EVENT_SHADOW_BOLT_VOLLEY,
+    EVENT_VEIL_OF_SHADOW,
+    // Black Iron Summoner
+    EVENT_FIREBALL,
+    EVENT_FROST_NOVA,
+    EVENT_SUMMON_VETERAN,
+    EVENT_SUMMON_DREADWEAVER,
+    // Black Iron Elite
+    EVENT_BERSERKER_CHARGE,
+    EVENT_BESTIAL_ROAR,
+    EVENT_INTIMIDATING_SHOUT,
+    // Black Iron Siegebreaker
+    EVENT_SMASH,
+    EVENT_FRENZY
 };
 
 enum eActions
@@ -628,6 +666,320 @@ class mob_drakonid_monstrosity : public CreatureScript
         }
 };
 
+// Black Iron Veteran - 77034
+// Black Iron Veteran - 84462
+class mob_black_iron_veteran : public CreatureScript
+{
+    public:
+        mob_black_iron_veteran() : CreatureScript("mob_black_iron_veteran") { }
+
+        struct mob_black_iron_veteranAI : public ScriptedAI
+        {
+            mob_black_iron_veteranAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_SUNDER_ARMOR, 5000);
+                m_Events.ScheduleEvent(EVENT_SHIELD_SMASH, 15000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_SUNDER_ARMOR:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_SUNDER_ARMOR, false);
+                        m_Events.ScheduleEvent(EVENT_SUNDER_ARMOR, 15000);
+                        break;
+                    case EVENT_SHIELD_SMASH:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_SHIELD_SMASH, false);
+                        m_Events.ScheduleEvent(EVENT_SHIELD_SMASH, 30000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_veteranAI(p_Creature);
+        }
+};
+
+// Black Iron Dreadweaver - 77035
+// Black Iron Dreadweaver - 84475
+class mob_black_iron_dreadweaver : public CreatureScript
+{
+    public:
+        mob_black_iron_dreadweaver() : CreatureScript("mob_black_iron_dreadweaver") { }
+
+        struct mob_black_iron_dreadweaverAI : public ScriptedAI
+        {
+            mob_black_iron_dreadweaverAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
+                m_Events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 20000);
+                m_Events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 55000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_SHADOW_BOLT:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_SHADOW_BOLT, false);
+                        m_Events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
+                        break;
+                    case EVENT_SHADOW_BOLT_VOLLEY:
+                        me->CastSpell(me, SPELL_SHADOW_BOLT_VOLLEY, false);
+                        m_Events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 20000);
+                        break;
+                    case EVENT_VEIL_OF_SHADOW:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_VEIL_OF_SHADOW, false);
+                        m_Events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 30000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_dreadweaverAI(p_Creature);
+        }
+};
+
+// Black Iron Summoner - 77036
+class mob_black_iron_summoner : public CreatureScript
+{
+    public:
+        mob_black_iron_summoner() : CreatureScript("mob_black_iron_summoner") { }
+
+        struct mob_black_iron_summonerAI : public ScriptedAI
+        {
+            mob_black_iron_summonerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_FIREBALL, 2000);
+                m_Events.ScheduleEvent(EVENT_FROST_NOVA, 8000);
+                m_Events.ScheduleEvent(EVENT_SUMMON_VETERAN, 15000);
+                m_Events.ScheduleEvent(EVENT_SUMMON_DREADWEAVER, 30000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_FIREBALL:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_FIREBALL, false);
+                        m_Events.ScheduleEvent(EVENT_FIREBALL, 10000);
+                        break;
+                    case EVENT_FROST_NOVA:
+                        me->CastSpell(me, SPELL_FROST_NOVA, false);
+                        m_Events.ScheduleEvent(EVENT_FROST_NOVA, 20000);
+                        break;
+                    case EVENT_SUMMON_VETERAN:
+                        me->CastSpell(me, SPELL_SUMMON_VETERAN, false);
+                        m_Events.ScheduleEvent(EVENT_SUMMON_VETERAN, 30000);
+                        break;
+                    case EVENT_SUMMON_DREADWEAVER:
+                        me->CastSpell(me, SPELL_SUMMON_DREADWEAVER, false);
+                        m_Events.ScheduleEvent(EVENT_SUMMON_DREADWEAVER, 30000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_summonerAI(p_Creature);
+        }
+};
+
+// Black Iron Elite - 77037
+class mob_black_iron_elite : public CreatureScript
+{
+    public:
+        mob_black_iron_elite() : CreatureScript("mob_black_iron_elite") { }
+
+        struct mob_black_iron_eliteAI : public ScriptedAI
+        {
+            mob_black_iron_eliteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 8000);
+                m_Events.ScheduleEvent(EVENT_BESTIAL_ROAR, 10000);
+                m_Events.ScheduleEvent(EVENT_INTIMIDATING_SHOUT, 30000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_BERSERKER_CHARGE:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_BERSERKER_CHARGE, false);
+                        m_Events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 10000);
+                        break;
+                    case EVENT_BESTIAL_ROAR:
+                        me->CastSpell(me, SPELL_BESTIAL_ROAR, false);
+                        m_Events.ScheduleEvent(EVENT_BESTIAL_ROAR, 30000);
+                        break;
+                    case EVENT_INTIMIDATING_SHOUT:
+                        me->CastSpell(me, SPELL_INTIMIDATING_SHOUT, false);
+                        m_Events.ScheduleEvent(EVENT_INTIMIDATING_SHOUT, 30000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_eliteAI(p_Creature);
+        }
+};
+
+// Black Iron Siegebreaker - 77033
+class mob_black_iron_siegebreaker : public CreatureScript
+{
+    public:
+        mob_black_iron_siegebreaker() : CreatureScript("mob_black_iron_siegebreaker") { }
+
+        struct mob_black_iron_siegebreakerAI : public ScriptedAI
+        {
+            mob_black_iron_siegebreakerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_SMASH, 5000);
+                m_Events.ScheduleEvent(EVENT_FRENZY, 10000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_SMASH:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_SMASH, false);
+                        m_Events.ScheduleEvent(EVENT_SMASH, 10000);
+                        break;
+                    case EVENT_FRENZY:
+                        me->CastSpell(me, SPELL_BESTIAL_ROAR, false);
+                        m_Events.ScheduleEvent(EVENT_FRENZY, 30000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_siegebreakerAI(p_Creature);
+        }
+};
+
 // Shrapnel Storm - 153942
 class spell_shrapnel_storm : public SpellScriptLoader
 {
@@ -715,6 +1067,11 @@ void AddSC_upper_blackrock_spire()
     new mob_black_iron_alchemist();
     new mob_black_iron_engineer();
     new mob_drakonid_monstrosity();
+    new mob_black_iron_veteran();
+    new mob_black_iron_dreadweaver();
+    new mob_black_iron_summoner();
+    new mob_black_iron_elite();
+    new mob_black_iron_siegebreaker();
     new spell_shrapnel_storm();
     new spell_eruption();
 }

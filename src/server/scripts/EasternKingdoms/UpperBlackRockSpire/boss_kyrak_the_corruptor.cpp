@@ -31,7 +31,7 @@ enum eSpells
     SPELL_REJUVENATING_SERUM                = 161203,
     SPELL_VILEBLOOD_SERUM_SEARCHER          = 161235,
     SPELL_VILEBLOOD_SERUM_ACTIVATED         = 161233,
-    SPELL_VILEBLOOD_SERUM_MISSILE           = 161207
+    SPELL_VILEBLOOD_SERUM_MISSILE           = 161209
 };
 
 enum eEvents
@@ -195,6 +195,8 @@ class boss_kyrak_the_corruptor : public CreatureScript
 
                                 l_Target->CastSpell(l_Member, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, NULLAURA_EFFECT, me->GetGUID());
                             }
+
+                            l_Target->CastSpell(l_Target, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, NULLAURA_EFFECT, me->GetGUID());
                         }
                         m_Events.ScheduleEvent(EVENT_VILEBLOOD_SERUM, 15000);
                         break;
