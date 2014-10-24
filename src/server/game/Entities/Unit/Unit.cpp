@@ -12506,7 +12506,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Check for table values
     float coeff = 0;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-    if (bonus && spellProto->Effects[effIndex].BonusMultiplier == 0.0f)
+    if (bonus && (spellProto->Effects[effIndex].BonusMultiplier == 0.0f && spellProto->Effects[effIndex].AttackPowerMultiplier == 0.0f))
     {
         if (damagetype == DOT)
         {
@@ -13315,7 +13315,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     float coeff = 0.f;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     float factorMod = 1.0f;
-    if (bonus && spellProto->Effects[effIndex].BonusMultiplier == 0.0f)
+    if (bonus && (spellProto->Effects[effIndex].BonusMultiplier == 0.0f && spellProto->Effects[effIndex].AttackPowerMultiplier == 0.0f))
     {
         if (damagetype == DOT)
         {

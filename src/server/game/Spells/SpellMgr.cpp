@@ -3450,6 +3450,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 45477: // Icy touch
+                spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
+                break;
             case 65075: // Tower of Flames
             case 65077: // Tower of Frost
             case 64482: // Tower of Life
