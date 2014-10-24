@@ -4916,36 +4916,45 @@ void Spell::SendSpellGo()
             ++l_HitCount;
     }
 
-    WorldPacket data(SMSG_SPELL_GO);
+    bool l_HasRuneData                  = m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_DEATH_KNIGHT;
+
+    // @TODO: Find how to trigger it, never find it in sniff (6.0.2)
+    bool l_HasSpellCastLogData          = false;// (l_CastFlags & CAST_FLAG_PENDING) == 0 || m_spellInfo->AttributesEx7 & SPELL_ATTR7_SEND_CAST_LOG_DATA;
+
+    Unit::PowerTypeSet& l_UsablePowers = m_caster->GetUsablePowers();
+    uint32 l_ExtraTargetsCount         = m_targets.GetExtraTargetsCount();
+
+    // Perdict data are empty in SMSG_SPELL_GO
     uint64 l_PredicOverrideTarget = 0;
-    uint32 l_PredictAmount = 0;
-    uint8 l_PredicType = 0;
+    uint32 l_PredictAmount        = 0;
+    uint8 l_PredicType            = 0;
 
-    uint32 l_ExtraTargetsCount = m_targets.GetExtraTargetsCount();
-
+    // Guids
     uint64 l_CasterGuid1    = m_castItemGUID ? m_castItemGUID : m_caster->GetGUID();
     uint64 l_CasterGuid2    = m_caster->GetGUID();
     uint64 l_TargetGUID     = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : 0;
     uint64 l_TargetItemGUID = itemTarget ? itemTarget->GetGUID() : 0;
 
-    data.appendPackGUID(l_CasterGuid1);
-    data.appendPackGUID(l_CasterGuid2);
-    data << uint8(m_cast_count);
-    data << uint32(m_spellInfo->Id);
-    data << uint32(l_CastFlags);
-    data << uint32(m_casttime);
-    data << uint32(l_HitCount);
-    data << uint32(l_MissCount);
-    data << uint32(l_MissCount);
-    data.WriteBits(m_targets.GetTargetMask(), 21);
-    data.WriteBit(m_targets.HasSrc());
-    data.WriteBit(m_targets.HasDst());
-    data.WriteBit(false);
-    data.WriteBits(0, 7);                   ///< Src target name
-    data.FlushBits();
+    // Forge the packet !
+    WorldPacket l_Data(SMSG_SPELL_GO);
+    l_Data.appendPackGUID(l_CasterGuid1);
+    l_Data.appendPackGUID(l_CasterGuid2);
+    l_Data << uint8(m_cast_count);
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(l_CastFlags);
+    l_Data << uint32(m_casttime);
+    l_Data << uint32(l_HitCount);
+    l_Data << uint32(l_MissCount);
+    l_Data << uint32(l_MissCount);
+    l_Data.WriteBits(m_targets.GetTargetMask(), 21);
+    l_Data.WriteBit(m_targets.HasSrc());
+    l_Data.WriteBit(m_targets.HasDst());
+    l_Data.WriteBit(false);
+    l_Data.WriteBits(0, 7);                   ///< Src target name
+    l_Data.FlushBits();
 
-    data.appendPackGUID(l_TargetGUID);
-    data.appendPackGUID(l_TargetItemGUID);
+    l_Data.appendPackGUID(l_TargetGUID);
+    l_Data.appendPackGUID(l_TargetItemGUID);
 
     if (m_targets.HasSrc())
     {
@@ -4964,10 +4973,10 @@ void Spell::SendSpellGo()
             l_Z = m_targets.GetSrc()->_position.m_positionZ;
         }
 
-        data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
-        data << float(l_Y);
-        data << float(l_Z);
-        data << float(l_X);
+        l_Data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
+        l_Data << float(l_Y);
+        l_Data << float(l_Z);
+        l_Data << float(l_X);
     }
 
     if (m_targets.HasDst())
@@ -4987,85 +4996,151 @@ void Spell::SendSpellGo()
             l_Z = m_targets.GetDst()->_position.m_positionZ;
         }
 
-        data.appendPackGUID(m_targets.GetDst()->_transportGUID);
-        data << float(l_Y);
-        data << float(l_Z);
-        data << float(l_X);
+        l_Data.appendPackGUID(m_targets.GetDst()->_transportGUID);
+        l_Data << float(l_Y);
+        l_Data << float(l_Z);
+        l_Data << float(l_X);
     }
 
-    data << uint32(0);                      ///< Remaining power count
+    l_Data << uint32(l_UsablePowers.size());        ///< Remaining power count
 
-    data << uint32(0);                      ///< Travel time
-    data << float(m_targets.GetSpeed());
+    // Used in CMissile::AdjustAllMissileTrajectoryDurations
+    // MissileTrajectory
+    {
+        l_Data << uint32(0);                        ///< Travel time
+        l_Data << float(m_targets.GetElevation());  ///< Pitch
+    }
 
-    data << uint32(0);
-    data << uint8(0);
+    // Ammo_Struct
+    {
+        l_Data << int32(0);                         ///< DisplayID
+        l_Data << int8(0);                          ///< InventoryType
+    }
 
-    data << uint8(0);
+    l_Data << uint8(0);                             ///< DestLocSpellCastIndex (see Spell::AddProcessedDestLocSpellCast)
 
-    data << uint32(l_ExtraTargetsCount);
+    l_Data << uint32(l_ExtraTargetsCount);
 
-    data << uint32(0);
-    data << uint32(0);
+    // Immunities_Struct
+    {
+        l_Data << int32(0);                         ///< School
+        l_Data << int32(0);                         ///< Value
+    }
 
-    data << uint32(l_PredictAmount);
-    data << uint8(l_PredicType);
-    data.appendPackGUID(l_PredicOverrideTarget);
+    l_Data << uint32(l_PredictAmount);
+    l_Data << uint8(l_PredicType);
+    l_Data.appendPackGUID(l_PredicOverrideTarget);
 
     // Send hit guid
     {
         // First units ...
         for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             if ((*ihit).missCondition == SPELL_MISS_NONE)
-                data.appendPackGUID(ihit->targetGUID);
+                l_Data.appendPackGUID(ihit->targetGUID);
 
         // And GameObjects :)
         for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end(); ++ighit)
-            data.appendPackGUID(ighit->targetGUID);
+            l_Data.appendPackGUID(ighit->targetGUID);
     }
 
     // Send missed guid
     {
         for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             if ((*ihit).missCondition != SPELL_MISS_NONE)
-                data.appendPackGUID(ihit->targetGUID);
+                l_Data.appendPackGUID(ihit->targetGUID);
     }
 
     for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         if (ihit->missCondition != SPELL_MISS_NONE)
         {
-            data.WriteBits(ihit->missCondition, 4);
+            l_Data.WriteBits(ihit->missCondition, 4);
             if (ihit->missCondition == SPELL_MISS_REFLECT)
-                data.WriteBits(ihit->reflectResult, 4);
+                l_Data.WriteBits(ihit->reflectResult, 4);
 
-            data.FlushBits();
+            l_Data.FlushBits();
         }
     }
 
+    // Remaining Power
+    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
+    {
+        Powers l_Power = Powers((*l_Itr));
+        l_Data << int32(m_caster->GetPower(l_Power));
+        l_Data << int8(l_Power);
+    }
+
+    // Target Points
     for (auto l_Itr : m_targets.GetExtraTargets())
     {
-        data.appendPackGUID(l_Itr._transportGUID);
-        data << float(l_Itr._position.GetPositionX());
-        data << float(l_Itr._position.GetPositionY());
-        data << float(l_Itr._position.GetPositionZ());
+        l_Data.appendPackGUID(l_Itr._transportGUID);
+        l_Data << float(l_Itr._position.GetPositionX());
+        l_Data << float(l_Itr._position.GetPositionY());
+        l_Data << float(l_Itr._position.GetPositionZ());
     }
 
-    data.WriteBits(0, 18);                  ///< Cast flag ex
-    data.WriteBit(false);
-    data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
-    data.FlushBits();
+    l_Data.WriteBits(0, 18);                                      ///< Cast flag ex
+    l_Data.WriteBit(l_HasRuneData);                               ///< HasRuneData
+    l_Data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
+    l_Data.FlushBits();
 
+    // JamRuneData
+    if (l_HasRuneData)
+    {
+        Player* l_DeathKnight = m_caster->ToPlayer();
+
+        l_Data << uint8(m_runesState);                            ///< Start
+        l_Data << uint8(l_DeathKnight->GetRunesState());          ///< Count
+        l_Data.WriteBits(MAX_RUNES, 3);                           ///< Cooldowns lenght
+        l_Data.FlushBits();
+
+        for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
+        {
+            float l_BaseCooldown = float(l_DeathKnight->GetRuneBaseCooldown(l_I));
+            uint8 l_Cooldown = uint8((l_BaseCooldown - float(l_DeathKnight->GetRuneCooldown(l_I))) / l_BaseCooldown * 255);
+
+            l_Data << uint8(l_Cooldown);                          ///< Cooldowns
+        }
+    }
+
+    // JamProjectileVisual
     if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
     {
-        data << uint32(0); // Projectile Visual 1
-        data << uint32(0); // Projectile Visual 2
+        l_Data << uint32(0);                                      ///< Projectile Visual 1
+        l_Data << uint32(0);                                      ///< Projectile Visual 2
     }
 
-    data.WriteBit(false);
-    data.FlushBits();
+    l_Data.WriteBit(l_HasSpellCastLogData);
 
-    m_caster->SendMessageToSet(&data, true);
+    // JamSpellCastLogData
+    if (l_HasSpellCastLogData)
+    {
+        int32 l_Health      = m_caster->GetHealth();
+        int32 l_AttackPower = m_caster->GetTotalAttackPowerValue(m_attackType);
+        int32 l_SpellPower  = m_caster->SpellBaseDamageBonusDone(m_spellSchoolMask);
+
+        l_Data << int32(l_Health);                                ///< Health
+        l_Data << int32(l_AttackPower);                           ///< Attack power
+        l_Data << int32(l_SpellPower);                            ///< Spell power
+
+        uint32 l_PowerDataSize = l_UsablePowers.size();
+
+        l_Data << uint32(l_PowerDataSize);
+        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
+        {
+            Powers l_Power = Powers((*l_Itr));
+            l_Data << int32(l_Power);                             ///< Power type
+            l_Data << int32(m_caster->GetPower(l_Power));         ///< Amount
+        }
+
+        bool l_HasUnknowFloat = false;
+
+        l_Data.WriteBit(l_HasUnknowFloat);
+        if (l_HasUnknowFloat)
+            l_Data << float(0.0f);
+    }
+
+    m_caster->SendMessageToSet(&l_Data, true);
 }
 
 void Spell::SendLogExecute()

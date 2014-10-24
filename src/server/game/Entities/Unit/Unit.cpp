@@ -16541,6 +16541,28 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
+Unit::PowerTypeSet Unit::GetUsablePowers() const
+{
+    PowerTypeSet l_Powers;
+    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
+    {
+        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        if (!powerEntry)
+            continue;
+
+        if (powerEntry->classId != getClass())
+            continue;
+
+        l_Powers.insert(Powers(powerEntry->power));
+    }
+
+    // POWER_RUNES isn't in ChrClassesXPowerTypes.dbc
+    if (getClass() == CLASS_DEATH_KNIGHT)
+        l_Powers.insert(POWER_RUNES);
+
+    return l_Powers;
+}
+
 uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
     if (powerId == POWER_ENERGY)
