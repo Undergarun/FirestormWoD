@@ -3887,6 +3887,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 161199:// Debilitating Fixation (Kyrak)
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[1].ApplyAuraName = 0;
+                spellInfo->ChannelInterruptFlags |= 0x1008;
+                break;
+            case 155498:// Rejuvenating Serum
+            case 161203:// Rejuvenating Serum (Kyrak)
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+                break;
+            case 161288:// Vileblood Serum (DoT)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
