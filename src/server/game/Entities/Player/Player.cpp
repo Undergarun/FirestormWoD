@@ -30224,7 +30224,7 @@ void Player::OnEnterPvPCombat()
             if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
                 RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
 
-    SetHealth(hpPct * (float)GetMaxHealth());
+    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
 }
 
 void Player::UpdatePvP(uint32 diff)
@@ -30250,5 +30250,5 @@ void Player::OnLeavePvPCombat()
             if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
                 RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
 
-    SetHealth(hpPct * (float)GetMaxHealth());
+    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
 }
