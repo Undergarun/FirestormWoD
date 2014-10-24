@@ -1216,9 +1216,10 @@ enum TrinityStrings
     LANG_CONFESSION_EMOTE                   = 14056,
 
     // Upper BlackRock Spire
-    LANG_RALLYING_BANNER_SUMMONED           = 14057
+    LANG_RALLYING_BANNER_SUMMONED           = 14057,
+    LANG_DISRUPT_RUNE_CONDUIT               = 14058
 
-    // NOT RESERVED IDS                   14058-1999999999
+    // NOT RESERVED IDS                   14059-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };
