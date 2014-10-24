@@ -1774,9 +1774,9 @@ struct ResearchSiteEntry
 struct ScalingStatDistributionEntry
 {
     uint32  Id;                                             // 0        m_ID
-    uint32  Minlevel;                                       // 1        m_Minlevel
+    uint32  MinLevel;                                       // 1        m_Minlevel
     uint32  MaxLevel;                                       // 2        m_Maxlevel
-    uint32  Unk_601_18612;                                  // 3        Unk_601_18612
+    uint32  CurveProperties;                                // 3        m_CurveProperties
 };
 
 // 6.0.2 19027 - DBC doesn't exists

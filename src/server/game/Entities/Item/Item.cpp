@@ -1833,9 +1833,9 @@ uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
         case ITEM_QUALITY_UNCOMMON:
         return randProperty->UncommonPropertiesPoints[offset];
         case ITEM_QUALITY_RARE:
+        case ITEM_QUALITY_HEIRLOOM:
             return randProperty->RarePropertiesPoints[offset];
         case ITEM_QUALITY_EPIC:
-        case ITEM_QUALITY_HEIRLOOM:
             return randProperty->EpicPropertiesPoints[offset];
         default:
             return 0;
@@ -1863,7 +1863,7 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
     if (ilvl == ItemLevel)
         return Armor;
 
-    uint32 quality = Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_EPIC : Quality;
+    uint32 quality = Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality;
     uint32 inventoryType = InventoryType;
 
     if (Class != ITEM_CLASS_ARMOR || SubClass != ITEM_SUBCLASS_ARMOR_SHIELD)
@@ -1920,4 +1920,21 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
         maxDamage = floor(weaponMaxDamageCalc + 0.5f);
         minDamage = floor(((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
     }
+}
+
+uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
+{
+    ScalingStatDistributionEntry const* ssdEntry = sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution);
+
+    if (!ssdEntry)
+        return ItemLevel;
+
+    if (level < ssdEntry->MinLevel)
+        level = ssdEntry->MinLevel;
+
+    if (level > ssdEntry->MaxLevel)
+        level = ssdEntry->MaxLevel;
+
+    uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
+    return ilvl ? ilvl : ItemLevel;
 }

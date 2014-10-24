@@ -237,8 +237,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
-        m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
-        m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
+        m_weaponDamage[i][MINDAMAGE] = 0.f;
+        m_weaponDamage[i][MAXDAMAGE] = 0.f;
     }
 
     for (uint8 i = 0; i < MAX_STATS; ++i)
