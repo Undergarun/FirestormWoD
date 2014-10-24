@@ -7042,7 +7042,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     break;
                 }
                 case 50034: // Blood Rites
-                case 56835: // Reaping
                 {
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         return;

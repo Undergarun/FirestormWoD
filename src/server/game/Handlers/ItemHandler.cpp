@@ -1528,7 +1528,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (item->GetUInt64Value(ITEM_FIELD_GIFT_CREATOR))        // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
+    if (item->GetGuidValue(ITEM_FIELD_GIFT_CREATOR))        // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
     {
         m_Player->SendEquipError(EQUIP_ERR_CANT_WRAP_WRAPPED, item, NULL);
         return;
@@ -1592,7 +1592,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
             break;
     }
 
-    item->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
+    item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, m_Player);
 

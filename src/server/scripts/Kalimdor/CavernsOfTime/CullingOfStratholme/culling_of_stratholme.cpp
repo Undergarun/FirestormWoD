@@ -522,9 +522,9 @@ public:
                             if (Unit* pDisguised2 = me->SummonCreature(NPC_CITY_MAN, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                             {
                                 uiInfiniteDraconianGUID[2] = pDisguised2->GetGUID();
-                                pDisguised0->SetUInt64Value(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[1]);
-                                pDisguised1->SetUInt64Value(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[0]);
-                                pDisguised2->SetUInt64Value(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[1]);
+                                pDisguised0->SetGuidValue(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[1]);
+                                pDisguised1->SetGuidValue(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[0]);
+                                pDisguised2->SetGuidValue(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[1]);
                             }
                         }
                     }
@@ -632,8 +632,8 @@ public:
                                 uiUtherGUID = pUther->GetGUID();
                                 pUther->SetWalk(false);
                                 pUther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-                                pUther->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiUtherGUID);
+                                pUther->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
+                                me->SetGuidValue(UNIT_FIELD_TARGET, uiUtherGUID);
                             }
                             JumpToNextStep(17000);
                             break;
@@ -658,7 +658,7 @@ public:
                         //After waypoint 1
                         case 5:
                             if (Creature* pJaina = Unit::GetCreature(*me, uiJainaGUID))
-                                pJaina->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pJaina->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                             DoScriptText(SAY_PHASE104, me);
                             JumpToNextStep(10000);
                             break;
@@ -741,13 +741,13 @@ public:
                         case 21:
                             SetEscortPaused(false);
                             bStepping = false;
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, 0);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 3
                         case 22:
                             DoScriptText(SAY_PHASE118, me);
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, 0);
                             JumpToNextStep(10000);
                             break;
                         case 23:
@@ -761,7 +761,7 @@ public:
                             if (Creature* pUther = Unit::GetCreature(*me, uiUtherGUID))
                                 pUther->DisappearAndDie();
 
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, 0);
                             JumpToNextStep(0);
                             break;
                         //After Gossip 1 (waypoint 8)
@@ -769,7 +769,7 @@ public:
                             if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
                             {
                                 uiStalkerGUID = pStalker->GetGUID();
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                                me->SetGuidValue(UNIT_FIELD_TARGET, uiStalkerGUID);
                             }
                             JumpToNextStep(1000);
                             break;
@@ -781,12 +781,12 @@ public:
                             SetEscortPaused(false);
                             bStepping = false;
                             SetRun(false);
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, 0);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 9
                         case 27:
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiCitymenGUID[0]);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, uiCitymenGUID[0]);
                             if (Creature* pCityman = Unit::GetCreature(*me, uiCitymenGUID[0]))
                             {
                                 pCityman->SetTarget(me->GetGUID());
@@ -817,10 +817,10 @@ public:
                             if (Creature* pCityman1 = Unit::GetCreature(*me, uiCitymenGUID[1]))
                             {
                                 DoScriptText(SAY_PHASE204, pCityman1);
-                                pCityman1->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pCityman1->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                                 if (Creature* pCityman0 = Unit::GetCreature(*me, uiCitymenGUID[0]))
                                     pCityman0->Kill(pCityman0);
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiCitymenGUID[1]);
+                                me->SetGuidValue(UNIT_FIELD_TARGET, uiCitymenGUID[1]);
                             }
                             JumpToNextStep(0);
                             break;
@@ -838,7 +838,7 @@ public:
                             if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 uiStalkerGUID = pStalker->GetGUID();
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                                me->SetGuidValue(UNIT_FIELD_TARGET, uiStalkerGUID);
                             }
                             DoScriptText(SAY_PHASE205, me);
                             JumpToNextStep(3000);
@@ -847,7 +847,7 @@ public:
                             if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
                                 uiStalkerGUID = pStalkerM->GetGUID();
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                                me->SetGuidValue(UNIT_FIELD_TARGET, uiStalkerGUID);
                             }
                             if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
@@ -862,7 +862,7 @@ public:
                             if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
                             {
                                 DoScriptText(SAY_PHASE206, pMalganis);
-                                pMalganis->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pMalganis->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                                 pMalganis->SetReactState(REACT_PASSIVE);
                                 me->SetFacingToObject(pMalganis);
                             }
@@ -891,7 +891,7 @@ public:
                             if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 uiStalkerGUID = pStalker->GetGUID();
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                                me->SetGuidValue(UNIT_FIELD_TARGET, uiStalkerGUID);
                             }
                             DoScriptText(SAY_PHASE209, me);
 
@@ -1001,11 +1001,11 @@ public:
                         //After Gossip 2 (waypoint 22)
                         case 61:
                             if (Creature* pDisguised0 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[0]))
-                                pDisguised0->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pDisguised0->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                             if (Creature* pDisguised1 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[1]))
-                                pDisguised1->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pDisguised1->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                             if (Creature* pDisguised2 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[2]))
-                                pDisguised2->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                                pDisguised2->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                             JumpToNextStep(1000);
                             break;
                         case 62:
@@ -1120,7 +1120,7 @@ public:
                                     SpawnTimeRift(17, &uiEpochGUID);
                                     if (Creature* pEpoch = Unit::GetCreature(*me, uiEpochGUID))
                                         DoScriptText(SAY_PHASE314, pEpoch);
-                                    me->SetUInt64Value(UNIT_FIELD_TARGET, uiEpochGUID);
+                                    me->SetGuidValue(UNIT_FIELD_TARGET, uiEpochGUID);
                                 }
                             JumpToNextStep(18000);
                             break;
@@ -1191,7 +1191,7 @@ public:
                         case 86:
                             DoScriptText(SAY_PHASE502, me);
                             JumpToNextStep(6000);
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiMalganisGUID);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, uiMalganisGUID);
                             break;
                         case 87:
                             if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
@@ -1218,7 +1218,7 @@ public:
                         //After waypoint 56
                         case 89:
                             SetRun(true);
-                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiMalganisGUID);
+                            me->SetGuidValue(UNIT_FIELD_TARGET, uiMalganisGUID);
                             DoScriptText(SAY_PHASE503, me);
                             JumpToNextStep(7000);
                             break;
@@ -1226,7 +1226,7 @@ public:
                             if (instance)
                             {
                                 instance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                                me->SetGuidValue(UNIT_FIELD_TARGET, instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
                             }
                             DoScriptText(SAY_PHASE504, me);
                             bStepping = false;

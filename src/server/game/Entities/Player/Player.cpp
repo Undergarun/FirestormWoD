@@ -1128,7 +1128,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, createInfo->Gender);
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
-    SetUInt64Value(OBJECT_FIELD_DATA, 0);
+    SetGuidValue(OBJECT_FIELD_DATA, 0);
     SetUInt32Value(PLAYER_FIELD_GUILD_RANK_ID, 0);
     SetGuildLevel(0);
     SetUInt32Value(PLAYER_FIELD_GUILD_TIME_STAMP, 0);
@@ -2795,7 +2795,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // The player was ported to another map and loses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
-    if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetUInt64Value(PLAYER_FIELD_DUEL_ARBITER)))
+    if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
     if (GetMapId() == mapid)
@@ -9142,9 +9142,9 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
 void Player::SetInGuild(uint32 guildId)
 {
     if (guildId)
-        SetUInt64Value(OBJECT_FIELD_DATA, MAKE_NEW_GUID(guildId, 0, HIGHGUID_GUILD));
+        SetGuidValue(OBJECT_FIELD_DATA, MAKE_NEW_GUID(guildId, 0, HIGHGUID_GUILD));
     else
-        SetUInt64Value(OBJECT_FIELD_DATA, 0);
+        SetGuidValue(OBJECT_FIELD_DATA, 0);
 
     ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GUILD_LEVEL_ENABLED, guildId != 0 && sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED));
     SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
@@ -9392,7 +9392,7 @@ void Player::CheckDuelDistance(time_t currTime)
     if (!duel)
         return;
 
-    uint64 duelFlagGUID = GetUInt64Value(PLAYER_FIELD_DUEL_ARBITER);
+    uint64 duelFlagGUID = GetGuidValue(PLAYER_FIELD_DUEL_ARBITER);
     GameObject* obj = GetMap()->GetGameObject(duelFlagGUID);
     if (!obj)
         return;
@@ -9506,7 +9506,7 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->CastSpell(duel->opponent, 52852, true);
 
     //Remove Duel Flag object
-    GameObject* obj = GetMap()->GetGameObject(GetUInt64Value(PLAYER_FIELD_DUEL_ARBITER));
+    GameObject* obj = GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER));
     if (obj)
         duel->initiator->RemoveGameObject(obj, true);
 
@@ -9547,9 +9547,9 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->RewardHonor(NULL, 1, amount);
 
     //cleanups
-    SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, 0);
+    SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
-    duel->opponent->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, 0);
+    duel->opponent->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
     duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
 
     delete duel->opponent->duel;
@@ -13867,9 +13867,9 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
                 }
             }
             m_items[slot] = pItem;
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
-            pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, GetGUID());
-            pItem->SetUInt64Value(ITEM_FIELD_OWNER, GetGUID());
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
+            pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, GetGUID());
+            pItem->SetGuidValue(ITEM_FIELD_OWNER, GetGUID());
 
             pItem->SetSlot(slot);
             pItem->SetContainer(NULL);
@@ -14208,9 +14208,9 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     }
 
     m_items[slot] = pItem;
-    SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
-    pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, GetGUID());
-    pItem->SetUInt64Value(ITEM_FIELD_OWNER, GetGUID());
+    SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
+    pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, GetGUID());
+    pItem->SetGuidValue(ITEM_FIELD_OWNER, GetGUID());
     pItem->SetSlot(slot);
     pItem->SetContainer(NULL);
 
@@ -14271,7 +14271,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
             }
 
             m_items[slot] = NULL;
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
 
             if (slot < EQUIPMENT_SLOT_END)
                 SetVisibleItemSlot(slot, NULL);
@@ -14279,8 +14279,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
 
-        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, 0);
-        // pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0); not clear owner at remove (it will be set at store). This used in mail and auction code
+        pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, 0);
         pItem->SetSlot(NULL_SLOT);
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
@@ -14367,7 +14366,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
 
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
@@ -14402,7 +14401,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         }
 
         //pItem->SetOwnerGUID(0);
-        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, 0);
+        pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, 0);
         pItem->SetSlot(NULL_SLOT);
         pItem->SetState(ITEM_REMOVED, this);
     }
@@ -15327,7 +15326,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (BUYBACK_SLOT_START * 4) + (eslot * 4), pItem->GetGUID());
+        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (BUYBACK_SLOT_START * 4) + (eslot * 4), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, proto->SellPrice * pItem->GetCount());
         else
@@ -15364,7 +15363,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         m_items[slot] = NULL;
 
         uint32 eslot = slot - BUYBACK_SLOT_START;
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (BUYBACK_SLOT_START * 4) + (slot * 4), 0);
+        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (BUYBACK_SLOT_START * 4) + (slot * 4), 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
 
@@ -18951,7 +18950,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     }
 
     // overwrite possible wrong/corrupted guid
-    SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+    SetGuidValue(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
     uint8 Gender = fields[5].GetUInt8();
     if (!IsValidGender(Gender))
@@ -18996,7 +18995,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX, fields[66].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
 
-    SetUInt64Value(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
+    SetGuidValue(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
 
@@ -19010,7 +19009,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // cleanup inventory related item value fields (its will be filled correctly in _LoadInventory)
     for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
     {
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
+        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
         SetVisibleItemSlot(slot, NULL);
 
         delete m_items[slot];
@@ -19363,15 +19362,15 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
     // clear channel spell data (if saved at channel spell casting)
-    SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
+    SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
     SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
 
     // clear charm/summon related fields
     SetOwnerGUID(0);
-    SetUInt64Value(UNIT_FIELD_CHARMED_BY, 0);
-    SetUInt64Value(UNIT_FIELD_CHARM, 0);
-    SetUInt64Value(UNIT_FIELD_SUMMON, 0);
-    SetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT, 0);
+    SetGuidValue(UNIT_FIELD_CHARMED_BY, 0);
+    SetGuidValue(UNIT_FIELD_CHARM, 0);
+    SetGuidValue(UNIT_FIELD_SUMMON, 0);
+    SetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, 0);
     SetCreatorGUID(0);
 
     RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
@@ -19384,7 +19383,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     ClearInCombat();
 
     // make sure the unit is considered not in duel for proper loading
-    SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, 0);
+    SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
 
     // reset stats before loading any modifiers
@@ -24901,7 +24900,7 @@ bool Player::CanAlwaysSee(WorldObject const* obj) const
     if (m_mover == obj)
         return true;
 
-    if (uint64 guid = GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT))
+    if (uint64 guid = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT))
         if (obj->GetGUID() == guid)
             return true;
 
@@ -26828,7 +26827,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName(), target->GetEntry(), target->GetTypeId());
 
-        if (!AddUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT, target->GetGUID()))
+        if (!AddGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, target->GetGUID()))
         {
             sLog->outFatal(LOG_FILTER_PLAYER, "Player::CreateViewpoint: Player %s cannot add new viewpoint!", GetName());
             return;
@@ -26844,7 +26843,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName());
 
-        if (!RemoveUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT, target->GetGUID()))
+        if (!RemoveGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, target->GetGUID()))
         {
             sLog->outFatal(LOG_FILTER_PLAYER, "Player::CreateViewpoint: Player %s cannot remove current viewpoint!", GetName());
             return;
@@ -26863,7 +26862,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
 WorldObject* Player::GetViewpoint() const
 {
-    if (uint64 guid = GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT))
+    if (uint64 guid = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT))
         return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
     return NULL;
 }
@@ -27834,10 +27833,10 @@ bool Player::LearnTalent(uint32 talentId)
     if (!talentInfo)
         return false;
 
-    if (talentInfo->classId != getClass())
+    if (talentInfo->ClassID != getClass())
         return false;
 
-    uint32 spellid = talentInfo->spellId;
+    uint32 spellid = talentInfo->SpellID;
     if (spellid == 0)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Talent.dbc have for talent: %uspell id = 0", talentId);
@@ -27855,12 +27854,12 @@ bool Player::LearnTalent(uint32 talentId)
         if (!tInfo)
             continue;
 
-        if (tInfo->classId != getClass())
+        if (tInfo->ClassID != getClass())
             continue;
 
-        if (tInfo->rank == talentInfo->rank && HasSpell(tInfo->spellId))
+        if (tInfo->TierID == talentInfo->TierID && HasSpell(tInfo->SpellID))
         {
-            sLog->outAshran("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->spellId, tInfo->spellId);
+            sLog->outAshran("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->SpellID, tInfo->SpellID);
             return false;
         }
     }
@@ -28034,7 +28033,7 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
         data->put<uint16>(enchantmentMaskPos, enchantmentMask);
 
         *data << uint16(0);                                 // unknown
-        data->appendPackGUID(item->GetUInt64Value(ITEM_FIELD_CREATOR)); // item creator
+        data->appendPackGUID(item->GetGuidValue(ITEM_FIELD_CREATOR)); // item creator
         *data << uint32(0);                                 // seed?
     }
 
@@ -29992,7 +29991,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
     m_BattlePetSummon->AddObjectToRemoveList();
     m_BattlePetSummon = NULL;
 
-    SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
+    SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
 }
 /// Summon new pet
@@ -30052,12 +30051,12 @@ void Player::SummonBattlePetCallback(PreparedQueryResult& p_Result)
     l_Statement->setUInt32(1, GetGUIDLow());
     CharacterDatabase.Execute(l_Statement);
 
-    SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, l_Pet.JournalID);
-    SetUInt64Value(UNIT_FIELD_CRITTER, l_CurrentPet->GetGUID());
+    SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, l_Pet.JournalID);
+    SetGuidValue(UNIT_FIELD_CRITTER, l_CurrentPet->GetGUID());
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
     SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, l_Pet.Breed);
 
-    l_CurrentPet->SetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, l_Pet.JournalID);
+    l_CurrentPet->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, l_Pet.JournalID);
     l_CurrentPet->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_Pet.Level);
 
     if (!l_Pet.Name.empty())
