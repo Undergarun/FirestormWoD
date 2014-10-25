@@ -349,7 +349,6 @@ void Player::UpdateMaxPower(Powers power)
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
     float val2 = 0.0f;
-    float level = float(getLevel());
 
     ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
@@ -365,15 +364,16 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
         index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG;
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
-        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RAPPerAgility;
+        val2 = GetStat(STAT_AGILITY) * entry->RAPPerAgility;
     }
     else
     {
-        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrenth, 0.0f);
-        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
+        float strengthValue = GetStat(STAT_STRENGTH) * entry->APPerStrenth;
+        float agilityValue = GetStat(STAT_AGILITY) * entry->APPerAgility;
 
-        if (GetShapeshiftForm() == FORM_CAT || GetShapeshiftForm() == FORM_BEAR)
-            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * 2, 0.0f);
+        // Double bonus ??? Why so - THis should be here
+        // if (GetShapeshiftForm() == FORM_CAT || GetShapeshiftForm() == FORM_BEAR)
+        //     agilityValue += GetStat(STAT_AGILITY);
 
         val2 = strengthValue + agilityValue;
     }
