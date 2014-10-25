@@ -68,6 +68,7 @@ enum eCreatures
     NPC_COMMANDER_THARBEK       = 79912,
     NPC_IRONBARB_SKYREAVER      = 80098,
     NPC_VILEMAW_HATCHLING       = 77096,
+    NPC_IMBUED_IRON_AXE_STALKER = 80307,
 
     // Warlord Zaela
     NPC_WARLORD_ZAELA           = 77120

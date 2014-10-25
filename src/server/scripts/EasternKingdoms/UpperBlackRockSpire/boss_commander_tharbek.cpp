@@ -28,17 +28,30 @@
 enum eSpells
 {
     // Ironbarb Skyreaver
-    SPELL_INCINERATING_BREATH_DUMMY = 161882,
-    SPELL_INCINERATING_BREATH       = 161883,
-    SPELL_NOXIUS_SPIT_SEARCHER      = 161811,
-    SPELL_NOXIUS_SPIT_MISSILE       = 161824
+    SPELL_INCINERATING_BREATH_DUMMY = 161882,   // Breathes a cone of fire, inflicting 25000 Fire damage every 1 sec. and increases Fire damage taken by 100%. This effect stacks.
+    SPELL_INCINERATING_BREATH       = 161883,   // Breathes a cone of fire, inflicting 25000 Fire damage every 1 sec. and increases Fire damage taken by 100%. This effect stacks.
+    SPELL_NOXIUS_SPIT_SEARCHER      = 161811,   // Creates a puddle of acid, inflicting 25000 Nature damage every 1.5 sec.
+    SPELL_NOXIUS_SPIT_MISSILE       = 161824,   // Creates a puddle of acid, inflicting 25000 Nature damage every 1.5 sec.
+    // Tharbek, Commander of the Iron March
+    SPELL_IRON_AXE                  = 161765,   // Inflicts 42750 to 47250 Physical damage and causes the target to bleed for 2000 Physical damage every 1.5 sec. for 6 sec.
+    SPELL_IRON_REAVER               = 161989,   // Charges a target, inflicting 38000 to 42000 Physical damage to anyone in the way.
+    SPELL_IRON_REAVER_DAMAGE        = 162000,   // Charges a target, inflicting 38000 to 42000 Physical damage to anyone in the way.
+    SPELL_IMBUED_IRON_AXE_SEARCHER  = 162085,   // Throws a whirling axe, inflicting 28500 to 31500 Fire damage to nearby enemies.
+    SPELL_IMBUED_IRON_AXE_MISSILE   = 162090,   // Summon 80307
+    SPELL_IMBUED_IRON_AXE_AURA      = 162092,   // Damage aura for 80307
+    SPELL_IRON_RAGE                 = 161985    // Damage inflicted increased by 50%.
 };
 
 enum eEvents
 {
     // Ironbarb Skyreaver
     EVENT_INCINERATING_BREATH   = 1,
-    EVENT_NOXIOUS_SPIT
+    EVENT_NOXIOUS_SPIT,
+    // Tharbek, Commander of the Iron March
+    EVENT_IRON_AXE,
+    EVENT_IRON_REAVER,
+    EVENT_IMBUED_IRON_AXE,
+    EVENT_IRON_RAGE
 };
 
 enum eSays
@@ -65,7 +78,8 @@ enum eActions
     ACTION_THARBEK_TALK_3,
     ACTION_ZAELA_TALK_4,
     ACTION_THARBEK_TALK_4,
-    ACTION_ACTIVATE_SPELLS
+    ACTION_ACTIVATE_SPELLS,
+    ACTION_ACTIVATE_CUSTOM_RESET
 };
 
 enum eMoves
@@ -207,18 +221,28 @@ class boss_commander_tharbek : public CreatureScript
 
             void Reset()
             {
-                _Reset();
+                if (m_Phase == PHASE_BOSS)
+                {
+                    summons.remove(m_IronbarbSkyreaverGuid);
 
-                me->ReenableEvadeMode();
+                    _Reset();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+                    me->ReenableEvadeMode();
 
-                if (m_Instance)
-                    m_Instance->SetBossState(DATA_COMMANDER_THARBEK, NOT_STARTED);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
 
-                m_Events.Reset();
+                    if (m_Instance)
+                        m_Instance->SetBossState(DATA_COMMANDER_THARBEK, NOT_STARTED);
 
-                m_Phase = PHASE_BOSS;
+                    if (Creature* l_Skyreaver = Creature::GetCreature(*me, m_IronbarbSkyreaverGuid))
+                    {
+                        l_Skyreaver->Respawn();
+                        l_Skyreaver->GetMotionMaster()->Clear();
+                        l_Skyreaver->GetMotionMaster()->MoveTargetedHome();
+                    }
+
+                    m_Events.Reset();
+                }
             }
 
             void KilledUnit(Unit* p_Who)
@@ -231,13 +255,14 @@ class boss_commander_tharbek : public CreatureScript
             {
                 _EnterCombat();
 
+                Talk(TALK_AGGRO);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+
                 if (m_Instance)
                 {
                     m_Instance->SetBossState(DATA_COMMANDER_THARBEK, IN_PROGRESS);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 }
-
-                Talk(TALK_AGGRO);
             }
 
             void JustDied(Unit* p_Killer)
@@ -264,6 +289,12 @@ class boss_commander_tharbek : public CreatureScript
                 }
             }
 
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            {
+                if (p_SpellInfo->Id == SPELL_IMBUED_IRON_AXE_SEARCHER)
+                    me->CastSpell(p_Target, SPELL_IMBUED_IRON_AXE_MISSILE, true);
+            }
+
             void DoAction(const int32 p_Action)
             {
                 switch (p_Action)
@@ -282,11 +313,22 @@ class boss_commander_tharbek : public CreatureScript
                         m_SixthTalkTimer = 13000;
                         break;
                     case ACTION_ACTIVATE_SPELLS:
-                        // Schedule events here
+                        m_Events.ScheduleEvent(EVENT_IMBUED_IRON_AXE, 10000);
+                        m_Events.ScheduleEvent(EVENT_IRON_AXE, 20000);
+                        m_Events.ScheduleEvent(EVENT_IRON_REAVER, 15000);
+                        break;
+                    case ACTION_ACTIVATE_CUSTOM_RESET:
+                        m_Phase = PHASE_BOSS;
                         break;
                     default:
                         break;
                 }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            {
+                if (!me->HasAura(SPELL_IRON_RAGE) && me->HealthBelowPctDamaged(50, p_Damage))
+                    me->CastSpell(me, SPELL_IRON_RAGE, true);
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -345,9 +387,46 @@ class boss_commander_tharbek : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case EVENT_IRON_AXE:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_IRON_AXE, true);
+                        m_Events.ScheduleEvent(EVENT_IRON_AXE, 20000);
+                        break;
+                    case EVENT_IRON_REAVER:
+                    {
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            me->CastSpell(l_Target, SPELL_IRON_REAVER, true);
+
+                            std::list<Unit*> l_TargetList;
+                            me->GetAttackableUnitListInRange(l_TargetList, 40.0f);
+
+                            for (Unit* l_Unit : l_TargetList)
+                            {
+                                if (!l_Unit->isInFront(me, M_PI / 6) && l_Unit->GetGUID() != me->GetGUID())
+                                    continue;
+
+                                if (!l_Unit->IsInBetween(l_Target, me, 3.5f))
+                                    continue;
+
+                                if (!me->IsValidAttackTarget(l_Unit))
+                                    continue;
+
+                                me->CastSpell(l_Unit, SPELL_IRON_REAVER_DAMAGE, true);
+                            }
+                        }
+                        m_Events.ScheduleEvent(EVENT_IRON_REAVER, 30000);
+                        break;
+                    }
+                    case EVENT_IMBUED_IRON_AXE:
+                        me->CastSpell(me, SPELL_IMBUED_IRON_AXE_SEARCHER, true);
+                        m_Events.ScheduleEvent(EVENT_IMBUED_IRON_AXE, 25000);
+                        break;
                     default:
                         break;
                 }
+
+                DoMeleeAttackIfReady();
             }
 
             void ScheduleFirstTalk(const uint32 p_Diff)
@@ -494,6 +573,8 @@ class boss_commander_tharbek : public CreatureScript
 
                     Creature* l_Summon = NULL;
                     m_Phase = PHASE_WAVE_1;
+
+                    m_WaveGuidsContainer.clear();
                     m_WaveGuidsContainer.resize(9);
 
                     // First wave : 2 Worgs, 2 Leadbelcher and 5 Hatchlings
@@ -538,6 +619,8 @@ class boss_commander_tharbek : public CreatureScript
 
                     Creature* l_Summon = NULL;
                     m_Phase = PHASE_WAVE_2;
+
+                    m_WaveGuidsContainer.clear();
                     m_WaveGuidsContainer.resize(9);
 
                     // First wave : 2 Berserker, 2 Dreadweaver and 5 Hatchlings
@@ -582,6 +665,8 @@ class boss_commander_tharbek : public CreatureScript
 
                     Creature* l_Summon = NULL;
                     m_Phase = PHASE_WAVE_3;
+
+                    m_WaveGuidsContainer.clear();
                     m_WaveGuidsContainer.resize(8);
 
                     // First wave : 1 Engineer, 2 Veterans and 5 Hatchlings
@@ -651,6 +736,15 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 m_Events.Reset();
             }
 
+            void JustReachedHome()
+            {
+                if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(NPC_COMMANDER_THARBEK)))
+                {
+                    l_Tharbek->EnterVehicle(me);
+                    l_Tharbek->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                }
+            }
+
             void IsSummonedBy(Unit* p_Summoner)
             {
                 m_MoveTimer  = 1000;
@@ -693,15 +787,9 @@ class mob_ironbarb_skyreaver : public CreatureScript
                     }
                     case MOVE_LAST_POS:
                     {
+                        m_MoveTimer = 300;
                         me->SetCanFly(false);
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-                        me->SetOrientation(M_PI);
-
-                        Position l_Pos;
-                        me->GetPosition(&l_Pos);
-                        me->SetHomePosition(l_Pos);
-                        m_Events.Reset();
-                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     }
                     default:
@@ -713,6 +801,12 @@ class mob_ironbarb_skyreaver : public CreatureScript
             {
                 m_Events.ScheduleEvent(EVENT_INCINERATING_BREATH, 15000);
                 m_Events.ScheduleEvent(EVENT_NOXIOUS_SPIT, 5000);
+
+                if (m_Instance)
+                {
+                    if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(NPC_COMMANDER_THARBEK)))
+                        l_Tharbek->AI()->EnterCombat(p_Attacker);
+                }
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
@@ -758,7 +852,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                         break;
                     case EVENT_NOXIOUS_SPIT:
                         me->CastSpell(me, SPELL_NOXIUS_SPIT_SEARCHER, true);
-                        m_Events.ScheduleEvent(EVENT_INCINERATING_BREATH, 20000);
+                        m_Events.ScheduleEvent(EVENT_NOXIOUS_SPIT, 20000);
                         break;
                     default:
                         break;
@@ -788,29 +882,42 @@ class mob_ironbarb_skyreaver : public CreatureScript
                             break;
                         }
                         case MOVE_LAND:
-                        {
                             me->SetCanFly(true);
                             me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                             m_ActualMove = MOVE_TO_BOSS;
                             me->GetMotionMaster()->MovePoint(m_ActualMove, g_IronbarbFlyPos);
                             break;
-                        }
                         case MOVE_TO_BOSS:
-                        {
                             m_ActualMove = MOVE_FLY_SECOND;
                             me->GetMotionMaster()->MovePoint(m_ActualMove, g_IronbarbSecondFlyPos);
                             break;
-                        }
                         case MOVE_FLY_SECOND:
-                        {
                             m_ActualMove = MOVE_FLY_THIRD;
                             me->GetMotionMaster()->MovePoint(m_ActualMove, g_IronbarbThirdFlyPos);
                             break;
-                        }
                         case MOVE_FLY_THIRD:
-                        {
                             m_ActualMove = MOVE_LAST_POS;
                             me->GetMotionMaster()->MovePoint(m_ActualMove, g_IronbarbLastFlyPos);
+                            break;
+                        case MOVE_LAST_POS:
+                        {
+                            me->SetOrientation(M_PI);
+
+                            Position l_Pos;
+                            me->GetPosition(&l_Pos);
+                            me->SetHomePosition(l_Pos);
+
+                            if (m_Instance)
+                            {
+                                if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(NPC_COMMANDER_THARBEK)))
+                                {
+                                    l_Tharbek->SetHomePosition(l_Pos);
+                                    l_Tharbek->AI()->DoAction(ACTION_ACTIVATE_CUSTOM_RESET);
+                                }
+                            }
+
+                            m_Events.Reset();
+                            me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         }
                         default:
@@ -828,8 +935,60 @@ class mob_ironbarb_skyreaver : public CreatureScript
         }
 };
 
+// Imbued Iron Axe Stalker - 80307
+class mob_imbued_iron_axe_stalker : public CreatureScript
+{
+    public:
+        mob_imbued_iron_axe_stalker() : CreatureScript("mob_imbued_iron_axe_stalker") { }
+
+        struct mob_imbued_iron_axe_stalkerAI : public ScriptedAI
+        {
+            mob_imbued_iron_axe_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+                m_MoveTimer = 0;
+            }
+
+            InstanceScript* m_Instance;
+            uint32 m_MoveTimer;
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                me->CastSpell(me, SPELL_IMBUED_IRON_AXE_AURA, true);
+                m_MoveTimer = 500;
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!m_MoveTimer)
+                    return;
+
+                if (m_MoveTimer <= p_Diff)
+                {
+                    m_MoveTimer = 0;
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveRandom(20.f);
+                }
+                else
+                    m_MoveTimer -= p_Diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_imbued_iron_axe_stalkerAI(p_Creature);
+        }
+};
+
 void AddSC_boss_commander_tharbek()
 {
     new boss_commander_tharbek();
     new mob_ironbarb_skyreaver();
+    new mob_imbued_iron_axe_stalker();
 }
