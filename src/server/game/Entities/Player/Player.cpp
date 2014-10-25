@@ -14173,7 +14173,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     }
     else
     {
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 0, 0);
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0);
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 2, 0);
     }
