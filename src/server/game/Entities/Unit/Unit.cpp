@@ -2891,7 +2891,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Base hit chance from attacker and victim levels
     int32 modHitChance;
-    if (leveldif < 3)
+    if (leveldif <= 3)
         modHitChance = 100;
     else
         modHitChance = 94 - (leveldif - 2) * lchance;
@@ -19927,16 +19927,14 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
 
     if (victim->getLevel() > getLevel())
     {
-        uint8 level_diff = victim->getLevel() - getLevel();
+        int8 level_diff = (int8)victim->getLevel() - (int8)getLevel();
 
-        if (level_diff <= 2)
-            missChance += 0.5f * level_diff;
-        else
+        if (level_diff > 3)
             missChance += ((0.5f + level_diff - 2) * 2);
     }
 
     if (!spellId && haveOffhandWeapon())
-        missChance += 19;
+        missChance += 17;
 
     // Calculate hit chance
     float hitChance = 100.0f;
