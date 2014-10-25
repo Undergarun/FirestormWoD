@@ -5082,36 +5082,16 @@ void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint
 
     if (apply)
     {
-        if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT)
-        {
-            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, l_Amount, apply);
-            target->ModifyHealth(GetAmount());
-        }
-        else
-        {
-            float percent = target->GetHealthPct();
-            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Amount, apply);
-            if (target->isAlive())
-                target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
-        }
+        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, l_Amount, apply);
+        target->ModifyHealth(GetAmount());
     }
     else
     {
-        if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT)
-        {
-            if (int32(target->GetHealth()) > GetAmount())
-                target->ModifyHealth(-GetAmount());
-            else
-                target->SetHealth(1);
-            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
-        }
+        if (int32(target->GetHealth()) > GetAmount())
+            target->ModifyHealth(-GetAmount());
         else
-        {
-            float percent = target->GetHealthPct();
-            target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Amount, apply);
-            if (target->isAlive())
-                target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
-        }
+            target->SetHealth(1);
+        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
     }
 }
 
