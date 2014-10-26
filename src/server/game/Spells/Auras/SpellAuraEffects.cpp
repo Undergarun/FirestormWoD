@@ -970,12 +970,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 61782: // Infinite Replenishment
                     amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
                     break;
-                case 29166: // Innervate
-                    ApplyPct(amount, float(GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA)) / GetTotalTicks());
-                    break;
-                case 48391: // Owlkin Frenzy
-                    ApplyPct(amount, GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA));
-                    break;
                 default:
                     break;
             }

@@ -3972,21 +3972,6 @@ void Unit::RemoveAura(uint32 spellId, uint64 caster, uint32 reqEffMask, AuraRemo
     }
 }
 
-void Unit::RemoveAllSymbiosisAuras()
-{
-    RemoveAura(110309);// Caster
-    RemoveAura(110478);// Death Knight
-    RemoveAura(110479);// Hunter
-    RemoveAura(110482);// Mage
-    RemoveAura(110483);// Monk
-    RemoveAura(110484);// Paladin
-    RemoveAura(110485);// Priest
-    RemoveAura(110486);// Rogue
-    RemoveAura(110488);// Shaman
-    RemoveAura(110490);// Warlock
-    RemoveAura(110491);// Warrior
-}
-
 void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
 {
     // we've special situation here, RemoveAura called while during aura removal
@@ -7302,8 +7287,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell)
                         return false;
 
-                    // Nourish, Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
-                    if (procSpell->Id == 50464 || procSpell->Id == 5185 || procSpell->Id == 8936)
+                    // Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
+                    if (procSpell->Id == 5185 || procSpell->Id == 8936)
                     {
                         triggered_spell_id = 108381;
                         target = this;
@@ -7358,16 +7343,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             ToPlayer()->RemoveSpellCooldown(48505, true);
                     }
 
-                    break;
-                }
-                case 54832: // Glyph of Innervate
-                {
-                    if (procSpell->SpellIconID != 62)
-                        return false;
-
-                    basepoints0 = int32(CalculatePct(GetCreatePowers(POWER_MANA), triggerAmount) / 5);
-                    triggered_spell_id = 54833;
-                    target = this;
                     break;
                 }
                 case 54845: // Glyph of Starfire
@@ -7454,7 +7429,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         triggered_spell_id = 40446;
                         chance = 25.0f;
                     }
-                    // Mangle (Bear) and Mangle (Cat)
+                    // Mangle (Bear)
                     else if (procSpell->SpellFamilyFlags[1] & 0x00000440)
                     {
                         triggered_spell_id = 40452;
@@ -10094,18 +10069,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 arcaneMissiles->RefreshDuration();
                 return false;
             }
-
-            break;
-        }
-        case 110803:// Lightning Shield (Symbiosis)
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(110804))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(110804, 0, time(NULL) + 4);
 
             break;
         }
@@ -13457,17 +13420,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(spellProto->GetSchoolMask());
-
-    // Nourish heal boost
-    if (spellProto->Id == 50464)
-    {
-        // Heals for an additional 20% if you have a Rejuvenation, Regrowth, Lifebloom, or Wild Growth effect active on the target.
-        if (HasAura(48438, caster->GetGUID()) ||   // Wild Growth
-            HasAura(33763, caster->GetGUID()) ||   // Lifebloom
-            HasAura(8936, caster->GetGUID()) ||    // Regrowth
-            HasAura(774, caster->GetGUID()))       // Rejuvenation
-            AddPct(TakenTotal, 20);
-    }
 
     // Unleashed Fury - Earthliving
     if (HasAura(118473) && GetAura(118473)->GetCaster() && GetAura(118473)->GetCaster()->GetGUID() == caster->GetGUID())

@@ -1,0 +1,13 @@
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_innervate';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_symbiosis_aura';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_symbiosis';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_consecration_area';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_consecration';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_life_tap';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_soul_swap';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_demonic_circle_teleport';
+DELETE FROM spell_script_names WHERE spell_id = 110588;
+DELETE FROM spell_script_names WHERE spell_id = 122288;
+DELETE FROM spell_script_names WHERE spell_id = 110718;
+DELETE FROM spell_script_names WHERE spell_id = 110788;
+DELETE FROM spell_script_names WHERE spell_id = 106922;

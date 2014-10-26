@@ -5850,7 +5850,6 @@ void Player::ResetSpec()
     if (GetSpecializationId(GetActiveSpec()) == 0)
         return;
 
-    RemoveAllSymbiosisAuras();
     RemoveSpecializationSpells();
     SetSpecializationId(GetActiveSpec(), 0);
     InitSpellForLevel();

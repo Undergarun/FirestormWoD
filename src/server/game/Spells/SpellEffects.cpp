@@ -1392,20 +1392,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             m_caster->DealDamage(m_caster, m_caster->CountPctFromMaxHealth(5), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             break;
         }
-        case 122282:// Death Coil (Symbiosis)
-        {
-            if (m_caster->IsFriendlyTo(unitTarget))
-            {
-                int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f) * 3.5f;
-                m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
-            }
-            else
-            {
-                int32 bp = damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
-                m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
-            }
-            return;
-        }
         case 120165:// Conflagrate
         {
             UnitList friends;
@@ -4527,10 +4513,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                         if (unitTarget->HasAuraState(AURA_STATE_BLEEDING))
                             totalDamagePercentMod *= 1.2f;
                     break;
-                case 33876: // Mangle (Cat)
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-                    break;
                 default:
                     break;
             }
@@ -6318,13 +6300,6 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
 
     if (m_spellInfo->Id == 61999) // Raise Ally
         mana = target->CountPctFromMaxMana(60);
-
-    // Rebirth (Symbiosis)
-    if (m_spellInfo->Id == 113269)
-    {
-        health = target->CountPctFromMaxHealth(60);
-        mana = target->CountPctFromMaxMana(20);
-    }
 
     ExecuteLogEffectResurrect(effIndex, target);
 

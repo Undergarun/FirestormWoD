@@ -2109,11 +2109,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
                 }
-                case 5229:  // Enrage
-                    if (target->HasAura(70726)) // Item - Druid T10 Feral 4P Bonus
-                        if (apply)
-                            target->CastSpell(target, 70725, true);
-                    break;
                 case 22812: // Glyph of Barkskin
                 {
                     if (apply)
