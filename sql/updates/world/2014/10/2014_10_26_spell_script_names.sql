@@ -15,3 +15,5 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_swipe_and_maul';
 INSERT INTO spell_script_names VALUES
     (106785, 'spell_dru_swipe_and_maul'),
     (6807, 'spell_dru_swipe_and_maul');
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_ravage';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_ravage_and_stampede';

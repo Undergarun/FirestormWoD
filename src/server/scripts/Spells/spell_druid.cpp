@@ -251,34 +251,6 @@ class spell_dru_yseras_gift : public SpellScriptLoader
         }
 };
 
-// Ravage! - 102545
-class spell_dru_ravage_and_stampede : public SpellScriptLoader
-{
-    public:
-        spell_dru_ravage_and_stampede() : SpellScriptLoader("spell_dru_ravage_and_stampede") { }
-
-        class spell_dru_ravage_and_stampede_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_ravage_and_stampede_SpellScript);
-
-            void HandleWeaponDamage(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->RemoveAura(SPELL_DRUID_STAMPEDE);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_ravage_and_stampede_SpellScript::HandleWeaponDamage, EFFECT_0, SPELL_EFFECT_WEAPON_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_ravage_and_stampede_SpellScript();
-        }
-};
-
 // Tooth and Claw - 135597
 class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
 {
@@ -1200,7 +1172,7 @@ class spell_dru_dash : public SpellScriptLoader
         }
 };
 
-// Called by Mangle (bear) - 33878, Ravage - 6785 and Shred - 5221
+// Called by Mangle (bear) - 33878 and Shred - 5221
 // Rip - 1079
 class spell_dru_rip_duration : public SpellScriptLoader
 {
@@ -1356,41 +1328,6 @@ class spell_dru_bear_hug : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_bear_hug_AuraScript();
-        }
-};
-
-// Ravage - 6785
-class spell_dru_ravage : public SpellScriptLoader
-{
-    public:
-        spell_dru_ravage() : SpellScriptLoader("spell_dru_ravage") { }
-
-        class spell_dru_ravage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_ravage_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(target, SPELL_DRUID_INFECTED_WOUNDS, true);
-                        if (_player->HasAura(SPELL_DRUID_STAMPEDE))
-                            _player->RemoveAura(SPELL_DRUID_STAMPEDE);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dru_ravage_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_ravage_SpellScript();
         }
 };
 
@@ -3310,7 +3247,6 @@ void AddSC_druid_spell_scripts()
 {
     new spell_dru_glyph_of_omens();
     new spell_dru_yseras_gift();
-    new spell_dru_ravage_and_stampede();
     new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();
     new spell_dru_glyph_of_the_treant();
@@ -3337,7 +3273,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_bear_form();
     new spell_dru_ferocious_bite();
     new spell_dru_bear_hug();
-    new spell_dru_ravage();
     new spell_dru_lifebloom();
     new spell_dru_killer_instinct();
     new spell_dru_lifebloom_refresh();

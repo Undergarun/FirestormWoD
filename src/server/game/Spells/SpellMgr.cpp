@@ -4796,10 +4796,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81282: // Fungal Growth
                 spellInfo->Effects[0].BasePoints = 100;
                 break;
-            case 6785:  // Ravage
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
-                spellInfo->OverrideSpellList.push_back(102545); // Replace Ravage by Ravage (Incarnation)
-                break;
             case 5212:  // Prowl
                 spellInfo->OverrideSpellList.push_back(102547); // Replace Prowl by Prowl (Incarnation)
                 break;

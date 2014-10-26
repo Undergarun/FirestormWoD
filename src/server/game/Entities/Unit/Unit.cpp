@@ -13062,11 +13062,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
-                            case 6785:  // Ravage
-                                // Ravage has a 50% increased chance to critically strike targets with over 80% health.
-                                if (victim->GetHealthPct() > 80.0f)
-                                    crit_chance += 50.0f;
-                                break;
                             case 22568: // Ferocious Bite
                                 // +25% crit chance for Ferocious Bite on bleeding targets
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
