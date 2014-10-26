@@ -5703,7 +5703,7 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
             if (m_caster->ToPlayer()->GetSelectedUnit() != unitTarget)
                 return;
             break;
-        case 62078: // Swipe (cat)
+        case 106785: // Swipe
             if (m_caster->m_movedPlayer->GetComboTarget() != unitTarget->GetGUID())
                 return;
             break;

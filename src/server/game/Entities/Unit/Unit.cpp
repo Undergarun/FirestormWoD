@@ -9988,7 +9988,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                     return false;
 
                 // Swipe is not a single target spell
-                if (procSpell->Id == 62078)
+                if (procSpell->Id == 106785)
                     return false;
 
                 // check for single target spell (TARGET_SINGLE_ENEMY, NO_TARGET)

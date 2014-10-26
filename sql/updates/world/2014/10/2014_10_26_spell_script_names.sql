@@ -11,3 +11,7 @@ DELETE FROM spell_script_names WHERE spell_id = 122288;
 DELETE FROM spell_script_names WHERE spell_id = 110718;
 DELETE FROM spell_script_names WHERE spell_id = 110788;
 DELETE FROM spell_script_names WHERE spell_id = 106922;
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_swipe_and_maul';
+INSERT INTO spell_script_names VALUES
+    (106785, 'spell_dru_swipe_and_maul'),
+    (6807, 'spell_dru_swipe_and_maul');

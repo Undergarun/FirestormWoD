@@ -655,7 +655,7 @@ class spell_dru_thrash_bear : public SpellScriptLoader
         }
 };
 
-// Swipe (cat) - 62078, Swipe (bear) - 779 and Maul - 6807
+// Swipe - 106785 and Maul - 6807
 class spell_dru_swipe_and_maul : public SpellScriptLoader
 {
     public:
@@ -1200,7 +1200,7 @@ class spell_dru_dash : public SpellScriptLoader
         }
 };
 
-// Called by Mangle (bear) - 33878, Mangle (cat) - 33876, Ravage - 6785 and Shred - 5221
+// Called by Mangle (bear) - 33878, Ravage - 6785 and Shred - 5221
 // Rip - 1079
 class spell_dru_rip_duration : public SpellScriptLoader
 {
@@ -1223,7 +1223,7 @@ class spell_dru_rip_duration : public SpellScriptLoader
                                 _player->CastSpell(_player, SPELL_DRUID_DREAM_OF_CENARIUS_GUARDIAN, true);
                         }
 
-                        // Each time you Shred, Ravage, or Mangle the target while in Cat Form ...
+                        // Each time you Shred, or Ravage the target while in Cat Form ...
                         if (_player->GetShapeshiftForm() == FORM_CAT)
                         {
                             if (AuraPtr rip = target->GetAura(SPELL_DRUID_RIP, _player->GetGUID()))
