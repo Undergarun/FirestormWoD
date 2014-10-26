@@ -1424,55 +1424,6 @@ class spell_dru_lifebloom : public SpellScriptLoader
     public:
         spell_dru_lifebloom() : SpellScriptLoader("spell_dru_lifebloom") { }
 
-        class spell_dru_lifebloom_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_lifebloom_SpellScript);
-
-            void HandleAfterHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        AuraPtr lifeBloom = target->GetAura(GetSpellInfo()->Id, caster->GetGUID());
-                        AuraPtr aura = NULLAURA;
-                        if (lifeBloom == NULLAURA)
-                            return;
-
-                        Unit::AuraList& scAuras = caster->GetSingleCastAuras();
-                        for (Unit::AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
-                        {
-                            aura = *iter;
-                            if (aura->GetUnitOwner() && aura->GetUnitOwner() != target)
-                            {
-                                lifeBloom->SetStackAmount(aura->GetStackAmount());
-                                aura->Remove();
-                                iter = scAuras.begin();
-                                break;
-                            }
-                            else
-                                ++iter;
-                        }
-
-                        if (aura != NULLAURA)
-                            caster->GetSingleCastAuras().remove(aura);
-
-                        caster->GetSingleCastAuras().push_back(lifeBloom);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_dru_lifebloom_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_lifebloom_SpellScript();
-        }
-
         class spell_dru_lifebloom_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_lifebloom_AuraScript);
@@ -1490,13 +1441,12 @@ class spell_dru_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                int32 stack = GetStackAmount();
                 int32 healAmount = aurEff->GetAmount();
 
                 if (Player* _plr = GetCaster()->ToPlayer())
                 {
-                    healAmount = _plr->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, aurEff->GetEffIndex(), HEAL, stack);
-                    healAmount = GetTarget()->SpellHealingBonusTaken(_plr, GetSpellInfo(), healAmount, HEAL, stack);
+                    healAmount = _plr->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, aurEff->GetEffIndex(), HEAL);
+                    healAmount = GetTarget()->SpellHealingBonusTaken(_plr, GetSpellInfo(), healAmount, HEAL);
 
                     // Increase final heal by 50%
                     if (_plr->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
