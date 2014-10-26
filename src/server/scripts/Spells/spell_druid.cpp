@@ -1705,21 +1705,10 @@ class spell_dru_glyph_of_regrowth : public SpellScriptLoader
                         GetTarget()->RemoveAura(SPELL_DRUID_REGROWTH, GetCaster()->GetGUID());
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
-            {
-                // Duration automatically refreshes to 6 sec each time Regrowth heals targets at or below 50% health
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetTarget())
-                        if (target->GetHealthPct() < 50)
-                            if (AuraPtr regrowth = target->GetAura(SPELL_DRUID_REGROWTH, caster->GetGUID()))
-                                regrowth->RefreshDuration();
-            }
-
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_regrowth_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_glyph_of_regrowth_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
-            }
+                }
         };
 
         AuraScript* GetAuraScript() const
