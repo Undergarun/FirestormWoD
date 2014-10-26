@@ -1587,3 +1587,37 @@ void Guardian::SetBonusDamage(int32 damage)
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
         GetOwner()->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, damage);
 }
+
+void Player::UpdateMultistrike()
+{
+    float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
+    float effect = 30.f; // Default value
+    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
+    value += GetRatingBonusValue(CR_MULTISTRIKE);
+    SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
+    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
+}
+
+void Player::UpdateLeech()
+{
+    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    value += GetRatingBonusValue(CR_LIFESTEAL);
+    SetFloatValue(PLAYER_FIELD_LIFESTEAL, value);
+}
+
+void Player::UpdateVesatillity()
+{
+    float valueDone = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float valueTaken = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    valueDone += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+    valueTaken += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
+    SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);
+    SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, valueTaken);
+}
+
+void Player::UpdateAvoidance()
+{
+    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    value += GetRatingBonusValue(CR_AVOIDANCE);
+    SetFloatValue(PLAYER_FIELD_AVOIDANCE, value);
+}
