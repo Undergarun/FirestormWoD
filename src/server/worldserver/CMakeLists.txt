@@ -184,7 +184,7 @@ endif()
 add_dependencies(worldserver revision.h)
 
 if( UNIX AND NOT NOJEM AND NOT APPLE )
-  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
