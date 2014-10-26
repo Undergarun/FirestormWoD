@@ -242,7 +242,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Aura->GetCasterLevel());                                                                 ///< Cast Level
     p_Data << uint8(l_Aura->GetSpellInfo()->StackAmount ? l_Aura->GetStackAmount() : l_Aura->GetCharges());     ///< Applications
-    p_Data << uint32(l_PointsCount + (l_PointsCount && (l_Flags & AFLAG_UNK_20)) ? 1 : 0);                      ///< Points Count
+    p_Data << uint32(l_PointsCount + (l_PointsCount && (l_Flags & AFLAG_UNK_20) ? 1 : 0));                      ///< Points Count
     p_Data << uint32(l_AsApModifier ? l_PointsCount : 0);                                                       ///< Estimated Points
 
     if (l_Flags & AFLAG_UNK_20)
@@ -2290,7 +2290,7 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
                 break;
             }
             default:
-                break;                                        
+                break;
         }
     }
 }
