@@ -1223,30 +1223,6 @@ class spell_dru_rip_duration : public SpellScriptLoader
                                 _player->CastSpell(_player, SPELL_DRUID_DREAM_OF_CENARIUS_GUARDIAN, true);
                         }
 
-                        // Each time you Shred, or Ravage the target while in Cat Form ...
-                        if (_player->GetShapeshiftForm() == FORM_CAT)
-                        {
-                            if (AuraPtr rip = target->GetAura(SPELL_DRUID_RIP, _player->GetGUID()))
-                            {
-                                int32 duration = rip->GetDuration();
-                                int32 maxDuration = rip->GetMaxDuration();
-
-                                int32 countMin = maxDuration;
-                                int32 countMax = sSpellMgr->GetSpellInfo(SPELL_DRUID_RIP)->GetMaxDuration() + 6000;
-
-                                // ... the duration of your Rip on that target is extended by 2 sec, up to a maximum of 6 sec.
-                                if ((countMin + 2000) < countMax)
-                                {
-                                    rip->SetDuration(duration + 2000);
-                                    rip->SetMaxDuration(countMin + 2000);
-                                }
-                                else if (countMin < countMax)
-                                {
-                                    rip->SetDuration(duration + 2000);
-                                    rip->SetMaxDuration(countMax);
-                                }
-                            }
-                        }
                     }
                 }
             }
