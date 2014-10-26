@@ -62,9 +62,7 @@ enum DruidSpells
     DRUID_SPELL_WILD_MUSHROOM_DAMAGE        = 78777,
     SPELL_DRUID_WILD_MUSHROOM_HEAL          = 102792,
     SPELL_DRUID_FAERIE_DECREASE_SPEED       = 102354,
-    SPELL_DRUID_SKULL_BASH_MANA_COST        = 82365,
     SPELL_DRUID_SKULL_BASH_INTERUPT         = 93985,
-    SPELL_DRUID_SKULL_BASH_CHARGE           = 93983,
     SPELL_DRUID_FORM_CAT_INCREASE_SPEED     = 113636,
     SPELL_DRUID_GLYPH_OF_REGROWTH           = 116218,
     SPELL_DRUID_REGROWTH                    = 8936,
@@ -1695,7 +1693,7 @@ class spell_dru_cat_form : public SpellScriptLoader
         }
 };
 
-// Skull Bash (cat) - 80965 and Skull Bash (bear) - 80964
+// Skull Bash - 106839
 class spell_dru_skull_bash : public SpellScriptLoader
 {
     public:
@@ -1711,9 +1709,7 @@ class spell_dru_skull_bash : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        _player->CastSpell(target, SPELL_DRUID_SKULL_BASH_MANA_COST, true);
                         _player->CastSpell(target, SPELL_DRUID_SKULL_BASH_INTERUPT, true);
-                        _player->CastSpell(target, SPELL_DRUID_SKULL_BASH_CHARGE, true);
                     }
                 }
             }
