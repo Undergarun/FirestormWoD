@@ -177,7 +177,7 @@ class boss_tortos : public CreatureScript
                 events.ScheduleEvent(EVENT_QUAKE_STOMP, 29000);
                 events.ScheduleEvent(EVENT_VAMPIRIC_BAT, 30000);
                 events.ScheduleEvent(EVENT_ROCKFALL, 5000);
-                events.ScheduleEvent(EVENT_CALL_OF_TORTOS, 60000);
+                events.ScheduleEvent(EVENT_CALL_OF_TORTOS, 14500);
             }
 
             void JustSummoned(Creature* summon)
