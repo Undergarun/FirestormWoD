@@ -15205,162 +15205,81 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (!IsInWorld())
         return;
 
-    ObjectGuid guid = GetGUID();
+    ObjectGuid l_Guid = GetGUID();
     if (!forced)
     {
-        WorldPacket data;
+        WorldPacket l_Data;
 
         switch (p_MovementType)
         {
             case MOVE_WALK:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {3, 0, 5, 4, 2, 7, 1, 6};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[3]);
-                data << float(GetSpeed(p_MovementType));
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[7]);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 1 + 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {1, 0, 6, 5, 7, 4, 3, 2};
-                data.WriteBitInOrder(guid, bitOrder);
-                uint8 byteOrder[8] = {7, 5, 1, 6, 3, 2, 4, 0};
-                data.WriteBytesSeq(guid, byteOrder);
-
-                data << float(GetSpeed(p_MovementType));
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN_BACK:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {1, 7, 4, 5, 2, 6, 0, 3};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[0]);
-                data << float(GetSpeed(p_MovementType));
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[7]);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_SWIM:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {6, 3, 4, 2, 5, 7, 0, 1};
-                data.WriteBitInOrder(guid, bitOrder);
-                data.WriteByteSeq(guid[4]);
-                data << float(GetSpeed(p_MovementType));
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[5]);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_SWIM_BACK:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {3, 4, 1, 0, 6, 2, 7, 5};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.FlushBits();
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[7]);
-                data << float(GetSpeed(p_MovementType));
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[6]);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_TURN_RATE:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
-                data << float(GetSpeed(p_MovementType));
-
-                uint8 bitOrder[8] = {2, 3, 0, 1, 6, 7, 5, 4};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                uint8 byteOrder[8] = {6, 5, 0, 7, 2, 1, 4, 3};
-                data.WriteBytesSeq(guid, byteOrder);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_FLIGHT:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {7, 1, 5, 6, 4, 3, 0, 2};
-                data.WriteBitInOrder(guid, bitOrder);
-                data.WriteByteSeq(guid[0]);
-                data << float(GetSpeed(p_MovementType));
-                data.WriteByteSeq(guid[6]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[1]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[5]);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_FLIGHT_BACK:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
-
-                uint8 bitOrder[8] = {3, 2, 4, 5, 0, 1, 6, 7};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.FlushBits();
-                data.WriteByteSeq(guid[5]);
-                data.WriteByteSeq(guid[7]);
-                data.WriteByteSeq(guid[0]);
-                data.WriteByteSeq(guid[3]);
-                data.WriteByteSeq(guid[4]);
-                data.WriteByteSeq(guid[2]);
-                data.WriteByteSeq(guid[6]);
-                data << float(GetSpeed(p_MovementType));
-                data.WriteByteSeq(guid[1]);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_PITCH_RATE:
             {
-                data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
-                data << float(GetSpeed(p_MovementType));
-
-                uint8 bitOrder[8] = {2, 7, 5, 6, 0, 4, 3, 1};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                uint8 byteOrder[8] = {5, 1, 3, 6, 2, 0, 7, 4};
-                data.WriteBytesSeq(guid, byteOrder);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
+                l_Data.appendPackGUID(l_Guid);
+                l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             default:
                 return;
         }
 
-        SendMessageToSet(&data, true);
+        SendMessageToSet(&l_Data, true);
     }
     else
     {
@@ -19330,15 +19249,7 @@ void Unit::SetRooted(bool apply)
         {
             ObjectGuid guid = GetGUID();
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
-
-            uint8 bitOrder[8] = {4, 2, 5, 1, 0, 7, 6, 3};
-            data.WriteBitInOrder(guid, bitOrder);
-
-            data.FlushBits();
-
-            uint8 byteOrder[8] = {7, 5, 3, 0, 6, 1, 4, 2};
-            data.WriteBytesSeq(guid, byteOrder);
-
+            data.appendPackGUID(guid);
             SendMessageToSet(&data, true);
             StopMoving();
         }
@@ -19353,15 +19264,7 @@ void Unit::SetRooted(bool apply)
             {
                 ObjectGuid guid = GetGUID();
                 WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-
-                uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
-                data.WriteBitInOrder(guid, bitOrder);
-
-                data.FlushBits();
-
-                uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
-                data.WriteBytesSeq(guid, byteOrder);
-
+                data.appendPackGUID(guid);
                 SendMessageToSet(&data, true);
             }
 
@@ -21304,15 +21207,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     {
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
         ObjectGuid guid = GetGUID();
-
-        uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
-
-        uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
-        data.WriteBytesSeq(guid, byteOrder);
-
+        data.appendPackGUID(guid);
         SendMessageToSet(&data, false);
     }
 
@@ -22126,16 +22021,9 @@ void Unit::SendMovementFeatherFall()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
 
-    WorldPacket data(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
-    ObjectGuid guid = GetGUID();
-
-    uint8 bitOrder[8] = { 5, 6, 3, 0, 2, 7, 1, 4 };
-    data.WriteBitInOrder(guid, bitOrder);
-
-    uint8 bytes[8] = { 4, 3, 5, 6, 7, 0, 2, 1 };
-    data.WriteBytesSeq(guid, bytes);
-
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
 void Unit::SendMovementGravityChange()

@@ -2712,32 +2712,18 @@ bool Creature::SetWalk(bool enable)
     if (!Unit::SetWalk(enable))
         return false;
 
-    ObjectGuid guid = GetGUID();
+    ObjectGuid l_Guid = GetGUID();
     if (enable)
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 9);
-
-        uint8 bitOrder[8] = {5, 4, 7, 0, 6, 3, 1, 2};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        uint8 byteOrder[8] = {4, 0, 3, 7, 6, 2, 5, 1};
-        data.WriteBytesSeq(guid, byteOrder);
-
-        SendMessageToSet(&data, false);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 9);
+        l_Data.appendPackGUID(l_Guid);
+        SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
-
-        uint8 bitOrder[8] = {6, 5, 2, 7, 0, 4, 1, 3};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
-
-        uint8 byteOrder[8] = {3, 4, 2, 6, 1, 0, 5, 7};
-        data.WriteBytesSeq(guid, byteOrder);
-
-        SendMessageToSet(&data, false);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
+        l_Data.appendPackGUID(l_Guid);
+        SendMessageToSet(&l_Data, false);
     }
 
     return true;
@@ -2753,34 +2739,18 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
     if (!movespline->Initialized())
         return true;
 
-    ObjectGuid guid = GetGUID();
+    ObjectGuid l_Guid = GetGUID();
     if (disable)
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 9);
-
-        uint8 bitOrder[8] = {0, 5, 3, 6, 1, 4, 2, 7};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
-    
-        uint8 byteOrder[8] = {6, 3, 1, 5, 4, 7, 2, 0};
-        data.WriteBytesSeq(guid, byteOrder);
-
-        SendMessageToSet(&data, false);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 9);
+        l_Data.appendPackGUID(l_Guid);
+        SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
-
-        uint8 bitOrder[8] = {6, 1, 5, 4, 7, 2, 3, 0};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
-
-        uint8 byteOrder[8] = {0, 5, 3, 1, 7, 2, 6, 4};
-        data.WriteBytesSeq(guid, byteOrder);
-
-        SendMessageToSet(&data, false);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+        l_Data.appendPackGUID(l_Guid);
+        SendMessageToSet(&l_Data, false);
     }
 
     return true;
@@ -2801,34 +2771,18 @@ bool Creature::SetHover(bool enable)
         return true;
 
     //! Not always a packet is sent
-    ObjectGuid guid = GetGUID();
+    ObjectGuid l_Guid = GetGUID();
     if (enable)
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_SET_HOVER, 9);
-
-        uint8 bitOrder[8] = {4, 1, 5, 7, 6, 2, 0, 3};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
-
-        uint8 byteOrder[8] = {3, 7, 2, 5, 6, 1, 0, 4};
-        data.WriteBytesSeq(guid, byteOrder);
-
-        SendMessageToSet(&data, false);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_HOVER, 9);
+        l_Data.appendPackGUID(l_Guid);
+        SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
-
-        uint8 bitOrder[8] = {7, 2, 1, 4, 3, 0, 6, 5};
-        data.WriteBitInOrder(guid, bitOrder);
-
-        data.FlushBits();
-
-        uint8 byteOrder[8] = {3, 0, 7, 1, 6, 2, 4, 5};
-        data.WriteBytesSeq(guid, byteOrder);
-
-        SendMessageToSet(&data, false);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
+        l_Data.appendPackGUID(l_Guid);
+        SendMessageToSet(&l_Data, false);
     }
 
     return true;
