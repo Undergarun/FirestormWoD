@@ -8,8 +8,9 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if (USE_COREPCH)
+  set(shared_STAT_PCH_HDR PrecompiledHeaders/sharedPCH.h)
+  set(shared_STAT_PCH_SRC PrecompiledHeaders/sharedPCH.cpp)
 endif()
 
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
@@ -28,9 +29,11 @@ file(GLOB sources_localdir *.cpp *.h)
 # Build shared sourcelist
 #
 
-if (USE_COREPCH)
-  set(shared_STAT_PCH_HDR PrecompiledHeaders/sharedPCH.h)
-  set(shared_STAT_PCH_SRC PrecompiledHeaders/sharedPCH.cpp)
+if( USE_COREPCH AND MSVC )
+  set(shared_STAT_SRCS
+    PrecompiledHeaders/sharedPCH.cpp
+    PrecompiledHeaders/sharedPCH.h
+  )
 endif()
 
 set(shared_STAT_SRCS
