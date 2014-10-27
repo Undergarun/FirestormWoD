@@ -4921,7 +4921,7 @@ void Spell::SendSpellGo()
     // @TODO: Find how to trigger it, never find it in sniff (6.0.2)
     bool l_HasSpellCastLogData          = false;// (l_CastFlags & CAST_FLAG_PENDING) == 0 || m_spellInfo->AttributesEx7 & SPELL_ATTR7_SEND_CAST_LOG_DATA;
 
-    Unit::PowerTypeSet& l_UsablePowers = m_caster->GetUsablePowers();
+    Unit::PowerTypeSet l_UsablePowers  = m_caster->GetUsablePowers();
     uint32 l_ExtraTargetsCount         = m_targets.GetExtraTargetsCount();
 
     // Perdict data are empty in SMSG_SPELL_GO
