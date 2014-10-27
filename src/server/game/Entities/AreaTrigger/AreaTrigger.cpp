@@ -464,6 +464,23 @@ void AreaTrigger::Update(uint32 p_time)
 
             break;
         }
+        case 161827:// Noxious Spit
+        {
+            std::list<Unit*> l_TargetList;
+            l_Radius = 2.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(this, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(this, l_TargetList, l_Check);
+            VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetDistance(this) <= l_Radius)
+                    l_Unit->CastSpell(l_Unit, 161833, true);
+            }
+
+            break;
+        }
         default:
             break;
     }

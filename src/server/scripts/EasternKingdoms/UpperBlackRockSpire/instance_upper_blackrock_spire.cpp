@@ -28,6 +28,7 @@ static const DoorData doordata[] =
     { GOB_OREBENDER_EXIT,       DATA_KYRAK_THE_CORRUPTOR,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
     { GOB_KYRAK_EXIT_01,        DATA_KYRAK_THE_CORRUPTOR,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { GOB_KYRAK_EXIT_02,        DATA_KYRAK_THE_CORRUPTOR,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GOB_THARBEK_EXIT,         DATA_COMMANDER_THARBEK,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
     { 0,                        0,                          DOOR_TYPE_ROOM,     0             }  // EOF
 };
 
@@ -48,6 +49,8 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 m_OrebenderGorashanGuid     = 0;
                 m_ThunderingCacophonyCasted = 0;
                 m_RunesToDisable            = 5;
+                m_CommanderTharbekGuid      = 0;
+                m_WarlordZaelaGuid          = 0;
             }
 
             uint64 m_PreOrebenderDoorGuid;
@@ -56,12 +59,23 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             uint8  m_ThunderingCacophonyCasted;
             uint8  m_RunesToDisable;
 
+            uint64 m_CommanderTharbekGuid;
+            uint64 m_SpawnDoorGuid;
+
+            uint64 m_WarlordZaelaGuid;
+
             void OnCreatureCreate(Creature* p_Creature)
             {
                 switch (p_Creature->GetEntry())
                 {
                     case NPC_OREBENDER_GORASHAN:
                         m_OrebenderGorashanGuid = p_Creature->GetGUID();
+                        break;
+                    case NPC_COMMANDER_THARBEK:
+                        m_CommanderTharbekGuid = p_Creature->GetGUID();
+                        break;
+                    case NPC_WARLORD_ZAELA:
+                        m_WarlordZaelaGuid = p_Creature->GetGUID();
                         break;
                     default:
                         break;
@@ -82,7 +96,11 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     case GOB_OREBENDER_EXIT:
                     case GOB_KYRAK_EXIT_01:
                     case GOB_KYRAK_EXIT_02:
+                    case GOB_THARBEK_EXIT:
                         AddDoor(p_Gameobject, true);
+                        break;
+                    case GOB_THARBEK_SPAWN_DOOR:
+                        m_SpawnDoorGuid = p_Gameobject->GetGUID();
                         break;
                     default:
                         break;
@@ -157,13 +175,15 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 {
                     case NPC_OREBENDER_GORASHAN:
                         return m_OrebenderGorashanGuid;
+                    case NPC_COMMANDER_THARBEK:
+                        return m_CommanderTharbekGuid;
+                    case NPC_WARLORD_ZAELA:
+                        return m_WarlordZaelaGuid;
+                    case GOB_THARBEK_SPAWN_DOOR:
+                        return m_SpawnDoorGuid;
                     default:
                         return 0;
                 }
-            }
-
-            void Update(uint32 p_Diff)
-            {
             }
         };
 

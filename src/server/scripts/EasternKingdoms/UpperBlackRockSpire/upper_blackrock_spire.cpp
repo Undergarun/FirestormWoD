@@ -838,10 +838,12 @@ class mob_black_iron_summoner : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_FROST_NOVA, 20000);
                         break;
                     case EVENT_SUMMON_VETERAN:
+                        me->MonsterTextEmote(LANG_SUMMON_BLACK_IRON_VETERAN, 0, true);
                         me->CastSpell(me, SPELL_SUMMON_VETERAN, false);
                         m_Events.ScheduleEvent(EVENT_SUMMON_VETERAN, 30000);
                         break;
                     case EVENT_SUMMON_DREADWEAVER:
+                        me->MonsterTextEmote(LANG_SUMMON_BLACK_IRON_DREADWEAVER, 0, true);
                         me->CastSpell(me, SPELL_SUMMON_DREADWEAVER, false);
                         m_Events.ScheduleEvent(EVENT_SUMMON_DREADWEAVER, 30000);
                         break;

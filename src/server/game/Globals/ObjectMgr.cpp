@@ -560,7 +560,8 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
         l_CreatureTemplate.DifficultyEntry[l_DifficultyIndex] = l_DifficultyEntry;
 
         ++l_Count;
-    } while (l_Result->NextRow());
+    }
+    while (l_Result->NextRow());
 
     // Checking needs to be done after loading because of the difficulty self referencing
     for (CreatureTemplateContainer::const_iterator l_It = _creatureTemplateStore.begin(); l_It != _creatureTemplateStore.end(); ++l_It)
@@ -7299,7 +7300,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
             continue;
         }
 
-        if (factionEntry->team == 0)
+        if (factionEntry->ParentFactionID == 0)
         {
             sLog->outError(LOG_FILTER_SQL, "Faction (faction.dbc) %u in `reputation_spillover_template` does not belong to any team, skipping", factionId);
             continue;
@@ -7317,7 +7318,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
                     continue;
                 }
 
-                if (factionSpillover->reputationListID < 0)
+                if (factionSpillover->ReputationIndex < 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Spillover faction (faction.dbc) %u for faction %u in `reputation_spillover_template` can not be listed for client, and then useless, skipping", repTemplate.faction[i], factionId);
                     continue;

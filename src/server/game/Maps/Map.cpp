@@ -1104,7 +1104,7 @@ bool Map::GameObjectCellRelocation(GameObject* go, Cell new_cell)
         else
         {
             #ifdef TRINITY_DEBUG
-            sLog->outDebug(LOG_FILTER_MAPS, "GameObject (GUID: %u Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
+                sLog->outDebug(LOG_FILTER_MAPS, "GameObject (GUID: %u Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", go->GetGUIDLow(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
             #endif
         }
 

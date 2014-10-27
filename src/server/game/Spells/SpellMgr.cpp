@@ -87,8 +87,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                     return DIMINISHING_SILENCE;
                 case 107079: // Quaking Palm
                     return DIMINISHING_DISORIENT;
-                case 113506:// Cyclone (Symbiosis)
-                    return DIMINISHING_CYCLONE;
             }
 
             // Pet charge effects (Infernal Awakening, Demon Charge)
@@ -3901,6 +3899,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
             case 161288:// Vileblood Serum (DoT)
+            case 161833:// Noxious Spit (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
@@ -3972,7 +3971,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 26884:
             case 48675:
             case 48676:
-            case 5221: // Shred
             case 6800:
             case 8992:
             case 9829:
@@ -4798,10 +4796,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81282: // Fungal Growth
                 spellInfo->Effects[0].BasePoints = 100;
                 break;
-            case 6785:  // Ravage
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
-                spellInfo->OverrideSpellList.push_back(102545); // Replace Ravage by Ravage (Incarnation)
-                break;
             case 5212:  // Prowl
                 spellInfo->OverrideSpellList.push_back(102547); // Replace Prowl by Prowl (Incarnation)
                 break;
@@ -5056,10 +5050,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
-            case 106922:// Might of Ursoc
-            case 113072:// Might of Ursoc (Symbiosis)
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                break;
             case 117828:// Backdraft
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
                 spellInfo->Effects[0].MiscValue = SPELLMOD_CASTING_TIME;
@@ -5133,14 +5123,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 35;
                 break;
             case 6346:  // Fear Ward
-            case 110717:// Fear Ward (Symbiosis)
             case 48108: // Hot Streak
             case 57761: // Brain Freeze
             case 132158:// Nature's Swiftness
             case 74434: // Soul Burn
             case 34936: // Backlash
             case 23920: // Spell Reflection
-            case 113002:// Spell Reflection (Symbiosis)
             case 124430:// Divine Insight (Shadow)
             case 81292: // Glyph of Mind Spike
             case 114250:// Selfless Healer
@@ -5154,14 +5142,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 34784: // Intervene (triggered)
                 spellInfo->ProcCharges = 1;
                 break;
-            case 110600:// Ice Trap (Symbiosis)
-                spellInfo->Effects[0].MiscValue = 164639;
-                break;
-            case 110588:// Misdirection (Symbiosis)
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SCALE;
-                spellInfo->Effects[2].BasePoints = 30;
-                break;
             case 111546:
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
@@ -5171,9 +5151,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 113886:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 122292:// Intervene (Symbiosis)
-                spellInfo->Effects[1].BasePoints = 100;
                 break;
             case 6358:  // Seduce (succubus)
             case 115268:// Mesmerize

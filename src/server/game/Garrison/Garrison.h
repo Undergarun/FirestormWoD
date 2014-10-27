@@ -195,6 +195,7 @@ class Garrison
         bool HaveMission(uint32 p_MissionRecID);
         /// Start mission
         void StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
+        void StartMissionFailed();
         /// Complete a mission
         void CompleteMission(uint32 p_MissionRecID);
         /// Get followers on a mission

@@ -2318,6 +2318,10 @@ class Player : public Unit, public GridObject<Player>
         void UpdateDodgePercentage();
         void UpdateMasteryPercentage();
         void UpdatePvPPowerPercentage();
+        void UpdateMultistrike();
+        void UpdateLeech();
+        void UpdateVesatillity();
+        void UpdateAvoidance();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);

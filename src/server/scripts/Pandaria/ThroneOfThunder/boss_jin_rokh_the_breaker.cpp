@@ -284,6 +284,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 if (pInstance)
                 {
                     pInstance->SetBossState(DATA_JIN_ROKH_THE_BREAKER, DONE);
+                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STATIC_WOUND);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THUNDERING_THROW_VEHICLE);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONTROL_VEHICLE);
