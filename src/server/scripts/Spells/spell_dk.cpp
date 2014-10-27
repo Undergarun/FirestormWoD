@@ -645,12 +645,21 @@ class PlayerScript_Blood_Tap : public PlayerScript
             if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529))
                 return;
 
-            m_RunicPower += p_Value;
+            // Only on use runic power
+            if (p_Value > 0)
+                return;
+
+            m_RunicPower += -p_Value;
 
             if (m_RunicPower >= 150)
             {
-                p_Player->CastSpell(p_Player, DK_SPELL_BLOOD_CHARGE, true);
-                m_RunicPower -= 150;
+                uint8 l_Stack = m_RunicPower / 150;
+
+                for (uint8 l_I = 0; l_I < l_Stack; ++l_I)
+                {
+                    p_Player->CastSpell(p_Player, DK_SPELL_BLOOD_CHARGE, true);
+                    m_RunicPower -= 150;
+                }
             }
         }
 };
@@ -844,8 +853,6 @@ class spell_dk_death_strike : public SpellScriptLoader
                         // Apply Blood Rites effects
                         if (l_Player->HasAura(DK_SPELL_BLOOD_RITES))
                         {
-                            SetHitDamage(int32(GetHitDamage() * 1.4f));
-
                             bool l_RuneFrost = false;
                             bool l_RuneUnholy = false;
 
@@ -1472,59 +1479,6 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
-// Scourge Strike - 55090
-class spell_dk_scourge_strike : public SpellScriptLoader
-{
-    public:
-        spell_dk_scourge_strike() : SpellScriptLoader("spell_dk_scourge_strike") { }
-
-        class spell_dk_scourge_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
-            float multiplier;
-
-            bool Load()
-            {
-                multiplier = 1.0f;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
-                    // Death Knight T8 Melee 4P Bonus
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MELEE_4P_BONUS, EFFECT_0))
-                        AddPct(multiplier, aurEff->GetAmount());
-                }
-            }
-
-            void HandleAfterHit()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    int32 bp = GetHitDamage() * multiplier;
-
-                    caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
-                AfterHit += SpellHitFn(spell_dk_scourge_strike_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_scourge_strike_SpellScript();
-        }
-};
-
 // Blood Boil - 50842
 class spell_dk_blood_boil : public SpellScriptLoader
 {
@@ -1589,10 +1543,20 @@ class spell_dk_blood_boil : public SpellScriptLoader
                 }
             }
 
+            void HandleAfterCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                        l_Player->CastSpell(l_Player, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                }
+            }
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_blood_boil_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_dk_blood_boil_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleAfterCast);
             }
         };
 
@@ -1814,7 +1778,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_gate_teleport();
     new spell_dk_death_gate();
     new spell_dk_death_pact();
-    new spell_dk_scourge_strike();
     new spell_dk_blood_boil();
     new spell_dk_death_grip();
     new spell_dk_corpse_explosion();
