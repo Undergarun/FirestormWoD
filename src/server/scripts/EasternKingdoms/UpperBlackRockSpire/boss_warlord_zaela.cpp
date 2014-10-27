@@ -169,11 +169,11 @@ class boss_warlord_zaela : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                switch (m_Events.ExecuteEvent())
+                /*switch (m_Events.ExecuteEvent())
                 {
                     default:
                         break;
-                }
+                }*/
             }
 
             void ScheduleFirstTalk(const uint32 p_Diff)

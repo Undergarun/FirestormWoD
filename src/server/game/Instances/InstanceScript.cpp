@@ -478,40 +478,75 @@ bool InstanceScript::CheckRequiredBosses(uint32 /*bossId*/, Player const* player
     return true;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
+void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, uint8 p_Param1 /*= 0*/, uint8 p_Param2 /*= 0*/)
 {
-    // size of this packet is at most 15 (usually less)
-    WorldPacket data(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 15);
-    data << uint32(type);
+    WorldPacket l_Data;
 
-    switch (type)
+    switch (p_Type)
     {
         case ENCOUNTER_FRAME_ENGAGE:
-        case ENCOUNTER_FRAME_DISENGAGE:
-        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
-            if (!unit)
+            if (!p_Unit)
                 return;
-            data.append(unit->GetPackGUID());
-            data << uint8(param1);
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 8 + 1);
+            l_Data.append(p_Unit->GetPackGUID());
+            l_Data << uint8(p_Param1);  // TargetFramePriority
             break;
-        case ENCOUNTER_FRAME_ADD_TIMER:
-        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
-        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
-        case ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT:
-            data << uint8(param1);
+        case ENCOUNTER_FRAME_DISENGAGE:
+            if (!p_Unit)
+                return;
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8);
+            l_Data.append(p_Unit->GetPackGUID());
+            break;
+        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+            if (!p_Unit)
+                return;
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 8 + 1);
+            l_Data.append(p_Unit->GetPackGUID());
+            l_Data << uint8(p_Param1);  // TargetFramePriority
+            break;
+        case ENCOUNTER_FRAME_START_TIMER:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 4);
+            l_Data << int32(0);         // TimeRemaining
+            break;
+        case ENCOUNTER_FRAME_START_OBJECTIVE:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START, 4);
+            l_Data << int32(0);         // ObjectiveID
+            break;
+        case ENCOUNTER_FRAME_COMPLETE_OBJECTIVE:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE, 4);
+            l_Data << int32(0);         // ObjectiveID
+            break;
+        case ENCOUNTER_FRAME_START:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_START, 4 * 4);
+            l_Data << uint32(0);        // CombatResChargeRecovery
+            l_Data << int32(0);         // MaxInCombatResCount
+            l_Data << int32(0);         // InCombatResCount
+            l_Data << uint32(0);        // NextCombatResChargeTime
             break;
         case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
-            data << uint8(param1);
-            data << uint8(param2);
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 * 2);
+            l_Data << int32(0);         // ProgressAmount
+            l_Data << int32(0);         // ObjectiveID
             break;
-        case ENCOUNTER_FRAME_UNK7:
-        case ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT:
-        case ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT:
+        case ENCOUNTER_FRAME_END:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_END, 0);
+            break;
+        case ENCOUNTER_FRAME_IN_COMBAT_RESURRECTION:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION, 0);
+            break;
+        case ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0);
+            break;
+        case ENCOUNTER_FRAME_GAIN_COMBAT_RESURRECTION_CHARGE:
+            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 * 2);
+            l_Data << int32(0);         // InCombatResCount
+            l_Data << uint32(0);        // CombatResChargeRecovery
+            break;
         default:
             break;
     }
 
-    instance->SendToPlayers(&data);
+    instance->SendToPlayers(&l_Data);
 }
 
 bool InstanceScript::IsWipe()

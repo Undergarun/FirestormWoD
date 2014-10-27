@@ -262,6 +262,20 @@ enum Opcodes
         SMSG_PETBATTLE_FINAL_ROUND                          = 0x0000,
         SMSG_PETBATTLE_FINISHED                             = 0x0000,
         SMSG_PETBATTLE_UPDATE_BATTLESLOT                    = 0x0000,
+
+        /// Instances
+        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                       = 0x1507, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                    = 0x1018, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                   = 0x1217, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_TIMER_START                       = 0x1513, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                   = 0x337,  ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE                = 0x1264, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_START                             = 0x11EC, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                  = 0x0E8,  ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_END                               = 0x10A3, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION            = 0x338,  ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED               = 0x10A4, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE   = 0x364,  ///< 6.0.2 19027
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -434,6 +448,33 @@ enum Opcodes
 
         /// Creature
         SMSG_MONSTER_MOVE                           = 0x04A4,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_RUN_SPEED              = 0x1B97,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED         = 0x118B,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_SWIM_SPEED             = 0x01CB,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED        = 0x04A9,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED           = 0x05D8,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED      = 0x07E9,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_WALK_SPEED             = 0x1AA0,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_TURN_RATE              = 0x1BE0,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_PITCH_RATE             = 0x10D8,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_ROOT                       = 0x0B90,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_UNROOT                     = 0x05B3,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_GRAVITY_DISABLE            = 0x04C2,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_GRAVITY_ENABLE             = 0x008B,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_COLLISION_DISABLE          = 0x1B87,   ///< 6.0.2 19027 - unused
+        SMSG_SPLINE_MOVE_COLLISION_ENABLE           = 0x04A3,   ///< 6.0.2 19027 - unused
+        SMSG_SPLINE_MOVE_SET_FEATHER_FALL           = 0x048B,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_NORMAL_FALL            = 0x058F,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_HOVER                  = 0x05C1,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_UNSET_HOVER                = 0x04B3,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_WATER_WALK             = 0x11C8,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_LAND_WALK              = 0x07E2,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_START_SWIM                 = 0x0D88,   ///< 6.0.2 19027 - unused
+        SMSG_SPLINE_MOVE_STOP_SWIM                  = 0x059B,   ///< 6.0.2 19027 - unused
+        SMSG_SPLINE_MOVE_SET_RUN_MODE               = 0x1093,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x0AC7,   ///< 6.0.2 19027
+        SMSG_SPLINE_MOVE_SET_FLYING                 = 0x118F,   ///< 6.0.2 19027 - unused
+        SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x0CEB,   ///< 6.0.2 19027 - unused
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1858,33 +1899,6 @@ enum Opcodes
     SMSG_SHOW_ZONES_CHEAT_RESULT                      = 0x0000,
     SMSG_SOCKET_GEMS                                  = 0x0000,
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0x0000,
-    SMSG_SPLINE_MOVE_COLLISION_DISABLE                = 0x0000,
-    SMSG_SPLINE_MOVE_COLLISION_ENABLE                 = 0x0000,
-    SMSG_SPLINE_MOVE_GRAVITY_DISABLE                  = 0x0000,
-    SMSG_SPLINE_MOVE_GRAVITY_ENABLE                   = 0x0000,
-    SMSG_SPLINE_MOVE_ROOT                             = 0x0000,
-    SMSG_SPLINE_MOVE_SET_FEATHER_FALL                 = 0x0000,
-    SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED            = 0x0000,
-    SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED                 = 0x0000,
-    SMSG_SPLINE_MOVE_SET_FLYING                       = 0x0000,
-    SMSG_SPLINE_MOVE_SET_HOVER                        = 0x0000,
-    SMSG_SPLINE_MOVE_SET_LAND_WALK                    = 0x0000,
-    SMSG_SPLINE_MOVE_SET_NORMAL_FALL                  = 0x0000,
-    SMSG_SPLINE_MOVE_SET_PITCH_RATE                   = 0x0000,
-    SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED               = 0x0000,
-    SMSG_SPLINE_MOVE_SET_RUN_MODE                     = 0x0000,
-    SMSG_SPLINE_MOVE_SET_RUN_SPEED                    = 0x0000,
-    SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED              = 0x0000,
-    SMSG_SPLINE_MOVE_SET_SWIM_SPEED                   = 0x0000,
-    SMSG_SPLINE_MOVE_SET_TURN_RATE                    = 0x0000,
-    SMSG_SPLINE_MOVE_SET_WALK_MODE                    = 0x0000,
-    SMSG_SPLINE_MOVE_SET_WALK_SPEED                   = 0x0000,
-    SMSG_SPLINE_MOVE_SET_WATER_WALK                   = 0x0000,
-    SMSG_SPLINE_MOVE_START_SWIM                       = 0x0000,
-    SMSG_SPLINE_MOVE_STOP_SWIM                        = 0x0000,
-    SMSG_SPLINE_MOVE_UNROOT                           = 0x0000,
-    SMSG_SPLINE_MOVE_UNSET_FLYING                     = 0x0000,
-    SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x0000,
     SMSG_STABLE_RESULT                                = 0x0000,
     SMSG_START_MIRROR_TIMER                           = 0x0000,
     SMSG_STOP_DANCE                                   = 0x0000,
@@ -1921,7 +1935,6 @@ enum Opcodes
     SMSG_UNIT_SPELLCAST_START                         = 0x0000,
     SMSG_UPDATE_COMBO_POINTS                          = 0x0000,
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x0000,
-    SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0x0000,
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x0000,
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x0000,
     SMSG_UPDATE_LAST_INSTANCE                         = 0x0000,

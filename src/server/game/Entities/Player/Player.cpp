@@ -3663,9 +3663,9 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
 
     // not unfriendly
     if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction))
-                if (faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
+        if (factionTemplate->Faction)
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
+                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
                     return NULL;
 
     // not too far
@@ -3714,9 +3714,9 @@ Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
 
     // not unfriendly
     if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction))
-                if (faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
+        if (factionTemplate->Faction)
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
+                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
                     return NULL;
 
     // not too far
@@ -25908,10 +25908,10 @@ bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 float Player::GetReputationPriceDiscount(Creature const* creature) const
 {
     FactionTemplateEntry const* vendor_faction = creature->getFactionTemplateEntry();
-    if (!vendor_faction || !vendor_faction->faction)
+    if (!vendor_faction || !vendor_faction->Faction)
         return 1.0f;
 
-    ReputationRank rank = GetReputationRank(vendor_faction->faction);
+    ReputationRank rank = GetReputationRank(vendor_faction->Faction);
     if (rank <= REP_NEUTRAL)
         return 1.0f;
 
