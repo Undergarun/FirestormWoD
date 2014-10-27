@@ -1093,26 +1093,24 @@ struct EmotesTextEntry
 struct FactionEntry
 {
     uint32  ID;                                             // 0        m_ID
-    int32   reputationListID;                               // 1        m_ReputationIndex
-    uint32  BaseRepRaceMask[4];                             // 2-5      m_ReputationRaceMask
-    uint32  BaseRepClassMask[4];                            // 6-9      m_ReputationClassMask
-    int32   BaseRepValue[4];                                // 10-13    m_ReputationBase
+    int32   ReputationIndex;                                // 1        m_ReputationIndex
+    uint32  ReputationRaceMask[4];                          // 2-5      m_ReputationRaceMask
+    uint32  ReputationClassMask[4];                         // 6-9      m_ReputationClassMask
+    int32   ReputationBase[4];                              // 10-13    m_ReputationBase
     uint32  ReputationFlags[4];                             // 14-17    m_ReputationFlags
-    uint32  team;                                           // 18       m_ParentFactionID
-    float   spilloverRateIn;                                // 19       m_ParentFactionMod      Faction gains incoming rep * spilloverRateIn
-    float   spilloverRateOut;                               // 20       m_ParentFactionMod      Faction outputs rep * spilloverRateOut as spillover reputation
-    uint32  spilloverMaxRankIn;                             // 21       m_ParentFactionCap      The highest rank the faction will profit from incoming spillover
-    //uint32    spilloverRank_unk;                          // 22       m_ParentFactionCap      It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    char*   name;                                           // 23       m_name_lang
-    //char*     description;                                // 24       m_description_lang
-    //uint32    m_Expansion;                                // 25       m_Expansion
-    //uint32    m_Flags;                                    // 26       m_Flags
-    //uint32    m_FriendshipRepID;                          // 27       m_FriendshipRepID       Friendship system NYI
+    uint32  ParentFactionID;                                // 18       m_ParentFactionID
+    float   ParentFactionMod[2];                            // 19-20    m_ParentFactionMod      Faction gains incoming rep * spilloverRateIn
+    uint32  ParentFactionCap[2];                            // 21-22    m_ParentFactionCap      The highest rank the faction will profit from incoming spillover
+    char*   NameLang;                                       // 23       m_name_lang
+    char*   DescriptionLang;                                // 24       m_description_lang
+    uint32  Expansion;                                      // 25       m_Expansion
+    uint32  Flags;                                          // 26       m_Flags
+    uint32  FriendshipRepID;                                // 27       m_FriendshipRepID       Friendship system NYI
 
     // helpers
     bool CanHaveReputation() const
     {
-        return reputationListID >= 0;
+        return ReputationIndex >= 0;
     }
 };
 
@@ -1121,54 +1119,75 @@ struct FactionEntry
 struct FactionTemplateEntry
 {
     uint32  ID;                                             // 0        m_ID
-    uint32  faction;                                        // 1        m_faction
-    uint32  factionFlags;                                   // 2        m_flags
-    uint32  ourMask;                                        // 3        m_factionGroup
-    uint32  friendlyMask;                                   // 4        m_friendGroup
-    uint32  hostileMask;                                    // 5        m_enemyGroup
-    uint32  enemyFaction[MAX_FACTION_RELATIONS];            // 6-9      m_enemies[MAX_FACTION_RELATIONS]
-    uint32  friendFaction[MAX_FACTION_RELATIONS];           // 10-14    m_friend[MAX_FACTION_RELATIONS]
+    uint32  Faction;                                        // 1        m_faction
+    uint32  Flags;                                          // 2        m_flags
+    uint32  FactionGroup;                                   // 3        m_factionGroup
+    uint32  FriendGroup;                                    // 4        m_friendGroup
+    uint32  EnemyGroup;                                     // 5        m_enemyGroup
+    uint32  Enemies[MAX_FACTION_RELATIONS];                 // 6-9      m_enemies[MAX_FACTION_RELATIONS]
+    uint32  Friend[MAX_FACTION_RELATIONS];                  // 10-14    m_friend[MAX_FACTION_RELATIONS]
 
     // helpers
-    bool IsFriendlyTo(FactionTemplateEntry const& entry) const
+    bool IsFriendlyTo(FactionTemplateEntry const& p_Entry) const
     {
-        if (ID == entry.ID)
+        if (ID == p_Entry.ID)
             return true;
-        if (entry.faction)
+
+        if (p_Entry.Faction)
         {
-            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (enemyFaction[i] == entry.faction)
+            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+            {
+                if (Enemies[i] == p_Entry.Faction)
                     return false;
-            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (friendFaction[i] == entry.faction)
+            }
+
+            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+            {
+                if (Friend[i] == p_Entry.Faction)
                     return true;
+            }
         }
-        return (friendlyMask & entry.ourMask) || (ourMask & entry.friendlyMask);
+
+        return (FriendGroup & p_Entry.FactionGroup) || (FactionGroup & p_Entry.FriendGroup);
     }
-    bool IsHostileTo(FactionTemplateEntry const& entry) const
+
+    bool IsHostileTo(FactionTemplateEntry const& p_Entry) const
     {
-        if (ID == entry.ID)
+        if (ID == p_Entry.ID)
             return false;
-        if (entry.faction)
+
+        if (p_Entry.Faction)
         {
-            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (enemyFaction[i] == entry.faction)
+            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+            {
+                if (Enemies[i] == p_Entry.Faction)
                     return true;
-            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (friendFaction[i] == entry.faction)
+            }
+
+            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+            {
+                if (Friend[i] == p_Entry.Faction)
                     return false;
+            }
         }
-        return (hostileMask & entry.ourMask) != 0;
+
+        return (EnemyGroup & p_Entry.FactionGroup) != 0;
     }
-    bool IsHostileToPlayers() const { return (hostileMask & FACTION_MASK_PLAYER) !=0; }
+
+    bool IsHostileToPlayers() const { return (EnemyGroup & FACTION_MASK_PLAYER); }
+
     bool IsNeutralToAll() const
     {
-        for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
-            if (enemyFaction[i] != 0)
+        for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+        {
+            if (Enemies[i] != 0)
                 return false;
-        return hostileMask == 0 && friendlyMask == 0;
+        }
+
+        return EnemyGroup == 0 && FriendGroup == 0;
     }
-    bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
+
+    bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD); }
 };
 
 struct GameObjectDisplayInfoEntry
