@@ -7271,7 +7271,6 @@ SpellCastResult Spell::CheckPower()
 
     switch (m_spellInfo->Id)
     {
-        case 104225:// Curse of Elements
         case 109468:// Curse of Enfeeblement
         {
             if (m_caster->ToPlayer() && m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)

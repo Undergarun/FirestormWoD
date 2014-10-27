@@ -2394,9 +2394,6 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
                     // periodic auras which target areas are not allowed to stack this way (replenishment for example)
                     if (m_spellInfo->Effects[i].IsTargetingArea() || existingSpellInfo->Effects[i].IsTargetingArea())
                         break;
-                    // Curse of Elements
-                    if (m_spellInfo->Id == 1490)
-                        break;
                     return true;
                 case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:                // Vendetta-like auras
                 case SPELL_AURA_BYPASS_ARMOR_FOR_CASTER:               // Find Weakness-like auras

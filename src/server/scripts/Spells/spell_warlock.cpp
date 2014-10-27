@@ -680,7 +680,7 @@ class spell_warl_soulburn_seed_of_corruption : public SpellScriptLoader
         }
 };
 
-// Called by Soulburn : Curse of Enfeeblement - 109468, Soulburn : Curse of Elements - 104225 and Soulburn : Curse of Exhaustion - 104223
+// Called by Soulburn : Curse of Enfeeblement - 109468 and Soulburn : Curse of Exhaustion - 104223
 // Soulburn aura - Remove - 74434
 class spell_warl_soulburn_remove : public SpellScriptLoader
 {
