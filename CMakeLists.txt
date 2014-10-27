@@ -21,6 +21,7 @@ set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # set macro-directory
@@ -29,14 +30,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
 # build in Release-mode by default if not explicitly set
 if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-std=gnu++0x)
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
-if( APPLE )
-    set (CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++ -g3 -Wall -O0")
 endif()
 
 include(CheckCXXSourceRuns)

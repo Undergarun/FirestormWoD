@@ -5850,7 +5850,6 @@ void Player::ResetSpec()
     if (GetSpecializationId(GetActiveSpec()) == 0)
         return;
 
-    RemoveAllSymbiosisAuras();
     RemoveSpecializationSpells();
     SetSpecializationId(GetActiveSpec(), 0);
     InitSpellForLevel();
@@ -7327,18 +7326,14 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_MULTISTRIKE:
         case CR_READINESS:
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
-        case CR_LIFESTEAL:
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
-            break;
-        case CR_AVOIDANCE:
             break;
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryPercentage();
@@ -7346,9 +7341,18 @@ void Player::UpdateRating(CombatRating cr)
         case CR_PVP_POWER:
             UpdatePvPPowerPercentage();
             break;
+        case CR_MULTISTRIKE:
+            UpdateMultistrike();
+            break;
+        case CR_LIFESTEAL:
+            UpdateLeech();
+            break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
+            UpdateVesatillity();
             break;
+        case CR_AVOIDANCE:
+            UpdateAvoidance();
         default:
             break;
     }

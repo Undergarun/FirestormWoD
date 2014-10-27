@@ -497,7 +497,7 @@ class spell_rog_growl : public SpellScriptLoader
         }
 };
 
-// Cloak of Shadows - 31224 and Cloak of Shadows - 110788 (Symbiosis)
+// Cloak of Shadows - 31224
 class spell_rog_cloak_of_shadows : public SpellScriptLoader
 {
     public:
