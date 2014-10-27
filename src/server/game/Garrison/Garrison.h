@@ -12,9 +12,16 @@ enum GarrisonFactionIndex
 
 enum GarrisonMissionState
 {
-    GARRISON_MISSION_AVAILABLE      = 0,
-    GARRISON_MISSION_IN_PROGRESS    = 1,
-    GARRISON_MISSION_COMPLETE       = 2
+    GARRISON_MISSION_AVAILABLE              = 0,
+    GARRISON_MISSION_IN_PROGRESS            = 1,
+    GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
+};
+
+enum GarrisonMissionFlag
+{
+    GARRISON_MISSION_FLAG_RARE          = 0x01,
+    GARRISON_MISSION_FLAG_UNK_2         = 0x02,
+    GARRISON_MISSION_FLAG_EXHAUSTING    = 0x04,
 };
 
 enum GarrisonLearnBluePrintResult
@@ -54,6 +61,8 @@ extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MA
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
 #define GARRISON_PLOT_INSTANCE_COUNT 40
+#define GARRISON_CURRENCY_ID 824
+#define GARRISON_MAX_FOLLOWER_LEVEL 100
 
 struct GarrisonPlotInstanceInfoLocation
 {
@@ -150,6 +159,13 @@ class Garrison
         bool AddMission(uint32 p_MissionRecID);
         /// Player have mission
         bool HaveMission(uint32 p_MissionRecID);
+        /// Start mission
+        void StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
+        void StartMissionFailed();
+        /// Complete a mission
+        void CompleteMission(uint32 p_MissionRecID);
+        /// Get mission chest chance
+        void GetMissionChestChance(uint32 p_MissionRecID);
         /// Get missions
         std::vector<GarrisonMission> GetMissions();
         /// Get all completed missions

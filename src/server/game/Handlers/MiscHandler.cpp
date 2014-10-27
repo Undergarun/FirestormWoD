@@ -1304,21 +1304,15 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
-void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
+void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
 
-    ObjectGuid guid;
-    uint32 time;
-    recvData >> time;
+    uint64 p_MoverGUID;
+    uint32 p_Time;
 
-    uint8 bitOrder[8] = { 3, 0, 5, 1, 7, 6, 4, 2 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 1, 6, 0, 5, 3, 4, 2, 7 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    p_Packet.readPackGUID(p_MoverGUID);
+    p_Packet >> p_Time;
 
     //TODO!
 

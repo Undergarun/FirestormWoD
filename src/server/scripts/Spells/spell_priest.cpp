@@ -2307,7 +2307,7 @@ class spell_pri_inner_fire_or_will : public SpellScriptLoader
         }
 };
 
-// Leap of Faith - 73325 and Leap of Faith - 110718 (Symbiosis)
+// Leap of Faith - 73325
 class spell_pri_leap_of_faith : public SpellScriptLoader
 {
     public:

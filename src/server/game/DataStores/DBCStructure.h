@@ -1585,9 +1585,9 @@ struct MapEntry
     //char*     direcotry;                                  // 1        m_Directory
     uint32  instanceType;                                   // 2        m_InstanceType
     //uint32    flags;                                      // 3        m_Flags
-    //uint32    MapType;                                    // 4        m_MapType 4 Garison, 3 Transport 2/1 unk usage
-    char*   MapNameLang;                                    // 5        m_MapName_lang
-    //int     unk_602;                                      // 6
+    //int     unk_602;                                      // 4
+    //uint32    MapType;                                    // 5        m_MapType 4 Garison, 3 Transport 2/1 unk usage
+    char*   MapNameLang;                                    // 6        m_MapName_lang
     uint32  AreaTableID;                                    // 7        m_areaTableID
     //char*     MapDescription0Lang;                        // 8        m_MapDescription0_lang
     //char*     MapDescription1Lang;                        // 9        m_MapDescription1_lang
@@ -1774,9 +1774,9 @@ struct ResearchSiteEntry
 struct ScalingStatDistributionEntry
 {
     uint32  Id;                                             // 0        m_ID
-    uint32  Minlevel;                                       // 1        m_Minlevel
+    uint32  MinLevel;                                       // 1        m_Minlevel
     uint32  MaxLevel;                                       // 2        m_Maxlevel
-    uint32  Unk_601_18612;                                  // 3        Unk_601_18612
+    uint32  CurveProperties;                                // 3        m_CurveProperties
 };
 
 // 6.0.2 19027 - DBC doesn't exists

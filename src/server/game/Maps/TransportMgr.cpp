@@ -66,7 +66,7 @@ void TransportMgr::LoadTransportTemplates()
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size())
         {
-            sLog->outError(LOG_FILTER_SQL, "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name, goInfo->moTransport.taxiPathId);
+            sLog->outError(LOG_FILTER_SQL, "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathId);
             continue;
         }
 

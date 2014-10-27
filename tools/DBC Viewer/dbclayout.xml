@@ -1278,7 +1278,7 @@
     <field type="int" name="field21" />
     <field type="int" name="field22" />
   </QuestV2CliTask>
-  <AreaTable build="19057">
+  <AreaTable build="19027">
     <index>
       <primary>ID</primary>
     </index>
@@ -1614,12 +1614,12 @@
     <field type="int" name="EffectSpellClassMask3" />
     <field type="int" name="EffectSpellClassMask4" />
     <field type="int" name="EffectTriggerSpell" />
-    <field type="float" name="unk_1" />
+    <field type="float" name="unk_1                                         " />
     <field type="int" name="EffectImplicitTargetA" />
     <field type="int" name="EffectImplicitTargetB" />
     <field type="int" name="EffectSpellId" />
     <field type="int" name="EffectIndex" />
-    <field type="float" name="unk_flag_2" />
+    <field type="float" name="unk_flag_2                                    " />
     <field type="int" name="newField" />
   </SpellEffect>
   <SpellItemEnchantmentCondition build="0">
@@ -1689,6 +1689,52 @@
     <field type="int" name="field2" />
     <field type="string" name="field3" />
   </ItemSubClassMask>
+  <Vehicle build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+    <field type="int" name="field30" />
+    <field type="int" name="field31" />
+    <field type="int" name="field32" />
+    <field type="int" name="field33" />
+    <field type="int" name="field34" />
+    <field type="int" name="field35" />
+    <field type="int" name="field36" />
+    <field type="int" name="field37" />
+    <field type="int" name="field38" />
+    <field type="int" name="field39" />
+    <field type="int" name="field40" />
+  </Vehicle>
   <SpellItemEnchantment build="0">
     <index>
       <primary>ID</primary>
@@ -2409,12 +2455,12 @@
   </SkillLine>
   <TotemCategory build="0">
     <index>
-      <primary>ID</primary>
+      <primary>field0</primary>
     </index>
-    <field type="int" name="ID" />
-    <field type="string" name="NameLang" />
-    <field type="int" name="TotemCategoryType" />
-    <field type="int" name="TotemCategoryMask" />
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
   </TotemCategory>
   <ItemPetFood build="0">
     <index>
@@ -2441,7 +2487,7 @@
     <field type="int" name="ItemLevelWeapon" />
     <field type="int" name="ItemLevelArmor" />
     <field type="int" name="field13" />
-    <field type="int" name="field14" />
+    <field type="int" name="Bias" />
     <field type="string" name="field15" />
     <field type="string" name="field16" />
     <field type="int" name="field17" />
@@ -2459,37 +2505,37 @@
   </GarrFollowerQuality>
   <GarrFollowerXAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="FollowerId" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
+    <field type="int" name="ID" />
+    <field type="int" name="FollowerID" />
+    <field type="int" name="AbilityID" />
+    <field type="int" name="FactionIndex" />
   </GarrFollowerXAbility>
   <GarrAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="string" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="int" name="IconID" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
+    <field type="int" name="Category" />
   </GarrAbility>
   <GarrAbilityEffect build="0">
     <index>
-      <primary>field0</primary>
+      <primary>EffectID</primary>
     </index>
-    <field type="int" name="field0" />
+    <field type="int" name="EffectID" />
     <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="AbilityID" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="CounterMechanicTypeID" />
     <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
+    <field type="float" name="field6" />
+    <field type="float" name="field7" />
     <field type="int" name="field8" />
     <field type="int" name="field9" />
     <field type="int" name="field10" />
@@ -2501,8 +2547,9 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
     <field type="string" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="float" name="field3" />
+    <field type="float" name="field4" />
+    <field type="int" name="newField" />
   </GarrEncounter>
   <GarrEncounterXMechanic build="0">
     <index>
@@ -2525,17 +2572,17 @@
     </index>
     <field type="int" name="field0" />
     <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="string" name="field3" />
-    <field type="int" name="field4" />
+    <field type="string" name="Environment" />
+    <field type="string" name="EnvironmentDesc" />
+    <field type="int" name="EnvironmentTexture" />
   </GarrMechanicType>
   <GarrMechanic build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="ID" />
+    <field type="int" name="MechanicTypeID" />
+    <field type="float" name="field2" />
   </GarrMechanic>
   <GarrMission build="0">
     <index>
@@ -2544,20 +2591,20 @@
     <field type="int" name="MissionRecID" />
     <field type="int" name="RequiredLevel" />
     <field type="int" name="RequiredItemLevel" />
-    <field type="int" name="field3" />
+    <field type="int" name="GarrMechanicTypeRecID" />
     <field type="int" name="RequiredFollowersCount" />
     <field type="int" name="field5" />
     <field type="int" name="Duration" />
     <field type="int" name="OfferDuration" />
-    <field type="int" name="field8" />
-    <field type="string" name="Title" />
+    <field type="int" name="LocPrefixID" />
+    <field type="int" name="field9" />
+    <field type="string" name="Name" />
     <field type="string" name="Description" />
     <field type="string" name="Location" />
-    <field type="int" name="field12" />
     <field type="int" name="field13" />
     <field type="int" name="field14" />
     <field type="int" name="GarrisonCurrencyStartCost" />
-    <field type="int" name="field16" />
+    <field type="int" name="Flags" />
     <field type="int" name="RewardFollowerExperience" />
     <field type="int" name="BaseBronzeChestChance" />
   </GarrMission>
@@ -2903,7 +2950,7 @@
     <field type="int" name="LiquidTypeID_2" />
     <field type="int" name="LiquidTypeID_3" />
     <field type="float" name="MinElevation" />
-    <field type="float" name="AmbientMultiplier" />
+    <field type="float" name="AmbientMultiplier;" />
     <field type="int" name="Lightid" />
     <field type="int" name="MountFlags" />
     <field type="int" name="UwIntroSound" />
@@ -3015,218 +3062,23 @@
     <field type="int" name="field8" />
     <field type="int" name="field9" />
   </GarrMissionReward>
-  <SummonProperties build="19057">
-    <index>
-      <primary>Id</primary>
-	</index>
-    <field type="int" name="Control" />
-    <field type="int" name="Faction" />
-    <field type="int" name="Title" />
-    <field type="int" name="Slot" />
-    <field type="int" name="Flags" />	  
-   </SummonProperties>
-  <Talent build="19045">
-  <index>
-      <primary>Id</primary>
-  </index>
-    <field type="int" name="ID" />
-    <field type="int" name="SpecID" />
-    <field type="int" name="TierID" />
-    <field type="int" name="ColumnIndex" />
-    <field type="int" name="SpellID" />
-    <field type="int" name="Flags" />
-    <field type="int" name="CategoryMask1" />
-    <field type="int" name="CategoryMask2" />
-    <field type="int" name="ClassID" />
-    <field type="int" name="OverridesSpellID" />
-    <field type="string" name="DescriptionLang" />
-  </Talent>
-  <Vehicle build="19027">
-    <index>
-      <primary>ID</primary>
-    </index>
-    <field type="int" name="ID" />
-    <field type="int" name="Flags" />
-    <field type="int" name="FlagsB" />
-    <field type="float" name="TurnSpeed" />
-    <field type="float" name="PitchSpeed" />
-    <field type="float" name="PitchMin" />
-    <field type="float" name="PitchMax" />
-    <field type="int" name="SeatID1" />
-    <field type="int" name="SeatID2" />
-    <field type="int" name="SeatID3" />
-    <field type="int" name="SeatID4" />
-    <field type="int" name="SeatID5" />
-    <field type="int" name="SeatID6" />
-    <field type="int" name="SeatID7" />
-    <field type="int" name="SeatID8" />
-    <field type="float" name="MouseLookOffsetPitch" />
-    <field type="float" name="CameraFadeDistScalarMin" />
-    <field type="float" name="CameraFadeDistScalarMax" />
-    <field type="float" name="CameraPitchOffset" />
-    <field type="float" name="FacingLimitRight" />
-    <field type="float" name="FacingLimitLeft" />
-    <field type="float" name="MsslTrgtTurnLingering" />
-    <field type="float" name="MsslTrgtPitchLingering" />
-    <field type="float" name="MsslTrgtMouseLingering" />
-    <field type="float" name="MsslTrgtEndOpacity" />
-    <field type="float" name="MsslTrgtArcSpeed" />
-    <field type="float" name="MsslTrgtArcRepeat" />
-    <field type="float" name="MsslTrgtArcWidth" />
-    <field type="float" name="MsslTrgtImpactRadius1" />
-    <field type="float" name="MsslTrgtImpactRadius2" />
-    <field type="string" name="MsslTrgtArcTexture" />
-    <field type="string" name="MsslTrgtImpactTexture" />
-    <field type="string" name="MsslTrgtImpactModel1" />
-    <field type="string" name="m_msslTrgtImpactModel2" />
-    <field type="float" name="CameraYawOffset" />
-    <field type="int" name="UiLocomotionType" />
-    <field type="float" name="MsslTrgtImpactTexRadius" />
-    <field type="int" name="VehicleUIIndicatorID" />
-    <field type="int" name="PowerDisplayID1" />
-    <field type="int" name="PowerDisplayID2" />
-    <field type="int" name="PowerDisplayID3" />
-  </Vehicle>
-  <Stationery build="19057">
+  <GarrMissionType build="0">
     <index>
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
     <field type="int" name="field1" />
-    <field type="string" name="field2" />
-    <field type="int" name="field3" />
-  </Stationery>
-  <GarrAbility build="19057">
+    <field type="int" name="field2" />
+  </GarrMissionType>
+  <GarrMissionXEncounter build="0">
     <index>
-      <primary>Id</primary>
+      <primary>field0</primary>
     </index>
-    <field type="int" name="Id" />
+    <field type="int" name="field0" />
     <field type="int" name="field1" />
-    <field type="string" name="Name" />
-    <field type="string" name="Descripion" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="Category" />
-  </GarrAbility>
-  <GarrFollower build="19057">
-    <index>
-      <primary>FollowerID</primary>
-    </index>
-    <field type="int" name="FollowerID" />
-    <field type="int" name="EntryH" />
-    <field type="int" name="EntryA" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="Level" />
-    <field type="int" name="ItemLevelWeapon" />
-    <field type="int" name="ItemLevelArmor" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="string" name="Source_H" />
-    <field type="string" name="Source_A" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
-    <field type="int" name="field20" />
-  </GarrFollower>
-  <SkillTiers build="19057">
-    <index>
-      <primary>ID</primary>
-    </index>
-    <field type="int" name="ID" />
-    <field type="int" name="Value1" />
-    <field type="int" name="Value2" />
-    <field type="int" name="Value3" />
-    <field type="int" name="Value4" />
-    <field type="int" name="Value5" />
-    <field type="int" name="Value6" />
-    <field type="int" name="Value7" />
-    <field type="int" name="Value8" />
-    <field type="int" name="Value9" />
-    <field type="int" name="Value10" />
-    <field type="int" name="Value11" />
-    <field type="int" name="Value12" />
-    <field type="int" name="Value13" />
-    <field type="int" name="Value14" />
-    <field type="int" name="Value15" />
-    <field type="int" name="Value16" />
-  </SkillTiers>
-  <SkillRaceClassInfo build="19057">
-    <index>
-      <primary>ID</primary>
-    </index>
-    <field type="int" name="ID" />
-    <field type="int" name="SkillID" />
-    <field type="int" name="RaceMask" />
-    <field type="int" name="ClassMask" />
-    <field type="int" name="Flags" />
-    <field type="int" name="Availability" />
-    <field type="int" name="MinLevel" />
-    <field type="int" name="SkillTierID" />
-  </SkillRaceClassInfo>
-  <SkillLineAbilitySortedSpell build="19057">
-    <index>
-      <primary>Id</primary>
-    </index>
-    <field type="int" name="Id" />
-    <field type="int" name="Spell" />
-  </SkillLineAbilitySortedSpell>
-  <SkillLineAbility build="19057">
-    <index>
-      <primary>ID</primary>
-    </index>
-    <field type="int" name="ID" />
-    <field type="int" name="SkillLine" />
-    <field type="int" name="Spell" />
-    <field type="int" name="RaceMask" />
-    <field type="int" name="ClassMask" />
-    <field type="int" name="MinSkillLineRank" />
-    <field type="int" name="SupercedesSpell" />
-    <field type="int" name="AcquireMethod" />
-    <field type="int" name="TrivialSkillLineRankHigh" />
-    <field type="int" name="TrivialSkillLineRankLow" />
-    <field type="int" name="NumSkillUps" />
-    <field type="int" name="UniqueBit" />
-    <field type="int" name="TradeSkillCategoryID" />
-  </SkillLineAbility>
-  <SkillLine build="19057">
-    <index>
-      <primary>ID</primary>
-    </index>
-    <field type="int" name="ID" />
-    <field type="int" name="CategoryID" />
-    <field type="string" name="DisplayNameLang" />
-    <field type="string" name="DescriptionLang" />
-    <field type="int" name="SpellIconID" />
-    <field type="string" name="AlternateVerbLang" />
-    <field type="int" name="CanLink" />
-    <field type="int" name="ParentSkillLineID" />
-    <field type="int" name="Flags" />
-  </SkillLine>
-  <Weather build="19057">
-    <index>
-      <primary>ID</primary>
-    </index>
-    <field type="int" name="ID" />
-    <field type="int" name="AmbienceID" />
-    <field type="int" name="Type" />
-    <field type="int" name="EffectType" />
-    <field type="float" name="Intensity1" />
-    <field type="float" name="Intensity2" />
-    <field type="float" name="TransitionSkyBox" />
-    <field type="float" name="EffectColor1" />
-    <field type="float" name="EffectColor2" />
-    <field type="float" name="EffectColor3" />
-    <field type="string" name="EffectTexture" />
-    <field type="int" name="SoundAmbienceID" />
-    <field type="int" name="WindSettingsID" />
-  </Weather>
-  <SpellClassOptions build="19057">
+    <field type="int" name="field2" />
+  </GarrMissionXEncounter>
+  <BroadcastText build="0">
     <index>
       <primary>field0</primary>
     </index>
@@ -3237,5 +3089,476 @@
     <field type="int" name="field4" />
     <field type="int" name="field5" />
     <field type="int" name="field6" />
-  </SpellClassOptions>
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </BroadcastText>
+  <BroadcastText build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="string" name="field2" />
+    <field type="string" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </BroadcastText>
+  <LanguageWords build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </LanguageWords>
+  <LanguageWords build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="string" name="field2" />
+  </LanguageWords>
+  <Locale build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </Locale>
+  <Location build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+    <field type="float" name="field2" />
+    <field type="float" name="field3" />
+    <field type="float" name="field4" />
+    <field type="float" name="field5" />
+    <field type="float" name="field6" />
+  </Location>
+  <Movie build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </Movie>
+  <NPCSounds build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </NPCSounds>
+  <Phase build="19057">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="Flag" />
+  </Phase>
+  <ServerMessages build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="TextLang" />
+  </ServerMessages>
+  <SceneScript build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="name" />
+    <field type="string" name="script" />
+    <field type="int" name="prevscript" />
+    <field type="int" name="nextscript" />
+  </SceneScript>
+  <StringLookups build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </StringLookups>
+  <Creature build="19057">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="type" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="displayid" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="float" name="field10" />
+    <field type="float" name="field11" />
+    <field type="float" name="field12" />
+    <field type="float" name="field13" />
+    <field type="string" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+  </Creature>
+  <SoundEntries build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SoundType" />
+    <field type="string" name="Name" />
+    <field type="int" name="FileDataID1" />
+    <field type="int" name="FileDataID2" />
+    <field type="int" name="FileDataID3" />
+    <field type="int" name="FileDataID4" />
+    <field type="int" name="FileDataID5" />
+    <field type="int" name="FileDataID6" />
+    <field type="int" name="FileDataID7" />
+    <field type="int" name="FileDataID8" />
+    <field type="int" name="FileDataID9" />
+    <field type="int" name="FileDataID10" />
+    <field type="int" name="FileDataID11" />
+    <field type="int" name="FileDataID12" />
+    <field type="int" name="FileDataID13" />
+    <field type="int" name="FileDataID14" />
+    <field type="int" name="FileDataID15" />
+    <field type="int" name="FileDataID16" />
+    <field type="int" name="FileDataID17" />
+    <field type="int" name="FileDataID18" />
+    <field type="int" name="FileDataID19" />
+    <field type="int" name="FileDataID20" />
+    <field type="int" name="Freq1" />
+    <field type="int" name="Freq2" />
+    <field type="int" name="Freq3" />
+    <field type="int" name="Freq4" />
+    <field type="int" name="Freq5" />
+    <field type="int" name="Freq6" />
+    <field type="int" name="Freq7" />
+    <field type="int" name="Freq8" />
+    <field type="int" name="Freq9" />
+    <field type="int" name="Freq10" />
+    <field type="int" name="Freq11" />
+    <field type="int" name="Freq12" />
+    <field type="int" name="Freq13" />
+    <field type="int" name="Freq14" />
+    <field type="int" name="Freq15" />
+    <field type="int" name="Freq16" />
+    <field type="int" name="Freq17" />
+    <field type="int" name="Freq18" />
+    <field type="int" name="Freq19" />
+    <field type="int" name="Freq20" />
+    <field type="float" name="VolumeFloat" />
+    <field type="int" name="Flags" />
+    <field type="float" name="MinDistance" />
+    <field type="float" name="DistanceCutoff" />
+    <field type="int" name="EAXDef" />
+    <field type="int" name="SoundEntriesAdvancedID" />
+    <field type="float" name="Volumevariationplus" />
+    <field type="float" name="Volumevariationminus" />
+    <field type="float" name="Pitchvariationplus" />
+    <field type="float" name="Pitchvariationminus" />
+    <field type="float" name="PitchAdjust" />
+    <field type="int" name="Dialogtype" />
+    <field type="int" name="BusOverwriteID" />
+  </SoundEntries>
+  <SoundEntriesAdvanced build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SoundEntryID" />
+    <field type="float" name="InnerRadius2D" />
+    <field type="int" name="TimeA" />
+    <field type="int" name="TimeB" />
+    <field type="int" name="TimeC" />
+    <field type="int" name="TimeD" />
+    <field type="int" name="RandomOffsetRange" />
+    <field type="int" name="Usage" />
+    <field type="int" name="TimeIntervalMin" />
+    <field type="int" name="TimeIntervalMax" />
+    <field type="int" name="VolumeSliderCategory" />
+    <field type="float" name="DuckToSFX" />
+    <field type="float" name="DuckToMusic" />
+    <field type="float" name="DuckToAmbience" />
+    <field type="float" name="InnerRadiusOfInfluence" />
+    <field type="int" name="OuterRadiusOfInfluence" />
+    <field type="int" name="TimeToDuck" />
+    <field type="int" name="TimeToUnduck" />
+    <field type="float" name="InsideAngle" />
+    <field type="float" name="OutsideAngle" />
+    <field type="float" name="OutsideVolume" />
+    <field type="float" name="OuterRadius2D" />
+    <field type="int" name="MinRandomPosOffset" />
+    <field type="int" name="MaxRandomPosOffset" />
+    <field type="float" name="DuckToDialog" />
+    <field type="float" name="DuckToSuppressors" />
+    <field type="int" name="MsOffset" />
+    <field type="float" name="Volume1" />
+    <field type="float" name="Volume2" />
+    <field type="float" name="Volume3" />
+    <field type="float" name="Volume4" />
+    <field type="float" name="Volume5" />
+    <field type="float" name="Volume6" />
+    <field type="float" name="Volume7" />
+    <field type="float" name="Volume8" />
+    <field type="float" name="Volume9" />
+    <field type="float" name="Volume10" />
+    <field type="float" name="Volume11" />
+    <field type="float" name="Volume12" />
+    <field type="float" name="Volume13" />
+    <field type="float" name="Volume14" />
+    <field type="float" name="Volume15" />
+    <field type="float" name="Volume16" />
+    <field type="float" name="Volume17" />
+    <field type="float" name="Volume18" />
+    <field type="float" name="Volume19" />
+    <field type="float" name="Volume20" />
+  </SoundEntriesAdvanced>
+  <SoundEmitters build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="PositionX" />
+    <field type="float" name="PositionY" />
+    <field type="float" name="PositionZ" />
+    <field type="float" name="DirectionX" />
+    <field type="float" name="DirectionY" />
+    <field type="float" name="DirectionZ" />
+    <field type="int" name="SoundEntriesID" />
+    <field type="int" name="MapID" />
+    <field type="string" name="Name" />
+    <field type="int" name="EmitterType" />
+    <field type="int" name="PhaseID" />
+    <field type="int" name="PhaseGroupID" />
+    <field type="int" name="PhaseUseFlags" />
+    <field type="int" name="Flags" />
+    <field type="int" name="WorldStateExpressionID" />
+  </SoundEmitters>
+  <WorldStateExpression build="19057">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="string" name="Expression" />
+  </WorldStateExpression>
+  <AnimationData build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+    <field type="int" name="Flags" />
+    <field type="int" name="Fallback" />
+    <field type="int" name="BehaviorID" />
+    <field type="int" name="BehaviorTier" />
+  </AnimationData>
+  <TransportAnimation build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="TransportID" />
+    <field type="int" name="TimeIndex" />
+    <field type="float" name="PosX" />
+    <field type="float" name="PosY" />
+    <field type="float" name="PosZ" />
+    <field type="int" name="SequenceID" />
+  </TransportAnimation>
+  <ZoneIntroMusicTable build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+    <field type="int" name="SoundID" />
+    <field type="int" name="Priority" />
+    <field type="int" name="MinDelayMinutes" />
+  </ZoneIntroMusicTable>
+  <SceneScriptPackageMember build="19057">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </SceneScriptPackageMember>
+  <SceneScriptPackage build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+  </SceneScriptPackage>
+  <PlayerCondition build="19057">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="RaceMask" />
+    <field type="int" name="ClassMask" />
+    <field type="int" name="Gender" />
+    <field type="int" name="NativeGender" />
+    <field type="int" name="SkillID1" />
+    <field type="int" name="SkillID2" />
+    <field type="int" name="SkillID3" />
+    <field type="int" name="SkillID4" />
+    <field type="int" name="MinSkill1" />
+    <field type="int" name="MinSkill2" />
+    <field type="int" name="MinSkill3" />
+    <field type="int" name="MinSkill4" />
+    <field type="int" name="MaxSkill1" />
+    <field type="int" name="MaxSkill2" />
+    <field type="int" name="MaxSkill3" />
+    <field type="int" name="MaxSkill4" />
+    <field type="int" name="SkillLogic" />
+    <field type="int" name="LanguageID" />
+    <field type="int" name="MinLanguage" />
+    <field type="int" name="MaxLanguage" />
+    <field type="int" name="MinFactionID1" />
+    <field type="int" name="MinFactionID2" />
+    <field type="int" name="MinFactionID3" />
+    <field type="int" name="MaxFactionID" />
+    <field type="int" name="MinReputation1" />
+    <field type="int" name="MinReputation2" />
+    <field type="int" name="MinReputation3" />
+    <field type="int" name="MaxReputation" />
+    <field type="int" name="ReputationLogic" />
+    <field type="int" name="MinPVPRank" />
+    <field type="int" name="MaxPVPRank" />
+    <field type="int" name="PvpMedal" />
+    <field type="int" name="PrevQuestLogic" />
+    <field type="int" name="PrevQuestID1" />
+    <field type="int" name="PrevQuestID2" />
+    <field type="int" name="PrevQuestID3" />
+    <field type="int" name="PrevQuestID4" />
+    <field type="int" name="CurrQuestLogic" />
+    <field type="int" name="CurrQuestID1" />
+    <field type="int" name="CurrQuestID2" />
+    <field type="int" name="CurrQuestID3" />
+    <field type="int" name="CurrQuestID4" />
+    <field type="int" name="CurrentCompletedQuestLogic" />
+    <field type="int" name="CurrentCompletedQuestID1" />
+    <field type="int" name="CurrentCompletedQuestID2" />
+    <field type="int" name="CurrentCompletedQuestID3" />
+    <field type="int" name="CurrentCompletedQuestID4" />
+    <field type="int" name="SpellLogic" />
+    <field type="int" name="SpellID1" />
+    <field type="int" name="SpellID2" />
+    <field type="int" name="SpellID3" />
+    <field type="int" name="SpellID4" />
+    <field type="int" name="ItemLogic" />
+    <field type="int" name="ItemID1" />
+    <field type="int" name="ItemID2" />
+    <field type="int" name="ItemID3" />
+    <field type="int" name="ItemID4" />
+    <field type="int" name="ItemCount1" />
+    <field type="int" name="ItemCount2" />
+    <field type="int" name="ItemCount3" />
+    <field type="int" name="ItemCount4" />
+    <field type="int" name="ItemFlags" />
+    <field type="int" name="Explored1" />
+    <field type="int" name="Explored2" />
+    <field type="int" name="Time1" />
+    <field type="int" name="Time2" />
+    <field type="int" name="AuraSpellLogic" />
+    <field type="int" name="AuraSpellID1" />
+    <field type="int" name="AuraSpellID2" />
+    <field type="int" name="AuraSpellID3" />
+    <field type="int" name="AuraSpellID4" />
+    <field type="int" name="WorldStateExpressionID" />
+    <field type="int" name="WeatherID" />
+    <field type="int" name="PartyStatus" />
+    <field type="int" name="LifetimeMaxPVPRank" />
+    <field type="int" name="AchievementLogic" />
+    <field type="int" name="Achievement1" />
+    <field type="int" name="Achievement2" />
+    <field type="int" name="Achievement3" />
+    <field type="int" name="Achievement4" />
+    <field type="int" name="LfgLogic" />
+    <field type="int" name="LfgStatus1" />
+    <field type="int" name="LfgStatus2" />
+    <field type="int" name="LfgStatus3" />
+    <field type="int" name="LfgStatus4" />
+    <field type="int" name="LfgCompare1" />
+    <field type="int" name="LfgCompare2" />
+    <field type="int" name="LfgCompare3" />
+    <field type="int" name="LfgCompare4" />
+    <field type="int" name="LfgValue1" />
+    <field type="int" name="LfgValue2" />
+    <field type="int" name="LfgValue3" />
+    <field type="int" name="LfgValue4" />
+    <field type="int" name="AreaLogic" />
+    <field type="int" name="AreaID1" />
+    <field type="int" name="AreaID2" />
+    <field type="int" name="AreaID3" />
+    <field type="int" name="AreaID4" />
+    <field type="int" name="CurrencyLogic" />
+    <field type="int" name="CurrencyID1" />
+    <field type="int" name="CurrencyID2" />
+    <field type="int" name="CurrencyID3" />
+    <field type="int" name="CurrencyID4" />
+    <field type="int" name="CurrencyCount1" />
+    <field type="int" name="CurrencyCount2" />
+    <field type="int" name="CurrencyCount3" />
+    <field type="int" name="CurrencyCount4" />
+    <field type="int" name="QuestKillID" />
+    <field type="int" name="QuestKillLogic" />
+    <field type="int" name="QuestKillMonster1" />
+    <field type="int" name="QuestKillMonster2" />
+    <field type="int" name="QuestKillMonster3" />
+    <field type="int" name="QuestKillMonster4" />
+    <field type="int" name="MinExpansionLevel" />
+    <field type="int" name="MaxExpansionLevel" />
+    <field type="int" name="MinExpansionTier" />
+    <field type="int" name="MaxExpansionTier" />
+    <field type="int" name="MinGuildLevel" />
+    <field type="int" name="MaxGuildLevel" />
+    <field type="int" name="PhaseUseFlags" />
+    <field type="int" name="PhaseID" />
+    <field type="int" name="PhaseGroupID" />
+    <field type="int" name="MinAvgItemLevel" />
+    <field type="int" name="MaxAvgItemLevel" />
+    <field type="int" name="MinAvgEquippedItemLevel" />
+    <field type="int" name="MaxAvgEquippedItemLevel" />
+    <field type="int" name="ChrSpecializationIndex" />
+    <field type="int" name="ChrSpecializationRole" />
+    <field type="string" name="FailureDescriptionLang" />
+    <field type="int" name="PowerType" />
+    <field type="int" name="PowerTypeComp" />
+    <field type="int" name="PowerTypeValue" />
+  </PlayerCondition>
 </DBFilesClient>

@@ -498,8 +498,8 @@ enum AuraType
     SPELL_AURA_437                                          = 437,  // 5.4.0 Two spells (Siege of Orgrimmar)
     SPELL_AURA_438                                          = 438,  // 6.0.X
     SPELL_AURA_439                                          = 439,  // 6.0.X
-    SPELL_AURA_440                                          = 440,  // 6.0.X
-    SPELL_AURA_441                                          = 441,  // 6.0.X
+    SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT                   = 440,  // 6.0.X SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
+    SPELL_AURA_MOD_MULTISTRIKE_PCT                          = 441,  // 6.0.X SPELL_AURA_MOD_MULTISTRIKE_PCT
     SPELL_AURA_442                                          = 442,  // 6.0.X
     SPELL_AURA_443                                          = 443,  // 6.0.X
     SPELL_AURA_444                                          = 444,  // 6.0.X

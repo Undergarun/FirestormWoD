@@ -2249,7 +2249,7 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
         }
 };
 
-// Misdirection - 34477 and Misdirection - 110588 (Symbiosis)
+// Misdirection - 34477
 class spell_hun_misdirection : public SpellScriptLoader
 {
     public:

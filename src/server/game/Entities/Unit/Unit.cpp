@@ -237,8 +237,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     for (uint8 i = 0; i < MAX_ATTACK; ++i)
     {
-        m_weaponDamage[i][MINDAMAGE] = BASE_MINDAMAGE;
-        m_weaponDamage[i][MAXDAMAGE] = BASE_MAXDAMAGE;
+        m_weaponDamage[i][MINDAMAGE] = 0.f;
+        m_weaponDamage[i][MAXDAMAGE] = 0.f;
     }
 
     for (uint8 i = 0; i < MAX_STATS; ++i)
@@ -2891,7 +2891,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Base hit chance from attacker and victim levels
     int32 modHitChance;
-    if (leveldif < 3)
+    if (leveldif <= 3)
         modHitChance = 100;
     else
         modHitChance = 94 - (leveldif - 2) * lchance;
@@ -3084,7 +3084,7 @@ float Unit::GetUnitParryChance() const
 
 float Unit::GetUnitMissChance(WeaponAttackType attType) const
 {
-    float miss_chance = 3.00f;
+    float miss_chance = 0.f;
 
     if (attType == RANGED_ATTACK)
         miss_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
@@ -3970,21 +3970,6 @@ void Unit::RemoveAura(uint32 spellId, uint64 caster, uint32 reqEffMask, AuraRemo
         else
             ++iter;
     }
-}
-
-void Unit::RemoveAllSymbiosisAuras()
-{
-    RemoveAura(110309);// Caster
-    RemoveAura(110478);// Death Knight
-    RemoveAura(110479);// Hunter
-    RemoveAura(110482);// Mage
-    RemoveAura(110483);// Monk
-    RemoveAura(110484);// Paladin
-    RemoveAura(110485);// Priest
-    RemoveAura(110486);// Rogue
-    RemoveAura(110488);// Shaman
-    RemoveAura(110490);// Warlock
-    RemoveAura(110491);// Warrior
 }
 
 void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
@@ -5500,15 +5485,15 @@ void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damag
     SendSpellNonMeleeDamageLog(&log);
 }
 
-void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVictim, uint32 procExtra, uint32 amount, uint32 absorb, WeaponAttackType attType, SpellInfo const* procSpell, SpellInfo const* procAura)
+void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVictim, uint32 procEx, uint32 amount, uint32 absorb /*= 0*/, WeaponAttackType attType /*= BASE_ATTACK*/, SpellInfo const* procSpell /*= NULL*/, SpellInfo const* procAura /*= NULL*/, constAuraEffectPtr ownerAuraEffect /*= NULL*/)
 {
      // Not much to do if no flags are set.
     if (procAttacker)
-        ProcDamageAndSpellFor(false, victim, procAttacker, procExtra, attType, procSpell, amount, absorb, procAura);
+        ProcDamageAndSpellFor(false, victim, procAttacker, procEx, attType, procSpell, amount, absorb, procAura, ownerAuraEffect);
     // Now go on with a victim's events'n'auras
     // Not much to do if no flags are set or there is no victim
     if (victim && victim->isAlive() && procVictim)
-        victim->ProcDamageAndSpellFor(true, this, procVictim, procExtra, attType, procSpell, amount, absorb, procAura);
+        victim->ProcDamageAndSpellFor(true, this, procVictim, procEx, attType, procSpell, amount, absorb, procAura, ownerAuraEffect);
 }
 
 void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
@@ -5570,7 +5555,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
     l_Data << uint32(l_Resisted);                               ///< Resisted
 
     l_Data.WriteBit(p_Info->critical);                          ///< Crit
-    l_Data.WriteBit(false);                                     ///< Multistrike
+    l_Data.WriteBit(p_Info->multistrike);                       ///< Multistrike
     l_Data.WriteBit(false);                                     ///< Has Debug Info
     l_Data.FlushBits();
 
@@ -7302,8 +7287,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell)
                         return false;
 
-                    // Nourish, Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
-                    if (procSpell->Id == 50464 || procSpell->Id == 5185 || procSpell->Id == 8936)
+                    // Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
+                    if (procSpell->Id == 5185 || procSpell->Id == 8936)
                     {
                         triggered_spell_id = 108381;
                         target = this;
@@ -7360,16 +7345,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 54832: // Glyph of Innervate
-                {
-                    if (procSpell->SpellIconID != 62)
-                        return false;
-
-                    basepoints0 = int32(CalculatePct(GetCreatePowers(POWER_MANA), triggerAmount) / 5);
-                    triggered_spell_id = 54833;
-                    target = this;
-                    break;
-                }
                 case 54845: // Glyph of Starfire
                 {
                     triggered_spell_id = 54846;
@@ -7412,9 +7387,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                     target = this;
                     triggered_spell_id = 34299;
-                    // Regenerate 4% mana
-                    int32 mana = CalculatePct(GetCreateMana(), triggerAmount);
-                    CastCustomSpell(this, 68285, &mana, NULL, NULL, true, castItem, triggeredByAura);
                     break;
                 }
                 case 28719: // Healing Touch (Dreamwalker Raiment set)
@@ -7454,7 +7426,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         triggered_spell_id = 40446;
                         chance = 25.0f;
                     }
-                    // Mangle (Bear) and Mangle (Cat)
+                    // Mangle (Bear)
                     else if (procSpell->SpellFamilyFlags[1] & 0x00000440)
                     {
                         triggered_spell_id = 40452;
@@ -10016,7 +9988,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                     return false;
 
                 // Swipe is not a single target spell
-                if (procSpell->Id == 62078)
+                if (procSpell->Id == 106785)
                     return false;
 
                 // check for single target spell (TARGET_SINGLE_ENEMY, NO_TARGET)
@@ -10094,18 +10066,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 arcaneMissiles->RefreshDuration();
                 return false;
             }
-
-            break;
-        }
-        case 110803:// Lightning Shield (Symbiosis)
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(110804))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(110804, 0, time(NULL) + 4);
 
             break;
         }
@@ -12068,20 +12028,20 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit * p_Victim, uint32 p_SpellID, uint32 p_Damage, uint32 p_OverHeal, uint32 p_Absorb, bool p_Critical)
+void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical /*= false*/, bool multistrike /*= false*/)
 {
     // we guess size
     WorldPacket data(SMSG_SPELL_HEAL_LOG, 60);
 
-    data.appendPackGUID(p_Victim->GetGUID());
+    data.appendPackGUID(victim->GetGUID());
     data.appendPackGUID(GetGUID());
-    data << uint32(p_SpellID);
-    data << uint32(p_Damage);
-    data << uint32(p_OverHeal);
-    data << uint32(p_Absorb);
+    data << uint32(SpellID);
+    data << uint32(Damage);
+    data << uint32(OverHeal);
+    data << uint32(Absorb);
 
-    data.WriteBit(p_Critical);
-    data.WriteBit(false);                               // Multistrike
+    data.WriteBit(critical);
+    data.WriteBit(multistrike);                         // Multistrike
     data.WriteBit(false);                               // IsDebug
     data.WriteBit(false);                               // IsDebug 2
     data.WriteBit(false);                               // HasPowerData
@@ -12090,7 +12050,7 @@ void Unit::SendHealSpellLog(Unit * p_Victim, uint32 p_SpellID, uint32 p_Damage, 
     SendMessageToSet(&data, true);
 }
 
-int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical)
+int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical /*= false*/, bool multistrike /*= false*/)
 {
     // Prevent some bugs when player reveive heal when dead
     if (!victim->isAlive())
@@ -12101,7 +12061,7 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
     CalcHealAbsorb(victim, spellInfo, addHealth, absorb);
 
     int32 gain = DealHeal(victim, addHealth, spellInfo);
-    SendHealSpellLog(victim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical);
+    SendHealSpellLog(victim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical, multistrike);
     return gain;
 }
 
@@ -13102,11 +13062,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
-                            case 6785:  // Ravage
-                                // Ravage has a 50% increased chance to critically strike targets with over 80% health.
-                                if (victim->GetHealthPct() > 80.0f)
-                                    crit_chance += 50.0f;
-                                break;
                             case 22568: // Ferocious Bite
                                 // +25% crit chance for Ferocious Bite on bleeding targets
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
@@ -13457,17 +13412,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(spellProto->GetSchoolMask());
-
-    // Nourish heal boost
-    if (spellProto->Id == 50464)
-    {
-        // Heals for an additional 20% if you have a Rejuvenation, Regrowth, Lifebloom, or Wild Growth effect active on the target.
-        if (HasAura(48438, caster->GetGUID()) ||   // Wild Growth
-            HasAura(33763, caster->GetGUID()) ||   // Lifebloom
-            HasAura(8936, caster->GetGUID()) ||    // Regrowth
-            HasAura(774, caster->GetGUID()))       // Rejuvenation
-            AddPct(TakenTotal, 20);
-    }
 
     // Unleashed Fury - Earthliving
     if (HasAura(118473) && GetAura(118473)->GetCaster() && GetAura(118473)->GetCaster()->GetGUID() == caster->GetGUID())
@@ -17315,11 +17259,103 @@ uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missC
     return procEx;
 }
 
-void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell, uint32 damage, uint32 absorb, SpellInfo const* procAura)
+void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell, uint32 damage, uint32 absorb /*= 0*/, SpellInfo const* procAura /*= NULL*/, constAuraEffectPtr ownerAuraEffect /*= NULL*/)
 {
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
+
+    if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL))
+    {
+        if (damage && procSpell && target)
+        {
+            if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+            {
+                if (procSpell && procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC))
+                {
+                    bool crit = !(procExtra & PROC_EX_CRITICAL_HIT) && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask()));
+                    uint32 multistrikeDamage = damage;
+
+                    if (crit)
+                        multistrikeDamage = SpellCriticalDamageBonus(procSpell, damage, target);
+
+                    if (procExtra & PROC_EX_CRITICAL_HIT)
+                        crit = true;
+
+
+                    uint32 doneProcFlag = procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC);
+                    uint32 takenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
+                    uint32 exFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE;
+
+                    if (crit)
+                        exFlag |= PROC_EX_CRITICAL_HIT;
+                    else
+                        exFlag |= PROC_EX_NORMAL_HIT;
+
+                    if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
+
+                    if (procFlag & PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS)
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS;
+
+                    if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
+
+                    if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
+
+                    if (procFlag & PROC_FLAG_DONE_PERIODIC)
+                        takenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
+
+
+                    multistrikeDamage = multistrikeDamage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+
+                    // Heal
+                    if (procSpell->IsPositive())
+                    {
+                        HealBySpell(target, procSpell, multistrikeDamage, crit, true);
+                        ProcDamageAndSpell(target, doneProcFlag, takenProcFlag, exFlag, multistrikeDamage, 0, attType, procSpell);
+                    }
+                    // Damage
+                    else
+                    {
+                        if (target->GetHealth() > damage)
+                        {
+                            SpellNonMeleeDamage damageInfo(this, target, procSpell->Id, procSpell->SchoolMask);
+
+                            if (crit)
+                                damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
+
+                            damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                            damageInfo.damage = multistrikeDamage;
+
+                            CalcAbsorbResist(target, procSpell->GetSchoolMask(), procFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, damage, &damageInfo.absorb, &damageInfo.resist, procSpell);
+                            DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+                            DealSpellDamage(&damageInfo, true);
+
+                            if (ownerAuraEffect)
+                            {
+                                int32 overkill = damageInfo.damage - target->GetHealth() > 0 ? damageInfo.damage - target->GetHealth() : 0;
+                                SpellPeriodicAuraLogInfo pInfo(ownerAuraEffect, damageInfo.damage, overkill, damageInfo.absorb, damageInfo.resist, 0.0f, crit, true);
+                                target->SendPeriodicAuraLog(&pInfo);
+                            }
+                            else
+                                SendSpellNonMeleeDamageLog(&damageInfo);
+
+                            if (target->isDead())
+                            {
+                                doneProcFlag |= PROC_FLAG_KILL;
+                                takenProcFlag |= (PROC_FLAG_KILLED | PROC_FLAG_DEATH);
+                            }
+
+                            ProcDamageAndSpell(target, doneProcFlag, takenProcFlag, exFlag, damageInfo.damage, damageInfo.absorb, attType, procSpell, procAura);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // For melee/ranged based attack need update skills and set some Aura states if victim present
     if (procFlag & MELEE_BASED_TRIGGER_MASK && target)
     {
@@ -19949,16 +19985,14 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
 
     if (victim->getLevel() > getLevel())
     {
-        uint8 level_diff = victim->getLevel() - getLevel();
+        int8 level_diff = (int8)victim->getLevel() - (int8)getLevel();
 
-        if (level_diff <= 2)
-            missChance += 0.5f * level_diff;
-        else
+        if (level_diff > 3)
             missChance += ((0.5f + level_diff - 2) * 2);
     }
 
     if (!spellId && haveOffhandWeapon())
-        missChance += 19;
+        missChance += 17;
 
     // Calculate hit chance
     float hitChance = 100.0f;

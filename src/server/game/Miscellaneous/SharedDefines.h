@@ -2083,7 +2083,10 @@ enum SpellHitType
     SPELL_HIT_TYPE_UNK3                = 0x00004,
     SPELL_HIT_TYPE_UNK4                = 0x00008,
     SPELL_HIT_TYPE_UNK5                = 0x00010,   // replace caster?
-    SPELL_HIT_TYPE_UNK6                = 0x00020
+    SPELL_HIT_TYPE_UNK6                = 0x00020,
+    SPELL_HIT_TYPE_UNK7                = 0x00040,
+    SPELL_HIT_TYPE_UNK8                = 0x00080,
+    SPELL_HIT_TYPE_MULTISTRIKE         = 0x00100,
 };
 
 enum SpellDmgClass

@@ -5850,7 +5850,6 @@ void Player::ResetSpec()
     if (GetSpecializationId(GetActiveSpec()) == 0)
         return;
 
-    RemoveAllSymbiosisAuras();
     RemoveSpecializationSpells();
     SetSpecializationId(GetActiveSpec(), 0);
     InitSpellForLevel();
@@ -7327,18 +7326,14 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_MULTISTRIKE:
         case CR_READINESS:
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
-        case CR_LIFESTEAL:
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
-            break;
-        case CR_AVOIDANCE:
             break;
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryPercentage();
@@ -7346,9 +7341,18 @@ void Player::UpdateRating(CombatRating cr)
         case CR_PVP_POWER:
             UpdatePvPPowerPercentage();
             break;
+        case CR_MULTISTRIKE:
+            UpdateMultistrike();
+            break;
+        case CR_LIFESTEAL:
+            UpdateLeech();
+            break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
+            UpdateVesatillity();
             break;
+        case CR_AVOIDANCE:
+            UpdateAvoidance();
         default:
             break;
     }
@@ -9843,7 +9847,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage, uint32 maxDamage)
 {
     WeaponAttackType attType = BASE_ATTACK;
-    float damage = 0.0f;
 
     if (slot == EQUIPMENT_SLOT_MAINHAND && (
         proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
@@ -9856,23 +9859,16 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
         attType = OFF_ATTACK;
     }
 
-    if (!maxDamage)
-    {
-        minDamage = proto->DamageMin;
-        maxDamage = proto->DamageMax;
-    }
+    if (!maxDamage && apply)
+        proto->CalculateMinMaxDamageScaling(GetEquipItemLevelFor(proto), minDamage, maxDamage);
 
-    if (minDamage > 0)
-    {
-        damage = apply ? minDamage : BASE_MINDAMAGE;
-        SetBaseWeaponDamage(attType, MINDAMAGE, damage);
-    }
+    if (!minDamage && maxDamage && apply)
+        minDamage = maxDamage;
 
-    if (maxDamage  > 0)
-    {
-        damage = apply ? maxDamage : BASE_MAXDAMAGE;
-        SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
-    }
+    float damage = apply ? minDamage : 0;
+    SetBaseWeaponDamage(attType, MINDAMAGE, damage);
+    damage = apply ? maxDamage : 0;
+    SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
 
     if (proto->Delay && !IsInFeralForm())
     {
@@ -9886,7 +9882,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
             SetAttackTime(OFF_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
     }
 
-    if (CanModifyStats() && (damage || proto->Delay))
+    if (CanModifyStats())
         UpdateDamagePhysical(attType);
 }
 
@@ -10477,7 +10473,7 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
             if (!proto)
                 continue;
 
-            //_ApplyItemBonuses(proto, i, apply, true);
+            RescaleItemTo(i, GetEquipItemLevelFor(proto));
         }
     }
 }
@@ -14181,7 +14177,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     }
     else
     {
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 0, 0);
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0);
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 2, 0);
     }
@@ -30182,11 +30178,16 @@ Stats Player::GetPrimaryStat() const
 
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto) const
 {
+    float ilvl = itemProto->ItemLevel;
+
+    if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
+        ilvl = itemProto->GetItemLevelForHeirloom(getLevel());
+
     if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
         if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemProto->ItemId))
-            return itemProto->ItemLevel + pvpItem->ilvl;
+            ilvl += pvpItem->ilvl;
 
-    return itemProto->ItemLevel;
+    return ilvl;
 }
 
 void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
@@ -30221,10 +30222,13 @@ void Player::SetInPvPCombat(bool set)
 
 void Player::OnEnterPvPCombat()
 {
+    float hpPct = GetHealthPct();
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (Item* item = m_items[i])
             if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
                 RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
+
+    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
 }
 
 void Player::UpdatePvP(uint32 diff)
@@ -30244,8 +30248,11 @@ void Player::UpdatePvP(uint32 diff)
 
 void Player::OnLeavePvPCombat()
 {
+    float hpPct = GetHealthPct();
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (Item* item = m_items[i])
             if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
                 RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
+
+    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
 }
