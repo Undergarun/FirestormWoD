@@ -137,6 +137,27 @@ set(game_STAT_SRCS
   ${game_STAT_SRCS}
 )
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${game_STAT_SRCS}")
+
+set(game_STAT_SRCS
+  ${game_STAT_SRCS}
+)
+
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
