@@ -399,7 +399,7 @@ void Garrison::Save()
         CharacterDatabase.AsyncQuery(l_Stmt);
     }
 }
-/// Delete garisson
+/// Delete garrison
 void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 {
     PreparedStatement* l_Stmt;
@@ -709,8 +709,8 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         l_Mission->StartTime    = time(0);
         l_Mission->OfferTime    = time(0);
 
-        uint32 l_TravelDuration = l_MissionTemplate->Duration / 2;
-        uint32 l_MissionDuration = l_MissionTemplate->Duration / 2;
+        uint32 l_TravelDuration  = GetMissionTravelDuration(p_MissionRecID);
+        uint32 l_MissionDuration = GetMissionDuration(p_MissionRecID);
 
         WorldPacket l_Result(SMSG_GARRISON_START_MISSION_RESULT, 200);
         l_Result << uint32(0);    ///< Result (0 = OK, 1 = failed)
@@ -758,7 +758,6 @@ void Garrison::StartMissionFailed()
 /// Complete a mission
 void Garrison::CompleteMission(uint32 p_MissionRecID)
 {
-
     if (!HaveMission(p_MissionRecID))
         return;
 
@@ -775,16 +774,21 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
         }
     }
 
+    uint32 l_TravelDuration  = GetMissionTravelDuration(p_MissionRecID);
+    uint32 l_MissionDuration = GetMissionDuration(p_MissionRecID);
+
+    std::vector<GarrisonFollower*> l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
+
+    /// Hack attempt
+    if ((l_Mission->StartTime + (l_TravelDuration + l_MissionDuration)) > time(0))
+        return;
+
+    uint32 l_ChestChance = GetMissionChestChance(p_MissionRecID);
+
     bool l_CanComplete = true;
-    bool l_Succeeded = true;
+    bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance == ChestChance
 
-    ///TODO stats
-    GetMissionChestChance(p_MissionRecID);
-    /// TODO state
-    l_Mission->State = (GarrisonMissionState)2;
-
-    uint32 l_TravelDuration     = l_MissionTemplate->Duration / 2;
-    uint32 l_MissionDuration    = l_MissionTemplate->Duration / 2;
+    l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 
     WorldPacket l_Result(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 100);
 
@@ -804,17 +808,215 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
     l_Result.FlushBits();
 
     m_Owner->SendDirectMessage(&l_Result);
+
+    if (l_Succeeded)
+    {
+        std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_XP_GAIN, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
+        std::vector<uint32> l_PassiveEffects         = GetBuildingsPassiveAbilityEffects();
+
+        float l_XPModifier = 1.0f;
+        for (uint32 l_I = 0; l_I < l_PartyXPModifiersEffect.size(); ++l_I)
+        {
+            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyXPModifiersEffect[l_I]);
+
+            if (!l_AbilityEffectEntry)
+                continue;
+
+            l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
+        }
+
+        for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
+        {
+            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+
+            if (!l_AbilityEffectEntry)
+                continue;
+
+            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && (l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY || l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK))
+                l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
+        }
+
+        float l_BonusXP = (l_XPModifier - 1.0f) * l_MissionTemplate->RewardFollowerExperience;
+
+        for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
+        {
+            float l_SecondXPModifier = 1.0f;
+
+            for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
+            {
+                uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
+
+                for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
+                {
+                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+
+                    if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                        continue;
+
+                    if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF)
+                        l_SecondXPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_SecondXPModifier;
+                }
+            }
+
+            l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_BonusXP;
+
+            if (l_MissionFollowers[l_FollowerIt]->Level < GARRISON_MAX_FOLLOWER_LEVEL)
+            {
+                const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
+
+                for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
+                {
+                    const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
+
+                    if (l_CurrentLevelData && l_CurrentLevelData->Level == l_MissionFollowers[l_FollowerIt]->Level)
+                    {
+                        l_LevelData = l_CurrentLevelData;
+                        break;
+                    }
+                }
+
+                if (l_LevelData && l_MissionFollowers[l_FollowerIt]->XP >= l_LevelData->RequiredExperience)
+                {
+                    l_MissionFollowers[l_FollowerIt]->Level++;
+                    l_MissionFollowers[l_FollowerIt]->XP = l_MissionFollowers[l_FollowerIt]->XP - l_LevelData->RequiredExperience;
+                }
+            }
+            else
+                l_MissionFollowers[l_FollowerIt]->XP = 0;
+        }
+    }
+}
+/// Get followers on a mission
+std::vector<GarrisonFollower*> Garrison::GetMissionFollowers(uint32 p_MissionRecID)
+{
+    std::vector<GarrisonFollower*> l_MissionFollowers;
+
+    for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
+    {
+        if (m_Followers[l_I].CurrentMissionID == p_MissionRecID)
+            l_MissionFollowers.push_back(&m_Followers[l_I]);
+    }
+
+    return l_MissionFollowers;
+}
+/// Get mission followers abilities effect
+std::vector<uint32> Garrison::GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID)
+{
+    std::vector<GarrisonFollower*> l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
+    std::vector<uint32>            l_AbilitiesEffects;
+
+    for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
+    {
+        for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
+
+            for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
+            {
+                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                l_AbilitiesEffects.push_back(l_AbilityEffectEntry->EffectID);
+            }
+        }
+    }
+
+    return l_AbilitiesEffects;
+}
+/// Get mission followers abilities effect
+std::vector<uint32> Garrison::GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, GarrisonAbilityEffectType p_Type, uint32 p_TargetMask)
+{
+    std::vector<GarrisonFollower*> l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
+    std::vector<uint32>            l_AbilitiesEffects;
+
+    for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
+    {
+        for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
+
+            for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
+            {
+                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                if (l_AbilityEffectEntry->EffectType != p_Type || (l_AbilityEffectEntry->TargetMask != 0 && (l_AbilityEffectEntry->TargetMask & p_TargetMask) == 0))
+                    continue;
+
+                l_AbilitiesEffects.push_back(l_AbilityEffectEntry->EffectID);
+            }
+        }
+    }
+
+    return l_AbilitiesEffects;
+}
+/// Get the mission travel time
+uint32 Garrison::GetMissionTravelDuration(uint32 p_MissionRecID)
+{
+    const GarrMissionEntry    * l_MissionTemplate   = sGarrMissionStore.LookupEntry(p_MissionRecID);
+    std::vector<uint32>         l_AbilitiesEffects  = GetMissionFollowersAbilitiesEffects(p_MissionRecID);
+    std::vector<uint32>         l_PassiveEffects    = GetBuildingsPassiveAbilityEffects();
+    float                       l_MissionTravelTime = l_MissionTemplate->TravelTime;
+
+    for (uint32 l_EffectI = 0; l_EffectI < l_AbilitiesEffects.size(); l_EffectI++)
+    {
+        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_AbilitiesEffects[l_EffectI]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME)
+            l_MissionTravelTime = l_MissionTravelTime * l_AbilityEffectEntry->Amount;
+    }
+
+    for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
+    {
+        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME)
+            l_MissionTravelTime = l_MissionTravelTime * l_AbilityEffectEntry->Amount;
+    }
+
+    return floorf(l_MissionTravelTime);
+}
+/// Get the mission duration
+uint32 Garrison::GetMissionDuration(uint32 p_MissionRecID)
+{
+    const GarrMissionEntry    * l_MissionTemplate   = sGarrMissionStore.LookupEntry(p_MissionRecID);
+    std::vector<uint32>         l_AbilitiesEffects  = GetMissionFollowersAbilitiesEffects(p_MissionRecID);
+    float                       l_MissionDuration   = l_MissionTemplate->Duration;
+
+    for (uint32 l_EffectI = 0; l_EffectI < l_AbilitiesEffects.size(); l_EffectI++)
+    {
+        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_AbilitiesEffects[l_EffectI]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION)
+            l_MissionDuration = l_MissionDuration * l_AbilityEffectEntry->Amount;
+    }
+
+    return floorf(l_MissionDuration);
 }
 /// Get mission chest chance
-void Garrison::GetMissionChestChance(uint32 p_MissionRecID)
+uint32 Garrison::GetMissionChestChance(uint32 p_MissionRecID)
 {
     const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
     std::vector<uint32>                     l_Encounters;
     std::vector<std::pair<uint32, uint32>>  l_EncoutersMechanics;
-    std::vector<GarrisonFollower*>          l_MissionFollowers;
+    std::vector<GarrisonFollower*>          l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
+    std::vector<uint32>                     l_PassiveEffects = GetBuildingsPassiveAbilityEffects();
     std::map<uint64, uint32>                l_FollowersBiasMap;
-    std::vector<uint32>                     l_CounterAbilityUsed;
+    std::vector<uint32>                     l_CounterAbilityUsed; 
 
     for (uint32 l_I = 0; l_I < sGarrMissionXEncouterStore.GetNumRows(); ++l_I)
     {
@@ -835,12 +1037,6 @@ void Garrison::GetMissionChestChance(uint32 p_MissionRecID)
         }
     }
 
-    for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
-    {
-        if (m_Followers[l_I].CurrentMissionID == p_MissionRecID)
-            l_MissionFollowers.push_back(&m_Followers[l_I]);
-    }    
-
     float l_Float8 = 100.f;
     float l_FloatC = 150.f;
 
@@ -849,8 +1045,8 @@ void Garrison::GetMissionChestChance(uint32 p_MissionRecID)
 
     for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
     {
-        const GarrMechanicEntry     * l_MechanicEntry = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
-        const GarrMechanicTypeEntry * l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+        const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+        const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
         if (l_MechanicTypeEntry && l_MechanicTypeEntry->Unk1 != 2)
         {
@@ -865,138 +1061,345 @@ void Garrison::GetMissionChestChance(uint32 p_MissionRecID)
 
     float l_CurrentAdditionalWinChance = 0;
 
-    while (1)
+    float v11 = 100.0f / l_V8;
+    float v62 = 100.0f / l_V8;
+
+    /// OK 100%
+    #pragma region Followers Bias
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
     {
-        float v11 = 100.0f / l_V8;
-        float v62 = 100.0f / l_V8;
+        float l_FollowerBias = (l_MissionFollowers[l_Y]->Level - l_MissionTemplate->RequiredLevel) * 0.33333334;
 
-        for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+        if (l_MissionTemplate->RequiredLevel == GARRISON_MAX_FOLLOWER_LEVEL)
         {
-            float l_FollowerBias = (l_MissionFollowers[l_Y]->Level - l_MissionTemplate->RequiredLevel) * 0.33333334;
-
-            if (l_MissionTemplate->RequiredLevel == GARRISON_MAX_FOLLOWER_LEVEL)
+            if (l_MissionTemplate->RequiredItemLevel > 0)
             {
-                if (l_MissionTemplate->RequiredItemLevel > 0)
-                {
-                    uint32 l_TotalFollowerItemLevel = l_MissionFollowers[l_Y]->ItemLevelArmor + l_MissionFollowers[l_Y]->ItemLevelWeapon;
-                    l_FollowerBias = (((l_TotalFollowerItemLevel >> 1) - l_MissionTemplate->RequiredItemLevel) * 0.06666667) + l_FollowerBias;
-                }
+                uint32 l_TotalFollowerItemLevel = l_MissionFollowers[l_Y]->ItemLevelArmor + l_MissionFollowers[l_Y]->ItemLevelWeapon;
+                l_FollowerBias = (((l_TotalFollowerItemLevel >> 1) - l_MissionTemplate->RequiredItemLevel) * 0.06666667) + l_FollowerBias;
             }
-
-            if (l_FollowerBias < -1.0f)
-                l_FollowerBias = -1.0f;
-            else if (l_FollowerBias > 1.0f)
-                l_FollowerBias = 1.0f;
-
-            l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] = l_FollowerBias;
-
-            float l_Seil = 0.f;
-
-            if (l_FollowerBias >= 0.0)
-                l_Seil = (l_FloatC - l_Float8) * l_FollowerBias + l_Float8;
-            else
-                l_Seil = (l_FollowerBias + 1.0) * l_Float8;
-
-            printf("Adding %f to follower %u\n", (l_Seil * v11), l_MissionFollowers[l_Y]->FollowerID);
-
-            l_CurrentAdditionalWinChance = (l_Seil * v11) + l_CurrentAdditionalWinChance;
         }
 
-        if (!l_EncoutersMechanics.size())
-            break;
+        if (l_FollowerBias < -1.0f)
+            l_FollowerBias = -1.0f;
+        else if (l_FollowerBias > 1.0f)
+            l_FollowerBias = 1.0f;
 
-        for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
+        l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] = l_FollowerBias;
+
+        float l_Seil = 0.f;
+
+        if (l_FollowerBias >= 0.0)
+            l_Seil = (l_FloatC - l_Float8) * l_FollowerBias + l_Float8;
+        else
+            l_Seil = (l_FollowerBias + 1.0) * l_Float8;
+
+        l_CurrentAdditionalWinChance = (l_Seil * v11) + l_CurrentAdditionalWinChance;
+
+        #ifdef GARRISON_CHEST_FORMULA_DEBUG
+            printf("Added %.2f to success due to follower %d bias.\n", (l_Seil * v11), l_MissionFollowers[l_Y]->FollowerID);
+        #endif // GARRISON_CHEST_FORMULA_DEBUG
+    }
+    #pragma endregion
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// OK 100%
+    #pragma region Counter mechanic
+    for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
+    {
+        const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+        const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+
+        if (l_MechanicTypeEntry->Unk1 == 2)
         {
-            const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
-            const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+            float l_Unk1 = l_MechanicEntry->Unk2;
+            float l_Unk2 = l_MechanicEntry->Unk2;
 
-            if (l_MechanicTypeEntry->Unk1 == 2)
+            if (l_MissionFollowers.size() > 0)
             {
-                float l_Unk1 = l_MechanicEntry->Unk2;
-                float l_Unk2 = l_MechanicEntry->Unk2;
-
-                if (l_MissionFollowers.size() > 0)
+                for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
                 {
-                    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+                    for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
                     {
-                        for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+                        uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+                        for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
                         {
-                            uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+                            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
 
-                            for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+                            if (l_AbilityEffectEntry && l_AbilityEffectEntry->CounterMechanicTypeID == l_EncoutersMechanics[l_I].second
+                                && l_AbilityEffectEntry->AbilityID == l_CurrentAbilityID
+                                && !(l_AbilityEffectEntry->Unk3 & 1))
                             {
-                                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
-
-                                if (l_AbilityEffectEntry && l_AbilityEffectEntry->CounterMechanicTypeID == l_EncoutersMechanics[l_I].second
-                                    && l_AbilityEffectEntry->AbilityID == l_CurrentAbilityID
-                                    && !(l_AbilityEffectEntry->Unk3 & 1))
+                                l_Unk1 = l_Unk2;
+                                if (l_Unk2 != 0.0)
                                 {
-                                    l_Unk1 = l_Unk2;
-                                    if (l_Unk2 != 0.0)
-                                    {
-                                        float l_Seil = 0;
+                                    float l_Seil = 0;
 
-                                        if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
-                                            l_Seil = (l_AbilityEffectEntry->Unk5 - l_AbilityEffectEntry->Unk4) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->Unk4;
-                                        else
-                                            l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->Unk4;
+                                    if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
+                                        l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                                    else
+                                        l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
 
-                                        l_Unk1 = l_MechanicEntry->Unk2;
+                                    l_Unk1 = l_MechanicEntry->Unk2;
 
-                                        if (l_Seil <= l_Unk1)
-                                            l_Unk1 = l_Seil;
+                                    if (l_Seil <= l_Unk1)
+                                        l_Unk1 = l_Seil;
 
-                                        l_Unk2 = l_Unk2 - l_Unk1;
-                                    }
+                                    l_Unk2 = l_Unk2 - l_Unk1;
                                 }
                             }
-
                         }
-                        
                     }
                 }
-
-                if (l_Unk2 < 0.0f)
-                    l_Unk2 = 0.0f;
-
-                l_Unk1 = l_MechanicEntry->Unk2;
-                l_Unk1 = (l_Unk1 - l_Unk2) * v62;
-                l_CurrentAdditionalWinChance = l_Unk1 + l_CurrentAdditionalWinChance;
-
-                printf("Adding %f to follower for countering mechanic %u\n", l_Unk1, l_EncoutersMechanics[l_I].second);
             }
+
+            if (l_Unk2 < 0.0f)
+                l_Unk2 = 0.0f;
+
+            l_Unk1 = l_MechanicEntry->Unk2;
+            l_Unk1 = (l_Unk1 - l_Unk2) * v62;
+            l_CurrentAdditionalWinChance = l_Unk1 + l_CurrentAdditionalWinChance;
+
+            #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                printf("Added %.2f to success due to followers countering boss mechanic %d.\n", l_Unk1, l_EncoutersMechanics[l_I].second);
+            #endif // GARRISON_CHEST_FORMULA_DEBUG
         }
+    }
+    #pragma endregion
 
-        /// Added %.2f to success due to follower %d enemy race ability %d.
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
-        /// Added %.2f to success due to follower %d environment ability %d.
+    /// UNTESTED
+    #pragma region Race Ability Counter
+    for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
+    {
+        const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+        const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
-        for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+        if (l_MechanicTypeEntry->Unk1 == 1)
         {
-            for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+            for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
             {
-                uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Y];
-
-                for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+                for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
                 {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+                    uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
 
-                    if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
-                        continue;
+                    for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+                    {
+                        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
 
+                        if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                            continue;
 
+                        if (l_AbilityEffectEntry->CounterMechanicTypeID == l_MissionTemplate->GarrMechanicTypeRecID)
+                        {
+                            float l_Seil = 0.f;
 
+                            if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
+                                l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                            else
+                                l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                            l_CurrentAdditionalWinChance = (l_Seil * v62) + l_CurrentAdditionalWinChance;
+
+                            #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                                printf("Added %.2f to success due to follower %d enemy race ability %d.\n", (l_Seil * v62), l_CurrentAbilityID);
+                            #endif // GARRISON_CHEST_FORMULA_DEBUG
+                        }
+                    }
                 }
             }
         }
-
-        /// Added %.2f to success due to passive effect %d.
-
-
-        break;
     }
+    #pragma endregion 
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
+    /// OK 100%
+    #pragma region Environment Ability
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+    {
+        for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+            for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+            {
+                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                if (l_AbilityEffectEntry->CounterMechanicTypeID == l_MissionTemplate->GarrMechanicTypeRecID)
+                {
+                    float l_Seil = 0.f;
+
+                    if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
+                        l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                    else
+                        l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                    l_CurrentAdditionalWinChance = (l_Seil * v62) + l_CurrentAdditionalWinChance;
+
+                    #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                        printf("Added %.2f to success due to follower %d environment ability %d.\n", (l_Seil * v62), l_MissionFollowers[l_Y]->FollowerID, l_CurrentAbilityID);
+                    #endif // GARRISON_CHEST_FORMULA_DEBUG
+                }
+            }
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// OK 100%
+    #pragma region Follower Trait
+    float l_MissionDuration     = GetMissionDuration(p_MissionRecID);
+    float l_MissionTravelTime   = GetMissionTravelDuration(p_MissionRecID);
+
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+    {
+        for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+            for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+            {
+                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                bool l_Proc = true;
+
+                switch (l_AbilityEffectEntry->EffectType)
+                {
+                    /// Proc if MissionFollowerCount == 1
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_SOLO:
+                        l_Proc = l_MissionFollowers.size() == 1;
+                        break;
+
+                    /// Proc every time, no condition
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE:
+                        l_Proc = true;
+                        break;
+
+                    /// Proc if Find(MissionFollowers[Class], MiscValueA) != NULL
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_CLASS:
+                        for (uint32 l_W = 0; l_W < l_MissionFollowers.size(); ++l_W)
+                        {
+                            if (l_W != l_Y)
+                            {
+                                const GarrFollowerEntry * l_FollowerTemplate = sGarrFollowerStore.LookupEntry(l_MissionFollowers[l_W]->FollowerID);
+
+                                if (l_FollowerTemplate && l_FollowerTemplate->Class[GetGarrisonFactionIndex()] == l_AbilityEffectEntry->MiscValueA)
+                                {
+                                    l_Proc = true;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
+                    /// Proc if Duration > (3600 * MiscValueB)
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_MORE:
+                        l_Proc = l_MissionDuration > (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    /// Proc if Duration < (3600 * MiscValueB)
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_LESS:
+                        l_Proc = l_MissionDuration < (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    /// Proc if TravelDuration > (3600 * MiscValueB)
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_MORE:
+                        l_Proc = l_MissionTravelTime > (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    /// Proc if TravelDuration < (3600 * MiscValueB)
+                    case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_LESS:
+                        l_Proc = l_MissionTravelTime < (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    case GARRISION_ABILITY_EFFECT_UNK_0:
+                    case GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME:
+                    case GARRISION_ABILITY_EFFECT_MOD_XP_GAIN:
+                    case GARRISION_ABILITY_EFFECT_MOD_GARR_CURRENCY_DROP:
+                    case GARRISION_ABILITY_EFFECT_UNK_11:
+                    case GARRISION_ABILITY_EFFECT_MOD_DUMMY_PRODUCTION:
+                    case GARRISION_ABILITY_EFFECT_MOD_BRONZE_TREASURE_DROP:
+                    case GARRISION_ABILITY_EFFECT_MOD_SILVER_TREASURE_DROP:
+                    case GARRISION_ABILITY_EFFECT_MOD_GOLD_TREASURE_DROP:
+                    case GARRISION_ABILITY_EFFECT_MOD_CHEST_DROP_RATE:
+                    case GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION:
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+                if (!l_Proc)
+                    break;
+
+                float l_Seil = 0.f;
+
+                if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
+                    l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                else
+                    l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                l_CurrentAdditionalWinChance = (l_Seil * v62) + l_CurrentAdditionalWinChance;
+
+                #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                    printf("Added %.2f to success due to follower %d trait %d.\n", (l_Seil * v62), l_MissionFollowers[l_Y]->FollowerID, l_AbilityEffectEntry->EffectType);
+                #endif // GARRISON_CHEST_FORMULA_DEBUG
+            }
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// UNTESTED
+    #pragma region Passive Effect
+    for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
+    {
+        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_WIN_RATE)
+        {
+            l_CurrentAdditionalWinChance = (l_AbilityEffectEntry->ModMin * v62) + l_CurrentAdditionalWinChance;
+
+            #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                printf("Added %.2f to success due to passive effect %d.\n", l_AbilityEffectEntry->ModMin * v62, l_AbilityEffectEntry);
+            #endif // GARRISON_CHEST_FORMULA_DEBUG
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    l_CurrentAdditionalWinChance = (((100.0 - l_MissionTemplate->BaseBronzeChestChance) * l_CurrentAdditionalWinChance) * 0.0099999998) + l_MissionTemplate->BaseBronzeChestChance;
+
+    if (l_CurrentAdditionalWinChance > 100.0)
+        l_CurrentAdditionalWinChance = 100.0;
+
+    #ifdef GARRISON_CHEST_FORMULA_DEBUG
+        printf("Total success chance: %.2f.\n", l_CurrentAdditionalWinChance);
+    #endif // GARRISON_CHEST_FORMULA_DEBUG
+
+    return l_CurrentAdditionalWinChance;
 }
 /// Get missions
 std::vector<GarrisonMission> Garrison::GetMissions()
@@ -1250,6 +1653,21 @@ std::vector<GarrisonBuilding> Garrison::GetBuildings()
 {
     return m_Buildings;
 }
+/// Get building passive ability effects
+std::vector<uint32> Garrison::GetBuildingsPassiveAbilityEffects()
+{
+    std::vector<uint32> l_PassiveEffects;
+
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        const GarrBuildingEntry * l_BuildingTemplate = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+
+        if (l_BuildingTemplate && l_BuildingTemplate->PassiveEffect && sGarrAbilityEffectStore.LookupEntry(l_BuildingTemplate->PassiveEffect) != nullptr)
+            l_PassiveEffects.push_back(l_BuildingTemplate->PassiveEffect);
+    }
+
+    return l_PassiveEffects;
+}
 /// Activate building
 void Garrison::ActivateBuilding(uint32 p_PlotInstanceID)
 {
@@ -1363,6 +1781,7 @@ void Garrison::DeleteBuilding(uint32 p_PlotInstanceID)
 
     m_Owner->SendDirectMessage(&l_BuildingRemovedPacket);
 }
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -1408,6 +1827,7 @@ bool Garrison::KnownBlueprint(uint32 p_BuildingRecID)
 {
     return std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) != m_KnownBlueprints.end();
 }
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

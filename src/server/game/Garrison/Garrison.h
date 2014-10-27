@@ -3,6 +3,10 @@
 
 #include "DB2Stores.h"
 
+#ifdef _MSC_VER
+    #define GARRISON_CHEST_FORMULA_DEBUG 1
+#endif
+
 enum GarrisonFactionIndex
 {
     GARRISON_FACTION_HORDE      = 0,
@@ -15,6 +19,7 @@ enum GarrisonMissionState
     GARRISON_MISSION_AVAILABLE              = 0,
     GARRISON_MISSION_IN_PROGRESS            = 1,
     GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
+    GARRISON_MISSION_COMPLETE_FAILED        = 3,
 };
 
 enum GarrisonMissionFlag
@@ -53,6 +58,35 @@ enum GarrisonPurchaseBuildingResult
     GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT       = 22,
     GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_CURRENCY      = 46,
     GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47,
+};
+
+enum GarrisonAbilityEffectType
+{
+    GARRISION_ABILITY_EFFECT_UNK_0                                  = 0,    ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_SOLO                      = 1,    ///< Proc if MissionFollowerCount == 1
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE                           = 2,    ///< Proc every time
+    GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME                        = 3,    ///< Proc every time
+    GARRISION_ABILITY_EFFECT_MOD_XP_GAIN                            = 4,    ///< Mod the XP earn (self, party)
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_CLASS                     = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL 
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_MORE             = 6,    ///< Proc if Duration > (3600 * MiscValueB)
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_LESS             = 7,    ///< Proc if Duration < (3600 * MiscValueB)
+    GARRISION_ABILITY_EFFECT_MOD_GARR_CURRENCY_DROP                 = 8,    ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_MORE      = 9,    ///< Proc if TravelDuration > (3600 * MiscValueB)
+    GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_LESS      = 10,   ///< Proc if TravelDuration < (3600 * MiscValueB)
+    GARRISION_ABILITY_EFFECT_UNK_11                                 = 11,   ///< UNUSED
+    GARRISION_ABILITY_EFFECT_MOD_DUMMY_PRODUCTION                   = 12,   ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_BRONZE_TREASURE_DROP               = 13,   ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_SILVER_TREASURE_DROP               = 14,   ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_GOLD_TREASURE_DROP                 = 15,   ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_CHEST_DROP_RATE                    = 16,   ///< @TODO
+    GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION                   = 17,   ///< Proc every time
+};
+
+enum GarrisonAbilityEffectTargetMask
+{
+    GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK   = 0 << 0,
+    GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF  = 1 << 0,
+    GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
 };
 
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
@@ -164,8 +198,18 @@ class Garrison
         void StartMissionFailed();
         /// Complete a mission
         void CompleteMission(uint32 p_MissionRecID);
+        /// Get followers on a mission
+        std::vector<GarrisonFollower*> GetMissionFollowers(uint32 p_MissionRecID);
+        /// Get mission followers abilities effect
+        std::vector<uint32> GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID);
+        /// Get mission followers abilities effect
+        std::vector<uint32> GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, GarrisonAbilityEffectType p_Type, uint32 p_TargetMask);
+        /// Get the mission travel time
+        uint32 GetMissionTravelDuration(uint32 p_MissionRecID);
+        /// Get the mission duration
+        uint32 GetMissionDuration(uint32 p_MissionRecID);
         /// Get mission chest chance
-        void GetMissionChestChance(uint32 p_MissionRecID);
+        uint32 GetMissionChestChance(uint32 p_MissionRecID);
         /// Get missions
         std::vector<GarrisonMission> GetMissions();
         /// Get all completed missions
@@ -188,6 +232,8 @@ class Garrison
         GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID);
         /// Get buildings
         std::vector<GarrisonBuilding> GetBuildings();
+        /// Get building passive ability effects
+        std::vector<uint32> GetBuildingsPassiveAbilityEffects();
         /// Activate building
         void ActivateBuilding(uint32 p_PlotInstanceID);
         /// Activate building
@@ -234,9 +280,9 @@ class Garrison
         std::vector<int32>                              m_KnownBlueprints;
         std::vector<int32>                              m_KnownSpecializations;
 
-        std::map<uint32, uint64> m_PlotsGob;
-        std::map<uint32, uint64> m_PlotsActivateGob;
-        std::map<uint32, std::vector<uint64>> m_PlotsBuildingCosmeticGobs;
+        std::map<uint32, uint64>                m_PlotsGob;
+        std::map<uint32, uint64>                m_PlotsActivateGob;
+        std::map<uint32, std::vector<uint64>>   m_PlotsBuildingCosmeticGobs;
 };
 
 

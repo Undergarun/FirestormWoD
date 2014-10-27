@@ -89,8 +89,8 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
         if (l_Missions[l_I].State == GARRISON_MISSION_IN_PROGRESS && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
         {
-            l_TravelDuration    = sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID)->Duration / 2;
-            l_MissionDuration   = sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID)->Duration / 2;
+            l_TravelDuration    = l_Garrison->GetMissionTravelDuration(l_Missions[l_I].MissionID);
+            l_MissionDuration   = l_Garrison->GetMissionDuration(l_Missions[l_I].MissionID);
         }
 
         l_Infos << uint64(l_Missions[l_I].DB_ID);
