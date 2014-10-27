@@ -2458,20 +2458,10 @@
     <field type="int" name="field2" />
   </GarrFollowerQuality>
   <GarrFollowerXAbility build="0">
-    <index>
-      <primary>ID</primary>
-    </index>
-<<<<<<< HEAD
     <field type="int" name="ID" />
     <field type="int" name="FollowerID" />
     <field type="int" name="AbilityID" />
     <field type="int" name="FactionIndex" />
-=======
-    <field type="int" name="field0" />
-    <field type="int" name="FollowerId" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
->>>>>>> origin/WoD2
   </GarrFollowerXAbility>
   <GarrAbility build="0">
     <index>
@@ -2490,16 +2480,16 @@
       <primary>EffectID</primary>
     </index>
     <field type="int" name="EffectID" />
-    <field type="int" name="field1" />
+    <field type="int" name="EffectType" />
     <field type="int" name="AbilityID" />
-    <field type="int" name="field3" />
+    <field type="int" name="TargetMask" />
     <field type="int" name="CounterMechanicTypeID" />
-    <field type="int" name="field5" />
-    <field type="float" name="field6" />
-    <field type="float" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
+    <field type="int" name="Unk3" />
+    <field type="float" name="Unk4" />
+    <field type="float" name="Unk5" />
+    <field type="float" name="Amount" />
+    <field type="int" name="Unk7" />
+    <field type="int" name="Unk8" />
   </GarrAbilityEffect>
   <GarrEncounter build="0">
     <index>
@@ -2554,7 +2544,7 @@
     <field type="int" name="RequiredItemLevel" />
     <field type="int" name="GarrMechanicTypeRecID" />
     <field type="int" name="RequiredFollowersCount" />
-    <field type="int" name="field5" />
+    <field type="float" name="field5" />
     <field type="int" name="Duration" />
     <field type="int" name="OfferDuration" />
     <field type="int" name="LocPrefixID" />
@@ -3023,23 +3013,20 @@
     <field type="int" name="field8" />
     <field type="int" name="field9" />
   </GarrMissionReward>
-<<<<<<< HEAD
-  <GarrMissionType build="0">
-=======
   <SummonProperties build="19057">
     <index>
       <primary>Id</primary>
-	</index>
+    </index>
     <field type="int" name="Control" />
     <field type="int" name="Faction" />
     <field type="int" name="Title" />
     <field type="int" name="Slot" />
-    <field type="int" name="Flags" />	  
-   </SummonProperties>
+    <field type="int" name="Flags" />
+  </SummonProperties>
   <Talent build="19045">
-  <index>
+    <index>
       <primary>Id</primary>
-  </index>
+    </index>
     <field type="int" name="ID" />
     <field type="int" name="SpecID" />
     <field type="int" name="TierID" />
@@ -3098,21 +3085,6 @@
     <field type="int" name="PowerDisplayID2" />
     <field type="int" name="PowerDisplayID3" />
   </Vehicle>
-  <Stationery build="19057">
->>>>>>> origin/WoD2
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-<<<<<<< HEAD
-    <field type="int" name="field2" />
-  </GarrMissionType>
-  <GarrMissionXEncounter build="0">
-=======
-    <field type="string" name="field2" />
-    <field type="int" name="field3" />
-  </Stationery>
   <GarrAbility build="19057">
     <index>
       <primary>Id</primary>

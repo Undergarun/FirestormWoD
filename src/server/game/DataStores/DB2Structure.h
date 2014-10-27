@@ -496,7 +496,7 @@ struct GarrMissionEntry
     uint32 RequiredItemLevel;                           // 2
     uint32 GarrMechanicTypeRecID;                       // 3
     uint32 RequiredFollowersCount;                      // 4
-    uint32 Unk2;                                        // 5
+    uint32 TravelTime;                                  // 5
     uint32 Duration;                                    // 6
     uint32 OfferTime;                                   // 7
     uint32 LocPrefixID;                                 // 8
@@ -534,7 +534,7 @@ struct GarrBuildingEntry
     uint32 BuiltScene[2];                               // 18 - 19
     uint32 Unk11;                                       // 20
     uint32 Unk12;                                       // 21
-    uint32 Unk13;                                       // 22
+    uint32 PassiveEffect;                               // 22
     uint32 MoneyCost;                                   // 23
 };
 
@@ -549,8 +549,7 @@ struct GarrFollowerEntry
 {
     uint32 ID;                                          // 0
     uint32 Entry[2];                                    // 1 - 2
-    uint32 Class;                                       // 3
-    uint32 Unk2;                                        // 4
+    uint32 Class[2];                                    // 3 - 4
     uint32 Quality;                                     // 5
     uint32 Unk4;                                        // 6
     uint32 Unk5;                                        // 7
@@ -582,17 +581,17 @@ struct GarrAbilityEntry
 
 struct GarrAbilityEffectEntry
 {
-    uint32 EffectID;
-    uint32 Unk1;
-    uint32 AbilityID;
-    uint32 Unk2;
-    uint32 CounterMechanicTypeID;
-    uint32 Unk3;
-    float Unk4;
-    float Unk5;
-    uint32 Unk6;
-    uint32 Unk7;
-    uint32 Unk8;
+    uint32 EffectID;                                    // 0
+    uint32 EffectType;                                  // 1 
+    uint32 AbilityID;                                   // 2
+    uint32 TargetMask;                                  // 3
+    uint32 CounterMechanicTypeID;                       // 4
+    uint32 Unk3;                                        // 5
+    float ModMin;                                       // 6
+    float ModMax;                                       // 7
+    float Amount;                                       // 8
+    uint32 MiscValueA;                                  // 9
+    uint32 MiscValueB;                                  // 10
 };
 
 struct GarrFollowerXAbilityEntry
@@ -641,6 +640,13 @@ struct GarrEncouterXMechanicEntry
     uint32 ID;                                          // 0
     uint32 EncounterID;                                 // 1
     uint32 MechanicID;                                  // 2
+};
+
+struct GarrFollowerLevelXPEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Level;                                       // 1
+    uint32 RequiredExperience;                          // 2
 };
 
 #define MAX_BATTLEPET_PROPERTIES 6
