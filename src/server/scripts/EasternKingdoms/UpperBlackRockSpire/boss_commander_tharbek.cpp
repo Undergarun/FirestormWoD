@@ -943,40 +943,19 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
 
         struct mob_imbued_iron_axe_stalkerAI : public ScriptedAI
         {
-            mob_imbued_iron_axe_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_Instance = p_Creature->GetInstanceScript();
-                m_MoveTimer = 0;
-            }
-
-            InstanceScript* m_Instance;
-            uint32 m_MoveTimer;
+            mob_imbued_iron_axe_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             void Reset()
             {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            }
-
-            void IsSummonedBy(Unit* p_Summoner)
-            {
                 me->CastSpell(me, SPELL_IMBUED_IRON_AXE_AURA, true);
-                m_MoveTimer = 500;
-            }
 
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (!m_MoveTimer)
-                    return;
+                me->SetReactState(REACT_PASSIVE);
 
-                if (m_MoveTimer <= p_Diff)
-                {
-                    m_MoveTimer = 0;
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveRandom(20.f);
-                }
-                else
-                    m_MoveTimer -= p_Diff;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_UNK_28);
+
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveRandom(10.f);
             }
         };
 
