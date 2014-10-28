@@ -15477,18 +15477,6 @@ void Unit::setDeathState(DeathState s)
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : (ZoneScript*)GetInstanceScript())
             zoneScript->OnUnitDeath(this);
 
-        if (isPet())
-        {
-            if (Unit* owner = GetOwner())
-            {
-                // Fix Demonic Rebirth
-                if (owner->HasAura(108559) && !owner->HasAura(89140))
-                {
-                    owner->CastSpell(owner, 88448, true);
-                    owner->CastSpell(owner, 89140, true); // Cooldown marker
-                }
-            }
-        }
     }
     else if (s == JUST_RESPAWNED)
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
