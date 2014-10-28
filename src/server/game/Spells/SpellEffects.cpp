@@ -5744,7 +5744,7 @@ void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
     Player* l_Target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (l_Caster->duel || l_Target->duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
+    if (l_Caster->m_Duel || l_Target->m_Duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
         return;
 
     // Players can only fight a duel in zones with this flag
@@ -5811,7 +5811,8 @@ void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
     l_Duel->startTime  = 0;
     l_Duel->startTimer = 0;
     l_Duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
-    l_Caster->duel     = l_Duel;
+    l_Duel->started    = false;
+    l_Caster->m_Duel     = l_Duel;
 
     DuelInfo* l_Duel2   = new DuelInfo;
     l_Duel2->initiator  = l_Caster;
@@ -5819,7 +5820,8 @@ void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
     l_Duel2->startTime  = 0;
     l_Duel2->startTimer = 0;
     l_Duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
-    l_Target->duel      = l_Duel2;
+    l_Duel2->started    = false;
+    l_Target->m_Duel      = l_Duel2;
 
     l_Caster->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, l_GameObj->GetGUID());
     l_Target->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, l_GameObj->GetGUID());

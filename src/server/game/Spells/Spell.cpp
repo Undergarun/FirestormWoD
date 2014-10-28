@@ -7957,7 +7957,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
             // Sin and Punishment from duel bug
             if (m_spellInfo->Id == 87204)
             {
-                if (caster != target && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->duel && target->GetTypeId() == TYPEID_PLAYER)
+                if (caster != target && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->m_Duel && target->GetTypeId() == TYPEID_PLAYER)
                     return false;
             }
             // Glyph of Concussive Shot

@@ -986,10 +986,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // duel ends when player has 1 or less hp
     bool duel_hasEnded = false;
     bool duel_wasMounted = false;
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->duel && damage >= (health-1))
+    if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->m_Duel && damage >= (health-1))
     {
         // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-        if (victim->ToPlayer()->duel->opponent == this || victim->ToPlayer()->duel->opponent->GetGUID() == GetOwnerGUID() || victim == this)
+        if (victim->ToPlayer()->m_Duel->opponent == this || victim->ToPlayer()->m_Duel->opponent->GetGUID() == GetOwnerGUID() || victim == this)
             damage = health - 1;
 
         duel_hasEnded = true;
@@ -998,10 +998,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         Player* victimRider = victim->GetCharmer()->ToPlayer();
 
-        if (victimRider && victimRider->duel && victimRider->duel->isMounted)
+        if (victimRider && victimRider->m_Duel && victimRider->m_Duel->isMounted)
         {
             // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-            if (victimRider->duel->opponent == this || victimRider->duel->opponent->GetGUID() == GetCharmerGUID())
+            if (victimRider->m_Duel->opponent == this || victimRider->m_Duel->opponent->GetGUID() == GetCharmerGUID())
                 damage = health - 1;
 
             duel_wasMounted = true;
@@ -1118,14 +1118,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             Player* he = duel_wasMounted ? victim->GetCharmer()->ToPlayer() : victim->ToPlayer();
 
-            ASSERT(he && he->duel);
+            ASSERT(he && he->m_Duel);
 
             if (duel_wasMounted) // In this case victim==mount
                 victim->SetHealth(1);
             else
                 he->SetHealth(1);
 
-            he->duel->opponent->CombatStopWithPets(true);
+            he->m_Duel->opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
 
             he->CastSpell(he, 7267, true);                  // beg
@@ -11001,7 +11001,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
                     return REP_FRIENDLY;
 
                 // duel - always hostile to opponent
-                if (selfPlayerOwner->duel && selfPlayerOwner->duel->opponent == targetPlayerOwner && selfPlayerOwner->duel->startTime != 0)
+                if (selfPlayerOwner->m_Duel && selfPlayerOwner->m_Duel->opponent == targetPlayerOwner && selfPlayerOwner->m_Duel->startTime != 0)
                     return REP_HOSTILE;
 
                 // same group - checks dependant only on our faction - skip FFA_PVP for example
@@ -14490,10 +14490,10 @@ void Unit::SetInCombatWith(Unit* enemy)
     }
 
     // check for duel
-    if (eOwner->GetTypeId() == TYPEID_PLAYER && eOwner->ToPlayer()->duel)
+    if (eOwner->GetTypeId() == TYPEID_PLAYER && eOwner->ToPlayer()->m_Duel)
     {
         Unit const* myOwner = GetCharmerOrOwnerOrSelf();
-        if (((Player const*)eOwner)->duel->opponent == myOwner)
+        if (((Player const*)eOwner)->m_Duel->opponent == myOwner)
         {
             SetInCombatState(true, enemy);
             return;
@@ -14525,7 +14525,7 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
     Player* me = GetCharmerOrOwnerPlayerOrPlayerItself();
     if (me && who->IsPvP()
         && (who->GetTypeId() != TYPEID_PLAYER
-        || !me->duel || me->duel->opponent != who))
+        || !me->m_Duel || me->m_Duel->opponent != who))
     {
         me->UpdatePvP(true);
         me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
@@ -14749,7 +14749,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // check duel - before sanctuary checks
     if (playerAffectingAttacker && playerAffectingTarget)
-        if (playerAffectingAttacker->duel && playerAffectingAttacker->duel->opponent == playerAffectingTarget && playerAffectingAttacker->duel->startTime != 0)
+        if (playerAffectingAttacker->m_Duel && playerAffectingAttacker->m_Duel->opponent == playerAffectingTarget && playerAffectingAttacker->m_Duel->startTime != 0)
             return true;
 
     // PvP case - can't attack when attacker or target are in sanctuary
@@ -14842,7 +14842,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
             {
                 // can't assist player which is dueling someone
                 if (selfPlayerOwner != targetPlayerOwner
-                    && targetPlayerOwner->duel)
+                    && targetPlayerOwner->m_Duel)
                     return false;
             }
             // can't assist player in ffa_pvp zone from outside
@@ -18508,7 +18508,7 @@ void Unit::SetContestedPvP(Player* attackedPlayer)
 {
     Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
 
-    if (!player || (attackedPlayer && (attackedPlayer == player || (player->duel && player->duel->opponent == attackedPlayer))))
+    if (!player || (attackedPlayer && (attackedPlayer == player || (player->m_Duel && player->m_Duel->opponent == attackedPlayer))))
         return;
 
     player->SetContestedPvPTimer(30000);
@@ -19037,9 +19037,9 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
             ToCreature()->AI()->KilledUnit(victim);
 
         // last damage from non duel opponent or opponent controlled creature
-        if (plrVictim->duel)
+        if (plrVictim->m_Duel)
         {
-            plrVictim->duel->opponent->CombatStopWithPets(true);
+            plrVictim->m_Duel->opponent->CombatStopWithPets(true);
             plrVictim->CombatStopWithPets(true);
             plrVictim->DuelComplete(DUEL_INTERRUPTED);
         }
@@ -21286,7 +21286,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Player* player = ToPlayer();
 
     // If player is on mounted duel and exits the mount should immediately lose the duel
-    if (player && player->duel && player->duel->isMounted)
+    if (player && player->m_Duel && player->m_Duel->isMounted)
         player->DuelComplete(DUEL_FLED);
 
     // This should be done before dismiss, because there may be some aura removal

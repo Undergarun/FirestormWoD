@@ -353,6 +353,7 @@ struct DuelInfo
     time_t startTime;
     time_t outOfBound;
     bool isMounted;
+    bool started;
 };
 
 struct Areas
@@ -2124,7 +2125,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         /** todo: -maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler.. **/
-        DuelInfo* duel;
+        DuelInfo* m_Duel;
         void UpdateDuelFlag(time_t currTime);
         void CheckDuelDistance(time_t currTime);
         void DuelComplete(DuelCompleteType type);

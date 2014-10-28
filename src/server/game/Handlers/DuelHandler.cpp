@@ -44,7 +44,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& p_Packet)
 
     Player* l_Target = l_UnitTarget->ToPlayer();
     // caster or target already have requested duel
-    if (l_Caster->duel || l_Target->duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
+    if (l_Caster->m_Duel || l_Target->m_Duel || !l_Target->GetSocial() || l_Target->GetSocial()->HasIgnore(l_Caster->GetGUIDLow()))
         return;
 
     l_Caster->CastSpell(l_UnitTarget, 7266, false);
@@ -59,18 +59,18 @@ void WorldSession::HandleDuelResponseOpcode(WorldPacket& p_Packet)
     l_Result = p_Packet.ReadBit();
 
     Player* l_Player = GetPlayer();
-    if (l_Player->duel == nullptr)                        ///< ignore accept from duel-sender
+    if (l_Player->m_Duel == nullptr)                        ///< ignore accept from duel-sender
         return;
 
     if (l_Result)
     {
-        Player* l_Target = l_Player->duel->opponent;
-        if (l_Player == l_Player->duel->initiator || !l_Target || l_Player == l_Target || l_Player->duel->startTime != 0 || l_Target->duel->startTime != 0)
+        Player* l_Target = l_Player->m_Duel->opponent;
+        if (l_Player == l_Player->m_Duel->initiator || !l_Target || l_Player == l_Target || l_Player->m_Duel->startTime != 0 || l_Target->m_Duel->startTime != 0)
             return;
 
         time_t l_Now = time(NULL);
-        l_Player->duel->startTimer = l_Now;
-        l_Target->duel->startTimer = l_Now;
+        l_Player->m_Duel->startTimer = l_Now;
+        l_Target->m_Duel->startTimer = l_Now;
 
         l_Player->SendDuelCountdown(3000);
         l_Target->SendDuelCountdown(3000);
@@ -78,11 +78,11 @@ void WorldSession::HandleDuelResponseOpcode(WorldPacket& p_Packet)
     else
     {
         // player surrendered in a duel using /forfeit
-        if (l_Player->duel->startTime != 0)
+        if (l_Player->m_Duel->startTime != 0)
         {
             l_Player->CombatStopWithPets(true);
-            if (l_Player->duel->opponent)
-                l_Player->duel->opponent->CombatStopWithPets(true);
+            if (l_Player->m_Duel->opponent)
+                l_Player->m_Duel->opponent->CombatStopWithPets(true);
 
             l_Player->CastSpell(l_Player, 7267, true);    ///< beg
             l_Player->DuelComplete(DUEL_WON);

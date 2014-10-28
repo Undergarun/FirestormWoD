@@ -776,8 +776,8 @@ class spell_mage_frostbolt : public SpellScriptLoader
                     return SPELL_FAILED_BAD_TARGETS;
                 else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && !GetExplTargetUnit()->IsPvP())
                 {
-                    if (GetCaster()->ToPlayer() && GetCaster()->ToPlayer()->duel)
-                        if (GetCaster()->ToPlayer()->duel->opponent->GetGUID() == GetExplTargetUnit()->GetGUID())
+                    if (GetCaster()->ToPlayer() && GetCaster()->ToPlayer()->m_Duel)
+                    if (GetCaster()->ToPlayer()->m_Duel->opponent->GetGUID() == GetExplTargetUnit()->GetGUID())
                             return SPELL_CAST_OK;
 
                     return SPELL_FAILED_BAD_TARGETS;

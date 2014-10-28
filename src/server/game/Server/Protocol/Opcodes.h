@@ -153,6 +153,12 @@ enum Opcodes
 
         /// Duel
         SMSG_DUEL_REQUESTED                         = 0x1444,   ///< 6.0.2 19027
+        SMSG_DUEL_COUNTDOWN                         = 0x0573,   ///< 6.0.2 19027
+        SMSG_DUEL_COMPLETE                          = 0x01F3,   ///< 6.0.2 19027
+        SMSG_DUEL_INBOUNDS                          = 0x0553,   ///< 6.0.2 19027
+        SMSG_DUEL_OUT_OF_BOUNDS                     = 0x1223,   ///< 6.0.2 19027
+        SMSG_DUEL_WINNER                            = 0x1073,   ///< 6.0.2 19027
+        SMSG_CAN_DUEL_RESULT                        = 0x0107,   ///< 6.0.2 19027 (unused)
 
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0103,   ///< 6.0.2 19027
@@ -1521,7 +1527,6 @@ enum Opcodes
     SMSG_CANCEL_SCENE                                 = 0x0000,
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x0000,
     SMSG_CANCEL_SPELL_VISUAL                          = 0x0000,
-    SMSG_CAN_DUEL_RESULT                              = 0x0000,
     SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE              = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT          = 0x0000,
     SMSG_CHALLENGE_MODE_ALL_MAP_STATS                 = 0x0000,
@@ -1582,11 +1587,6 @@ enum Opcodes
     SMSG_DISPLAY_PLAYER_CHOICE                        = 0x0000,
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x0000,
     SMSG_DROP_NEW_CONNECTION                          = 0x0000,
-    SMSG_DUEL_COMPLETE                                = 0x0000,
-    SMSG_DUEL_COUNTDOWN                               = 0x0000,
-    SMSG_DUEL_INBOUNDS                                = 0x0000,
-    SMSG_DUEL_OUT_OF_BOUNDS                           = 0x0000,
-    SMSG_DUEL_WINNER                                  = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
     SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x0000,
