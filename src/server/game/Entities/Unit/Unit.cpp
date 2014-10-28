@@ -1223,6 +1223,39 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
     if (!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
 
+    // Override spell Id
+    if (!spellInfo->OverrideSpellList.empty() && GetTypeId() == TYPEID_PLAYER)
+    {
+        for (auto itr : spellInfo->OverrideSpellList)
+        {
+            if (ToPlayer()->HasSpell(itr))
+            {
+                SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
+                if (overrideSpellInfo)
+                    spellInfo = overrideSpellInfo;
+                break;
+            }
+        }
+    }
+
+    Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+    if (!swaps2.empty())
+        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
+
+    if (!swaps.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator itr = swaps.begin(); itr != swaps.end(); ++itr)
+        {
+            if ((*itr)->IsAffectingSpell(spellInfo))
+            {
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
+                    spellInfo = newInfo;
+                break;
+            }
+        }
+    }
+
     Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
 
     if (value)
