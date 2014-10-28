@@ -7966,9 +7966,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                                     case 85222: // Light of Dawn
                                         percent = 15; // 15% heal from these spells
                                         break;
-                                    case 635:   // Holy Light
-                                        percent = triggerAmount * 2; // 100% heal from Holy Light
-                                        break;
                                     default:
                                         percent = triggerAmount; // 50% heal from all other heals
                                         break;
@@ -8040,7 +8037,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     float chance;
 
-                    // Flash of light/Holy light
+                    // Flash of light
                     if (procSpell->SpellFamilyFlags[0] & 0xC0000000)
                     {
                         triggered_spell_id = 40471;

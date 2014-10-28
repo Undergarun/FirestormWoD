@@ -1364,10 +1364,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         maxSize = 1;
                         power = POWER_HEALTH;
                         break;
-                    case 54968: // Glyph of Holy Light
-                        maxSize = m_spellInfo->MaxAffectedTargets;
-                        power = POWER_HEALTH;
-                        break;
                     case 57669: // Replenishment
                         // In arenas Replenishment may only affect the caster
                         if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->InArena())
