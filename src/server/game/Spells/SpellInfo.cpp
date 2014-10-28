@@ -496,6 +496,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 case 90992:
                     return *bp;
                 case 105697:
+                case 105702:
                     return int32(basePoints);
             }
 
