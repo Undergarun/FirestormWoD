@@ -151,6 +151,15 @@ enum Opcodes
         SMSG_AI_REACTION                            = 0x1654,   ///< 6.0.2 19027
         SMSG_ATTACK_SWING_ERROR                     = 0x0603,   ///< 6.0.2 19027
 
+        /// Duel
+        SMSG_DUEL_REQUESTED                         = 0x1444,   ///< 6.0.2 19027
+        SMSG_DUEL_COUNTDOWN                         = 0x0573,   ///< 6.0.2 19027
+        SMSG_DUEL_COMPLETE                          = 0x01F3,   ///< 6.0.2 19027
+        SMSG_DUEL_INBOUNDS                          = 0x0553,   ///< 6.0.2 19027
+        SMSG_DUEL_OUT_OF_BOUNDS                     = 0x1223,   ///< 6.0.2 19027
+        SMSG_DUEL_WINNER                            = 0x1073,   ///< 6.0.2 19027
+        SMSG_CAN_DUEL_RESULT                        = 0x0107,   ///< 6.0.2 19027 (unused)
+
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0103,   ///< 6.0.2 19027
         SMSG_BUY_FAILED                             = 0x0254,   ///< 6.0.2 19027
@@ -781,6 +790,13 @@ enum Opcodes
     CMSG_ATTACKSWING                            = 0x1C97,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
+    /// Duel
+    //////////////////////////////////////////////////////////////////////////
+
+    CMSG_DUEL_PROPOSED                          = 0x00F4,   ///< 6.0.2 19027
+    CMSG_DUEL_RESPONSE                          = 0x0124,   ///< 6.0.2 19027
+
+    //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
     CMSG_CAST_SPELL                             = 0x10C8,   ///< 6.0.2 19027
@@ -843,7 +859,7 @@ enum Opcodes
     /// Taxi
     //////////////////////////////////////////////////////////////////////////
     CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0767,   ///< 6.0.2 19027
-    CMSG_ENABLE_TAXI_NODE                       = 0x0573,   ///< 6.0.2 19027
+    CMSG_ENABLE_TAXI_NODE                       = 0x0057,   ///< 6.0.2 19027
     CMSG_ACTIVATE_TAXI                          = 0x0054,   ///< 6.0.2 19027
     CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0253,   ///< 6.0.2 19027
 
@@ -1263,8 +1279,6 @@ enum Opcodes
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x0000,
     CMSG_DISMISS_CRITTER                              = 0x0000,
-    CMSG_DUEL_RESPONSE                                = 0x0000,
-    CMSG_DUEL_PROPOSED                                = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
@@ -1553,7 +1567,6 @@ enum Opcodes
     SMSG_CANCEL_SCENE                                 = 0x0000,
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                   = 0x0000,
     SMSG_CANCEL_SPELL_VISUAL                          = 0x0000,
-    SMSG_CAN_DUEL_RESULT                              = 0x0000,
     SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE              = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT          = 0x0000,
     SMSG_CHALLENGE_MODE_ALL_MAP_STATS                 = 0x0000,
@@ -1614,12 +1627,6 @@ enum Opcodes
     SMSG_DISPLAY_PLAYER_CHOICE                        = 0x0000,
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x0000,
     SMSG_DROP_NEW_CONNECTION                          = 0x0000,
-    SMSG_DUEL_COMPLETE                                = 0x0000,
-    SMSG_DUEL_COUNTDOWN                               = 0x0000,
-    SMSG_DUEL_INBOUNDS                                = 0x0000,
-    SMSG_DUEL_OUT_OF_BOUNDS                           = 0x0000,
-    SMSG_DUEL_REQUESTED                               = 0x0000,
-    SMSG_DUEL_WINNER                                  = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
     SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x0000,

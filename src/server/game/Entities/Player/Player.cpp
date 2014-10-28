@@ -771,7 +771,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_auraRaidUpdateMask = 0;
     m_bPassOnGroupLoot = false;
 
-    duel = NULL;
+    m_Duel = NULL;
 
     m_GuildIdInvited = 0;
 
@@ -2778,7 +2778,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // The player was ported to another map and loses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
-    if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER)))
+    if (m_Duel && GetMapId() != mapid && GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
     if (GetMapId() == mapid)
@@ -9376,7 +9376,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 //If players are too far away from the duel flag... they lose the duel
 void Player::CheckDuelDistance(time_t currTime)
 {
-    if (!duel)
+    if (!m_Duel)
         return;
 
     uint64 duelFlagGUID = GetGuidValue(PLAYER_FIELD_DUEL_ARBITER);
@@ -9384,11 +9384,11 @@ void Player::CheckDuelDistance(time_t currTime)
     if (!obj)
         return;
 
-    if (duel->outOfBound == 0)
+    if (m_Duel->outOfBound == 0)
     {
         if (!IsWithinDistInMap(obj, 50))
         {
-            duel->outOfBound = currTime;
+            m_Duel->outOfBound = currTime;
 
             WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
             GetSession()->SendPacket(&data);
@@ -9398,12 +9398,12 @@ void Player::CheckDuelDistance(time_t currTime)
     {
         if (IsWithinDistInMap(obj, 40))
         {
-            duel->outOfBound = 0;
+            m_Duel->outOfBound = 0;
 
             WorldPacket data(SMSG_DUEL_INBOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
-        else if (currTime >= (duel->outOfBound+10))
+        else if (currTime >= (m_Duel->outOfBound+10))
             DuelComplete(DUEL_FLED);
     }
 }
@@ -9413,75 +9413,72 @@ bool Player::IsOutdoorPvPActive()
     return isAlive() && !HasInvisibilityAura() && !HasStealthAura() && IsPvP() && !HasUnitMovementFlag(MOVEMENTFLAG_FLYING) && !isInFlight();
 }
 
-void Player::DuelComplete(DuelCompleteType type)
+void Player::DuelComplete(DuelCompleteType p_DuelType)
 {
     // duel not requested
-    if (!duel)
+    if (!m_Duel)
         return;
 
-    sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
-
     // Say "duel has been canceled"
-    if (type == DUEL_INTERRUPTED)
+    if (p_DuelType == DUEL_INTERRUPTED)
     {
-        WorldPacket data(SMSG_DUEL_COMPLETE, (1));
-        data.WriteBit(0); // work with 0, msg change with 1 ?
-        data.FlushBits();
-        GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_DUEL_COMPLETE, (1));
+        l_Data.WriteBit(m_Duel->started);       ///< Started
+        l_Data.FlushBits();
+        GetSession()->SendPacket(&l_Data);
 
-        if (duel->opponent->GetSession())
-            duel->opponent->GetSession()->SendPacket(&data);
+        if (m_Duel->opponent->GetSession())
+            m_Duel->opponent->GetSession()->SendPacket(&l_Data);
     }
 
 
-    if (type != DUEL_INTERRUPTED)
+    if (p_DuelType != DUEL_INTERRUPTED)
     {
-        std::string name = GetName();
-        std::string opponentName = duel->opponent->GetName();
-        WorldPacket data2(SMSG_DUEL_WINNER);
-        data2 << uint32(g_RealmID);                            // winner realm ID
-        data2 << uint32(g_RealmID);                            // opponent realm ID
-        data2.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data2.WriteBits(opponentName.size(), 6);
-        data2.WriteBits(name.size(), 6);
-        data2.FlushBits();
-        if (name.size())
-            data2.append(name.c_str(), name.size());
-        if (opponentName.size())
-            data2.append(opponentName.c_str(), opponentName.size());
+        /// Opponent is always the winner ...
+        std::string l_BeatenName = GetName();
+        std::string l_WinnerName = m_Duel->opponent->GetName();
 
-        SendMessageToSet(&data2, true);
+        WorldPacket l_Data(SMSG_DUEL_WINNER);
+        l_Data.WriteBits(l_WinnerName.size(), 6);               ///< WinnerName Size
+        l_Data.WriteBits(l_BeatenName.size(), 6);               ///< BeatenName Size
+        l_Data.WriteBit(p_DuelType == DUEL_WON ? 0 : 1);        ///< Fled
+        l_Data << uint32(g_RealmID);                            ///< WinnerVirtualRealmAddress
+        l_Data << uint32(g_RealmID);                            ///< BeatenVirtualRealmAddress
+        l_Data.WriteString(l_WinnerName);                       ///< WinnerName
+        l_Data.WriteString(l_BeatenName);                       ///< BeatenName
+
+        SendMessageToSet(&l_Data, true);
     }
 
-    sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
+    sScriptMgr->OnPlayerDuelEnd(m_Duel->opponent, this, p_DuelType);
 
-    switch (type)
+    switch (p_DuelType)
     {
         case DUEL_FLED:
             // if initiator and opponent are on the same team
             // or initiator and opponent are not PvP enabled, forcibly stop attacking
-            if (duel->initiator->GetTeam() == duel->opponent->GetTeam())
+            if (m_Duel->initiator->GetTeam() == m_Duel->opponent->GetTeam())
             {
-                duel->initiator->AttackStop();
-                duel->opponent->AttackStop();
+                m_Duel->initiator->AttackStop();
+                m_Duel->opponent->AttackStop();
             }
             else
             {
-                if (!duel->initiator->IsPvP())
-                    duel->initiator->AttackStop();
-                if (!duel->opponent->IsPvP())
-                    duel->opponent->AttackStop();
+                if (!m_Duel->initiator->IsPvP())
+                    m_Duel->initiator->AttackStop();
+                if (!m_Duel->opponent->IsPvP())
+                    m_Duel->opponent->AttackStop();
             }
             break;
         case DUEL_WON:
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL, 1);
-            if (duel->opponent)
+            if (m_Duel->opponent)
             {
-                 duel->opponent->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
+                 m_Duel->opponent->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
 
                 //Credit for quest Death's Challenge
-                if (getClass() == CLASS_DEATH_KNIGHT && duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
-                    duel->opponent->CastSpell(duel->opponent, 52994, true);
+                if (getClass() == CLASS_DEATH_KNIGHT && m_Duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
+                    m_Duel->opponent->CastSpell(m_Duel->opponent, 52994, true);
             }
             break;
         default:
@@ -9489,21 +9486,21 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     // Victory emote spell
-    if (type != DUEL_INTERRUPTED && duel->opponent)
-        duel->opponent->CastSpell(duel->opponent, 52852, true);
+    if (p_DuelType != DUEL_INTERRUPTED && m_Duel->opponent)
+        m_Duel->opponent->CastSpell(m_Duel->opponent, 52852, true);
 
     //Remove Duel Flag object
     GameObject* obj = GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER));
     if (obj)
-        duel->initiator->RemoveGameObject(obj, true);
+        m_Duel->initiator->RemoveGameObject(obj, true);
 
     /* remove auras */
-    AuraApplicationMap &itsAuras = duel->opponent->GetAppliedAuras();
+    AuraApplicationMap &itsAuras = m_Duel->opponent->GetAppliedAuras();
     for (AuraApplicationMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         constAuraPtr aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
-            duel->opponent->RemoveAura(i);
+        if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= m_Duel->startTime)
+            m_Duel->opponent->RemoveAura(i);
         else
             ++i;
     }
@@ -9512,37 +9509,37 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         constAuraPtr aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (!i->second->IsPositive() && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime)
             RemoveAura(i);
         else
             ++i;
     }
 
     // cleanup combo points
-    if (GetComboTarget() == duel->opponent->GetGUID())
+    if (GetComboTarget() == m_Duel->opponent->GetGUID())
         ClearComboPoints();
-    else if (GetComboTarget() == duel->opponent->GetPetGUID())
+    else if (GetComboTarget() == m_Duel->opponent->GetPetGUID())
         ClearComboPoints();
 
-    if (duel->opponent->GetComboTarget() == GetGUID())
-        duel->opponent->ClearComboPoints();
-    else if (duel->opponent->GetComboTarget() == GetPetGUID())
-        duel->opponent->ClearComboPoints();
+    if (m_Duel->opponent->GetComboTarget() == GetGUID())
+        m_Duel->opponent->ClearComboPoints();
+    else if (m_Duel->opponent->GetComboTarget() == GetPetGUID())
+        m_Duel->opponent->ClearComboPoints();
 
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
-        duel->opponent->RewardHonor(NULL, 1, amount);
+        m_Duel->opponent->RewardHonor(NULL, 1, amount);
 
     //cleanups
     SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
-    duel->opponent->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
-    duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
+    m_Duel->opponent->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
+    m_Duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
 
-    delete duel->opponent->duel;
-    duel->opponent->duel = NULL;
-    delete duel;
-    duel = NULL;
+    delete m_Duel->opponent->m_Duel;
+    m_Duel->opponent->m_Duel = NULL;
+    delete m_Duel;
+    m_Duel = NULL;
 }
 
 //---------------------------------------------------------//
@@ -22418,18 +22415,20 @@ void Player::UpdatePvPFlag(time_t currTime)
 
 void Player::UpdateDuelFlag(time_t currTime)
 {
-    if (!duel || duel->startTimer == 0 ||currTime < duel->startTimer + 3)
+    if (!m_Duel || m_Duel->startTimer == 0 ||currTime < m_Duel->startTimer + 3)
         return;
 
-    sScriptMgr->OnPlayerDuelStart(this, duel->opponent);
+    sScriptMgr->OnPlayerDuelStart(this, m_Duel->opponent);
 
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 1);
-    duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 2);
+    m_Duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 2);
 
-    duel->startTimer = 0;
-    duel->startTime  = currTime;
-    duel->opponent->duel->startTimer = 0;
-    duel->opponent->duel->startTime  = currTime;
+    m_Duel->startTimer = 0;
+    m_Duel->startTime  = currTime;
+    m_Duel->started    = true;
+    m_Duel->opponent->m_Duel->startTimer = 0;
+    m_Duel->opponent->m_Duel->startTime  = currTime;
+    m_Duel->opponent->m_Duel->started    = true;
 }
 
 Pet* Player::GetPet() const
@@ -24893,7 +24892,7 @@ bool Player::IsAlwaysDetectableFor(WorldObject const* seer) const
 
     if (const Player* seerPlayer = seer->ToPlayer())
         if (IsGroupVisibleFor(seerPlayer))
-            return !(seerPlayer->duel && seerPlayer->duel->startTime != 0 && seerPlayer->duel->opponent == this);
+            return !(seerPlayer->m_Duel && seerPlayer->m_Duel->startTime != 0 && seerPlayer->m_Duel->opponent == this);
 
      return false;
  }
@@ -28545,10 +28544,10 @@ std::string Player::GetGuildName()
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
 }
 
-void Player::SendDuelCountdown(uint32 counter)
+void Player::SendDuelCountdown(uint32 p_Coutdown)
 {
     WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << uint32(counter);                                // seconds
+    data << uint32(p_Coutdown);                 ///< seconds
     GetSession()->SendPacket(&data);
 }
 
