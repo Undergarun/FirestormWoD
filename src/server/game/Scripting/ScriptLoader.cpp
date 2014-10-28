@@ -798,6 +798,9 @@ void AddSC_WanderingIsland_South();
 
 void AddSC_timeless_isle();
 
+// Draenor
+void AddSC_ashran();
+
 // battlegrounds
 
 // outdoor pvp
@@ -824,6 +827,7 @@ void AddScripts()
     AddOutlandScripts();
     AddNorthrendScripts();
     AddPandarieScripts();
+    AddDraenorScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -1627,6 +1631,13 @@ void AddPandarieScripts()
     AddSC_WanderingIsland_South();
 
     AddSC_timeless_isle();
+#endif
+}
+
+void AddDraenorScripts()
+{
+#ifdef SCRIPTS
+    AddSC_ashran();
 #endif
 }
 

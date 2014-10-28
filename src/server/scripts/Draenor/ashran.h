@@ -1,5 +1,7 @@
 /*
+ * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,23 +16,28 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#ifndef ASHRAN_H
+#define ASHRAN_H
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
+enum eSpells
+{
+};
 
-void AddScripts();
-void AddExampleScripts();
-void AddSpellScripts();
-void AddCommandScripts();
-void AddWorldScripts();
-void AddEasternKingdomsScripts();
-void AddKalimdorScripts();
-void AddOutlandScripts();
-void AddNorthrendScripts();
-void AddPandarieScripts();
-void AddDraenorScripts();
-void AddBattlegroundScripts();
-void AddOutdoorPvPScripts();
-void AddCustomScripts();
+enum eEvents
+{
+};
+
+enum eQuests
+{
+};
+
+enum eActions
+{
+};
+
+enum eCreatures
+{
+};
 
 #endif
