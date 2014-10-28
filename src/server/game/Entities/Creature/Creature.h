@@ -222,7 +222,7 @@ struct CreatureBaseStats
     uint32 BaseArmor;
     uint32 AttackPower;
     uint32 RangedAttackPower;
-    float BaseDamage;
+    float BaseDamage[MAX_CREATURE_BASE_DAMAGE];
 
     // Helpers
 
