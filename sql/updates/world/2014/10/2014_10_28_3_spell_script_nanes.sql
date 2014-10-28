@@ -1,0 +1,1 @@
+DELETE FROM spell_script_names WHERE ScriptName IN ("spell_sha_ancestral_awakening_proc", "spell_sha_lava_lash", "spell_sha_chain_heal", "spell_sha_static_shock", "spell_sha_rolling_thunder", "spell_sha_tidal_waves", "spell_sha_mana_tide", "spell_sha_mail_specialization", "spell_sha_echo_of_the_elements", "spell_sha_solar_beam", "spell_sha_prowl");
