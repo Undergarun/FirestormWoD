@@ -27018,8 +27018,8 @@ bool Player::isTotalImmunity()
 #define SPELL_WAR_ATTACK_LIST   47475,                  47450,              12809
 
 
-                                // inquisition,         Consecration,       Repentir
-#define SPELL_PAL_ATTACK_LIST   35395,                  26573,              20066
+                                // Consecration,       Repentir
+#define SPELL_PAL_ATTACK_LIST   26573,              20066
                                 // Eclair Lumineux,     Lumiere sacree
 #define SPELL_PAL_FRIEND_LIST   48785,                  48782,              48785
 
