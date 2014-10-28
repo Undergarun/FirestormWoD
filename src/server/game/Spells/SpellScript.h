@@ -472,6 +472,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_PROC,
     AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC,
     AURA_SCRIPT_HOOK_AFTER_PROC,
+    AURA_SCRIPT_HOOK_CAN_REFRESH_PROC
     /*AURA_SCRIPT_HOOK_APPLY,
     AURA_SCRIPT_HOOK_REMOVE, */
 };
@@ -501,6 +502,7 @@ class AuraScript : public _SpellScript
         typedef bool(CLASSNAME::*AuraCheckProcFnType)(ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraProcFnType)(ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraEffectProcFnType)(constAuraEffectPtr, ProcEventInfo&); \
+        typedef bool(CLASSNAME::*AuraCanRefreshProcFnType)(); \
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
@@ -632,6 +634,14 @@ class AuraScript : public _SpellScript
             private:
                 AuraEffectProcFnType _EffectHandlerScript;
         };
+        class CanRefreshProcHandler
+        {
+            public:
+                CanRefreshProcHandler(AuraCanRefreshProcFnType handlerScript);
+                bool Call(AuraScript* auraScript);
+            private:
+                AuraCanRefreshProcFnType _HandlerScript;
+        };
 
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) {} }; \
@@ -649,6 +659,7 @@ class AuraScript : public _SpellScript
         class CheckProcHandlerFunction : public AuraScript::CheckProcHandler { public: CheckProcHandlerFunction(AuraCheckProcFnType handlerScript) : AuraScript::CheckProcHandler((AuraScript::AuraCheckProcFnType)handlerScript) {} }; \
         class AuraProcHandlerFunction : public AuraScript::AuraProcHandler { public: AuraProcHandlerFunction(AuraProcFnType handlerScript) : AuraScript::AuraProcHandler((AuraScript::AuraProcFnType)handlerScript) {} }; \
         class EffectProcHandlerFunction : public AuraScript::EffectProcHandler { public: EffectProcHandlerFunction(AuraEffectProcFnType effectHandlerScript, uint8 effIndex, uint16 effName) : AuraScript::EffectProcHandler((AuraScript::AuraEffectProcFnType)effectHandlerScript, effIndex, effName) {} }; \
+        class CanRefreshProcHandlerFunction : public AuraScript::CanRefreshProcHandler { public: CanRefreshProcHandlerFunction(AuraCanRefreshProcFnType handlerScript) : AuraScript::CanRefreshProcHandler((AuraScript::AuraCanRefreshProcFnType)handlerScript) {} }; \
 
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
@@ -814,6 +825,12 @@ class AuraScript : public _SpellScript
         // where function is: void function (AuraEffect const* aurEff, ProcEventInfo& procInfo);
         HookList<EffectProcHandler> AfterEffectProc;
         #define AuraEffectProcFn(F, I, N) EffectProcHandlerFunction(&F, I, N)
+
+        // executed when aura refresh timer
+        // example: CanRefreshProc += AuraCanRefreshProcFn(class::function);
+        // where function is: bool function ();
+        HookList<CanRefreshProcHandler> CanRefreshProc;
+        #define AuraCanRefreshProcFn(F) CanRefreshProcHandlerFunction(&F)
 
         // AuraScript interface - hook/effect execution manipulators
 

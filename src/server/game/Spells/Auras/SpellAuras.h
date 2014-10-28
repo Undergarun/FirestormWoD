@@ -234,6 +234,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        bool CallScriptCanRrefreshProcHandlers();
 
         std::list<AuraScript*> m_loadedScripts;
     private:

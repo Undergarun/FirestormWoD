@@ -1121,16 +1121,10 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
         return true;
     }
 
-    bool refresh = stackAmount >= GetStackAmount();
-
-    // Agony doesn't refresh itself every tick
-    if (m_spellInfo->Id == 980)
-        refresh = false;
-
     // Update stack amount
     SetStackAmount(stackAmount);
 
-    if (refresh)
+    if (CallScriptCanRrefreshProcHandlers() && stackAmount >= GetStackAmount())
     {
         RefreshSpellMods();
         RefreshTimers();
@@ -3216,6 +3210,30 @@ void Aura::CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraAppl
     scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
+}
+
+bool Aura::CallScriptCanRrefreshProcHandlers()
+{
+    uint32 scriptExecuteTime = getMSTime();
+    bool l_CanRefresh = true;
+    for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CAN_REFRESH_PROC);
+        std::list<AuraScript::CanRefreshProcHandler>::iterator effEndItr = (*scritr)->CanRefreshProc.end(), effItr = (*scritr)->CanRefreshProc.begin();
+        for (; effItr != effEndItr; ++effItr)
+        {
+             bool l_TempResult = (*effItr).Call(*scritr);
+             if (l_TempResult == false)
+                 l_CanRefresh = l_TempResult;
+        }
+        (*scritr)->_FinishScriptCall();
+    }
+
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    if (scriptExecuteTime > 10)
+        sLog->outAshran("AuraScript CanRefreshDuration [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
+
+    return l_CanRefresh;
 }
 
 UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID)

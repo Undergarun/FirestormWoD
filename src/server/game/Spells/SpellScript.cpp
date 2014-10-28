@@ -889,6 +889,16 @@ bool AuraScript::CheckProcHandler::Call(AuraScript* auraScript, ProcEventInfo& e
     return (auraScript->*_HandlerScript)(eventInfo);
 }
 
+AuraScript::CanRefreshProcHandler::CanRefreshProcHandler(AuraCanRefreshProcFnType handlerScript)
+{
+    _HandlerScript = handlerScript;
+}
+
+bool AuraScript::CanRefreshProcHandler::Call(AuraScript* auraScript)
+{
+    return (auraScript->*_HandlerScript)();
+}
+
 AuraScript::AuraProcHandler::AuraProcHandler(AuraProcFnType handlerScript)
 {
     _HandlerScript = handlerScript;
@@ -1150,6 +1160,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_AFTER_PROC:
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC:
+        case AURA_SCRIPT_HOOK_CAN_REFRESH_PROC:
             return m_auraApplication->GetTarget();
         default:
             sLog->outError(LOG_FILTER_TSCR, "Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
