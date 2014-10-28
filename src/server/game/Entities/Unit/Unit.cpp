@@ -3614,10 +3614,6 @@ AuraPtr Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uin
                 *oldGUID = castItemGUID;
             }
 
-            // Earthgrab Totem : Don't refresh root
-            if (foundAura->GetId() == 64695)
-                return foundAura;
-
             // try to increase stack amount
             if (foundAura->GetId() != 980)
                 foundAura->ModStackAmount(1);
@@ -18253,7 +18249,7 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist, uint32 p_ExludeAuraID /*= 0*/) const
 {
     std::list<Unit*> targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -18275,6 +18271,13 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
         else
             ++tIter;
     }
+
+    // no appropriate targets
+    if (targets.empty())
+        return NULL;
+
+    if (p_ExludeAuraID)
+        targets.remove_if(JadeCore::UnitAuraCheck(true, p_ExludeAuraID));
 
     // no appropriate targets
     if (targets.empty())
