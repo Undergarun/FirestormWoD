@@ -819,7 +819,7 @@ enum Opcodes
     /// Taxi
     //////////////////////////////////////////////////////////////////////////
     CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0767,   ///< 6.0.2 19027
-    CMSG_ENABLE_TAXI_NODE                       = 0x0573,   ///< 6.0.2 19027
+    CMSG_ENABLE_TAXI_NODE                       = 0x0057,   ///< 6.0.2 19027
     CMSG_ACTIVATE_TAXI                          = 0x0054,   ///< 6.0.2 19027
     CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0253,   ///< 6.0.2 19027
 
