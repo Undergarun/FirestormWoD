@@ -1,0 +1,1 @@
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_dk_might_of_ursoc' ,'spell_dk_necrotic_strike', 'spell_dk_wild_mushroom_plague','spell_dk_blood_charges', 'spell_dk_scourge_strike');
