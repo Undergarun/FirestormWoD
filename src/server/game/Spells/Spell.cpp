@@ -4499,8 +4499,6 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, uint8 c
         }
         case SPELL_FAILED_NOT_READY:
         {
-            l_Data.WriteBit(0);
-            l_Data.WriteBit(1);
             l_Data << uint32(0);                                        /// unknown (value 1 update cooldowns on client flag)
             l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
