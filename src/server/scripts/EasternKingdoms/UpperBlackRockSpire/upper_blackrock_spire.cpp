@@ -464,8 +464,8 @@ class mob_rune_glow : public CreatureScript
                 me->ReenableEvadeMode();
 
                 me->SetReactState(REACT_PASSIVE);
-
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFullHealth();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
 
                 m_Events.ScheduleEvent(EVENT_CHECK_ADDS, 1000);
             }

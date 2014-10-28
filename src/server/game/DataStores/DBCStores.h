@@ -175,6 +175,8 @@ extern std::set<ResearchProjectEntry const*>     sResearchProjectSet;
 extern DBCStorage <ResearchSiteEntry>            sResearchSiteStore;
 extern std::set<ResearchSiteEntry const*>        sResearchSiteSet;
 extern DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
+extern DBCStorage <ScenarioEntry>                sScenarioStore;
+extern DBCStorage <ScenarioStepEntry>            sScenarioStepStore;
 extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;

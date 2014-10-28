@@ -64,7 +64,6 @@ enum PaladinSpells
     PALADIN_SPELL_STAY_OF_EXECUTION             = 114917,
     PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE       = 146585,
     PALADIN_SPELL_EXECUTION_DISPEL_HEAL         = 146586,
-    PALADIN_SPELL_INQUISITION                   = 84963,
     PALADIN_SPELL_GLYPH_OF_BLINDING_LIGHT       = 54934,
     PALADIN_SPELL_BLINDING_LIGHT_CONFUSE        = 105421,
     PALADIN_SPELL_BLINDING_LIGHT_STUN           = 115752,
@@ -958,55 +957,6 @@ class spell_pal_divine_shield : public SpellScriptLoader
         }
 };
 
-// Inquisition - 84963
-class spell_pal_inquisition : public SpellScriptLoader
-{
-    public:
-        spell_pal_inquisition() : SpellScriptLoader("spell_pal_inquisition") { }
-
-        class spell_pal_inquisition_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_inquisition_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (AuraPtr inquisition = _player->GetAura(PALADIN_SPELL_INQUISITION))
-                    {
-                        int32 holyPower = _player->GetPower(POWER_HOLY_POWER);
-
-                        if (holyPower > 2)
-                            holyPower = 2;
-
-                        if (_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE))
-                            holyPower = 2;
-
-                        int32 maxDuration = inquisition->GetMaxDuration();
-                        int32 newDuration = inquisition->GetDuration() + maxDuration * holyPower;
-                        inquisition->SetDuration(newDuration);
-
-                        if (newDuration > maxDuration)
-                            inquisition->SetMaxDuration(newDuration);
-
-                        if (!_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE))
-                            _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) - holyPower);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pal_inquisition_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_inquisition_SpellScript();
-        }
-};
-
 // Execution Sentence - 114916 and Stay of Execution - 114917
 class spell_pal_execution_sentence_dispel : public SpellScriptLoader
 {
@@ -1838,7 +1788,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_hand_of_protection();
     new spell_pal_cleanse();
     new spell_pal_divine_shield();
-    new spell_pal_inquisition();
     new spell_pal_execution_sentence_dispel();
     new spell_pal_execution_sentence();
     new spell_pal_lights_hammer();

@@ -543,9 +543,6 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
             // Curse of Tongues - limit to 12 seconds in PvP
             else if (spellproto->SpellFamilyFlags[2] & 0x800)
                 return 12 * IN_MILLISECONDS;
-            // Curse of Elements - limit to 120 seconds in PvP
-            else if (spellproto->SpellFamilyFlags[1] & 0x200)
-                return 120 * IN_MILLISECONDS;
             // Curse of Exhaustion
             else if (spellproto->Id == 18223)
                 return 10 * IN_MILLISECONDS;

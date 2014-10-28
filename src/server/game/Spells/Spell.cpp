@@ -1364,10 +1364,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         maxSize = 1;
                         power = POWER_HEALTH;
                         break;
-                    case 54968: // Glyph of Holy Light
-                        maxSize = m_spellInfo->MaxAffectedTargets;
-                        power = POWER_HEALTH;
-                        break;
                     case 57669: // Replenishment
                         // In arenas Replenishment may only affect the caster
                         if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->InArena())
@@ -4503,8 +4499,6 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, uint8 c
         }
         case SPELL_FAILED_NOT_READY:
         {
-            l_Data.WriteBit(0);
-            l_Data.WriteBit(1);
             l_Data << uint32(0);                                        /// unknown (value 1 update cooldowns on client flag)
             l_Data << uint32(0);                                        /// Arg2 => NULL
             break;
@@ -4921,7 +4915,7 @@ void Spell::SendSpellGo()
     // @TODO: Find how to trigger it, never find it in sniff (6.0.2)
     bool l_HasSpellCastLogData          = false;// (l_CastFlags & CAST_FLAG_PENDING) == 0 || m_spellInfo->AttributesEx7 & SPELL_ATTR7_SEND_CAST_LOG_DATA;
 
-    Unit::PowerTypeSet& l_UsablePowers = m_caster->GetUsablePowers();
+    Unit::PowerTypeSet l_UsablePowers  = m_caster->GetUsablePowers();
     uint32 l_ExtraTargetsCount         = m_targets.GetExtraTargetsCount();
 
     // Perdict data are empty in SMSG_SPELL_GO
@@ -7271,7 +7265,6 @@ SpellCastResult Spell::CheckPower()
 
     switch (m_spellInfo->Id)
     {
-        case 104225:// Curse of Elements
         case 109468:// Curse of Enfeeblement
         {
             if (m_caster->ToPlayer() && m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
@@ -7956,7 +7949,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
             // Sin and Punishment from duel bug
             if (m_spellInfo->Id == 87204)
             {
-                if (caster != target && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->duel && target->GetTypeId() == TYPEID_PLAYER)
+                if (caster != target && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->m_Duel && target->GetTypeId() == TYPEID_PLAYER)
                     return false;
             }
             // Glyph of Concussive Shot

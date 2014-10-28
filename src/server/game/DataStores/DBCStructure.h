@@ -1815,6 +1815,27 @@ struct ScalingStatValuesEntry
     uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
 };
 
+struct ScenarioEntry
+{
+    uint32 ID;
+    char*  NameLang;
+    uint32 Flags;
+};
+
+struct ScenarioStepEntry
+{
+    uint32 ID;
+    uint32 CriteriaTreeID;
+    uint32 ScenarioID;
+    uint32 OrderIndex;
+    char*  DescriptionLang;
+    char*  TitleLang;
+    uint32 Flags;
+    uint32 RelatedStep;
+    uint32 Supersedes;
+    uint32 RewardQuestID;
+};
+
 // used ?
 //struct SkillRaceClassInfoEntry
 //{

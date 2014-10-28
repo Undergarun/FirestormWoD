@@ -48,21 +48,35 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 m_OrebenderEntranceGuid     = 0;
                 m_OrebenderGorashanGuid     = 0;
                 m_ThunderingCacophonyCasted = 0;
-                m_RunesToDisable            = 5;
+                m_RunesDisabled             = 0;
                 m_CommanderTharbekGuid      = 0;
                 m_WarlordZaelaGuid          = 0;
+
+                m_BeginningTime             = 0;
+                m_CanUpdate                 = false;
+
+                m_PlayerScenarioState.clear();
+
+                m_InstanceGuid              = MAKE_NEW_GUID(instance->GetId(), 0, HIGHGUID_INSTANCE_SAVE);
             }
 
             uint64 m_PreOrebenderDoorGuid;
             uint64 m_OrebenderEntranceGuid;
             uint64 m_OrebenderGorashanGuid;
             uint8  m_ThunderingCacophonyCasted;
-            uint8  m_RunesToDisable;
+            uint8  m_RunesDisabled;
 
             uint64 m_CommanderTharbekGuid;
             uint64 m_SpawnDoorGuid;
 
             uint64 m_WarlordZaelaGuid;
+
+            uint32 m_BeginningTime;
+            bool   m_CanUpdate;
+
+            std::map<uint32, bool> m_PlayerScenarioState;
+
+            ObjectGuid m_InstanceGuid;
 
             void OnCreatureCreate(Creature* p_Creature)
             {
@@ -115,9 +129,44 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 switch (p_ID)
                 {
                     case DATA_OREBENDER_GORASHAN:
-                        if (p_State != DONE)
-                            m_ThunderingCacophonyCasted = 0;
+                    {
+                        switch (p_State)
+                        {
+                            case DONE:
+                                SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_BOSS_1, 1, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                                break;
+                            default:
+                                m_ThunderingCacophonyCasted = 0;
+                                break;
+                        }
+
                         break;
+                    }
+                    case DATA_KYRAK_THE_CORRUPTOR:
+                        SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_BOSS_2, 1, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        break;
+                    case DATA_COMMANDER_THARBEK:
+                    {
+                        SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_BOSS_3, 1, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        ScenarioData l_Datas(SCENARIO_UBRS_ID, 2, 0, 0, 0, 15, 0, false);
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_1, 9, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_2, 5, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_3, 8, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_4, 3, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_5, 5, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_6, 0, m_InstanceGuid, time(NULL), time(NULL), m_BeginningTime, 8));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_7, 5, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_8, 2, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_9, 3, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_10, 2, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_11, 2, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_12, 11, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_13, 4, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_14, 5, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_15, 4, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                        SendScenarioState(l_Datas);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -134,18 +183,32 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                     case DATA_RUNES_DISABLED:
                     {
-                        if (!m_RunesToDisable)
+                        if (m_RunesDisabled >= 5)
                             break;
 
-                        --m_RunesToDisable;
+                        ++m_RunesDisabled;
+
+                        SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_RUNES, m_RunesDisabled, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
 
                         Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
-                        if (!m_RunesToDisable && l_Orebender != nullptr)
+                        if (m_RunesDisabled >= 5 && l_Orebender != nullptr)
                         {
                             if (GameObject* l_PreDoor = GameObject::GetGameObject(*l_Orebender, m_PreOrebenderDoorGuid))
                                 l_PreDoor->SetGoState(GO_STATE_ACTIVE);
                             if (GameObject* l_Entrance = GameObject::GetGameObject(*l_Orebender, m_OrebenderEntranceGuid))
                                 l_Entrance->SetGoState(GO_STATE_ACTIVE);
+
+                            m_BeginningTime = 0;
+
+                            ScenarioData l_Datas(SCENARIO_UBRS_ID, 1, 0, 0, 0, 7, 0, false);
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_1, 7, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_2, 5, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_3, 6, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_4, 3, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_5, 3, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_6, 0, m_InstanceGuid, time(NULL), time(NULL), m_BeginningTime, 8));
+                            l_Datas.AddCriteriaProgress(CriteriaProgressData(SCENARIO_UBRS_TRANS_7, 1, m_InstanceGuid, time(NULL), m_BeginningTime, m_BeginningTime, 0));
+                            SendScenarioState(l_Datas);
                             break;
                         }
 
@@ -184,6 +247,27 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     default:
                         return 0;
                 }
+            }
+
+            void OnPlayerEnter(Player* p_Player)
+            {
+                if (!p_Player->IsInWorld())
+                    return;
+
+                if (m_PlayerScenarioState.find(p_Player->GetGUIDLow()) != m_PlayerScenarioState.end())
+                    return;
+
+                m_PlayerScenarioState.insert(std::make_pair(p_Player->GetGUIDLow(), true));
+                SendScenarioState(ScenarioData(SCENARIO_UBRS_ID, 0), p_Player);
+                m_CanUpdate = true;
+            }
+
+            void Update(uint32 p_Diff)
+            {
+                if (!m_CanUpdate)
+                    return;
+
+                m_BeginningTime += p_Diff;
             }
         };
 

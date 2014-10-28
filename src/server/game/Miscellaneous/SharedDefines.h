@@ -23,6 +23,7 @@
 #include <cassert>
 
 #define MAX_CREATURE_BASE_HP 5
+#define MAX_CREATURE_BASE_DAMAGE 5
 
 enum SpellEffIndex
 {
