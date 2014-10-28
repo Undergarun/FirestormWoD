@@ -1029,9 +1029,15 @@ class spell_warl_agony : public SpellScriptLoader
                             agony->ModStackAmount(1);
             }
 
+            bool CanRefreshProcDummy()
+            {
+                return false;
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
         };
 

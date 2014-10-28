@@ -71,8 +71,13 @@ enum DeathKnightSpells
     DK_SPELL_DEATH_COIL_DAMAGE                  = 47632,
     DK_SPELL_GLYPH_OF_DEATH_AND_DECAY           = 58629,
     DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED     = 143375,
-    DK_SPELL_DEATH_STRIKE_HEAL                  = 45470
+    DK_SPELL_DEATH_STRIKE_HEAL                  = 45470,
+    DK_SPELL_PLAGUEBEARER                       = 161497,
+    DK_SPELL_NECROTIC_PLAGUE                    = 152281,
+    DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159
 };
+
+uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 // Death and Decay - 43265
 class spell_dk_death_and_decay : public SpellScriptLoader
@@ -173,6 +178,8 @@ class spell_dk_plague_strike : public SpellScriptLoader
             return new spell_dk_plague_strike_SpellScript();
         }
 };
+
+
 
 // Gorefiend's Grasp - 108199
 class spell_dk_gorefiends_grasp : public SpellScriptLoader
@@ -1744,6 +1751,95 @@ class spell_dk_icy_touch : public SpellScriptLoader
         }
 };
 
+// Plaguebearer - 161497
+// Called by Death Coil 47541 & Frost Strike 49143
+class spell_dk_plaguebearer : public SpellScriptLoader
+{
+    public:
+        spell_dk_plaguebearer() : SpellScriptLoader("spell_dk_plaguebearer") { }
+
+        class spell_dk_plaguebearer_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_plaguebearer_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Player = GetCaster())
+                {
+                    if (!l_Player->HasAura(DK_SPELL_PLAGUEBEARER))
+                        return;
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (AuraPtr l_auraBloodPlague = GetHitUnit()->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
+                            l_auraBloodPlague->SetDuration(l_auraBloodPlague->GetDuration() + 4000);
+
+                        if (AuraPtr l_AuraFrostFever = GetHitUnit()->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
+                            l_AuraFrostFever->SetDuration(l_AuraFrostFever->GetDuration() + 4000);
+
+                        if (l_Player->HasAura(DK_SPELL_NECROTIC_PLAGUE))
+                            l_Player->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_plaguebearer_SpellScript();
+        }
+};
+
+// Necrotic Plague - 155159
+class spell_dk_necrotic_plague_aura : public SpellScriptLoader
+{
+    public:
+        spell_dk_necrotic_plague_aura() : SpellScriptLoader("spell_dk_necrotic_plague_aura") { }
+
+        class spell_dk_necrotic_plague_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_necrotic_plague_aura_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Caster->GetGUID()))
+                            l_AuraNecroticPlague->ModStackAmount(1);
+
+                        if (Unit* l_NewTarget = l_Caster->SelectNearbyTarget(l_Target, 8.0f))
+                            l_Caster->CastSpell(l_NewTarget, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, true);
+                    }
+                }
+            }
+
+            bool CanRefreshProcDummy()
+            {
+                return false;
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_necrotic_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                CanRefreshProc += AuraCanRefreshProcFn(spell_dk_necrotic_plague_aura_AuraScript::CanRefreshProcDummy);
+            }
+        };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dk_necrotic_plague_aura_AuraScript();
+    }
+};
+
+
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_and_decay();
@@ -1784,6 +1880,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_corpse_explosion();
     new spell_dk_glyph_of_horn_of_winter();
     new spell_dk_icy_touch();
+    new spell_dk_plaguebearer();
+    new spell_dk_necrotic_plague_aura();
 
     /// Player script
     new PlayerScript_Blood_Tap();

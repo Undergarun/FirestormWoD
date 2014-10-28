@@ -693,10 +693,31 @@ class spell_sha_earthgrab : public SpellScriptLoader
             }
         };
 
+        class spell_sha_earthgrab_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_earthgrab_AuraScript);
+
+            bool CanRefreshProcDummy()
+            {
+                return false;
+            }
+
+            void Register()
+            {
+                CanRefreshProc += AuraCanRefreshProcFn(spell_sha_earthgrab_AuraScript::CanRefreshProcDummy);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_earthgrab_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_earthgrab_SpellScript();
         }
+
 };
 
 // Stone Bulwark - 114893
