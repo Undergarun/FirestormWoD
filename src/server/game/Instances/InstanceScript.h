@@ -234,7 +234,132 @@ class InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
+        struct CriteriaProgressData
+        {
+            CriteriaProgressData(uint32 p_ID, uint64 p_Quantity, uint64 p_Guid, uint32 p_Date, uint32 p_StartTime, uint32 p_CreateTime, uint8 p_Flags)
+            {
+                m_ID                = p_ID;
+                m_Quantity          = p_Quantity;
+                m_Guid              = p_Guid;
+                m_Date              = p_Date;
+                m_TimeFromStart     = p_StartTime;
+                m_TimeFromCreate    = p_CreateTime;
+                m_Flags             = p_Flags;
+            }
+
+            CriteriaProgressData()
+            {
+                m_ID                = 0;
+                m_Quantity          = 0;
+                m_Guid              = 0;
+                m_Date              = 0;
+                m_TimeFromStart     = 0;
+                m_TimeFromCreate    = 0;
+                m_Flags             = 0;
+            }
+
+            uint32 m_ID;
+            uint64 m_Quantity;
+            uint64 m_Guid;
+            uint32 m_Date;
+            uint32 m_TimeFromStart;
+            uint32 m_TimeFromCreate;
+            uint8  m_Flags;
+        };
+
+        struct BonusObjectiveData
+        {
+            BonusObjectiveData(uint32 p_ID, bool p_Complete)
+            {
+                m_ObjectiveID       = p_ID;
+                m_ObjectiveComplete = p_Complete;
+            }
+
+            BonusObjectiveData()
+            {
+                m_ObjectiveID       = 0;
+                m_ObjectiveComplete = false;
+            }
+
+            uint32 m_ObjectiveID;
+            bool m_ObjectiveComplete;
+        };
+
+        struct ScenarioData
+        {
+            ScenarioData(uint32 p_ScenarioID, uint32 p_StepID, uint32 p_CurrWave, uint32 p_MaxWave, uint32 p_Timer, uint32 p_CriteriaCount,
+                uint32 p_BonusCount, bool p_Complete)
+            {
+                m_ScenarioID        = p_ScenarioID;
+                m_StepID            = p_StepID;
+                m_WaveCurrent       = p_CurrWave;
+                m_WaveMax           = p_MaxWave;
+                m_TimerDuration     = p_Timer;
+                m_CriteriaCount     = p_CriteriaCount;
+                m_BonusCount        = p_BonusCount;
+                m_ScenarioComplete  = p_Complete;
+
+                m_CriteriaProgress.resize(m_CriteriaCount);
+                m_BonusObjectives.resize(m_BonusCount);
+            }
+
+            ScenarioData(uint32 p_ScenarioID, uint32 p_StepID)
+            {
+                m_ScenarioID        = p_ScenarioID;
+                m_StepID            = p_StepID;
+                m_WaveCurrent       = 0;
+                m_WaveMax           = 0;
+                m_TimerDuration     = 0;
+                m_CriteriaCount     = 0;
+                m_BonusCount        = 0;
+                m_ScenarioComplete  = false;
+
+                m_CriteriaProgress.clear();
+                m_BonusObjectives.clear();
+            }
+
+            ScenarioData()
+            {
+                m_ScenarioID        = 0;
+                m_StepID            = 0;
+                m_WaveCurrent       = 0;
+                m_WaveMax           = 0;
+                m_TimerDuration     = 0;
+                m_CriteriaCount     = 0;
+                m_BonusCount        = 0;
+                m_ScenarioComplete  = false;
+
+                m_CriteriaProgress.clear();
+                m_BonusObjectives.clear();
+            }
+
+            void AddBonusObjective(BonusObjectiveData p_Data)
+            {
+                m_BonusObjectives.push_back(p_Data);
+            }
+
+            void AddCriteriaProgress(CriteriaProgressData p_Data)
+            {
+                m_CriteriaProgress.push_back(p_Data);
+            }
+
+            uint32 m_ScenarioID;
+            uint32 m_StepID;
+            uint32 m_WaveCurrent;
+            uint32 m_WaveMax;
+            uint32 m_TimerDuration;
+            uint32 m_CriteriaCount;
+            uint32 m_BonusCount;
+            bool m_ScenarioComplete;
+
+            std::vector<CriteriaProgressData> m_CriteriaProgress;
+            std::vector<BonusObjectiveData> m_BonusObjectives;
+        };
+
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
+        void SendScenarioState(ScenarioData p_Data, Player* p_Player = nullptr);
+        void SendScenarioProgressUpdate(CriteriaProgressData p_Data, Player* p_Player = nullptr);
+        void BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaProgressData p_CriteriaProgress);
 
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();

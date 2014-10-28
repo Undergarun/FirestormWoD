@@ -273,18 +273,23 @@ enum Opcodes
         SMSG_PETBATTLE_UPDATE_BATTLESLOT                    = 0x0000,
 
         /// Instances
-        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                       = 0x1507, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                    = 0x1018, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                   = 0x1217, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_TIMER_START                       = 0x1513, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                   = 0x337,  ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE                = 0x1264, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_START                             = 0x11EC, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                  = 0x0E8,  ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_END                               = 0x10A3, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION            = 0x338,  ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED               = 0x10A4, ///< 6.0.2 19027
-        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE   = 0x364,  ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x1507, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x1018, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x1217, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x1513, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0337, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x1264, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_START                           = 0x11EC, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x00E8, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_END                             = 0x10A3, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x0338, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x10A4, ///< 6.0.2 19027
+        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x0364, ///< 6.0.2 19027
+
+        /// Scenarios
+        SMSG_SCENARIO_POI                                       = 0x0503, ///< 6.0.2 19027
+        SMSG_SCENARIO_PROGRESS_UPDATE                           = 0x0AE3, ///< 6.0.2 19027
+        SMSG_SCENARIO_STATE                                     = 0x1567, ///< 6.0.2 19027
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1867,9 +1872,6 @@ enum Opcodes
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
-    SMSG_SCENARIO_POI                                 = 0x0000,
-    SMSG_SCENARIO_PROGRESS_UPDATE                     = 0x0000,
-    SMSG_SCENARIO_STATE                               = 0x0000,
     SMSG_SCENE_OBJECT_EVENT                           = 0x0000,
     SMSG_SCENE_OBJECT_PET_BATTLE_FINISHED             = 0x0000,
     SMSG_SCENE_OBJECT_PET_BATTLE_FIRST_ROUND          = 0x0000,

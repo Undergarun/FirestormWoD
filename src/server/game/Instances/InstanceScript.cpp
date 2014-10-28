@@ -549,6 +549,63 @@ void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, u
     instance->SendToPlayers(&l_Data);
 }
 
+void InstanceScript::SendScenarioState(ScenarioData p_Data, Player* p_Player /*= nullptr*/)
+{
+    WorldPacket l_Data(SMSG_SCENARIO_STATE);
+
+    l_Data << int32(p_Data.m_ScenarioID);
+    l_Data << int32(p_Data.m_StepID);
+    l_Data << uint32(instance->GetDifficulty());
+    l_Data << uint32(p_Data.m_WaveCurrent);
+    l_Data << uint32(p_Data.m_WaveMax);
+    l_Data << uint32(p_Data.m_TimerDuration);
+
+    l_Data << uint32(p_Data.m_CriteriaCount);
+    l_Data << uint32(p_Data.m_BonusCount);
+
+    for (CriteriaProgressData l_ProgressData : p_Data.m_CriteriaProgress)
+        BuildCriteriaProgressPacket(&l_Data, l_ProgressData);
+
+    for (BonusObjectiveData l_BonusObjective : p_Data.m_BonusObjectives)
+    {
+        l_Data << int32(l_BonusObjective.m_ObjectiveID);
+        l_Data.WriteBit(l_BonusObjective.m_ObjectiveComplete);
+        l_Data.FlushBits();
+    }
+
+    l_Data.WriteBit(p_Data.m_ScenarioComplete);
+    l_Data.FlushBits();
+
+    if (p_Player == nullptr)
+        instance->SendToPlayers(&l_Data);
+    else
+        p_Player->SendDirectMessage(&l_Data);
+}
+
+void InstanceScript::SendScenarioProgressUpdate(CriteriaProgressData p_Data, Player* p_Player /*= nullptr*/)
+{
+    WorldPacket l_Data(SMSG_SCENARIO_PROGRESS_UPDATE, 39);
+    BuildCriteriaProgressPacket(&l_Data, p_Data);
+
+    if (p_Player == nullptr)
+        instance->SendToPlayers(&l_Data);
+    else
+        p_Player->SendDirectMessage(&l_Data);
+}
+
+void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaProgressData p_CriteriaProgress)
+{
+    *p_Data << int32(p_CriteriaProgress.m_ID);
+    *p_Data << uint64(p_CriteriaProgress.m_Quantity);
+    p_Data->appendPackGUID(p_CriteriaProgress.m_Guid);
+    *p_Data << uint32(secsToTimeBitFields(p_CriteriaProgress.m_Date));
+    *p_Data << int32(p_CriteriaProgress.m_TimeFromStart);
+    *p_Data << int32(p_CriteriaProgress.m_TimeFromCreate);
+
+    p_Data->WriteBits(p_CriteriaProgress.m_Flags, 4);
+    p_Data->FlushBits();
+}
+
 bool InstanceScript::IsWipe()
 {
     Map::PlayerList const& PlayerList = instance->GetPlayers();
