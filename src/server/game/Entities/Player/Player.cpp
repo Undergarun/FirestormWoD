@@ -2183,7 +2183,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
                     // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
-                    if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
+                    if (!HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
                         AttackerStateUpdate(victim, OFF_ATTACK);
                         resetAttackTimer(OFF_ATTACK);
@@ -2201,23 +2201,6 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                             resetAttackTimer(OFF_ATTACK);
                             break;
                         }
-                    }
-                    // Shadow Blades - Off Hand
-                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
-                    {
-                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
-                            return;
-
-                        CastSpell(victim, 121474, true);
-                        resetAttackTimer(OFF_ATTACK);
-                    }
-                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
-                    {
-                        if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
-                            return;
-
-                        CastSpell(victim, 140309, true); // Shadow Shuriken Toss
-                        resetAttackTimer(OFF_ATTACK);
                     }
                 }
             }

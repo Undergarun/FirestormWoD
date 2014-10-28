@@ -713,10 +713,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (HasAura(31224) && victim && damagetype == SPELL_DIRECT_DAMAGE)
         damage = 0;
 
-    // Custom MoP Script - Shadow Blades
-    if (HasAura(121471) && HasAuraType(SPELL_AURA_MOD_STEALTH) && victim)
-        RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-
     // Custom MoP Script - Subterfuge , should be called from normal hit
     if (HasAura(108208) && HasAura(115191) && !HasAura(115192) && victim && (damagetype == DIRECT_DAMAGE || HasAura(121471)))
         CastSpell(this, 115192, true);
