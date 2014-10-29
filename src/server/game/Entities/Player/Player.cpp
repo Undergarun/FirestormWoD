@@ -5211,58 +5211,50 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
 }
 
-void Player::learnSpell(uint32 spell_id, bool dependent)
+void Player::learnSpell(uint32 p_SpellId, bool dependent)
 {
-    PlayerSpellMap::iterator itr = m_spells.find(spell_id);
+    PlayerSpellMap::iterator l_Itr = m_spells.find(p_SpellId);
 
-    bool disabled = (itr != m_spells.end()) ? itr->second->disabled : false;
-    bool active = disabled ? itr->second->active : true;
+    bool l_Disabled = (l_Itr != m_spells.end()) ? l_Itr->second->disabled : false;
+    bool l_Active = l_Disabled ? l_Itr->second->active : true;
 
-    bool learning = addSpell(spell_id, active, true, dependent, false);
+    bool l_Learning = addSpell(p_SpellId, l_Active, true, dependent, false);
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
-    if (learning && IsInWorld())
+    if (l_Learning && IsInWorld())
     {
-        WorldPacket data(SMSG_LEARNED_SPELL);
-        data<< uint32(1);       // count of spell_id to send.
-        data << uint32(spell_id);
-        data.WriteBit(0);       // auto push in action bar (ReadBit() != 0)
-        data.FlushBits();
-        GetSession()->SendPacket(&data);
+        bool l_SuppressMessaging = false;
+        ;
+        TalentsPlaceHoldersSpell l_PlacesHoldersSpell = sSpellMgr->GetTalentPlaceHoldersSpell();
+        if (l_PlacesHoldersSpell.find(p_SpellId) != l_PlacesHoldersSpell.end())
+            l_SuppressMessaging = true;
 
-        switch (spell_id)
-        {
-            case 119467:
-            case 122026:
-            case 125439:
-            case 125610:
-                if (!HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING))
-                {
-                    SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
-                    GetSession()->SendPetBattleJournal();
-                }
+        WorldPacket l_Data(SMSG_LEARNED_SPELL);
+        l_Data << uint32(1);                        ///< count of spell_id to send.
+        l_Data << uint32(p_SpellId);                ///< SpellId
+        l_Data.WriteBit(l_SuppressMessaging);       ///< SuppressMessaging
+        l_Data.FlushBits();
+        GetSession()->SendPacket(&l_Data);
 
-                break;
-
-        }
+        sScriptMgr->OnPlayerSpellLearned(this, p_SpellId);
     }
 
     // learn all disabled higher ranks and required spells (recursive)
-    if (disabled)
+    if (l_Disabled)
     {
-        if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
+        if (uint32 l_NextSpell = sSpellMgr->GetNextSpellInChain(p_SpellId))
         {
-            PlayerSpellMap::iterator iter = m_spells.find(nextSpell);
-            if (iter != m_spells.end() && iter->second->disabled)
-                learnSpell(nextSpell, false);
+            PlayerSpellMap::iterator l_Iter = m_spells.find(l_NextSpell);
+            if (l_Iter != m_spells.end() && l_Iter->second->disabled)
+                learnSpell(l_NextSpell, false);
         }
 
-        SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
-        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
+        SpellsRequiringSpellMapBounds l_SpellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(p_SpellId);
+        for (SpellsRequiringSpellMap::const_iterator l_Itr2 = l_SpellsRequiringSpell.first; l_Itr2 != l_SpellsRequiringSpell.second; ++l_Itr2)
         {
-            PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
-            if (iter2 != m_spells.end() && iter2->second->disabled)
-                learnSpell(itr2->second, false);
+            PlayerSpellMap::iterator l_Iter2 = m_spells.find(l_Itr2->second);
+            if (l_Iter2 != m_spells.end() && l_Iter2->second->disabled)
+                learnSpell(l_Itr2->second, false);
         }
     }
 }
@@ -25581,10 +25573,10 @@ void Player::ApplyEquipCooldown(Item* p_Item)
         //! Don't replace longer cooldowns by equi cooldown if we have any.
         SpellCooldowns::iterator l_It = m_spellCooldowns.find(l_SpellData.SpellId);
 
-        if (l_It != m_spellCooldowns.end() && l_It->second.itemid == p_Item->GetEntry() && l_It->second.end > time(NULL) + 30)
+        if (l_It != m_spellCooldowns.end() && l_It->second.itemid == p_Item->GetEntry() && l_It->second.end > uint64((time(NULL) + 30) * IN_MILLISECONDS))
             break;
 
-        AddSpellCooldown(l_SpellData.SpellId, p_Item->GetEntry(), time(NULL) + 30);
+        AddSpellCooldown(l_SpellData.SpellId, p_Item->GetEntry(), 30 * IN_MILLISECONDS);
 
         WorldPacket l_Data(SMSG_ITEM_COOLDOWN, 12);
         l_Data.appendPackGUID(p_Item->GetGUID());
