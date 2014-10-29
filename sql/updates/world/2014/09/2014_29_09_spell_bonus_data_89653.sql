@@ -1,0 +1,1 @@
+INSERT INTO spell_bonus_data VALUE (89653, 0, 0, 0, 0, 'Warlock - Drain Life (heal)');

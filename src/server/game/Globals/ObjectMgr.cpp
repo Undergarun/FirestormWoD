@@ -3013,6 +3013,78 @@ void ObjectMgr::LoadVehicleAccessories()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadAreaTriggerTemplates()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_AreaTriggerTemplates.clear();                           // needed for reload case
+
+    uint32 l_Count = 0;
+
+    //                                                      0           1          2        3        4          5         6            7               8                   9
+    QueryResult l_Result = WorldDatabase.Query("SELECT `spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`,"
+    //                                                         10            11        12      13       14       15       16        17      18
+                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7` FROM `areatrigger_template`");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint8 l_Index = 0;
+
+        AreaTriggerTemplate l_Template;
+        l_Template.m_SpellID       = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_EffIndex      = l_Fields[l_Index++].GetUInt8();
+        l_Template.m_Entry         = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_Type          = l_Fields[l_Index++].GetUInt8();
+        l_Template.m_ScaleX        = l_Fields[l_Index++].GetFloat();
+        l_Template.m_ScaleY        = l_Fields[l_Index++].GetFloat();
+        l_Template.m_Flags         = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_MoveCurveID   = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_ScaleCurveID  = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_MorphCurveID  = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_FacingCurveID = l_Fields[l_Index++].GetUInt32();
+
+        switch (l_Template.m_Type)
+        {
+            case AREATRIGGER_TYPE_POLYGON:
+                l_Template.m_PolygonDatas.m_Vertices[0]         = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_Vertices[1]         = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_HeightTarget        = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_VerticesTarget[0]   = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_VerticesTarget[1]   = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_Height              = l_Fields[l_Index++].GetFloat();
+                l_Template.m_PolygonDatas.m_VerticesCount       = l_Fields[l_Index++].GetUInt32();
+                l_Template.m_PolygonDatas.m_VerticesTargetCount = l_Fields[l_Index++].GetUInt32();
+                break;
+            case AREATRIGGER_TYPE_BOX:
+                l_Template.m_BoxDatas.m_ExtentTarget[0] = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_Extent[2]       = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_ExtentTarget[1] = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_Extent[1]       = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_ExtentTarget[2] = l_Fields[l_Index++].GetFloat();
+                l_Template.m_BoxDatas.m_Extent[0]       = l_Fields[l_Index++].GetFloat();
+                break;
+            case AREATRIGGER_TYPE_SPHERE:
+            case AREATRIGGER_TYPE_CYLINDER:
+            case AREATRIGGER_TYPE_SPLINE:
+            default:
+                break;
+        }
+
+        m_AreaTriggerTemplates[l_Template.m_SpellID].push_back(l_Template);
+
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger templates in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();
@@ -3126,13 +3198,12 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
         if (count < -1)
             sLog->outError(LOG_FILTER_SQL, "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
-        uint32 RaceClass = (race_) | (class_ << 8);
         bool doneOne = false;
         for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
         {
             if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
             {
-                if (entry->RaceClassGender == RaceClass || entry->RaceClassGender == (RaceClass | (1 << 16)))
+                if ((entry->RaceID == race_ && entry->ClassID == class_) || (entry->RaceID == race_ && entry->ClassID == class_ && entry->SexID == 1))
                 {
                     bool found = false;
                     for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
@@ -5341,83 +5412,20 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)
 
 void ObjectMgr::LoadInstanceEncounters()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 l_OldMSTime = getMSTime();
+    uint32 l_Counter = 0;
 
-    //                                                 0         1            2                3
-    QueryResult result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
-    if (!result)
+    for (uint32 l_Index = 0; l_Index <= sDungeonEncounterStore.GetLastEntry(); ++l_Index)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance encounters, table is empty!");
-
-        return;
+        if (DungeonEncounterEntry const* l_Encounter = sDungeonEncounterStore.LookupEntry(l_Index))
+        {
+            DungeonEncounterList& l_Encounters = _dungeonEncounterStore[MAKE_PAIR32(l_Encounter->MapID, l_Encounter->DifficultyID)];
+            l_Encounters.push_back(new DungeonEncounter(l_Encounter, EncounterCreditType(0), 0, 0));
+            ++l_Counter;
+        }
     }
 
-    uint32 count = 0;
-    std::map<uint32, DungeonEncounterEntry const*> dungeonLastBosses;
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-        uint8 creditType = fields[1].GetUInt8();
-        uint32 creditEntry = fields[2].GetUInt32();
-        uint32 lastEncounterDungeon = fields[3].GetUInt16();
-        DungeonEncounterEntry const* dungeonEncounter = sDungeonEncounterStore.LookupEntry(entry);
-        if (!dungeonEncounter)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid encounter id %u, skipped!", entry);
-            continue;
-        }
-
-        if (lastEncounterDungeon && !sLFGDungeonStore.LookupEntry(lastEncounterDungeon))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName, lastEncounterDungeon);
-            continue;
-        }
-
-        std::map<uint32, DungeonEncounterEntry const*>::const_iterator itr = dungeonLastBosses.find(lastEncounterDungeon);
-        if (lastEncounterDungeon)
-        {
-            if (itr != dungeonLastBosses.end())
-            {
-                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", entry, dungeonEncounter->encounterName, itr->second->id, itr->second->encounterName);
-                continue;
-            }
-
-            dungeonLastBosses[lastEncounterDungeon] = dungeonEncounter;
-        }
-
-        switch (creditType)
-        {
-            case ENCOUNTER_CREDIT_KILL_CREATURE:
-            {
-                CreatureTemplate const* creatureInfo = GetCreatureTemplate(creditEntry);
-                if (!creatureInfo)
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName);
-                    continue;
-                }
-                const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
-                break;
-            }
-            case ENCOUNTER_CREDIT_CAST_SPELL:
-                if (!sSpellMgr->GetSpellInfo(creditEntry))
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName);
-                    continue;
-                }
-                break;
-            default:
-                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->encounterName);
-                continue;
-        }
-
-        DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR32(dungeonEncounter->mapId, dungeonEncounter->difficulty)];
-        encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
-        ++count;
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
@@ -5932,7 +5940,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if (areaEntry->zone != 0 && zoneId != 33 && zoneId != 5287 && zoneId != 6170 && zoneId != 6176 && zoneId != 6450 && zoneId != 6451
+        if (areaEntry->ParentAreaID != 0 && zoneId != 33 && zoneId != 5287 && zoneId != 6170 && zoneId != 6176 && zoneId != 6450 && zoneId != 6451
                              && zoneId != 6452 && zoneId != 6453 && zoneId != 6454 && zoneId != 6455 && zoneId != 6456 && zoneId != 6450)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
@@ -6046,8 +6054,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->m_PositionX - mapEntry->CorpseX)*(entry->m_PositionX - mapEntry->CorpseX)
-                + (entry->m_PositionY - mapEntry->CorpseY)*(entry->m_PositionY - mapEntry->CorpseY);
+            float dist2 = (entry->x - mapEntry->CorpseX)*(entry->x - mapEntry->CorpseX)
+                + (entry->y - mapEntry->CorpseY)*(entry->y - mapEntry->CorpseY);
 
             if (foundEntr)
             {
@@ -6067,7 +6075,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->m_PositionX - x)*(entry->m_PositionX - x)+(entry->m_PositionY - y)*(entry->m_PositionY - y)+(entry->m_PositionZ - z)*(entry->m_PositionZ - z);
+            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
             if (foundNear)
             {
                 if (dist2 < distNear)
@@ -6376,7 +6384,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry && atEntry->mapid == Map)
+            if (atEntry && atEntry->ContinentID == Map)
                 return &itr->second;
         }
     return NULL;
@@ -6414,10 +6422,10 @@ void ObjectMgr::SetHighestGuids()
         _hiItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid);      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid);          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid);         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid);     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid.value());      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid.value());          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid.value());         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid.value());     // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6973,7 +6981,7 @@ void ObjectMgr::LoadPetNumber()
         _hiPetNumber = fields[0].GetUInt32()+1;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber-1, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber.value()-1, GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
@@ -9414,9 +9422,9 @@ void ObjectMgr::LoadResearchSiteZones()
                     if (!area)
                         continue;
 
-                    if (area->mapid == ptr.map && area->zone == ptr.zone)
+                    if (area->ContinentID == ptr.map && area->ParentAreaID == ptr.zone)
                     {
-                        ptr.level = area->area_level;
+                        ptr.level = area->ExplorationLevel;
                         break;
                     }
                 }

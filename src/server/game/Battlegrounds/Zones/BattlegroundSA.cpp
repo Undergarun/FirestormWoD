@@ -85,10 +85,10 @@ void BattlegroundSA::GetTeamStartLoc(uint32 p_TeamID, float &p_PositionX, float 
         return;
     }
 
-    p_PositionX   = l_DefenderStartPosition->m_PositionX;
-    p_PositionY   = l_DefenderStartPosition->m_PositionY;
-    p_PositionZ   = l_DefenderStartPosition->m_PositionZ;
-    p_Orientation = l_DefenderStartPosition->m_Facing;
+    p_PositionX   = l_DefenderStartPosition->x;
+    p_PositionY   = l_DefenderStartPosition->y;
+    p_PositionZ   = l_DefenderStartPosition->z;
+    p_Orientation = l_DefenderStartPosition->o;
 }
 
 bool BattlegroundSA::SetupBattleground()
@@ -197,21 +197,19 @@ bool BattlegroundSA::ResetObjs()
     //Graveyards
     for (uint8 i = 0; i < BG_SA_MAX_GY; i++)
     {
-        WorldSafeLocsEntry const* sg = NULL;
-        sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
-
+        WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
         if (!sg)
             return false;
 
         if (i == BG_SA_BEACH_GY)
         {
             GraveyardStatus[i] = Attackers;
-            AddSpiritGuide(i + BG_SA_MAXNPC, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? HORDE : ALLIANCE));
+            AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? HORDE : ALLIANCE));
         }
         else
         {
             GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
-            AddSpiritGuide(i + BG_SA_MAXNPC, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE));
+            AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE));
         }
     }
 
@@ -720,7 +718,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
         safeloc = BG_SA_GYEntries[BG_SA_DEFENDER_LAST_GY];
 
     closest = sWorldSafeLocsStore.LookupEntry(safeloc);
-    nearest = sqrt((closest->m_PositionX - x)*(closest->m_PositionX - x) + (closest->m_PositionY - y)*(closest->m_PositionY - y)+(closest->m_PositionZ - z)*(closest->m_PositionZ - z));
+    nearest = sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y)+(closest->z - z)*(closest->z - z));
 
     for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
@@ -728,7 +726,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
             continue;
 
         ret = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
-        dist = sqrt((ret->m_PositionX - x)*(ret->m_PositionX - x) + (ret->m_PositionY - y)*(ret->m_PositionY - y)+(ret->m_PositionZ - z)*(ret->m_PositionZ - z));
+        dist = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
         if (dist < nearest)
         {
             closest = ret;
@@ -786,7 +784,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
     if (!sg)
         return;
 
-    AddSpiritGuide(i + BG_SA_MAXNPC, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
+    AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
     uint32 npc = 0;
     uint32 flag = 0;
 

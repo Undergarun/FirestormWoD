@@ -5343,7 +5343,7 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
         AreaTrigger* areaTrigger = *i;
         if (areaTrigger->GetSpellId() == spellId)
         {
-            areaTrigger->Remove();
+            areaTrigger->Remove(0);
             i = m_AreaTrigger.begin();
         }
         else
@@ -5360,7 +5360,7 @@ void Unit::RemoveAllDynObjects()
 void Unit::RemoveAllAreasTrigger()
 {
     while (!m_AreaTrigger.empty())
-        m_AreaTrigger.front()->Remove();
+        m_AreaTrigger.front()->Remove(0);
 }
 
 GameObject* Unit::GetGameObject(uint32 spellId) const
@@ -15261,7 +15261,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                     if (Pet* pet = ToPlayer()->GetPet())
                         pet->SetSpeed(p_MovementType, m_speed_rate[p_MovementType], forced);
 
-                    if (Minion * l_BattlePet = ToPlayer()->GetSummonedBattlePet())
+                    if (Creature * l_BattlePet = ToPlayer()->GetSummonedBattlePet())
                         l_BattlePet->SetSpeed(p_MovementType, m_speed_rate[p_MovementType], forced);
                 }
         }
@@ -17484,7 +17484,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
+    {
+        SendPlaySpellVisual(33584, target, 6.f);
         CastSpell(target, 147193, true);
+    }
 
     Unit* actor = isVictim ? target : this;
     Unit* actionTarget = !isVictim ? target : this;
@@ -19886,6 +19889,72 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType)
     l_Data << uint32(0);
 
     SendMessageToSet(&l_Data, false);
+}
+void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
+{
+    ObjectGuid l_Guid = GetGUID();
+    ObjectGuid l_Target = p_Target ? p_Target->GetGUID() : 0;
+    Position l_Pos;
+
+    if (p_ThisAsPos)
+        GetPosition(&l_Pos);
+    else if (p_Target)
+        GetPosition(&l_Pos);
+    else
+    {
+        l_Pos.m_positionX = 0.f;
+        l_Pos.m_positionY = 0.f;
+        l_Pos.m_positionZ = 0.f;
+    }
+
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
+
+    l_Data.WriteBit(l_Guid[7]);
+    l_Data.WriteBit(l_Target[6]);
+    l_Data.WriteBit(l_Target[5]);
+    l_Data.WriteBit(l_Guid[3]);
+    l_Data.WriteBit(l_Guid[0]);
+    l_Data.WriteBit(l_Guid[6]);
+    l_Data.WriteBit(l_Target[2]);
+    l_Data.WriteBit(p_SpeedAsTime);
+    l_Data.WriteBit(l_Guid[5]);
+    l_Data.WriteBit(l_Target[1]);
+    l_Data.WriteBit(l_Target[0]);
+    l_Data.WriteBit(l_Guid[1]);
+    l_Data.WriteBit(l_Guid[4]);
+    l_Data.WriteBit(l_Target[4]);
+    l_Data.WriteBit(l_Target[7]);
+    l_Data.WriteBit(l_Target[3]);
+    l_Data.WriteBit(l_Guid[2]);
+
+    l_Data.WriteByteSeq(l_Guid[4]);
+    l_Data.WriteByteSeq(l_Target[0]);
+    l_Data << float(l_Pos.m_positionY);
+    l_Data.WriteByteSeq(l_Target[6]);
+    l_Data << float(l_Pos.m_positionZ);
+    l_Data << float(p_Speed);
+    l_Data.WriteByteSeq(l_Guid[0]);
+    l_Data << uint32(p_ID);         // spellVisualID
+    l_Data.WriteByteSeq(l_Guid[3]);
+    l_Data.WriteByteSeq(l_Target[3]);
+    l_Data << uint16(0);            // missReason
+    l_Data.WriteByteSeq(l_Guid[7]);
+    l_Data << uint16(0);            // reflectStatus
+    l_Data.WriteByteSeq(l_Target[5]);
+    l_Data.WriteByteSeq(l_Target[2]);
+    l_Data << float(l_Pos.m_positionX);
+    l_Data.WriteByteSeq(l_Target[4]);
+    l_Data.WriteByteSeq(l_Target[1]);
+    l_Data.WriteByteSeq(l_Guid[2]);
+    l_Data.WriteByteSeq(l_Target[7]);
+    l_Data.WriteByteSeq(l_Guid[5]);
+    l_Data.WriteByteSeq(l_Guid[6]);
+    l_Data.WriteByteSeq(l_Guid[1]);
+
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession())
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
+    else
+        SendMessageToSet(&l_Data, false);
 }
 
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const

@@ -73,6 +73,7 @@ class instance_throne_of_thunder : public InstanceMapScript
             uint64 warGodJalakGuid;
 
             uint64 jiKunGuid;
+            uint64 jiKunExitDoorGuid;
 
             uint64 firstMoguBloodVatGuid;
             uint64 secondMoguBloodVatGuid;
@@ -87,6 +88,12 @@ class instance_throne_of_thunder : public InstanceMapScript
 
             uint8 ancientMoguBellActivate;
             uint64 megaeraGuid;
+            uint64 durumuGuid;
+
+            uint64 m_DarkAnimusGuid;
+            uint64 m_AnimaOrbGuid;
+            uint8 m_AnimaGolemToDisable;
+            uint8 m_LargeAnimaGolemToDisable;
 
             void Initialize()
             {
@@ -109,6 +116,7 @@ class instance_throne_of_thunder : public InstanceMapScript
                 megaeraGuid             = 0;
 
                 jiKunGuid               = 0;
+                jiKunExitDoorGuid       = 0;
 
                 firstMoguBloodVatGuid   = 0;
                 secondMoguBloodVatGuid  = 0;
@@ -120,12 +128,27 @@ class instance_throne_of_thunder : public InstanceMapScript
                 eighthMoguBloodVatGuid  = 0;
                 ninthMoguBloodVatGuid   = 0;
                 tenthMoguBloodVatGuid   = 0;
+                durumuGuid              = 0;
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     moguFountainsGuids[i]   = 0;
                     moguStatuesGuids[i]     = 0;
                     tribalDoorsGuid[i]      = 0;
+                }
+
+                m_DarkAnimusGuid = 0;
+                m_AnimaOrbGuid = 0;
+
+                if (instance->Is25ManRaid())
+                {
+                    m_AnimaGolemToDisable = 0;
+                    m_LargeAnimaGolemToDisable = 0;
+                }
+                else
+                {
+                    m_AnimaGolemToDisable = 13;
+                    m_LargeAnimaGolemToDisable = 3;
                 }
             }
 
@@ -138,6 +161,7 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case NPC_GARA_JAL_SOUL:
                         garaJalGuid = creature->GetGUID();
+                        break;
                     case NPC_HORRIDON:
                         horridonGuid = creature->GetGUID();
                         break;
@@ -181,6 +205,37 @@ class instance_throne_of_thunder : public InstanceMapScript
                     case NPC_MEGAERA:
                         megaeraGuid = creature->GetGUID();
                         break;
+                    case NPC_DURUMU_THE_FORGOTTEN:
+                        durumuGuid = creature->GetGUID();
+                        break;
+                    case NPC_DARK_ANIMUS:
+                        m_DarkAnimusGuid = creature->GetGUID();
+                        break;
+                    case NPC_ANIMA_ORB:
+                        m_AnimaOrbGuid = creature->GetGUID();
+                        break;
+                    case NPC_ANIMA_GOLEM:
+                    {
+                        // ACTION_DESACTIVATE_GOLEM
+                        if (urand(0, 1) && m_AnimaGolemToDisable)
+                        {
+                            // SPELL_CRITICALLY_DAMAGED_1
+                            creature->CastSpell(creature, 138400, true);
+                            --m_AnimaGolemToDisable;
+                        }
+                        break;
+                    }
+                    case NPC_LARGE_ANIMA_GOLEM:
+                    {
+                        // ACTION_DESACTIVATE_GOLEM
+                        if (urand(0, 1) && m_LargeAnimaGolemToDisable)
+                        {
+                            // SPELL_CRITICALLY_DAMAGED_1
+                            creature->CastSpell(creature, 138400, true);
+                            --m_LargeAnimaGolemToDisable;
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -190,6 +245,16 @@ class instance_throne_of_thunder : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
+                    case GOB_JIN_ROKH_ENTRANCE_DOOR:
+                    case GOB_JIN_ROKH_EXIT_DOOR:
+                    case GOB_HORRIDON_ENTRANCE_DOOR:
+                    case GOB_HORRIDON_EXIT_DOOR:
+                    case GOB_COUNCIL_ENTRANCE_DOOR_LEFT:
+                    case GOB_COUNCIL_ENTRANCE_DOOR_RIGHT:
+                    case GOB_COUNCIL_EXIT_DOOR:
+                    case GOB_TORTOS_EXIT_DOOR:
+                        AddDoor(go, true);
+                        break;
                     case GOB_MOGU_FOUNTAIN_NE:
                         moguFountainsGuids[0] = go->GetGUID();
                         go->SetGoState(GO_STATE_READY);
@@ -250,6 +315,10 @@ class instance_throne_of_thunder : public InstanceMapScript
                         break;
                     case GOB_TENTH_MOGU_BLOOD_VAT:
                         tenthMoguBloodVatGuid = go->GetGUID();
+                        break;
+                    case  GOB_JI_KUN_EXIT_DOOR:
+                        AddDoor(go, true);
+                        jiKunExitDoorGuid = go->GetGUID();
                         break;
                     default:
                         break;
@@ -328,34 +397,26 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return tribalDoorsGuid[3];
                     case GOB_FIRST_MOGU_BLOOD_VAT:
                         return firstMoguBloodVatGuid;
-                        break;
                     case GOB_SECOND_MOGU_BLOOD_VAT:
                         return secondMoguBloodVatGuid;
-                        break;
                     case GOB_THIRD_MOGU_BLOOD_VAT:
                         return thirdMoguBloodVatGuid;
-                        break;
                     case GOB_FOURTH_MOGU_BLOOD_VAT:
                         return fourthMoguBloodVatGuid;
-                        break;
                     case GOB_FIFTH_MOGU_BLOOD_VAT:
                         return fifthMoguBloodVatGuid;
-                        break;
                     case GOB_SIXTH_MOGU_BLOOD_VAT:
                         return sixthMoguBloodVatGuid;
-                        break;
                     case GOB_SEVENTH_MOGU_BLOOD_VAT:
                         return seventhMoguBloodVatGuid;
-                        break;
                     case GOB_EIGHTH_MOGU_BLOOD_VAT:
                         return eighthMoguBloodVatGuid;
-                        break;
                     case GOB_NINTH_MOGU_BLOOD_VAT:
                         return ninthMoguBloodVatGuid;
-                        break;
                     case GOB_TENTH_MOGU_BLOOD_VAT:
                         return tenthMoguBloodVatGuid;
-                        break;
+                    case GOB_JI_KUN_EXIT_DOOR:
+                        return jiKunExitDoorGuid;
                     case DATA_STATUE_0:
                         return moguStatuesGuids[0];
                     case DATA_STATUE_1:
@@ -376,6 +437,12 @@ class instance_throne_of_thunder : public InstanceMapScript
                         return jiKunGuid;
                     case NPC_MEGAERA:
                         return megaeraGuid;
+                    case NPC_DURUMU_THE_FORGOTTEN:
+                        return durumuGuid;
+                    case NPC_DARK_ANIMUS:
+                        return m_DarkAnimusGuid;
+                    case NPC_ANIMA_ORB:
+                        return m_AnimaOrbGuid;
                     default:
                         break;
                 }

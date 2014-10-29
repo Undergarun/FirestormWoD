@@ -2541,6 +2541,116 @@ class spell_item_throw_mantra : public SpellScriptLoader
         }
 };
 
+class spell_item_sonic_disruption : public SpellScriptLoader
+{
+    public:
+        spell_item_sonic_disruption() : SpellScriptLoader("spell_item_sonic_disruption") { }
+
+        class spell_item_sonic_disruption_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_sonic_disruption_SpellScript);
+
+            void CorrectTarget(std::list<WorldObject*>& targets)
+            {
+                std::list<WorldObject*> tempTargets = targets;
+                for (auto itr : tempTargets)
+                {
+                    if (itr->GetEntry() != 64717 && itr->GetEntry() != 64720)
+                        targets.remove(itr);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_sonic_disruption_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_sonic_disruption_SpellScript();
+        }
+};
+
+class spell_item_slap_n_chop : public SpellScriptLoader
+{
+    public:
+        spell_item_slap_n_chop() : SpellScriptLoader("spell_item_slap_n_chop") { }
+
+        class spell_item_slap_n_chop_SpellScript : public SpellScript
+        {
+            #define TYPE (l_Creature->GetCreatureType())
+
+            PrepareSpellScript(spell_item_slap_n_chop_SpellScript);
+
+            void CorrectTarget(std::list<WorldObject*>& p_Targets)
+            {
+                std::list<WorldObject*> l_TempTargets = p_Targets;
+                for (auto l_Itr : l_TempTargets)
+                {
+                    if (Creature* l_Creature = l_Itr->ToCreature())
+                        if (TYPE != CREATURE_TYPE_BEAST && TYPE != CREATURE_TYPE_HUMANOID)
+                            p_Targets.remove(l_Itr);
+
+                    if (l_Itr->ToPlayer())
+                        p_Targets.remove(l_Itr);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_slap_n_chop_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_slap_n_chop_SpellScript();
+    }
+};
+
+enum eJardJournal
+{
+    SPELL_JARD_PECULIAR              = 139176,
+    SPELL_SKY_GOLEM                  = 139192,
+    SPELL_ADVANCED_REFRIGERATION     = 139197,
+    SPELL_PIERRE                     = 139196,
+    SPELL_RASCAT_BOT                 = 143714
+};
+
+// Jard's Peculiar Energy Source - 143743
+class spell_item_chief_engineer_jard_journal : public SpellScriptLoader
+{
+    public:
+        spell_item_chief_engineer_jard_journal() : SpellScriptLoader("spell_item_chief_engineer_jard_journal") { }
+
+        class spell_item_chief_engineer_jard_journal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_chief_engineer_jard_journal_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->learnSpell(SPELL_JARD_PECULIAR, false);
+                    l_Player->learnSpell(SPELL_SKY_GOLEM, false);
+                    l_Player->learnSpell(SPELL_ADVANCED_REFRIGERATION, false);
+                    l_Player->learnSpell(SPELL_PIERRE, false);
+                    l_Player->learnSpell(SPELL_RASCAT_BOT, false);
+                }
+            }
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_chief_engineer_jard_journal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_chief_engineer_jard_journal_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2602,4 +2712,7 @@ void AddSC_item_spell_scripts()
     new spell_item_zuluhed_chains();
     new spell_item_yak_s_milk();
     new spell_item_throw_mantra();
+    new spell_item_sonic_disruption();
+    new spell_item_slap_n_chop();
+    new spell_item_chief_engineer_jard_journal();
 }

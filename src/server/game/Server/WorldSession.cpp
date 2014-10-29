@@ -1236,14 +1236,14 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && _accountSpellCallback.ready())
     {
         SQLQueryHolder* param;
         m_CharacterLoginCallback.get(param);
-        m_AccountSpellCallback.get(result);
+        _accountSpellCallback.get(result);
         HandlePlayerLogin((LoginQueryHolder*)param, result);
         m_CharacterLoginCallback.cancel();
-        m_AccountSpellCallback.cancel();
+        _accountSpellCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
@@ -1288,40 +1288,6 @@ void WorldSession::ProcessQueryCallbacks()
         _setPetSlotCallback.GetResult(result);
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
-    }
-
-    //- SendPetBattleJournal
-    if (_petBattleJournalCallback.ready())
-    {
-        _petBattleJournalCallback.get(result);
-        SendPetBattleJournalCallback(result);
-        _petBattleJournalCallback.cancel();
-    }
-
-    //- SendPetBattleJournalBattleSlot
-    if (_petBattleJournalBattleSlotCallback.ready())
-    {
-        _petBattleJournalBattleSlotCallback.get(result);
-        SendPetBattleJournalBattleSlotUpdateCallback(result);
-        _petBattleJournalBattleSlotCallback.cancel();
-    }
-
-    //- HandlePetBattleRequestWild
-    if (_petBattleRequestWildCallback.IsReady())
-    {
-        PetBattleRequest* param = _petBattleRequestWildCallback.GetParam();
-        _petBattleRequestWildCallback.GetResult(result);
-        HandlePetBattleRequestWildCallback(result, param);
-        _petBattleRequestWildCallback.FreeResult();
-    }
-
-    //- HandleStableSwapPet
-    if (_swapPetBattleSlot.IsReady())
-    {
-        uint8 param = _swapPetBattleSlot.GetParam();
-        _swapPetBattleSlot.GetResult(result);
-        HandleBattlePetSetBattleSlotCallBack(result, param);
-        _swapPetBattleSlot.FreeResult();
     }
 }
 

@@ -221,6 +221,7 @@ class boss_sha_of_fear : public CreatureScript
             bool isInSecondPhase;
             bool submerged;
             bool isInTeleport;
+            bool introDone;
 
             uint8 healthPctForSecondPhase;
 
@@ -267,6 +268,7 @@ class boss_sha_of_fear : public CreatureScript
                 isInSecondPhase = false;
                 submerged       = false;
                 isInTeleport    = false;
+                introDone       = false;
                 healthPctForSecondPhase = 67;
 
                 if (pInstance)
@@ -316,11 +318,16 @@ class boss_sha_of_fear : public CreatureScript
                         return;
                     }
 
+                    if (!introDone)
+                    {
+                        Talk(TALK_AGGRO);
+                        introDone = true;
+                    }
+
                     pInstance->SetBossState(DATA_SHA_OF_FEAR, IN_PROGRESS);
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     DoZoneInCombat();
                     me->SetReactState(REACT_AGGRESSIVE);
-                    Talk(TALK_AGGRO);
 
                     events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
                     events.ScheduleEvent(EVENT_EERIE_SKULL, 5000);
@@ -1020,9 +1027,9 @@ class mob_pure_light_terrace : public CreatureScript
                 {
                     if (Player* player = itr->getSource())
                     {
-                        if (wallActivated && me->isInBack(player, M_PI / 3) && !player->HasAura(SPELL_WALL_OF_LIGHT_BUFF))
+                        if (wallActivated && (me->isInBack(player, M_PI / 3)  || player->GetDistance2d(me) < 1.6f) && !player->HasAura(SPELL_WALL_OF_LIGHT_BUFF))
                             player->AddAura(SPELL_WALL_OF_LIGHT_BUFF, player);
-                        else if ((!me->isInBack(player, M_PI / 3) && player->HasAura(SPELL_WALL_OF_LIGHT_BUFF)) || !wallActivated)
+                        else if ((!me->isInBack(player, M_PI / 3) && player->HasAura(SPELL_WALL_OF_LIGHT_BUFF) && player->GetDistance2d(me) >= 1.6f) || !wallActivated)
                             player->RemoveAura(SPELL_WALL_OF_LIGHT_BUFF);
 
                         if (player->GetDistance(me) <= 3.0f)

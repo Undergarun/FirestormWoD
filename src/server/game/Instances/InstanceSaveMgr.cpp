@@ -495,17 +495,29 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
     lock_instLists = true;
 
     InstanceSave::PlayerListType &pList = itr->second->m_playerList;
-    while (!pList.empty())
+    uint32 l_ActualCount = pList.size();
+    uint32 l_Counter = 0;
+    while (!pList.empty() && l_Counter != l_ActualCount)
     {
         Player* player = *(pList.begin());
+        if (!player)
+            continue;
+
         player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
+        ++l_Counter;
     }
 
     InstanceSave::GroupListType &gList = itr->second->m_groupList;
-    while (!gList.empty())
+    l_ActualCount = gList.size();
+    l_Counter = 0;
+    while (!gList.empty() && l_Counter != l_ActualCount)
     {
         Group* group = *(gList.begin());
+        if (!group)
+            continue;
+
         group->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
+        ++l_Counter;
     }
 
     delete itr->second;

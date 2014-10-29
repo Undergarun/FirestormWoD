@@ -760,11 +760,13 @@ void AddSC_instance_throne_of_thunder();            // Throne of Thunder
 void AddSC_throne_of_thunder();
 void AddSC_boss_jin_rokh_the_breaker();
 void AddSC_boss_council_of_elders();
+void AddSC_boss_durumu();
 void AddSC_boss_horridon();
 void AddSC_boss_tortos();
 void AddSC_boss_megaera();
 void AddSC_boss_ji_kun();
 void AddSC_boss_primordius();
+void AddSC_boss_dark_animus();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -802,6 +804,7 @@ void AddSC_timeless_isle();
 void AddSC_ashran();
 
 // battlegrounds
+void AddSC_BattlegroundDGScripts();
 
 // outdoor pvp
 void AddSC_outdoorpvp_hp();
@@ -1593,12 +1596,14 @@ void AddPandarieScripts()
     AddSC_instance_throne_of_thunder();             // Throne of Thunder
     AddSC_throne_of_thunder();
     AddSC_boss_jin_rokh_the_breaker();
-    AddSC_boss_council_of_elders();
     AddSC_boss_horridon();
+    AddSC_boss_council_of_elders();
     AddSC_boss_tortos();
     AddSC_boss_megaera();
     AddSC_boss_ji_kun();
+    AddSC_boss_durumu();
     AddSC_boss_primordius();
+    AddSC_boss_dark_animus();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();
@@ -1655,6 +1660,7 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+    AddSC_BattlegroundDGScripts();
 #endif
 }
 

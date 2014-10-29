@@ -333,8 +333,14 @@ class boss_lei_shi : public CreatureScript
                     {
                         if (Player* l_Player = l_Itr->getSource())
                         {
+                            // Combat stop, avoid fight bug
                             l_Player->CombatStop();
+
+                            // Lei shi bonus
                             me->CastSpell(l_Player, SPELL_LEI_SHI_BONUS, true);
+
+                            // Valor points
+                            l_Player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 40);
                         }
                     }
 

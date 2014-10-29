@@ -402,7 +402,7 @@ void BattlegroundBFG::_NodeDeOccupied(uint8 node)
                 ClosestGrave = GetClosestGraveYard(player);
 
             if (ClosestGrave)
-                player->TeleportTo(GetMapId(), ClosestGrave->m_PositionX, ClosestGrave->m_PositionY, ClosestGrave->m_PositionZ, player->GetOrientation());
+                player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
         }
     }
 
@@ -683,7 +683,7 @@ WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
             if (!entry)
                 continue;
 
-            float dist = (entry->m_PositionX - player_x)*(entry->m_PositionX - player_x)+(entry->m_PositionY - player_y)*(entry->m_PositionY - player_y);
+            float dist = (entry->x - player_x)*(entry->x - player_x)+(entry->y - player_y)*(entry->y - player_y);
 
             if (mindist > dist)
             {

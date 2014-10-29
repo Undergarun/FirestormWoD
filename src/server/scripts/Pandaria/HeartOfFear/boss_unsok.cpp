@@ -1030,9 +1030,9 @@ class mob_amber_globule : public CreatureScript
                 // Checking if has reached target
                 if (canExplode)
                 {
-                    if (Player* target = ObjectAccessor::FindUnit(targetGuid)->ToPlayer())
+                    if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                     {
-                        if (target->IsWithinDist2d(me, 1.5f))
+                        if (target->GetTypeId() == TYPEID_PLAYER && target->IsWithinDist2d(me, 1.5f))
                         {
                             me->GetMotionMaster()->Clear();
                             DoCast(SPELL_AMBERGEDDON);

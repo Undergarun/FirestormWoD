@@ -36,7 +36,7 @@
 
 #include "heart_of_fear.h"
 
-enum Yells
+enum eGaralonYells
 {
     // He's a bug! Has no yells, just announces.
     ANN_CRUSH              = 0, // Garalon begins to [Crush] his opponents!
@@ -46,7 +46,7 @@ enum Yells
     ANN_BERSERK            = 4  // Garalon becomes [Enraged] and prepares to execute a [Massive Crush]!
 };
 
-enum Spells
+enum eGaralonSpells
 {
     /*** Garalon ***/
     SPELL_FURIOUS_SWIPE    = 122735, // Primary attack ability.
@@ -109,7 +109,7 @@ enum Spells
     SPELL_GARALON_BONUS    = 132196
 };
 
-enum Events
+enum eGaralonEvents
 {
     // Garalon
     EVENT_FURIOUS_SWIPE   = 1,      // About 8 - 11 seconds after pull. Every 8 seconds.
@@ -120,7 +120,7 @@ enum Events
     EVENT_GARALON_BERSERK           // Goes with SPELL_MASSIVE_CRASH.
 };
 
-enum Actions
+enum eGaralonActions
 {
     // Garalon
     ACTION_FUR_SWIPE_FAILED = 1,
@@ -129,16 +129,23 @@ enum Actions
     ACTION_MENDED_LEG,
 
     // Garalon's Legs
-    ACTION_LEG_ACTIVATE,
     ACTION_LEG_DIED,
-    ACTION_MEND_LEG          // Heal leg.
+    ACTION_MEND_LEG,          // Heal leg.
+    ACTION_LEG_WIPE,
 };
 
-enum
+enum eGaralonEntries
 {
     NPC_GARALON_LEG                 = 63053,
     NPC_PHEROMONE_TRAIL             = 63021,
 };
+
+enum eGaralonDisplayId
+{
+    DISPLAY_LEG_ACTIVE = 42852,
+};
+
+uint32 legSpells[4] = { SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_BACK_LEFT };
 
 // 62164 - Garalon
 class boss_garalon : public CreatureScript
@@ -160,25 +167,44 @@ public:
         EventMap events;
         std::list<uint32> legs;
         uint32 mendedLeg;
-        bool damagedHeroic, castingCrush;
+        bool damagedHeroic;
+        bool castingCrush;
         bool fightInProgress;
 
-        void SummonAndAddLegs()
+        void Reset()
         {
-            static uint32 LegSpells[4] =
-            {
-                SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_BACK_LEFT
-            };
+            if (instance->GetBossState(DATA_GARALON) == IN_PROGRESS)
+                return;
 
-            for (uint8 i = 0; i <= 3; ++i)
-            {
-                if (Creature* Leg = me->SummonCreature(NPC_GARALON_LEG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    Leg->CastSpell(me, LegSpells[i], true);
-                    Leg->AddUnitState(UNIT_STATE_ONVEHICLE);
-                    Leg->SetReactState(REACT_PASSIVE);
-                }
-            }
+            _Reset();
+
+            events.Reset();
+            summons.DespawnAll();
+
+            damagedHeroic   = false;
+            castingCrush    = false;
+            fightInProgress = false;
+            mendedLeg       = 0;
+
+            // Reset legs
+            std::list<Creature*> legList;
+            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 200.0f);
+
+            if (!legList.empty())
+                for (Creature* leg : legList)
+                    leg->AI()->Reset();
+
+            // Basic settings
+            me->SetVisible(false);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_PASSIVE);
+
+            if (instance)
+                instance->SetBossState(DATA_GARALON, NOT_STARTED);
+
+            // If trash are done, apply fighting settings
+            if (CheckTrash())
+                DoAction(ACTION_GARALON_VISIBLE);
         }
 
         void DespawnCreatures(uint32 entry)
@@ -197,34 +223,6 @@ public:
                 Reset();
         }
 
-        void Reset()
-        {
-            if (instance->GetBossState(DATA_GARALON) == IN_PROGRESS)
-                return;
-
-            _Reset();
-
-            events.Reset();
-            summons.DespawnAll();
-
-            damagedHeroic   = false;
-            castingCrush    = false;
-            fightInProgress = false;
-            mendedLeg       = 0;
-
-            // Basic settings
-            me->SetVisible(false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
-
-            if (instance)
-                instance->SetBossState(DATA_GARALON, NOT_STARTED);
-
-            // If trash are done, apply fighting settings
-            if (CheckTrash())
-                DoAction(ACTION_GARALON_VISIBLE);
-        }
-
         // True: trash are done, Garalon can enter in combat, false: some trashs remain, Garalon won't enter in combat
         bool CheckTrash()
         {
@@ -237,52 +235,6 @@ public:
             return true;
         }
 
-        // Check if legs are in vehicle, and if not, add them
-        void CheckLegs()
-        {
-            std::list<Creature*> legList;
-            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 100.0f);
-
-            bool shouldRespawn = false;
-
-            // We don't have exactly 4 legs: we must reset them
-            if (legList.size() != 4)
-                shouldRespawn = true;
-            // We have 4 legs, we have to check they're riding Garalon
-            else
-            {
-                // For each leg, we look in the seats to find it
-                std::list<Creature*>::iterator itr = legList.begin();
-                while (itr != legList.end() && !shouldRespawn)
-                {
-                    uint8 seat = 0;
-                    bool legFound = false;
-                    while (seat < 4 && !legFound)
-                    {
-                        if (Unit* passenger = me->GetVehicleKit()->GetPassenger(seat))
-                            if (*itr == passenger->ToCreature())
-                                legFound = true;
-                        ++seat;
-                    }
-
-                    if (!legFound)
-                        shouldRespawn = true;
-
-                    ++itr;
-                }
-            }
-
-            if (shouldRespawn)
-            {
-                // We must first despawn the existing legs
-                for (auto leg : legList)
-                    summons.Despawn(leg);
-
-                // Adding new legs
-                SummonAndAddLegs();
-            }
-        }
-
         void DamageTaken(Unit* attacker, uint32 /*damage*/)
         {
             if (!fightInProgress)
@@ -292,6 +244,10 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            if (fightInProgress)
+                return;
+
+            // Mustn't enter in combat if trash or previous boss aren't done
             if (!CheckTrash() || !instance->CheckRequiredBosses(DATA_GARALON))
             {
                 me->SetFullHealth();
@@ -304,26 +260,26 @@ public:
 
             fightInProgress = true;
 
+            // Activate Legs
+            std::list<Creature*> legList;
+            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 200.0f);
+
+            if (!legList.empty())
+            {
+                for (Creature* leg : legList)
+                {
+                    leg->AI()->EnterCombat(0);
+                    if (instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, leg);
+                }
+            }
+
             // Activation of the walls
             std::list<GameObject*> doorList;
             GetGameObjectListWithEntryInGrid(doorList, me, GOB_GARALON_WALLS, 100.0f);
 
             for (GameObject* door : doorList)
                 door->SetGoState(GO_STATE_READY);
-
-            DoAction(ACTION_GARALON_VISIBLE);
-
-            for (uint8 i = 0; i <= 3; ++i)
-            {
-                if (Unit* Leg = vehicle->GetPassenger(i))
-                {
-                    Leg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                    Leg->ToCreature()->SetInCombatWithZone();
-
-                    if (instance)
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, Leg); // Add
-                }
-            }
 
             me->AddAura(SPELL_CRUSH_BODY_VIS, me); // And add the body crush marker.
 
@@ -343,20 +299,6 @@ public:
 
         void EnterEvadeMode()
         {
-            // Remove all auras from the Legs and unset them in combat.
-            for (uint8 i = 0; i <= 3; ++i)
-            {
-                if (Unit* Leg = vehicle->GetPassenger(i))
-                {
-                    Leg->RemoveAllAuras();
-                    Leg->DeleteThreatList();
-                    Leg->CombatStop(false);
-
-                    if (instance)
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, Leg); // Remove
-                }
-            }
-
             // Open walls
             std::list<GameObject*> doorList;
             GetGameObjectListWithEntryInGrid(doorList, me, GOB_GARALON_WALLS, 100.0f);
@@ -369,6 +311,25 @@ public:
                 instance->SetBossState(DATA_GARALON, FAIL);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_AURA); // Remove Pheromones.
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PUNGENCY);
+            }
+
+            // Deactivate legs
+            if (vehicle)
+                vehicle->RemoveAllPassengers(true);
+
+
+            std::list<Creature*> legList;
+            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 200.0f);
+
+            if (!legList.empty())
+            {
+                for (Creature* leg : legList)
+                {
+                    if (instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, leg);
+                    leg->AI()->Reset();
+                }
             }
 
             DespawnCreatures(NPC_PHEROMONE_TRAIL);
@@ -408,6 +369,23 @@ public:
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_AURA); // Remove Pheromones.
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PUNGENCY);
+            }
+
+            // Deactivate legs
+            if (vehicle)
+                vehicle->RemoveAllPassengers(true);
+
+            std::list<Creature*> legList;
+            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 200.0f);
+
+            if (!legList.empty())
+            {
+                for (Creature* leg : legList)
+                {
+                    leg->AI()->DoAction(ACTION_LEG_WIPE);
+                    if (instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, leg);
+                }
             }
 
             fightInProgress = false;
@@ -467,17 +445,11 @@ public:
                         return;
 
                     me->SetVisible(true);
-                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetReactState(REACT_DEFENSIVE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    // Check if all legs are already here, else summons them
-                    CheckLegs();
-
-                    // Activate legs
-                    for (uint8 i = 0; i < 4; ++i)
-                        if (Unit* leg = vehicle->GetPassenger(i))
-                            leg->GetAI()->DoAction(ACTION_LEG_ACTIVATE);
+                    break;
                 }
                 default: 
                     break;
@@ -514,37 +486,42 @@ public:
 
         uint32 GetData(uint32 action)
         {
-            // Get first leg dead
-            if (action == ACTION_LEG_IS_DEAD)
+            switch (action)
             {
-                if (legs.empty())
-                    return 0;
+                // Get first dead leg
+                case ACTION_LEG_IS_DEAD:
+                {
+                    if (legs.empty())
+                        return 0;
 
-                uint32 guid = legs.front();
-                legs.pop_front();
-                return guid;
+                    uint32 guid = legs.front();
+                    legs.pop_front();
+                    return guid;
+                }
+                case ACTION_MENDED_LEG:
+                {
+                    return mendedLeg = legs.front();
+                }
+                default:
+                    break;
             }
-            else if (action == ACTION_MENDED_LEG)
-                return mendedLeg = legs.front();
             
             return 0;
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (me->GetReactState() == REACT_AGGRESSIVE)
+            if (instance)
             {
-                if (CheckTrash())
-                    DoAction(ACTION_GARALON_VISIBLE);
-                else
-                    me->SetReactState(REACT_PASSIVE);
+                if (instance->IsWipe() && fightInProgress)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
             }
 
-            if (fightInProgress)
-                CheckLegs();
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             // Damaged debuff for Heroic.
             if (!damagedHeroic && me->HealthBelowPct(34) && IsHeroic())
@@ -617,17 +594,35 @@ public:
         npc_garalon_legAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            isInDoAction = false;
         }
 
         InstanceScript* instance;
         bool died;
+        bool wipe;
+        bool isInDoAction;
 
         void Reset()
         {
+            me->RemoveAllAuras();
             me->SetFullHealth();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->AddUnitState(UNIT_STATE_ONVEHICLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetDisplayId(DISPLAY_LEG_ACTIVE);
+            me->SetReactState(REACT_PASSIVE);
             died = false;
+            wipe = false;
+
+            if (instance)
+            {
+                if (instance->GetBossState(DATA_GARALON) == DONE && !isInDoAction)
+                    DoAction(ACTION_LEG_WIPE);
+                else
+                {
+                    if (me->GetVehicleKit())
+                        me->ExitVehicle();
+                    RideGaralon();
+                }
+            }
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage)
@@ -642,23 +637,26 @@ public:
             }
         }
 
+        void EnterCombat(Unit* attacker)
+        {
+            Reset();
+            if (instance)
+            {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                if (instance->GetBossState(DATA_GARALON) != IN_PROGRESS)
+                    if (Creature* garalon = instance->instance->GetCreature(instance->GetData64(NPC_GARALON)))
+                        garalon->AI()->EnterCombat(attacker);
+            }
+
+        }
+
         void DoAction(int32 const action)
         {
             switch (action)
             {
-                case ACTION_LEG_ACTIVATE:
-                {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    if (!me->HasUnitState(UNIT_STATE_ONVEHICLE))
-                        me->AddUnitState(UNIT_STATE_ONVEHICLE);
-                    me->SetDisplayId(42852);
-                    died = false;
-                    break;
-                }
                 case ACTION_LEG_DIED:
                 {
                     died = true;
-                    me->ClearUnitState(UNIT_STATE_ONVEHICLE);
                     me->AddAura(SPELL_BROKEN_LEG_VIS, me);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     if (Creature* Garalon = instance->instance->GetCreature(instance->GetData64(NPC_GARALON)))
@@ -668,10 +666,30 @@ public:
                 case ACTION_MEND_LEG:
                 {
                     me->RemoveAurasDueToSpell(SPELL_BROKEN_LEG_VIS);
-                    me->AddUnitState(UNIT_STATE_ONVEHICLE);
                     me->SetFullHealth();
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    RideGaralon();
                     died = false;
+                    break;
+                }
+                case ACTION_LEG_WIPE:
+                {
+                    if (instance)
+                    {
+                        if (instance->IsWipe())
+                        {
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetDisplayId(DISPLAYID_INVISIBLE);
+                            me->RemoveAurasDueToSpell(SPELL_BROKEN_LEG_VIS);
+                        }
+                        else
+                        {
+                            isInDoAction = true;
+                            Reset();
+                            isInDoAction = false;
+                        }
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    }
                     break;
                 }
                 default:
@@ -679,7 +697,15 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) { } // Override, no evade on !UpdateVictim() + no melee.
+        void RideGaralon()
+        {
+            if (!me->GetVehicleKit())
+                if (instance)
+                    if (Creature* garalon = instance->instance->GetCreature(instance->GetData64(NPC_GARALON)))
+                        DoCast(garalon, SPELL_RIDE_FRONT_RIGHT);
+        }
+
+        void UpdateAI(const uint32 diff) { }
     };
 
     CreatureAI* GetAI(Creature* creature) const

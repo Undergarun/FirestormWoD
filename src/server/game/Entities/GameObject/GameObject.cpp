@@ -1806,6 +1806,16 @@ void GameObject::Use(Unit* user)
             player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->barberChair.chairheight);
             return;
         }
+        case GAMEOBJECT_TYPE_NEW_FLAG:
+        case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
+        {
+            if (user->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (Battleground* bg = user->ToPlayer()->GetBattleground())
+                    bg->EventPlayerClickedOnFlag(user->ToPlayer(), this);
+            }
+            break;
+        }
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 sLog->outError(LOG_FILTER_GENERAL, "GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",

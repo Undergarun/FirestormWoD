@@ -413,7 +413,7 @@ void GuildMgr::LoadGuilds()
             stmt->setUInt32(0, itr->first);
             criteriaResult = CharacterDatabase.Query(stmt);
 
-            itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
+            itr->second->GetAchievementMgr().LoadFromDB(NULL, itr->second, achievementResult, criteriaResult);
         }
     }
 

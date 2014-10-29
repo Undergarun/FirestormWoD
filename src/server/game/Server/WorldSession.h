@@ -1096,8 +1096,6 @@ class WorldSession
         void HandlePetBattleRename(WorldPacket& p_RecvData);
         void HandlePetBattleCagePet(WorldPacket& p_RecvData);
         void HandlePetBattleQueryName(WorldPacket& p_RecvData);
-        void HandlePetBattleRequestWildCallback(PreparedQueryResult& result, PetBattleRequest* request);
-        void HandleBattlePetSetBattleSlotCallBack(PreparedQueryResult& p_Result, uint8 p_DestSlot);
         void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
         void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
         void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
@@ -1109,9 +1107,7 @@ class WorldSession
         void HandleSummonCompanion(WorldPacket& p_RecvData);
         void SendPetBattleRequestFailed(uint8 reason);
         void SendPetBattleJournal();
-        void SendPetBattleJournalCallback(PreparedQueryResult& result);
         void SendPetBattleJournalBattleSlotUpdate();
-        void SendPetBattleJournalBattleSlotUpdateCallback(PreparedQueryResult& result);
         void SendPetBattleFinalizeLocation(PetBattleRequest* request);
         void SendPetBattleFullUpdate(PetBattle* battle);
         void SendPetBattleRoundResult(PetBattle* battle);
@@ -1125,11 +1121,7 @@ class WorldSession
 
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture m_AccountSpellCallback;       
-        PreparedQueryResultFuture _petBattleJournalCallback;
-        PreparedQueryResultFuture _petBattleJournalBattleSlotCallback;
-        QueryCallback<PreparedQueryResult, uint8> _swapPetBattleSlot;
-        QueryCallback<PreparedQueryResult, PetBattleRequest*> _petBattleRequestWildCallback;
+        PreparedQueryResultFuture _accountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;

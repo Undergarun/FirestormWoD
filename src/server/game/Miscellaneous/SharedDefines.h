@@ -366,7 +366,9 @@ enum Powers
     POWER_ARCANE_CHARGES                = 16,
     MAX_POWERS                          = 17,
     POWER_ALL                           = 127,          // default for class?
-    POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
+    POWER_HEALTH                        = 0xFFFFFFFE,   // (-2 as signed value)
+
+    MAX_POWERS_COST                     = MAX_POWERS+1
 };
 
 #define MAX_POWERS_PER_CLASS              5
@@ -860,7 +862,7 @@ enum SpellAttr11
 {
     SPELL_ATTR11_UNK0                             = 0x00000001, //  0
     SPELL_ATTR11_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR11_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR11_INCREASE_HEALTH_FLAT             = 0x00000004, //  2
     SPELL_ATTR11_UNK3                             = 0x00000008, //  3
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
     SPELL_ATTR11_UNK5                             = 0x00000020, //  5
@@ -1247,7 +1249,7 @@ enum SpellEffects
     SPELL_EFFECT_171                                = 171, // Summons gamebject (player farm related)
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172, // Aoe resurrection (guild perk)
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
-    SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
+    SPELL_EFFECT_APPLY_AURA_2                       = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,
@@ -4633,8 +4635,8 @@ enum BattlegroundTypeId
     // 443 = "The Ruby Sanctum"
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
     BATTLEGROUND_KT                 = 699,  // Valley of Power
-    BATTLEGROUND_CTF3               = 706,  // NYR
-    BATTLEGROUND_SSM                = 708,  // Silver shard Mine
+    BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
+    BATTLEGROUND_SM                 = 708,  // Silvershard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge
     BATTLEGROUND_TTP                = 757,  // The Tiger's Peak

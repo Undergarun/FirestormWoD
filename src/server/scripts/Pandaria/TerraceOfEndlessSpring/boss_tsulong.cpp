@@ -278,7 +278,10 @@ class boss_tsulong : public CreatureScript
                     return;
 
                 if (phase == PHASE_NIGHT)
+                {
+                    who->RemoveAura(SPELL_NIGHT_PHASE_EFFECT);
                     Talk(VO_TES_SERPENT_SLAY_NIGHT);
+                }
                 else
                     Talk(VO_TES_SERPENT_SLAY_DAY);
             }
@@ -378,7 +381,9 @@ class boss_tsulong : public CreatureScript
                 me->CombatStop();
                 EnterEvadeMode();
                 me->GetMotionMaster()->MoveTargetedHome();
-                _Reset();
+                me->ResetLootMode();
+                events.Reset();
+                summons.DespawnAll();
 
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
@@ -407,7 +412,16 @@ class boss_tsulong : public CreatureScript
                 for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
                 {
                     if (Player* l_Player = l_Itr->getSource())
+                    {
+                        // Combat stop, avoid fight bug
+                        l_Player->CombatStop();
+
+                        // Tsulong bonus
                         me->CastSpell(l_Player, SPELL_TSULONG_BONUS, true);
+
+                        // Valor points
+                        l_Player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 40);
+                    }
                 }
 
                 if (me->GetMap()->IsLFR())
@@ -427,6 +441,7 @@ class boss_tsulong : public CreatureScript
                     me->ReenableHealthRegen();
                     me->CombatStop();
                     EnterEvadeMode();
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NIGHT_PHASE_EFFECT);
                 }
             }
 
@@ -520,6 +535,13 @@ class boss_tsulong : public CreatureScript
                 if (phase == PHASE_NIGHT)
                 {
                     CheckCombatState();
+                    // Check if all players have night visual aura
+                    Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        if (Player* player = itr->getSource())
+                            if (!player->HasAura(SPELL_NIGHT_PHASE_EFFECT) && player->isAlive())
+                                me->AddAura(SPELL_NIGHT_PHASE_EFFECT, player);
+
                     switch (events.ExecuteEvent())
                     {
                         case EVENT_SWITCH_TO_NIGHT_PHASE:

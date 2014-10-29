@@ -886,14 +886,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     sScriptMgr->OnPlayerDelete(charGuid);
     sWorld->DeleteCharacterNameData(GUID_LOPART(charGuid));
 
-    if (sLog->ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO)) // optimize GetPlayerDump call
-    {
-        std::string dump;
-        if (PlayerDumpWriter().GetDump(GUID_LOPART(charGuid), dump))
-
-            sLog->outCharDump(dump.c_str(), GetAccountId(), GUID_LOPART(charGuid), name.c_str());
-    }
-
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(charGuid);
     Player::DeleteFromDB(charGuid, GetAccountId());
     sWorld->DeleteCharName(name);
@@ -958,7 +950,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
     PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHARACTER_SPELL);
     l_Stmt->setUInt32(0, GetAccountId());
 
-    m_AccountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
+    _accountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
@@ -1167,8 +1159,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
         if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
         {
-            if (cEntry->CinematicSequence)
-                pCurrChar->SendCinematicStart(cEntry->CinematicSequence);
+            if (cEntry->CinematicSequenceID)
+                pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
             else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
                 pCurrChar->SendCinematicStart(rEntry->CinematicSequence);
 
@@ -1681,15 +1673,15 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     recvData >> Color >> FacialHair >> SkinColor >> Hair;
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
-    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != m_Player->getRace() || bs_hair->gender != m_Player->getGender())
+    if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != m_Player->getRace() || bs_hair->Sex != m_Player->getGender())
         return;
 
     BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
-    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != m_Player->getRace() || bs_facialHair->gender != m_Player->getGender())
+    if (!bs_facialHair || bs_facialHair->Type != 2 || bs_facialHair->Race != m_Player->getRace() || bs_facialHair->Sex != m_Player->getGender())
         return;
 
     BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
-    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != m_Player->getRace() || bs_skinColor->gender != m_Player->getGender()))
+    if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != m_Player->getRace() || bs_skinColor->Sex != m_Player->getGender()))
         return;
 
     GameObject* go = m_Player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
@@ -1709,7 +1701,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
         return;
     }
 
-    uint32 cost = m_Player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
+    uint32 cost = m_Player->GetBarberShopCost(bs_hair->Data, Color, bs_facialHair->Data, bs_skinColor);
 
     // 0 - ok
     // 1, 3 - not enough money
@@ -1731,11 +1723,11 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     m_Player->ModifyMoney(-int64(cost));                     // it isn't free
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2, uint8(bs_hair->hair_id));
+    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2, uint8(bs_hair->Data));
     m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3, uint8(Color));
-    m_Player->SetByteValue(PLAYER_FIELD_REST_STATE, 0, uint8(bs_facialHair->hair_id));
+    m_Player->SetByteValue(PLAYER_FIELD_REST_STATE, 0, uint8(bs_facialHair->Data));
     if (bs_skinColor)
-        m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0, uint8(bs_skinColor->hair_id));
+        m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0, uint8(bs_skinColor->Data));
 
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
@@ -1904,7 +1896,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newName))
+    if (uint64 newguid = sWorld->GetCharacterGuidByName(newName))
     {
         if (newguid != playerGuid)
         {
@@ -2387,7 +2379,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newname))
+    if (uint64 newguid = sWorld->GetCharacterGuidByName(newname))
     {
         if (newguid != guid)
         {
@@ -2740,28 +2732,28 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 // new team
                 if (team == BG_TEAM_ALLIANCE)
                 {
-                    uint32 bitIndex = htitleInfo->bit_index;
+                    uint32 bitIndex = htitleInfo->MaskID;
                     uint32 index = bitIndex / 32;
                     uint32 old_flag = 1 << (bitIndex % 32);
-                    uint32 new_flag = 1 << (atitleInfo->bit_index % 32);
+                    uint32 new_flag = 1 << (atitleInfo->MaskID % 32);
                     if (knownTitles[index] & old_flag)
                     {
                         knownTitles[index] &= ~old_flag;
                         // use index of the new title
-                        knownTitles[atitleInfo->bit_index / 32] |= new_flag;
+                        knownTitles[atitleInfo->MaskID / 32] |= new_flag;
                     }
                 }
                 else
                 {
-                    uint32 bitIndex = atitleInfo->bit_index;
+                    uint32 bitIndex = atitleInfo->MaskID;
                     uint32 index = bitIndex / 32;
                     uint32 old_flag = 1 << (bitIndex % 32);
-                    uint32 new_flag = 1 << (htitleInfo->bit_index % 32);
+                    uint32 new_flag = 1 << (htitleInfo->MaskID % 32);
                     if (knownTitles[index] & old_flag)
                     {
                         knownTitles[index] &= ~old_flag;
                         // use index of the new title
-                        knownTitles[htitleInfo->bit_index / 32] |= new_flag;
+                        knownTitles[htitleInfo->MaskID / 32] |= new_flag;
                     }
                 }
 

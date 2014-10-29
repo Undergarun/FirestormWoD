@@ -102,22 +102,17 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_PREMIUM, "UPDATE account_premium SET active = 0 WHERE active = 1 AND unsetdate<=UNIX_TIMESTAMP() AND unsetdate<>setdate", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UP_TRANSFERT_PDUMP, "UPDATE transferts SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
+    // Transferts
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_DUMP, "SELECT `id`, `account`, `perso_guid` FROM transferts WHERE `from` = ? AND state = 0", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_LOAD, "SELECT `id`, `account`, `perso_guid`, `dump` FROM transferts WHERE `to` = ? AND state = 1", CONNECTION_ASYNC);
+
     // Battle pets
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_BATTLESLOT_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND slot >= 0", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_TEAM, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND slot >= 0 AND health > 0 ORDER BY slot ASC", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_UPD_PETBATTLE_TOGGLE_FLAGS, "UPDATE account_battlepet SET flags = IF(flags & ?, flags & ~ ?, flags | ?) WHERE id=?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_UPD_PETBATTLE_RENAME, "UPDATE account_battlepet SET name = ?, nameTimeStamp = ? WHERE account = ? AND id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_UNSET_BATTLESLOT, "UPDATE account_battlepet SET slot = -1 WHERE account = ? AND slot = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_SET_BATTLESLOT, "UPDATE account_battlepet SET slot = ? WHERE account = ? AND id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_REPLACE_BATTLESLOT, "UPDATE account_battlepet SET slot = ? WHERE account = ? AND slot = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_HEAL_ALL_PETBATTLE_ACCOUNT, "UPDATE account_battlepet SET health = infoMaxHealth WHERE account = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_COUNT_BATTLE_SPECIES, "SELECT species, COUNT(id) AS count FROM account_battlepet WHERE species IN (?, ?, ?) AND account=? GROUP BY species", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS
 #undef PETBATTLE_FULL_FIELDS
 }

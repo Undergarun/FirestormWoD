@@ -216,6 +216,7 @@ struct ScriptedAI : public CreatureAI
 
     // return true for 25 man or 25 man heroic mode
     bool Is25ManRaid() const { return _difficulty == LEGACY_MAN25_DIFFICULTY || _difficulty == LEGACY_MAN25_HEROIC_DIFFICULTY || _difficulty == RAID_TOOL_DIFFICULTY; }
+    bool IsLFR() const { return _difficulty == RAID_TOOL_DIFFICULTY; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const

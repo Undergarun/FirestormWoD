@@ -1,3 +1,22 @@
+/*
+* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "WildBattlePet.h"
 #include "DatabaseEnv.h"
 #include "Creature.h"
@@ -7,6 +26,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include <stdexcept>
+#include <algorithm>
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -21,7 +41,7 @@ void WildBattlePetZonePools::LoadPoolTemplate(Field* l_Fields)
     l_PoolTemplate.MinLevel     = l_Fields[5].GetUInt32();
     l_PoolTemplate.MaxLevel     = l_Fields[6].GetUInt32();
 
-    for (size_t l_I = 0; l_I < BREED_SIZE; ++l_I)
+    for (size_t l_I = 0; l_I < 10; ++l_I)
         l_PoolTemplate.Breeds[l_I] = l_Fields[7 + l_I].GetUInt32();
 
     l_PoolTemplate.Entry = 0;
@@ -42,9 +62,13 @@ void WildBattlePetZonePools::LoadPoolTemplate(Field* l_Fields)
 
 void WildBattlePetZonePools::Populate()
 {
+    // TMP DISABLE
+    if (g_RealmID != 5)
+        return;
+
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
-        WildBattlePetPoolTemplate * l_Template = &m_Templates[l_I];
+        WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
         if (l_Template->Max <= l_Template->Replaced.size())
             continue;
@@ -53,10 +77,15 @@ void WildBattlePetZonePools::Populate()
 
         std::vector<Creature*> l_AvailableForReplacement;
 
-        for (std::list<Creature*>::iterator l_It = l_Template->ToBeReplaced.begin(); l_It != l_Template->ToBeReplaced.end(); l_It++)
+        for (std::list<uint64>::iterator l_It = l_Template->ToBeReplaced.begin(); l_It != l_Template->ToBeReplaced.end(); l_It++)
         {
             if (l_Template->ReplacedRelation.find((*l_It)) == l_Template->ReplacedRelation.end())
-                l_AvailableForReplacement.push_back((*l_It));
+            {
+                Unit * l_Unit = sObjectAccessor->FindUnit((*l_It));
+
+                if (l_Unit && l_Unit->ToCreature())
+                    l_AvailableForReplacement.push_back(l_Unit->ToCreature());
+            }
         }
         
         if (!l_AvailableForReplacement.size())
@@ -72,43 +101,52 @@ void WildBattlePetZonePools::Depopulate()
 {
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
-        WildBattlePetPoolTemplate * l_Template = &m_Templates[l_I];
+        WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
-        std::map<Creature*, Creature*> l_Creatures = l_Template->ReplacedRelation;
+        std::map<uint64, uint64> l_Creatures = l_Template->ReplacedRelation;
 
-        for (std::map<Creature*, Creature*>::iterator l_It = l_Creatures.begin(); l_It != l_Creatures.end(); l_It++)
-            UnreplaceCreature((*l_It).first, l_Template);
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void WildBattlePetZonePools::OnAddToMap(Creature * p_Creature)
-{
-    for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
-    {
-        WildBattlePetPoolTemplate * l_Template = &m_Templates[l_I];
-
-        if (l_Template->Replace == p_Creature->GetEntry() && std::find(l_Template->ToBeReplaced.begin(), l_Template->ToBeReplaced.end(), p_Creature) == l_Template->ToBeReplaced.end())
+        for (std::map<uint64, uint64>::iterator l_It = l_Creatures.begin(); l_It != l_Creatures.end(); l_It++)
         {
-            l_Template->ToBeReplaced.push_back(p_Creature);
+            Unit * l_Unit = sObjectAccessor->FindUnit((*l_It).first);
+
+            if (l_Unit && l_Unit->ToCreature())
+                UnreplaceCreature(l_Unit->ToCreature(), l_Template);
         }
     }
 }
-void WildBattlePetZonePools::OnRemoveToMap(Creature * p_Creature)
+
+//////////////////////////////////////////////////////////////////////////
+
+void WildBattlePetZonePools::OnAddToMap(Creature* p_Creature)
 {
+    if (!p_Creature)
+        return;
+
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
-        WildBattlePetPoolTemplate * l_Template = &m_Templates[l_I];
+        WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
+
+        if (l_Template->Replace == p_Creature->GetEntry() && std::find(l_Template->ToBeReplaced.begin(), l_Template->ToBeReplaced.end(), p_Creature->GetGUID()) == l_Template->ToBeReplaced.end())
+            l_Template->ToBeReplaced.push_back(p_Creature->GetGUID());
+    }
+}
+void WildBattlePetZonePools::OnRemoveToMap(Creature* p_Creature)
+{
+    if (!p_Creature)
+        return;
+
+    for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
+    {
+        WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
         if (l_Template->Replace == p_Creature->GetEntry())
-            l_Template->ToBeReplaced.remove(p_Creature);
+            l_Template->ToBeReplaced.remove(p_Creature->GetGUID());
     }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePetPoolTemplate * p_Template)
+void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePetPoolTemplate* p_Template)
 {
     if (!p_Creature->FindMap())
         return;
@@ -128,8 +166,8 @@ void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePe
     }
 
     // BattlePet fill data
-    p_Template->ReplacedBattlePetInstances[l_ReplacementCreature] = BattlePetInstance();
-    BattlePetInstance * l_BattlePetInstance = &p_Template->ReplacedBattlePetInstances[l_ReplacementCreature];
+    p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()] = std::shared_ptr<BattlePetInstance>(new BattlePetInstance());
+    std::shared_ptr<BattlePetInstance> l_BattlePetInstance = p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()];
 
     l_BattlePetInstance->JournalID      = 0;
     l_BattlePetInstance->Slot           = 0;
@@ -141,23 +179,25 @@ void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePe
     l_BattlePetInstance->Health         = 20000;
 
     // Select level
-    l_BattlePetInstance->Level = urand(p_Template->MinLevel, p_Template->MaxLevel);
+    l_BattlePetInstance->Level = std::max(urand(p_Template->MinLevel, p_Template->MaxLevel), (uint32)1);
 
     // Select breed
-    static const uint32 breedQualityWeights[4] = {100, 50, 20, 8};
-    static const uint32 breedQuality[23] = {0, 0, 0,
-        0, 3, 3, 3, 2, 2, 2, 1, 1, 1,
-        0, 3, 3, 3, 2, 2, 2, 1, 1, 1};
+    static const uint32 breedQualityWeights[4] = { 100, 50, 20, 8 };
+    static const uint32 breedQuality[23] =
+    { 0, 0, 0, 0, 3, 3, 3, 2, 2, 2, 1, 1,
+      1, 0, 3, 3, 3, 2, 2, 2, 1, 1, 1 };
 
     uint32 totalBreedWeight = 0;
-    for (size_t i = 0; i < BREED_SIZE; ++i)
+
+    for (size_t i = 0; i < 10; ++i)
         if (p_Template->Breeds[i] < 23)
             totalBreedWeight += breedQualityWeights[breedQuality[p_Template->Breeds[i]]];
 
     l_BattlePetInstance->Breed = 3;
     uint32 minBreedChances = l_BattlePetInstance->Level * totalBreedWeight * 2 / 75;
     uint32 breedChances = urand(1, totalBreedWeight);
-    for (size_t i = 0; i < BREED_SIZE; ++i)
+
+    for (size_t i = 0; i < 10; ++i)
     {
         if (p_Template->Breeds[i] >= 23)
             continue;
@@ -171,6 +211,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePe
 
         breedChances -= weight;
     }
+
     l_BattlePetInstance->Quality = breedQuality[l_BattlePetInstance->Breed];
 
     // Select abilities
@@ -203,6 +244,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePe
     l_ReplacementCreature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
     l_ReplacementCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_ReplacementCreature->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_BattlePetInstance->Level);
+    l_ReplacementCreature->GetMotionMaster()->MoveRandom(1.5f);
 
     p_Creature->GetMap()->AddToMap(l_ReplacementCreature);
 
@@ -211,28 +253,33 @@ void WildBattlePetZonePools::ReplaceCreature(Creature * p_Creature, WildBattlePe
     p_Creature->SetRespawnTime(MONTH);
     p_Creature->RemoveCorpse(false);
 
-    p_Template->ReplacedRelation[p_Creature] = l_ReplacementCreature;
-    p_Template->Replaced.push_back(l_ReplacementCreature);
+    p_Template->ReplacedRelation[p_Creature->GetGUID()] = l_ReplacementCreature->GetGUID();
+    p_Template->Replaced.push_back(l_ReplacementCreature->GetGUID());
 }
-
-void WildBattlePetZonePools::UnreplaceCreature(Creature * p_Creature, WildBattlePetPoolTemplate * p_Template)
+void WildBattlePetZonePools::UnreplaceCreature(Creature* p_Creature, WildBattlePetPoolTemplate* p_Template)
 {
-    if (p_Template->ReplacedRelation.find(p_Creature) == p_Template->ReplacedRelation.end())
+    if (!p_Creature || p_Template->ReplacedRelation.find(p_Creature->GetGUID()) == p_Template->ReplacedRelation.end())
         return;
 
-    Creature * l_ReplacementCreature = p_Template->ReplacedRelation[p_Creature];
+    Unit * l_Unit = sObjectAccessor->FindUnit(p_Template->ReplacedRelation[p_Creature->GetGUID()]);
 
-    if (p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature) != p_Template->ReplacedBattlePetInstances.end())
-        p_Template->ReplacedBattlePetInstances.erase(p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature));
+    if (!l_Unit || !l_Unit->ToCreature())
+        return;
 
-    p_Template->Replaced.remove(l_ReplacementCreature);
+    Creature* l_ReplacementCreature = l_Unit->ToCreature();
+
+    if (p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature->GetGUID()) != p_Template->ReplacedBattlePetInstances.end())
+        p_Template->ReplacedBattlePetInstances.erase(p_Template->ReplacedBattlePetInstances.find(l_ReplacementCreature->GetGUID()));
+
+    p_Template->Replaced.remove(l_ReplacementCreature->GetGUID());
 
     l_ReplacementCreature->RemoveFromWorld();
     l_ReplacementCreature->AddObjectToRemoveList();
 
     p_Creature->SetRespawnTime(p_Creature->GetCreatureData() ? p_Creature->GetCreatureData()->spawntimesecs : 15);
+    p_Creature->Respawn();
 
-    p_Template->ReplacedRelation.erase(p_Template->ReplacedRelation.find(p_Creature));
+    p_Template->ReplacedRelation.erase(p_Template->ReplacedRelation.find(p_Creature->GetGUID()));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -267,10 +314,9 @@ void WildBattlePetMgr::Load()
         for (uint32 l_I = 0; l_I < sAreaStore.GetNumRows(); l_I++)
         {
             AreaTableEntry const* l_AreaInfo = sAreaStore.LookupEntry(l_I);
-
             if (l_AreaInfo && l_AreaInfo->ID == l_ZoneID)
             {
-                l_MapID = l_AreaInfo->mapid;
+                l_MapID = l_AreaInfo->ContinentID;
                 break;
             }
         }
@@ -301,7 +347,8 @@ void WildBattlePetMgr::Load()
         m_PoolsByMap[l_MapID][l_ZoneID].ZoneID  = l_ZoneID;
 
         ++l_Count;
-    } while (l_Result->NextRow());
+    }
+    while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u species definitions.", l_Count);
 }
@@ -310,13 +357,20 @@ void WildBattlePetMgr::Load()
 
 void WildBattlePetMgr::PopulateAll()
 {
+    // TMP DISABLE
+    if (g_RealmID != 5)
+        return;
+
     for (std::map<uint32, std::map<uint32, WildBattlePetZonePools> >::iterator l_It = m_PoolsByMap.begin(); l_It != m_PoolsByMap.end(); l_It++)
         for (std::map<uint32, WildBattlePetZonePools>::iterator l_It2 = l_It->second.begin(); l_It2 != l_It->second.end(); l_It2++)
             (*l_It2).second.Populate();
-
 }
 void WildBattlePetMgr::PopulateMap(uint32 p_MapID)
 {
+    // TMP DISABLE
+    if (g_RealmID != 5)
+        return;
+
     if (m_PoolsByMap.find(p_MapID) == m_PoolsByMap.end())
         return;
 
@@ -334,7 +388,7 @@ void WildBattlePetMgr::DepopulateMap(uint32 p_MapID)
 
 //////////////////////////////////////////////////////////////////////////
 
-void WildBattlePetMgr::OnAddToMap(Creature * p_Creature)
+void WildBattlePetMgr::OnAddToMap(Creature* p_Creature)
 {
     if (!p_Creature)
         return;
@@ -350,7 +404,7 @@ void WildBattlePetMgr::OnAddToMap(Creature * p_Creature)
 
     m_PoolsByMap[l_MapID][l_ZoneID].OnAddToMap(p_Creature);
 }
-void WildBattlePetMgr::OnRemoveToMap(Creature * p_Creature)
+void WildBattlePetMgr::OnRemoveToMap(Creature* p_Creature)
 {
     if (!p_Creature)
         return;
@@ -369,7 +423,7 @@ void WildBattlePetMgr::OnRemoveToMap(Creature * p_Creature)
 
 //////////////////////////////////////////////////////////////////////////
 
-bool WildBattlePetMgr::IsWildPet(Creature * p_Creature)
+bool WildBattlePetMgr::IsWildPet(Creature* p_Creature)
 {
     if (!p_Creature)
         return false;
@@ -383,30 +437,30 @@ bool WildBattlePetMgr::IsWildPet(Creature * p_Creature)
     if (m_PoolsByMap[l_MapID].find(l_ZoneID) == m_PoolsByMap[l_MapID].end())
         return false;
 
-    WildBattlePetZonePools * l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
+    WildBattlePetZonePools* l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
-        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
+        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature->GetGUID()) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
             return true;
     }
 
     return false;
 }
-BattlePetInstance * WildBattlePetMgr::GetWildBattlePet(Creature * p_Creature)
+std::shared_ptr<BattlePetInstance> WildBattlePetMgr::GetWildBattlePet(Creature* p_Creature)
 {
-    if (!IsWildPet(p_Creature))
+    if (!IsWildPet(p_Creature) || !p_Creature)
         return NULL;
 
     uint32 l_ZoneID = p_Creature->GetZoneId();
     uint32 l_MapID  = p_Creature->GetMapId();
 
-    WildBattlePetZonePools * l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
+    WildBattlePetZonePools* l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
-        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
-            return &l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature];
+        if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature->GetGUID()) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
+            return l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature->GetGUID()];
     }
 
     return NULL;
@@ -414,7 +468,7 @@ BattlePetInstance * WildBattlePetMgr::GetWildBattlePet(Creature * p_Creature)
 
 //////////////////////////////////////////////////////////////////////////
 
-void WildBattlePetMgr::EnterInBattle(Creature * p_Creature)
+void WildBattlePetMgr::EnterInBattle(Creature* p_Creature)
 {
     if (!IsWildPet(p_Creature))
         return;
@@ -423,7 +477,7 @@ void WildBattlePetMgr::EnterInBattle(Creature * p_Creature)
     p_Creature->SetRespawnTime(MONTH);
     p_Creature->RemoveCorpse(false);
 }
-void WildBattlePetMgr::LeaveBattle(Creature * p_Creature, bool p_Defeated)
+void WildBattlePetMgr::LeaveBattle(Creature* p_Creature, bool p_Defeated)
 {
     if (!IsWildPet(p_Creature))
         return;
@@ -431,19 +485,25 @@ void WildBattlePetMgr::LeaveBattle(Creature * p_Creature, bool p_Defeated)
     uint32 l_ZoneID = p_Creature->GetZoneId();
     uint32 l_MapID  = p_Creature->GetMapId();
 
-    WildBattlePetZonePools * l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
+    WildBattlePetZonePools* l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
 
-    Creature * l_ReplacedCreature = NULL;
+    Creature* l_ReplacedCreature = NULL;
 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
-        WildBattlePetPoolTemplate * l_Template = &l_Pools->m_Templates[l_I];
+        WildBattlePetPoolTemplate* l_Template = &l_Pools->m_Templates[l_I];
 
-        for (std::map<Creature*, Creature*>::iterator l_It = l_Template->ReplacedRelation.begin(); l_It != l_Template->ReplacedRelation.end(); ++l_It)
+        for (std::map<uint64, uint64>::iterator l_It = l_Template->ReplacedRelation.begin(); l_It != l_Template->ReplacedRelation.end(); ++l_It)
         {
-            if (l_It->second == p_Creature)
+            if (l_It->second == p_Creature->GetGUID())
             {
-                l_Pools->UnreplaceCreature(l_It->first, l_Template);
+                Unit * l_Unit = sObjectAccessor->FindUnit(l_It->first);
+
+                if (!l_Unit || !l_Unit->ToCreature())
+                    continue;
+
+                l_Pools->UnreplaceCreature(l_Unit->ToCreature(), l_Template);
+
                 return;
             }
         }

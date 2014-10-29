@@ -55,6 +55,10 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 & /*diff*/)
 
     unit.AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
+    // Glyph of the Blazing Trail
+    if (unit.HasAura(126661))
+        unit.SendPlaySpellVisual(26423, NULL, 1.f, true, true);
+
     if (i_recalculateSpeed && !unit.movespline->Finalized())
     {
         i_recalculateSpeed = false;

@@ -146,8 +146,15 @@ void Totem::InitStats(uint32 duration)
     SetLevel(m_owner->getLevel());
 
     // Totems must receive stamina from owner
-    if (GetEntry() == STONECLAW_TOTEM_ENTRY)
-        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
+    switch (GetEntry())
+    {
+        case STONECLAW_TOTEM_ENTRY:
+            SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
+            break;
+        default:
+            break;
+    }
+
     if (m_owner->HasAura(63298))
         SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.05f);
 

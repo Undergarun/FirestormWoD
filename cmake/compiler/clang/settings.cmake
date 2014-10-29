@@ -14,6 +14,5 @@ if(WITH_COREDEBUG)
   message(STATUS "Clang: Debug-flags set (-g3)")
 endif()
 
-# -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-reorder -Wno-unknown-pragmas -Wno-narrowing -Wno-deprecated-register")

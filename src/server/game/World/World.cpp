@@ -1098,7 +1098,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY]   = ConfigMgr::GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
     m_int_configs[CONFIG_BATTLEGROUND_INVITATION_TYPE]               = ConfigMgr::GetIntDefault ("Battleground.InvitationType", 0);
     m_int_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]        = ConfigMgr::GetIntDefault ("Battleground.PrematureFinishTimer", 5 * MINUTE * IN_MILLISECONDS);
-    m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = ConfigMgr::GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILLISECONDS);
+    m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = ConfigMgr::GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 5 * MINUTE * IN_MILLISECONDS);
     m_bool_configs[CONFIG_BG_XP_FOR_KILL]                            = ConfigMgr::GetBoolDefault("Battleground.GiveXPForKills", false);
     m_int_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE]                = ConfigMgr::GetIntDefault ("Arena.MaxRatingDifference", 150);
     m_int_configs[CONFIG_ARENA_RATING_DISCARD_TIMER]                 = ConfigMgr::GetIntDefault ("Arena.RatingDiscardTimer", 10 * MINUTE * IN_MILLISECONDS);
@@ -1899,6 +1899,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Cinematic path ...");
     sCinematicSequenceMgr->Load();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger templates...");
+    sObjectMgr->LoadAreaTriggerTemplates();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -1923,6 +1926,10 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(MINUTE * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -2026,9 +2033,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading area skip update...");
     sObjectMgr->LoadSkipUpdateZone();
-
-    sLog->outInfo(LOG_FILTER_GENERAL, "Initializing item upgrade datas...");
-    sSpellMgr->InitializeItemUpgradeDatas();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet template...");
     sObjectMgr->LoadBattlePetTemplate();
@@ -2157,6 +2161,7 @@ void World::Update(uint32 diff)
         {
             LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
             sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u. Queue : %u", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount(), GetQueuedSessionCount());
+
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2222,6 +2227,128 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr->Update();
+    }
+
+    if (m_timers[WUPDATE_REALM_STATS].Passed())
+    {
+        m_timers[WUPDATE_REALM_STATS].Reset();
+        LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
+    }
+
+    if (m_timers[WUPDATE_TRANSFERT].Passed())
+    {
+        // Prepare transfert dump callback ...
+        {
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERT_DUMP);
+            l_Stmt->setUInt32(0, sLog->GetRealmID());
+
+            m_transfertsDumpCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+        }
+
+        // Prepare transfert load callback ...
+        {
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERT_LOAD);
+            l_Stmt->setUInt32(0, sLog->GetRealmID());
+
+            m_transfertsLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+        }
+
+
+        m_timers[WUPDATE_TRANSFERT].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFERT].Reset();
+    }
+
+    if (m_transfertsDumpCallbacks.ready() && m_transfertsLoadCallbacks.ready())
+    {
+        PreparedQueryResult l_ToDump;
+        PreparedQueryResult l_ToLoad;
+
+        m_transfertsDumpCallbacks.get(l_ToDump);
+        m_transfertsLoadCallbacks.get(l_ToLoad);
+
+        if (l_ToDump)
+        {
+            do
+            {
+                Field* l_Field = l_ToDump->Fetch();
+                uint32 l_Transaction = l_Field[0].GetUInt32();
+                uint32 l_AccountID = l_Field[1].GetUInt32();
+                uint32 l_CharGUID = l_Field[2].GetUInt32();
+
+                if (Player * l_Player = sObjectMgr->GetPlayerByLowGUID(l_CharGUID))
+                {
+                    l_Player->GetSession()->SendNotification("Vous devez vous deconnecter pour pouvoir transferer votre personnage");
+                    continue;
+                }
+
+                bool l_Error = true;
+                std::string l_Dump;
+
+                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump))
+                {
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
+                    stmt->setString(0, l_Dump);
+                    stmt->setUInt32(1, l_Transaction);
+                    if (LoginDatabase.DirectExecuteWithReturn(stmt))
+                    {
+                        l_Error = false;
+
+                        CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%u'", l_CharGUID);
+                        CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guid = '%u'", l_CharGUID);
+                        CharacterDatabase.PExecute("UPDATE characters SET deleteInfos_Name=name, deleteInfos_Account=account, deleteDate='" UI64FMTD "', name='', account=0 WHERE guid=%u", uint64(time(NULL)), l_CharGUID);
+                    }
+                }
+
+                if (l_Error)
+                {
+                    sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", l_CharGUID);
+                    LoginDatabase.PExecute("UPDATE transferts SET nb_attempt = nb_attempt + 1 WHERE id = %u", l_Transaction);
+                    continue;
+                }
+            } 
+            while (l_ToDump->NextRow());
+        }
+
+        if (l_ToLoad)
+        {
+            do
+            {
+                uint32 l_Timestamp     = getMSTime();
+                Field* l_Field         = l_ToLoad->Fetch();
+                uint32 l_Transaction   = l_Field[0].GetUInt32();
+                uint32 l_AccountID     = l_Field[1].GetUInt32();
+                uint32 l_CharGUID      = l_Field[2].GetUInt32();
+                std::string l_CharDump = l_Field[3].GetString();
+
+                std::ostringstream l_Filename;
+                l_Filename << "pdump/" << l_AccountID << "_" << l_CharGUID << "_" << l_Timestamp;
+
+                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
+                if (!l_File)
+                    continue;
+
+                fprintf(l_File, "%s\n", l_CharDump.c_str());
+                fclose(l_File);
+
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "", 0);
+                remove(l_Filename.str().c_str());
+
+                if (l_Error == DUMP_SUCCESS)
+                {
+                    LoginDatabase.PQuery("UPDATE transferts SET state = 2 WHERE id = %u", l_Transaction);
+                    continue;
+                }
+
+                LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)l_Error, l_Transaction);
+            } 
+            while (l_ToLoad->NextRow());
+        }
+
+        m_transfertsDumpCallbacks.cancel();
+        m_transfertsLoadCallbacks.cancel();
+
+        m_timers[WUPDATE_TRANSFERT].SetInterval(15 * MINUTE * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFERT].Reset();
     }
 
     uint32 diffTime = getMSTime();
@@ -3498,6 +3625,17 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
         return &itr->second;
     else
         return NULL;
+}
+
+uint64 World::GetCharacterGuidByName(std::string p_Name)
+{
+    for (std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.begin(); itr != _characterNameDataMap.end(); ++itr)
+    {
+        if (itr->second.m_name == p_Name)
+            return MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER);
+    }
+
+    return 0;
 }
 
 void World::UpdatePhaseDefinitions()

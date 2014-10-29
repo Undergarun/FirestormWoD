@@ -359,7 +359,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->WriteBit(p_Flags & UPDATEFLAG_SELF);                    ///< Self
     p_Data->WriteBit(0);                                            ///< Unk
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_SCENEOBJECT);             ///< Scene Object
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_SCENE_OBJECT);            ///< Scene Object
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->FlushBits();
 
@@ -642,19 +642,21 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         bool l_DynamicShape             = false;
         bool l_Attached                 = false;
         bool l_FaceMovementDir          = false;
-        bool l_FollowsTerrain           = false;
+        bool l_FollowsTerrain           = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE;
         bool l_HasTargetRollPitchYaw    = false;
         bool l_HasScaleCurveID          = false;
         bool l_HasMorphCurveID          = false;
         bool l_HasFacingCurveID         = false;
         bool l_HasMoveCurveID           = false;
         bool l_HasVisualRadius          = l_AreaTrigger->GetVisualRadius() != 1;
-        bool l_HasAreaTriggerBox        = l_AreaTrigger->IsAreaTriggerBox();;
-        bool l_HasAreaTriggerPolygon    = false;
-        bool l_HasAreaTriggerCylinder   = false;
-        bool l_HasAreaTriggerSpline     = false;
+        bool l_HasAreaTriggerBox        = l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
+        bool l_HasAreaTriggerPolygon    = l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
+        bool l_HasAreaTriggerCylinder   = l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
+        bool l_HasAreaTriggerSpline     = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0;
 
-        uint32 l_ElapsedMS = GetMSTimeDiffToNow(l_AreaTrigger->GetCreationTimeMS());
+        uint32 l_ElapsedMS = l_AreaTrigger->GetCreatedTime();
+
+        AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
 
         *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed MS
         *p_Data << float(0);                                                        ///< Roll Pitch Yaw X
@@ -705,34 +707,42 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
         if (l_HasAreaTriggerBox)
         {
-            *p_Data << float(0);                                            ///< Extents X
-            *p_Data << float(0);                                            ///< Extents Y
-            *p_Data << float(0);                                            ///< Extents Z
-            *p_Data << float(0);                                            ///< Extents Target X
-            *p_Data << float(0);                                            ///< Extents Target Y
-            *p_Data << float(0);                                            ///< Extents Target Z
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[0]);        ///< Extents X
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[1]);        ///< Extents Y
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[2]);        ///< Extents Z
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[0]);  ///< Extents Target X
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[1]);  ///< Extents Target Y
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[2]);  ///< Extents Target Z
         }
 
         if (l_HasAreaTriggerPolygon)
         {
-            uint32 l_VerticesCount = 0;
-            uint32 l_VerticesTargetCount = 0;
+            AreaTriggerTemplateList l_Templates = l_AreaTrigger->GetTemplates();
+
+            uint32 l_VerticesCount          = l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesCount;
+            uint32 l_VerticesTargetCount    = l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesTargetCount;
 
             *p_Data << uint32(l_VerticesCount);                             ///< Vertices Count
             *p_Data << uint32(l_VerticesTargetCount);                       ///< Vertices Target Count
-            *p_Data << float(0);                                            ///< Height
-            *p_Data << float(0);                                            ///< Height Target
+            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_Height);       ///< Height
+            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_HeightTarget); ///< Height Target
 
-            for (uint32 l_I = 0; l_I < l_VerticesCount; l_I++)
+            if (l_MainTemplate.m_PolygonDatas.m_VerticesCount > 0)
             {
-                *p_Data << float(0);                                        ///< X
-                *p_Data << float(0);                                        ///< Y
+                for (AreaTriggerTemplate l_Template : l_Templates)
+                {
+                    *p_Data << float(l_Template.m_PolygonDatas.m_Vertices[0]);          ///< X
+                    *p_Data << float(l_Template.m_PolygonDatas.m_Vertices[1]);          ///< Y
+                }
             }
 
-            for (uint32 l_I = 0; l_I < l_VerticesTargetCount; l_I++)
+            if (l_MainTemplate.m_PolygonDatas.m_VerticesTargetCount > 0)
             {
-                *p_Data << float(0);                                        ///< X
-                *p_Data << float(0);                                        ///< Y
+                for (AreaTriggerTemplate l_Template : l_Templates)
+                {
+                    *p_Data << float(l_Template.m_PolygonDatas.m_VerticesTarget[0]);    ///< X
+                    *p_Data << float(l_Template.m_PolygonDatas.m_VerticesTarget[1]);    ///< Y
+                }
             }
         }
 
@@ -748,24 +758,28 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
         if (l_HasAreaTriggerSpline)
         {
-            uint32 l_PathNodeCount = 0;
+            uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+            uint32 l_TimeToTarget = l_AreaTrigger->GetEntry() == 1316 ? 393 : 392;
 
-            *p_Data << uint32(0);                                           ///< Time To Target
-            *p_Data << uint32(0);                                           ///< Elapsed Time For Movement
+            *p_Data << uint32(l_TimeToTarget);                              ///< Time To Target
+            *p_Data << uint32(l_ElapsedMS);                                 ///< Elapsed Time For Movement
             *p_Data << uint32(l_PathNodeCount);                             ///< Path node count
 
             for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
             {
-                *p_Data << float(0);                                        ///< Node position X
-                *p_Data << float(0);                                        ///< Node position Y
-                *p_Data << float(0);                                        ///< Node position Z
+                Position l_Pos;
+                l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
+
+                *p_Data << float(l_Pos.m_positionX);                        ///< Node position X
+                *p_Data << float(l_Pos.m_positionZ);                        ///< Node position Y
+                *p_Data << float(l_Pos.m_positionY);                        ///< Node position Z;
             }
         }
     }
 
     /// Here unk block
 
-    if (p_Flags & UPDATEFLAG_SCENEOBJECT)
+    if (p_Flags & UPDATEFLAG_SCENE_OBJECT)
     {
         /// TODO
     }
@@ -1421,6 +1435,14 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 
     // ASSERT must fail after function call
     return false;
+}
+
+bool Position::operator==(Position const &a) const
+{
+    return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
+        G3D::fuzzyEq(a.m_positionY, m_positionY) &&
+        G3D::fuzzyEq(a.m_positionZ, m_positionZ) &&
+        G3D::fuzzyEq(a.m_orientation, m_orientation));
 }
 
 bool Position::HasInLine(WorldObject const* target, float width) const

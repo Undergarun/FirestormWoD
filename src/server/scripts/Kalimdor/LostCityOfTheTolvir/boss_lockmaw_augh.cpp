@@ -170,7 +170,7 @@ public:
             if (Creature* stalker = me->FindNearestCreature(45124, 50.0f))
             {
                                 
-                uint8 roll = urand(0, 3);
+                uint8 roll = urand(0, 2);
 
                 while (roll == uiPrevAughId)
                     roll = urand(0, 2);

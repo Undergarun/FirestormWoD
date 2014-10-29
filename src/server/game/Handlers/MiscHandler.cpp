@@ -368,7 +368,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         std::string aname;
         if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(itr->second->GetZoneId()))
-            aname = areaEntry->area_name[GetSessionDbcLocale()];
+            aname = areaEntry->AreaNameLang[GetSessionDbcLocale()];
 
         bool s_show = true;
         for (uint32 i = 0; i < str_count; ++i)
@@ -1055,24 +1055,24 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (player->GetMapId() != atEntry->mapid)
+    if (player->GetMapId() != atEntry->ContinentID)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName(), atEntry->mapid, player->GetMapId(), player->GetGUIDLow(), triggerId);
+            player->GetName(), atEntry->ContinentID, player->GetMapId(), player->GetGUIDLow(), triggerId);
         return;
     }
 
     // delta is safe radius
     const float delta = 5.0f;
 
-    if (atEntry->radius > 0)
+    if (atEntry->Radius > 0)
     {
         // if we have radius check it
-        float dist = player->GetDistance(atEntry->x, atEntry->y, atEntry->z);
-        if (dist > atEntry->radius + delta)
+        float dist = player->GetDistance(atEntry->Pos[0], atEntry->Pos[1], atEntry->Pos[2]);
+        if (dist > atEntry->Radius + delta)
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName(), player->GetGUIDLow(), atEntry->radius, dist, triggerId);
+                player->GetName(), player->GetGUIDLow(), atEntry->Radius, dist, triggerId);
             return;
         }
     }
@@ -1084,26 +1084,26 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
         // is-in-cube check and we have to calculate only one point instead of 4
 
         // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
-        double rotation = 2 * M_PI - atEntry->box_orientation;
+        double rotation = 2 * M_PI - atEntry->BoxYaw;
         double sinVal = std::sin(rotation);
         double cosVal = std::cos(rotation);
 
-        float playerBoxDistX = player->GetPositionX() - atEntry->x;
-        float playerBoxDistY = player->GetPositionY() - atEntry->y;
+        float playerBoxDistX = player->GetPositionX() - atEntry->Pos[0];
+        float playerBoxDistY = player->GetPositionY() - atEntry->Pos[1];
 
-        float rotPlayerX = float(atEntry->x + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = float(atEntry->y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
+        float rotPlayerX = float(atEntry->Pos[0] + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
+        float rotPlayerY = float(atEntry->Pos[1] + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
 
         // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = player->GetPositionZ() - atEntry->z;
-        float dx = rotPlayerX - atEntry->x;
-        float dy = rotPlayerY - atEntry->y;
-        if ((fabs(dx) > atEntry->box_x / 2 + delta) ||
-            (fabs(dy) > atEntry->box_y / 2 + delta) ||
-            (fabs(dz) > atEntry->box_z / 2 + delta))
+        float dz = player->GetPositionZ() - atEntry->Pos[2];
+        float dx = rotPlayerX - atEntry->Pos[0];
+        float dy = rotPlayerY - atEntry->Pos[1];
+        if ((fabs(dx) > atEntry->BoxLength / 2 + delta) ||
+            (fabs(dy) > atEntry->BoxWidth / 2 + delta) ||
+            (fabs(dz) > atEntry->BoxHeight / 2 + delta))
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName(), player->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, triggerId);
+                player->GetName(), player->GetGUIDLow(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, triggerId);
             return;
         }
     }
@@ -1123,7 +1123,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     {
         // set resting flag we are in the inn
         player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->InnEnter(time(NULL), atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
+        player->InnEnter(time(NULL), atEntry->ContinentID, atEntry->Pos[0], atEntry->Pos[1], atEntry->Pos[2]);
+
         player->SetRestType(REST_TYPE_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())
@@ -2344,7 +2345,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
     }
 
     AreaTableEntry const* atEntry = GetAreaEntryByAreaID(m_Player->GetAreaId());
-    if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))
+    if (!atEntry || !(atEntry->Flags & AREA_FLAG_WINTERGRASP_2))
         return;
 
     m_Player->BuildPlayerRepop();

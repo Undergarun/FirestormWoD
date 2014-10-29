@@ -25,6 +25,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
+#include "BattlegroundDG.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundNA.h"
@@ -40,9 +41,9 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
 #include "BattlegroundKT.h"
+#include "BattlegroundSM.h"
 #include "BattlegroundTV.h"
 #include "BattlegroundTTP.h"
-#include "BattlegroundSSM.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -517,7 +518,17 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
                 l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->OrbHandles);
                 l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->Score * 10);
                 break;
-
+            case BATTLEGROUND_DG:
+                l_Buffer << uint32(((BattlegroundDGScore*)l_ScoreBeginIT->second)->m_AssaultedMines);
+                l_Buffer << uint32(((BattlegroundDGScore*)l_ScoreBeginIT->second)->m_DefendedMines);
+                l_Buffer << uint32(((BattlegroundDGScore*)l_ScoreBeginIT->second)->m_CapturedCart);
+                l_Buffer << uint32(((BattlegroundDGScore*)l_ScoreBeginIT->second)->m_ReturnedCart);
+                break;
+            case BATTLEGROUND_SM:
+                l_Buffer << uint32(((BattlegroundSMScore*)l_ScoreBeginIT->second)->MineCartCaptures);    // mine carts captured
+                break;
+            default:
+                break;
         }
 
         p_Data->appendPackGUID(l_Player->GetGUID());                                    ///< Player GUID
@@ -788,11 +799,14 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
         case BATTLEGROUND_KT:
             bg = new BattlegroundKT(*(BattlegroundKT*)bg_template);
             break;
-        case BATTLEGROUND_SSM:
-            bg = new BattlegroundSSM(*(BattlegroundSSM*)bg_template);
+        case BATTLEGROUND_SM:
+            bg = new BattlegroundSM(*(BattlegroundSM*)bg_template);
             break;
         case BATTLEGROUND_RATED_10_VS_10:
             bg = new BattlegroundRBG(*(BattlegroundRBG*)bg_template);
+            break;
+        case BATTLEGROUND_DG:
+            bg = new BattlegroundDG(*(BattlegroundDG*)bg_template);
             break;
         default:
             //error, but it is handled few lines above
@@ -840,6 +854,12 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_EY:
         case BATTLEGROUND_EYR:
             bg = new BattlegroundEY;
+            break;
+        case BATTLEGROUND_DG:
+            bg = new BattlegroundDG;
+            break;
+        case BATTLEGROUND_SM:
+            bg = new BattlegroundSM;
             break;
         case BATTLEGROUND_RL: bg = new BattlegroundRL; break;
         case BATTLEGROUND_SA: bg = new BattlegroundSA; break;
@@ -918,7 +938,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
         CreateBattlegroundData data;
         data.bgTypeId = BattlegroundTypeId(bgTypeID_);
-        data.IsArena = (bl->type == TYPE_ARENA);
+        data.IsArena = (bl->InstanceType == TYPE_ARENA);
         data.MinPlayersPerTeam = fields[1].GetUInt16();
         data.MaxPlayersPerTeam = fields[2].GetUInt16();
         data.LevelMin = fields[3].GetUInt8();
@@ -942,10 +962,10 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[5].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team1StartLocX = start->m_PositionX;
-            data.Team1StartLocY = start->m_PositionY;
-            data.Team1StartLocZ = start->m_PositionZ;
-            data.Team1StartLocO = start->m_Facing;
+            data.Team1StartLocX = start->x;
+            data.Team1StartLocY = start->y;
+            data.Team1StartLocZ = start->z;
+            data.Team1StartLocO = start->o;
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
@@ -963,10 +983,10 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[6].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team2StartLocX = start->m_PositionX;
-            data.Team2StartLocY = start->m_PositionY;
-            data.Team2StartLocZ = start->m_PositionZ;
-            data.Team2StartLocO = start->m_Facing;
+            data.Team2StartLocX = start->x;
+            data.Team2StartLocY = start->y;
+            data.Team2StartLocZ = start->z;
+            data.Team2StartLocO = start->o;
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
@@ -986,8 +1006,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         selectionWeight = fields[8].GetUInt8();
         data.holiday = fields[9].GetUInt32();
         data.scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
-
-        data.MapID = bl->mapid[0];
+        data.MapID = bl->MapID[0];
 
         if (!CreateBattleground(data))
             continue;
@@ -1001,8 +1020,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             && data.bgTypeId != BATTLEGROUND_RATED_15_VS_15 && data.bgTypeId != BATTLEGROUND_RATED_25_VS_25)
             m_BGSelectionWeights[data.bgTypeId] = selectionWeight;
 
-        for (int i = 0; i < 11; ++i)
-            if (rated_bl->mapid[i] == bl->mapid[0] && bl->mapid[1] == -1)
+        for (int i = 0; i < 16; ++i)
+            if (rated_bl->MapID[i] == bl->MapID[0] && bl->MapID[1] == -1)
                 m_RatedBGSelectionWeights[data.bgTypeId] = selectionWeight;
 
         ++count;
@@ -1152,8 +1171,10 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_KT;
         case BATTLEGROUND_CTF3:
             return BATTLEGROUND_QUEUE_CTF3;
-        case BATTLEGROUND_SSM:
-            return BATTLEGROUND_QUEUE_SSM;
+        case BATTLEGROUND_SM:
+            return BATTLEGROUND_QUEUE_SM;
+        case BATTLEGROUND_DG:
+            return BATTLEGROUND_QUEUE_DG;
         case BATTLEGROUND_AA:
         case BATTLEGROUND_NA:
         case BATTLEGROUND_TV:
@@ -1210,8 +1231,10 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_KT;
         case BATTLEGROUND_QUEUE_CTF3:
             return BATTLEGROUND_CTF3;
-        case BATTLEGROUND_QUEUE_SSM:
-            return BATTLEGROUND_SSM;
+        case BATTLEGROUND_QUEUE_DG:
+            return BATTLEGROUND_DG;
+        case BATTLEGROUND_QUEUE_SM:
+            return BATTLEGROUND_SM;
         case BATTLEGROUND_QUEUE_2v2:
         case BATTLEGROUND_QUEUE_3v3:
         case BATTLEGROUND_QUEUE_5v5:

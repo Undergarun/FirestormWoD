@@ -45,6 +45,7 @@
 #include <functional>
 #include "PhaseMgr.h"
 #include <LockedMap.h>
+#include <ace/Thread_Mutex.h>
 
 class Item;
 class PhaseMgr;
@@ -883,8 +884,16 @@ class ObjectMgr
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
         {
             UNORDERED_MAP<uint32, DungeonEncounterList>::const_iterator itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, difficulty));
+
             if (itr != _dungeonEncounterStore.end())
                 return &itr->second;
+            else
+            {
+                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, NONE_DIFFICULTY));
+                if (itr != _dungeonEncounterStore.end())
+                    return &itr->second;
+            }
+
             return NULL;
         }
 
@@ -982,6 +991,7 @@ class ObjectMgr
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
+        void LoadAreaTriggerTemplates();
 
         void LoadGossipText();
 
@@ -1329,7 +1339,6 @@ class ObjectMgr
             return _skipUpdateCount;
         }
 
-
         UpdateSkipData skipData;
 
         ///Temporaire pour la création des Z, a remettre en private après
@@ -1350,26 +1359,36 @@ class ObjectMgr
             _lootViewGUID[lootview] = creature;
         }
 
+        ACE_Thread_Mutex m_GuidLock;
+
+        AreaTriggerTemplateList GetAreaTriggerTemplatesForSpell(uint32 p_SpellID)
+        {
+            if (m_AreaTriggerTemplates.find(p_SpellID) != m_AreaTriggerTemplates.end())
+                return m_AreaTriggerTemplates[p_SpellID];
+
+            return AreaTriggerTemplateList();
+        }
+
     private:
         // first free id for selected id type
-        uint32 _auctionId;
-        uint64 _equipmentSetGuid;
-        uint32 _itemTextId;
-        uint32 _mailId;
-        uint32 _hiPetNumber;
-        uint64 _voidItemId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _equipmentSetGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _mailId;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetNumber;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
 
         // first free low guid for selected guid type
-        uint32 _hiCharGuid;
-        uint32 _hiCreatureGuid;
-        uint32 _hiPetGuid;
-        uint32 _hiVehicleGuid;
-        uint32 _hiItemGuid;
-        uint32 _hiGoGuid;
-        uint32 _hiDoGuid;
-        uint32 _hiCorpseGuid;
-        uint32 _hiAreaTriggerGuid;
-        uint32 _hiMoTransGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCharGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCreatureGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiVehicleGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiItemGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiGoGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiDoGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiAreaTriggerGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
 
         QuestMap _questTemplates;
 
@@ -1428,6 +1447,8 @@ class ObjectMgr
 
         uint32 _skipUpdateCount;
         std::map<uint64, uint64> _lootViewGUID;
+
+        AreaTriggerTemplateContainer m_AreaTriggerTemplates;
 
         ResearchZoneMap _researchZoneMap;
         ResearchLootVector _researchLoot;

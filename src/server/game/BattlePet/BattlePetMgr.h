@@ -1,4 +1,5 @@
 /*
+* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
 * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
 *
@@ -43,15 +44,15 @@ typedef std::list<PetBattleData> PetBattleDataList;
 
 class BattlePetMgr
 {
-public:
-    explicit BattlePetMgr(Player* owner);
+    public:
+        explicit BattlePetMgr(Player* owner);
 
-    void BuildBattlePetJournal(WorldPacket *data);
-    void GetBattlePetList(PetBattleDataList &petBattleList) const;
-    Player* GetPlayer() const { return m_player; }
+        void BuildBattlePetJournal(WorldPacket* data);
+        void GetBattlePetList(PetBattleDataList& petBattleList) const;
+        Player* GetPlayer() const { return m_player; }
 
-private:
-    Player* m_player;
+    private:
+        Player* m_player;
 };
 
 #endif

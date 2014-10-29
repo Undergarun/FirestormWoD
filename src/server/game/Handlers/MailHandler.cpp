@@ -46,9 +46,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[1] = recvData.ReadBit();
     mailbox[3] = recvData.ReadBit();
 
-    receiverLength = recvData.ReadBits(8);
-    receiverLength <<= 1;
-    receiverLength |= (uint32)recvData.ReadBit();
+    receiverLength = recvData.ReadBits(9);
 
     mailbox[0] = recvData.ReadBit();
     mailbox[7] = recvData.ReadBit();
@@ -57,9 +55,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     mailbox[6] = recvData.ReadBit();
     mailbox[5] = recvData.ReadBit();
 
-    subjectLength = recvData.ReadBits(8);
-    subjectLength <<= 1;
-    subjectLength |= (uint32)recvData.ReadBit();
+    subjectLength = recvData.ReadBits(9);
 
     bodyLength = recvData.ReadBits(11);
     uint8 items_count = recvData.ReadBits(5);
@@ -119,7 +115,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     uint64 rc = 0;
     if (normalizePlayerName(receiver))
-        rc = sObjectMgr->GetPlayerGUIDByName(receiver);
+        rc = sWorld->GetCharacterGuidByName(receiver);
 
     if (!rc)
     {

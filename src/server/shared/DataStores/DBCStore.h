@@ -84,11 +84,12 @@ class DBCStorage
         uint32  GetNumRows() const { return nCount; }
         char const* GetFormat() const { return fmt; }
         uint32 GetFieldCount() const { return fieldCount; }
+        uint32 GetLastEntry() const { return m_LastEntry; }
 
         bool Load(char const* fn, SqlDbc * sql)
         {
             DBCFileLoader dbc;
-            // Check if load was sucessful, only then continue
+            // Check if load was successful, only then continue
             if (!dbc.Load(fn, fmt))
                 return false;
 
@@ -128,6 +129,8 @@ class DBCStorage
 
             dataTable = (T*)dbc.AutoProduceData(fmt, nCount, indexTable.asChar,
                 sqlRecordCount, sqlHighestIndex, sqlDataTable);
+
+            m_LastEntry = nCount;
 
             stringPoolList.push_back(dbc.AutoProduceStrings(fmt, (char*)dataTable));
 
@@ -268,12 +271,14 @@ class DBCStorage
                 stringPoolList.pop_front();
             }
             nCount = 0;
+            m_LastEntry = 0;
         }
 
     private:
         char const* fmt;
         uint32 nCount;
         uint32 fieldCount;
+        uint32 m_LastEntry;
 
         union
         {

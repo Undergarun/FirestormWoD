@@ -364,12 +364,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
         index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG;
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
-        val2 = GetStat(STAT_AGILITY) * entry->RAPPerAgility;
+        val2 = GetStat(STAT_AGILITY) *  entry->RangedAttackPowerPerAgility;
     }
     else
     {
-        float strengthValue = GetStat(STAT_STRENGTH) * entry->APPerStrenth;
-        float agilityValue = GetStat(STAT_AGILITY) * entry->APPerAgility;
+        float strengthValue = GetStat(STAT_STRENGTH) * entry->AttackPowerPerStrength;
+        float agilityValue = GetStat(STAT_AGILITY) * entry->AttackPowerPerAgility;
 
         // Double bonus ??? Why so - THis should be here
         // if (GetShapeshiftForm() == FORM_CAT || GetShapeshiftForm() == FORM_BEAR)

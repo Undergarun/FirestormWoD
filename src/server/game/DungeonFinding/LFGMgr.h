@@ -64,6 +64,15 @@ enum LfgType : uint8
     LFG_SUBTYPEID_SCENARIO                       = 4,
 };
 
+enum LfgCategory
+{
+    LFG_CATEGORIE_NONE                          = 0,
+    LFG_CATEGORIE_DUNGEON                       = 1,
+    LFG_CATEGORIE_RAID                          = 2,
+    LFG_CATEGORIE_SCENARIO                      = 3,
+    LFG_CATEGORIE_DYNAMIC_RAID                  = 4
+};
+
 /// Proposal states
 enum LfgProposalState : uint8
 {
@@ -365,9 +374,9 @@ class LFGMgr
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
 
         // Group Matching
-        LfgProposal* FindNewGroups(LfgGuidList& check, LfgGuidList& all, LfgType type);
-        bool CheckGroupRoles(LfgRolesMap &groles, LfgType type, bool removeLeaderFlag = true);
-        bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgType type);
+        LfgProposal* FindNewGroups(LfgGuidList& check, LfgGuidList& all, LfgCategory type);
+        bool CheckGroupRoles(LfgRolesMap &groles, LfgCategory type, bool removeLeaderFlag = true);
+        bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgCategory type);
         void GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& players, LfgLockPartyMap& lockMap);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string concatenatedGuids);
@@ -376,6 +385,7 @@ class LFGMgr
         // Generic
         const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon, bool check = false);
         LfgType GetDungeonType(uint32 dungeon);
+        LfgCategory GetLfgCategorie(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
 
         // General variablesUpdateProposal

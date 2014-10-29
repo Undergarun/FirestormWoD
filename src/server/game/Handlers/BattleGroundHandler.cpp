@@ -163,8 +163,13 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
 
         // check if already in queue
         if (m_Player->GetBattlegroundQueueIndex(l_BGQueueTypeID) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+        {
             //player is already in this queue
+            WorldPacket data;
+            sBattlegroundMgr->BuildStatusFailedPacket(&data, l_BG, m_Player, 0, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
+            m_Player->GetSession()->SendPacket(&data);
             return;
+        }
 
         // check if has free queue slots
         if (!m_Player->HasFreeBattlegroundQueueId())

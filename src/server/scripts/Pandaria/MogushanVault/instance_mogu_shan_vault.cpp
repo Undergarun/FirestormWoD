@@ -324,9 +324,11 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GOB_ELEGON_DOOR_ENTRANCE:
+                        AddDoor(go, true);
                         ancientMoguDoorGuid = go->GetGUID();
                         break;
                     case GOB_WILL_OF_EMPEROR_ENTRANCE:
+                        AddDoor(go, true);
                         emperorsDoorGuid = go->GetGUID();
                         break;
                     case GOB_ENERGY_TITAN_DISK:

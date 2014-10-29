@@ -727,7 +727,7 @@ void BfGraveyard::SetSpirit(Creature* spirit, TeamId team)
 float BfGraveyard::GetDistance(Player* player)
 {
     const WorldSafeLocsEntry* safeLoc = sWorldSafeLocsStore.LookupEntry(m_GraveyardId);
-    return player->GetDistance2d(safeLoc->m_PositionX, safeLoc->m_PositionY);
+    return player->GetDistance2d(safeLoc->x, safeLoc->y);
 }
 
 void BfGraveyard::AddPlayer(uint64 playerGuid)
@@ -803,12 +803,12 @@ void BfGraveyard::RelocateDeadPlayers()
             continue;
 
         if (closestGrave)
-            player->TeleportTo(player->GetMapId(), closestGrave->m_PositionX, closestGrave->m_PositionY, closestGrave->m_PositionZ, player->GetOrientation());
+            player->TeleportTo(player->GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
         else
         {
             closestGrave = m_Bf->GetClosestGraveYard(player);
             if (closestGrave)
-                player->TeleportTo(player->GetMapId(), closestGrave->m_PositionX, closestGrave->m_PositionY, closestGrave->m_PositionZ, player->GetOrientation());
+                player->TeleportTo(player->GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
         }
     }
 }

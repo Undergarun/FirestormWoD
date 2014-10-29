@@ -206,7 +206,7 @@ typedef std::list<uint64> WhisperListContainer;
 
 struct SpellCooldown
 {
-    time_t end;
+    uint64 end;
     uint16 itemid;
 };
 
@@ -631,6 +631,7 @@ class Quest;
 class Spell;
 class Item;
 class WorldSession;
+class BattlePet;
 
 enum PlayerSlots
 {
@@ -2018,21 +2019,19 @@ class Player : public Unit, public GridObject<Player>
         void DropModCharge(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
-        static uint32 const infinityCooldownDelay = MONTH;  // used for set "infinity cooldowns" for spells and check
-        static uint32 const infinityCooldownDelayCheck = MONTH/2;
-        bool HasSpellCooldown(uint32 spell_id) const
-        {
-            SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-            return itr != m_spellCooldowns.end() && itr->second.end > time(NULL);
-        }
+        static uint64 const infinityCooldownDelay = uint64(2592000LL * 1000LL); // MONTH * IN_MILLISECONDS
+        static uint64 const infinityCooldownDelayCheck = uint64(2592000LL/2 * 1000LL); // MONTH/2 * IN_MILLISECONDS
+
+        bool HasSpellCooldown(uint32 spell_id) const { return GetSpellCooldownDelay(spell_id) != 0; }
         uint32 GetSpellCooldownDelay(uint32 spell_id) const
         {
             SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-            time_t t = time(NULL);
-            return uint32(itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0);
+            uint64 currTime = 0;
+            ACE_OS::gettimeofday().msec(currTime);
+            return uint32(itr != m_spellCooldowns.end() && itr->second.end > currTime ? itr->second.end - currTime : 0);
         }
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
-        void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
+        void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID = 0, Spell * p_Spell = NULL, bool p_SetCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
@@ -2965,7 +2964,7 @@ class Player : public Unit, public GridObject<Player>
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex);
-        bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->bit_index); }
+        bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->MaskID); }
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
         //bool isActiveObject() const { return true; }
@@ -3099,11 +3098,25 @@ class Player : public Unit, public GridObject<Player>
         /// Summon new pet
         void SummonBattlePet(uint64 p_JournalID);
         /// Get current summoned battle pet
-        Minion * GetSummonedBattlePet();
+        Creature * GetSummonedBattlePet();
         /// Summon last summoned battle pet
         void SummonLastSummonedBattlePet();
 
-        PreparedQueryResultFuture _PetBattleCountBattleSpeciesCallback;
+        /// Get pet battles
+        std::vector<std::shared_ptr<BattlePet>> GetBattlePets();
+        /// Get pet battles
+        std::shared_ptr<BattlePet> GetBattlePet(uint64 p_JournalID);
+        /// Get pet battle combat team
+        std::shared_ptr<BattlePet> * GetBattlePetCombatTeam();
+        /// Get pet battle combat team size
+        uint32 GetBattlePetCombatSize();
+
+        /// Reload pet battles
+        void ReloadPetBattles();
+        /// PetBattleCountBattleSpeciesCallback
+        void PetBattleCountBattleSpecies();
+        /// Update battle pet combat team
+        void UpdateBattlePetCombatTeam();
 
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
@@ -3117,18 +3130,17 @@ class Player : public Unit, public GridObject<Player>
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
 
-        /// Summon new pet (call back)
-        void SummonBattlePetCallback(PreparedQueryResult& p_Result);
-        /// Summon last summoned battle pet
-        void SummonLastBattlePetSummonedCallback(PreparedQueryResult& p_Result);
+        /// Load pet battle async callback
+        bool _LoadPetBattles(PreparedQueryResult & p_Result);
 
-        /// PetBattleCountBattleSpeciesCallback
-        void PetBattleCountBattleSpeciesCallback(PreparedQueryResult& p_Result);
+        uint64 m_BattlePetSummon;
+        uint32 m_LastSummonedBattlePet;
 
-        PreparedQueryResultFuture _SummonBattlePetCallback;
-        PreparedQueryResultFuture _SummonLastBattlePetSummonedCallback;
+        std::vector<std::shared_ptr<BattlePet>> m_BattlePets;
+        std::shared_ptr<BattlePet> m_BattlePetCombatTeam[3];
+        std::vector<std::pair<uint32, uint32>> m_OldPetBattleSpellToMerge;
 
-        Minion * m_BattlePetSummon;
+        PreparedQueryResultFuture _petBattleJournalCallback;
 
     private:
         // Gamemaster whisper whitelist
@@ -3664,7 +3676,10 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                     pyroblast = true;
             }
 
-            totalmul += CalculatePct(1.0f, value);
+            if (value > 0)
+                totalmul = CalculatePct(totalmul, 100 + value);
+            else
+                totalmul = CalculatePct(totalmul, 100 + value);
         }
 
         if (removestacks && !m_isMoltenCored)

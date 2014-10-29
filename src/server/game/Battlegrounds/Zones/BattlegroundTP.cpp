@@ -721,28 +721,32 @@ bool BattlegroundTP::SetupBattleground()
     }
 
     WorldSafeLocsEntry const *sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, sg->m_Facing, ALLIANCE))
+
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, sg->o, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Alliance spirit guides! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_ALLIANCE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, sg->m_Facing, ALLIANCE))
+
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, sg->o, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Alliance start spirit guides! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, sg->m_Facing, HORDE))
+
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->x, sg->y, sg->z, sg->o, HORDE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Horde spirit guides! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_HORDE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->m_PositionX, sg->m_PositionY, sg->m_PositionZ, sg->m_Facing, HORDE))
+
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, sg->o, HORDE))
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundTP: Failed to spawn Horde start spirit guides! Battleground not created!");
         return false;
@@ -849,10 +853,10 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
             player->GetPosition(x, y, z);
 
             closest = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
-            nearest = sqrt((closest->m_PositionX - x)*(closest->m_PositionX - x) + (closest->m_PositionY - y)*(closest->m_PositionY - y)+(closest->m_PositionZ - z)*(closest->m_PositionZ - z));
+            nearest = sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y)+(closest->z - z)*(closest->z - z));
 
             ret = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_ALLIANCE);
-            dist = sqrt((ret->m_PositionX - x)*(ret->m_PositionX - x) + (ret->m_PositionY - y)*(ret->m_PositionY - y)+(ret->m_PositionZ - z)*(ret->m_PositionZ - z));
+            dist = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->y - z)*(ret->z - z));
 
             if (dist < nearest)
             {

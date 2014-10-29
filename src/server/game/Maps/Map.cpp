@@ -1796,12 +1796,12 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
             {
                 if (AreaTableEntry const* area = GetAreaEntryByAreaFlagAndMap(getArea(x, y), MAPID_INVALID))
                 {
-                    uint32 overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
-                    if (!overrideLiquid && area->zone)
+                    uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
+                    if (!overrideLiquid && area->ParentAreaID)
                     {
-                        area = GetAreaEntryByAreaID(area->zone);
+                        area = GetAreaEntryByAreaID(area->ParentAreaID);
                         if (area)
-                            overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
+                            overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
                     }
 
                     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
@@ -1954,9 +1954,9 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, in
 
     if (wmoEntry && atEntry)
     {
-        if (atEntry->flags & AREA_FLAG_OUTSIDE)
+        if (atEntry->Flags & AREA_FLAG_OUTSIDE)
             return true;
-        if (atEntry->flags & AREA_FLAG_INSIDE)
+        if (atEntry->Flags & AREA_FLAG_INSIDE)
             return false;
     }
 
@@ -2029,7 +2029,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
     uint16 areaflag;
 
     if (atEntry)
-        areaflag = atEntry->exploreFlag;
+        areaflag = atEntry->AreaBit;
     else
     {
         if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
@@ -2085,12 +2085,12 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
                 {
                     if (AreaTableEntry const* area = GetAreaEntryByAreaFlagAndMap(GetAreaFlag(x, y, z), GetId()))
                     {
-                        uint32 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
-                        if (!overrideLiquid && area->zone)
+                        uint32 overrideLiquid = area->LiquidTypeID[liquidFlagType];
+                        if (!overrideLiquid && area->ParentAreaID)
                         {
-                            area = GetAreaEntryByAreaID(area->zone);
+                            area = GetAreaEntryByAreaID(area->ParentAreaID);
                             if (area)
-                                overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
+                                overrideLiquid = area->LiquidTypeID[liquidFlagType];
                         }
 
                         if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
@@ -2165,7 +2165,7 @@ uint32 Map::GetZoneIdByAreaFlag(uint16 areaflag, uint32 map_id)
     AreaTableEntry const* entry = GetAreaEntryByAreaFlagAndMap(areaflag, map_id);
 
     if (entry)
-        return (entry->zone != 0) ? entry->zone : entry->ID;
+        return (entry->ParentAreaID != 0) ? entry->ParentAreaID : entry->ID;
     else
         return 0;
 }
@@ -2175,7 +2175,7 @@ void Map::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 area
     AreaTableEntry const* entry = GetAreaEntryByAreaFlagAndMap(areaflag, map_id);
 
     areaid = entry ? entry->ID : 0;
-    zoneid = entry ? ((entry->zone != 0) ? entry->zone : entry->ID) : 0;
+    zoneid = entry ? ((entry->ParentAreaID != 0) ? entry->ParentAreaID : entry->ID) : 0;
 }
 
 bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
@@ -2901,40 +2901,42 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player* source)
+void InstanceMap::PermBindAllPlayers(Player* p_Source)
 {
-    if (!IsDungeon())
+    if (!IsRaidOrHeroicDungeon())
         return;
 
-    InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
-    if (!save)
+    InstanceSave* l_Save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
+    if (!l_Save)
     {
-        sLog->outError(LOG_FILTER_MAPS, "Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUIDLow(), source->GetName(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
+        sLog->outError(LOG_FILTER_MAPS, "Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!",
+            p_Source->GetGUIDLow(), p_Source->GetName(), p_Source->GetMap()->GetMapName(), p_Source->GetMapId(), GetInstanceId());
         return;
     }
 
-    Group* group = source->GetGroup();
+    Group* l_Group = p_Source->GetGroup();
 
     // group members outside the instance group don't get bound
-    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+    for (MapRefManager::iterator l_Itr = m_mapRefManager.begin(); l_Itr != m_mapRefManager.end(); ++l_Itr)
     {
-        Player* player = itr->getSource();
+        Player* l_Player = l_Itr->getSource();
         // players inside an instance cannot be bound to other instances
         // some players may already be permanently bound, in this case nothing happens
-        InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficulty());
-        if (!bind || !bind->perm)
+        InstancePlayerBind* l_Bind = l_Player->GetBoundInstance(l_Save->GetMapId(), l_Save->GetDifficulty());
+        if (!l_Bind || !l_Bind->perm)
         {
-            player->BindToInstance(save, true);
-            WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-            data << uint32(0);
-            player->GetSession()->SendPacket(&data);
+            l_Player->BindToInstance(l_Save, true);
 
-            player->GetSession()->SendCalendarRaidLockout(save, true);
+            WorldPacket l_Data(SMSG_INSTANCE_SAVE_CREATED, 4);
+            l_Data << uint32(0);
+            l_Player->GetSession()->SendPacket(&l_Data);
+
+            l_Player->GetSession()->SendCalendarRaidLockout(l_Save, true);
         }
 
         // if the leader is not in the instance the group will not get a perm bind
-        if (group && group->GetLeaderGUID() == player->GetGUID())
-            group->BindToInstance(save, true);
+        if (l_Group && l_Group->GetLeaderGUID() == l_Player->GetGUID())
+            l_Group->BindToInstance(l_Save, true);
     }
 }
 
