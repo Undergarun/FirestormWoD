@@ -200,7 +200,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_SET_CAN_FLY_ACK
         || opcode == CMSG_MOVE_FEATHER_FALL_ACK
         || opcode == CMSG_MOVE_WATER_WALK_ACK
-        || opcode == CMSG_MOVE_HOVER_ACK)
+        || opcode == CMSG_MOVE_HOVER_ACK
+        || opcode == CMSG_MOVE_SPLINE_DONE)
         return MovementGlobalSequence;
 
     if (opcode == SMSG_MOVE_UPDATE

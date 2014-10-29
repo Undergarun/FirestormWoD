@@ -96,12 +96,9 @@ namespace Movement
 
     void WriteCatmullRomPath(const Spline<int32>& spline, ByteBuffer& data)
     {
-        uint32 count = spline.getPointCount() - 2;
-
+        uint32 count = spline.getPointCount() - 3;
         for (uint32 i = 0; i < count; i++)
             data << spline.getPoint(i+2).x << spline.getPoint(i+2).y << spline.getPoint(i+2).z;
-
-        //data.append<Vector3>(&spline.getPoint(2), count);
     }
 
     void WriteCatmullRomCyclicPath(const Spline<int32>& spline, ByteBuffer& data)
@@ -110,7 +107,6 @@ namespace Movement
         data << spline.getPoint(1).x << spline.getPoint(1).y << spline.getPoint(1).z ; // fake point, client will erase it from the spline after first cycle done
         for (uint32 i = 0; i < count; i++)
             data << spline.getPoint(i+1).x << spline.getPoint(i+1).y << spline.getPoint(i+1).z;
-        //data.append<Vector3>(&spline.getPoint(1), count);
     }
 
     void MoveSplineInit::Launch()
@@ -176,7 +172,7 @@ namespace Movement
         uint64 l_TransportGUID  = m_Unit.GetTransGUID();
 
         uint32 l_CompressedWayPointCount    = l_Splineflags & MoveSplineFlag::UncompressedPath ? 0 : l_MoveSpline.spline.getPointCount() - 3;
-        uint32 l_UncompressedWayPointCount  = !l_CompressedWayPointCount ? l_MoveSpline.spline.getPointCount() - 2 : 1;
+        uint32 l_UncompressedWayPointCount  = !l_CompressedWayPointCount ? l_MoveSpline.spline.getPointCount() - 3 : 1;
 
         uint8   l_FinalFacingMode   = 0;
         int8    l_TransportSeat     = m_Unit.GetTransSeat();
@@ -197,16 +193,29 @@ namespace Movement
                 break;
         }
 
+        float l_SplineDestinationX = 0.0f;
+        float l_SplineDestinationY = 0.0f;
+        float l_SplineDestinationZ = 0.0f;
+
+        if ((l_Splineflags & MoveSplineFlag::UncompressedPath) == 0)
+        {
+            uint32 l_LastIndex = l_MoveSpline.spline.getPointCount() - 3;
+            const Vector3 * l_RealPath = &l_MoveSpline.spline.getPoint(1);
+
+            l_SplineDestinationX = l_RealPath[l_LastIndex].x;
+            l_SplineDestinationY = l_RealPath[l_LastIndex].y;
+            l_SplineDestinationZ = l_RealPath[l_LastIndex].z;
+        }
+
         WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
-        
         l_Data.appendPackGUID(l_MoverGUID);
         l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
         l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
         l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
         l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
-        l_Data << float(0);                                                                         ///< Spline destination X
-        l_Data << float(0);                                                                         ///< Spline destination Y
-        l_Data << float(0);                                                                         ///< Spline destination Z
+        l_Data << float(l_SplineDestinationX);                                                      ///< Spline destination X
+        l_Data << float(l_SplineDestinationY);                                                      ///< Spline destination Y
+        l_Data << float(l_SplineDestinationZ);                                                      ///< Spline destination Z
         l_Data << uint32(l_Splineflags & ~MoveSplineFlag::Mask_No_Monster_Move);                    ///< Spline raw flags
         l_Data << uint8(l_Splineflags.getAnimationId());                                            ///< Animation ID
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Animation Time
@@ -215,8 +224,8 @@ namespace Movement
         l_Data << float(l_MoveSpline.vertical_acceleration);                                        ///< Vertical Acceleration (AKA Jump gravity)
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Parabolic Time (AKA Special time)
         l_Data << uint32(l_UncompressedWayPointCount);                                              ///< Uncompressed waypoint count
-        l_Data << uint8(0);                                                                         ///< unk
-        l_Data << uint8(0);                                                                         ///< unk
+        l_Data << uint8(0);                                                                         ///< Mode
+        l_Data << uint8(0);                                                                         ///< Vehicle exit Voluntary
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
         l_Data << uint32(l_CompressedWayPointCount);                                                ///< Compressed waypoint count
@@ -228,12 +237,12 @@ namespace Movement
             else
                 WriteCatmullRomPath(l_MoveSpline.spline, l_Data);
         }
-        else    ///< Append end point for packed waypoints
+        else
         {
-            uint32 l_LastIndex = l_MoveSpline.spline.getPointCount() - 2;
-            const Vector3 * l_RealPath = &l_MoveSpline.spline.getPoint(1);
-
-            l_Data << l_RealPath[l_LastIndex].x << l_RealPath[l_LastIndex].y << l_RealPath[l_LastIndex].z;  ///< destination
+            /// Fake waypoints
+            l_Data << float(l_SplineDestinationX);                                                      ///< Spline destination X
+            l_Data << float(l_SplineDestinationY);                                                      ///< Spline destination Y
+            l_Data << float(l_SplineDestinationZ);                                                      ///< Spline destination Z
         }
 
         if ((l_Splineflags & MoveSplineFlag::UncompressedPath) == 0)
@@ -256,7 +265,7 @@ namespace Movement
         }
 
         l_Data.WriteBits(l_FinalFacingMode, 2);
-        l_Data.WriteBit(0);                         ///< Has unk spline
+        l_Data.WriteBit(0);                         ///< Has monster spline filter
         l_Data.FlushBits();
 
         if (l_FinalFacingMode == MonsterMoveFacingAngle)
@@ -266,7 +275,7 @@ namespace Movement
         else if (l_FinalFacingMode == MonsterMoveFacingSpot)
             l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;
 
-        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);                         ///< Crz teleport
         l_Data.WriteBits(0, 2);
         l_Data.FlushBits();
 
@@ -318,8 +327,8 @@ namespace Movement
         l_Data << float(0);                                                                         ///< Vertical Acceleration
         l_Data << int32(0);                                                                         ///< Parabolic Time
         l_Data << uint32(1);                                                                        ///< Uncompressed waypoint count
-        l_Data << uint8(0);                                                                         ///< unk
-        l_Data << uint8(0);                                                                         ///< unk
+        l_Data << uint8(1);                                                                         ///< Mode (stop here)
+        l_Data << uint8(0);                                                                         ///< Vehicle exit Voluntary
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
         l_Data << uint32(0);                                                                        ///< Compressed waypoint count
