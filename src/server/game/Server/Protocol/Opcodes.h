@@ -890,6 +890,7 @@ enum Opcodes
     CMSG_MOVE_JUMP                              = 0x0835,   ///< 6.0.2 19027
     CMSG_MOVE_FALL_LAND                         = 0x0A56,   ///< 6.0.2 19027
     CMSG_WORLD_PORT_RESPONSE                    = 0x00BF,   ///< 6.0.2 19027
+    CMSG_MOVE_SPLINE_DONE                       = 0x0976,   ///< 6.0.2 19027
 
     /// Update
     CMSG_MOVE_HEARTBEAT                         = 0x0E36,   ///< 6.0.2 19027
@@ -1302,7 +1303,6 @@ enum Opcodes
     CMSG_MOVE_NOT_ACTIVE_MOVER                        = 0x0000,
     CMSG_MOVE_SET_RELATIVE_POSITION                   = 0x0000,
     CMSG_MOVE_SET_VEHICLE_REC_ID_ACK                  = 0x0000,
-    CMSG_MOVE_SPLINE_DONE                             = 0x0000,
     CMSG_MOVE_TIME_SKIPPED                            = 0x0000,
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x0000,
     CMSG_NEW_SPELL_SLOT                               = 0x0000,
