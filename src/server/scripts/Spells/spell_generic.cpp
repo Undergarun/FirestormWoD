@@ -2875,7 +2875,7 @@ class spell_gen_mount : public SpellScriptLoader
                     target->GetPosition(x, y, z);
                     uint32 areaFlag = target->GetBaseMap()->GetAreaFlag(x, y, z);
                     AreaTableEntry const* area = sAreaStore.LookupEntry(areaFlag);
-                    if (!area || (canFly && (area->Flags & AREA_FLAG_NO_FLY_ZONE)))
+                    if (!area || (canFly && (area->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
                     uint32 mount = 0;
@@ -3538,43 +3538,8 @@ class spell_gen_orb_of_power : public SpellScriptLoader
         }
 };
 
-// Revive Pets - Pet Heal Visual - 127841
-class spell_revive_pets_visual : public SpellScriptLoader
-{
-public:
-    spell_revive_pets_visual() : SpellScriptLoader("spell_revive_pets_visual") { }
-
-    class spell_revive_pets_visual_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_revive_pets_visual_SpellScript);
-
-        void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
-        {
-            p_Targets.remove_if([this](WorldObject* p_Object) -> bool
-            {
-                if (p_Object && GetCaster() && p_Object->ToCreature() && p_Object->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) != 0
-                    && reinterpret_cast<Minion*>(p_Object)->GetOwner() == GetCaster())
-                    return false;
-
-                return true;
-            });
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_revive_pets_visual_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_revive_pets_visual_SpellScript();
-    }
-};
-
 void AddSC_generic_spell_scripts()
 {
-    new spell_revive_pets_visual();
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_aura_of_anger();
     new spell_gen_av_drekthar_presence();

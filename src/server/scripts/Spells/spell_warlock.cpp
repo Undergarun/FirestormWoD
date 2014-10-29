@@ -92,7 +92,6 @@ enum WarlockSpells
     WARLOCK_IMP_SWARM                       = 104316,
     WARLOCK_DISRUPTED_NETHER                = 114736,
     WARLOCK_GLYPH_OF_SIPHON_LIFE            = 56218,
-    WARLOCK_SIPHON_LIFE_HEAL                = 63106,
     WARLOCK_SOULBURN_OVERRIDE_1             = 93312,
     WARLOCK_SOULBURN_OVERRIDE_2             = 93313,
     WARLOCK_SOULBURN_OVERRIDE_3             = 104245,
@@ -386,13 +385,8 @@ class spell_warl_siphon_life : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
-                {
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    {
-                        int32 l_BP = caster->CountPctFromMaxHealth(1) / 2;
-                        caster->CastCustomSpell(caster, WARLOCK_SIPHON_LIFE_HEAL, &l_BP, NULL, NULL, true);
-                    }
-                }
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
             }
 
             void Register()
@@ -730,7 +724,7 @@ class spell_warl_soulburn_override : public SpellScriptLoader
             {
                 if (Unit* player = GetCaster())
                 {
-                    // Overrides Drain Life
+                    // Overrides Drain Life, Undending Breath and Harvest Life
                     player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_1, true);
                     // Overrides Seed of Corruption
                     player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_2, true);
@@ -751,7 +745,7 @@ class spell_warl_soulburn_override : public SpellScriptLoader
             {
                 if (Unit* player = GetCaster())
                 {
-                    // Overrides Drain Life
+                    // Overrides Drain Life, Undending Breath and Harvest Life
                     player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_1);
                     // Overrides Seed of Corruption
                     player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_2);
@@ -886,10 +880,29 @@ class spell_warl_unbound_will : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_unbound_will_SpellScript);
 
+            SpellCastResult CheckHealth()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->GetHealthPct() <= 20.0f)
+                    {
+                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH);
+                        return SPELL_FAILED_CUSTOM_ERROR;
+                    }
+                    else
+                        return SPELL_CAST_OK;
+                }
+                else
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
                 {
+                    caster->ModifyHealth(-int32(caster->CountPctFromMaxHealth(20)));
                     caster->RemoveMovementImpairingAuras();
                     caster->RemoveAurasByType(SPELL_AURA_MOD_CONFUSE);
                     caster->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
@@ -902,6 +915,7 @@ class spell_warl_unbound_will : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warl_unbound_will_SpellScript::CheckHealth);
                 OnHit += SpellHitFn(spell_warl_unbound_will_SpellScript::HandleOnHit);
             }
         };
@@ -1401,9 +1415,19 @@ class spell_warl_soul_link : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (!target->HasAura(WARLOCK_SOUL_LINK_DUMMY_AURA))
+                        {
+                            uint32 health = target->CountPctFromMaxHealth(50);
+
+                            if (target->GetHealth() > health)
+                                target->SetHealth(health);
+                            target->SetMaxHealth(health);
+
                             caster->CastSpell(caster, WARLOCK_SOUL_LINK_DUMMY_AURA, true);
+                        }
                         else
                         {
+                            target->SetMaxHealth(target->GetMaxHealth() * 2);
+                            target->SetHealth(target->GetHealth() * 2);
                             caster->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
                             target->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
                         }
@@ -2163,16 +2187,16 @@ class spell_warl_soul_swap : public SpellScriptLoader
                         {
                             // Soul Swap override spell
                             caster->CastSpell(caster, WARLOCK_SOUL_SWAP_AURA, true);
-                            target->CastSpell(caster, WARLOCK_SOUL_SWAP_VISUAL, true);
                             caster->RemoveSoulSwapDOT(target);
                         }
                         else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                         {
+                            caster->CastSpell(target, WARLOCK_SOUL_SWAP_VISUAL, true);
                             caster->ApplySoulSwapDOT(target);
                             caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
                             if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(86121, 0, 30000);
+                                caster->ToPlayer()->AddSpellCooldown(86121, 0, time(NULL) + 30);
                         }
                     }
                 }
@@ -2210,10 +2234,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                             caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    {
-                        int32 l_BP = caster->CountPctFromMaxHealth(1) / 2;
-                        caster->CastCustomSpell(caster, WARLOCK_SIPHON_LIFE_HEAL, &l_BP, NULL, NULL, true);
-                    }
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
                 }
             }
 
@@ -2448,6 +2469,41 @@ class spell_warl_ember_tap : public SpellScriptLoader
         }
 };
 
+// Called By : Incinerate (Fire and Brimstone) - 114654, Conflagrate (Fire and Brimstone) - 108685
+// Curse of the Elements (Fire and Brimstone) - 104225, Curse of Enfeeblement (Fire and Brimstone) - 109468
+// Immolate (Fire and Brimstone) - 108686
+// Fire and Brimstone - 108683
+class spell_warl_fire_and_brimstone : public SpellScriptLoader
+{
+    public:
+        spell_warl_fire_and_brimstone() : SpellScriptLoader("spell_warl_fire_and_brimstone") { }
+
+        class spell_warl_fire_and_brimstone_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_fire_and_brimstone_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (!GetHitUnit())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(WARLOCK_FIRE_AND_BRIMSTONE))
+                        caster->RemoveAura(WARLOCK_FIRE_AND_BRIMSTONE);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_fire_and_brimstone_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_fire_and_brimstone_SpellScript();
+        }
+};
+
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura : public SpellScriptLoader
 {
@@ -2574,15 +2630,59 @@ class spell_warl_fel_flame : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 15, POWER_DEMONIC_FURY);
+
+                        // Increases the duration of Corruption and Unstable Affliction by 6s
+                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
                         {
+                            if (AuraPtr unstableAffliction = target->GetAura(WARLOCK_UNSTABLE_AFFLICTION, _player->GetGUID()))
+                            {
+                                unstableAffliction->SetDuration(unstableAffliction->GetDuration() + 6000);
+                                unstableAffliction->SetNeedClientUpdateForTargets();
+                            }
+                            if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, _player->GetGUID()))
+                            {
+                                corruption->SetDuration(corruption->GetDuration() + 6000);
+                                corruption->SetNeedClientUpdateForTargets();
+                            }
+                        }
+                        // Increases the duration of Corruption by 6s
+                        else if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        {
+                            if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, _player->GetGUID()))
+                            {
+                                corruption->SetDuration(corruption->GetDuration() + 6000);
+                                corruption->SetNeedClientUpdateForTargets();
+                            }
+                            else if (AuraPtr doom = target->GetAura(WARLOCK_DOOM, _player->GetGUID()))
+                            {
+                                doom->SetDuration(doom->GetDuration() + 6000);
+                                doom->SetNeedClientUpdateForTargets();
+                            }
+                        }
+                        // Increases the duration of Immolate by 6s
+                        else if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                        {
+                            if (AuraPtr corruption = target->GetAura(WARLOCK_IMMOLATE, _player->GetGUID()))
+                            {
+                                corruption->SetDuration(corruption->GetDuration() + 6000);
+                                corruption->SetNeedClientUpdateForTargets();
+                            }
+
                             if (GetSpell()->IsCritForTarget(target))
                                 _player->SetPower(POWER_BURNING_EMBERS, _player->GetPower(POWER_BURNING_EMBERS) + 2);
                             else
                                 _player->SetPower(POWER_BURNING_EMBERS, _player->GetPower(POWER_BURNING_EMBERS) + 1);
                         }
-                        else if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                            _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 15, POWER_DEMONIC_FURY);
+                        // Increases the duration of Corruption by 6s
+                        else
+                        {
+                            if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, _player->GetGUID()))
+                            {
+                                corruption->SetDuration(corruption->GetDuration() + 6000);
+                                corruption->SetNeedClientUpdateForTargets();
+                            }
+                        }
                     }
                 }
             }
@@ -2623,9 +2723,6 @@ class spell_warl_drain_life : public SpellScriptLoader
                     // In Demonology spec : Generates 10 Demonic Fury per second
                     if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
                         _player->EnergizeBySpell(_player, WARLOCK_DRAIN_LIFE_ORIGINAL, 10, POWER_DEMONIC_FURY);
-
-                    if (_player->HasAura(108371)) // Harvest Life
-                        basepoints = basepoints * 1.5f;
 
                     _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
                 }
@@ -2707,6 +2804,13 @@ class spell_warl_life_tap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_life_tap_SpellScript);
 
+            SpellCastResult CheckLife()
+            {
+                if (GetCaster()->GetHealthPct() > 15.0f)
+                    return SPELL_CAST_OK;
+                return SPELL_FAILED_FIZZLE;
+            }
+
             void HandleAfterHit()
             {
                 if (Unit* caster = GetCaster())
@@ -2719,12 +2823,16 @@ class spell_warl_life_tap : public SpellScriptLoader
                             lifeTap->SetAmount(lifeTap->GetAmount() + amount);
                     }
                     else
+                    {
+                        caster->SetHealth(caster->GetHealth() - amount);
                         caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
+                    }
                 }
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warl_life_tap_SpellScript::CheckLife);
                 AfterHit += SpellHitFn(spell_warl_life_tap_SpellScript::HandleAfterHit);
             }
         };
@@ -2754,7 +2862,7 @@ class spell_warl_fear : public SpellScriptLoader
                         if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
                         {
                             _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5000);
+                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, time(NULL) + 5);
                         }
                         else
                             _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);
@@ -3194,6 +3302,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_rain_of_fire_despawn();
     new spell_warl_chaos_bolt();
     new spell_warl_ember_tap();
+    new spell_warl_fire_and_brimstone();
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();

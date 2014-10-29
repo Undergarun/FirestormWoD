@@ -117,9 +117,6 @@ class spell_rog_killing_spree : public SpellScriptLoader
                         if (!target)
                             return;
 
-                        if (!caster->IsValidAttackTarget(target))
-                            return;
-
                         caster->CastSpell(target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
                         caster->CastSpell(target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
                     }
@@ -162,9 +159,6 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
                         Unit* spellTarget = sObjectAccessor->FindUnit(JadeCore::Containers::SelectRandomContainerElement(validTargets));
                         if (!spellTarget)
-                            return;
-
-                        if (!caster->IsValidAttackTarget(spellTarget))
                             return;
 
                         caster->CastSpell(spellTarget, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
