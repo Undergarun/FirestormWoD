@@ -1206,7 +1206,7 @@ uint32 Garrison::GetMissionChestChance(uint32 p_MissionRecID)
                             l_CurrentAdditionalWinChance = (l_Seil * v62) + l_CurrentAdditionalWinChance;
 
                             #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                                printf("Added %.2f to success due to follower %d enemy race ability %d.\n", (l_Seil * v62), l_CurrentAbilityID);
+                                printf("Added %.2f to success due to follower %d enemy race ability %d.\n", (l_Seil * v62), 0, l_CurrentAbilityID);
                             #endif // GARRISON_CHEST_FORMULA_DEBUG
                         }
                     }
@@ -1381,7 +1381,7 @@ uint32 Garrison::GetMissionChestChance(uint32 p_MissionRecID)
             l_CurrentAdditionalWinChance = (l_AbilityEffectEntry->ModMin * v62) + l_CurrentAdditionalWinChance;
 
             #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                printf("Added %.2f to success due to passive effect %d.\n", l_AbilityEffectEntry->ModMin * v62, l_AbilityEffectEntry);
+                printf("Added %.2f to success due to passive effect %d.\n", l_AbilityEffectEntry->ModMin * v62, l_AbilityEffectEntry->AbilityID);
             #endif // GARRISON_CHEST_FORMULA_DEBUG
         }
     }

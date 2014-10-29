@@ -2875,7 +2875,7 @@ class spell_gen_mount : public SpellScriptLoader
                     target->GetPosition(x, y, z);
                     uint32 areaFlag = target->GetBaseMap()->GetAreaFlag(x, y, z);
                     AreaTableEntry const* area = sAreaStore.LookupEntry(areaFlag);
-                    if (!area || (canFly && (area->flags & AREA_FLAG_NO_FLY_ZONE)))
+                    if (!area || (canFly && (area->Flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
                     uint32 mount = 0;

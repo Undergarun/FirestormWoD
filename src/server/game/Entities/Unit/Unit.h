@@ -1519,7 +1519,8 @@ class Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
-        void GetPartyMembers(std::list<Unit*> &units);
+        void GetPartyMembers(std::list<Unit*> &p_Members);
+        void GetRaidMembers(std::list<Unit*> &units);
         bool IsContestedGuard() const
         {
             if (FactionTemplateEntry const* entry = getFactionTemplateEntry())
@@ -2613,18 +2614,18 @@ namespace JadeCore
     };
 
 
-    // Binary predicate for sorting Units based on value of distance of an other Unit
-    class UnitDistanceCompareOrderPred
+    // Binary predicate for sorting WorldObject based on value of distance of an other WorldObject
+    class WorldObjectDistanceCompareOrderPred
     {
         public:
-            UnitDistanceCompareOrderPred(const Unit* source, bool ascending = true) : m_object(source), m_ascending(ascending) {}
-            bool operator() (const Unit* a, const Unit* b) const
+            WorldObjectDistanceCompareOrderPred(const WorldObject* source, bool ascending = true) : m_object(source), m_ascending(ascending) {}
+            bool operator() (const WorldObject* a, const WorldObject* b) const
             {
                 return m_ascending ? a->GetDistance(m_object) < b->GetDistance(m_object) :
                                      a->GetDistance(m_object) > b->GetDistance(m_object);
             }
         private:
-            const Unit* m_object;
+            const WorldObject* m_object;
             const bool m_ascending;
     };
 

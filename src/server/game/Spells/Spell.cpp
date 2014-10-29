@@ -1478,7 +1478,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                             }
                             else
                             {
-                                unitTargets.sort(JadeCore::UnitDistanceCompareOrderPred(m_caster));
+                                unitTargets.sort(JadeCore::WorldObjectDistanceCompareOrderPred(m_caster));
                                 Unit* victim = (*unitTargets.begin())->ToUnit();
 
                                 if (victim)

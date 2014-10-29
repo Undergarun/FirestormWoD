@@ -695,7 +695,7 @@ class mob_fall_catcher : public CreatureScript
             void Reset()
             {
                 me->SetCanFly(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->SetDisableGravity(false);
                 m_IsTransporting = false;
 
@@ -1135,7 +1135,7 @@ class mob_juvenile : public CreatureScript
                 // Set Flying
                 me->SetDisableGravity(true);
                 me->SetCanFly(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
 
                 m_Events.ScheduleEvent(EVENT_CHEEP, 1000);
                 m_Events.ScheduleEvent(EVENT_FLIGHT, 5000);
@@ -1296,7 +1296,7 @@ class mob_feed : public CreatureScript
                         {
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                            me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
 
                             me->GetMotionMaster()->MovePoint(1, l_PosX, l_PosY, bossPos.GetPositionZ());
                         }

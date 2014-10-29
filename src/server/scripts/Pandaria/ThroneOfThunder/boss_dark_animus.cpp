@@ -235,9 +235,9 @@ class boss_dark_animus : public CreatureScript
 
                 me->RemoveAura(SPELL_ACTIVATION_SEQUENCE);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 _Reset();
 
@@ -728,9 +728,9 @@ class mob_anima_golem : public CreatureScript
                 m_Activated = false;
                 m_Events.Reset();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
             }
 
             void JustReachedHome()
@@ -883,9 +883,9 @@ class mob_large_anima_golem : public CreatureScript
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 m_Events.Reset();
                 DespawnCrimsonWakes();
@@ -1033,9 +1033,9 @@ class mob_massive_anima_golem : public CreatureScript
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 m_Events.Reset();
 
@@ -1301,7 +1301,7 @@ class spell_transfusion_searcher : public SpellScriptLoader
                     // In other difficulties, the nearest golem is chosen
                     else
                     {
-                        p_Targets.sort(JadeCore::UnitDistanceCompareOrderPred(l_Caster));
+                        p_Targets.sort(JadeCore::WorldObjectDistanceCompareOrderPred(l_Caster));
                         WorldObject* l_WorldObject = (*p_Targets.begin());
                         p_Targets.clear();
                         p_Targets.push_back(l_WorldObject);
@@ -1621,7 +1621,7 @@ class spell_targeted_matter_swap : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
-                p_Targets.sort(JadeCore::UnitDistanceCompareOrderPred(GetCaster(), true));
+                p_Targets.sort(JadeCore::WorldObjectDistanceCompareOrderPred(GetCaster(), true));
                 JadeCore::RandomResizeList(p_Targets, 1);
             }
 

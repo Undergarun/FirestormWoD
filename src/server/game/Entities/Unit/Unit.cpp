@@ -19810,6 +19810,41 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
     }
 }
 
+void Unit::GetRaidMembers(std::list<Unit*> &p_Members)
+{
+    Unit* l_Owner = GetCharmerOrOwnerOrSelf();
+    Group* l_Group = NULL;
+    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+        l_Group = l_Owner->ToPlayer()->GetGroup();
+
+    if (l_Group)
+    {
+        for (GroupReference* l_Iter = l_Group->GetFirstMember(); l_Iter != NULL; l_Iter = l_Iter->next())
+        {
+            Player* l_Target = l_Iter->getSource();
+
+            // IsHostileTo check duel and controlled by enemy
+            if (l_Target && !IsHostileTo(l_Target))
+            {
+                if (l_Target->isAlive() && IsInMap(l_Target))
+                    p_Members.push_back(l_Target);
+
+                if (Guardian* l_Pet = l_Target->GetGuardianPet())
+                if (l_Pet->isAlive() && IsInMap(l_Target))
+                    p_Members.push_back(l_Pet);
+            }
+        }
+    }
+    else
+    {
+        if (l_Owner->isAlive() && (l_Owner == this || IsInMap(l_Owner)))
+            p_Members.push_back(l_Owner);
+        if (Guardian* l_Pet = l_Owner->GetGuardianPet())
+        if (l_Pet->isAlive() && (l_Pet == this || IsInMap(l_Pet)))
+            p_Members.push_back(l_Pet);
+    }
+}
+
 AuraPtr Unit::ToggleAura(uint32 spellId, Unit* target)
 {
     if (!target)
