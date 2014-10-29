@@ -222,10 +222,11 @@ void WorldSession::HandleActivateTaxiExpressOpcode(WorldPacket& p_RecvPacket)
     GetPlayer()->ActivateTaxiPathTo(l_Nodes, l_Npc);
 }
 
-void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
+void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_SPLINE_DONE");
-    recvData.rfinish();
+    HandleMovementOpcodes(p_RecvPacket);
+
+    uint32 l_SplineID = p_RecvPacket.read<uint32>();
 
     // in taxi flight packet received in 2 case:
     // 1) end taxi path in far (multi-node) flight

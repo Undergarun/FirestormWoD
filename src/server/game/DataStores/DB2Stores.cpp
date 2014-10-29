@@ -249,6 +249,66 @@ void LoadDB2Stores(const std::string& dataPath)
         }
     }
 
+    // Initialize global taxinodes mask
+    // Include existed nodes that have at least single not spell base (scripted) path
+    {
+        std::set<uint32> spellPaths;
+        for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
+            if (SpellEffectEntry const* sInfo = sSpellEffectStore.LookupEntry (i))
+                if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
+                    spellPaths.insert(sInfo->EffectMiscValue);
+
+        memset(sTaxiNodesMask, 0, sizeof(sTaxiNodesMask));
+        memset(sOldContinentsNodesMask, 0, sizeof(sOldContinentsNodesMask));
+        memset(sHordeTaxiNodesMask, 0, sizeof(sHordeTaxiNodesMask));
+        memset(sAllianceTaxiNodesMask, 0, sizeof(sAllianceTaxiNodesMask));
+        memset(sDeathKnightTaxiNodesMask, 0, sizeof(sDeathKnightTaxiNodesMask));
+        for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+        {
+            TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
+            if (!node)
+                continue;
+
+            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
+            if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
+            {
+                bool ok = false;
+                for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
+                {
+                    // Not spell path
+                    if (spellPaths.find(dest_i->second.ID) == spellPaths.end())
+                    {
+                        ok = true;
+                        break;
+                    }
+                }
+
+                if (!ok)
+                    continue;
+            }
+
+            // Valid taxi network node
+            uint8  field   = (uint8)((i - 1) / 8);
+            uint32 submask = 1 << ((i-1) % 8);
+
+            sTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
+                sHordeTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
+                sAllianceTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
+                sDeathKnightTaxiNodesMask[field] |= submask;
+
+            // Old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
+            if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
+                sOldContinentsNodesMask[field] |= submask;
+
+            // Fix DK node at Ebon Hold and Shadow Vault flight master
+            if (i == 315 || i == 333)
+                ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
+        }
+    }
+
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 

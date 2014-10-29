@@ -4782,23 +4782,24 @@ enum RemoveMethod
     GROUP_REMOVEMETHOD_LEAVE    = 2
 };
 
+/// last update : 6.0.2 19027
 enum ActivateTaxiReply
 {
-    ERR_TAXI_PLAYER_BUSY                = 0,
-    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 1,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 0,
+    ERR_TAXI_PLAYER_BUSY                = 1,
     ERR_TAXI_NOT_STANDING               = 2,
-    ERR_TAXI_PLAYER_MOVING              = 3,
-    ERR_TAXI_NOT_ENOUGH_MONEY           = 4,
-    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 5,
-    //                                  = 6,
+    ERR_TAXI_NO_SUCH_PATH               = 3,
+    //                                  = 4,
+    //                                  = 5,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 6,
     //                                  = 7,
-    ERR_TAXI_NOT_VISITED                = 8,
-    //                                  = 9,
-    ERR_TAXI_NO_SUCH_PATH               = 10,
-    ERR_TAXI_TOO_FAR_AWAY               = 11,
-    ERR_TAXI_PLAYER_SHAPESHIFTED        = 12,
-    ERR_TAXI_NO_VENDOR_NEARBY           = 13,
-    ERR_TAXI_SAME_NODE                  = 14,
+    ERR_TAXI_SAME_NODE                  = 8,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 9,
+    ERR_TAXI_TOO_FAR_AWAY               = 10,
+    ERR_TAXI_PLAYER_MOVING              = 11,
+    ERR_TAXI_NOT_VISITED                = 12,
+    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 13,
+    ERR_TAXI_NO_VENDOR_NEARBY           = 14,
     ERR_TAXI_OK                         = 15
 
 };
