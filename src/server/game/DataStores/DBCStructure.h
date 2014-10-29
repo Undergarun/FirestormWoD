@@ -1286,6 +1286,12 @@ struct GtOCTClassCombatRatingScalarEntry
     float   ratio;
 };
 
+struct GtOCTLevelExperienceEntry
+{
+    uint32  Index;
+    float   Data;
+};
+
 struct GtOCTHpPerStaminaEntry
 {
     //uint32    level;
