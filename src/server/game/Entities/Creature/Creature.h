@@ -214,7 +214,7 @@ struct CreatureTemplate
 // Benchmarked: Faster than std::map (insert/find)
 typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
 
-// Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage)
+// Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/base_damage)
 struct CreatureBaseStats
 {
     uint32 BaseHealth[MAX_CREATURE_BASE_HP];
@@ -222,7 +222,7 @@ struct CreatureBaseStats
     uint32 BaseArmor;
     uint32 AttackPower;
     uint32 RangedAttackPower;
-    float BaseDamage[MAX_CREATURE_BASE_DAMAGE];
+    float BaseDamage;
 
     // Helpers
 
@@ -247,7 +247,7 @@ struct CreatureBaseStats
     
     float GenerateBaseDamage(CreatureTemplate const* info) const
     {
-       return BaseDamage[info->expansion];
+       return BaseDamage;
     }
 
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);

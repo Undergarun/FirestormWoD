@@ -2588,15 +2588,15 @@ void ObjectMgr::LoadItemTemplates()
     //                                        22                 23                24                         25                      26        27         28
                                              "RequiredHonorRank, RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, MaxCount, Stackable, ContainerSlots, "
     //                                        29          30           31           32           33          34           35           36
-                                             "stat_type1, stat_value1, stat_unk1_1, stat_unk2_1, stat_type2, stat_value2, stat_unk1_2, stat_unk2_2, "
+                                             "stat_type1, stat_value1, ScalingValue_1, SocketCostRate_1, stat_type2, stat_value2, ScalingValue_2, SocketCostRate_2, "
     //                                        37          38           39           40           41          42           43           44
-                                             "stat_type3, stat_value3, stat_unk1_3, stat_unk2_3, stat_type4, stat_value4, stat_unk1_4, stat_unk2_4, "
+                                             "stat_type3, stat_value3, ScalingValue_3, SocketCostRate_3, stat_type4, stat_value4, ScalingValue_4, SocketCostRate_4, "
     //                                        45          46           47           48           49          50           51           52
-                                             "stat_type5, stat_value5, stat_unk1_5, stat_unk2_5, stat_type6, stat_value6, stat_unk1_6, stat_unk2_6, "
+                                             "stat_type5, stat_value5, ScalingValue_5, SocketCostRate_5, stat_type6, stat_value6, ScalingValue_6, SocketCostRate_6, "
     //                                        53          54           55           56           57          58           59           60
-                                             "stat_type7, stat_value7, stat_unk1_7, stat_unk2_7, stat_type8, stat_value8, stat_unk1_8, stat_unk2_8, "
+                                             "stat_type7, stat_value7, ScalingValue_7, SocketCostRate_7, stat_type8, stat_value8, ScalingValue_8, SocketCostRate_8, "
     //                                        61          62           63           64           65           66            67            68
-                                             "stat_type9, stat_value9, stat_unk1_9, stat_unk2_9, stat_type10, stat_value10, stat_unk1_10, stat_unk2_10, "
+                                             "stat_type9, stat_value9, ScalingValue_9, SocketCostRate_9, stat_type10, stat_value10, ScalingValue_10, SocketCostRate_10, "
     //                                        69                       70          71     72
                                              "ScalingStatDistribution, DamageType, Delay, RangedModRange, "
     //                                        73         74              75              76               77               78
@@ -8964,7 +8964,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basehp5, basemana, basearmor, attackpower, rangedattackpower, damage_base,  damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basehp5, basemana, basearmor, attackpower, rangedattackpower, damage_base FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8993,8 +8993,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         stats.AttackPower = fields[index++].GetInt16();
         stats.RangedAttackPower = fields[index++].GetInt16();
         
-        for (uint8 i = 0; i < MAX_CREATURE_BASE_DAMAGE; ++i)
-            stats.BaseDamage[i] = fields[i + 9].GetFloat();
+        stats.BaseDamage = fields[index++].GetFloat();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog->outError(LOG_FILTER_SQL, "Creature base stats for level %u has invalid class %u", Level, Class);
