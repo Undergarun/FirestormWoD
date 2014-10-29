@@ -246,7 +246,8 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
+                    if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) && 
+						(_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
                         _player->CastSpell(_player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
             }
 
@@ -516,7 +517,7 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
                 {
                     if (Unit* unitTarget = GetHitUnit())
                     {
-                        // -30% damage taken for 3s
+                        // -20% damage taken for 3s
                         _player->CastSpell(_player, PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC, true);
                         _player->CastSpell(_player, PALADIN_SPELL_BASTION_OF_GLORY, true);
                     }
@@ -657,7 +658,7 @@ class spell_pal_sacred_shield_absorb : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
             {
                 if (GetCaster())
-                    amount = int32(30 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * 1.17f);
+					amount = int32(1 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
             }
 
             void Register()
@@ -715,7 +716,7 @@ class spell_pal_emancipate : public SpellScriptLoader
         }
 };
 
-// Art of War - 59578
+// Exorcism!  - 59578
 class spell_pal_art_of_war : public SpellScriptLoader
 {
     public:
@@ -763,8 +764,7 @@ class spell_pal_seal_of_insight : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * 0.04), POWER_MANA);
+					_player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
             }
 
             void Register()
