@@ -247,7 +247,7 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) && 
-						(_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
+                       (_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
                         _player->CastSpell(_player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
             }
 
@@ -658,7 +658,7 @@ class spell_pal_sacred_shield_absorb : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
             {
                 if (GetCaster())
-					amount = int32(1 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
+                    amount = int32(1 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
             }
 
             void Register()
@@ -764,7 +764,7 @@ class spell_pal_seal_of_insight : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-					_player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
+                    _player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
             }
 
             void Register()
