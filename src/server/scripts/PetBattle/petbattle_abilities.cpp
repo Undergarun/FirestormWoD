@@ -3,7 +3,6 @@
 #include "PetBattleAbilityEffect.h"
 #include "DB2Stores.h"
 
-// Blood Tap - 45529
 class PlayerScript_Battle_Pet_Training_Spell : public PlayerScript
 {
 public:
