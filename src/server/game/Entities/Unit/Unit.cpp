@@ -17219,7 +17219,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     {
         if (damage && procSpell && target)
         {
-            if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+            if (GetTypeId() == TYPEID_PLAYER && roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
             {
                 if (procSpell && procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC))
                 {
@@ -17991,41 +17991,31 @@ void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
-void Unit::SendPetActionFeedback(uint8 msg)
+void Unit::SendPetActionFeedback(uint32 p_SpellID, uint8 p_Response)
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    Unit* l_Owner = GetOwner();
+    if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_FEEDBACK, 1);
-    data << uint8(msg);
-    data.WriteBit(1);
-    data.FlushBits();
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PET_ACTION_FEEDBACK, 1);
+    l_Data << uint32(p_SpellID);
+    l_Data << uint8(p_Response);
+
+    l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
-void Unit::SendPetTalk(uint32 pettalk)
+void Unit::SendPetTalk(uint32 p_Action)
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    Unit* l_Owner = GetOwner();
+    if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    ObjectGuid unitGuid = GetGUID();
+    uint64 l_UnitGUID = GetGUID();
 
-    uint8 bitsOrder[8] = { 1, 4, 3, 6, 0, 5, 7, 2 };
-    data.WriteBitInOrder(unitGuid, bitsOrder);
-
-    data.WriteByteSeq(unitGuid[5]);
-    data.WriteByteSeq(unitGuid[6]);
-    data.WriteByteSeq(unitGuid[0]);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[7]);
-    data.WriteByteSeq(unitGuid[3]);
-    data << uint32(pettalk);
-    data.WriteByteSeq(unitGuid[2]);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 8 + 4);
+    l_Data.appendPackGUID(l_UnitGUID);      ///< UnitGUID
+    l_Data << uint32(p_Action);             ///< Action
+    l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 void Unit::SendPetAIReaction(uint64 p_Guid)

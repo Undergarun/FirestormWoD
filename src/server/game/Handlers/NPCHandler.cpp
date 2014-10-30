@@ -585,71 +585,50 @@ void WorldSession::SendStablePet(uint64 guid)
     _sendStabledPetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid)
+void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint64 p_Guid)
 {
-    if (!GetPlayer())
+    if (m_Player == nullptr)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv SMSG_PET_STABLE_LIST Send.");
+    uint64 l_StableMaster = p_Guid;
+    uint32 l_PetsCount   = p_QueryResult ? p_QueryResult->GetRowCount() : 0;
 
-    WorldPacket data(SMSG_PET_STABLE_LIST, 200);           // guessed size
-    ObjectGuid npcGuid = guid;
-    ByteBuffer dataBuffer;
+    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 200);
+    l_Data.appendPackGUID(l_StableMaster);              ///< StableMaster
+    l_Data << uint32(l_PetsCount);                      ///< Pets count 
 
-    data.WriteBit(npcGuid[6]);
-    data.WriteBit(npcGuid[1]);
-    data.WriteBit(npcGuid[5]);
-    data.WriteBit(npcGuid[4]);
-    data.WriteBit(npcGuid[2]);
-    data.WriteBits(result ? result->GetRowCount() : 0, 19);
-    data.WriteBit(npcGuid[7]);
-
-    if (result)
+    if (p_QueryResult)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field* l_Fields = p_QueryResult->Fetch();
 
-            std::string name = fields[5].GetString();
+            uint32 l_PetSlot         = l_Fields[1].GetUInt8();
+            uint32 l_PetNumber       = l_Fields[2].GetUInt32();
+            uint32 l_CreatureID      = l_Fields[3].GetUInt32();
+            uint32 l_ExperienceLevel = l_Fields[4].GetUInt16();
+            uint8  l_PetFlag         = l_Fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 3;
 
-            data.WriteBits(name.size(), 8);
+            uint32 l_DisplayID = 0;
+            if (CreatureTemplate const* l_CreatureInfo = sObjectMgr->GetCreatureTemplate(l_CreatureID))
+                l_DisplayID = l_CreatureInfo->Modelid1 ? l_CreatureInfo->Modelid1 : l_CreatureInfo->Modelid2;
 
-            dataBuffer << uint32(fields[3].GetUInt32());          // creature entry
-            dataBuffer << uint32(fields[2].GetUInt32());          // petnumber
-            dataBuffer << uint32(fields[4].GetUInt16());          // level
-            dataBuffer << uint8(fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 3);       // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
+            std::string l_PetName = l_Fields[5].GetString();
 
-            uint32 modelId = 0;
-
-            if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(fields[3].GetUInt32()))
-                modelId = cInfo->Modelid1 ? cInfo->Modelid1 : cInfo->Modelid2;
-
-            dataBuffer << uint32(fields[1].GetUInt8());           // slot
-            dataBuffer << uint32(modelId);                        // creature modelid
-
-            if (name.size())
-                dataBuffer.append(name.c_str(), name.size());
-        }
-        while (result->NextRow());
+            l_Data << uint32(l_PetSlot);           ///< PetSlot
+            l_Data << uint32(l_PetNumber);         ///< PetNumber
+            l_Data << uint32(l_CreatureID);        ///< CreatureID
+            l_Data << uint32(l_DisplayID);         ///< DisplayID
+            l_Data << uint32(l_ExperienceLevel);   ///< ExperienceLevel
+            l_Data << uint8(l_PetFlag);            ///< PetFlag
+            l_Data.WriteBits(l_PetName.size(), 8); ///< PetName Length
+            l_Data.WriteString(l_PetName);         ///< PetName
+        } 
+        while (p_QueryResult->NextRow());
     }
 
-    data.WriteBit(npcGuid[3]);
-    data.WriteBit(npcGuid[0]);
-    data.FlushBits();
 
-    if (dataBuffer.size())
-        data.append(dataBuffer);
-
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(npcGuid[6]);
-    data.WriteByteSeq(npcGuid[1]);
-    data.WriteByteSeq(npcGuid[7]);
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[3]);
-    data.WriteByteSeq(npcGuid[4]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::SendStableResult(uint8 res)
