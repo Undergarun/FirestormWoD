@@ -871,32 +871,24 @@ class spell_pal_cleanse : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+                        DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
                         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
-                            uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                            uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            {
+                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
+                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
 
-                            // Epuration can dispell Magic with Sacred Cleansing
-                            if (caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)
-                                dispelMask = DISPEL_ALL_MASK;
+                                // Epuration can dispell Magic with Sacred Cleansing
+                                if (dispelMask = DISPEL_MAGIC && !caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)
+                                    continue;
 
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
+                                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                            }
                         }
-
-                        bool empty = true;
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            if (dispelList[i].empty())
-                                continue;
-
-                            empty = false;
-                            break;
-                        }
-
-                        if (empty)
+                        if (dispelList.empty())
                             return SPELL_FAILED_NOTHING_TO_DISPEL;
 
                         return SPELL_CAST_OK;
@@ -971,8 +963,8 @@ class spell_pal_execution_sentence_dispel : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 spellPowerBonus = int32(5.936 * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
-                    int32 damage = 12989 + spellPowerBonus;
+                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_2].BasePoints / 1000);
+                    int32 damage = spellPowerBonus + 26.72716306f * 0;
                     damage = int32(damage * 0.444f); // Final: 44.4%
 
                     if (GetSpellInfo()->Id == PALADIN_SPELL_EXECUTION_SENTENCE)
