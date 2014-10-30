@@ -998,24 +998,24 @@ class spell_dk_plague_leech : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_plague_leech_SpellScript);
 
+            std::list<uint8> m_LstRunesUsed;
+
             SpellCastResult CheckRunes()
             {
-                int32 runesUsed = 0;
-
                 if (GetCaster() && GetCaster()->ToPlayer())
                 {
                     for (uint8 i = 0; i < MAX_RUNES; ++i)
                         if (GetCaster()->ToPlayer()->GetRuneCooldown(i))
-                            runesUsed++;
+                            m_LstRunesUsed.push_back(i);
 
-                    if (runesUsed != 6)
+                    if (m_LstRunesUsed.size() < 2)
                         return SPELL_FAILED_DONT_REPORT;
                     else
                         return SPELL_CAST_OK;
 
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) && !target->HasAura(DK_SPELL_FROST_FEVER))
+                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) || !target->HasAura(DK_SPELL_FROST_FEVER))
                             return SPELL_FAILED_DONT_REPORT;
                         else
                             return SPELL_CAST_OK;
@@ -1027,29 +1027,26 @@ class spell_dk_plague_leech : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        target->RemoveAura(DK_SPELL_FROST_FEVER);
-                        target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
+                        l_Target->RemoveAura(DK_SPELL_FROST_FEVER);
+                        l_Target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
 
-                        uint32 runeRandom;
-                        bool runeOff = true;
-
-                        while (runeOff)
+                        for (uint8 l_I = 0; l_I < 2; l_I++)
                         {
-                            runeRandom = urand(0, 5);
+                            uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(m_LstRunesUsed);
 
-                            if (_player->GetRuneCooldown(runeRandom))
+                            if (l_Player->GetRuneCooldown(l_RuneRandom))
                             {
-                                _player->SetRuneCooldown(runeRandom, 0);
-                                _player->ConvertRune(runeRandom, RUNE_DEATH);
-                                runeOff = false;
+                                l_Player->SetRuneCooldown(l_RuneRandom, 0);
+                                l_Player->ConvertRune(l_RuneRandom, RUNE_DEATH);
                             }
-                        }
 
-                        _player->ResyncRunes(MAX_RUNES);
+                            m_LstRunesUsed.remove(l_RuneRandom);
+                        }
+                        l_Player->ResyncRunes(MAX_RUNES);
                     }
                 }
             }
