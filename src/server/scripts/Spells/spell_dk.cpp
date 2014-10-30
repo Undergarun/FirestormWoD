@@ -74,7 +74,9 @@ enum DeathKnightSpells
     DK_SPELL_DEATH_STRIKE_HEAL                  = 45470,
     DK_SPELL_PLAGUEBEARER                       = 161497,
     DK_SPELL_NECROTIC_PLAGUE                    = 152281,
-    DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159
+    DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159,
+    DK_SPELL_RUNIC_CORRUPTION_AURA              = 51462,
+    DK_SPELL_RUNIC_CORRUPTION                   = 51460
 };
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
@@ -234,53 +236,6 @@ class spell_dk_gorefiends_grasp : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_gorefiends_grasp_SpellScript();
-        }
-};
-
-// Called by Death Coil (damage) - 47632, Frost Strike - 49143 and Runic Strike - 56815
-// Runic Empowerment - 81229
-class spell_dk_runic_empowerment : public SpellScriptLoader
-{
-    public:
-        spell_dk_runic_empowerment() : SpellScriptLoader("spell_dk_runic_empowerment") { }
-
-        class spell_dk_runic_empowerment_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_runic_empowerment_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT))
-                    {
-                        if (roll_chance_i(45))
-                        {
-                            std::set<uint8> runes;
-                            for (uint8 i = 0; i < MAX_RUNES; i++)
-                                if (_player->GetRuneCooldown(i) == _player->GetRuneBaseCooldown(i))
-                                    runes.insert(i);
-                            if (!runes.empty())
-                            {
-                                std::set<uint8>::iterator itr = runes.begin();
-                                std::advance(itr, urand(0, runes.size()-1));
-                                _player->SetRuneCooldown((*itr), 0);
-                                _player->ResyncRunes(MAX_RUNES);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_runic_empowerment_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_runic_empowerment_SpellScript();
         }
 };
 
@@ -1428,61 +1383,6 @@ class spell_dk_death_gate : public SpellScriptLoader
         }
 };
 
-class spell_dk_death_pact : public SpellScriptLoader
-{
-    public:
-        spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
-
-        class spell_dk_death_pact_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_death_pact_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                // Check if we have valid targets, otherwise skip spell casting here
-                if (Player* player = GetCaster()->ToPlayer())
-                    for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
-                        if (Creature* undeadPet = (*itr)->ToCreature())
-                            if (undeadPet->isAlive() &&
-                                undeadPet->GetOwnerGUID() == player->GetGUID() &&
-                                undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
-                                undeadPet->IsWithinDist(player, 100.0f, false))
-                                return SPELL_CAST_OK;
-
-                return SPELL_FAILED_NO_PET;
-            }
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                Unit* unit_to_add = NULL;
-                for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-                {
-                    if (Unit* unit = (*itr)->ToUnit())
-                    if (unit->GetOwnerGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
-                    {
-                        unit_to_add = unit;
-                        break;
-                    }
-                }
-
-                unitList.clear();
-                if (unit_to_add)
-                    unitList.push_back(unit_to_add);
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_dk_death_pact_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_death_pact_SpellScript();
-        }
-};
-
 // Blood Boil - 50842
 class spell_dk_blood_boil : public SpellScriptLoader
 {
@@ -1835,6 +1735,80 @@ class spell_dk_necrotic_plague_aura : public SpellScriptLoader
     }
 };
 
+// Runic Empowerment - 81229
+class PlayerScript_Runic_Empowerment : public PlayerScript
+{
+    public:
+        PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        {
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT))
+                return;
+
+            // Only on use runic power
+            if (p_Value > 0)
+                return;
+
+            if (AuraEffectPtr l_RunicEmpowerment = p_Player->GetAuraEffect(DK_SPELL_RUNIC_EMPOWERMENT, EFFECT_0))
+            {
+                // 1.50% chance per Runic Power spent
+                float l_Amount = l_RunicEmpowerment->GetAmount();
+                l_Amount /= 100.f;
+
+                float l_Chance = l_Amount * (((float)-p_Value) / 10.f);
+
+                if (roll_chance_f(l_Chance))
+                {
+                    std::list<uint8> l_LstRunesUsed;
+
+                    for (uint8 i = 0; i < MAX_RUNES; ++i)
+                    {
+                        if (p_Player->GetRuneCooldown(i))
+                            l_LstRunesUsed.push_back(i);
+                    }
+
+                    if (l_LstRunesUsed.empty())
+                        return;
+
+                    uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(l_LstRunesUsed);
+
+                    p_Player->SetRuneCooldown(l_RuneRandom, 0);
+                    p_Player->ResyncRunes(MAX_RUNES);
+                }
+            }
+        }
+};
+
+// Runic Corruption - 51462
+class PlayerScript_Corrupion_Runic : public PlayerScript
+{
+    public:
+        PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        {
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
+                return;
+
+            // Only on use runic power
+            if (p_Value > 0)
+                return;
+
+            if (AuraEffectPtr l_RunicCorruption = p_Player->GetAuraEffect(DK_SPELL_RUNIC_CORRUPTION_AURA, EFFECT_1))
+            {
+                // 1.50% chance per Runic Power spent
+                float l_Amount = l_RunicCorruption->GetAmount();
+                l_Amount /= 100.f;
+
+                float l_Chance = l_Amount * (((float)-p_Value) / 10.f);
+
+                if (roll_chance_f(l_Chance))
+                    p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
+            }
+        }
+};
+
 
 
 void AddSC_deathknight_spell_scripts()
@@ -1843,7 +1817,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
-    new spell_dk_runic_empowerment();
     new spell_dk_dark_transformation_form();
     new spell_dk_desecrated_ground();
     new spell_dk_festering_strike();
@@ -1870,7 +1843,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_zone();
     new spell_dk_death_gate_teleport();
     new spell_dk_death_gate();
-    new spell_dk_death_pact();
     new spell_dk_blood_boil();
     new spell_dk_death_grip();
     new spell_dk_corpse_explosion();
@@ -1882,4 +1854,6 @@ void AddSC_deathknight_spell_scripts()
 
     /// Player script
     new PlayerScript_Blood_Tap();
+    new PlayerScript_Runic_Empowerment();
+    new PlayerScript_Corrupion_Runic();
 }
