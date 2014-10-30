@@ -13479,7 +13479,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
         if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
         {
-            healamount = uint32(std::max((float(healamount) * TakenTotal), 0.0f));
+            healamount = uint32(std::max((int32(healamount) + TakenTotal) * TakenTotalMod, 0.0f));
             return healamount;
         }
     }
