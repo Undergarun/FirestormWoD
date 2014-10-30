@@ -506,7 +506,6 @@ enum Opcodes
         SMSG_MIRROR_IMAGE_COMPONENTED_DATA          = 0x0000,
         SMSG_MIRROR_IMAGE_CREATURE_DATA             = 0x0000,
         SMSG_PET_CLEAR_SPELLS                       = 0x0000,
-        SMSG_PET_SPELLS_MESSAGE                     = 0x0000,
         SMSG_REFRESH_SPELL_HISTORY                  = 0x0000,   ///< (unused)
         SMSG_RESUME_CAST_BAR                        = 0x07D3,   ///< 6.0.2 19027 (unused)
         SMSG_CAST_FAILED                            = 0x07A8,   ///< 6.0.2 19027
@@ -571,6 +570,9 @@ enum Opcodes
         SMSG_SPELL_CHANCE_PROC_LOG                  = 0x0000,   ///< Debug opcode (disabled)
         SMSG_RESIST_LOG                             = 0x0000,   ///< Debug opcode (disabled)
         SMSG_AURA_CAST_LOG                          = 0x0000,   ///< Debug opcode (disabled)
+
+        /// Pet
+        SMSG_PET_SPELLS_MESSAGE                     = 0x03CC,   ///< 6.0.2 19027
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
