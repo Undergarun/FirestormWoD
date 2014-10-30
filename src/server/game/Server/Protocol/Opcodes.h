@@ -121,6 +121,7 @@ enum Opcodes
         SMSG_CLEAR_TARGET                           = 0x02B0,   ///< 6.0.2 19027
         SMSG_WEATHER                                = 0x01BF,   ///< 6.0.2 19027
         SMSG_SET_PHASE_SHIFT                        = 0x0567,   ///< 6.0.2 19027
+        SMSG_TRIGGER_CINEMATIC                      = 0x02F8,   ///< 6.0.2 19027
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0AAB,   ///< 6.0.2 19027
@@ -871,6 +872,9 @@ enum Opcodes
     CMSG_ITEM_REFUND_INFO                       = 0x0154,   ///< 6.0.2 19027
     CMSG_FAR_SIGHT                              = 0x0777,   ///< 6.0.2 19027
     CMSG_MOUNTSPECIAL_ANIM                      = 0x0464,   ///< 6.0.2 19027
+    CMSG_OPENING_CINEMATIC                      = 0x0747,   ///< 6.0.2 19027
+    CMSG_NEXT_CINEMATIC_CAMERA                  = 0x1107,   ///< 6.0.2 19027
+    CMSG_COMPLETE_CINEMATIC                     = 0x0527,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1299,7 +1303,6 @@ enum Opcodes
     CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND           = 0x0000,
     CMSG_COMMENTATOR_START_WARGAME                    = 0x0000,
     CMSG_COMPLAIN                                     = 0x0000,
-    CMSG_COMPLETE_CINEMATIC                           = 0x0000,
     CMSG_COMPLETE_MOVIE                               = 0x0000,
     CMSG_CONFIRM_RESPEC_WIPE                          = 0x0000,
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
@@ -1369,8 +1372,6 @@ enum Opcodes
     CMSG_MOVE_SET_VEHICLE_REC_ID_ACK                  = 0x0000,
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x0000,
     CMSG_NEW_SPELL_SLOT                               = 0x0000,
-    CMSG_NEXT_CINEMATIC_CAMERA                        = 0x0000,
-    CMSG_OPENING_CINEMATIC                            = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PET_ABANDON                                  = 0x0000,
     CMSG_PET_ACTION                                   = 0x0000,
@@ -1465,7 +1466,6 @@ enum Opcodes
     CMSG_TRAINER_BUY_SPELL                            = 0x0000,
     CMSG_TRAINER_LIST                                 = 0x0000,
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x0000,
-    CMSG_TRIGGER_CINEMATIC_CHEAT                      = 0x0000,
     CMSG_TURN_IN_PETITION                             = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
@@ -1942,7 +1942,6 @@ enum Opcodes
     SMSG_TRADE_UPDATED                                = 0x0000,
     SMSG_TRAINER_LIST                                 = 0x0000,
     SMSG_TRAINER_SERVICE                              = 0x0000,
-    SMSG_TRIGGER_CINEMATIC                            = 0x0000,
     SMSG_TRIGGER_MOVIE                                = 0x0000,
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x0000,
     SMSG_UI_TIME                                      = 0x0000,
