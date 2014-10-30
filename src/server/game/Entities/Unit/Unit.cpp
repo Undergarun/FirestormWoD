@@ -17216,7 +17216,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     {
         if (damage && procSpell && target)
         {
-            if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+            if (GetTypeId() == TYPEID_PLAYER && roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
             {
                 if (procSpell && procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC))
                 {
