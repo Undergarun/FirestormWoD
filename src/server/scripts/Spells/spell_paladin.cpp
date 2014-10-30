@@ -1406,6 +1406,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         }
 };
 
+// Blessing of faith - 37877
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
     public:
