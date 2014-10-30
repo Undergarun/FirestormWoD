@@ -258,6 +258,9 @@ enum Opcodes
         SMSG_SPIRIT_HEALER_CONFIRM                          = 0x0413,   ///< 6.0.2 19027
         SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x1167,   ///< 6.0.2 19027
 
+        /// Pet
+        SMSG_PET_NAME_QUERY_RESPONSE                        = 0x03B4,   ///< 6.0.2 19027
+
         /// Pet Battle opcodes
         SMSG_PETBATTLE_FULL_JOURNAL                         = 0x0000,
         SMSG_PETBATTLE_QUERY_NAME_RESPONSE                  = 0x0000,
@@ -799,7 +802,6 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Duel
     //////////////////////////////////////////////////////////////////////////
-
     CMSG_DUEL_PROPOSED                          = 0x00F4,   ///< 6.0.2 19027
     CMSG_DUEL_RESPONSE                          = 0x0124,   ///< 6.0.2 19027
 
@@ -1014,6 +1016,11 @@ enum Opcodes
     CMSG_PETITION_SHOWLIST                      = 0x0000,
     CMSG_PETITION_SHOW_SIGNATURES               = 0x0000,
     CMSG_PETITION_SIGN                          = 0x0000,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Pet
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_PET_NAME_QUERY                         = 0x05A7,
 
     //////////////////////////////////////////////////////////////////////////
     /// Battlegrounds
@@ -1360,7 +1367,6 @@ enum Opcodes
     CMSG_PET_ACTION                                   = 0x0000,
     CMSG_PET_CANCEL_AURA                              = 0x0000,
     CMSG_PET_CAST_SPELL                               = 0x0000,
-    CMSG_PET_NAME_QUERY                               = 0x0000,
     CMSG_PET_RENAME                                   = 0x0000,
     CMSG_PET_SET_ACTION                               = 0x0000,
     CMSG_PET_STOP_ATTACK                              = 0x0000,
@@ -1809,7 +1815,6 @@ enum Opcodes
     SMSG_PET_LEARNED_SPELL                            = 0x0000,
     SMSG_PET_MODE                                     = 0x0000,
     SMSG_PET_NAME_INVALID                             = 0x0000,
-    SMSG_PET_NAME_QUERY_RESPONSE                      = 0x0000,
     SMSG_PET_REMOVED_SPELL                            = 0x0000,
     SMSG_PET_RENAMEABLE                               = 0x0000,
     SMSG_PET_SLOT_UPDATED                             = 0x0000,

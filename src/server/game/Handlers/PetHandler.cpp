@@ -480,100 +480,46 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
     }
 }
 
-void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
+void WorldSession::HandlePetNameQuery(WorldPacket & p_RecvPacket)
 {
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
+    uint64 l_PetGUID;
+    p_RecvPacket.readPackGUID(l_PetGUID);
 
-    ObjectGuid petGuid;
-    ObjectGuid petNumber;
-
-    petGuid[5] = recvData.ReadBit() != 0;
-    petNumber[3] = recvData.ReadBit() != 0;
-    petGuid[6] = recvData.ReadBit() != 0;
-    petNumber[5] = recvData.ReadBit() != 0;
-    petNumber[7] = recvData.ReadBit() != 0;
-    petGuid[2] = recvData.ReadBit() != 0;
-    petGuid[4] = recvData.ReadBit() != 0;
-    petNumber[2] = recvData.ReadBit() != 0;
-    petGuid[3] = recvData.ReadBit() != 0;
-    petNumber[1] = recvData.ReadBit() != 0;
-    petGuid[7] = recvData.ReadBit() != 0;
-    petNumber[6] = recvData.ReadBit() != 0;
-    petGuid[1] = recvData.ReadBit() != 0;
-    petGuid[0] = recvData.ReadBit() != 0;
-    petNumber[4] = recvData.ReadBit() != 0;
-    petNumber[0] = recvData.ReadBit() != 0;
-
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(petNumber[5]);
-    recvData.ReadByteSeq(petGuid[4]);
-    recvData.ReadByteSeq(petGuid[3]);
-    recvData.ReadByteSeq(petNumber[7]);
-    recvData.ReadByteSeq(petNumber[4]);
-    recvData.ReadByteSeq(petGuid[5]);
-    recvData.ReadByteSeq(petGuid[2]);
-    recvData.ReadByteSeq(petGuid[0]);
-    recvData.ReadByteSeq(petGuid[6]);
-    recvData.ReadByteSeq(petNumber[2]);
-    recvData.ReadByteSeq(petNumber[0]);
-    recvData.ReadByteSeq(petNumber[6]);
-    recvData.ReadByteSeq(petGuid[1]);
-    recvData.ReadByteSeq(petNumber[3]);
-    recvData.ReadByteSeq(petGuid[7]);
-    recvData.ReadByteSeq(petNumber[1]);
-
-    SendPetNameQuery(petNumber, petGuid);
+    SendPetNameQuery(l_PetGUID);
 }
 
-void WorldSession::SendPetNameQuery(ObjectGuid petnumber, ObjectGuid petguid)
+void WorldSession::SendPetNameQuery(uint64 p_PetGUID)
 {
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, petguid);
-    if (!pet)
+    Pet* l_Pet = ObjectAccessor::GetPet(*m_Player, p_PetGUID);
+    bool l_Allow    = l_Pet != nullptr;
+
+    WorldPacket l_Data(SMSG_PET_NAME_QUERY_RESPONSE);
+    l_Data.appendPackGUID(p_PetGUID);
+    l_Data.WriteBit(l_Allow);
+
+    if (l_Allow)
     {
-        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE);
-        data << uint64(petnumber);
-        data.WriteBit(0);
-        m_Player->GetSession()->SendPacket(&data);
-        return;
+        DeclinedName const* l_DeclinedNames = l_Pet->GetDeclinedNames();
+        uint32 l_NameSize                   = strlen(l_Pet->GetName());
+        bool l_HasDeclined                  = l_DeclinedNames != nullptr;
+
+        l_Data.WriteBits(l_NameSize, 8);
+        l_Data.WriteBit(l_HasDeclined);
+        for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+            l_Data.WriteBits(l_DeclinedNames != nullptr ? l_DeclinedNames->name[l_I].size() : 0, 7);
+
+        if (l_HasDeclined)
+        {
+            for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+                if (l_DeclinedNames->name[l_I].size())
+                    l_Data.WriteString(l_DeclinedNames->name[l_I]);
+        }
+
+        l_Data << uint32(l_Pet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP));
+        l_Data.WriteString(l_Pet->GetName());
     }
 
-    std::string name = pet->GetName();
-
-    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE);
-
-    data << uint64(petnumber);
-    data.WriteBit(pet->isPet() ? 1 : 0);
-
-    if (Pet* playerPet = pet->ToPet())
-    {
-        DeclinedName const* declinedNames = playerPet->GetDeclinedNames();
-        if (declinedNames)
-        {
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                data.WriteBits(declinedNames->name[i].size(), 7);
-        }
-        else
-        {
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                data.WriteBits(0, 7);
-        }
-
-        data.WriteBit(0);   // Unk bit
-        data.WriteBits(name.size(), 8);
-
-        if (declinedNames)
-        {
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                if (declinedNames->name[i].size())
-                    data.WriteString(declinedNames->name[i]);
-        }
-
-        data << uint32(playerPet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP));
-        data.WriteString(name);
-    }
-
-    m_Player->GetSession()->SendPacket(&data);
+    m_Player->GetSession()->SendPacket(&l_Data);
 }
 
 bool WorldSession::CheckStableMaster(uint64 guid)
