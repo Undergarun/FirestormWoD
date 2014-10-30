@@ -76,7 +76,8 @@ enum DeathKnightSpells
     DK_SPELL_NECROTIC_PLAGUE                    = 152281,
     DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159,
     DK_SPELL_RUNIC_CORRUPTION_AURA              = 51462,
-    DK_SPELL_RUNIC_CORRUPTION                   = 51460
+    DK_SPELL_RUNIC_CORRUPTION                   = 51460,
+    DK_SPELL_DEATH_PACT                         = 48743
 };
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
@@ -1809,7 +1810,43 @@ class PlayerScript_Corrupion_Runic : public PlayerScript
         }
 };
 
+// Death Pact - 48743
+class spell_dk_death_pact : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
 
+        class spell_dk_death_pact_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_death_pact_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    p_Amount = l_Caster->CountPctFromMaxHealth(p_Amount);
+            }
+
+            void OnAbsorb(AuraEffectPtr /*p_AurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (p_DmgInfo.GetSpellInfo() && p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id)
+                        p_AbsorbAmount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_death_pact_AuraScript::OnAbsorb, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_death_pact_AuraScript();
+        }
+};
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -1851,6 +1888,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_icy_touch();
     new spell_dk_plaguebearer();
     new spell_dk_necrotic_plague_aura();
+    new spell_dk_death_pact();
 
     /// Player script
     new PlayerScript_Blood_Tap();
