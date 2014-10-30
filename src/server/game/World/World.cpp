@@ -1470,9 +1470,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Areatrigger visuals...");
-    sSpellMgr->LoadAreaTriggerVisuals();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Zones...");
     sObjectMgr->LoadResearchSiteZones();
 

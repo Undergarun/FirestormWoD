@@ -6182,34 +6182,6 @@ void SpellMgr::LoadSpellCustomAttr()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
-void SpellMgr::LoadAreaTriggerVisuals()
-{
-    uint32 oldMSTime = getMSTime();
-
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_VISUAL);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Visuals. DB table `areatrigger_visual` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        mAreaTriggerVisuals.insert(std::make_pair(fields[0].GetUInt32(), fields[1].GetFloat()));
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u AreaTrigger visuals in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void SpellMgr::LoadTalentSpellInfo()
 {
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)

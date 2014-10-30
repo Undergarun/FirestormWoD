@@ -709,8 +709,6 @@ class SpellMgr
 
         bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
-        float GetAreaTriggerVisual(uint32 spellId) { return mAreaTriggerVisuals.find(spellId) != mAreaTriggerVisuals.end() ? mAreaTriggerVisuals[spellId] : 0; }
-
         // Item Upgrade datas
         uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; }
 
@@ -742,7 +740,6 @@ class SpellMgr
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellCustomAttr();
-        void LoadAreaTriggerVisuals();
         void LoadTalentSpellInfo();
         void LoadSpellPowerInfo();
         void LoadForbiddenSpells();
@@ -787,7 +784,6 @@ class SpellMgr
         std::list<uint32>          mForbiddenSpells;
         TalentsPlaceHoldersSpell   mPlaceHolderSpells;
         ItemUpgradeDatas           mItemUpgradeDatas;
-        AreaTriggerVisuals         mAreaTriggerVisuals;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()
