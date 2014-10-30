@@ -204,7 +204,7 @@ class spell_dru_yseras_gift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_yseras_gift_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -221,8 +221,7 @@ class spell_dru_yseras_gift : public SpellScriptLoader
                         std::list<Unit*> tempList;
                         for (auto itr : party)
                         {
-                            if (itr->IsFullHealth() ||
-                                itr->GetDistance(caster) >= 40.0f)
+                            if (itr->IsFullHealth() || itr->GetDistance(caster) >= 40.0f)
                                 continue;
 
                             tempList.push_back(itr);
@@ -259,7 +258,7 @@ class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* attacker = dmgInfo.GetAttacker())
                     if (!attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
@@ -288,7 +287,7 @@ class spell_dru_genesis : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_genesis_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
                     return;
@@ -300,20 +299,13 @@ class spell_dru_genesis : public SpellScriptLoader
 
                     for (auto itr : partyMembers)
                     {
-                        if (!itr->IsWithinDist(plr, 60.0f))
-                            continue;
-
-                        if (!itr->IsWithinLOSInMap(plr))
+                        if (!itr->IsWithinDist(plr, 60.0f) || !itr->IsWithinLOSInMap(plr))
                             continue;
 
                         if (AuraEffectPtr rejuvenation = itr->GetAuraEffect(SPELL_DRUID_REJUVENATION, EFFECT_0))
                         {
-                            int32 duration = rejuvenation->GetBase()->GetDuration();
-                            int32 periodic = rejuvenation->GetAmplitude();
-
-                            rejuvenation->GetBase()->SetDuration(duration / 4);
-                            rejuvenation->SetPeriodicTimer(periodic / 4);
-                            rejuvenation->SetAmplitude(periodic / 4);
+                            itr->SetHealth(itr->GetHealth() + plr->GetHealingDoneInPastSecs(3));
+                            itr->RemoveAura(SPELL_DRUID_REJUVENATION);
                         }
                     }
                 }
@@ -453,55 +445,7 @@ class spell_dru_incarnation_skins : public SpellScriptLoader
         }
 };
 
-// Called by Berserk (cat) - 106951 and Tiger's Fury - 5217
-// Glyph of Shred - 114234
-class spell_dru_glyph_of_shred : public SpellScriptLoader
-{
-    public:
-        spell_dru_glyph_of_shred() : SpellScriptLoader("spell_dru_glyph_of_shred") { }
-
-        class spell_dru_glyph_of_shred_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_glyph_of_shred_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_GLYPH_OF_SHRED_OVERRIDE, true);
-            }
-
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (aurEff->GetSpellInfo()->Id == SPELL_DRUID_BERSERK_CAT && !GetTarget()->HasAura(SPELL_DRUID_TIGERS_FURY))
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_GLYPH_OF_SHRED_OVERRIDE);
-                else if (aurEff->GetSpellInfo()->Id == SPELL_DRUID_TIGERS_FURY && !GetTarget()->HasAura(SPELL_DRUID_BERSERK_CAT))
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_GLYPH_OF_SHRED_OVERRIDE);
-            }
-
-            void Register()
-            {
-                switch (m_scriptSpellId)
-                {
-                    case SPELL_DRUID_BERSERK_CAT:
-                        OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_shred_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                        OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_shred_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                        break;
-                    case SPELL_DRUID_TIGERS_FURY:
-                        OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_shred_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                        OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_shred_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_glyph_of_shred_AuraScript();
-        }
-};
-
- // Item - PvP Feral 4P Bonus - 131537
+// Item - PvP Feral 4P Bonus - 131537
 class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
 {
     public:
@@ -517,7 +461,7 @@ class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
             {
                 update = 0;
 
-                if (!sSpellMgr->GetSpellInfo(101976))
+                if (!sSpellMgr->GetSpellInfo(131537))
                     return false;
                 return true;
             }
@@ -535,7 +479,7 @@ class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
                 if (GetCaster()->HasAura(SPELL_DRUID_INCARNATION_KING_OF_JUNGLE))
                     return;
 
-                if (update >= 30000)
+                if (update >= 30 * IN_MILLISECONDS)
                 {
                     if (Player* _player = GetCaster()->ToPlayer())
                         _player->CastSpell(_player, SPELL_DRUID_STAMPEDE, true);
@@ -601,16 +545,13 @@ class spell_dru_thrash_bear : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_thrash_bear_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
 
-                // Each tick has 25% chance to remove cooldown on Mangle
-                if (Player* _plr = GetCaster()->ToPlayer())
-                    if (roll_chance_i(25))
-                        if (_plr->HasSpellCooldown(SPELL_DRUID_MANGLE_BEAR))
-                            _plr->RemoveSpellCooldown(SPELL_DRUID_MANGLE_BEAR, true);
+                // Each tick grant 1 point of rage
+                SetPower(POWER_RAGE, GetPower(POWER_RAGE) + 1);
             }
 
             void Register()
@@ -643,10 +584,14 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
                     {
                         int32 damage = GetHitDamage();
 
+                        // Award 1 combot point
+                        if (Player* plr = caster->ToPlayer())
+                            plr->AddComboPoints(plr, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
                         // Swipe and Maul deals 20% more damage if target is bleeding
                         if (target->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            AddPct(damage, 20);
+                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                             SetHitDamage(damage);
                         }
 
@@ -1546,41 +1491,27 @@ class spell_dru_natures_cure : public SpellScriptLoader
 
             SpellCastResult CheckCleansing()
             {
-                if (Unit* caster = GetCaster())
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+                if (!caster || !target)
+                    return SPELL_FAILED_ERROR;
+
+                DispelChargesList dispelList;
+
+                // Create dispel mask by dispel type
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    if (Unit* target = GetExplTargetUnit())
-                    {
-                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+                    if (!GetSpellInfo()->Effects[i].IsEffect())
+                        break;
 
-                        // Create dispel mask by dispel type
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                            uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                    uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
+                    uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
 
-                            // Nature's Cure can dispell all Magic, Curse and poison
-                            if (GetSpellInfo()->Id == 88423)
-                                dispelMask = ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_POISON));
-
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
-                        }
-
-                        bool empty = true;
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            if (dispelList[i].empty())
-                                continue;
-
-                            empty = false;
-                            break;
-                        }
-
-                        if (empty)
-                            return SPELL_FAILED_NOTHING_TO_DISPEL;
-
-                        return SPELL_CAST_OK;
-                    }
+                    target->GetDispellableAuraList(caster, dispelMask, dispelList);
                 }
+
+                if (dispelList.empty())
+                    return SPELL_FAILED_NOTHING_TO_DISPEL;
 
                 return SPELL_CAST_OK;
             }
