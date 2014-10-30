@@ -1974,7 +1974,6 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
                 m_CinematicSequence->GetPositionAtTime(l_Time, &l_NewPosition.m_positionX, &l_NewPosition.m_positionY, &l_NewPosition.m_positionZ);
 
                 Unit::UpdatePosition(l_NewPosition.m_positionX, l_NewPosition.m_positionY, l_NewPosition.m_positionZ, 0, true);
-                UpdateObjectVisibility();
                 SetFall(false);
             }
         }
