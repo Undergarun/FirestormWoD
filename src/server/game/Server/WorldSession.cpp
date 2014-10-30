@@ -100,17 +100,17 @@ m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
 isRecruiter(isARecruiter), timeLastWhoCommand(0),
-timeLastChannelInviteCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastGuildInviteCommand(0), timeLastChannelPassCommand(0),
-timeLastChannelMuteCommand(0), timeLastChannelBanCommand(0), timeLastChannelUnbanCommand(0), timeLastChannelAnnounceCommand(0),
-timeLastChannelModerCommand(0), timeLastChannelOwnerCommand(0),
-timeLastChannelSetownerCommand(0),
-timeLastChannelUnmoderCommand(0),
-timeLastChannelUnmuteCommand(0),
-timeLastChannelKickCommand(0),
+m_TimeLastChannelInviteCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastGuildInviteCommand(0), m_TimeLastChannelPassCommand(0),
+m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChannelUnbanCommand(0), m_TimeLastChannelAnnounceCommand(0),
+m_TimeLastChannelModerCommand(0), m_TimeLastChannelOwnerCommand(0),
+m_TimeLastChannelSetownerCommand(0),
+m_TimeLastChannelUnmoderCommand(0),
+m_TimeLastChannelUnmuteCommand(0),
+m_TimeLastChannelKickCommand(0),
 timeCharEnumOpcode(0),
 m_PlayerLoginCounter(0),
 timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastChangeSubGroupCommand(0),
-m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), l_TimeLastSellItemOpcode(0)
+m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_TimeLastSellItemOpcode(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -1166,30 +1166,28 @@ void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket
     _registeredAddonPrefixes.clear();
 }
 
-void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
 
-    // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
-
-    uint32 count = recvPacket.ReadBits(24);
-
-    if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
+    /// This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
+    uint32 l_Count = 0;
+    
+    p_Packet >> l_Count;
+    
+    if (l_Count > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
-        // if we have hit the softcap (64) nothing should be filtered
+        /// if we have hit the softcap (64) nothing should be filtered
         _filterAddonMessages = false;
-        recvPacket.rfinish();
+        p_Packet.rfinish();
         return;
     }
 
-    std::vector<uint8> lengths(count);
-    for (uint32 i = 0; i < count; ++i)
-        lengths[i] = recvPacket.ReadBits(5);
-
-    recvPacket.FlushBits();
-
-    for (uint32 i = 0; i < count; ++i)
-        _registeredAddonPrefixes.push_back(recvPacket.ReadString(lengths[i]));
+    for (uint32 l_I = 0; l_I < l_Count; ++l_I)
+    {
+        p_Packet.FlushBits();
+        _registeredAddonPrefixes.push_back(p_Packet.ReadString(p_Packet.ReadBits(5)));
+    }
 
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
     {

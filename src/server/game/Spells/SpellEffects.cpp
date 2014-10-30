@@ -3580,7 +3580,8 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;
-void Spell::EffectDispel(SpellEffIndex effIndex)
+
+void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3588,102 +3589,125 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
-    // Create dispel mask by dispel type
-    uint32 dispel_type = m_spellInfo->Effects[effIndex].MiscValue;
-    uint32 dispelMask = SpellInfo::GetDispelMask(DispelType(dispel_type));
+    /// Create dispel mask by dispel type
+    uint32 l_DispelType = m_spellInfo->Effects[p_EffectIndex].MiscValue;
+    uint32 l_DispelMask = SpellInfo::GetDispelMask(DispelType(l_DispelType));
 
-    // Before dispel
+    /// Before dispel
     switch (m_spellInfo->Id)
     {
-    case 115450:// Detox
-    {
-                    if (effIndex > 1)
-                    if (Player* plr = m_caster->ToPlayer())
-                    if (plr->GetSpecializationId(plr->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+        /// Detox
+        case 115450:
+        {
+            if (p_EffectIndex > 1)
+            {
+                if (Player* l_Player = m_caster->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
                         return;
+                }
+            }
 
-                    break;
-    }
-    default:
-        break;
+            break;
+        }
+
+        default:
+            break;
     }
 
-    // Mass Dispel invisibility removal
+    /// Mass Dispel invisibility removal
     if (m_spellInfo->Id == 32592)
     {
-        DispelChargesList inv_dispel_list;
-        unitTarget->GetDispellableAuraList(m_caster, 1 << DISPEL_INVISIBILITY, inv_dispel_list);
-        // will not call scripted dispel hook
-        for (DispelChargesList::iterator itr = inv_dispel_list.begin(); itr != inv_dispel_list.end(); ++itr)
+        DispelChargesList l_InvDispelList;
+        unitTarget->GetDispellableAuraList(m_caster, 1 << DISPEL_INVISIBILITY, l_InvDispelList);
+
+        /// will not call scripted dispel hook
+        for (DispelChargesList::iterator l_It = l_InvDispelList.begin(); l_It != l_InvDispelList.end(); ++l_It)
         {
-            if (AuraPtr aur = itr->first)
-                aur->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            if (AuraPtr l_Aura = l_It->first)
+                l_Aura->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
     }
 
-    DispelChargesList dispel_list;
-    unitTarget->GetDispellableAuraList(m_caster, dispelMask, dispel_list);
-    if (dispel_list.empty())
+    DispelChargesList l_DispelList;
+    unitTarget->GetDispellableAuraList(m_caster, l_DispelMask, l_DispelList);
+
+    if (l_DispelList.empty())
         return;
 
-    // Ok if exist some buffs for dispel try dispel it
-    uint32 failCount = 0;
-    DispelChargesList success_list;
-    WorldPacket dataFail(SMSG_DISPEL_FAILED, 8 + 8 + 4 + 4 + damage * 4);
-    // dispel N = damage buffs (or while exist buffs for dispel)
-    int32 count;
-    for (count = 0; count < damage && !dispel_list.empty();)
-    {
-        // Random select buff for dispel
-        DispelChargesList::iterator itr = dispel_list.begin();
-        std::advance(itr, urand(0, dispel_list.size() - 1));
+    /// dispel N = damage buffs (or while exist buffs for dispel)
+    DispelChargesList l_SuccessList;
 
-        int32 chance = itr->first->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster));
-        // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
-        if (!chance)
+    uint64 l_CasterGUID = m_caster->GetGUID();
+    uint64 l_VictimGUID = unitTarget->GetGUID();
+
+    uint32 l_DispelSpellID = m_spellInfo->Id;
+
+    std::vector<uint32> l_FailedSpells;
+
+    int32 l_Count;
+    for (l_Count = 0; l_Count < damage && !l_DispelList.empty();)
+    {
+        /// Random select buff for dispel
+        DispelChargesList::iterator l_DispelChargeIT = l_DispelList.begin();
+        std::advance(l_DispelChargeIT, urand(0, l_DispelList.size() - 1));
+
+        int32 l_Chance = l_DispelChargeIT->first->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster));
+
+        /// 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
+        if (!l_Chance)
         {
-            dispel_list.erase(itr);
+            l_DispelList.erase(l_DispelChargeIT);
             continue;
         }
         else
         {
-            if (roll_chance_i(chance))
+            if (roll_chance_i(l_Chance))
             {
-                bool alreadyListed = false;
-                for (DispelChargesList::iterator successItr = success_list.begin(); successItr != success_list.end(); ++successItr)
+                bool l_AlreadyListed = false;
+
+                for (DispelChargesList::iterator l_SuccessItr = l_SuccessList.begin(); l_SuccessItr != l_SuccessList.end(); ++l_SuccessItr)
                 {
-                    if (successItr->first->GetId() == itr->first->GetId())
+                    if (l_SuccessItr->first->GetId() == l_DispelChargeIT->first->GetId())
                     {
-                        ++successItr->second;
-                        alreadyListed = true;
+                        ++l_SuccessItr->second;
+                        l_AlreadyListed = true;
                     }
                 }
-                if (!alreadyListed)
-                    success_list.push_back(std::make_pair(itr->first, 1));
-                --itr->second;
-                if (itr->second <= 0)
-                    dispel_list.erase(itr);
+
+                if (!l_AlreadyListed)
+                    l_SuccessList.push_back(std::make_pair(l_DispelChargeIT->first, 1));
+
+                --l_DispelChargeIT->second;
+
+                if (l_DispelChargeIT->second <= 0)
+                    l_DispelList.erase(l_DispelChargeIT);
             }
             else
             {
-                if (!failCount)
-                {
-                    // Failed to dispell
-                    dataFail << uint64(m_caster->GetGUID());            // Caster GUID
-                    dataFail << uint64(unitTarget->GetGUID());          // Victim GUID
-                    dataFail << uint32(m_spellInfo->Id);                // dispel spell id
-                }
-                ++failCount;
-                dataFail << uint32(itr->first->GetId());                         // Spell Id
+                /// Append failed spell id
+                l_FailedSpells.push_back(l_DispelChargeIT->first->GetId());
             }
-            ++count;
+
+            ++l_Count;
         }
     }
 
-    if (failCount)
-        m_caster->SendMessageToSet(&dataFail, true);
+    if (!l_FailedSpells.empty())
+    {
+        WorldPacket l_SpellFailedPacket(SMSG_DISPEL_FAILED, 2 * (16 + 2) + 4 + (4 * l_FailedSpells.size()));
+        l_SpellFailedPacket.appendPackGUID(l_CasterGUID);
+        l_SpellFailedPacket.appendPackGUID(l_VictimGUID);
+        l_SpellFailedPacket << uint32(l_DispelSpellID);
+        l_SpellFailedPacket << uint32(l_FailedSpells.size());
 
-    if (success_list.empty())
+        for (uint32 l_I = 0; l_I < l_FailedSpells.size(); ++l_I)
+            l_SpellFailedPacket << uint32(l_FailedSpells[l_I]);
+
+        m_caster->SendMessageToSet(&l_SpellFailedPacket, true);
+    }
+
+    if (l_SuccessList.empty())
         return;
 
     // Custom effects
@@ -3696,7 +3720,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
             {
                 if (m_caster->IsFriendlyTo(unitTarget))
                 {
-                    int32 bp = int32(unitTarget->CountPctFromMaxHealth(aurEff->GetAmount() * count));
+                    int32 bp = int32(unitTarget->CountPctFromMaxHealth(aurEff->GetAmount() * l_Count));
                     m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true);
                 }
             }
@@ -3709,52 +3733,67 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         }
     }
 
-    WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + success_list.size() * 5);
+    WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + l_SuccessList.size() * 5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
     dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
     dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
     dataSuccess << uint8(0);                               // not used
-    dataSuccess << uint32(success_list.size());            // count
-    for (DispelChargesList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
+    dataSuccess << uint32(l_SuccessList.size());            // count
+
+    for (DispelChargesList::iterator itr = l_SuccessList.begin(); itr != l_SuccessList.end(); ++itr)
     {
         // Send dispelled spell info
         dataSuccess << uint32(itr->first->GetId());              // Spell Id
         dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
         unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), m_spellInfo->Id, itr->first->GetCasterGUID(), m_caster, itr->second);
     }
+
     m_caster->SendMessageToSet(&dataSuccess, true);
 
     // On success dispel
     switch (m_spellInfo->Id)
     {
-    case 527:   // Purify
-        // Glyph of Purify
-        if (m_caster->HasAura(55677))
-            m_caster->CastSpell(unitTarget, 56131, true);
-        break;
-    case 19505: // Devour Magic
-    {
-                    int32 heal_amount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
-                    m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
-                    // Glyph of Felhunter
-                    if (Unit* owner = m_caster->GetOwner())
-                    if (owner->GetAura(56249))
-                        owner->CastCustomSpell(owner, 19658, &heal_amount, NULL, NULL, true);
+        // Purify
+        case 527:
+            // Glyph of Purify
+            if (m_caster->HasAura(55677))
+                m_caster->CastSpell(unitTarget, 56131, true);
 
-                    break;
-    }
-    case 51886: // Cleanse Spirit
-    case 77130: // Purify Spirit
-        if (m_caster->HasAura(86959)) // Glyph of Cleansing Waters
-            m_caster->CastSpell(unitTarget, 86961, true);
-        break;
-    case 475:   // Remove Curse
-        if (m_caster->HasAura(115700))
-            m_caster->AddAura(115701, m_caster);
-        break;
-    default:
-        break;
+            break;
+
+        // Devour Magic
+        case 19505:
+        {
+            int32 l_HealAmount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
+            m_caster->CastCustomSpell(m_caster, 19658, &l_HealAmount, NULL, NULL, true);
+
+            // Glyph of Felhunter
+            if (Unit* l_Owner = m_caster->GetOwner())
+                if (l_Owner->GetAura(56249))
+                    l_Owner->CastCustomSpell(l_Owner, 19658, &l_HealAmount, NULL, NULL, true);
+
+            break;
+        }
+
+        // Cleanse Spirit
+        case 51886:
+        // Purify Spirit
+        case 77130:
+            if (m_caster->HasAura(86959)) // Glyph of Cleansing Waters
+                m_caster->CastSpell(unitTarget, 86961, true);
+
+            break;
+
+        // Remove Curse
+        case 475:
+            if (m_caster->HasAura(115700))
+                m_caster->AddAura(115701, m_caster);
+
+            break;
+
+        default:
+            break;
     }
 }
 
@@ -6390,16 +6429,10 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    WorldPacket data(SMSG_CLEAR_TARGET, 8);
-    ObjectGuid casterGuid = m_caster->GetGUID();
+    WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
+    l_Data.appendPackGUID(m_caster->GetGUID());
 
-    uint8 bitsOrder[8] = { 2, 1, 3, 4, 5, 6, 7, 0 };
-    data.WriteBitInOrder(casterGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 1, 7, 5, 2, 3, 0, 4, 6 };
-    data.WriteBytesSeq(casterGuid, bytesOrder);
-
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(&l_Data, true);
 }
 
 void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
@@ -7178,50 +7211,60 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     // Ok if exist some buffs for dispel try dispel it
-    uint32 failCount = 0;
     DispelList success_list;
-    WorldPacket dataFail(SMSG_DISPEL_FAILED, 8 + 8 + 4 + 4 + damage * 4);
+
+    uint64 l_CasterGUID = m_caster->GetGUID();
+    uint64 l_VictimGUID = unitTarget->GetGUID();
+
+    uint32 l_DispelSpellID = m_spellInfo->Id;
+
+    std::vector<uint32> l_FailedSpells;
+
     // dispel N = damage buffs (or while exist buffs for dispel)
     for (int32 count = 0; count < damage && !steal_list.empty();)
     {
         // Random select buff for dispel
-        DispelChargesList::iterator itr = steal_list.begin();
-        std::advance(itr, urand(0, steal_list.size() - 1));
+        DispelChargesList::iterator l_DispelChargeIT = steal_list.begin();
+        std::advance(l_DispelChargeIT, urand(0, steal_list.size() - 1));
 
-        int32 chance = itr->first->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster));
+        int32 chance = l_DispelChargeIT->first->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster));
         // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
         if (!chance)
         {
-            steal_list.erase(itr);
+            steal_list.erase(l_DispelChargeIT);
             continue;
         }
         else
         {
             if (roll_chance_i(chance))
             {
-                success_list.push_back(std::make_pair(itr->first->GetId(), itr->first->GetCasterGUID()));
-                --itr->second;
-                if (itr->second <= 0)
-                    steal_list.erase(itr);
+                success_list.push_back(std::make_pair(l_DispelChargeIT->first->GetId(), l_DispelChargeIT->first->GetCasterGUID()));
+                --l_DispelChargeIT->second;
+                if (l_DispelChargeIT->second <= 0)
+                    steal_list.erase(l_DispelChargeIT);
             }
             else
             {
-                if (!failCount)
-                {
-                    // Failed to dispell
-                    dataFail << uint64(m_caster->GetGUID());            // Caster GUID
-                    dataFail << uint64(unitTarget->GetGUID());          // Victim GUID
-                    dataFail << uint32(m_spellInfo->Id);                // dispel spell id
-                }
-                ++failCount;
-                dataFail << uint32(itr->first->GetId());                         // Spell Id
+                /// Append failed spell id
+                l_FailedSpells.push_back(l_DispelChargeIT->first->GetId());
             }
             ++count;
         }
     }
 
-    if (failCount)
-        m_caster->SendMessageToSet(&dataFail, true);
+    if (!l_FailedSpells.empty())
+    {
+        WorldPacket l_SpellFailedPacket(SMSG_DISPEL_FAILED, 2 * (16 + 2) + 4 + (4 * l_FailedSpells.size()));
+        l_SpellFailedPacket.appendPackGUID(l_CasterGUID);
+        l_SpellFailedPacket.appendPackGUID(l_VictimGUID);
+        l_SpellFailedPacket << uint32(l_DispelSpellID);
+        l_SpellFailedPacket << uint32(l_FailedSpells.size());
+
+        for (uint32 l_I = 0; l_I < l_FailedSpells.size(); ++l_I)
+            l_SpellFailedPacket << uint32(l_FailedSpells[l_I]);
+
+        m_caster->SendMessageToSet(&l_SpellFailedPacket, true);
+    }
 
     if (success_list.empty())
         return;

@@ -30,20 +30,17 @@
 #include "AccountMgr.h"
 
 //void called when player click on auctioneer npc
-void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleAuctionHelloOpcode(WorldPacket& p_Packet)
 {
-    ObjectGuid guid;
+    uint64 l_Guid = 0;
 
-    uint8 bitOrder[8] = {6, 5, 7, 2, 4, 0, 1, 3};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    p_Packet.readPackGUID(l_Guid);
 
-    uint8 byteOrder[8] = {1, 5, 0, 6, 4, 2, 3, 7};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_Guid, UNIT_NPC_FLAG_AUCTIONEER);
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
-    if (!unit)
+    if (!l_Unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionHelloOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionHelloOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(l_Guid)));
         return;
     }
 
@@ -51,11 +48,11 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendAuctionHello((ObjectGuid)guid, unit);
+    SendAuctionHello(l_Guid, l_Unit);
 }
 
 //this void causes that auction window is opened
-void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
+void WorldSession::SendAuctionHello(uint64 p_Guid, Creature* p_Unit)
 {
     if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
     {
@@ -63,32 +60,17 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
         return;
     }
 
-    AuctionHouseEntry const* ahEntry = AuctionHouseMgr::GetAuctionHouseEntry(unit->getFaction());
+    AuctionHouseEntry const* ahEntry = AuctionHouseMgr::GetAuctionHouseEntry(p_Unit->getFaction());
+
     if (!ahEntry)
         return;
 
-    WorldPacket data(SMSG_AUCTION_HELLO_RESPONSE, 12);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(1); // 3.3.3: 1 - AH enabled, 0 - AH disabled
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.FlushBits();
+    WorldPacket l_Data(SMSG_AUCTION_HELLO_RESPONSE, 12);
+    l_Data.appendPackGUID(p_Guid);
+    l_Data.WriteBit(1);               ///< 3.3.3: 1 - AH enabled, 0 - AH disabled
+    l_Data.FlushBits();
 
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data << uint32(ahEntry->ID);
-    data.WriteByteSeq(guid[4]);
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 //call this method when player bids, creates, or deletes auction

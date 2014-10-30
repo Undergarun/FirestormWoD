@@ -2448,54 +2448,54 @@ void AuraEffect::HandleModStealthDetect(AuraApplication const* aurApp, uint8 mod
     target->UpdateObjectVisibility();
 }
 
-void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModStealth(const AuraApplication * p_AuraApplication, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK))
         return;
 
-    Unit* target = aurApp->GetTarget();
-    StealthType type = StealthType(GetMiscValue());
+    Unit* l_Target = p_AuraApplication->GetTarget();
+    StealthType l_Type = StealthType(GetMiscValue());
 
-    if (apply)
+    if (p_Apply)
     {
-        target->m_stealth.AddFlag(type);
-        target->m_stealth.AddValue(type, GetAmount());
+        l_Target->m_stealth.AddFlag(l_Type);
+        l_Target->m_stealth.AddValue(l_Type, GetAmount());
 
-        target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
+        l_Target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
 
-        //WorldPacket data(SMSG_CLEAR_TARGET, 8);
-        //data << uint64(target->GetGUID());
+        //WorldPacket data(SMSG_CLEAR_TARGET, 16 + 2);
+        //data.appendPackGUID(target->GetGUID());
         //target->SendMessageUnfriendlyToSetInRange(&data, true);
 
-        Unit::AttackerSet const& attackers = target->getAttackers();
-        for (Unit::AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+        Unit::AttackerSet const& l_Attackers = l_Target->getAttackers();
+        for (Unit::AttackerSet::const_iterator l_Itr = l_Attackers.begin(); l_Itr != l_Attackers.end();)
         {
-            if (!(*itr)->canSeeOrDetect(target))
-                (*(itr++))->AttackStop();
+            if (!(*l_Itr)->canSeeOrDetect(l_Target))
+                (*(l_Itr++))->AttackStop();
             else
-                ++itr;
+                ++l_Itr;
         }
     }
     else
     {
-        target->m_stealth.AddValue(type, -GetAmount());
+        l_Target->m_stealth.AddValue(l_Type, -GetAmount());
 
-        if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH) && !target->HasAura(115192)) // if last SPELL_AURA_MOD_STEALTH
+        if (!l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH) && !l_Target->HasAura(115192)) // if last SPELL_AURA_MOD_STEALTH
         {
-            target->m_stealth.DelFlag(type);
-            target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
+            l_Target->m_stealth.DelFlag(l_Type);
+            l_Target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
         }
     }
 
     // call functions which may have additional effects after chainging state of unit
-    if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
+    if (p_Apply && (p_Mode & AURA_EFFECT_HANDLE_REAL))
     {
         // drop flag at stealth in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-        target->RemoveFlagsAuras();
+        l_Target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        l_Target->RemoveFlagsAuras();
     }
 
-    target->UpdateObjectVisibility();
+    l_Target->UpdateObjectVisibility();
 }
 
 void AuraEffect::HandleModStealthLevel(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -8422,11 +8422,13 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
 
     if (apply)
     {
-        WorldPacket data(SMSG_WEATHER, (4 + 4 + 1));
-        data.WriteBit(0);
-        data << float(1.0f);
-        data << uint32(GetMiscValue());
-        target->GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_WEATHER, (4 + 4 + 4));
+        l_Data << uint32(GetMiscValue());
+        l_Data << float(1.0f);
+        l_Data.WriteBit(0);
+        l_Data.FlushBits();
+
+        target->GetSession()->SendPacket(&l_Data);
     }
     else
     {

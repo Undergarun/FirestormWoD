@@ -146,13 +146,15 @@ void LoadWeatherData()
 
 }
 
-void SendFineWeatherUpdateToPlayer(Player* player)
+void SendFineWeatherUpdateToPlayer(Player * p_Player)
 {
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
-    data.WriteBit(0);
-    data << float(0.0f);
-    data << (uint32)WEATHER_STATE_FINE;
-    player->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_WEATHER, (4 + 4 + 4));
+    l_Data << (uint32)WEATHER_STATE_FINE;
+    l_Data << float(0.0f);
+    l_Data.WriteBit(0);
+    l_Data.FlushBits();
+
+    p_Player->GetSession()->SendPacket(&l_Data);
 }
 
 void Update(uint32 diff)

@@ -1566,74 +1566,60 @@ bool Player::IsImmuneToEnvironmentalDamage()
     return (!isTargetableForAttack(false));
 }
 
-uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
+uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
 {
     if (IsImmuneToEnvironmentalDamage())
         return 0;
 
     // Absorb, resist some environmental damage type
-    uint32 absorb = 0;
-    uint32 resist = 0;
-    if (type == DAMAGE_LAVA)
-        CalcAbsorbResist(this, SPELL_SCHOOL_MASK_FIRE, DIRECT_DAMAGE, damage, &absorb, &resist);
-    else if (type == DAMAGE_SLIME)
-        CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, damage, &absorb, &resist);
-    else if (type == DAMAGE_FALL && damage < GetHealth())
+    uint32 l_Absorb = 0;
+    uint32 l_Resist = 0;
+
+    if (p_Type == DAMAGE_LAVA)
+        CalcAbsorbResist(this, SPELL_SCHOOL_MASK_FIRE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
+    else if (p_Type == DAMAGE_SLIME)
+        CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
+    else if (p_Type == DAMAGE_FALL && p_Damage < GetHealth())
     {
         // Percentage from SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
         AuraEffectList const& mReduceFallDamagePct = GetAuraEffectsByType(SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT);
         for (AuraEffectList::const_iterator i = mReduceFallDamagePct.begin(); i != mReduceFallDamagePct.end(); ++i)
-            AddPct(damage, (*i)->GetAmount());
+            AddPct(p_Damage, (*i)->GetAmount());
     }
 
-    damage -= absorb + resist;
+    p_Damage -= l_Absorb + l_Resist;
 
-    DealDamageMods(this, damage, &absorb);
+    DealDamageMods(this, p_Damage, &l_Absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
-    ObjectGuid playerGuid = GetGUID();
+    WorldPacket l_Data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, (21));
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint8(p_Type != DAMAGE_FALL_TO_VOID ? p_Type : DAMAGE_FALL);
+    l_Data << uint32(p_Damage);
+    l_Data << uint32(l_Absorb);
+    l_Data << uint32(l_Resist);
 
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(false);           // HasPowerData
-    data.WriteBit(playerGuid[4]);
+    l_Data.WriteBit(false);               ///< HasPowerData
+    l_Data.FlushBits();
 
-    data << uint32(damage);
-    data << uint32(resist);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[1]);
-    data << uint32(absorb);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[6]);
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    data.WriteByteSeq(playerGuid[0]);
+    SendMessageToSet(&l_Data, true);
 
-    SendMessageToSet(&data, true);
-
-    uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+    uint32 l_FinalDamage = DealDamage(this, p_Damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
     if (!isAlive())
     {
-        if (type == DAMAGE_FALL)                               // DealDamage not apply item durability loss at self damage
+        if (p_Type == DAMAGE_FALL)                               ///< DealDamage not apply item durability loss at self damage
         {
             sLog->outDebug(LOG_FILTER_PLAYER, "We are fall to death, loosing 10 percents durability");
+
             DurabilityLossAll(0.10f, false);
-            // durability lost message
+            /// durability lost message
             SendDurabilityLoss(this, 10);
         }
 
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM, 1, type);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM, 1, p_Type);
     }
 
-    return final_damage;
+    return l_FinalDamage;
 }
 
 int32 Player::getMaxTimer(MirrorTimerType timer)
@@ -4620,18 +4606,18 @@ void Player::RemoveMail(uint32 id)
     }
 }
 
-void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, uint32 item_guid, uint32 item_count)
+void Player::SendMailResult(uint32 p_MailID, MailResponseType p_MailAction, MailResponseResult p_MailError, uint32 p_EquipError, uint32 p_ItemGuid, uint32 p_ItemCount)
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, 4 * 6);
+    WorldPacket l_Data(SMSG_SEND_MAIL_RESULT, 4 * 6);
 
-    data << uint32(mailAction);
-    data << uint32(equipError);
-    data << uint32(mailError);
-    data << uint32(item_guid);
-    data << uint32(item_count);
-    data << uint32(mailId);
+    l_Data << uint32(p_MailID);
+    l_Data << uint32(p_MailAction);
+    l_Data << uint32(p_MailError);
+    l_Data << uint32(p_EquipError);
+    l_Data << uint32(p_ItemGuid);
+    l_Data << uint32(p_ItemCount);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendNewMail()

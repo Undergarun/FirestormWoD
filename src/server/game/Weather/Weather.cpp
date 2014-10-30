@@ -189,20 +189,23 @@ bool Weather::ReGenerate()
     return m_type != old_type || m_grade != old_grade;
 }
 
-void Weather::SendWeatherUpdateToPlayer(Player* player)
+void Weather::SendWeatherUpdateToPlayer(Player * p_Player)
 {
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
-    data.WriteBit(0);
-    data << float(m_grade);
-    data << uint32(GetWeatherState());
-    player->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_WEATHER, (4 + 4 + 4));
+    l_Data << uint32(GetWeatherState());
+    l_Data << float(m_grade);
+    l_Data.WriteBit(0);
+    l_Data.FlushBits();
+
+    p_Player->GetSession()->SendPacket(&l_Data);
 }
 
 /// Send the new weather to all players in the zone
 bool Weather::UpdateWeather()
 {
-    Player* player = sWorld->FindPlayerInZone(m_zone);
-    if (!player)
+    Player* l_Player = sWorld->FindPlayerInZone(m_zone);
+
+    if (!l_Player)
         return false;
 
     ///- Send the weather packet to all players in this zone
@@ -211,17 +214,19 @@ bool Weather::UpdateWeather()
     else if (m_grade < 0)
         m_grade = 0.0001f;
 
-    WeatherState state = GetWeatherState();
+    WeatherState l_State = GetWeatherState();
 
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
-    data.WriteBit(0);
-    data << float(m_grade);
-    data << uint32(state);
-    player->SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_WEATHER, (4 + 4 + 4));
+    l_Data << uint32(l_State);
+    l_Data << float(m_grade);
+    l_Data.WriteBit(0);
+    l_Data.FlushBits();
+
+    l_Player->SendMessageToSet(&l_Data, true);
 
     ///- Log the event
     char const* wthstr;
-    switch (state)
+    switch (l_State)
     {
         case WEATHER_STATE_FOG:
             wthstr = "fog";
@@ -266,7 +271,7 @@ bool Weather::UpdateWeather()
     }
     sLog->outInfo(LOG_FILTER_GENERAL, "Change the weather of zone %u to %s.", m_zone, wthstr);
 
-    sScriptMgr->OnWeatherChange(this, state, m_grade);
+    sScriptMgr->OnWeatherChange(this, l_State, m_grade);
     return true;
 }
 

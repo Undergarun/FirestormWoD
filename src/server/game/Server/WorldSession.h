@@ -383,7 +383,7 @@ class WorldSession
         //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
-        void SendAuctionHello(ObjectGuid guid, Creature* unit);
+        void SendAuctionHello(uint64 guid, Creature* unit);
         void SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint64 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry* auction);
@@ -832,8 +832,6 @@ class WorldSession
         void HandleChannelModerate(WorldPacket& recvPacket);
         void HandleChannelDeclineInvite(WorldPacket& recvPacket);
         void HandleChannelDisplayListQuery(WorldPacket& recvPacket);
-        void HandleGetChannelMemberCount(WorldPacket& recvPacket);
-        void HandleSetChannelWatch(WorldPacket& recvPacket);
 
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
@@ -1184,24 +1182,24 @@ class WorldSession
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         time_t timeLastWhoCommand;
         time_t timeCharEnumOpcode;
-        time_t timeLastChannelInviteCommand;
-        time_t timeLastChannelPassCommand;
-        time_t timeLastChannelMuteCommand;
-        time_t timeLastChannelBanCommand;
-        time_t timeLastChannelUnbanCommand;
-        time_t timeLastChannelAnnounceCommand;
+        time_t m_TimeLastChannelInviteCommand;
+        time_t m_TimeLastChannelPassCommand;
+        time_t m_TimeLastChannelMuteCommand;
+        time_t m_TimeLastChannelBanCommand;
+        time_t m_TimeLastChannelUnbanCommand;
+        time_t m_TimeLastChannelAnnounceCommand;
         time_t m_TimeLastGroupInviteCommand;
         time_t m_TimeLastGuildInviteCommand;
-        time_t timeLastChannelModerCommand;
-        time_t timeLastChannelOwnerCommand;
-        time_t timeLastChannelSetownerCommand;
-        time_t timeLastChannelUnmoderCommand;
-        time_t timeLastChannelUnmuteCommand;
-        time_t timeLastChannelKickCommand;
+        time_t m_TimeLastChannelModerCommand;
+        time_t m_TimeLastChannelOwnerCommand;
+        time_t m_TimeLastChannelSetownerCommand;
+        time_t m_TimeLastChannelUnmoderCommand;
+        time_t m_TimeLastChannelUnmuteCommand;
+        time_t m_TimeLastChannelKickCommand;
         time_t timeLastServerCommand;
         time_t timeLastArenaTeamCommand;
         time_t timeLastChangeSubGroupCommand;
-        time_t l_TimeLastSellItemOpcode;
+        time_t m_TimeLastSellItemOpcode;
 
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;

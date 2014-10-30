@@ -801,14 +801,14 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/
 
 void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
 {
-    recvData.read_skip<uint32>();                          // spellid, not used
+    recvData.read_skip<uint32>();
 
-    // ignore for remote control state (for player case)
-    Unit* mover = m_Player->m_mover;
-    if (mover != m_Player && mover->GetTypeId() == TYPEID_PLAYER)
+    /// ignore for remote control state (for player case)
+    Unit * l_Mover = m_Player->m_mover;
+    if (l_Mover != m_Player && l_Mover->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
+    l_Mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
 void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)

@@ -595,7 +595,7 @@ void Channel::List(Player * p_Player)
             if (l_Member && (!AccountMgr::IsPlayerAccount(p_Player->GetSession()->GetSecurity()) || l_Member->GetSession()->GetSecurity() <= AccountTypes(l_GmLevelInWhoList)) &&
                 l_Member->IsVisibleGloballyFor(p_Player))
             {
-                l_Buffer << uint64(l_I->first);                     ///< Member guid
+                l_Buffer.appendPackGUID(l_I->first);                ///< Member guid
                 l_Buffer << uint32(g_RealmID);                      ///< virtualRealmAddress
                 l_Buffer << uint8(l_I->second.flags);               ///< Flags
 
