@@ -29,7 +29,6 @@
 enum PaladinSpells
 {
     PALADIN_SPELL_JUDGMENT                      = 20271,
-    PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD         = 111529,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
     PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
@@ -1082,15 +1081,9 @@ class spell_pal_holy_prism_visual : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (_player->IsValidAttackTarget(target))
-                        {
                             _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
-                        }
                         else
-                        {
                             _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
-                        }
                     }
                 }
             }
@@ -1329,7 +1322,7 @@ class spell_pal_judgment : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD) || caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
+                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
                         {
                             int32 power = 1;
                             if (caster->HasAura(PALADIN_SPELL_HOLY_AVENGER))
@@ -1337,13 +1330,8 @@ class spell_pal_judgment : public SpellScriptLoader
 
                             caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + power);
                         }
-
-                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD))
-                            caster->CastSpell(target, PALADIN_SPELL_PHYSICAL_VULNERABILITY, true);
-
                         if (caster->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
                             caster->CastSpell(caster, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
-
                         if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT))
                             caster->CastSpell(target, PALADIN_SPELL_BURDEN_OF_GUILD, true);
                     }
