@@ -547,11 +547,11 @@ class spell_dru_thrash_bear : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (!GetCaster())
-                    return;
-
-                // Each tick grant 1 point of rage
-                SetPower(POWER_RAGE, GetPower(POWER_RAGE) + 1);
+                if (Unit* caster = GetCaster())
+                {
+                    // Each tick grant 1 point of rage
+                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) + 1);
+                }
             }
 
             void Register()
@@ -566,15 +566,15 @@ class spell_dru_thrash_bear : public SpellScriptLoader
         }
 };
 
-// Swipe - 106785 and Maul - 6807
-class spell_dru_swipe_and_maul : public SpellScriptLoader
+// Swipe - 106785
+class spell_dru_swipe : public SpellScriptLoader
 {
     public:
-        spell_dru_swipe_and_maul() : SpellScriptLoader("spell_dru_swipe_and_maul") { }
+        spell_dru_swipe() : SpellScriptLoader("spell_dru_swipe") { }
 
-        class spell_dru_swipe_and_maul_SpellScript : public SpellScript
+        class spell_dru_swipe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_swipe_and_maul_SpellScript);
+            PrepareSpellScript(spell_dru_swipe_SpellScript);
 
             void HandleOnHit()
             {
@@ -592,6 +592,46 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
                         if (target->HasAuraState(AURA_STATE_BLEEDING))
                         {
                             AddPct(damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                            SetHitDamage(damage);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_swipe_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_swipe_SpellScript();
+        }
+};
+
+// Maul - 6807
+class spell_dru_maul : public SpellScriptLoader
+{
+    public:
+        spell_dru_maul() : SpellScriptLoader("spell_dru_maul") { }
+
+        class spell_dru_maul_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_maul_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 damage = GetHitDamage();
+
+                        // Deals 20% more damage if target is bleeding
+                        if (target->HasAuraState(AURA_STATE_BLEEDING))
+                        {
+                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
                             SetHitDamage(damage);
                         }
 
@@ -614,13 +654,13 @@ class spell_dru_swipe_and_maul : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_swipe_and_maul_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_dru_maul_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dru_swipe_and_maul_SpellScript();
+            return new spell_dru_maul_SpellScript();
         }
 };
 
@@ -3179,11 +3219,11 @@ void AddSC_druid_spell_scripts()
     new spell_dru_glyph_of_the_treant();
     new spell_dru_incarnation_chosen_of_elune();
     new spell_dru_incarnation_skins();
-    new spell_dru_glyph_of_shred();
     new spell_dru_item_pvp_feral_4p();
     new spell_dru_wild_charge_moonkin();
     new spell_dru_thrash_bear();
-    new spell_dru_swipe_and_maul();
+    new spell_dru_swipe();
+    new spell_dru_maul();
     new spell_dru_soul_of_the_forest_eclipse();
     new spell_dru_soul_of_the_forest();
     new spell_dru_tigers_fury();
