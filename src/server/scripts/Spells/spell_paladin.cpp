@@ -1665,6 +1665,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
         }
 };
 
+// Righteous defense - 31789
 class spell_pal_righteous_defense : public SpellScriptLoader
 {
     public:
