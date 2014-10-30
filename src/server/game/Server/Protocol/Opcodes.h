@@ -260,6 +260,7 @@ enum Opcodes
 
         /// Pet
         SMSG_PET_NAME_QUERY_RESPONSE                        = 0x03B4,   ///< 6.0.2 19027
+        SMSG_PET_NAME_INVALID                               = 0x01AB,   ///< 6.0.2 19027
 
         /// Pet Battle opcodes
         SMSG_PETBATTLE_FULL_JOURNAL                         = 0x0000,
@@ -1021,6 +1022,8 @@ enum Opcodes
     /// Pet
     //////////////////////////////////////////////////////////////////////////
     CMSG_PET_NAME_QUERY                         = 0x05A7,
+    CMSG_PET_RENAME                             = 0x03FF,
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Battlegrounds
@@ -1367,7 +1370,6 @@ enum Opcodes
     CMSG_PET_ACTION                                   = 0x0000,
     CMSG_PET_CANCEL_AURA                              = 0x0000,
     CMSG_PET_CAST_SPELL                               = 0x0000,
-    CMSG_PET_RENAME                                   = 0x0000,
     CMSG_PET_SET_ACTION                               = 0x0000,
     CMSG_PET_STOP_ATTACK                              = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
@@ -1814,7 +1816,6 @@ enum Opcodes
     SMSG_PET_GUIDS                                    = 0x0000,
     SMSG_PET_LEARNED_SPELL                            = 0x0000,
     SMSG_PET_MODE                                     = 0x0000,
-    SMSG_PET_NAME_INVALID                             = 0x0000,
     SMSG_PET_REMOVED_SPELL                            = 0x0000,
     SMSG_PET_RENAMEABLE                               = 0x0000,
     SMSG_PET_SLOT_UPDATED                             = 0x0000,

@@ -628,98 +628,100 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket & recvData)
+void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
 {
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
+    uint64 l_PetNumber;
+    uint32 l_Unknow;
+    uint32 l_NewNameSize;
+    bool l_HasDeclinedNames;
+    DeclinedName l_DeclinedNames;
+    uint8 l_DeclinedNamesLenght[MAX_DECLINED_NAME_CASES];
+    std::string l_NewName;
 
-    std::string name;
-    DeclinedName declinedname;
-    uint8 declineNameLenght[MAX_DECLINED_NAME_CASES] = {0, 0, 0, 0, 0};
+    printf("l_Unknow : %u\n", l_Unknow);
 
-    recvData.read_skip<uint32>();   // unk, client send 2048, maybe flags ?
-    bool hasName = !recvData.ReadBit();
-    bool isdeclined = recvData.ReadBit();
+    p_RecvPacket.readPackGUID(l_PetNumber);
+    l_Unknow           = p_RecvPacket.read<uint32>();
+    l_NewNameSize      = p_RecvPacket.ReadBits(8);
+    l_HasDeclinedNames = p_RecvPacket.ReadBit();
 
-    if (isdeclined)
-        for(int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-            declineNameLenght[i] = recvData.ReadBits(7);
-
-    if (hasName)
+    if (l_HasDeclinedNames)
     {
-        uint8 nameLenght = recvData.ReadBits(8);
-        recvData.FlushBits();
-        name = recvData.ReadString(nameLenght);
+        for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; l_I++)
+            l_DeclinedNamesLenght[l_I] = p_RecvPacket.ReadBits(7);
+
+        for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; l_I++)
+            l_DeclinedNames.name[l_I] = p_RecvPacket.ReadString(l_DeclinedNamesLenght[l_I]);
     }
 
-    Pet* pet = GetPlayer()->GetPet();
-    if (!pet)
+    l_NewName = p_RecvPacket.ReadString(l_NewNameSize);
+
+    Pet* l_Pet = ObjectAccessor::GetPet(*m_Player, l_PetNumber);
+    if (l_Pet == nullptr || l_Pet != m_Player->GetPet())
         return;
                                                             // check it!
-    if (!pet || !pet->isPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
-        !pet->HasByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED) ||
-        pet->GetOwnerGUID() != m_Player->GetGUID() || !pet->GetCharmInfo())
+    if (!l_Pet || !l_Pet->isPet() || ((Pet*)l_Pet)->getPetType()!= HUNTER_PET ||
+        !l_Pet->HasByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED) ||
+        l_Pet->GetOwnerGUID() != m_Player->GetGUID() || !l_Pet->GetCharmInfo())
         return;
 
-    PetNameInvalidReason res = ObjectMgr::CheckPetName(name);
-    if (res != PET_NAME_SUCCESS)
+    PetNameInvalidReason l_Reason = ObjectMgr::CheckPetName(l_NewName);
+    if (l_Reason != PET_NAME_SUCCESS)
     {
-        SendPetNameInvalid(res, name, NULL);
-        return;
-    }
-
-    if (sObjectMgr->IsReservedName(name))
-    {
-        SendPetNameInvalid(PET_NAME_RESERVED, name, NULL);
+        SendPetNameInvalid(l_Reason, l_NewName, NULL);
         return;
     }
 
-    pet->SetName(name);
-
-    Unit* owner = pet->GetOwner();
-    if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-        owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
-
-    pet->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED);
-
-    if (isdeclined)
+    if (sObjectMgr->IsReservedName(l_NewName))
     {
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            declinedname.name[i] = recvData.ReadString(declineNameLenght[i]);
+        SendPetNameInvalid(PET_NAME_RESERVED, l_NewName, NULL);
+        return;
+    }
 
-        std::wstring wname;
-        Utf8toWStr(name, wname);
-        if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
+    l_Pet->SetName(l_NewName);
+
+    Unit* l_Owner = l_Pet->GetOwner();
+    if (l_Owner && (l_Owner->GetTypeId() == TYPEID_PLAYER) && l_Owner->ToPlayer()->GetGroup())
+        l_Owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
+
+    l_Pet->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED);
+
+    if (l_HasDeclinedNames)
+    {
+        std::wstring l_WName;
+        Utf8toWStr(l_NewName, l_WName);
+        if (!ObjectMgr::CheckDeclinedNames(l_WName, l_DeclinedNames))
         {
-            SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, &declinedname);
+            SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, l_NewName, &l_DeclinedNames);
             return;
         }
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (isdeclined)
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    if (l_HasDeclinedNames)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
-        stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
-        trans->Append(stmt);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
+        l_Statement->setUInt32(0, l_Pet->GetCharmInfo()->GetPetNumber());
+        l_Transaction->Append(l_Statement);
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
-        stmt->setUInt32(0, m_Player->GetGUIDLow());
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
+        l_Statement->setUInt32(0, m_Player->GetGUIDLow());
 
-        for (uint8 i = 0; i < 5; i++)
-            stmt->setString(i+1, declinedname.name[i]);
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
+            l_Statement->setString(i + 1, l_DeclinedNames.name[i]);
 
-        trans->Append(stmt);
+        l_Transaction->Append(l_Statement);
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
-    stmt->setString(0, name);
-    stmt->setUInt32(1, m_Player->GetGUIDLow());
-    stmt->setUInt32(2, pet->GetCharmInfo()->GetPetNumber());
-    trans->Append(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
+    l_Statement->setString(0, l_NewName);
+    l_Statement->setUInt32(1, m_Player->GetGUIDLow());
+    l_Statement->setUInt32(2, l_Pet->GetCharmInfo()->GetPetNumber());
+    l_Transaction->Append(l_Statement);
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 
-    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
+    l_Pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
 void WorldSession::HandlePetAbandon(WorldPacket& recvData)
@@ -1005,36 +1007,31 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
+void WorldSession::SendPetNameInvalid(uint32 p_Result, const std::string& p_NewName, DeclinedName *p_DeclinedName)
 {
-    WorldPacket data(SMSG_PET_NAME_INVALID);
+    Pet* l_Pet = m_Player->GetPet();
+    if (l_Pet == nullptr)
+        return;
 
-    data.WriteBit(bool(declinedName));
+    WorldPacket l_Data(SMSG_PET_NAME_INVALID);
+    l_Data << uint8(p_Result);
+    l_Data.appendPackGUID(l_Pet->GetGUID());
+    l_Data << uint32(0);
+    l_Data.WriteBits(p_NewName.size(), 8);
+    l_Data.WriteBit(p_DeclinedName != nullptr);
 
-    if (declinedName)
+    if (p_DeclinedName != nullptr)
     {
-        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data.WriteBits(declinedName->name[i].size(), 7);
+        for (uint32 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+            l_Data.WriteBits(p_DeclinedName->name[l_I].size(), 7);
+
+        for (uint32 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+            l_Data.WriteString(p_DeclinedName->name[l_I]);
     }
 
-    data.WriteBit(0);
-    data.WriteBits(name.size(), 8);
-    data.FlushBits();
+    l_Data.WriteString(p_NewName);
 
-    if (name.size())
-        data.append(name.c_str(), name.size());
-
-    if (declinedName)
-    {
-        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            if (declinedName->name[i].size())
-                data.append(declinedName->name[i].c_str(), declinedName->name[i].size());
-    }
-
-    data << uint8(1);
-    data << uint32(error);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleLearnPetSpecialization(WorldPacket & recvData)
