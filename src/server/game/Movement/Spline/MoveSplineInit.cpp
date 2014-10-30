@@ -326,16 +326,16 @@ namespace Movement
         l_Data << uint32(0);                                                                        ///< Duration
         l_Data << float(0);                                                                         ///< Vertical Acceleration
         l_Data << int32(0);                                                                         ///< Parabolic Time
-        l_Data << uint32(0);                                                                        ///< Uncompressed waypoint count
+        l_Data << uint32(1);                                                                        ///< Uncompressed waypoint count
         l_Data << uint8(MonsterMoveStop);                                                           ///< Mode (stop here)
         l_Data << uint8(0);                                                                         ///< Vehicle exit Voluntary
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
         l_Data << uint32(0);                                                                        ///< Compressed waypoint count
 
-//         l_Data << float(loc.x);                                                                     ///< Fake WAYPOINT
-//         l_Data << float(loc.y);                                                                     ///< Fake WAYPOINT
-//         l_Data << float(loc.z);                                                                     ///< Fake WAYPOINT
+        l_Data << float(loc.x);                                                                     ///< Fake WAYPOINT
+        l_Data << float(loc.y);                                                                     ///< Fake WAYPOINT
+        l_Data << float(loc.z);                                                                     ///< Fake WAYPOINT
 
         l_Data.WriteBits(0, 2);
         l_Data.WriteBit(0);
