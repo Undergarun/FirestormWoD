@@ -745,47 +745,42 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& p_Packet)
     m_Player->RemoveOwnedAura(l_SpellID, l_CasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 }
 
-void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& p_RecvPacket)
 {
-    ObjectGuid guid;
-    uint32 spellId;
+    uint32 l_SpellID;
+    uint64 l_PetGUID;
 
-    recvPacket >> spellId;
-    uint8 bitOrder[8] = {4, 6, 5, 2, 3, 1, 0, 7};
-    recvPacket.ReadBitInOrder(guid, bitOrder);
-    uint8 byteOrder[8] = {1, 3, 2, 5, 0, 6, 7, 4};
-    recvPacket.ReadBytesSeq(guid, byteOrder);
+    l_SpellID = p_RecvPacket.read<uint32>();
+    p_RecvPacket.readPackGUID(l_PetGUID);
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+    if (!l_SpellInfo)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %u", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %u", l_SpellID);
         return;
     }
 
-    Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, guid);
-
-    if (!pet)
+    Creature* l_Pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_PetGUID);
+    if (!l_Pet)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Attempt to cancel an aura for non-existant pet %u by player '%s'", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Attempt to cancel an aura for non-existant pet %u by player '%s'", uint32(GUID_LOPART(l_PetGUID)), GetPlayer()->GetName());
         return;
     }
 
-    if (pet != GetPlayer()->GetGuardianPet() && pet != GetPlayer()->GetCharm())
+    if (l_Pet != GetPlayer()->GetGuardianPet() && l_Pet != GetPlayer()->GetCharm())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Pet %u is not a pet of player '%s'", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Pet %u is not a pet of player '%s'", uint32(GUID_LOPART(l_PetGUID)), GetPlayer()->GetName());
         return;
     }
 
-    if (!pet->isAlive())
+    if (!l_Pet->isAlive())
     {
-        pet->SendPetActionFeedback(FEEDBACK_PET_DEAD);
+        l_Pet->SendPetActionFeedback(l_SpellID, FEEDBACK_PET_DEAD);
         return;
     }
 
-    pet->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
-
-    pet->AddCreatureSpellCooldown(spellId);
+    l_Pet->RemoveOwnedAura(l_SpellID, 0, 0, AURA_REMOVE_BY_CANCEL);
+    l_Pet->AddCreatureSpellCooldown(l_SpellID);
 }
 
 void WorldSession::HandleCancelGrowthAuraOpcode(WorldPacket& /*recvPacket*/)

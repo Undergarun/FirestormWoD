@@ -261,6 +261,14 @@ enum Opcodes
         /// Pet
         SMSG_PET_NAME_QUERY_RESPONSE                        = 0x03B4,   ///< 6.0.2 19027
         SMSG_PET_NAME_INVALID                               = 0x01AB,   ///< 6.0.2 19027
+        SMSG_PET_DISMISS_SOUND                              = 0x0AE8,   ///< 6.0.2 19027
+        SMSG_PET_GUIDS                                      = 0x13FC,   ///< 6.0.2 19027
+        SMSG_PET_MODE                                       = 0x0BE3,   ///< 6.0.2 19027 (unused)
+        SMSG_PET_SLOT_UPDATED                               = 0x11F8,   ///< 6.0.2 19027 (unused)
+        SMSG_PET_STABLE_LIST                                = 0x0BF0,   ///< 6.0.2 19027
+        SMSG_PET_ACTION_FEEDBACK                            = 0x01F0,   ///< 6.0.2 19027
+        SMSG_PET_ACTION_SOUND                               = 0x13F8,   ///< 6.0.2 19027
+        SMSG_PET_ADDED                                      = 0x13AF,   ///< 6.0.2 19027 (unused)
 
         /// Pet Battle opcodes
         SMSG_PETBATTLE_FULL_JOURNAL                         = 0x0000,
@@ -577,6 +585,9 @@ enum Opcodes
 
         /// Pet
         SMSG_PET_SPELLS_MESSAGE                     = 0x03CC,   ///< 6.0.2 19027
+        SMSG_PET_UNLEARNED_SPELLS                   = 0x0698,   ///< 6.0.2 19027
+        SMSG_PET_LEARNED_SPELLS                     = 0x12CB,   ///< 6.0.2 19027
+
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1021,9 +1032,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Pet
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PET_NAME_QUERY                         = 0x05A7,
-    CMSG_PET_RENAME                             = 0x03FF,
-
+    CMSG_PET_NAME_QUERY                         = 0x05A7,   ///< 6.0.2 19027
+    CMSG_PET_RENAME                             = 0x03FF,   ///< 6.0.2 19027
+    CMSG_PET_ABANDON                            = 0x0628,   ///< 6.0.2 19027
+    CMSG_PET_ACTION                             = 0x0133,   ///< 6.0.2 19027
+    CMSG_PET_CANCEL_AURA                        = 0x1A9F,   ///< 6.0.2 19027
+    CMSG_PET_CAST_SPELL                         = 0x14D8,   ///< 6.0.2 19027
+    CMSG_PET_SET_ACTION                         = 0x1168,   ///< 6.0.2 19027
+    CMSG_PET_STOP_ATTACK                        = 0x1253,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
     /// Battlegrounds
@@ -1366,12 +1382,6 @@ enum Opcodes
     CMSG_NEXT_CINEMATIC_CAMERA                        = 0x0000,
     CMSG_OPENING_CINEMATIC                            = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
-    CMSG_PET_ABANDON                                  = 0x0000,
-    CMSG_PET_ACTION                                   = 0x0000,
-    CMSG_PET_CANCEL_AURA                              = 0x0000,
-    CMSG_PET_CAST_SPELL                               = 0x0000,
-    CMSG_PET_SET_ACTION                               = 0x0000,
-    CMSG_PET_STOP_ATTACK                              = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
     CMSG_PLAYER_LOGOUT                                = 0x0000,
     CMSG_PLAYER_VEHICLE_ENTER                         = 0x0000,
@@ -1793,10 +1803,6 @@ enum Opcodes
     SMSG_PETITION_RENAME                              = 0x0000,
     SMSG_PETITION_SHOW_LIST                           = 0x0000,
     SMSG_PETITION_SHOW_SIGNATURES                     = 0x0000,
-    SMSG_PET_ACTION_FEEDBACK                          = 0x0000,
-    SMSG_PET_ACTION_SOUND                             = 0x0000,
-    SMSG_PET_ADDED                                    = 0x0000,
-    SMSG_PET_BROKEN                                   = 0x0000,
     SMSG_PET_BATTLE_CHAT_RESTRICTED                   = 0x0000,
     SMSG_PET_BATTLE_DEBUG_QUEUE_DUMP_RESPONSE         = 0x0000,
     SMSG_PET_BATTLE_FULL_UPDATE                       = 0x0000,
@@ -1811,15 +1817,6 @@ enum Opcodes
     SMSG_PET_BATTLE_REPLACEMENTS_MADE                 = 0x0000,
     SMSG_PET_BATTLE_REQUEST_FAILED                    = 0x0000,
     SMSG_PET_BATTLE_SLOT_UPDATE                       = 0x0000,
-    SMSG_PET_DISMISS_SOUND                            = 0x0000,
-    SMSG_PET_GOD_MODE                                 = 0x0000,
-    SMSG_PET_GUIDS                                    = 0x0000,
-    SMSG_PET_LEARNED_SPELL                            = 0x0000,
-    SMSG_PET_MODE                                     = 0x0000,
-    SMSG_PET_REMOVED_SPELL                            = 0x0000,
-    SMSG_PET_RENAMEABLE                               = 0x0000,
-    SMSG_PET_SLOT_UPDATED                             = 0x0000,
-    SMSG_PET_STABLE_LIST                              = 0x0000,
     SMSG_PLAYED_TIME                                  = 0x0000,
     SMSG_PLAYER_BIND_ERROR                            = 0x0000,
     SMSG_PLAYER_BOUND                                 = 0x0000,

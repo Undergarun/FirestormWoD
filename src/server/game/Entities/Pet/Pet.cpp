@@ -1913,18 +1913,18 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     return true;
 }
 
-bool Pet::learnSpell(uint32 spell_id)
+bool Pet::learnSpell(uint32 p_SpellID)
 {
     // prevent duplicated entires in spell book
-    if (!addSpell(spell_id))
+    if (!addSpell(p_SpellID))
         return false;
 
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
-        data.WriteBits(1, 22);
-        data << uint32(spell_id);
-        m_owner->GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_PET_LEARNED_SPELLS, 4);
+        l_Data << uint32(1);            ///< Count
+        l_Data << uint32(p_SpellID);    ///< SpellID
+        m_owner->GetSession()->SendPacket(&l_Data);
         m_owner->PetSpellInitialize();
     }
     return true;
@@ -1974,16 +1974,16 @@ void Pet::InitLevelupSpellsForLevel()
     }
 }
 
-bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
+bool Pet::unlearnSpell(uint32 p_SpellID, bool p_LearnPrev, bool p_ClearAb)
 {
-    if (removeSpell(spell_id, learn_prev, clear_ab))
+    if (removeSpell(p_SpellID, p_LearnPrev, p_ClearAb))
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
-            data.WriteBits(1, 22);
-            data << uint32(spell_id);
-            m_owner->GetSession()->SendPacket(&data);
+            WorldPacket l_Data(SMSG_PET_UNLEARNED_SPELLS, 4);
+            l_Data << uint32(1);            ///< count
+            l_Data << uint32(p_SpellID);    ///< SpellID
+            m_owner->GetSession()->SendPacket(&l_Data);
         }
         return true;
     }
@@ -2032,7 +2032,9 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 void Pet::CleanupActionBar()
 {
     for (uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    {
         if (UnitActionBarEntry const* ab = m_charmInfo->GetActionBarEntry(i))
+        {
             if (ab->GetAction() && ab->IsActionBarForSpell())
             {
                 if (!HasSpell(ab->GetAction()))
@@ -2043,6 +2045,8 @@ void Pet::CleanupActionBar()
                         ToggleAutocast(spellInfo, true);
                 }
             }
+        }
+    }
 }
 
 void Pet::InitPetCreateSpells()

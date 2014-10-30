@@ -25248,11 +25248,11 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // Guild bank list wtf?
 
     // Homebind
-    WorldPacket data(SMSG_BIND_POINT_UPDATE, 5 * 4);
-    data << m_homebindX << m_homebindY << m_homebindZ;
-    data << uint32(m_homebindMapId);
-    data << uint32(m_homebindAreaId);
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_BIND_POINT_UPDATE, 5 * 4);
+    l_Data << m_homebindX << m_homebindY << m_homebindZ;
+    l_Data << uint32(m_homebindMapId);
+    l_Data << uint32(m_homebindAreaId);
+    GetSession()->SendPacket(&l_Data);
 
     // SMSG_SET_PROFICIENCY
     // SMSG_SET_PCT_SPELL_MODIFIER
@@ -25272,50 +25272,57 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendEquipmentSetList();
 
-    data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
-    data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
-    data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour
-    data << float(0.01666667f);                                 // game speed
-    data << uint32(1);                                          // added in 5.4.0
-    data << uint32(1);                                          // added in 3.1.2
-    GetSession()->SendPacket(&data);
+    l_Data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
+    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
+    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour
+    l_Data << float(0.01666667f);                                 // game speed
+    l_Data << uint32(1);                                          // added in 5.4.0
+    l_Data << uint32(1);                                          // added in 3.1.2
+    GetSession()->SendPacket(&l_Data);
 
     bool l_IsInInstance = GetGroup() && (GetMap()->IsDungeon() || GetMap()->IsRaid());
 
-    data.Initialize(SMSG_WORLD_SERVER_INFO, 4 * 5);
+    l_Data.Initialize(SMSG_WORLD_SERVER_INFO, 4 * 5);
 
     if (GetMap()->IsDungeon())
-        data << uint32(GetDungeonDifficulty());                             ///< DifficultyID
+        l_Data << uint32(GetDungeonDifficulty());                             ///< DifficultyID
     else if (GetMap()->IsRaid())
-        data << uint32(GetRaidDifficulty());                                ///< DifficultyID
+        l_Data << uint32(GetRaidDifficulty());                                ///< DifficultyID
     else
-        data << uint32(0);                                                  ///< DifficultyID
+        l_Data << uint32(0);                                                  ///< DifficultyID
 
-    data << uint8(0);                                                       ///< Is Tournament Realm
-    data << uint32(sWorld->GetNextWeeklyQuestsResetTime() - (2 * WEEK));    ///< Last Weekly Reset
-    data.WriteBit(false);                                                   ///< Has Restricted Account Max Level
-    data.WriteBit(false);                                                   ///< Has Restricted Account Max Money
-    data.WriteBit(false);                                                   ///< Has Ineligible For Loot Mask
-    data.WriteBit(l_IsInInstance);                                          ///< Has Instance Group Size
+    l_Data << uint8(0);                                                       ///< Is Tournament Realm
+    l_Data << uint32(sWorld->GetNextWeeklyQuestsResetTime() - (2 * WEEK));    ///< Last Weekly Reset
+    l_Data.WriteBit(false);                                                   ///< Has Restricted Account Max Level
+    l_Data.WriteBit(false);                                                   ///< Has Restricted Account Max Money
+    l_Data.WriteBit(false);                                                   ///< Has Ineligible For Loot Mask
+    l_Data.WriteBit(l_IsInInstance);                                          ///< Has Instance Group Size
 
     if (l_IsInInstance)
-        data << uint32(GetGroup()->GetMembersCount());
+        l_Data << uint32(GetGroup()->GetMembersCount());
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 
-    data.Initialize(SMSG_INITIAL_SETUP, 2062);
-    data << uint32(2500);                                       ///< Completed Quest count
-    data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
-    data << uint8(0);                                           ///< Server Expansion Tier
-    data << uint32(1135753200);                                 ///< Server Region ID
+    l_Data.Initialize(SMSG_INITIAL_SETUP, 2062);
+    l_Data << uint32(2500);                                       ///< Completed Quest count
+    l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
+    l_Data << uint8(0);                                           ///< Server Expansion Tier
+    l_Data << uint32(1135753200);                                 ///< Server Region ID
 
     for (int l_I = 0; l_I < 2500; ++l_I)
-        data << uint8(0);                                       ///< Quest completed bit
+        l_Data << uint8(0);                                       ///< Quest completed bit
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
+
+    if (Pet* l_Pet = GetPet())
+    {
+        l_Data.Initialize(SMSG_PET_GUIDS);
+        l_Data << uint32(1);
+        l_Data.appendPackGUID(l_Pet->GetGUID());
+        GetSession()->SendPacket(&l_Data);
+    }
 
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
-    // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 

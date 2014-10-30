@@ -6085,7 +6085,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     m_caster->CastSpell(pet, m_spellInfo->Effects[effIndex].TriggerSpell, true);
 }
 
-void Spell::EffectDismissPet(SpellEffIndex effIndex)
+void Spell::EffectDismissPet(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -6093,10 +6093,15 @@ void Spell::EffectDismissPet(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isPet())
         return;
 
-    Pet* pet = unitTarget->ToPet();
+    Pet* l_Pet = unitTarget->ToPet();
 
-    ExecuteLogEffectUnsummonObject(effIndex, pet);
-    pet->GetOwner()->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
+    WorldPacket l_Data(SMSG_PET_DISMISS_SOUND);
+    l_Data << uint32(l_Pet->GetDisplayId());
+    l_Data.WriteVector3(G3D::Vector3(l_Pet->GetPositionX(), l_Pet->GetPositionY(), l_Pet->GetPositionZ()));
+    l_Pet->GetOwner()->GetSession()->SendPacket(&l_Data);
+
+    ExecuteLogEffectUnsummonObject(p_EffIndex, l_Pet);
+    l_Pet->GetOwner()->RemovePet(l_Pet, PET_SLOT_ACTUAL_PET_SLOT, false, l_Pet->m_Stampeded);
 }
 
 void Spell::EffectSummonObject(SpellEffIndex effIndex)
