@@ -2211,12 +2211,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
                         break;
         }
-        case 48743: // Death Pact - return pct of max health to caster
-            if (!caster)
-                break;
-
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(caster->CountPctFromMaxHealth(damage)), effIndex, HEAL);
-            break;
         case 67489: // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
             if (!caster)
                 break;

@@ -3455,10 +3455,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
-            case 45470: // Death strike heal
-            case 116783:// Death Siphon heal
-                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
-                break;
             case 65075: // Tower of Flames
             case 65077: // Tower of Frost
             case 64482: // Tower of Life
@@ -4899,12 +4895,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = 0;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
                 spellInfo->OverrideSpellList.push_back(104045); // Add Sleep (Metamorphosis)
-                break;
-            case 51460: // Runic Corruption
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_POWER_REGEN_PERCENT;
-                spellInfo->Effects[EFFECT_0].MiscValue = 5;
-                spellInfo->Effects[EFFECT_0].MiscValueB = NUM_RUNE_TYPES;
                 break;
             case 45204: // Mirror Image - Clone Me!
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
