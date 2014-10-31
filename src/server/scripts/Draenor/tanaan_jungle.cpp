@@ -215,7 +215,7 @@ class npc_tore : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff)
             {
-                m_Events.Update();
+                m_Events.Update(p_Diff);
 
                 if (m_Events.ExecuteEvent() == EVENT_AGGRO)
                 {
