@@ -307,14 +307,6 @@ public:
         void ClearWeapons()
         {
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-
-            //damage
-            const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-            if (cinfo)
-            {
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-            }
             me->UpdateDamagePhysical(BASE_ATTACK);
         }
 
@@ -435,20 +427,7 @@ public:
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
                     //damage
-                    const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                    if (cinfo)
-                    {
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
-                        me->UpdateDamagePhysical(BASE_ATTACK);
-
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-                        //Sigh, updating only works on main attack, do it manually ....
-                        me->SetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, cinfo->mindmg);
-                        me->SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, cinfo->maxdmg);
-                    }
-
+                    me->UpdateDamagePhysical(BASE_ATTACK);
                     me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
                 }
             }

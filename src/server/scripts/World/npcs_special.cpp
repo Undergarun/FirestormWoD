@@ -1650,7 +1650,6 @@ class npc_snake_trap : public CreatureScript
                 //Add delta to make them not all hit the same time
                 uint32 delta = (rand() % 7) * 100;
                 me->SetStatFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, float(Info->baseattacktime + delta));
-                me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
                 // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
                 if (!me->getVictim() && me->isSummon())

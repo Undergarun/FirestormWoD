@@ -1071,12 +1071,15 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
     {
         case BASE_ATTACK:
         default:
+            l_Variance = GetCreatureTemplate()->baseVariance;
             l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
             break;
         case OFF_ATTACK:
+            l_Variance = GetCreatureTemplate()->baseVariance;
             l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
             break;
         case RANGED_ATTACK:
+            l_Variance = GetCreatureTemplate()->rangeVariance;
             l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
             break;
     }

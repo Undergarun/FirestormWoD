@@ -1330,15 +1330,20 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
     //damage
     float basedamage = stats->GenerateBaseDamage(cinfo);
-    
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, ((basedamage + (stats->AttackPower / 14)) * cinfo->dmg_multiplier) * (cinfo->baseattacktime / 1000));
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (((basedamage * 1.5) + (stats->AttackPower / 14)) * cinfo->dmg_multiplier) * (cinfo->baseattacktime / 1000));
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, (basedamage + (stats->RangedAttackPower / 14)) * (cinfo->rangeattacktime / 1000));
-    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, ((basedamage * 1.5) + (stats->RangedAttackPower / 14)) * (cinfo->rangeattacktime / 1000));
-    
-    float damagemod = 1.0f;//_GetDamageMod(rank);
+    float weaponBaseMinDamage = basedamage;
+    float weaponBaseMaxDamage = basedamage * 1.5f;
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower * damagemod);
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+
+    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+
+    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 }
 
 float Creature::_GetHealthMod(int32 Rank)
