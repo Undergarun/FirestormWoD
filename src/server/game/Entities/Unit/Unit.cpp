@@ -17215,11 +17215,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
 
+    bool l_IsCasterPlayer = GetTypeId() == TYPEID_PLAYER;
+
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL))
     {
         if (damage && procSpell && target)
         {
-            if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+            if (roll_chance_f(l_IsCasterPlayer ? GetFloatValue(PLAYER_FIELD_MULTISTRIKE) : 0.f))
             {
                 if (procSpell && procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC))
                 {
@@ -17258,7 +17260,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         takenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
 
 
-                    multistrikeDamage = multistrikeDamage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+                    multistrikeDamage = multistrikeDamage * (l_IsCasterPlayer ? GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT) : 0.f);
 
                     // Heal
                     if (procSpell->IsPositive())
