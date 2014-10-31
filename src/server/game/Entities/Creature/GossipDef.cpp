@@ -169,80 +169,79 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 {
-    WorldPacket data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
+    WorldPacket l_Data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
 
-    data.appendPackGUID(objectGUID);
+    l_Data.appendPackGUID(objectGUID);
 
     if (titleTextId == DEFAULT_GOSSIP_MESSAGE && !_gossipMenu.GetMenuId())
-        data << uint32(DEFAULT_GREETINGS_GOSSIP);           // default greeting ID
+        l_Data << uint32(DEFAULT_GREETINGS_GOSSIP);           // default greeting ID
     else
-        data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
+        l_Data << uint32(_gossipMenu.GetMenuId());            // new 2.4.0
 
-    data << uint32(0);                                      // Friendship faction
-    data << uint32(titleTextId);
-    data << uint32(_gossipMenu.GetMenuItems().size());
-    data << uint32(_questMenu.GetMenuItemCount());
+    l_Data << uint32(0);                                      // Friendship faction
+    l_Data << uint32(titleTextId);
+    l_Data << uint32(_gossipMenu.GetMenuItems().size());
+    l_Data << uint32(_questMenu.GetMenuItemCount());
 
-    for (GossipMenuItemContainer::const_iterator itr = _gossipMenu.GetMenuItems().begin(); itr != _gossipMenu.GetMenuItems().end(); ++itr)
+    for (GossipMenuItemContainer::const_iterator l_It = _gossipMenu.GetMenuItems().begin(); l_It != _gossipMenu.GetMenuItems().end(); ++l_It)
     {
-        GossipMenuItem const& item = itr->second;
+        GossipMenuItem const& l_Item = l_It->second;
 
-        data << uint32(itr->first);
-        data << uint8(item.MenuItemIcon);
-        data << uint8(item.IsCoded);                                    // makes pop up box password
-        data << uint32(item.BoxMoney);                                  // money required to open menu, 2.0.3
+        l_Data << uint32(l_It->first);
+        l_Data << uint8(l_Item.MenuItemIcon);
+        l_Data << uint8(l_Item.IsCoded);                                    // makes pop up box password
+        l_Data << uint32(l_Item.BoxMoney);                                  // money required to open menu, 2.0.3
 
-        data.WriteBits(item.Message.size(), 12);
-        data.WriteBits(item.BoxMessage.size(), 12);
-        data.FlushBits();
+        l_Data.WriteBits(l_Item.Message.size(), 12);
+        l_Data.WriteBits(l_Item.BoxMessage.size(), 12);
+        l_Data.FlushBits();
 
-        if (item.Message.size() > 0)
-            data.append(item.Message.c_str(), item.Message.size());
-        if (item.BoxMessage.size() > 0)
-            data.append(item.BoxMessage.c_str(), item.BoxMessage.size());
+        l_Data.WriteString(l_Item.Message);
+        l_Data.WriteString(l_Item.BoxMessage);
     }
 
-    for (uint32 iI = 0; iI < _questMenu.GetMenuItemCount(); ++iI)
+    for (uint32 l_It = 0; l_It < _questMenu.GetMenuItemCount(); ++l_It)
     {
-        QuestMenuItem const& item = _questMenu.GetItem(iI);
-        uint32 questID = item.QuestId;
-        Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
-        std::string title = quest->GetTitle();
+        QuestMenuItem const& l_Item = _questMenu.GetItem(l_It);
+        uint32 l_QuestID = l_Item.QuestId;
+        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID);
+        std::string l_Title = l_Quest->GetTitle();
 
-        int locale = _session->GetSessionDbLocaleIndex();
-        if (locale >= 0)
-            if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
-                ObjectMgr::GetLocaleString(localeData->Title, locale, title);
-
-        Player* plr = _session->GetPlayer();
-
-        uint32 questStat = plr ? plr->GetQuestStatus(questID) : 0;
-
-        if (questStat == QUEST_STATUS_COMPLETE || questStat == QUEST_STATUS_INCOMPLETE)
+        int l_Locale = _session->GetSessionDbLocaleIndex();
+        if (l_Locale >= 0)
         {
-            if (quest->IsRepeatable())
-                questStat = 0;
-            else
-                questStat = 4;
+            if (QuestLocale const* l_LocalData = sObjectMgr->GetQuestLocale(l_QuestID))
+                ObjectMgr::GetLocaleString(l_LocalData->Title, l_Locale, l_Title);
         }
-        else if (questStat == QUEST_STATE_NONE)
-            questStat = 2;
 
-        data << uint32(questID);
-        data << uint32(questStat);                      // quest icon
-        data << int32(quest->GetQuestLevel());          // quest level
-        data << uint32(quest->GetFlags());              // quest flags
-        data << uint32(0);                              // quest flags 2
+        Player * l_Player = _session->GetPlayer();
 
-        data.WriteBit(quest->IsRepeatable());                   // 3.3.3 changes icon: blue question or yellow exclamation, is repeatable
-        data.WriteBits(title.size(), 9);
-        data.FlushBits();
+        uint32 l_QuestStat = l_Player ? l_Player->GetQuestStatus(l_QuestID) : 0;
 
-        if (title.size() > 0)
-            data.append(title.c_str(), title.size());       // quest title
+        if (l_QuestStat == QUEST_STATUS_COMPLETE || l_QuestStat == QUEST_STATUS_INCOMPLETE)
+        {
+            if (l_Quest->IsRepeatable())
+                l_QuestStat = 0;
+            else
+                l_QuestStat = 4;
+        }
+        else if (l_QuestStat == QUEST_STATE_NONE)
+            l_QuestStat = 2;
+
+        l_Data << uint32(l_QuestID);
+        l_Data << uint32(l_QuestStat);                      // quest icon
+        l_Data << int32(l_Quest->GetQuestLevel());          // quest level
+        l_Data << uint32(l_Quest->GetFlags());              // quest flags
+        l_Data << uint32(0);                                // quest flags 2
+
+        l_Data.WriteBit(l_Quest->IsRepeatable());           // 3.3.3 changes icon: blue question or yellow exclamation, is repeatable
+        l_Data.WriteBits(l_Title.size(), 9);
+        l_Data.FlushBits();
+
+        l_Data.WriteString(l_Title);
     }
 
-    _session->SendPacket(&data);
+    _session->SendPacket(&l_Data);
 }
 
 void PlayerMenu::SendCloseGossip() const
@@ -636,7 +635,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << uint32(quest->GetMinLevel());
     data << uint32(quest->GetZoneOrSort());
     data << uint32(0);                                      ///< Unk
-    data << uint32(0);                                      ///< Unk
+    data << uint32(quest->GetSuggestedPlayers());
     data << uint32(quest->GetNextQuestInChain());
     data << uint32(0);                                      ///< Unk
     data << float(0);                                       ///< Unk
@@ -718,7 +717,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         data << uint32(quest->RewardCurrencyId[i]);
         data << uint32(quest->RewardCurrencyCount[i]);
     }
-
+    
     data << uint32(quest->GetSoundAccept());
     data << uint32(quest->GetSoundTurnIn());
     data << uint32(0);                                      ///< Unk
