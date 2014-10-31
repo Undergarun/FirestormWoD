@@ -6128,9 +6128,11 @@ void Spell::EffectDismissPet(SpellEffIndex p_EffIndex)
 
     Pet* l_Pet = unitTarget->ToPet();
 
+    G3D::Vector3 l_PetDismissPosition = G3D::Vector3(l_Pet->GetPositionX(), l_Pet->GetPositionY(), l_Pet->GetPositionZ());
+
     WorldPacket l_Data(SMSG_PET_DISMISS_SOUND);
     l_Data << uint32(l_Pet->GetDisplayId());
-    l_Data.WriteVector3(G3D::Vector3(l_Pet->GetPositionX(), l_Pet->GetPositionY(), l_Pet->GetPositionZ()));
+    l_Data.WriteVector3(l_PetDismissPosition);
     l_Pet->GetOwner()->GetSession()->SendPacket(&l_Data);
 
     ExecuteLogEffectUnsummonObject(p_EffIndex, l_Pet);
