@@ -79,7 +79,11 @@ enum MageSpells
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
     SPELL_MAGE_FROST_NOVA                        = 122,
-    SPELL_MAGE_FINGERS_OF_FROST_AURA             = 112965
+    SPELL_MAGE_FINGERS_OF_FROST_AURA             = 112965,
+    SPELL_MAGE_MIRROR_IMAGE_LEFT                 = 58834,
+    SPELL_MAGE_MIRROR_IMAGE_RIGHT                = 58833,
+    SPELL_MAGE_MIRROR_IMAGE_FRONT                = 58831,
+
 };
 
 
@@ -1250,18 +1254,16 @@ class spell_mage_living_bomb : public SpellScriptLoader
                 if (removeMode != AURA_REMOVE_BY_DEATH && removeMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    caster->CastSpell(GetTarget(), SPELL_MAGE_LIVING_BOMB_TRIGGERED, true);
-
-                    if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_LIVING_BOMB_TRIGGERED, true);
                 }
             }
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1319,6 +1321,38 @@ class spell_mage_blast_wave : public SpellScriptLoader
         }
 };
 
+// Mirror Image - 55342
+class spell_mage_mirror_image_summon : public SpellScriptLoader
+{
+    public:
+        spell_mage_mirror_image_summon() : SpellScriptLoader("spell_mage_mirror_image_summon") { }
+
+        class spell_mage_mirror_image_summon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_mirror_image_summon_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->CastSpell(caster, SPELL_MAGE_MIRROR_IMAGE_LEFT, true);
+                    caster->CastSpell(caster, SPELL_MAGE_MIRROR_IMAGE_FRONT, true);
+                    caster->CastSpell(caster, SPELL_MAGE_MIRROR_IMAGE_RIGHT, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_mirror_image_summon_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_mirror_image_summon_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_greater_invisibility_removed();
@@ -1348,4 +1382,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_living_bomb();
     new spell_mage_blast_wave();
+    new spell_mage_mirror_image_summon();
 }
