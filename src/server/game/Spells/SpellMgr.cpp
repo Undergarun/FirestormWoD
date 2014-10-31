@@ -4291,9 +4291,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[6].BasePoints = 100;
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 break;
-            case 49020: // Obliterate - hotfix 5.4.2
-                spellInfo->Effects[1].BasePoints = 250;
-                break;
             case 91107: // Unholy Might
                 spellInfo->Effects[0].BasePoints = 35;
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk

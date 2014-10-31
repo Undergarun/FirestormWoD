@@ -352,7 +352,7 @@ class WorldSession
         void HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets & targets);
 
         // Pet
-        void SendPetNameQuery(ObjectGuid petnumber, ObjectGuid petguid);
+        void SendPetNameQuery(uint64 p_PetGUID);
         void SendStablePet(uint64 guid);
         void SendStablePetCallback(PreparedQueryResult result, uint64 guid);
         void SendStableResult(uint8 guid);

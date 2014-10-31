@@ -466,7 +466,7 @@ class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff, AuraEffectPtr aurEff)
+            void OnUpdate(uint32 diff, AuraEffectPtr /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -550,7 +550,7 @@ class spell_dru_thrash_bear : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // Each tick grant 1 point of rage
-                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) + 1);
+                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) + 1 * 10);
                 }
             }
 

@@ -1063,48 +1063,49 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType attType)
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
 {
-    UnitMods unitMod;
-    switch (attType)
+    float l_Variance = 1.f;
+    UnitMods l_UnitMod;
+    switch (p_AttType)
     {
         case BASE_ATTACK:
         default:
-            unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
             break;
         case OFF_ATTACK:
-            unitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
             break;
         case RANGED_ATTACK:
-            unitMod = UNIT_MOD_DAMAGE_RANGED;
+            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
             break;
     }
 
-    //float att_speed = float(GetAttackTime(attType))/1000.0f;
-
-    float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
-    float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
+    float l_WeaponMinDamage = GetWeaponDamageRange(p_AttType, MINDAMAGE);
+    float l_WeaponMaxDamage = GetWeaponDamageRange(p_AttType, MAXDAMAGE);
 
     /* difference in AP between current attack power and base value from DB */
     // creature's damage in battleground is calculated in Creature::SelectLevel
     // so don't change it with ap and dmg multipliers
-    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureTemplate()->attackpower;
-    float base_value  = ((GetMap()->IsBattleground()) ? GetModifierValue(unitMod, BASE_VALUE) : (GetModifierValue(unitMod, BASE_VALUE) + (att_pwr_change * GetAPMultiplier(attType, false) / 14.0f)));
-    float base_pct    = GetModifierValue(unitMod, BASE_PCT);
-    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
-    float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
-    float dmg_multiplier = ((GetMap()->IsBattleground()) ? 1.0f : GetCreatureTemplate()->dmg_multiplier);
 
-    if (!CanUseAttackType(attType))
+    float l_AttackPower      = GetTotalAttackPowerValue(p_AttType);
+    float l_AttackSpeedMulti = GetAPMultiplier(p_AttType, false);
+    float l_BaseValue        = GetModifierValue(l_UnitMod, BASE_VALUE) + (l_AttackPower / 14.0f) * l_Variance;
+    float l_BasePct          = GetModifierValue(l_UnitMod, BASE_PCT) * l_AttackSpeedMulti;
+    float l_TotalValue       = GetModifierValue(l_UnitMod, TOTAL_VALUE);
+    float l_TotalPct         = GetModifierValue(l_UnitMod, TOTAL_PCT);
+    float l_DmgMultiplier    = GetCreatureTemplate()->dmg_multiplier;
+
+    if (!CanUseAttackType(p_AttType))
     {
-        weapon_mindamage = 0;
-        weapon_maxdamage = 0;
+        l_WeaponMinDamage = 0;
+        l_WeaponMaxDamage = 0;
     }
 
-    float mindamage = ((base_value + weapon_mindamage) * dmg_multiplier * base_pct + total_value) * total_pct;
-    float maxdamage = ((base_value + weapon_maxdamage) * dmg_multiplier * base_pct + total_value) * total_pct;
+    float mindamage = ((l_BaseValue + l_WeaponMinDamage) * l_DmgMultiplier * l_BasePct + l_TotalValue) * l_TotalPct;
+    float maxdamage = ((l_BaseValue + l_WeaponMaxDamage) * l_DmgMultiplier * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    switch (attType)
+    switch (p_AttType)
     {
         case BASE_ATTACK:
         default:
