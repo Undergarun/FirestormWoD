@@ -1070,7 +1070,7 @@ bool Object::RemoveGuidValue(uint16 index, uint64 value)
 
 void Object::SetGuidValue(uint16 index, uint64 value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT(index + 4 < m_valuesCount || PrintIndexError(index, true));
 
     Guid128 l_Value = Guid64To128(value);
     bool l_Changed = false;

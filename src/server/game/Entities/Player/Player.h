@@ -2551,7 +2551,7 @@ class Player : public Unit, public GridObject<Player>
         std::vector<ItemSetEffect*> ItemSetEff;
 
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
-        void SendLootRelease(uint64 guid);
+        void SendLootRelease(uint64 p_LootGuid);
         void SendNotifyLootItemRemoved(uint8 lootSlot);
         void SendNotifyLootMoneyRemoved(uint64 gold);
 

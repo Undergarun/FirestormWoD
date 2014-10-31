@@ -10466,16 +10466,13 @@ void Player::RemovedInsignia(Player* looterPlr)
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
-void Player::SendLootRelease(uint64 guid)
+void Player::SendLootRelease(uint64 p_LootGuid)
 {
-    WorldPacket data(SMSG_LOOT_RELEASE_RESPONSE);
-    ObjectGuid guidd(guid);
+    uint64 l_LootObject = MAKE_NEW_GUID(GUID_LOPART(p_LootGuid), 0, HIGHGUID_LOOT);
 
-    uint8 bitOrder[8] = {6, 0, 3, 1, 4, 7, 2, 5};
-    data.WriteBitInOrder(guidd, bitOrder);
-
-    uint8 byteOrder[8] = {6, 0, 2, 7, 4, 1, 5, 3};
-    data.WriteBytesSeq(guidd, byteOrder);
+    WorldPacket data(SMSG_LOOT_RELEASE);
+    data.appendPackGUID(l_LootObject);
+    data.appendPackGUID(p_LootGuid);
 
     SendDirectMessage(&data);
 }
