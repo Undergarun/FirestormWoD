@@ -2599,7 +2599,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_nova_heal();
     new spell_pri_holy_nova();
     new spell_pri_glyph_of_holy_nova();
-=    new spell_pri_spectral_guise_charges();
+    new spell_pri_spectral_guise_charges();
     new spell_pri_void_tendrils();
     new spell_pri_spirit_of_redemption_form();
     new spell_pri_spirit_of_redemption();
