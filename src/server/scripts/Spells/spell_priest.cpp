@@ -95,7 +95,7 @@ enum PriestSpells
     PRIEST_PRAYER_OF_MENDING_RADIUS                 = 123262,
     PRIEST_BODY_AND_SOUL_AURA                       = 64129,
     PRIEST_BODY_AND_SOUL_INCREASE_SPEED             = 65081,
-    PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA           = 109186,
+    PRIEST_SURGE_OF_LIGHT_AURA                      = 109186,
     PRIEST_SURGE_OF_LIGHT                           = 114255,
     PRIEST_SURGE_OF_DARKNESS                        = 87160,
     PRIEST_SHADOW_WORD_INSANITY_ALLOWING_CAST       = 130733,
@@ -798,7 +798,7 @@ class spell_pri_shadowfiend : public SpellScriptLoader
         }
 };
 
-// Called by Flash Heal - 2061
+// Surge of Light (Discipline, Holy) - 109186 
 // Surge of Light - 114255
 class spell_pri_surge_of_light : public SpellScriptLoader
 {
@@ -812,9 +812,9 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             void HandleOnCast()
             {
                 if (Unit* caster = GetCaster())
-                    if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                        if (surgeOfLight->GetStackAmount() > 1)
-                            surgeOfLight->ModStackAmount(-1);
+                if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                if (surgeOfLight->GetStackAmount() > 1)
+                    surgeOfLight->ModStackAmount(-1);
             }
 
             void Register()
@@ -827,17 +827,10 @@ class spell_pri_surge_of_light : public SpellScriptLoader
         {
             return new spell_pri_surge_of_light_SpellScript();
         }
-};
 
-// From Darkness, Comes Light - 109186
-class spell_pri_from_darkness_comes_light : public SpellScriptLoader
-{
-    public:
-        spell_pri_from_darkness_comes_light() : SpellScriptLoader("spell_pri_from_darkness_comes_light") { }
-
-        class spell_pri_from_darkness_comes_light_AuraScript : public AuraScript
+        class spell_pri_surge_of_light_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_from_darkness_comes_light_AuraScript);
+            PrepareAuraScript(spell_pri_surge_of_light_AuraScript);
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& procInfo)
             {
@@ -853,7 +846,7 @@ class spell_pri_from_darkness_comes_light : public SpellScriptLoader
 
                     if (Unit* target = procInfo.GetActionTarget())
                     {
-                        if (roll_chance_i(15))
+                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
                             player->CastSpell(player, PRIEST_SURGE_OF_LIGHT, true);
                     }
                 }
@@ -861,13 +854,13 @@ class spell_pri_from_darkness_comes_light : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_from_darkness_comes_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_pri_surge_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_pri_from_darkness_comes_light_AuraScript();
+            return new spell_pri_surge_of_light_AuraScript();
         }
 };
 
@@ -2478,7 +2471,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                     GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
 
                     // From Darkness, Comes Light
-                    if (GetCaster()->HasAura(PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA))
+                    if (GetCaster()->HasAura(PRIEST_SURGE_OF_LIGHT_AURA))
                         if (roll_chance_i(20))
                             GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
                 }
@@ -2594,7 +2587,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_shadow_word_insanity_allowing();
     new spell_pri_shadowfiend();
     new spell_pri_surge_of_light();
-    new spell_pri_from_darkness_comes_light();
     new spell_pri_body_and_soul();
     new spell_pri_prayer_of_mending_divine_insight();
     new spell_pri_divine_insight_holy();
