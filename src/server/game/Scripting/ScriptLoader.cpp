@@ -857,6 +857,9 @@ void AddSpellScripts()
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_holiday_spell_scripts();
+#ifdef SCRIPTS
+    AddSC_petbattle_abilities();
+#endif
 }
 
 void AddCommandScripts()

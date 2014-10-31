@@ -29,7 +29,6 @@
 enum PaladinSpells
 {
     PALADIN_SPELL_JUDGMENT                      = 20271,
-    PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD         = 111529,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
     PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
@@ -93,6 +92,7 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL    = 115515,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE             = 56420,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC        = 115654,
+    PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA        = 146955,
     PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
     PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
@@ -131,6 +131,7 @@ class spell_pal_crusader_strike : public SpellScriptLoader
         }
 };
 
+// Glyph of devotion aura - 146955
 class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
 {
     public:
@@ -147,7 +148,7 @@ class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
 
             void CountTargets(std::list<WorldObject*>& targets)
             {
-                if (GetCaster() && GetCaster()->HasAura(146955))
+                if (GetCaster() && GetCaster()->HasAura(PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA))
                 {
                     targets.clear();
                     targets.push_back(GetCaster());
@@ -182,7 +183,7 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
 
             void CountTargets(std::list<WorldObject*>& targets)
             {
-                if (GetCaster() && GetCaster()->HasAura(146955))
+                if (GetCaster() && GetCaster()->HasAura(PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA))
                 {
                     targets.clear();
                     targets.push_back(GetCaster());
@@ -247,7 +248,7 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) && 
-						(_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
+                       (_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
                         _player->CastSpell(_player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
             }
 
@@ -415,92 +416,6 @@ class spell_pal_glyph_of_avenging_wrath : public SpellScriptLoader
         }
 };
 
-// Unbreakable Spirit - 114154
-class spell_pal_unbreakable_spirit : public SpellScriptLoader
-{
-    public:
-        spell_pal_unbreakable_spirit() : SpellScriptLoader("spell_pal_unbreakable_spirit") { }
-
-        class spell_pal_unbreakable_spirit_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_unbreakable_spirit_AuraScript);
-
-            uint32 holyPowerConsumed;
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                holyPowerConsumed = 0;
-            }
-
-            void SetData(uint32 type, uint32 data)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    holyPowerConsumed = data;
-
-                    if (_player->HasSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD))
-                    {
-                        uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PALADIN_SPELL_DIVINE_SHIELD) * IN_MILLISECONDS;
-                        uint32 totalCooldown = sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_SHIELD)->RecoveryTime;
-                        int32 lessCooldown = CalculatePct(totalCooldown, holyPowerConsumed);
-                        uint32 maxCooldownReduction = CalculatePct(totalCooldown, 50); // Maximum 50% cooldown reduction
-
-                        newCooldownDelay -= lessCooldown;
-
-                        if (newCooldownDelay > maxCooldownReduction)
-                        {
-                            _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_SHIELD, -lessCooldown);
-                        }
-                    }
-                    if (_player->HasSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS))
-                    {
-                        uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PALADIN_SPELL_LAY_ON_HANDS) * IN_MILLISECONDS;
-                        uint32 totalCooldown = sSpellMgr->GetSpellInfo(PALADIN_SPELL_LAY_ON_HANDS)->CategoryRecoveryTime;
-                        int32 lessCooldown = CalculatePct(totalCooldown, holyPowerConsumed);
-                        uint32 maxCooldownReduction = CalculatePct(totalCooldown, 50); // Maximum 50% cooldown reduction
-
-                        newCooldownDelay -= lessCooldown;
-
-                        if (newCooldownDelay > maxCooldownReduction)
-                        {
-                            _player->AddSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-                            _player->ReduceSpellCooldown(PALADIN_SPELL_LAY_ON_HANDS, -lessCooldown);
-                        }
-                    }
-                    if (_player->HasSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION))
-                    {
-                        uint32 newCooldownDelay = _player->GetSpellCooldownDelay(PALADIN_SPELL_DIVINE_PROTECTION) * IN_MILLISECONDS;
-                        uint32 totalCooldown = sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PROTECTION)->RecoveryTime;
-                        int32 lessCooldown = CalculatePct(totalCooldown, holyPowerConsumed);
-                        uint32 maxCooldownReduction = CalculatePct(totalCooldown, 50); // Maximum 50% cooldown reduction
-
-                        newCooldownDelay -= lessCooldown;
-
-                        if (newCooldownDelay > maxCooldownReduction)
-                        {
-                            _player->AddSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, 0, uint32(time(NULL) + newCooldownDelay / IN_MILLISECONDS));
-                            _player->ReduceSpellCooldown(PALADIN_SPELL_DIVINE_PROTECTION, -lessCooldown);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_pal_unbreakable_spirit_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pal_unbreakable_spirit_AuraScript();
-        }
-};
-
 // Shield of the Righteous - 53600
 class spell_pal_shield_of_the_righteous : public SpellScriptLoader
 {
@@ -658,7 +573,7 @@ class spell_pal_sacred_shield_absorb : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
             {
                 if (GetCaster())
-					amount = int32(1 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
+                    amount = int32(1 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
             }
 
             void Register()
@@ -764,7 +679,7 @@ class spell_pal_seal_of_insight : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-					_player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
+                    _player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
             }
 
             void Register()
@@ -871,32 +786,24 @@ class spell_pal_cleanse : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+                        DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
                         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
-                            uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                            uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            {
+                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
+                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
 
-                            // Epuration can dispell Magic with Sacred Cleansing
-                            if (caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)
-                                dispelMask = DISPEL_ALL_MASK;
+                                // Epuration can dispell Magic with Sacred Cleansing
+                                if (dispelMask = DISPEL_MAGIC && !caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)
+                                    continue;
 
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
+                                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                            }
                         }
-
-                        bool empty = true;
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            if (dispelList[i].empty())
-                                continue;
-
-                            empty = false;
-                            break;
-                        }
-
-                        if (empty)
+                        if (dispelList.empty())
                             return SPELL_FAILED_NOTHING_TO_DISPEL;
 
                         return SPELL_CAST_OK;
@@ -971,8 +878,8 @@ class spell_pal_execution_sentence_dispel : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 spellPowerBonus = int32(5.936 * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
-                    int32 damage = 12989 + spellPowerBonus;
+                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_2].BasePoints / 1000);
+                    int32 damage = spellPowerBonus + 26.72716306f * 0;
                     damage = int32(damage * 0.444f); // Final: 44.4%
 
                     if (GetSpellInfo()->Id == PALADIN_SPELL_EXECUTION_SENTENCE)
@@ -1090,15 +997,9 @@ class spell_pal_holy_prism_visual : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (_player->IsValidAttackTarget(target))
-                        {
                             _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
-                        }
                         else
-                        {
                             _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
-                        }
                     }
                 }
             }
@@ -1337,7 +1238,7 @@ class spell_pal_judgment : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD) || caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
+                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
                         {
                             int32 power = 1;
                             if (caster->HasAura(PALADIN_SPELL_HOLY_AVENGER))
@@ -1345,13 +1246,8 @@ class spell_pal_judgment : public SpellScriptLoader
 
                             caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + power);
                         }
-
-                        if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_BOLD))
-                            caster->CastSpell(target, PALADIN_SPELL_PHYSICAL_VULNERABILITY, true);
-
                         if (caster->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
                             caster->CastSpell(caster, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
-
                         if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT))
                             caster->CastSpell(target, PALADIN_SPELL_BURDEN_OF_GUILD, true);
                     }
@@ -1407,7 +1303,6 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
                     int32 healAmount = int32(victim->CountPctFromMaxHealth(healPct));
                     victim->CastCustomSpell(victim, PALADIN_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
-                    victim->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL, 0, time(NULL) + 120);
                 }
                 else
                     absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
@@ -1426,6 +1321,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         }
 };
 
+// Blessing of faith - 37877
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
     public:
@@ -1644,48 +1540,6 @@ class spell_pal_holy_shock : public SpellScriptLoader
         }
 };
 
-class spell_pal_divine_storm : public SpellScriptLoader
-{
-    public:
-        spell_pal_divine_storm() : SpellScriptLoader("spell_pal_divine_storm") { }
-
-        class spell_pal_divine_storm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_divine_storm_SpellScript);
-
-            uint32 healPct;
-
-            bool Validate(SpellInfo const* /* spell */)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM_DUMMY))
-                    return false;
-                return true;
-            }
-
-            bool Load()
-            {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
-                return true;
-            }
-
-            void TriggerHeal()
-            {
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(SPELL_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, (GetHitDamage() * healPct) / 100, caster, true);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_pal_divine_storm_SpellScript::TriggerHeal);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_divine_storm_SpellScript();
-        }
-};
-
 // Lay on Hands - 633
 class spell_pal_lay_on_hands : public SpellScriptLoader
 {
@@ -1726,6 +1580,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
         }
 };
 
+// Righteous defense - 31789
 class spell_pal_righteous_defense : public SpellScriptLoader
 {
     public:
@@ -1775,7 +1630,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_daybreak();
     new spell_pal_hand_of_purity();
     new spell_pal_glyph_of_avenging_wrath();
-    new spell_pal_unbreakable_spirit();
     new spell_pal_shield_of_the_righteous();
     new spell_pal_selfless_healer();
     new spell_pal_tower_of_radiance();
@@ -1803,7 +1657,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_holy_shock_heal();
     new spell_pal_holy_shock_damage();
     new spell_pal_holy_shock();
-    new spell_pal_divine_storm();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
 }

@@ -2,6 +2,7 @@
 #include "DBCStores.h"
 #include "World.h"
 #include <fstream>
+#include <algorithm>
 #include <stdint.h>
 #include "G3D/platform.h"
 #include "G3D/CoordinateFrame.h"
@@ -203,6 +204,8 @@ size_t CinematicSequenceMgr::Load()
         l_ModelFileName = l_ModelFileName.substr(0, l_ModelFileName.find("mdx"));
         l_ModelFileName += "m2";
         l_ModelFileName = sWorld->GetDataPath() + "models/cameras/" + l_ModelFileName;
+
+        std::transform(l_ModelFileName.begin(), l_ModelFileName.end(), l_ModelFileName.begin(), ::tolower);
 
         FILE * l_ModelFile = fopen(l_ModelFileName.c_str(), "rb");
         if (!l_ModelFile)

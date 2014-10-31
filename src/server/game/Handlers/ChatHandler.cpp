@@ -906,9 +906,9 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
     player->GetSession()->SendPacket(&data);
 }
 
-void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
+void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", p_Packet.GetOpcode());
 }
 
 void WorldSession::SendPlayerNotFoundNotice(std::string name)

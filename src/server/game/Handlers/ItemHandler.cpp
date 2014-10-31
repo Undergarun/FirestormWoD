@@ -454,25 +454,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << uint32(proto->DamageType);
     buff << uint32(proto->Delay);
     buff << float(proto->RangedModRange);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellId);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << uint32(proto->Spells[x].SpellTrigger);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellCharges);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellCooldown);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << uint32(proto->Spells[x].SpellCategory);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellCategoryCooldown);
-
     buff << uint32(proto->Bonding);
 
     // item name
@@ -499,7 +480,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << int32(proto->RandomProperty);
     buff << int32(proto->RandomSuffix);
     buff << uint32(proto->ItemSet);
-
     buff << uint32(proto->Area);
     buff << uint32(proto->Map);
     buff << uint32(proto->BagFamily);
@@ -507,9 +487,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
         buff << uint32(proto->Socket[x].Color);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
-        buff << uint32(proto->Socket[x].Content);
 
     buff << uint32(proto->socketBonus);
     buff << uint32(proto->GemProperties);
@@ -520,7 +497,8 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << float(proto->StatScalingFactor);    // StatScalingFactor
     buff << uint32(proto->CurrencySubstitutionId);
     buff << uint32(proto->CurrencySubstitutionCount);
-
+    buff << uint32(proto->ItemNameDescriptionID);
+    
     data << uint32(DB2_REPLY_SPARSE);
     data << uint32(entry);
     data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_SPARSE));
@@ -568,10 +546,10 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 
     time_t l_Now = time(NULL);
 
-    if (l_Now - l_TimeLastSellItemOpcode < 1)
+    if (l_Now - m_TimeLastSellItemOpcode < 1)
         return;
     else
-       l_TimeLastSellItemOpcode = l_Now;
+       m_TimeLastSellItemOpcode = l_Now;
 
     uint64 l_VendorGUID = 0;
     uint64 l_ItemGUID   = 0;
@@ -1305,144 +1283,31 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 enchantID, uint8 slotID)
+void WorldSession::SendEnchantmentLog(uint64 p_ItemGUID, uint64 p_CasterGUID, uint32 p_ItemID, uint32 p_Enchantment, uint8 p_EnchantSlot)
 {
-    WorldPacket data(SMSG_ENCHANTMENT_LOG);
-    ObjectGuid targetGuid = Target;
-    ObjectGuid playerGuid = GetPlayer()->GetGUID(); // Sent twice
-    ObjectGuid casterGuid = Caster;
+    WorldPacket l_Data(SMSG_ENCHANTMENT_LOG);
 
-    data.WriteBit(1);               // Unk but always sent, sniffed from retail
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(casterGuid[6]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(casterGuid[0]);
+    l_Data.appendPackGUID(p_CasterGUID);
+    l_Data.appendPackGUID(GetPlayer()->GetGUID());
+    l_Data.appendPackGUID(p_ItemGUID);
 
-    {
-        data.WriteBit(playerGuid[1]);
-        data.WriteBit(playerGuid[4]);
-        data.WriteBit(playerGuid[5]);
-        data.WriteBit(playerGuid[2]);
-        data.WriteBit(playerGuid[6]);
-        data.WriteBits(1, 21);          // Unk but always sent, sniffed from retail
-        data.WriteBit(playerGuid[3]);
-        data.WriteBit(playerGuid[0]);
-        data.WriteBit(playerGuid[7]);
-    }
+    l_Data << uint32(p_ItemID);
+    l_Data << uint32(p_Enchantment);
+    l_Data << uint32(p_EnchantSlot);
 
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(casterGuid[7]);
-    data.WriteBit(casterGuid[1]);
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(casterGuid[5]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(casterGuid[3]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(casterGuid[4]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(casterGuid[2]);
-
-    {
-        data.WriteByteSeq(playerGuid[3]);
-        data.WriteByteSeq(playerGuid[2]);
-        data.WriteByteSeq(playerGuid[6]);
-        data << uint32(522093);         // Unk but always sent, sniffed from retail
-
-        data << uint32(0);              // Unk but always sent, sniffed from retail
-        data << uint32(60000);          // Unk but always sent, sniffed from retail
-
-        data.WriteByteSeq(playerGuid[0]);
-        data.WriteByteSeq(playerGuid[4]);
-        data.WriteByteSeq(playerGuid[7]);
-        data.WriteByteSeq(playerGuid[1]);
-        data << uint32(107);            // Unk but always sent, sniffed from retail
-        data.WriteByteSeq(playerGuid[5]);
-        data << uint32(24528);          // Unk but always sent, sniffed from retail
-    }
-
-    data.WriteByteSeq(casterGuid[4]);
-    data.WriteByteSeq(casterGuid[2]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(targetGuid[4]);
-    data << uint32(slotID);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(playerGuid[6]);
-    data << uint32(ItemID);
-    data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(casterGuid[1]);
-    data.WriteByteSeq(casterGuid[5]);
-    data.WriteByteSeq(casterGuid[6]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(casterGuid[0]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(casterGuid[7]);
-    data << uint32(enchantID);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(casterGuid[3]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
-void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration)
+void WorldSession::SendItemEnchantTimeUpdate(uint64 p_PlayerGuid, uint64 p_ItemGuid, uint32 p_Slot, uint32 p_Duration)
 {
-    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE);
-    ObjectGuid itemGuid = Itemguid;
-    ObjectGuid playerGuid = Playerguid;
+    WorldPacket l_Data(SMSG_ITEM_ENCHANT_TIME_UPDATE);
 
-    data.WriteBit(itemGuid[3]);
-    data.WriteBit(playerGuid[4]);
-    data.WriteBit(itemGuid[0]);
-    data.WriteBit(playerGuid[7]);
-    data.WriteBit(itemGuid[2]);
-    data.WriteBit(playerGuid[6]);
-    data.WriteBit(itemGuid[6]);
-    data.WriteBit(itemGuid[1]);
-    data.WriteBit(playerGuid[2]);
-    data.WriteBit(itemGuid[7]);
-    data.WriteBit(playerGuid[3]);
-    data.WriteBit(playerGuid[1]);
-    data.WriteBit(itemGuid[5]);
-    data.WriteBit(playerGuid[5]);
-    data.WriteBit(playerGuid[0]);
-    data.WriteBit(itemGuid[4]);
+    l_Data.appendPackGUID(p_ItemGuid);
+    l_Data << uint32(p_Duration);
+    l_Data << uint32(p_Slot);
+    l_Data.appendPackGUID(p_PlayerGuid);
 
-    data << uint32(Duration);
-    data.WriteByteSeq(playerGuid[2]);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(itemGuid[7]);
-    data.WriteByteSeq(playerGuid[0]);
-    data << uint32(slot);
-    data.WriteByteSeq(itemGuid[3]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(itemGuid[6]);
-    data.WriteByteSeq(itemGuid[4]);
-    data.WriteByteSeq(itemGuid[2]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(itemGuid[5]);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[4]);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(itemGuid[0]);
-    data.WriteByteSeq(itemGuid[1]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
@@ -1936,28 +1801,23 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
 
-void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
+void WorldSession::HandleItemRefundInfoRequest(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND_INFO");
 
-    ObjectGuid guid;
+    uint64 l_Guid = 0;
 
-    uint8 bitsOrder[8] = { 7, 6, 0, 4, 5, 3, 2, 1 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    p_Packet.readPackGUID(l_Guid);
 
-    recvData.FlushBits();
+    Item * l_Item = m_Player->GetItemByGuid(l_Guid);
 
-    uint8 bytesOrder[8] = { 2, 0, 3, 1, 6, 7, 4, 5 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    Item* item = m_Player->GetItemByGuid(guid);
-    if (!item)
+    if (!l_Item)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Item refund: item not found!");
         return;
     }
 
-    GetPlayer()->SendRefundInfo(item);
+    GetPlayer()->SendRefundInfo(l_Item);
 }
 
 void WorldSession::HandleItemRefund(WorldPacket& recvData)

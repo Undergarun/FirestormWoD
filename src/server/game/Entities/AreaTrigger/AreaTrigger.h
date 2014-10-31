@@ -44,7 +44,7 @@ enum eAreaTriggerFlags
     AREATRIGGER_FLAG_HAS_MORPH_CURVE        = 0x0080,
     AREATRIGGER_FLAG_HAS_FACING_CURVE       = 0x0100,
     AREATRIGGER_FLAG_HAS_MOVE_CURVE         = 0x0200,
-    AREATRIGGER_FLAG_HAS_VISUAL_RADIUS      = 0x0400,
+    AREATRIGGER_FLAG_UNUSED_0400            = 0x0400,
     AREATRIGGER_FLAG_AREATRIGGER_BOX        = 0x0800,
     AREATRIGGER_FLAG_AREATRIGGER_POLYGON    = 0x1000,
     AREATRIGGER_FLAG_AREATRIGGER_CYLINDER   = 0x2000,
@@ -103,7 +103,14 @@ struct AreaTriggerTemplate
         } m_Raw;
 
         // AREATRIGGER_TYPE_SPHERE
+
         // AREATRIGGER_TYPE_CYLINDER
+        struct
+        {
+            float m_Extent[3];
+            float m_ExtentTarget[3];
+        } m_CylinderDatas;
+
         // AREATRIGGER_TYPE_SPLINE
         // Implemented in WoD
     };
@@ -136,9 +143,6 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void UnbindFromCaster();
 
         uint32 GetCreatedTime() const { return m_CreatedTime; }
-
-        float GetVisualRadius() const { return m_VisualRadius; }
-        void SetVisualRadius(float radius) { m_VisualRadius = radius; }
 
         uint32 GetUpdateInterval() const { return m_UpdateTimer.GetInterval(); }
         AreatriggerInterpolation GetTrajectory() const { return m_Trajectory; }

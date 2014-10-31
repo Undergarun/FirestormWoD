@@ -5604,14 +5604,17 @@ void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
+void Unit::SendSpellDamageResist(Unit * p_Target, uint32 p_SpellID)
 {
-    WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
-    data << uint64(GetGUID());
-    data << uint64(target->GetGUID());
-    data << uint32(spellId);
-    data << uint8(0); // bool - log format: 0-default, 1-debug
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_PROCRESIST, 8+8+4+1);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data.appendPackGUID(p_Target->GetGUID());
+    l_Data << uint32(p_SpellID);
+    l_Data.WriteBit(false);
+    l_Data.WriteBit(false);
+    l_Data.FlushBits();
+
+    SendMessageToSet(&l_Data, true);
 }
 
 // Do not use this function
@@ -13476,7 +13479,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
         if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
         {
-            healamount = uint32(std::max((float(healamount) * TakenTotal), 0.0f));
+            healamount = uint32(std::max((int32(healamount) + TakenTotal) * TakenTotalMod, 0.0f));
             return healamount;
         }
     }
@@ -17216,7 +17219,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     {
         if (damage && procSpell && target)
         {
-            if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+            if (GetTypeId() == TYPEID_PLAYER && roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
             {
                 if (procSpell && procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC))
                 {
@@ -17988,41 +17991,31 @@ void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
-void Unit::SendPetActionFeedback(uint8 msg)
+void Unit::SendPetActionFeedback(uint32 p_SpellID, uint8 p_Response)
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    Unit* l_Owner = GetOwner();
+    if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_FEEDBACK, 1);
-    data << uint8(msg);
-    data.WriteBit(1);
-    data.FlushBits();
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PET_ACTION_FEEDBACK, 1);
+    l_Data << uint32(p_SpellID);
+    l_Data << uint8(p_Response);
+
+    l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
-void Unit::SendPetTalk(uint32 pettalk)
+void Unit::SendPetTalk(uint32 p_Action)
 {
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    Unit* l_Owner = GetOwner();
+    if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    ObjectGuid unitGuid = GetGUID();
+    uint64 l_UnitGUID = GetGUID();
 
-    uint8 bitsOrder[8] = { 1, 4, 3, 6, 0, 5, 7, 2 };
-    data.WriteBitInOrder(unitGuid, bitsOrder);
-
-    data.WriteByteSeq(unitGuid[5]);
-    data.WriteByteSeq(unitGuid[6]);
-    data.WriteByteSeq(unitGuid[0]);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[7]);
-    data.WriteByteSeq(unitGuid[3]);
-    data << uint32(pettalk);
-    data.WriteByteSeq(unitGuid[2]);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 8 + 4);
+    l_Data.appendPackGUID(l_UnitGUID);      ///< UnitGUID
+    l_Data << uint32(p_Action);             ///< Action
+    l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 void Unit::SendPetAIReaction(uint64 p_Guid)
@@ -18846,297 +18839,312 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     SendMessageToSet(&data, true);
 }
 
-void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
+void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)
 {
-    // Prevent killing unit twice (and giving reward from kill twice)
-    if (!victim->GetHealth() || victim->m_IsInKillingProcess)
+    /// Prevent killing unit twice (and giving reward from kill twice)
+    if (!l_KilledVictim->GetHealth() || l_KilledVictim->m_IsInKillingProcess)
         return;
 
-    // Spirit of Redemption can't be killed twice
-    if (victim->HasAura(27827))
+    /// Spirit of Redemption can't be killed twice
+    if (l_KilledVictim->HasAura(27827))
         return;
 
-    victim->m_IsInKillingProcess = true;
+    l_KilledVictim->m_IsInKillingProcess = true;
 
-    // find player: owner of controlled `this` or `this` itself maybe
-    Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
-    Creature* creature = victim->ToCreature();
+    /// Find player: owner of controlled `this` or `this` itself maybe
+    Player   * l_KillerPlayer   = GetCharmerOrOwnerPlayerOrPlayerItself();
+    Creature * l_KilledCreature = l_KilledVictim->ToCreature();
 
-    bool isRewardAllowed = true;
-    if (creature)
+    bool l_IsRewardAllowed = true;
+    if (l_KilledCreature)
     {
-        isRewardAllowed = creature->IsDamageEnoughForLootingAndReward();
-        if (!isRewardAllowed)
-            creature->SetLootRecipient(NULL);
+        l_IsRewardAllowed = l_KilledCreature->IsDamageEnoughForLootingAndReward();
+        if (!l_IsRewardAllowed)
+            l_KilledCreature->SetLootRecipient(NULL);
     }
 
-    if (isRewardAllowed && creature && creature->GetLootRecipient())
-        player = creature->GetLootRecipient();
+    if (l_IsRewardAllowed && l_KilledCreature && l_KilledCreature->GetLootRecipient())
+        l_KillerPlayer = l_KilledCreature->GetLootRecipient();
 
-    // Reward player, his pets, and group/raid members
-    // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if (isRewardAllowed && player && player != victim)
+    /// Reward player, his pets, and group/raid members
+    /// call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
+    if (l_IsRewardAllowed && l_KillerPlayer && l_KillerPlayer != l_KilledVictim)
     {
-        ObjectGuid guid = player->GetGUID();
+        WorldPacket l_Data(SMSG_PARTY_KILL_LOG);
+        l_Data.appendPackGUID(l_KillerPlayer->GetGUID());
+        l_Data.appendPackGUID(l_KilledVictim->GetGUID());
 
-        WorldPacket data(SMSG_PARTY_KILL_LOG);
+        Player * l_Looter = l_KillerPlayer;
 
-        uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
-        data.WriteBitInOrder(guid, bitsOrder);
-
-        uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
-        data.WriteBytesSeq(guid, bytesOrder);
-
-        Player* looter = player;
-
-        if (Group* group = player->GetGroup())
+        if (Group * l_Group = l_KillerPlayer->GetGroup())
         {
-            group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()));
+            l_Group->BroadcastPacket(&l_Data, l_Group->GetMemberGroup(l_KillerPlayer->GetGUID()));
 
-            if (creature)
+            if (l_KilledCreature)
             {
-                group->UpdateLooterGuid(creature, true);
-                if (group->GetLooterGuid())
+                l_Group->UpdateLooterGuid(l_KilledCreature, true);
+                if (l_Group->GetLooterGuid())
                 {
-                    looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
-                    if (looter)
+                    l_Looter = ObjectAccessor::FindPlayer(l_Group->GetLooterGuid());
+                    if (l_Looter)
                     {
-                        creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.
-                        group->SendLooter(creature, looter);
+                        l_KilledCreature->SetLootRecipient(l_Looter);   ///< Update creature loot recipient to the allowed looter.
+                        l_Group->SendLooter(l_KilledCreature, l_Looter);
                     }
                     else
-                        group->SendLooter(creature, NULL);
+                        l_Group->SendLooter(l_KilledCreature, NULL);
                 }
                 else
-                    group->SendLooter(creature, NULL);
+                    l_Group->SendLooter(l_KilledCreature, NULL);
 
-                group->UpdateLooterGuid(creature);
+                l_Group->UpdateLooterGuid(l_KilledCreature);
             }
         }
         else
         {
-            player->SendDirectMessage(&data);
+            l_KillerPlayer->SendDirectMessage(&l_Data);
 
-            if (creature)
+            if (l_KilledCreature)
             {
-                WorldPacket data2(SMSG_LOOT_LIST);
+                WorldPacket l_LootListPacket(SMSG_LOOT_LIST);
 
-                data2.appendPackGUID(creature->GetGUID());
+                l_LootListPacket.appendPackGUID(l_KilledCreature->GetGUID());
 
-                data2.WriteBit(false); // RoundRobinWinnerGuid
-                data2.WriteBit(false); // MasterGuid
-                data2.FlushBits();
+                l_LootListPacket.WriteBit(false); // RoundRobinWinnerGuid
+                l_LootListPacket.WriteBit(false); // MasterGuid
+                l_LootListPacket.FlushBits();
 
-                player->SendMessageToSet(&data2, true);
+                l_KillerPlayer->SendMessageToSet(&l_LootListPacket, true);
             }
         }
 
-        if (creature)
+        if (l_KilledCreature)
         {
-            Loot* loot = &creature->loot;
-            if (creature->lootForPickPocketed)
-                creature->lootForPickPocketed = false;
+            Loot * l_Loot = &l_KilledCreature->loot;
 
-            loot->clear();
-            if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
+            if (l_KilledCreature->lootForPickPocketed)
+                l_KilledCreature->lootForPickPocketed = false;
 
-            loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+            l_Loot->clear();
+
+            if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
+                l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
+
+            l_Loot->generateMoneyLoot(l_KilledCreature->GetCreatureTemplate()->mingold, l_KilledCreature->GetCreatureTemplate()->maxgold);
         }
 
-        player->RewardPlayerAndGroupAtKill(victim, false);
+        l_KillerPlayer->RewardPlayerAndGroupAtKill(l_KilledVictim, false);
     }
 
-    // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
+    /// Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
     if (isPet() || isTotem())
-        if (Unit* owner = GetOwner())
-            owner->ProcDamageAndSpell(victim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
+        if (Unit* l_Owner = GetOwner())
+            l_Owner->ProcDamageAndSpell(l_KilledVictim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
 
-    if (victim->GetCreatureType() != CREATURE_TYPE_CRITTER)
+    if (l_KilledVictim->GetCreatureType() != CREATURE_TYPE_CRITTER)
     {
-        if (victim->GetEntry() != 19833 && victim->GetEntry() != 19921) // snake trap can't trigger PROC_FLAG_KILL
-            ProcDamageAndSpell(victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0, 0, BASE_ATTACK, spellProto ? spellProto : NULL, NULL);
+        if (l_KilledVictim->GetEntry() != 19833 && l_KilledVictim->GetEntry() != 19921) // snake trap can't trigger PROC_FLAG_KILL
+            ProcDamageAndSpell(l_KilledVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0, 0, BASE_ATTACK, p_SpellProto ? p_SpellProto : NULL, NULL);
     }
 
-    // Proc auras on death - must be before aura/combat remove
-    victim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, 0, BASE_ATTACK, spellProto ? spellProto : NULL);
+    /// Proc auras on death - must be before aura/combat remove
+    l_KilledVictim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, 0, BASE_ATTACK, p_SpellProto ? p_SpellProto : NULL);
 
-    // update get killing blow achievements, must be done before setDeathState to be able to require auras on target
-    // and before Spirit of Redemption as it also removes auras
-    if (player)
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, 0, victim);
+    /// update get killing blow achievements, must be done before setDeathState to be able to require auras on target
+    /// and before Spirit of Redemption as it also removes auras
+    if (l_KillerPlayer)
+        l_KillerPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, 0, l_KilledVictim);
 
-    // if talent known but not triggered (check priest class for speedup check)
-    bool spiritOfRedemption = false;
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_PRIEST)
+    /// if talent known but not triggered (check priest class for speedup check)
+    bool l_SpiritOfRedemption = false;
+
+    if (l_KilledVictim->GetTypeId() == TYPEID_PLAYER && l_KilledVictim->getClass() == CLASS_PRIEST)
     {
-        AuraEffectList const& dummyAuras = victim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-        for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
-        {
-            if ((*itr)->GetSpellInfo()->SpellIconID == 1654)
-            {
-                constAuraEffectPtr aurEff = *itr;
-                // save value before aura remove
-                uint32 ressSpellId = victim->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL);
-                if (!ressSpellId)
-                    ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
-                // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-                victim->RemoveAllAurasOnDeath();
-                // restore for use at real death
-                victim->SetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL, ressSpellId);
+        const AuraEffectList & l_DummyAuras = l_KilledVictim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
 
-                // FORM_SPIRITOFREDEMPTION and related auras
-                victim->CastSpell(victim, 27827, true, NULL, aurEff);
-                victim->CastSpell(victim, 27792, true);
-                spiritOfRedemption = true;
+        for (AuraEffectList::const_iterator l_AuraIT = l_DummyAuras.begin(); l_AuraIT != l_DummyAuras.end(); ++l_AuraIT)
+        {
+            if ((*l_AuraIT)->GetSpellInfo()->SpellIconID == 1654)
+            {
+                constAuraEffectPtr l_AuraEffect = *l_AuraIT;
+
+                // save value before aura remove
+                uint32 l_RessSpellId = l_KilledVictim->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL);
+
+                if (!l_RessSpellId)
+                    l_RessSpellId = l_KilledVictim->ToPlayer()->GetResurrectionSpellId();
+
+                /// Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
+                l_KilledVictim->RemoveAllAurasOnDeath();
+                /// restore for use at real death
+                l_KilledVictim->SetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL, l_RessSpellId);
+
+                /// FORM_SPIRITOFREDEMPTION and related auras
+                l_KilledVictim->CastSpell(l_KilledVictim, 27827, true, NULL, l_AuraEffect);
+                l_KilledVictim->CastSpell(l_KilledVictim, 27792, true);
+
+                l_SpiritOfRedemption = true;
                 break;
             }
         }
     }
 
-    if (!spiritOfRedemption)
-        victim->setDeathState(JUST_DIED);
+    if (!l_SpiritOfRedemption)
+        l_KilledVictim->setDeathState(JUST_DIED);
 
-    // Inform pets (if any) when player kills target)
-    // MUST come after victim->setDeathState(JUST_DIED); or pet next target
-    // selection will get stuck on same target and break pet react state
-    if (player)
+    /// Inform pets (if any) when player kills target)
+    /// MUST come after victim->setDeathState(JUST_DIED); or pet next target
+    /// selection will get stuck on same target and break pet react state
+    if (l_KillerPlayer)
     {
-        Pet* pet = player->GetPet();
-        if (pet && pet->isAlive() && pet->isControlled())
-            pet->AI()->KilledUnit(victim);
+        Pet * l_Pet = l_KillerPlayer->GetPet();
+
+        if (l_Pet && l_Pet->isAlive() && l_Pet->isControlled())
+            l_Pet->AI()->KilledUnit(l_KilledVictim);
     }
 
-    // 10% durability loss on death
-    // clean InHateListOf
-    if (Player* plrVictim = victim->ToPlayer())
+    /// 10% durability loss on death
+    /// clean InHateListOf
+    if (Player* l_PlayerVictim = l_KilledVictim->ToPlayer())
     {
-        // remember victim PvP death for corpse type and corpse reclaim delay
-        // at original death (not at SpiritOfRedemtionTalent timeout)
-        plrVictim->SetPvPDeath(player != NULL);
+        /// Remember victim PvP death for corpse type and corpse reclaim delay
+        /// at original death (not at SpiritOfRedemtionTalent timeout)
+        l_PlayerVictim->SetPvPDeath(l_KillerPlayer != NULL);
 
-        // only if not player and not controlled by player pet. And not at BG
-        if ((durabilityLoss && !player && !victim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
+        /// Only if not player and not controlled by player pet. And not at BG
+        if ((p_DurabilityLoss && !l_KillerPlayer && !l_KilledVictim->ToPlayer()->InBattleground()) || (l_KillerPlayer && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
-            double baseLoss = sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH);
-            uint32 loss = uint32(baseLoss - (baseLoss * plrVictim->GetTotalAuraMultiplier(SPELL_AURA_MOD_DURABILITY_LOSS)));
-            // Durability loss is calculated more accurately again for each item in Player::DurabilityLoss
-            plrVictim->DurabilityLossAll(baseLoss, false);
-            // durability lost message
-            SendDurabilityLoss(plrVictim, loss);
+            double l_BaseLoss = sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH);
+            uint32 l_Loss = uint32(l_BaseLoss - (l_BaseLoss * l_PlayerVictim->GetTotalAuraMultiplier(SPELL_AURA_MOD_DURABILITY_LOSS)));
+
+            /// Durability loss is calculated more accurately again for each item in Player::DurabilityLoss
+            l_PlayerVictim->DurabilityLossAll(l_BaseLoss, false);
+            /// Durability lost message
+            SendDurabilityLoss(l_PlayerVictim, l_Loss);
         }
-        // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
-            ToCreature()->AI()->KilledUnit(victim);
 
-        // last damage from non duel opponent or opponent controlled creature
-        if (plrVictim->m_Duel)
+        /// Call KilledUnit for creatures
+        if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+            ToCreature()->AI()->KilledUnit(l_KilledVictim);
+
+        /// last damage from non duel opponent or opponent controlled creature
+        if (l_PlayerVictim->m_Duel)
         {
-            plrVictim->m_Duel->opponent->CombatStopWithPets(true);
-            plrVictim->CombatStopWithPets(true);
-            plrVictim->DuelComplete(DUEL_INTERRUPTED);
+            l_PlayerVictim->m_Duel->opponent->CombatStopWithPets(true);
+            l_PlayerVictim->CombatStopWithPets(true);
+            l_PlayerVictim->DuelComplete(DUEL_INTERRUPTED);
         }
     }
-    else                                                // creature died
+    /// Creature died
+    else
     {
-        if (!creature->isPet())
+        if (!l_KilledCreature->isPet())
         {
-            creature->DeleteThreatList();
-            CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
-            if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
-                creature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            l_KilledCreature->DeleteThreatList();
+
+            const CreatureTemplate * l_CreatureTemplate = l_KilledCreature->GetCreatureTemplate();
+
+            if (l_CreatureTemplate && (l_CreatureTemplate->lootid || l_CreatureTemplate->maxgold > 0))
+                l_KilledCreature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
+        /// Call KilledUnit for creatures, this needs to be called after the lootable flag is set
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
-            ToCreature()->AI()->KilledUnit(victim);
+            ToCreature()->AI()->KilledUnit(l_KilledVictim);
 
-        // Call creature just died function
-        if (creature->IsAIEnabled)
-            creature->AI()->JustDied(this);
+        /// Call creature just died function
+        if (l_KilledCreature->IsAIEnabled)
+            l_KilledCreature->AI()->JustDied(this);
 
-        if (TempSummon* summon = creature->ToTempSummon())
-            if (Unit* summoner = summon->GetSummoner())
-                if (summoner->ToCreature() && summoner->IsAIEnabled)
-                    summoner->ToCreature()->AI()->SummonedCreatureDies(creature, this);
-
-        // Dungeon specific stuff, only applies to players killing creatures
-        if (creature->GetInstanceId())
+        if (TempSummon* l_TemSummon = l_KilledCreature->ToTempSummon())
         {
-            Map* instanceMap = creature->GetMap();
-            Player* creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
-            // TODO: do instance binding anyway if the charmer/owner is offline
-
-            if (instanceMap->IsDungeon() && creditedPlayer)
+            if (Unit* l_Summoner = l_TemSummon->GetSummoner())
             {
-                if (instanceMap->IsRaidOrHeroicDungeon())
+                if (l_Summoner->ToCreature() && l_Summoner->IsAIEnabled)
+                    l_Summoner->ToCreature()->AI()->SummonedCreatureDies(l_KilledCreature, this);
+            }
+        }
+
+        /// Dungeon specific stuff, only applies to players killing creatures
+        if (l_KilledCreature->GetInstanceId())
+        {
+            Map    * l_InstanceMap    = l_KilledCreature->GetMap();
+            Player * l_CreditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+            /// @TODO: do instance binding anyway if the charmer/owner is offline
+
+            if (l_InstanceMap->IsDungeon() && l_CreditedPlayer)
+            {
+                if (l_InstanceMap->IsRaidOrHeroicDungeon())
                 {
-                    if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                        ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
+                    if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                        ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_CreditedPlayer);
                 }
                 else
                 {
-                    // the reset time is set but not added to the scheduler
-                    // until the players leave the instance
-                    time_t resettime = creature->GetRespawnTimeEx() + 2 * HOUR;
-                    if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(creature->GetInstanceId()))
-                        if (save->GetResetTime() < resettime) save->SetResetTime(resettime);
+                    /// the reset time is set but not added to the scheduler
+                    /// until the players leave the instance
+                    time_t l_ResetTime = l_KilledCreature->GetRespawnTimeEx() + 2 * HOUR;
+
+                    if (InstanceSave* l_Save = sInstanceSaveMgr->GetInstanceSave(l_KilledCreature->GetInstanceId()))
+                        if (l_Save->GetResetTime() < l_ResetTime) l_Save->SetResetTime(l_ResetTime);
                 }
             }
         }
     }
 
-    // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
-    // handle player kill only if not suicide (spirit of redemption for example)
-    if (player && this != victim)
+    /// Outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
+    /// handle player kill only if not suicide (spirit of redemption for example)
+    if (l_KillerPlayer && this != l_KilledVictim)
     {
-        if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-            pvp->HandleKill(player, victim);
+        if (OutdoorPvP * l_OutdoorPVP = l_KillerPlayer->GetOutdoorPvP())
+            l_OutdoorPVP->HandleKill(l_KillerPlayer, l_KilledVictim);
 
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
-            bf->HandleKill(player, victim);
+        if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(l_KillerPlayer->GetZoneId()))
+            l_Battlefield->HandleKill(l_KillerPlayer, l_KilledVictim);
     }
 
     //if (victim->GetTypeId() == TYPEID_PLAYER)
     //    if (OutdoorPvP* pvp = victim->ToPlayer()->GetOutdoorPvP())
     //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();
 
-    // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
-    if (player && player->InBattleground())
+    /// battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
+    if (l_KillerPlayer && l_KillerPlayer->InBattleground())
     {
-        if (Battleground* bg = player->GetBattleground())
+        if (Battleground * l_Battleground = l_KillerPlayer->GetBattleground())
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                bg->HandleKillPlayer((Player*)victim, player);
+            if (l_KilledVictim->GetTypeId() == TYPEID_PLAYER)
+                l_Battleground->HandleKillPlayer((Player*)l_KilledVictim, l_KillerPlayer);
             else
-                bg->HandleKillUnit(victim->ToCreature(), player);
+                l_Battleground->HandleKillUnit(l_KilledVictim->ToCreature(), l_KillerPlayer);
         }
     }
 
-    // achievement stuff
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    /// Achievement stuff
+    if (l_KilledVictim->GetTypeId() == TYPEID_PLAYER)
     {
         if (GetTypeId() == TYPEID_UNIT)
-            victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
-        else if (GetTypeId() == TYPEID_PLAYER && victim != this)
-            victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, ToPlayer()->GetTeam());
+            l_KilledVictim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE, GetEntry());
+        else if (GetTypeId() == TYPEID_PLAYER && l_KilledVictim != this)
+            l_KilledVictim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER, 1, ToPlayer()->GetTeam());
     }
 
-    // Hook for OnPVPKill Event
-    if (Player* killerPlr = ToPlayer())
+    /// Hook for OnPVPKill Event
+    if (Player* l_KillerPlayer = ToPlayer())
     {
-        if (Player* killedPlr = victim->ToPlayer())
-            sScriptMgr->OnPVPKill(killerPlr, killedPlr);
-        else if (Creature* killedCre = victim->ToCreature())
-            sScriptMgr->OnCreatureKill(killerPlr, killedCre);
+        if (Player* l_KilledPlayer = l_KilledVictim->ToPlayer())
+            sScriptMgr->OnPVPKill(l_KillerPlayer, l_KilledPlayer);
+
+        else if (Creature* l_KilledCreature = l_KilledVictim->ToCreature())
+            sScriptMgr->OnCreatureKill(l_KillerPlayer, l_KilledCreature);
     }
-    else if (Creature* killerCre = ToCreature())
+    else if (Creature* l_KilledCreature = ToCreature())
     {
-        if (Player* killed = victim->ToPlayer())
-            sScriptMgr->OnPlayerKilledByCreature(killerCre, killed);
+        if (Player * l_KilledPlayer = l_KilledVictim->ToPlayer())
+            sScriptMgr->OnPlayerKilledByCreature(l_KilledCreature, l_KilledPlayer);
     }
 
-    victim->m_IsInKillingProcess = false;
+    l_KilledVictim->m_IsInKillingProcess = false;
 }
 
 void Unit::SetControlled(bool apply, UnitState state)

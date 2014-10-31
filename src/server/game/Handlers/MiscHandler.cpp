@@ -1911,13 +1911,13 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& p_Packet)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
+void WorldSession::HandleFarSightOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
 
-    bool apply = recvData.ReadBit();
+    bool l_Apply = p_Packet.ReadBit();
 
-    if (apply)
+    if (l_Apply)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Player %u set vision to self", m_Player->GetGUIDLow());
         m_Player->SetSeer(m_Player);
@@ -1925,8 +1925,9 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
     else
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", m_Player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT), m_Player->GetGUIDLow());
-        if (WorldObject* target = m_Player->GetViewpoint())
-            m_Player->SetSeer(target);
+
+        if (WorldObject * l_Target = m_Player->GetViewpoint())
+            m_Player->SetSeer(l_Target);
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, m_Player->GetName(), m_Player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT));
     }
@@ -2249,34 +2250,33 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     79 07 81 23 56 02 // guid bytes*/
 
     WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-
+    data.appendPackGUID(m_Player->GetGUID());
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     data << uint32(0x18); // flags, 0x18 most of time on retail sniff
-
+    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
+    data.appendPackGUID(m_Player->GetGUID());
     // Active terrain swaps, may switch with inactive terrain
-    data << uint32(terrainswaps.size() * 2);
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
+
+    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+    {
+        data << uint16(0);
+        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
+    }
 
     // Inactive terrain swaps, may switch with active terrain
     data << inactiveSwapsCount;
     //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-        //data << uint16(0);
-
-    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
+    //data << uint16(0);
 
     // WorldMapAreaId ?
     data << unkValue;
     //for (uint32 i = 0; i < unkValue; i++)
         //data << uint16(0);
 
-    uint8 bitOrder[8] = { 0, 2, 1, 5, 3, 7, 4, 6 };
-    data.WriteBitInOrder(guid, bitOrder);
+    data << uint32(terrainswaps.size() * 2);
 
-    uint8 byteOrder[8] = { 0, 5, 4, 7, 6, 2, 1, 3 };
-    data.WriteBytesSeq(guid, byteOrder);
+    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
+        data << uint16(*itr);
 
     SendPacket(&data);
 }
@@ -2396,8 +2396,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
                 break;
 
             case DB2_REPLY_SPARSE:
-#pragma message("DB2_REPLY_SPARSE TODO")
-                ;// SendItemSparseDb2Reply(l_Entry);
+                SendItemSparseDb2Reply(l_Entry);
                 break;
 
             case DB2_REPLY_BROADCAST_TEXT:

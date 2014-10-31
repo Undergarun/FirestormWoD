@@ -3455,10 +3455,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
-            case 45470: // Death strike heal
-            case 116783:// Death Siphon heal
-                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
-                break;
             case 65075: // Tower of Flames
             case 65077: // Tower of Frost
             case 64482: // Tower of Life
@@ -4295,9 +4291,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[6].BasePoints = 100;
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 break;
-            case 49020: // Obliterate - hotfix 5.4.2
-                spellInfo->Effects[1].BasePoints = 250;
-                break;
             case 91107: // Unholy Might
                 spellInfo->Effects[0].BasePoints = 35;
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
@@ -4899,12 +4892,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = 0;
                 spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
                 spellInfo->OverrideSpellList.push_back(104045); // Add Sleep (Metamorphosis)
-                break;
-            case 51460: // Runic Corruption
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_POWER_REGEN_PERCENT;
-                spellInfo->Effects[EFFECT_0].MiscValue = 5;
-                spellInfo->Effects[EFFECT_0].MiscValueB = NUM_RUNE_TYPES;
                 break;
             case 45204: // Mirror Image - Clone Me!
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
@@ -6180,34 +6167,6 @@ void SpellMgr::LoadSpellCustomAttr()
     CreatureAI::FillAISpellInfo();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
-}
-
-void SpellMgr::LoadAreaTriggerVisuals()
-{
-    uint32 oldMSTime = getMSTime();
-
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_VISUAL);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Visuals. DB table `areatrigger_visual` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        mAreaTriggerVisuals.insert(std::make_pair(fields[0].GetUInt32(), fields[1].GetFloat()));
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u AreaTrigger visuals in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadTalentSpellInfo()

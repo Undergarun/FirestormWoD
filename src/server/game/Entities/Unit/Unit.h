@@ -2285,7 +2285,7 @@ class Unit : public WorldObject
 
         ///----------Pet responses methods-----------------
         void SendPetCastFail(uint32 spellid, SpellCastResult msg);
-        void SendPetActionFeedback (uint8 msg);
+        void SendPetActionFeedback (uint32 p_SpellID, uint8 p_Reason);
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);
         ///----------End of Pet responses methods----------

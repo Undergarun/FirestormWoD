@@ -358,7 +358,6 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     p_Data->WriteBit(p_Flags & UPDATEFLAG_AREATRIGGER);             ///< Area trigger
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->WriteBit(p_Flags & UPDATEFLAG_SELF);                    ///< Self
-    p_Data->WriteBit(0);                                            ///< Unk
     p_Data->WriteBit(p_Flags & UPDATEFLAG_SCENE_OBJECT);            ///< Scene Object
     p_Data->WriteBit(0);                                            ///< Unk
     p_Data->FlushBits();
@@ -638,81 +637,81 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_AREATRIGGER)
     {
-        bool l_AbsoluteOrientation      = false;
-        bool l_DynamicShape             = false;
-        bool l_Attached                 = false;
-        bool l_FaceMovementDir          = false;
+        AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
+
+        bool l_AbsoluteOrientation      = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
+        bool l_DynamicShape             = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_DYNAMIC_SHAPE;
+        bool l_Attached                 = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_ATTACHED;
+        bool l_FaceMovementDir          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
         bool l_FollowsTerrain           = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE;
-        bool l_HasTargetRollPitchYaw    = false;
-        bool l_HasScaleCurveID          = false;
-        bool l_HasMorphCurveID          = false;
-        bool l_HasFacingCurveID         = false;
-        bool l_HasMoveCurveID           = false;
-        bool l_HasVisualRadius          = l_AreaTrigger->GetVisualRadius() != 1;
-        bool l_HasAreaTriggerBox        = l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
-        bool l_HasAreaTriggerPolygon    = l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
-        bool l_HasAreaTriggerCylinder   = l_AreaTrigger->GetMainTemplate().m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
+        bool l_HasTargetRollPitchYaw    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
+        bool l_HasScaleCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;;
+        bool l_HasMorphCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
+        bool l_HasFacingCurveID         = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_FACING_CURVE;
+        bool l_HasMoveCurveID           = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE;
+        bool l_HasAreaTriggerSphere     = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+        bool l_HasAreaTriggerBox        = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
+        bool l_HasAreaTriggerPolygon    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
+        bool l_HasAreaTriggerCylinder   = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
         bool l_HasAreaTriggerSpline     = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0;
 
         uint32 l_ElapsedMS = l_AreaTrigger->GetCreatedTime();
 
-        AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
+        *p_Data << uint32(l_ElapsedMS);                                                 ///< Elapsed MS
+        *p_Data << float(0);                                                            ///< Roll Pitch Yaw X
+        *p_Data << float(0);                                                            ///< Roll Pitch Yaw Y
+        *p_Data << float(0);                                                            ///< Roll Pitch Yaw Z
 
-        *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed MS
-        *p_Data << float(0);                                                        ///< Roll Pitch Yaw X
-        *p_Data << float(0);                                                        ///< Roll Pitch Yaw Y
-        *p_Data << float(0);                                                        ///< Roll Pitch Yaw Z
-
-        p_Data->WriteBit(l_AbsoluteOrientation);                                    ///< Absolute Orientation
-        p_Data->WriteBit(l_DynamicShape);                                           ///< Dynamic Shape
-        p_Data->WriteBit(l_Attached);                                               ///< Attached
-        p_Data->WriteBit(l_FaceMovementDir);                                        ///< Face Movement Dir
-        p_Data->WriteBit(l_FollowsTerrain);                                         ///< Follows Terrain
-        p_Data->WriteBit(l_HasTargetRollPitchYaw);                                  ///< HasTargetRollPitchYaw
-        p_Data->WriteBit(l_HasScaleCurveID);                                        ///< Has Scale Curve ID
-        p_Data->WriteBit(l_HasMorphCurveID);                                        ///< Has Morph Curve ID
-        p_Data->WriteBit(l_HasFacingCurveID);                                       ///< Has Facing Curve ID
-        p_Data->WriteBit(l_HasMoveCurveID);                                         ///< Has Move Curve ID
-        p_Data->WriteBit(l_HasVisualRadius);                                        ///< Has visual radius
-        p_Data->WriteBit(l_HasAreaTriggerBox);                                      ///< Has AreaTrigger Box
-        p_Data->WriteBit(l_HasAreaTriggerPolygon);                                  ///< Has AreaTrigger Polygon
-        p_Data->WriteBit(l_HasAreaTriggerCylinder);                                 ///< Has AreaTrigger Cylinder
-        p_Data->WriteBit(l_HasAreaTriggerSpline);                                   ///< Has interpolated movement
+        p_Data->WriteBit(l_AbsoluteOrientation);                                        ///< Absolute Orientation
+        p_Data->WriteBit(l_DynamicShape);                                               ///< Dynamic Shape
+        p_Data->WriteBit(l_Attached);                                                   ///< Attached
+        p_Data->WriteBit(l_FaceMovementDir);                                            ///< Face Movement Dir
+        p_Data->WriteBit(l_FollowsTerrain);                                             ///< Follows Terrain
+        p_Data->WriteBit(l_HasTargetRollPitchYaw);                                      ///< HasTargetRollPitchYaw
+        p_Data->WriteBit(l_HasScaleCurveID);                                            ///< Has Scale Curve ID
+        p_Data->WriteBit(l_HasMorphCurveID);                                            ///< Has Morph Curve ID
+        p_Data->WriteBit(l_HasFacingCurveID);                                           ///< Has Facing Curve ID
+        p_Data->WriteBit(l_HasMoveCurveID);                                             ///< Has Move Curve ID
+        p_Data->WriteBit(l_HasAreaTriggerSphere);                                       ///< Has visual radius
+        p_Data->WriteBit(l_HasAreaTriggerBox);                                          ///< Has AreaTrigger Box
+        p_Data->WriteBit(l_HasAreaTriggerPolygon);                                      ///< Has AreaTrigger Polygon
+        p_Data->WriteBit(l_HasAreaTriggerCylinder);                                     ///< Has AreaTrigger Cylinder
+        p_Data->WriteBit(l_HasAreaTriggerSpline);                                       ///< Has interpolated movement
         p_Data->FlushBits();
 
         if (l_HasTargetRollPitchYaw)
         {
-            *p_Data << float(0);                                            ///< Target Roll Pitch Yaw X
-            *p_Data << float(0);                                            ///< Target Roll Pitch Yaw Y
-            *p_Data << float(0);                                            ///< Target Roll Pitch Yaw Z
+            *p_Data << float(0);                                                        ///< Target Roll Pitch Yaw X
+            *p_Data << float(0);                                                        ///< Target Roll Pitch Yaw Y
+            *p_Data << float(0);                                                        ///< Target Roll Pitch Yaw Z
         }
 
         if (l_HasScaleCurveID)
-            *p_Data << uint32(0);                                           ///< Scale Curve ID
+            *p_Data << uint32(l_MainTemplate.m_ScaleCurveID);                           ///< Scale Curve ID
 
         if (l_HasMorphCurveID)
-            *p_Data << uint32(0);                                           ///< Morph Curve ID
+            *p_Data << uint32(l_MainTemplate.m_MorphCurveID);                           ///< Morph Curve ID
 
         if (l_HasFacingCurveID)
-            *p_Data << uint32(0);                                           ///< Facing Curve ID
+            *p_Data << uint32(l_MainTemplate.m_FacingCurveID);                          ///< Facing Curve ID
 
         if (l_HasMoveCurveID)
-            *p_Data << uint32(0);                                           ///< Move Curve ID
+            *p_Data << uint32(l_MainTemplate.m_MoveCurveID);                            ///< Move Curve ID
 
-        if (l_AreaTrigger->GetVisualRadius() != 1)
+        if (l_HasAreaTriggerSphere)
         {
-            *p_Data << float(l_AreaTrigger->GetVisualRadius());             ///< Radius
-            *p_Data << float(l_AreaTrigger->GetVisualRadius());             ///< Radius Target
+            *p_Data << float(l_MainTemplate.m_ScaleX);                                  ///< Radius
+            *p_Data << float(l_MainTemplate.m_ScaleY);                                  ///< Radius Target
         }
-
+        
         if (l_HasAreaTriggerBox)
         {
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[0]);        ///< Extents X
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[1]);        ///< Extents Y
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[2]);        ///< Extents Z
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[0]);  ///< Extents Target X
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[1]);  ///< Extents Target Y
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[2]);  ///< Extents Target Z
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[0]);                    ///< Extents X
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[1]);                    ///< Extents Y
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[2]);                    ///< Extents Z
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[0]);              ///< Extents Target X
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[1]);              ///< Extents Target Y
+            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[2]);              ///< Extents Target Z
         }
 
         if (l_HasAreaTriggerPolygon)
@@ -722,10 +721,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             uint32 l_VerticesCount          = l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesCount;
             uint32 l_VerticesTargetCount    = l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesTargetCount;
 
-            *p_Data << uint32(l_VerticesCount);                             ///< Vertices Count
-            *p_Data << uint32(l_VerticesTargetCount);                       ///< Vertices Target Count
-            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_Height);       ///< Height
-            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_HeightTarget); ///< Height Target
+            *p_Data << uint32(l_VerticesCount);                                         ///< Vertices Count
+            *p_Data << uint32(l_VerticesTargetCount);                                   ///< Vertices Target Count
+            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_Height);                   ///< Height
+            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_HeightTarget);             ///< Height Target
 
             if (l_MainTemplate.m_PolygonDatas.m_VerticesCount > 0)
             {
@@ -748,12 +747,12 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
 
         if (l_HasAreaTriggerCylinder)
         {
-            *p_Data << float(0);                                            ///< Extents X
-            *p_Data << float(0);                                            ///< Extents Y
-            *p_Data << float(0);                                            ///< Extents Z
-            *p_Data << float(0);                                            ///< Extents Target X
-            *p_Data << float(0);                                            ///< Extents Target Y
-            *p_Data << float(0);                                            ///< Extents Target Z
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_Extent[0]);               ///< Extents X
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_Extent[1]);               ///< Extents Y
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_Extent[2]);               ///< Extents Z
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_ExtentTarget[0]);         ///< Extents Target X
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_ExtentTarget[1]);         ///< Extents Target Y
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_ExtentTarget[2]);         ///< Extents Target Z
         }
 
         if (l_HasAreaTriggerSpline)
@@ -761,18 +760,18 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
             uint32 l_TimeToTarget = l_AreaTrigger->GetEntry() == 1316 ? 393 : 392;
 
-            *p_Data << uint32(l_TimeToTarget);                              ///< Time To Target
-            *p_Data << uint32(l_ElapsedMS);                                 ///< Elapsed Time For Movement
-            *p_Data << uint32(l_PathNodeCount);                             ///< Path node count
+            *p_Data << uint32(l_TimeToTarget);                                          ///< Time To Target
+            *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
+            *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
 
             for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
             {
                 Position l_Pos;
                 l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
 
-                *p_Data << float(l_Pos.m_positionX);                        ///< Node position X
-                *p_Data << float(l_Pos.m_positionZ);                        ///< Node position Y
-                *p_Data << float(l_Pos.m_positionY);                        ///< Node position Z;
+                *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
+                *p_Data << float(l_Pos.m_positionZ);                                    ///< Node position Y
+                *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Z;
             }
         }
     }
@@ -1071,7 +1070,7 @@ bool Object::RemoveGuidValue(uint16 index, uint64 value)
 
 void Object::SetGuidValue(uint16 index, uint64 value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT(index + 4 < m_valuesCount || PrintIndexError(index, true));
 
     Guid128 l_Value = Guid64To128(value);
     bool l_Changed = false;

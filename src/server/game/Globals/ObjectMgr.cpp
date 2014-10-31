@@ -2573,6 +2573,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
         itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionId;
         itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
+        itemTemplate.ItemNameDescriptionID = sparse->ItemNameDescriptionID;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
@@ -2735,6 +2736,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.StatScalingFactor         = fields[131].GetFloat();
             itemTemplate.CurrencySubstitutionId    = fields[132].GetInt32();
             itemTemplate.CurrencySubstitutionCount = fields[133].GetInt32();
+            itemTemplate.ItemNameDescriptionID     = 0;
             itemTemplate.ScriptId                  = 0;
             itemTemplate.FoodType                  = 0;
             itemTemplate.MinMoneyLoot              = 0;
@@ -3618,53 +3620,19 @@ void ObjectMgr::LoadPlayerInfo()
         for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
             _playerXPperLevel[level] = 0;
 
-        //                                                 0    1
-        QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM player_xp_for_level");
+        uint32 l_Count = 0;
 
-        if (!result)
+        for (uint8 l_Index = 0; l_Index < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++l_Index)
         {
-            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
-
-            exit(1);
-        }
-
-        uint32 count = 0;
-
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 current_level = fields[0].GetUInt8();
-            uint32 current_xp    = fields[1].GetUInt32();
-
-            if (current_level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-            {
-                if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                    sLog->outError(LOG_FILTER_SQL, "Wrong (> %u) level %u in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL, current_level);
-                else
-                {
-                    sLog->outInfo(LOG_FILTER_GENERAL, "Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_xp_for_level` table, ignoring.", current_level);
-                    ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-                }
+            GtOCTLevelExperienceEntry const* l_LevelExperience = sGtOCTLevelExperienceStore.LookupEntry(l_Index);
+            if (!l_LevelExperience)
                 continue;
-            }
-            //PlayerXPperLevel
-            _playerXPperLevel[current_level] = current_xp;
-            ++count;
-        }
-        while (result->NextRow());
 
-        // fill level gaps
-        for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-        {
-            if (_playerXPperLevel[level] == 0)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Level %i does not have XP for level data. Using data of level [%i] + 100.", level+1, level);
-                _playerXPperLevel[level] = _playerXPperLevel[level-1]+100;
-            }
+            l_Count++;
+            _playerXPperLevel[l_LevelExperience->Index] = l_LevelExperience->Data;
         }
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u xp for level definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u xp for level definitions in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
     }
 }
 

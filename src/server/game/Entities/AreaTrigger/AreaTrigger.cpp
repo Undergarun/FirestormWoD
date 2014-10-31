@@ -109,9 +109,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo cons
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
 
-    if (float radius = sSpellMgr->GetAreaTriggerVisual(spell->Id))
-        SetVisualRadius(radius);
-
     if (!GetMap()->AddToMap(this))
         return false;
 

@@ -224,7 +224,7 @@ namespace Movement
         l_Data << float(l_MoveSpline.vertical_acceleration);                                        ///< Vertical Acceleration (AKA Jump gravity)
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Parabolic Time (AKA Special time)
         l_Data << uint32(l_UncompressedWayPointCount);                                              ///< Uncompressed waypoint count
-        l_Data << uint8(0);                                                                         ///< Mode
+        l_Data << uint8(MonsterMoveNormal);                                                         ///< Mode
         l_Data << uint8(0);                                                                         ///< Vehicle exit Voluntary
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
@@ -327,7 +327,7 @@ namespace Movement
         l_Data << float(0);                                                                         ///< Vertical Acceleration
         l_Data << int32(0);                                                                         ///< Parabolic Time
         l_Data << uint32(1);                                                                        ///< Uncompressed waypoint count
-        l_Data << uint8(1);                                                                         ///< Mode (stop here)
+        l_Data << uint8(MonsterMoveStop);                                                           ///< Mode
         l_Data << uint8(0);                                                                         ///< Vehicle exit Voluntary
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat

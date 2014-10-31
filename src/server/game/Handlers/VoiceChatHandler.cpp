@@ -22,29 +22,21 @@
 #include "Opcodes.h"
 #include "Log.h"
 
-void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket& recvData)
+void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_VOICE_SESSION_ENABLE");
-
-    bool isVoiceEnabled = recvData.ReadBit();
-    bool isMicrophoneEnabled = recvData.ReadBit();
-    recvData.FlushBits();
+    p_Packet.rfinish();
 }
 
-void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CHANNEL_VOICE_ON");
-    // Enable Voice button in channel context menu
-    /* structure:
-        8 bits -> channel name length
-        string -> channel name
-    */
+    p_Packet.rfinish();
 }
 
-void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)
+void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");
-    recvData.read_skip<uint32>();
-    recvData.read_skip<char*>();
+    p_Packet.rfinish();
 }
 

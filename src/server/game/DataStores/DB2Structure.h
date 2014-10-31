@@ -123,7 +123,7 @@ struct ItemSparseEntry
     float      StatScalingFactor;                            // 98
     int32      CurrencySubstitutionId;                       // 99
     int32      CurrencySubstitutionCount;                    // 100
-    int32      unk;                                          // 101
+    int32      ItemNameDescriptionID;                        // 101
 };
 
 struct ItemEffectEntry

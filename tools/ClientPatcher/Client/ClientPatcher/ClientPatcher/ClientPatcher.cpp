@@ -9,7 +9,7 @@
 
 const uint8_t config_data[]             = "Ashran.wtf";
 const uint8_t build_date_data[]         = "[Ashran]";
-const uint8_t bnet_portal_data[]        = "ashran";
+const uint8_t bnet_portal_data[]        = "logon";
 const uint8_t bnet_logon_data[]         = ".ashran.com";
 const uint8_t bnet_agent_data[]         = "noagt.exe";
 const uint8_t bnet_versions_data[]      = "http://%s-cdn.ashran.com/%s/versions";
