@@ -23,3 +23,4 @@ INSERT INTO spell_script_names VALUES
     (102547, 'spell_dru_activate_cat_form'),
     (102280, 'spell_dru_activate_cat_form'),
     (1850, 'spell_dru_activate_cat_form');
+INSERT INTO spell_script_names VALUES (18562, 'spell_dru_swiftmend');

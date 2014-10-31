@@ -2505,6 +2505,37 @@ class spell_dru_survival_instincts : public SpellScriptLoader
         }
 };
 
+// Swiftmend - 18562
+class spell_dru_swiftmend : public SpellScriptLoader
+{
+    public:
+        spell_dru_swiftmend() : SpellScriptLoader("spell_dru_swiftmend") { }
+
+        class spell_dru_swiftmend_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_swiftmend_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 heal = GetHitHeal() + CalculatePct(caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    SetHitHeal(heal);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_swiftmend_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -2550,4 +2581,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_starfall_dummy();
     new spell_dru_savage_roar();
     new spell_dru_survival_instincts();
+    new spell_dru_swiftmend();
 }
