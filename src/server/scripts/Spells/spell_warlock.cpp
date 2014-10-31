@@ -208,7 +208,7 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_haunt_dispel_AuraScript);
 
-            void HandleDispel(DispelInfo* dispelInfo)
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_SOUL_SHARDS);
@@ -223,34 +223,6 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_haunt_dispel_AuraScript();
-        }
-};
-
-// Demonic Slash - 114175
-class spell_warl_demonic_slash : public SpellScriptLoader
-{
-    public:
-        spell_warl_demonic_slash() : SpellScriptLoader("spell_warl_demonic_slash") { }
-
-        class spell_warl_demonic_slash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_demonic_slash_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 60, POWER_DEMONIC_FURY);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_demonic_slash_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_demonic_slash_SpellScript();
         }
 };
 
@@ -3252,7 +3224,6 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
-    new spell_warl_demonic_slash();
     new spell_warl_fury_ward();
     new spell_warl_dark_apotheosis();
     new spell_warl_glyph_of_demon_hunting();
