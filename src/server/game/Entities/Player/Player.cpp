@@ -4122,6 +4122,14 @@ void Player::GiveLevel(uint8 level)
         if (quest)
             AddQuest(quest, NULL);
     }
+    else if (level == 90)
+    {
+        if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(34398)) // Add quest for starting oD missions and go to Draenor
+        {
+            if (GetQuestStatus(34398) == QUEST_STATUS_NONE || GetQuestStatus(34398) == QUEST_STATUS_FAILED)
+                AddQuest(l_Quest, NULL);
+        }
+    }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
