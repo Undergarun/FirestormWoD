@@ -226,34 +226,6 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         }
 };
 
-// Fury Ward - 119839
-class spell_warl_fury_ward : public SpellScriptLoader
-{
-    public:
-        spell_warl_fury_ward() : SpellScriptLoader("spell_warl_fury_ward") { }
-
-        class spell_warl_fury_ward_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_fury_ward_AuraScript);
-
-            void CalculateAbsorb(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                    amount += (caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 3.0f);
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_fury_ward_AuraScript::CalculateAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_fury_ward_AuraScript();
-        }
-};
-
 // Dark Apotheosis - 114168
 class spell_warl_dark_apotheosis : public SpellScriptLoader
 {
@@ -3215,7 +3187,6 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
-    new spell_warl_fury_ward();
     new spell_warl_dark_apotheosis();
     new spell_warl_glyph_of_demon_hunting();
     new spell_warl_siphon_life();
