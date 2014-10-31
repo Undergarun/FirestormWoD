@@ -10,8 +10,6 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Draenor/ashran.cpp
-  Draenor/ashran.h
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
 )
