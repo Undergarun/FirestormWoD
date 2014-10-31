@@ -2396,8 +2396,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
                 break;
 
             case DB2_REPLY_SPARSE:
-#pragma message("DB2_REPLY_SPARSE TODO")
-                ;// SendItemSparseDb2Reply(l_Entry);
+                SendItemSparseDb2Reply(l_Entry);
                 break;
 
             case DB2_REPLY_BROADCAST_TEXT:

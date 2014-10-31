@@ -454,25 +454,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << uint32(proto->DamageType);
     buff << uint32(proto->Delay);
     buff << float(proto->RangedModRange);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellId);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << uint32(proto->Spells[x].SpellTrigger);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellCharges);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellCooldown);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << uint32(proto->Spells[x].SpellCategory);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-        buff << int32(proto->Spells[x].SpellCategoryCooldown);
-
     buff << uint32(proto->Bonding);
 
     // item name
@@ -499,7 +480,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << int32(proto->RandomProperty);
     buff << int32(proto->RandomSuffix);
     buff << uint32(proto->ItemSet);
-
     buff << uint32(proto->Area);
     buff << uint32(proto->Map);
     buff << uint32(proto->BagFamily);
@@ -507,9 +487,6 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
         buff << uint32(proto->Socket[x].Color);
-
-    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
-        buff << uint32(proto->Socket[x].Content);
 
     buff << uint32(proto->socketBonus);
     buff << uint32(proto->GemProperties);
@@ -520,7 +497,8 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     buff << float(proto->StatScalingFactor);    // StatScalingFactor
     buff << uint32(proto->CurrencySubstitutionId);
     buff << uint32(proto->CurrencySubstitutionCount);
-
+    buff << uint32(proto->ItemNameDescriptionID);
+    
     data << uint32(DB2_REPLY_SPARSE);
     data << uint32(entry);
     data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_SPARSE));

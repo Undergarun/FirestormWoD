@@ -2573,6 +2573,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
         itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionId;
         itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
+        itemTemplate.ItemNameDescriptionID = sparse->ItemNameDescriptionID;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
@@ -2735,6 +2736,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.StatScalingFactor         = fields[131].GetFloat();
             itemTemplate.CurrencySubstitutionId    = fields[132].GetInt32();
             itemTemplate.CurrencySubstitutionCount = fields[133].GetInt32();
+            itemTemplate.ItemNameDescriptionID     = 0;
             itemTemplate.ScriptId                  = 0;
             itemTemplate.FoodType                  = 0;
             itemTemplate.MinMoneyLoot              = 0;

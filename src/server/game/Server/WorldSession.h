@@ -164,12 +164,12 @@ enum CharterTypes
 
 enum DB2Types : uint32
 {
-    DB2_REPLY_SPARSE                          = 2442913102,           // hash of item-sparse.db2
-    DB2_REPLY_ITEM                            = 1344507586,           // hash of item.db2
-    DB2_REPLY_SCENE_SCRIPT                    = 3568395212,           // hash of ScreneScript.db2
-    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES    = 1672791226,           // hash of BattlePetEffectProperties.db2
-    DB2_REPLY_BROADCAST_TEXT                  = 35137211,             // hash of BroadcastText.db2
-    DB2_REPLY_ITEM_EXTENDED_COST              = 3146089301,           // hash of ItemExtendedCost.db2
+    DB2_REPLY_SPARSE                          = 0x919BE54E,           // hash of item-sparse.db2
+    DB2_REPLY_ITEM                            = 0x50238EC2,           // hash of item.db2
+    DB2_REPLY_SCENE_SCRIPT                    = 0xD4B163CC,           // hash of ScreneScript.db2
+    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES    = 0x63B4C4BA,           // hash of BattlePetEffectProperties.db2
+    DB2_REPLY_BROADCAST_TEXT                  = 0x021826BB,           // hash of BroadcastText.db2
+    DB2_REPLY_ITEM_EXTENDED_COST              = 0xBB858355,           // hash of ItemExtendedCost.db2
 };
 
 //class to deal with packet processing
