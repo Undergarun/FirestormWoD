@@ -690,25 +690,7 @@ class spell_pri_power_word_solace : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100)), POWER_MANA);
-
-                        if (_player->HasAura(PRIEST_ATONEMENT_AURA))
-                        {
-                            int32 bp = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                            std::list<Unit*> groupList;
-                            _player->GetPartyMembers(groupList);
-                            if (groupList.size() > 1)
-                            {
-                                groupList.sort(JadeCore::HealthPctOrderPred());
-                                groupList.resize(1);
-                            }
-                            for (auto itr : groupList)
-                            {
-                                if (itr->GetGUID() == _player->GetGUID())
-                                    bp /= 2;
-
-                                _player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &bp, NULL, NULL, true);
-                            }
-                        }
+                        _player->CastSpell(_player, PRIEST_ATONEMENT_AURA, true);
                     }
             }
 
@@ -831,7 +813,8 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                        surgeOfLight->ModStackAmount(-1);
+                        if (surgeOfLight->GetStackAmount() > 1)
+                            surgeOfLight->ModStackAmount(-1);
             }
 
             void Register()
