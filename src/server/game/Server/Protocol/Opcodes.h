@@ -249,7 +249,7 @@ enum Opcodes
         SMSG_BATTLEFIELD_MGR_EJECTED                        = 0x09BF,   ///< 6.0.2 19027
         SMSG_BATTLEFIELD_MGR_QUEUE_INVITE                   = 0x0368,   ///< 6.0.2 19027
         SMSG_BATTLEFIELD_MGR_STATE_CHANGED                  = 0x10F7,   ///< 6.0.2 19027 (unused)
-        SMSG_BATTLEFIELD_MGR_ENTRY_INVITE                   = 0x03F3,   ///< 6.0.2 19027
+        SMSG_BFMGR_ENTRY_INVITE                             = 0x03F3,   ///< 6.0.2 19027
         SMSG_BATTLEFIELD_MGR_EXIT_REQUEST                   = 0x0000,
         SMSG_REQUEST_PVP_REWARDS_RESPONSE                   = 0x1544,   ///< 6.0.2 19027
         SMSG_PVP_OPTIONS_ENABLED                            = 0x02A8,   ///< 6.0.2 19027 (unused)

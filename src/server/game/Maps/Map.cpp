@@ -34,6 +34,7 @@
 #include "DynamicTree.h"
 #include "Vehicle.h"
 #include "WildBattlePet.h"
+#include "OutdoorPvPMgr.h"
 
 union u_map_magic
 {
@@ -461,6 +462,7 @@ bool Map::AddPlayerToMap(Player* player)
     player->UpdateObjectVisibility(false);
 
     sScriptMgr->OnPlayerEnterMap(this, player);
+    sOutdoorPvPMgr->HandlePlayerEnterMap(player, GetId());
     return true;
 }
 
@@ -681,6 +683,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
     player->RemoveFromWorld();
     SendRemoveTransports(player);
+    sOutdoorPvPMgr->HandlePlayerLeaveMap(player, GetId());
 
     player->UpdateObjectVisibility(true);
     if (player->IsInGrid())

@@ -123,7 +123,6 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerEnterZone(player, zoneid);
-    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
@@ -137,7 +136,42 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
         return;
 
     itr->second->HandlePlayerLeaveZone(player, zoneid);
-    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
+}
+
+void OutdoorPvPMgr::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerEnterMap(p_Player, p_MapID);
+}
+
+void OutdoorPvPMgr::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerLeaveMap(p_Player, p_MapID);
+}
+
+void OutdoorPvPMgr::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerEnterArea(p_Player, p_AreaID);
+}
+
+void OutdoorPvPMgr::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(p_Player->GetZoneId());
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    itr->second->HandlePlayerLeaveArea(p_Player, p_AreaID);
 }
 
 OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)

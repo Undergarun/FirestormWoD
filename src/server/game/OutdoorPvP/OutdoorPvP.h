@@ -26,14 +26,15 @@ class GameObject;
 
 enum OutdoorPvPTypes
 {
-    OUTDOOR_PVP_HP = 1,
-    OUTDOOR_PVP_NA = 2,
-    OUTDOOR_PVP_TF = 3,
-    OUTDOOR_PVP_ZM = 4,
-    OUTDOOR_PVP_SI = 5,
+    OUTDOOR_PVP_HP      = 1,
+    OUTDOOR_PVP_NA      = 2,
+    OUTDOOR_PVP_TF      = 3,
+    OUTDOOR_PVP_ZM      = 4,
+    OUTDOOR_PVP_SI      = 5,
+    OUTDOOR_PVP_ASHRAN  = 6
 };
 
-#define MAX_OUTDOORPVP_TYPES 6
+#define MAX_OUTDOORPVP_TYPES 7
 
 enum ObjectiveStates
 {
@@ -248,6 +249,8 @@ class OutdoorPvP : public ZoneScript
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
+        virtual void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player) { }
+
     protected:
 
         // the map of the objectives belonging to this outdoorpvp
@@ -266,6 +269,12 @@ class OutdoorPvP : public ZoneScript
 
         virtual void HandlePlayerEnterZone(Player* player, uint32 zone);
         virtual void HandlePlayerLeaveZone(Player* player, uint32 zone);
+
+        virtual void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) { }
+        virtual void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) { }
+
+        virtual void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID) { }
+        virtual void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID) { }
 
         virtual void HandlePlayerResurrects(Player* player, uint32 zone);
 

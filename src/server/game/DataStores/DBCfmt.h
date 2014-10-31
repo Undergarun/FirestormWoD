@@ -169,6 +169,7 @@ const std::string CustomVehicleSeatEntryIndex = "ID";
 const char WMOAreaTableEntryfmt[]             = "niiixxxxxiixxxx";
 const char WorldMapAreaEntryfmt[]             = "xinxffffixxxii";
 const char WorldMapOverlayEntryfmt[]          = "nxiiiixxxxxxxxxx";
+const char World_PVP_AreaEntryfmt[]           = "niiiiiii";
 const char WorldSafeLocsEntryfmt[]            = "niffffx";
 const char GtBattlePetTypeDamageModfmt[]      = "xf";
 const char GtBattlePetXPfmt[]                 = "xf";

@@ -2222,44 +2222,17 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     uint32 unkValue = 0;
     uint32 inactiveSwapsCount = 0;
 
-    /* 5.4.0 sniff data
-    18000000    // uint32 0x18
-    00000000    // uint32 unk value
-    04000000    // 4 (2) counter
-    EC02        // 748	Cosmetic - Krasarang Wilds (Horde)
-    8E03        // 910	Cosmetic - Fort Silverback (Prelude 002)
-    1A000000 // 26 (13) counter, look line inactiveSwap
-    6D88
-    7688
-    8388
-    8488
-    9E88
-    AB88
-    AC88
-    B888
-    C588
-    C788
-    C988
-    DB88
-    DD88
-    04000000
-    60 04 // 1121 (mapid)
-    61 04 // 1030 (mapid)
-
-    ED // guid bitmask
-    79 07 81 23 56 02 // guid bytes*/
-
     WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
     data.appendPackGUID(m_Player->GetGUID());
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     data << uint32(0x18); // flags, 0x18 most of time on retail sniff
     data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
-    data.appendPackGUID(m_Player->GetGUID());
+    data.appendPackGUID(0);
     // Active terrain swaps, may switch with inactive terrain
 
     for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
     {
-        data << uint16(0);
+        data << uint16(1);
         data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
     }
 

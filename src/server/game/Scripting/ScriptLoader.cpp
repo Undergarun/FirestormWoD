@@ -801,7 +801,6 @@ void AddSC_WanderingIsland_South();
 void AddSC_timeless_isle();
 
 // Draenor
-void AddSC_ashran();
 void AddSC_tanaan_jungle();
 
 // battlegrounds
@@ -1646,7 +1645,6 @@ void AddPandarieScripts()
 void AddDraenorScripts()
 {
 #ifdef SCRIPTS
-    AddSC_ashran();
     AddSC_tanaan_jungle();
 #endif
 }

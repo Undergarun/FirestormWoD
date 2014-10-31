@@ -2470,6 +2470,18 @@ struct WorldMapOverlayEntry
     //uint32    m_PlayerConditionID;                        // 15       m_PlayerConditionID
 };
 
+struct World_PVP_AreaEntry
+{
+    uint32 ID;
+    uint32 AreaID;
+    uint32 NextTimeWorldState;
+    uint32 GameTimeWorldState;
+    uint32 BattlePopulateTime;
+    uint32 MinLevel;
+    uint32 MaxLevel;
+    int32  MapID;
+};
+
 struct WorldSafeLocsEntry
 {
     uint32    ID;                                           // 0

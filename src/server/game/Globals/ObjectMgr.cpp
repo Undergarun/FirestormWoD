@@ -9229,7 +9229,7 @@ void ObjectMgr::LoadPhaseDefinitions()
         pd.zoneId                = fields[0].GetUInt32();
         pd.entry                 = fields[1].GetUInt16();
         pd.phasemask             = fields[2].GetUInt64();
-        pd.phaseId               = fields[3].GetUInt8();
+        pd.phaseId               = fields[3].GetUInt16();
         pd.terrainswapmap        = fields[4].GetUInt16();
         pd.flags                 = fields[5].GetUInt8();
 

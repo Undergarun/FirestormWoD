@@ -1,0 +1,195 @@
+/*
+ * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "OutdoorPvPAshran.h"
+
+OutdoorPvPAshran::OutdoorPvPAshran()
+{
+    m_TypeId            = OUTDOOR_PVP_ASHRAN;
+    m_WorldPvPAreaId    = ASHRAN_WORLD_PVP_AREA_ID;
+
+    m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HIGHGUID_TYPE_BATTLEGROUND);
+    m_Guid |= BATTLEFIELD_TYPE_WORLD_PVP;
+
+    for (uint8 l_Team = BG_TEAM_ALLIANCE; l_Team < BG_TEAMS_COUNT; ++l_Team)
+    {
+        m_PlayersInWar[l_Team].clear();
+        m_InvitedPlayers[l_Team].clear();
+        m_PlayersWillBeKick[l_Team].clear();
+    }
+}
+
+bool OutdoorPvPAshran::SetupOutdoorPvP()
+{
+    RegisterZone(ASHRAN_ZONE_ID);
+    return true;
+}
+
+void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
+{
+    if (p_MapID != ASHRAN_MAP_ID)
+        return;
+
+    if (!p_Player || p_Player->GetTeamId() >= 2 || p_Player->isInFlight())
+        return;
+
+    // If the player does not match minimal level requirements for the battlefield, kick him
+    if (p_Player->getLevel() < PLAYER_MIN_LEVEL)
+    {
+        if (m_PlayersWillBeKick[p_Player->GetTeamId()].count(p_Player->GetGUID()) == 0)
+            m_PlayersWillBeKick[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + 10;
+        return;
+    }
+
+    // Check if player is not already in war
+    if (m_PlayersInWar[p_Player->GetTeamId()].count(p_Player->GetGUID()) || m_InvitedPlayers[p_Player->GetTeamId()].count(p_Player->GetGUID()))
+        return;
+
+    m_InvitedPlayers[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + ASHRAN_TIME_FOR_INVITE;
+
+    WorldPacket l_Data(SMSG_BFMGR_ENTRY_INVITE);
+    l_Data << uint64(m_Guid);           ///< QueueID
+    l_Data << uint32(ASHRAN_ZONE_ID);   ///< Zone Id
+    l_Data << uint32(time(NULL) + 20);  ///< Invite lasts until
+
+    ///< Sending the packet to player
+    p_Player->SendDirectMessage(&l_Data);
+}
+
+void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
+{
+    if (p_MapID != ASHRAN_MAP_ID)
+        return;
+
+    if (p_Player->GetTeamId() < 2)
+    {
+        m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+        m_PlayersInWar[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+        m_PlayersWillBeKick[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+    }
+
+    SendRemoveWorldStates(p_Player);
+    p_Player->GetSession()->SendBfLeaveMessage(m_Guid);
+}
+
+void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
+{
+    if (p_AreaID != ASHRAN_PRE_AREA_HORDE && p_AreaID != ASHRAN_PRE_AREA_ALLIANCE)
+        return;
+
+    if (p_Player->GetMapId() != ASHRAN_NEUTRAL_MAP_ID && p_Player->GetMapId() != ASHRAN_MAP_ID)
+        return;
+
+    p_Player->SwitchToPhasedMap(ASHRAN_NEUTRAL_MAP_ID);
+}
+
+void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
+{
+    if (p_AreaID != ASHRAN_PRE_AREA_HORDE && p_AreaID != ASHRAN_PRE_AREA_ALLIANCE)
+        return;
+
+    if (p_Player->GetMapId() != ASHRAN_NEUTRAL_MAP_ID && p_Player->GetMapId() != ASHRAN_MAP_ID)
+        return;
+
+    p_Player->SwitchToPhasedMap(ASHRAN_MAP_ID);
+}
+
+bool OutdoorPvPAshran::Update(uint32 p_Diff)
+{
+    PlayerTimerMap l_TempList[BG_TEAMS_COUNT];
+
+    for (uint8 l_Team = 0; l_Team < 2; ++l_Team)
+    {
+        l_TempList[l_Team] = m_InvitedPlayers[l_Team];
+
+        for (PlayerTimerMap::iterator l_Iter = l_TempList[l_Team].begin(); l_Iter != l_TempList[l_Team].end(); ++l_Iter)
+        {
+            // Remove player after 20s if not accepted
+            if ((*l_Iter).second <= time(NULL))
+            {
+                if (Player* l_Player = sObjectAccessor->FindPlayer((*l_Iter).first))
+                {
+                    if (l_Player->GetTeamId() == TEAM_HORDE)
+                        l_Player->TeleportTo(ASHRAN_NEUTRAL_MAP_ID, g_HordeTeleportPos.m_positionX, g_HordeTeleportPos.m_positionY, g_HordeTeleportPos.m_positionZ, g_HordeTeleportPos.m_orientation);
+                    else
+                        l_Player->TeleportTo(ASHRAN_NEUTRAL_MAP_ID, g_AllianceTeleportPos.m_positionX, g_AllianceTeleportPos.m_positionY, g_AllianceTeleportPos.m_positionZ, g_AllianceTeleportPos.m_orientation);
+                }
+            }
+        }
+
+        l_TempList[l_Team] = m_PlayersWillBeKick[l_Team];
+
+        for (PlayerTimerMap::iterator l_Iter = l_TempList[l_Team].begin(); l_Iter != l_TempList[l_Team].end(); ++l_Iter)
+        {
+            if ((*l_Iter).second <= time(NULL))
+            {
+                if (Player* l_Player = sObjectAccessor->FindPlayer((*l_Iter).first))
+                {
+                    if (l_Player->GetTeamId() == TEAM_HORDE)
+                        l_Player->TeleportTo(ASHRAN_NEUTRAL_MAP_ID, g_HordeTeleportPos.m_positionX, g_HordeTeleportPos.m_positionY, g_HordeTeleportPos.m_positionZ, g_HordeTeleportPos.m_orientation);
+                    else
+                        l_Player->TeleportTo(ASHRAN_NEUTRAL_MAP_ID, g_AllianceTeleportPos.m_positionX, g_AllianceTeleportPos.m_positionY, g_AllianceTeleportPos.m_positionZ, g_AllianceTeleportPos.m_orientation);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
+{
+}
+
+void OutdoorPvPAshran::SendRemoveWorldStates(Player* p_Player)
+{
+}
+
+void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player)
+{
+    if (p_Accepted)
+    {
+        m_PlayersInWar[p_Player->GetTeamId()].insert(p_Player->GetGUID());
+        m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+    }
+    else
+    {
+        if (p_Player->GetTeamId() == TEAM_HORDE)
+            p_Player->TeleportTo(ASHRAN_NEUTRAL_MAP_ID, g_HordeTeleportPos.m_positionX, g_HordeTeleportPos.m_positionY, g_HordeTeleportPos.m_positionZ, g_HordeTeleportPos.m_orientation);
+        else
+            p_Player->TeleportTo(ASHRAN_NEUTRAL_MAP_ID, g_AllianceTeleportPos.m_positionX, g_AllianceTeleportPos.m_positionY, g_AllianceTeleportPos.m_positionZ, g_AllianceTeleportPos.m_orientation);
+    }
+}
+
+class OutdoorPvP_Ashran : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_Ashran() : OutdoorPvPScript("outdoorpvp_ashran") { }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPAshran();
+        }
+};
+
+void AddSC_OutdoorPvPAshran()
+{
+    new OutdoorPvP_Ashran();
+}

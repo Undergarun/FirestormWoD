@@ -2982,6 +2982,98 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+void Player::SwitchToPhasedMap(uint32 p_MapID)
+{
+    MapEntry const* l_MapEntry = sMapStore.LookupEntry(p_MapID);
+    if (!l_MapEntry)
+        return;
+
+    // Check enter rights before map getting to avoid creating instance copy for player
+    // this check not dependent from map instance copy and same for all instance copies of selected map
+    if (!sMapMgr->CanPlayerEnter(p_MapID, this, false))
+        return;
+
+    if (Group* l_Group = GetGroup())
+    {
+        if (l_MapEntry->IsDungeon())
+            l_Group->IncrementPlayersInInstance();
+        else
+            l_Group->DecrementPlayersInInstance();
+    }
+
+    SetSelection(0);
+    CombatStop();
+    ResetContestedPvP();
+
+    // Remove player from battleground on far teleport (when changing maps)
+    if (Battleground const* l_Battleground = GetBattleground())
+    {
+        if (l_Battleground->GetMapId() != p_MapID)
+            LeaveBattleground(false);
+    }
+
+    // Remove pet on map change
+    if (Pet* l_Pet = GetPet())
+        UnsummonPetTemporaryIfAny();
+
+    UnsummonCurrentBattlePetIfAny(true);
+
+    // Remove all dynamic objects and AreaTrigger
+    RemoveAllDynObjects();
+    RemoveAllAreasTrigger();
+
+    // Stop spellcasting
+    // Not attempt interrupt teleportation spell at caster teleport
+    if (IsNonMeleeSpellCasted(true))
+        InterruptNonMeleeSpells(true);
+
+    // Remove auras before removing from map...
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
+
+    // Remove from old map now
+    if (Map* l_OldMap = IsInWorld() ? GetMap() : NULL)
+        l_OldMap->RemovePlayerFromMap(this, false);
+
+    // Relocate the player to the teleport destination
+    Map* l_NewMap = sMapMgr->CreateMap(p_MapID, this);
+    if (!l_NewMap || !l_NewMap->CanEnter(this))
+        return;
+
+    // New final coordinates
+    float l_X = GetPositionX();
+    float l_Y = GetPositionY();
+    float l_Z = GetPositionZ();
+    float l_Orientation = GetOrientation();
+    m_teleport_dest = WorldLocation(p_MapID, l_X, l_Y, l_Z, l_Orientation);
+    SetFallInformation(0, l_Z);
+    WorldLocation const l_NewLoc = GetTeleportDest();
+
+    Relocate(&l_NewLoc);
+    ResetMap();
+    SetMap(l_NewMap);
+
+    if (!GetSession()->PlayerLogout())
+    {
+        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+
+        l_Data << uint32(p_MapID);                                  ///< uint32
+        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
+        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
+        l_Data << uint32(21);                                       ///< Reason
+
+        GetSession()->SendPacket(&l_Data);
+    }
+
+    GetMap()->AddPlayerToMap(this);
+
+    // Update zone immediately, otherwise leave channel will cause crash in mtmap
+    uint32 l_NewZone, l_NewArea;
+    GetZoneAndAreaId(l_NewZone, l_NewArea);
+    UpdateZone(l_NewZone, l_NewArea);
+}
+
 bool Player::TeleportToBGEntryPoint()
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
@@ -9205,6 +9297,8 @@ uint32 Player::GetLevelFromDB(uint64 guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    uint32 l_OldArea = m_areaUpdateId;
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId    = newArea;
@@ -9235,6 +9329,12 @@ void Player::UpdateArea(uint32 newArea)
         RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 
     phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
+
+    if (l_OldArea != newArea)
+    {
+        sOutdoorPvPMgr->HandlePlayerLeaveArea(this, l_OldArea);
+        sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
+    }
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -11500,6 +11600,139 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 l_Buffer << uint32(7881) << uint32(0);          // WORLDSTATE_DG_SCORE_HORDE
                 l_Buffer << uint32(7904) << uint32(1);          // WORLDSTATE_DG_CART_ALLIANCE
                 l_Buffer << uint32(7887) << uint32(1);          // WORLDSTATE_DG_CART_HORDE
+            }
+            break;
+        // Ashran
+        case 6941:
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_ASHRAN)
+                pvp->FillInitialWorldStates(l_Buffer);
+            else
+            {
+                l_Buffer << uint32(521) << uint32(0);
+                l_Buffer << uint32(522) << uint32(0);
+                l_Buffer << uint32(523) << uint32(0);
+                l_Buffer << uint32(524) << uint32(0);
+                l_Buffer << uint32(1581) << uint32(0);
+                l_Buffer << uint32(1582) << uint32(0);
+                l_Buffer << uint32(1723) << uint32(0);
+                l_Buffer << uint32(1724) << uint32(0);
+                l_Buffer << uint32(1941) << uint32(0);
+                l_Buffer << uint32(1942) << uint32(0);
+                l_Buffer << uint32(1943) << uint32(0);
+                l_Buffer << uint32(2259) << uint32(0);
+                l_Buffer << uint32(2260) << uint32(0);
+                l_Buffer << uint32(2261) << uint32(0);
+                l_Buffer << uint32(2262) << uint32(0);
+                l_Buffer << uint32(2263) << uint32(0);
+                l_Buffer << uint32(2264) << uint32(0);
+                l_Buffer << uint32(2265) << uint32(142);
+                l_Buffer << uint32(2851) << uint32(0);
+                l_Buffer << uint32(3085) << uint32(379);
+                l_Buffer << uint32(3191) << uint32(16);
+                l_Buffer << uint32(3327) << uint32(0);
+                l_Buffer << uint32(3426) << uint32(3);
+                l_Buffer << uint32(3600) << uint32(0);
+                l_Buffer << uint32(3601) << uint32(0);
+                l_Buffer << uint32(3610) << uint32(1);
+                l_Buffer << uint32(3695) << uint32(0);
+                l_Buffer << uint32(3710) << uint32(0);
+                l_Buffer << uint32(3781) << uint32(0);
+                l_Buffer << uint32(3801) << uint32(1);
+                l_Buffer << uint32(3826) << uint32(4);
+                l_Buffer << uint32(3901) << uint32(3);
+                l_Buffer << uint32(4020) << uint32(1094);
+                l_Buffer << uint32(4021) << uint32(7);
+                l_Buffer << uint32(4022) << uint32(3);
+                l_Buffer << uint32(4023) << uint32(4);
+                l_Buffer << uint32(4024) << uint32(825);
+                l_Buffer << uint32(4025) << uint32(269);
+                l_Buffer << uint32(4062) << uint32(0);
+                l_Buffer << uint32(4131) << uint32(60);
+                l_Buffer << uint32(4273) << uint32(0);
+                l_Buffer << uint32(4354) << uint32(time(NULL));
+                l_Buffer << uint32(4375) << uint32(0);
+                l_Buffer << uint32(4417) << uint32(1);
+                l_Buffer << uint32(4418) << uint32(50);
+                l_Buffer << uint32(4419) << uint32(0);
+                l_Buffer << uint32(4485) << uint32(0);
+                l_Buffer << uint32(4486) << uint32(0);
+                l_Buffer << uint32(4862) << uint32(1000);
+                l_Buffer << uint32(4863) << uint32(300);
+                l_Buffer << uint32(4864) << uint32(100);
+                l_Buffer << uint32(5037) << uint32(6);
+                l_Buffer << uint32(5071) << uint32(6);
+                l_Buffer << uint32(5115) << uint32(0);
+                l_Buffer << uint32(5192) << uint32(0);
+                l_Buffer << uint32(5193) << uint32(0);
+                l_Buffer << uint32(5194) << uint32(0);
+                l_Buffer << uint32(5195) << uint32(0);
+                l_Buffer << uint32(5196) << uint32(0);
+                l_Buffer << uint32(5332) << uint32(time(NULL));
+                l_Buffer << uint32(5333) << uint32(0);
+                l_Buffer << uint32(5334) << uint32(1);
+                l_Buffer << uint32(5344) << uint32(0);
+                l_Buffer << uint32(5360) << uint32(0);
+                l_Buffer << uint32(5361) << uint32(0);
+                l_Buffer << uint32(5508) << uint32(1);
+                l_Buffer << uint32(5677) << uint32(0);
+                l_Buffer << uint32(5678) << uint32(0);
+                l_Buffer << uint32(5679) << uint32(0);
+                l_Buffer << uint32(5684) << uint32(0);
+                l_Buffer << uint32(6078) << uint32(0);
+                l_Buffer << uint32(6095) << uint32(0);
+                l_Buffer << uint32(6164) << uint32(35);
+                l_Buffer << uint32(6174) << uint32(0);
+                l_Buffer << uint32(6267) << uint32(25);
+                l_Buffer << uint32(6306) << uint32(0);
+                l_Buffer << uint32(6436) << uint32(0);
+                l_Buffer << uint32(6895) << uint32(10);
+                l_Buffer << uint32(6897) << uint32(10);
+                l_Buffer << uint32(6898) << uint32(10);
+                l_Buffer << uint32(7022) << uint32(0);
+                l_Buffer << uint32(7242) << uint32(82);
+                l_Buffer << uint32(7243) << uint32(1);
+                l_Buffer << uint32(7244) << uint32(82);
+                l_Buffer << uint32(7245) << uint32(1);
+                l_Buffer << uint32(7511) << uint32(0);
+                l_Buffer << uint32(7617) << uint32(5);
+                l_Buffer << uint32(7618) << uint32(5);
+                l_Buffer << uint32(7671) << uint32(0);
+                l_Buffer << uint32(7738) << uint32(0);
+                l_Buffer << uint32(7752) << uint32(0);
+                l_Buffer << uint32(7774) << uint32(0);
+                l_Buffer << uint32(7796) << uint32(0);
+                l_Buffer << uint32(7797) << uint32(0);
+                l_Buffer << uint32(7876) << uint32(0);
+                l_Buffer << uint32(8012) << uint32(1);
+                l_Buffer << uint32(8295) << uint32(15);
+                l_Buffer << uint32(8306) << uint32(20);
+                l_Buffer << uint32(8307) << uint32(20);
+                l_Buffer << uint32(8391) << uint32(0);
+                l_Buffer << uint32(8524) << uint32(0);
+                l_Buffer << uint32(8525) << uint32(0);
+                l_Buffer << uint32(8526) << uint32(0);
+                l_Buffer << uint32(8527) << uint32(0);
+                l_Buffer << uint32(8528) << uint32(0);
+                l_Buffer << uint32(8529) << uint32(0);
+                l_Buffer << uint32(8712) << uint32(0);
+                l_Buffer << uint32(8722) << uint32(0);
+                l_Buffer << uint32(8859) << uint32(0);
+                l_Buffer << uint32(8860) << uint32(0);
+                l_Buffer << uint32(8861) << uint32(0);
+                l_Buffer << uint32(8862) << uint32(0);
+                l_Buffer << uint32(8863) << uint32(1);
+                l_Buffer << uint32(8890) << uint32(0);
+                l_Buffer << uint32(8892) << uint32(0);
+                l_Buffer << uint32(8911) << uint32(10);
+                l_Buffer << uint32(8933) << uint32(65);
+                l_Buffer << uint32(8934) << uint32(5);
+                l_Buffer << uint32(8935) << uint32(1);
+                l_Buffer << uint32(8938) << uint32(0);
+                l_Buffer << uint32(8945) << uint32(time(NULL));
+                l_Buffer << uint32(8946) << uint32(0);
+                l_Buffer << uint32(8949) << uint32(1);
+                l_Buffer << uint32(8950) << uint32(0);
+                l_Buffer << uint32(8955) << uint32(0);
             }
             break;
         default:

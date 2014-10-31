@@ -57,6 +57,18 @@ class OutdoorPvPMgr
         // called when player leaves an outdoor pvp area
         void HandlePlayerLeaveZone(Player* player, uint32 areaflag);
 
+        // called when a player enters an outdoor pvp map
+        void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID);
+
+        // called when a player leaves an outdoor pvp map
+        void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID);
+
+        // called when a player enters an outdoor pvp area
+        void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID);
+
+        // called when a player leaves an outdoor pvp area
+        void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID);
+
         // called when player resurrects
         void HandlePlayerResurrects(Player* player, uint32 areaflag);
 

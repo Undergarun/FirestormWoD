@@ -1308,6 +1308,7 @@ class Player : public Unit, public GridObject<Player>
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
         bool TeleportToBGEntryPoint();
+        void SwitchToPhasedMap(uint32 p_MapID);
 
         void SetSummonPoint(uint32 mapid, float x, float y, float z)
         {
