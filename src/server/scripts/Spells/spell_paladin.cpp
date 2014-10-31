@@ -92,6 +92,7 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL    = 115515,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE             = 56420,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC        = 115654,
+    PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA        = 146955,
     PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
     PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
@@ -130,6 +131,7 @@ class spell_pal_crusader_strike : public SpellScriptLoader
         }
 };
 
+// Glyph of devotion aura - 146955
 class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
 {
     public:
@@ -146,7 +148,7 @@ class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
 
             void CountTargets(std::list<WorldObject*>& targets)
             {
-                if (GetCaster() && GetCaster()->HasAura(146955))
+                if (GetCaster() && GetCaster()->HasAura(PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA))
                 {
                     targets.clear();
                     targets.push_back(GetCaster());
@@ -181,7 +183,7 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
 
             void CountTargets(std::list<WorldObject*>& targets)
             {
-                if (GetCaster() && GetCaster()->HasAura(146955))
+                if (GetCaster() && GetCaster()->HasAura(PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA))
                 {
                     targets.clear();
                     targets.push_back(GetCaster());
@@ -1628,7 +1630,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_daybreak();
     new spell_pal_hand_of_purity();
     new spell_pal_glyph_of_avenging_wrath();
-    new spell_pal_unbreakable_spirit();
     new spell_pal_shield_of_the_righteous();
     new spell_pal_selfless_healer();
     new spell_pal_tower_of_radiance();
