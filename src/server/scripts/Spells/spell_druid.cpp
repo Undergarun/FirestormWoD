@@ -2437,13 +2437,14 @@ class spell_dru_savage_roar : public SpellScriptLoader
 
             void AfterApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                Unit* target = GetTarget();
-                target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, true, NULL, aurEff, GetCasterGUID());
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, true, NULL, aurEff, GetCasterGUID());
             }
 
             void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR);
+                if (Unit* target = GetTarget())
+                    target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR);
             }
 
             void Register()
@@ -2481,12 +2482,14 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 
             void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_SURVIVAL_INSTINCTS, true);
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, SPELL_DRUID_SURVIVAL_INSTINCTS, true);
             }
 
             void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
+                if (Unit* target = GetTarget())
+                    target->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
             }
 
             void Register()
