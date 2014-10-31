@@ -354,7 +354,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_siphon_life_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
@@ -514,30 +514,27 @@ class spell_warl_soulburn_drain_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_soulburn_drain_life_AuraScript);
 
-            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (caster->HasAura(WARLOCK_SOULBURN_AURA))
                         caster->RemoveAura(WARLOCK_SOULBURN_AURA);
             }
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    Player* _player = GetCaster()->ToPlayer();
-                    if (!_player)
-                        return;
+                Player* _player = GetCaster()->ToPlayer();
+                if (!_player)
+                    return;
 
-                    // Restoring 2% of the caster's total health every 1s
-                    int32 basepoints = _player->CountPctFromMaxHealth(3);
+                // Restoring 2% of the caster's total health every 1s
+                int32 basepoints = _player->CountPctFromMaxHealth(3);
 
-                    // In Demonology spec : Generates 10 Demonic Fury per second
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        _player->EnergizeBySpell(_player, WARLOCK_DRAIN_LIFE_ORIGINAL, 10, POWER_DEMONIC_FURY);
+                // In Demonology spec : Generates 10 Demonic Fury per second
+                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    _player->EnergizeBySpell(_player, WARLOCK_DRAIN_LIFE_ORIGINAL, 10, POWER_DEMONIC_FURY);
 
-                    _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
-                }
+                _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
             }
 
             void Register()
@@ -955,7 +952,7 @@ class spell_warl_shield_of_shadow : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_shield_of_shadow_AuraScript);
 
-            void OnUpdate(uint32 diff, AuraEffectPtr aurEff)
+            void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1206,7 +1203,7 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                 }
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1257,7 +1254,7 @@ class spell_warl_flames_of_xoroth : public SpellScriptLoader
                 if (!_plr)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (Pet* pet = _plr->GetPet())
+                if (_plr->GetPet())
                     return SPELL_FAILED_ALREADY_HAVE_PET;
 
                 return SPELL_CAST_OK;
@@ -1337,7 +1334,7 @@ class spell_warl_soul_link_dummy : public SpellScriptLoader
                 }
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -1612,7 +1609,7 @@ class spell_warl_metamorphosis_cost : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_metamorphosis_cost_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->EnergizeBySpell(caster, WARLOCK_METAMORPHOSIS, -6, POWER_DEMONIC_FURY);
@@ -1640,7 +1637,7 @@ class spell_warl_immolation_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_immolation_aura_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1684,12 +1681,12 @@ class spell_warl_dark_bargain_on_absorb : public SpellScriptLoader
                 amount = int32(100000000);
             }
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
             {
                 totalAbsorbAmount += dmgInfo.GetDamage();
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // (totalAbsorbAmount / 16) it's for totalAbsorbAmount 50% & totalAbsorbAmount / 8 (for each tick of custom spell)
                 if (Unit* caster = GetCaster())
@@ -1720,7 +1717,7 @@ class spell_warl_dark_regeneration : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_dark_regeneration_AuraScript);
 
-            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     if (Guardian* pet = GetTarget()->GetGuardianPet())
@@ -1756,17 +1753,14 @@ class spell_warl_soul_leech : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (_player->HasAura(WARLOCK_SOUL_LEECH_AURA))
                     {
-                        if (_player->HasAura(WARLOCK_SOUL_LEECH_AURA))
-                        {
-                            int32 bp = int32(GetHitDamage() / 10);
+                        int32 bp = int32(GetHitDamage() / 10);
 
-                            _player->CastCustomSpell(_player, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
+                        _player->CastCustomSpell(_player, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
 
-                            if (Pet* pet = _player->GetPet())
-                                _player->CastCustomSpell(pet, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
-                        }
+                        if (Pet* pet = _player->GetPet())
+                            _player->CastCustomSpell(pet, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
                     }
                 }
             }
@@ -1793,7 +1787,7 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_sacrificial_pact_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1971,7 +1965,7 @@ class spell_warl_hellfire_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
@@ -2081,7 +2075,7 @@ class spell_warl_burning_rush : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_burning_rush_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2198,7 +2192,7 @@ class spell_warl_nightfall : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_nightfall_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2233,7 +2227,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2311,7 +2305,7 @@ class spell_warl_rain_of_fire : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_rain_of_fire_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (!GetTarget() || GetTarget()->GetTypeId() == TYPEID_UNIT)
                     return;
@@ -2347,16 +2341,13 @@ class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_rain_of_fire_despawn_SpellScript);
 
-            void HandleAreaAura(SpellEffIndex effIndex)
+            void HandleAreaAura(SpellEffIndex /*effIndex*/)
             {
-                if (WorldLocation const* loc = GetExplTargetDest())
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* caster = GetCaster())
-                    {
-                        // Casting a second Rain of Fire will replace the old Rain of Fire
-                        if (DynamicObject* dynObj = caster->GetDynObject(GetSpellInfo()->Id))
-                            caster->RemoveDynObject(GetSpellInfo()->Id);
-                    }
+                    // Casting a second Rain of Fire will replace the old Rain of Fire
+                    if (caster->GetDynObject(GetSpellInfo()->Id))
+                        caster->RemoveDynObject(GetSpellInfo()->Id);
                 }
             }
 
@@ -2525,7 +2516,7 @@ class spell_warl_shadowburn : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_shadowburn_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2682,11 +2673,11 @@ class spell_warl_drain_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_life_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
-                    Player* _player = GetCaster()->ToPlayer();
+                    Player* _player = caster->ToPlayer();
                     if (!_player)
                         return;
 
@@ -3015,7 +3006,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonic_circle_summon_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -3028,7 +3019,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
                 }
             }
 
-            void HandleDummyTick(constAuraEffectPtr aurEff)
+            void HandleDummyTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -3173,7 +3164,7 @@ class spell_warl_pandemic : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, player->GetGUID()))
                             duration = aura->GetDuration();
                         else
                             duration = 0;
@@ -3187,7 +3178,7 @@ class spell_warl_pandemic : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, player->GetGUID()))
                         {
                             int32 newDuration;
                             int32 maxDuration = sSpellMgr->GetSpellInfo(aura->GetId())->GetMaxDuration();
