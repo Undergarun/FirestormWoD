@@ -277,67 +277,6 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
         }
 };
 
-// Psychic Horror (psyfiend) - 113792
-class spell_pri_psychic_horror_psyfiend : public SpellScriptLoader
-{
-    public:
-        spell_pri_psychic_horror_psyfiend() : SpellScriptLoader("spell_pri_psychic_horror_psyfiend") { }
-
-        class spell_pri_psychic_horror_psyfiend_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_psychic_horror_psyfiend_SpellScript);
-
-            void CorrectTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                if (Unit* caster = GetCaster())
-                {
-                    if (Creature* psyfiend = caster->ToCreature())
-                    {
-                        if (psyfiend->AI())
-                        {
-                            Unit* target = ObjectAccessor::FindUnit(psyfiend->AI()->GetGUID(0));
-                            if (!target || target->GetDistance(caster) > 20.0f)
-                                JadeCore::RandomResizeList(targets, 1);
-                            else
-                            {
-                                std::list<Unit*> targetList;
-                                for (auto itr : targets)
-                                    if (itr->ToUnit() && itr->GetGUID() == target->GetGUID())
-                                        targetList.push_back(itr->ToUnit());
-
-                                if (targetList.empty())
-                                    JadeCore::RandomResizeList(targets, 1);
-                                else
-                                {
-                                    targets.clear();
-
-                                    for (auto itr : targetList)
-                                        targets.push_back(itr);
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_psychic_horror_psyfiend_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_psychic_horror_psyfiend_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_psychic_horror_psyfiend_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_psychic_horror_psyfiend_SpellScript();
-        }
-};
-
 // Holy Nova (heal) - 23455
 class spell_pri_holy_nova_heal : public SpellScriptLoader
 {
@@ -438,34 +377,6 @@ class spell_pri_glyph_of_holy_nova : public SpellScriptLoader
         }
 };
 
-// Inner Focus - 89485
-class spell_pri_inner_focus_immunity : public SpellScriptLoader
-{
-    public:
-        spell_pri_inner_focus_immunity() : SpellScriptLoader("spell_pri_inner_focus_immunity") { }
-
-        class spell_pri_inner_focus_immunity_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_inner_focus_immunity_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, PRIEST_SPELL_INNER_FOCUS_IMMUNITY, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_inner_focus_immunity_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_inner_focus_immunity_SpellScript();
-        }
-};
-
 // Spectral Guise Charges - 119030
 class spell_pri_spectral_guise_charges : public SpellScriptLoader
 {
@@ -516,79 +427,6 @@ class spell_pri_spectral_guise_charges : public SpellScriptLoader
         }
 };
 
-// Psyfiend Hit Me Driver - 114164
-class spell_pri_psyfiend_hit_me_driver : public SpellScriptLoader
-{
-    public:
-        spell_pri_psyfiend_hit_me_driver() : SpellScriptLoader("spell_pri_psyfiend_hit_me_driver") { }
-
-        class spell_pri_psyfiend_hit_me_driver_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_psyfiend_hit_me_driver_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                Unit* attacker = eventInfo.GetActor();
-                if (!attacker)
-                    return;
-
-                if (eventInfo.GetActor()->GetGUID() != GetCaster()->GetGUID())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    std::list<Creature*> tempList;
-                    std::list<Creature*> psyfiendList;
-
-                    _player->GetCreatureListWithEntryInGrid(tempList, PRIEST_NPC_PSYFIEND, 100.0f);
-
-                    if (tempList.empty())
-                        return;
-
-                    for (auto itr : tempList)
-                    {
-                        if (!itr->isAlive())
-                            continue;
-
-                        if (!itr->GetOwner())
-                            continue;
-
-                        if (itr->GetOwner() == _player->GetOwner())
-                        {
-                            psyfiendList.push_back(itr);
-                            break;
-                        }
-                    }
-
-                    if (psyfiendList.empty())
-                        return;
-
-                    if (psyfiendList.size() > 1)
-                        JadeCore::Containers::RandomResizeList(psyfiendList, 1);
-
-                    for (auto itr : psyfiendList)
-                        if (itr->AI())
-                            itr->AI()->SetGUID(attacker->GetGUID());
-                }
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_pri_psyfiend_hit_me_driver_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_psyfiend_hit_me_driver_AuraScript();
-        }
-};
-
 // Void Tendrils - 108920
 class spell_pri_void_tendrils : public SpellScriptLoader
 {
@@ -607,7 +445,7 @@ class spell_pri_void_tendrils : public SpellScriptLoader
                     {
                         _player->CastSpell(target, PRIEST_SPELL_VOID_TENDRILS_SUMMON, true);
 
-                        if (Creature* voidTendrils = target->FindNearestCreature(PRIEST_NPC_VOID_TENDRILS, 10.0f))
+                        if (Creature* voidTendrils = target->FindNearestCreature(PRIEST_NPC_VOID_TENDRILS, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile))
                             if (voidTendrils->AI())
                                 voidTendrils->AI()->SetGUID(target->GetGUID());
 
@@ -850,7 +688,28 @@ class spell_pri_power_word_solace : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * 0.007f), POWER_MANA);
+                    {
+                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100)), POWER_MANA);
+
+                        if (_player->HasAura(PRIEST_ATONEMENT_AURA))
+                        {
+                            int32 bp = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                            std::list<Unit*> groupList;
+                            _player->GetPartyMembers(groupList);
+                            if (groupList.size() > 1)
+                            {
+                                groupList.sort(JadeCore::HealthPctOrderPred());
+                                groupList.resize(1);
+                            }
+                            for (auto itr : groupList)
+                            {
+                                if (itr->GetGUID() == _player->GetGUID())
+                                    bp /= 2;
+
+                                _player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &bp, NULL, NULL, true);
+                            }
+                        }
+                    }
             }
 
             void Register()
@@ -1490,7 +1349,7 @@ class spell_pri_atonement : public SpellScriptLoader
                     {
                         if (_player->HasAura(PRIEST_ATONEMENT_AURA))
                         {
-                            int32 bp = CalculatePct(GetHitDamage(), 90);
+                            int32 bp = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                             std::list<Unit*> groupList;
 
                             _player->GetPartyMembers(groupList);
@@ -2740,9 +2599,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_nova_heal();
     new spell_pri_holy_nova();
     new spell_pri_glyph_of_holy_nova();
-    new spell_pri_inner_focus_immunity();
-    new spell_pri_spectral_guise_charges();
-    new spell_pri_psyfiend_hit_me_driver();
+=    new spell_pri_spectral_guise_charges();
     new spell_pri_void_tendrils();
     new spell_pri_spirit_of_redemption_form();
     new spell_pri_spirit_of_redemption();
