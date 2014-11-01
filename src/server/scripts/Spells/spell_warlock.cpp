@@ -655,7 +655,12 @@ class spell_warl_unbound_will : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
+                {
                     caster->RemoveAurasWithMechanic(IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK);
+
+                    if (Pet* pet = caster->ToPlayer()->GetPet())
+                        pet->RemoveAurasWithMechanic(IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK);
+                }
             }
 
             void Register()
