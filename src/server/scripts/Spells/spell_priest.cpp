@@ -71,10 +71,7 @@ enum PriestSpells
     PRIEST_RAPTURE_ENERGIZE                         = 47755,
     PRIEST_GRACE_AURA                               = 47517,
     PRIEST_GRACE_PROC                               = 77613,
-    PRIEST_STRENGTH_OF_SOUL_AURA                    = 89488,
-    PRIEST_STRENGTH_OF_SOUL_REDUCE_TIME             = 89490,
     PRIEST_WEAKENED_SOUL                            = 6788,
-    PRIEST_STRENGTH_OF_SOUL                         = 89488,
     PRIEST_EVANGELISM_AURA                          = 81662,
     PRIEST_EVANGELISM_STACK                         = 81661,
     PRIEST_ARCHANGEL                                = 81700,
@@ -992,7 +989,7 @@ class spell_pri_divine_insight_holy : public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_HOLY)
-                            if (roll_chance_i(40))
+                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
                                 _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_HOLY, true);
             }
 
@@ -1132,7 +1129,7 @@ class spell_pri_chakra_chastise : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
-                        if (roll_chance_i(10))
+                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                             if (_player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
                                 _player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
             }
@@ -1188,49 +1185,6 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_lightwell_renew_SpellScript();
-        }
-};
-
-// Called by Heal - 2050, Greater Heal - 2060 and Flash Heal - 2061
-// Strength of Soul - 89488
-class spell_pri_strength_of_soul : public SpellScriptLoader
-{
-    public:
-        spell_pri_strength_of_soul() : SpellScriptLoader("spell_pri_strength_of_soul") { }
-
-        class spell_pri_strength_of_soul_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_strength_of_soul_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(PRIEST_STRENGTH_OF_SOUL))
-                        {
-                            if (AuraPtr weakenedSoul = target->GetAura(PRIEST_WEAKENED_SOUL, _player->GetGUID()))
-                            {
-                                if (weakenedSoul->GetDuration() > 2000)
-                                    weakenedSoul->SetDuration(weakenedSoul->GetDuration() - 2000);
-                                else
-                                    target->RemoveAura(PRIEST_WEAKENED_SOUL);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_strength_of_soul_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_strength_of_soul_SpellScript();
         }
 };
 
@@ -2594,7 +2548,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_word_sanctuary();
     new spell_pri_chakra_chastise();
     new spell_pri_lightwell_renew();
-    new spell_pri_strength_of_soul();
     new spell_pri_grace();
     new spell_pri_rapture();
     new spell_pri_atonement();
