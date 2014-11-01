@@ -231,16 +231,21 @@ class spell_warl_siphon_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_siphon_life_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
+                    {
+                        int32 healAmount = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount() / 1000);
+                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), healAmount, false);
+                    }
+                }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
