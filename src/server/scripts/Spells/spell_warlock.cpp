@@ -75,7 +75,6 @@ enum WarlockSpells
     WARLOCK_MOLTEN_CORE                     = 122355,
     WARLOCK_MOLTEN_CORE_AURA                = 122351,
     WARLOCK_WILD_IMP_SUMMON                 = 104317,
-    WARLOCK_DEMONIC_CALL                    = 114925,
     WARLOCK_DECIMATE_AURA                   = 108869,
     WARLOCK_SOUL_LEECH_AURA                 = 108370,
     WARLOCK_SOUL_LINK_TALENT                = 108415,
@@ -582,45 +581,20 @@ class spell_warl_imp_swarm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_imp_swarm_SpellScript);
 
-            SpellCastResult CheckSpec()
-            {
-                if (!GetCaster())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                Player* _plr = GetCaster()->ToPlayer();
-                if (!_plr)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (_plr->GetSpecializationId(_plr->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        caster->AddAura(WARLOCK_DEMONIC_CALL, caster);
-                        caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->AddAura(WARLOCK_DEMONIC_CALL, caster);
-                        caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->AddAura(WARLOCK_DEMONIC_CALL, caster);
-                        caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->AddAura(WARLOCK_DEMONIC_CALL, caster);
-                        caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->AddAura(WARLOCK_DEMONIC_CALL, caster);
-                        caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->RemoveAura(WARLOCK_DEMONIC_CALL);
+                        for (uint8 i = 0; i < GetEffectValue(); i++)
+                            caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
                     }
                 }
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_warl_imp_swarm_SpellScript::CheckSpec);
                 OnEffectHitTarget += SpellEffectFn(spell_warl_imp_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -644,7 +618,8 @@ class spell_warl_glyph_of_imp_swarm : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
-                    _player->learnSpell(WARLOCK_IMP_SWARM, false);
+                    if (_plr->GetSpecializationId(_plr->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        _player->learnSpell(WARLOCK_IMP_SWARM, false);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
