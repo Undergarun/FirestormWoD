@@ -64,6 +64,7 @@ enum WarlockSpells
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
+    //WARLOCK_METAMORPHOSIS                   = 103958,
     WARLOCK_DEMONIC_LEAP_JUMP               = 54785,
     WARLOCK_ITEM_S12_TIER_4                 = 131632,
     WARLOCK_TWILIGHT_WARD_S12               = 131623,
@@ -121,6 +122,10 @@ enum WarlockSpells
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
+    //WARLOCK_DARK_APOTHEOSIS                 = 114168,
+    //WARLOCK_METAMORPHOSIS_OVERRIDER         = 103965,
+    //WARLOCK_METAMORPHOSIS_RESISTANCE        = 54817,
+    //WARLOCK_METAMORPHOSIS_MODIFIERS         = 54879,
     WARLOCK_DEMON_SINGLE_MAGIC              = 89808,
     WARLOCK_DEMON_SUFFERING                 = 17735,
     WARLOCK_DEMON_SEDUCE                    = 6358,
@@ -618,7 +623,7 @@ class spell_warl_glyph_of_imp_swarm : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
-                    if (_plr->GetSpecializationId(_plr->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
                         _player->learnSpell(WARLOCK_IMP_SWARM, false);
             }
 
@@ -766,7 +771,7 @@ class spell_warl_agony : public SpellScriptLoader
                 if (GetCaster())
                     if (GetTarget())
                         if (AuraPtr agony = GetTarget()->GetAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                            agony->ModStackAmount(1);
+                            agony->ModStackAmount(aurEff->GetBaseAmount());
             }
 
             bool CanRefreshProcDummy()
@@ -776,7 +781,7 @@ class spell_warl_agony : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
         };
@@ -1278,10 +1283,10 @@ class spell_warl_demonic_call : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->HasAura(WARLOCK_DEMONIC_CALL) && !caster->HasAura(WARLOCK_DISRUPTED_NETHER))
+                    if (/*caster->HasAura(WARLOCK_DEMONIC_CALL) && */!caster->HasAura(WARLOCK_DISRUPTED_NETHER))
                     {
                         caster->CastSpell(caster, WARLOCK_WILD_IMP_SUMMON, true);
-                        caster->RemoveAura(WARLOCK_DEMONIC_CALL);
+                        //caster->RemoveAura(WARLOCK_DEMONIC_CALL);
                     }
                 }
             }
