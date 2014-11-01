@@ -686,19 +686,13 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (player->GetSpecializationId(player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                        // Deals 50% additional damage if the target is immolated.
+                        if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
                         {
-                            if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
-                            {
-                                int32 damage = GetHitDamage();
+                            int32 damage = GetHitDamage();
 
-                                AddPct(damage, 50);
-
-                                SetHitDamage(damage);
-
-                                if (roll_chance_i(25))
-                                    player->EnergizeBySpell(player, GetSpellInfo()->Id, 1, POWER_BURNING_EMBERS);
-                            }
+                            AddPct(damage, 50);
+                            SetHitDamage(damage);
                         }
                     }
                 }
