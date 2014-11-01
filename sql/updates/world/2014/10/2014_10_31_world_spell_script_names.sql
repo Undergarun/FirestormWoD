@@ -28,3 +28,5 @@ INSERT INTO spell_script_names VALUES (18562, 'spell_dru_swiftmend');
 -- warlock
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_demonic_slash';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_fury_ward';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_dark_apotheosis';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_glyph_of_demon_hunting';

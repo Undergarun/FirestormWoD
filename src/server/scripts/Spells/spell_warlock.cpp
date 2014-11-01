@@ -66,7 +66,6 @@ enum WarlockSpells
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
-    WARLOCK_METAMORPHOSIS                   = 103958,
     WARLOCK_DEMONIC_LEAP_JUMP               = 54785,
     WARLOCK_ITEM_S12_TIER_4                 = 131632,
     WARLOCK_TWILIGHT_WARD_S12               = 131623,
@@ -125,11 +124,6 @@ enum WarlockSpells
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
-    WARLOCK_DARK_APOTHEOSIS                 = 114168,
-    WARLOCK_METAMORPHOSIS_OVERRIDER         = 103965,
-    WARLOCK_METAMORPHOSIS_RESISTANCE        = 54817,
-    WARLOCK_METAMORPHOSIS_MODIFIERS         = 54879,
-    WARLOCK_DEMONIC_FURY_PASSIVE            = 109145,
     WARLOCK_DEMON_SINGLE_MAGIC              = 89808,
     WARLOCK_DEMON_SUFFERING                 = 17735,
     WARLOCK_DEMON_SEDUCE                    = 6358,
@@ -223,95 +217,6 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_haunt_dispel_AuraScript();
-        }
-};
-
-// Dark Apotheosis - 114168
-class spell_warl_dark_apotheosis : public SpellScriptLoader
-{
-    public:
-        spell_warl_dark_apotheosis() : SpellScriptLoader("spell_warl_dark_apotheosis") { }
-
-        class spell_warl_dark_apotheosis_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_dark_apotheosis_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    caster->RemoveAura(WARLOCK_METAMORPHOSIS);
-
-                    if (AuraPtr overrider = caster->AddAura(WARLOCK_METAMORPHOSIS_OVERRIDER, caster))
-                    {
-                        overrider->GetEffect(EFFECT_0)->ChangeAmount(114175);
-                        overrider->GetEffect(EFFECT_1)->ChangeAmount(0);
-                        overrider->GetEffect(EFFECT_3)->ChangeAmount(0);
-                    }
-
-                    caster->CastSpell(caster, WARLOCK_METAMORPHOSIS_RESISTANCE, true);
-                    caster->CastSpell(caster, WARLOCK_METAMORPHOSIS_MODIFIERS, true);
-                    caster->CastSpell(caster, WARLOCK_DEMONIC_FURY_PASSIVE, true);
-                }
-            }
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    caster->RemoveAura(WARLOCK_METAMORPHOSIS_OVERRIDER);
-                    caster->RemoveAura(WARLOCK_METAMORPHOSIS_RESISTANCE);
-                    caster->RemoveAura(WARLOCK_METAMORPHOSIS_MODIFIERS);
-                    caster->RemoveAura(WARLOCK_DEMONIC_FURY_PASSIVE);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_dark_apotheosis_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warl_dark_apotheosis_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_dark_apotheosis_AuraScript();
-        }
-};
-
-// Glyph of Demon Hunting - 63303
-class spell_warl_glyph_of_demon_hunting : public SpellScriptLoader
-{
-    public:
-        spell_warl_glyph_of_demon_hunting() : SpellScriptLoader("spell_warl_glyph_of_demon_hunting") { }
-
-        class spell_warl_glyph_of_demon_hunting_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_glyph_of_demon_hunting_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->learnSpell(WARLOCK_DARK_APOTHEOSIS, false);
-            }
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasSpell(WARLOCK_DARK_APOTHEOSIS))
-                        _player->removeSpell(WARLOCK_DARK_APOTHEOSIS, false, false);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_demon_hunting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warl_glyph_of_demon_hunting_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_glyph_of_demon_hunting_AuraScript();
         }
 };
 
