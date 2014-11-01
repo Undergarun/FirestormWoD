@@ -41,8 +41,6 @@ enum WarlockSpells
     WARLOCK_FEAR_EFFECT                     = 118699,
     WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
-    WARLOCK_DRAIN_LIFE_ORIGINAL             = 689,
-    WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
@@ -259,6 +257,7 @@ const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
 const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
 // Demonic Gateway (charges periodic) - 113901
+// TODO
 class spell_warl_demonic_gateway_charges : public SpellScriptLoader
 {
     public:
@@ -386,52 +385,6 @@ class spell_warl_grimoire_of_supremacy : public SpellScriptLoader
         }
 };
 
-// Soulburn : Drain Life - 89420
-class spell_warl_soulburn_drain_life : public SpellScriptLoader
-{
-    public:
-        spell_warl_soulburn_drain_life() : SpellScriptLoader("spell_warl_soulburn_drain_life") { }
-
-        class spell_warl_soulburn_drain_life_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_soulburn_drain_life_AuraScript);
-
-            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SOULBURN_AURA))
-                        caster->RemoveAura(WARLOCK_SOULBURN_AURA);
-            }
-
-            void OnTick(constAuraEffectPtr /*aurEff*/)
-            {
-                Player* _player = GetCaster()->ToPlayer();
-                if (!_player)
-                    return;
-
-                // Restoring 2% of the caster's total health every 1s
-                int32 basepoints = _player->CountPctFromMaxHealth(3);
-
-                // In Demonology spec : Generates 10 Demonic Fury per second
-                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                    _player->EnergizeBySpell(_player, WARLOCK_DRAIN_LIFE_ORIGINAL, 10, POWER_DEMONIC_FURY);
-
-                _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_soulburn_drain_life_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soulburn_drain_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_soulburn_drain_life_AuraScript();
-        }
-};
-
 // Soulburn : Health Funnel - 104220
 class spell_warl_soulburn_health_funnel : public SpellScriptLoader
 {
@@ -532,11 +485,11 @@ class spell_warl_soulburn_seed_of_corruption : public SpellScriptLoader
 };
 
 // Called by Soulburn : Curse of Enfeeblement - 109468 and Soulburn : Curse of Exhaustion - 104223
-// Soulburn aura - Remove - 74434
-class spell_warl_soulburn_remove : public SpellScriptLoader
+// Soulburn - 74434
+class spell_warl_soulburn_override : public SpellScriptLoader
 {
     public:
-        spell_warl_soulburn_remove() : SpellScriptLoader("spell_warl_soulburn_remove") { }
+        spell_warl_soulburn_override() : SpellScriptLoader("spell_warl_soulburn_override") { }
 
         class spell_warl_soulburn_remove_SpellScript : public SpellScript
         {
@@ -554,18 +507,6 @@ class spell_warl_soulburn_remove : public SpellScriptLoader
                 OnHit += SpellHitFn(spell_warl_soulburn_remove_SpellScript::HandleOnHit);
             }
         };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_soulburn_remove_SpellScript();
-        }
-};
-
-// Soulburn - 74434
-class spell_warl_soulburn_override : public SpellScriptLoader
-{
-    public:
-        spell_warl_soulburn_override() : SpellScriptLoader("spell_warl_soulburn_override") { }
 
         class spell_warl_soulburn_override_AuraScript : public AuraScript
         {
@@ -619,6 +560,11 @@ class spell_warl_soulburn_override : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_warl_soulburn_override_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_soulburn_remove_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
