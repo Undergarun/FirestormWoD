@@ -687,18 +687,15 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* player = GetCaster()->ToPlayer())
+                if (Unit* target = GetHitUnit())
                 {
-                    if (Unit* target = GetHitUnit())
+                    // Deals 50% additional damage if the target is immolated.
+                    if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
                     {
-                        // Deals 50% additional damage if the target is immolated.
-                        if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
-                        {
-                            int32 damage = GetHitDamage();
+                        int32 damage = GetHitDamage();
 
-                            AddPct(damage, 50);
-                            SetHitDamage(damage);
-                        }
+                        AddPct(damage, 50);
+                        SetHitDamage(damage);
                     }
                 }
             }
