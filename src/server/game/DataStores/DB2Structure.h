@@ -353,7 +353,6 @@ struct OverrideSpellDataEntry
 };
 
 //SpellMisc.dbc
-// @author Selenium: 5.4 valid
 struct SpellMiscEntry
 {
     uint32    Id;                                           // 0        m_ID
@@ -379,7 +378,7 @@ struct SpellMiscEntry
     uint32    SpellIconID;                                  // 21       m_spellIconID
     uint32    activeIconID;                                 // 22       m_activeIconID
     uint32    SchoolMask;                                   // 23       m_schoolMask
-    //uint32    Unknown;                                    // 24       unk 601 18612
+    //float   Unknown;                                      // 24       unk 601 18612
 };
 
 struct SpellPowerEntry

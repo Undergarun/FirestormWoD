@@ -459,20 +459,62 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target) const
+int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target) const
 {
-    float basePointsPerLevel = RealPointsPerLevel;
-    int32 basePoints = bp ? *bp : BasePoints;
-    float comboDamage = PointsPerComboPoint;
+    float l_Scale   = 0.0f;
+    float l_GTLevel = 0.0f;
+
+    if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT) == 0)
+    {
+        l_GTLevel = p_Caster->getLevel() - 1;
+
+        if (_spellInfo->SpellLevelsId != 0 && _spellInfo->AttributesEx10 & SPELL_ATTR10_UNK12)
+        {
+            DifficultyEntry const * l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Caster->GetMap()->GetDifficulty());
+            SpellLevelsEntry const* l_SpellLevel      = _spellInfo->GetSpellLevels();
+
+            while (l_DifficultyEntry != nullptr)
+            {
+                if (l_SpellLevel == nullptr)
+                    break;
+
+                if (l_SpellLevel->DifficultyID == l_DifficultyEntry->ID)
+                {
+                }
+
+
+            }
+
+            //uint32 pig = _spellInfo->GetSpellLevels()->DifficultyID;
+           //     p_Caster->GetMap()->getdi
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    float l_BasePointsPerLevel = RealPointsPerLevel;
+    int32 l_BasePoints = p_Bp ? *p_Bp : BasePoints;
+    float l_ComboDamage = PointsPerComboPoint;
 
     // base amount modification based on spell lvl vs caster lvl
     if (ScalingMultiplier != 0.0f)
     {
-        if (caster && !_spellInfo->IsCustomCalculated())
+        if (p_Caster && !_spellInfo->IsCustomCalculated())
         {
-            int32 level = caster->getLevel();
-            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA) && _spellInfo->Id != 774) // Hack Fix Rejuvenation, doesn't use the target level for basepoints
-                level = target->getLevel();
+            int32 level = p_Caster->getLevel();
+            if (p_Target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+                level = p_Target->getLevel();
 
             if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
             {
@@ -489,27 +531,27 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                     preciseBasePoints += frand(-delta, delta);
                 }
 
-                basePoints = int32(preciseBasePoints);
+                l_BasePoints = int32(preciseBasePoints);
 
                 if (ComboScalingMultiplier)
-                    comboDamage = ComboScalingMultiplier * multiplier;
+                    l_ComboDamage = ComboScalingMultiplier * multiplier;
             }
         }
     }
     else
     {
-        if (caster)
+        if (p_Caster)
         {
-            int32 level = int32(caster->getLevel());
+            int32 level = int32(p_Caster->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
             else if (level < int32(_spellInfo->BaseLevel))
                 level = int32(_spellInfo->BaseLevel);
             level -= int32(_spellInfo->SpellLevel);
-            basePoints += int32(level * basePointsPerLevel);
+            l_BasePoints += int32(level * l_BasePointsPerLevel);
 
-            if (basePointsPerLevel && basePoints >= 100 && (Effect == SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT || ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE_PERCENT))  // Temporary
-                basePoints /= 10;
+            if (l_BasePointsPerLevel && l_BasePoints >= 100 && (Effect == SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT || ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE_PERCENT))  // Temporary
+                l_BasePoints /= 10;
         }
 
         // roll in a range <1;EffectDieSides> as of patch 3.3.3
@@ -517,7 +559,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         switch (randomPoints)
         {
             case 0: break;
-            case 1: basePoints += 1; break;                     // range 1..1
+            case 1: l_BasePoints += 1; break;                     // range 1..1
             default:
             {
                 // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
@@ -525,53 +567,26 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                     ? irand(1, randomPoints)
                     : irand(randomPoints, 1);
 
-                basePoints += randvalue;
+                l_BasePoints += randvalue;
                 break;
             }
         }
     }
 
-    float value = float(basePoints);
-
-    if (ApplyAuraName == SPELL_AURA_MOD_STAT)
-    {
-        if (BasePoints == 0 && !DeltaScalingMultiplier)
-        {
-            switch(_spellInfo->Id)
-            {
-            case 105697:
-            case 105702:
-            case 105706:
-                value = 4000.0f;
-                break;
-            case 105698:
-                value = 12000.0f;
-                break;
-            case 105694:
-                value = 1500.0f;
-                break;
-            case 105689:
-            case 105691:
-            case 105693:
-            case 105696:
-                value = 1000.0f;
-                break;
-            }
-        }
-    }
+    float value = float(l_BasePoints);
 
     // random damage
-    if (caster)
+    if (p_Caster)
     {
         // bonus amount from combo points
-        if (caster->m_movedPlayer && comboDamage)
-            if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
-                value += comboDamage * comboPoints;
+        if (p_Caster->m_movedPlayer && l_ComboDamage)
+            if (uint8 comboPoints = p_Caster->m_movedPlayer->GetComboPoints())
+                value += l_ComboDamage * comboPoints;
 
-        value = caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
+        value = p_Caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
 
         // amount multiplication based on caster's level
-        if (!_spellInfo->GetSpellScaling() && !basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
+        if (!_spellInfo->GetSpellScaling() && !l_BasePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
                 Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
                 Effect != SPELL_EFFECT_KNOCK_BACK &&
                 Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
@@ -581,28 +596,28 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
                 ApplyAuraName != SPELL_AURA_MOD_DECREASE_SPEED)
                 //there are many more: slow speed, -healing pct
-            value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
+            value *= 0.25f * exp(p_Caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
             //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
 
         if (CanScale())
         {
             bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
             WeaponAttackType l_AttType = (_spellInfo->IsRangedWeaponSpell() && l_RangedClass) ? RANGED_ATTACK : BASE_ATTACK;
-            float l_AttackPower = caster->GetTotalAttackPowerValue(l_AttType);
-            float l_SpellPower = caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
+            float l_AttackPower = p_Caster->GetTotalAttackPowerValue(l_AttType);
+            float l_SpellPower = p_Caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
 
             {
                 if (l_AttackPower == 0.f)
-                    l_AttackPower = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                if (l_AttackPower == 0.f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
-                    l_AttackPower = caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
+                    l_AttackPower = p_Caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                if (l_AttackPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                    l_AttackPower = p_Caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
             }
 
             {
                 if (l_SpellPower == 0.f)
-                    l_SpellPower = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                if (l_SpellPower == 0.f && caster->GetOwner() && caster->GetOwner()->ToPlayer())
-                    l_SpellPower = caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
+                    l_SpellPower = p_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                if (l_SpellPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                    l_SpellPower = p_Caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
             }
 
             float l_APBonusDamage = l_AttackPower * AttackPowerMultiplier;
@@ -612,7 +627,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
         // Hack Fix Arcane Barrage triggered
         if (_spellInfo->Id == 50273)
-            value = float(basePoints);
+            value = float(l_BasePoints);
     }
 
     return int32(value);
@@ -877,34 +892,35 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 164 SPELL_EFFECT_REMOVE_AURA
 };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
+SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
 {
-    Id = spellEntry->Id;
+    Id = p_SpellEntry->Id;
+    DifficultyID = p_Difficulty;
     AttributesCu = 0;
 
-    SpellName = spellEntry->SpellName;
-    Rank = spellEntry->Rank;
-    RuneCostID = spellEntry->runeCostID;
+    SpellName = p_SpellEntry->SpellName;
+    Rank = p_SpellEntry->Rank;
+    RuneCostID = p_SpellEntry->runeCostID;
     SpellDifficultyId = 0;
-    SpellScalingId = spellEntry->SpellScalingId;
-    SpellAuraOptionsId = spellEntry->SpellAuraOptionsId;
-    SpellAuraRestrictionsId = spellEntry->SpellAuraRestrictionsId;
-    SpellCastingRequirementsId = spellEntry->SpellCastingRequirementsId;
-    SpellCategoriesId = spellEntry->SpellCategoriesId;
-    SpellClassOptionsId = spellEntry->SpellClassOptionsId;
-    SpellCooldownsId = spellEntry->SpellCooldownsId;
-    SpellEquippedItemsId = spellEntry->SpellEquippedItemsId;
-    SpellInterruptsId = spellEntry->SpellInterruptsId;
-    SpellLevelsId = spellEntry->SpellLevelsId;
-    SpellReagentsId = spellEntry->SpellReagentsId;
-    SpellShapeshiftId = spellEntry->SpellShapeshiftId;
-    SpellTargetRestrictionsId = spellEntry->SpellTargetRestrictionsId;
-    SpellTotemsId = spellEntry->SpellTotemsId;
-    SpellMiscId = spellEntry->SpellMiscId;
+    SpellScalingId = p_SpellEntry->SpellScalingId;
+    SpellAuraOptionsId = p_SpellEntry->SpellAuraOptionsId;
+    SpellAuraRestrictionsId = p_SpellEntry->SpellAuraRestrictionsId;
+    SpellCastingRequirementsId = p_SpellEntry->SpellCastingRequirementsId;
+    SpellCategoriesId = p_SpellEntry->SpellCategoriesId;
+    SpellClassOptionsId = p_SpellEntry->SpellClassOptionsId;
+    SpellCooldownsId = p_SpellEntry->SpellCooldownsId;
+    SpellEquippedItemsId = p_SpellEntry->SpellEquippedItemsId;
+    SpellInterruptsId = p_SpellEntry->SpellInterruptsId;
+    SpellLevelsId = p_SpellEntry->SpellLevelsId;
+    SpellReagentsId = p_SpellEntry->SpellReagentsId;
+    SpellShapeshiftId = p_SpellEntry->SpellShapeshiftId;
+    SpellTargetRestrictionsId = p_SpellEntry->SpellTargetRestrictionsId;
+    SpellTotemsId = p_SpellEntry->SpellTotemsId;
+    SpellMiscId = p_SpellEntry->SpellMiscId;
 
     // SpellDifficultyEntry
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        Effects[i] = SpellEffectInfo(spellEntry, this, i, difficulty);
+        Effects[i] = SpellEffectInfo(p_SpellEntry, this, i, p_Difficulty);
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
@@ -1068,7 +1084,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, uint32 difficulty)
     ExplicitTargetMask = _GetExplicitTargetMask();
     ChainEntry = NULL;
 
-    ResearchProject =  spellEntry->ResearchProject;
+    ResearchProject =  p_SpellEntry->ResearchProject;
 }
 
 SpellInfo::~SpellInfo()
@@ -3139,22 +3155,22 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 
 SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() const
 {
-    return SpellTargetRestrictionsId ? sSpellTargetRestrictionsStore.LookupEntry(SpellTargetRestrictionsId) : NULL;
+    return SpellTargetRestrictionsId ? sSpellTargetRestrictionsStore.LookupEntry(SpellTargetRestrictionsId) : nullptr;
 }
 
 SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 {
-    return SpellEquippedItemsId ? sSpellEquippedItemsStore.LookupEntry(SpellEquippedItemsId) : NULL;
+    return SpellEquippedItemsId ? sSpellEquippedItemsStore.LookupEntry(SpellEquippedItemsId) : nullptr;
 }
 
 SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 {
-    return SpellInterruptsId ? sSpellInterruptsStore.LookupEntry(SpellInterruptsId) : NULL;
+    return SpellInterruptsId ? sSpellInterruptsStore.LookupEntry(SpellInterruptsId) : nullptr;
 }
 
 SpellLevelsEntry const* SpellInfo::GetSpellLevels() const
 {
-    return SpellLevelsId ? sSpellLevelsStore.LookupEntry(SpellLevelsId) : NULL;
+    return SpellLevelsId ? sSpellLevelsStore.LookupEntry(SpellLevelsId) : nullptr;
 }
 
 SpellPowerEntry const* SpellInfo::GetSpellPower() const
@@ -3164,57 +3180,63 @@ SpellPowerEntry const* SpellInfo::GetSpellPower() const
 
 SpellMiscEntry const* SpellInfo::GetSpellMisc() const
 {
-    return SpellMiscId ? sSpellMiscStore.LookupEntry(SpellMiscId) : NULL;
+    return SpellMiscId ? sSpellMiscStore.LookupEntry(SpellMiscId) : nullptr;
 }
 
 SpellReagentsEntry const* SpellInfo::GetSpellReagents() const
 {
-    return SpellReagentsId ? sSpellReagentsStore.LookupEntry(SpellReagentsId) : NULL;
+    return SpellReagentsId ? sSpellReagentsStore.LookupEntry(SpellReagentsId) : nullptr;
 }
 
 SpellScalingEntry const* SpellInfo::GetSpellScaling() const
 {
-    return SpellScalingId ? sSpellScalingStore.LookupEntry(SpellScalingId) : NULL;
+    return SpellScalingId ? sSpellScalingStore.LookupEntry(SpellScalingId) : nullptr;
 }
 
 SpellShapeshiftEntry const* SpellInfo::GetSpellShapeshift() const
 {
-    return SpellShapeshiftId ? sSpellShapeshiftStore.LookupEntry(SpellShapeshiftId) : NULL;
+    return SpellShapeshiftId ? sSpellShapeshiftStore.LookupEntry(SpellShapeshiftId) : nullptr;
 }
 
 SpellTotemsEntry const* SpellInfo::GetSpellTotems() const
 {
-    return SpellTotemsId ? sSpellTotemsStore.LookupEntry(SpellTotemsId) : NULL;
+    return SpellTotemsId ? sSpellTotemsStore.LookupEntry(SpellTotemsId) : nullptr;
 }
 
 SpellAuraOptionsEntry const* SpellInfo::GetSpellAuraOptions() const
 {
-    return SpellAuraOptionsId ? sSpellAuraOptionsStore.LookupEntry(SpellAuraOptionsId) : NULL;
+    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    {
+
+    }
+
+
+    return SpellAuraOptionsId ? sSpellAuraOptionsStore.LookupEntry(SpellAuraOptionsId) : nullptr;
 }
 
 SpellAuraRestrictionsEntry const* SpellInfo::GetSpellAuraRestrictions() const
 {
-    return SpellAuraRestrictionsId ? sSpellAuraRestrictionsStore.LookupEntry(SpellAuraRestrictionsId) : NULL;
+    return SpellAuraRestrictionsId ? sSpellAuraRestrictionsStore.LookupEntry(SpellAuraRestrictionsId) : nullptr;
 }
 
 SpellCastingRequirementsEntry const* SpellInfo::GetSpellCastingRequirements() const
 {
-    return SpellCastingRequirementsId ? sSpellCastingRequirementsStore.LookupEntry(SpellCastingRequirementsId) : NULL;
+    return SpellCastingRequirementsId ? sSpellCastingRequirementsStore.LookupEntry(SpellCastingRequirementsId) : nullptr;
 }
 
 SpellCategoriesEntry const* SpellInfo::GetSpellCategories() const
 {
-    return SpellCategoriesId ? sSpellCategoriesStore.LookupEntry(SpellCategoriesId) : NULL;
+    return SpellCategoriesId ? sSpellCategoriesStore.LookupEntry(SpellCategoriesId) : nullptr;
 }
 
 SpellClassOptionsEntry const* SpellInfo::GetSpellClassOptions() const
 {
-    return SpellClassOptionsId ? sSpellClassOptionsStore.LookupEntry(SpellClassOptionsId) : NULL;
+    return SpellClassOptionsId ? sSpellClassOptionsStore.LookupEntry(SpellClassOptionsId) : nullptr;
 }
 
 SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 {
-    return SpellCooldownsId ? sSpellCooldownsStore.LookupEntry(SpellCooldownsId) : NULL;
+    return SpellCooldownsId ? sSpellCooldownsStore.LookupEntry(SpellCooldownsId) : nullptr;
 }
 
 SpellEffectEntry const* SpellEntry::GetSpellEffect(uint32 eff, uint32 difficulty) const

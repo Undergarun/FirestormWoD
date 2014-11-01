@@ -1455,6 +1455,9 @@ void World::SetInitialWorldSettings()
     LoadDB2Stores(m_dataPath);
     DetectDBCLang();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize Spell Difficulty ...");
+    sSpellMgr->InitializeSpellDifficulty();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 

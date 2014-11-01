@@ -86,6 +86,8 @@ DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore(CriteriaTreefmt);
 DBCStorage <ModifierTreeEntry>            sModifierTreeStore(ModifierTreefmt);
 
 DBCStorage <DestructibleModelDataEntry>   sDestructibleModelDataStore(DestructibleModelDatafmt);
+DBCStorage <DifficultyEntry>              sDifficultyStore(DifficultyEntryfmt);
+
 DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore(DungeonEncounterfmt);
 DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore(DurabilityQualityfmt);
 DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore(DurabilityCostsfmt);
@@ -355,6 +357,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureTypeStore,           dbcPath, "CreatureType.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sCurrencyTypesStore,          dbcPath, "CurrencyTypes.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDestructibleModelDataStore,  dbcPath, "DestructibleModelData.dbc");                                        // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sDifficultyStore,             dbcPath, "Difficulty.dbc");                                                   // 19027
     LoadDBC(availableDbcLocales, bad_dbc_files, sDungeonEncounterStore,       dbcPath, "DungeonEncounter.dbc");                                             // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityCostsStore,        dbcPath, "DurabilityCosts.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityQualityStore,      dbcPath, "DurabilityQuality.dbc");                                            // 17399
@@ -578,17 +581,19 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
     {
         if (SpellEffectEntry const *spellEffect = sSpellEffectStore.LookupEntry(i))
-        {
             sSpellEffectMap[spellEffect->EffectSpellId].effects[spellEffect->EffectDifficulty][spellEffect->EffectIndex] = spellEffect;
-        }
     }
 
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         if (SpellEntry const * spell = sSpellStore.LookupEntry(i))
+        {
             if (const SpellEffectEntry* spellEffect = spell->GetSpellEffect(EFFECT_1, 0))
+            {
                 if (spellEffect->Effect == SPELL_EFFECT_SKILL && IsProfessionSkill(spellEffect->EffectMiscValue))
                     sSpellSkillingList.push_back(spell);
+            }
+        }
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastTimesStore,         dbcPath, "SpellCastTimes.dbc");                                               // 17399

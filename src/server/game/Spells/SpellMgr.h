@@ -606,6 +606,8 @@ typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
 typedef std::set<uint32> TalentsPlaceHoldersSpell;
 typedef std::set<uint32> TalentSpellSet;
 typedef std::vector<std::list<uint32> > SpellPowerVector;
+typedef std::map<uint32, std::set<uint32>> AvaiableDifficultySpell;
+typedef std::map<std::string, std::pair<uint32, uint32>> DatastoreDifficultyKey;
 
 class SpellMgr
 {
@@ -735,6 +737,7 @@ class SpellMgr
         void LoadPetLevelupSpellMap();
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
+        void InitializeSpellDifficulty();
         void LoadSpellInfoStore();
         void LoadSpellClassInfo();
         void UnloadSpellInfoStore();
@@ -784,6 +787,8 @@ class SpellMgr
         std::list<uint32>          mForbiddenSpells;
         TalentsPlaceHoldersSpell   mPlaceHolderSpells;
         ItemUpgradeDatas           mItemUpgradeDatas;
+        AvaiableDifficultySpell    mAvaiableDifficultyBySpell;
+        DatastoreDifficultyKey     mDatastoreDifficultyKey;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

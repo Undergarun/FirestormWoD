@@ -1046,6 +1046,23 @@ struct DestructibleModelDataEntry
     //uint32    m_HealEffectSpeed;                          // 23       m_HealEffectSpeed;
 };
 
+struct DifficultyEntry
+{
+    uint32 ID;
+    uint32 FallbackDifficultyID;
+    uint32 InstanceType;
+    uint32 MinPlayers;
+    uint32 MaxPlayers;
+    uint32 OldEnumValue;
+    uint32 Flags;
+    uint32 ToggleDifficulty;
+    uint32 GroupSizeHealthCurveID;
+    uint32 GroupSizeDmgCurveID;
+    uint32 GroupSizeSpellPointsCurveID;
+    char*  NameLang;
+    uint32 Unknow1;
+};
+
 struct DungeonEncounterEntry
 {
     uint32  ID;                                             // 0        m_ID
@@ -1972,7 +1989,7 @@ struct SpellAuraOptionsEntry
 {
     uint32  Id;                                             // 0        m_ID
     uint32    m_SpellID;                                    // 1        m_SpellID
-    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    uint32    m_DifficultyID;                               // 2        m_DifficultyID
     uint32    StackAmount;                                  // 1        m_cumulativeAura
     uint32    procChance;                                   // 2        m_procChance
     uint32    procCharges;                                  // 3        m_procCharges
@@ -2078,46 +2095,43 @@ struct SpellRangeEntry
     //char*     ShortName;                                  // 7        m_displayNameShort_lang
 };
 
-// delete ?  6.0.1 18612
 struct SpellEquippedItemsEntry
 {
     //uint32    Id;                                         // 0        m_ID
-    int32   EquippedItemClass;                              // 1        m_equippedItemClass (value)
-    int32   EquippedItemInventoryTypeMask;                  // 2        m_equippedItemInvTypes (mask)
-    int32   EquippedItemSubClassMask;                       // 3        m_equippedItemSubclass (mask)
-    //uint32    unk_1                                       // 4
-    //uint32    unk_2                                       // 5
+    uint32  SpellID;                                        // 1        m_SpellID
+    uint32  DifficultyID;                                   // 2        m_DifficultyID
+    int32   EquippedItemClass;                              // 3        m_equippedItemClass (value)
+    int32   EquippedItemInventoryTypeMask;                  // 4        m_equippedItemInvTypes (mask)
+    int32   EquippedItemSubClassMask;                       // 5        m_equippedItemSubclass (mask)
 };
 
 // SpellCooldowns.dbc
 // @author Selenium: 5.4 valid
 struct SpellCooldownsEntry
 {
-    //uint32    Id;                                         // 0    m_ID
-    //uint32    m_SpellID;                                  // 1    m_SpellID
-    //uint32    m_DifficultyID;                             // 2    m_DifficultyID
-    uint32  CategoryRecoveryTime;                           // 3    m_categoryRecoveryTime
-    uint32  RecoveryTime;                                   // 4    m_recoveryTime
-    uint32  StartRecoveryTime;                              // 5    m_startRecoveryTime
+    //uint32    Id;                                         // 0        m_ID
+    uint32    m_SpellID;                                    // 1        m_SpellID
+    uint32    m_DifficultyID;                               // 2        m_DifficultyID
+    uint32  CategoryRecoveryTime;                           // 3        m_categoryRecoveryTime
+    uint32  RecoveryTime;                                   // 4        m_recoveryTime
+    uint32  StartRecoveryTime;                              // 5        m_startRecoveryTime
 };
 
 struct SpellInterruptsEntry
 {
-    //uint32    Id;                                         // 0        m_ID
-    //uint32    m_SpellID;                                  // 1        m_SpellID
-    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
-    uint32  AuraInterruptFlags;                             // 3        m_auraInterruptFlags
-    //uint32    m_auraInterruptFlags                        // 4        m_auraInterruptFlags
-    uint32  ChannelInterruptFlags;                          // 5        m_channelInterruptFlags
-    //uint32    m_channelInterruptFlags                     // 6        m_channelInterruptFlags
+    //uint32  Id;                                           // 0        m_ID
+    uint32  SpellID;                                        // 1        m_SpellID
+    uint32  DifficultyID;                                   // 2        m_DifficultyID
+    uint64  AuraInterruptFlags;                             // 3        m_auraInterruptFlags
+    uint64  ChannelInterruptFlags;                          // 5        m_channelInterruptFlags
     uint32  InterruptFlags;                                 // 7        m_interruptFlags
 };
 
 struct SpellLevelsEntry
 {
     //uint32    Id;                                         // 0        m_ID
-    uint32  SpellId;                                        // 1        m_spellId
-    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    uint32  SpellID;                                        // 1        m_spellId
+    uint32  DifficultyID;                                   // 2        m_DifficultyID
     uint32  baseLevel;                                      // 3        m_baseLevel
     uint32  maxLevel;                                       // 4        m_maxLevel
     uint32  spellLevel;                                     // 5        m_spellLevel
@@ -2157,9 +2171,9 @@ struct SpellTargetRestrictionsEntry
 {
     uint32  Id;                                             // 0        m_ID
     uint32  SpellId;                                        // 1        m_spellId
-    //uint32    m_DifficultyID;                             // 2        m_DifficultyID
+    uint32  DifficultyID;                                   // 2        m_DifficultyID
     float   MaxTargetRadius;                                // 3        m_ConeAngle
-    //float    m_Width;                                     // 4        m_Width
+    float   Width;                                          // 4        m_Width
     uint32  MaxAffectedTargets;                             // 5        m_maxTargets
     uint32  MaxTargetLevel;                                 // 6        m_maxTargetLevel
     uint32  TargetCreatureType;                             // 7        m_targetCreatureType

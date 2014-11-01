@@ -3163,31 +3163,121 @@ void SpellMgr::LoadSpellClassInfo()
     }
 }
 
-struct spellDifficultyLoadInfo
+void SpellMgr::InitializeSpellDifficulty()
 {
-    uint32 id;
-    std::list<uint32> difficultyList;
-};
+    mAvaiableDifficultyBySpell.clear();
+
+    /// SpellAuraOptions
+    for (uint32 l_I = 0; l_I < sSpellAuraOptionsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellAuraOptionsEntry const* l_SpellAuraOption = sSpellAuraOptionsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellAuraOption->m_SpellID].insert(l_SpellAuraOption->m_DifficultyID);
+
+            if (l_SpellAuraOption->m_DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellAuraOptionsStore.GetDbcFileName(), std::make_pair(l_SpellAuraOption->m_SpellID, l_SpellAuraOption->m_DifficultyID)));
+        }
+    }
+
+    /// SpellCategories
+    for (uint32 l_I = 0; l_I < sSpellCategoriesStore.GetNumRows(); ++l_I)
+    {
+        if (SpellCategoriesEntry const* l_SpellCategories = sSpellCategoriesStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellCategories->SpellId].insert(l_SpellCategories->m_DifficultyID);
+
+            if (l_SpellCategories->m_DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellCategoriesStore.GetDbcFileName(), std::make_pair(l_SpellCategories->SpellId, l_SpellCategories->m_DifficultyID)));
+        }
+    }
+
+    /// SpellCooldowns
+    for (uint32 l_I = 0; l_I < sSpellCooldownsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellCooldownsEntry const* l_SpellCooldown = sSpellCooldownsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellCooldown->m_SpellID].insert(l_SpellCooldown->m_DifficultyID);
+
+            if (l_SpellCooldown->m_DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellCooldownsStore.GetDbcFileName(), std::make_pair(l_SpellCooldown->m_SpellID, l_SpellCooldown->m_DifficultyID)));
+        }
+    }
+
+    /// SpellEffect
+    for (uint32 l_I = 0; l_I < sSpellEffectStore.GetNumRows(); ++l_I)
+    {
+        if (SpellEffectEntry const* l_SpellEffect = sSpellEffectStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellEffect->EffectSpellId].insert(l_SpellEffect->EffectDifficulty);
+
+            if (l_SpellEffect->EffectDifficulty != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellEffectStore.GetDbcFileName(), std::make_pair(l_SpellEffect->EffectSpellId, l_SpellEffect->EffectDifficulty)));
+        }
+    }
+
+    /// SpellEquippedItems
+    for (uint32 l_I = 0; l_I < sSpellEquippedItemsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellEquippedItemsEntry const* l_SpellEquippedItem = sSpellEquippedItemsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellEquippedItem->SpellID].insert(l_SpellEquippedItem->DifficultyID);
+
+            if (l_SpellEquippedItem->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellEquippedItemsStore.GetDbcFileName(), std::make_pair(l_SpellEquippedItem->SpellID, l_SpellEquippedItem->DifficultyID)));
+        }
+    }
+
+    // SpellInterrupts
+    for (uint32 l_I = 0; l_I < sSpellInterruptsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellInterruptsEntry const* l_SpellInterrupt = sSpellInterruptsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellInterrupt->SpellID].insert(l_SpellInterrupt->DifficultyID);
+
+            if (l_SpellInterrupt->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellInterruptsStore.GetDbcFileName(), std::make_pair(l_SpellInterrupt->SpellID, l_SpellInterrupt->DifficultyID)));
+
+        }
+    }
+
+    // SpellLevels
+    for (uint32 l_I = 0; l_I < sSpellLevelsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellLevelsEntry const* l_SpellLevel = sSpellLevelsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellLevel->SpellID].insert(l_SpellLevel->DifficultyID);
+
+            if (l_SpellLevel->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellLevelsStore.GetDbcFileName(), std::make_pair(l_SpellLevel->SpellID, l_SpellLevel->DifficultyID)));
+        }
+    }
+
+    // SpellTargetStriction
+    for (uint32 l_I = 0; l_I < sSpellTargetRestrictionsStore.GetNumRows(); l_I++)
+    {
+        if (SpellTargetRestrictionsEntry const* l_SpellTargetRestriction = sSpellTargetRestrictionsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellTargetRestriction->SpellId].insert(l_SpellTargetRestriction->DifficultyID);
+
+            if (l_SpellTargetRestriction->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey.insert(std::make_pair(sSpellTargetRestrictionsStore.GetDbcFileName(), std::make_pair(l_SpellTargetRestriction->SpellId, l_SpellTargetRestriction->DifficultyID)));
+        }
+    }
+}
 
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
 
-    std::map<uint32, std::set<uint32> > spellDifficultyList;
-
-    for (uint32 l_I = 0; l_I < sSpellEffectStore.GetNumRows(); ++l_I)
-        if (SpellEffectEntry const* spellEffect = sSpellEffectStore.LookupEntry(l_I))
-            spellDifficultyList[spellEffect->EffectSpellId].insert(spellEffect->EffectDifficulty);
-
     UnloadSpellInfoStore();
     for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
-        mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), NULL);
+        mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
     for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
-            std::set<uint32> difficultyInfo = spellDifficultyList[l_I];
+            std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
                 mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr));
         }

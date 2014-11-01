@@ -88,6 +88,8 @@ class DBCStorage
 
         bool Load(char const* fn, SqlDbc * sql)
         {
+            m_DbcName = fn;
+
             DBCFileLoader dbc;
             // Check if load was successful, only then continue
             if (!dbc.Load(fn, fmt))
@@ -274,7 +276,13 @@ class DBCStorage
             m_LastEntry = 0;
         }
 
+        std::string GetDbcFileName()
+        {
+            return m_DbcFileName;
+        }
+
     private:
+        std::string m_DbcFileName;
         char const* fmt;
         uint32 nCount;
         uint32 fieldCount;
