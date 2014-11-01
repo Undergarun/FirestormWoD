@@ -652,43 +652,14 @@ class spell_warl_unbound_will : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_unbound_will_SpellScript);
 
-            SpellCastResult CheckHealth()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->GetHealthPct() <= 20.0f)
-                    {
-                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH);
-                        return SPELL_FAILED_CUSTOM_ERROR;
-                    }
-                    else
-                        return SPELL_CAST_OK;
-                }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
-                {
-                    caster->ModifyHealth(-int32(caster->CountPctFromMaxHealth(20)));
-                    caster->RemoveMovementImpairingAuras();
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_CONFUSE);
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_FEAR_2);
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_STUN);
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_ROOT_2);
-                    caster->RemoveAurasByType(SPELL_AURA_TRANSFORM);
-                }
+                    caster->RemoveAurasWithMechanic(IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK);
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_warl_unbound_will_SpellScript::CheckHealth);
                 OnHit += SpellHitFn(spell_warl_unbound_will_SpellScript::HandleOnHit);
             }
         };
