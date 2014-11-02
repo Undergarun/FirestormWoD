@@ -645,15 +645,24 @@ bool Garrison::HaveMission(uint32 p_MissionRecID)
 void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers)
 {
     if (!HaveMission(p_MissionRecID))
+    {
         StartMissionFailed();
+        return;
+    }
 
     const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
     if (!m_Owner->HasCurrency(GARRISON_CURRENCY_ID, l_MissionTemplate->GarrisonCurrencyStartCost))
+    {
         StartMissionFailed();
+        return;
+    }
 
     if (p_Followers.size() < l_MissionTemplate->RequiredFollowersCount)
+    {
         StartMissionFailed();
+        return;
+    }
 
     for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
     {
@@ -666,15 +675,24 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         });
 
         if (l_It == m_Followers.end())
+        {
             StartMissionFailed();
+            return;
+        }
 
         if (l_It->CurrentBuildingID != 0 || l_It->CurrentMissionID != 0)
+        {
             StartMissionFailed();
+            return;
+        }
 
         uint32 l_FollowerItemLevel = (l_It->ItemLevelWeapon + l_It->ItemLevelArmor) / 2;
 
         if (l_FollowerItemLevel < l_MissionTemplate->RequiredItemLevel)
+        {
             StartMissionFailed();
+            return;
+        }
     }
 
     m_Owner->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
@@ -731,10 +749,8 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
         m_Owner->SendDirectMessage(&l_Result);
     }
-
-    return;
 }
-
+/// Send mission start failed packet
 void Garrison::StartMissionFailed()
 {
     WorldPacket l_Data(SMSG_GARRISON_START_MISSION_RESULT, 200);
@@ -754,7 +770,6 @@ void Garrison::StartMissionFailed()
 
     m_Owner->SendDirectMessage(&l_Data);
 }
-
 /// Complete a mission
 void Garrison::CompleteMission(uint32 p_MissionRecID)
 {
