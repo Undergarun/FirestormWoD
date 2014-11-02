@@ -3452,6 +3452,19 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            // Magma Totem Passive
+            case 8188:
+            // Healing Streams
+            case 5672:
+            // Healing Tide
+            case 114941:
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+                break;
+            case 73683:  // Unleash Flame
+            case 165462: // Unleash Flame
+                spellInfo->ProcCharges = 1;
+                break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
