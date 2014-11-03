@@ -1362,6 +1362,14 @@ struct ImportPriceWeaponEntry
     float   Factor;                                         // 1        m_data
 };
 
+struct ItemSetSpellEntry
+{
+    uint32 ItemSetID;
+    uint32 SpellID;
+    uint32 PieceRequirement;
+    uint32 SpecializationID;
+};
+
 struct ItemPriceBaseEntry
 {
     //uint32    ID;                                         // 0        m_ID

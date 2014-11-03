@@ -582,7 +582,7 @@ struct GarrAbilityEntry
 struct GarrAbilityEffectEntry
 {
     uint32 EffectID;                                    // 0
-    uint32 EffectType;                                  // 1 
+    uint32 EffectType;                                  // 1
     uint32 AbilityID;                                   // 2
     uint32 TargetMask;                                  // 3
     uint32 CounterMechanicTypeID;                       // 4

@@ -870,7 +870,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
                     // In feral spec : 0.484 * $AP * cp
-                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DROOD_CAT)
+                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_FERAL)
                         amount += int32(cp * AP * 0.484f);
                     // In other spec : 0.387 * $AP * cp
                     else

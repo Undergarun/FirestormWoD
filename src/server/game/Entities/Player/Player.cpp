@@ -978,7 +978,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
         m_itemScale[i] = 0;
 
     m_LastSummonedBattlePet = 0;
-    
+
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
         m_BattlePetCombatTeam[l_CurrentPetSlot] = BattlePet::Ptr();
 }
@@ -5160,7 +5160,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             pet.UpdateStats();
             pet.Health = pet.InfoMaxHealth;
 
-            pet.AddToPlayer(this); 
+            pet.AddToPlayer(this);
             ReloadPetBattles();
             break;
         }
@@ -5930,16 +5930,30 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
 
         if (!loading)
+        {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+            {
                 if (Item* item = m_items[i])
+                {
                     _ApplyItemMods(item, i, false);
+                    RemoveItemsSetItem(this, item->GetTemplate());
+                }
+            }
+        }
 
         _talentMgr->SpecInfo[spec].SpecializationId = id;
 
         if (!loading)
+        {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+            {
                 if (Item* item = m_items[i])
+                {
                     _ApplyItemMods(item, i, true);
+                    AddItemsSetItem(this, item);
+                }
+            }
+        }
 
         SetHealth(GetMaxHealth() * pct / 100);
         return;
@@ -30529,7 +30543,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
     if (!p_Result)
     {
         bool l_Add = false;
- 
+
         for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
         {
             BattlePet l_BattlePet;
@@ -30538,7 +30552,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
             l_BattlePet.Species         = m_OldPetBattleSpellToMerge[l_I].second;
             l_BattlePet.DisplayModelID  = 0;
             l_BattlePet.Flags           = 0;
- 
+
             if (BattlePetTemplate const* l_Template = sObjectMgr->GetBattlePetTemplate(m_OldPetBattleSpellToMerge[l_I].second))
             {
                 l_BattlePet.Breed   = l_Template->Breed;
@@ -30551,23 +30565,23 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
                 l_BattlePet.Quality = BATTLEPET_QUALITY_COMMON;
                 l_BattlePet.Level   = 1;
             }
- 
+
             // Calculate XP for level
             l_BattlePet.XP = 0;
- 
+
             if (l_BattlePet.Level > 1 && l_BattlePet.Level < 100)
                 l_BattlePet.XP = sGtBattlePetXPStore.LookupEntry(l_BattlePet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + l_BattlePet.Level - 2)->value;
- 
+
             // Calculate stats
             l_BattlePet.UpdateStats();
             l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
             l_BattlePet.AddToPlayer(this);
- 
+
             l_Add = true;
         }
- 
+
         m_OldPetBattleSpellToMerge.clear();
- 
+
         if (l_Add)
             return false;
     }
