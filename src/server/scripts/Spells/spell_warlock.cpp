@@ -1043,8 +1043,7 @@ class spell_warl_flames_of_xoroth : public SpellScriptLoader
                 Player* player = GetCaster()->ToPlayer();
                 if (player && player->GetLastPetNumber())
                 {
-                    PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
-                    if (Pet* newPet = new Pet(player, newPetType))
+                    if (Pet* newPet = new Pet(player, SUMMON_PET))
                     {
                         if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
                         {
@@ -1161,7 +1160,7 @@ class spell_warl_soul_link : public SpellScriptLoader
                     {
                         if (!target->HasAura(WARLOCK_SOUL_LINK_DUMMY_AURA))
                         {
-                            uint32 health = target->CountPctFromMaxHealth(50);
+                            uint32 health = target->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
                             if (target->GetHealth() > health)
                                 target->SetHealth(health);
@@ -1206,13 +1205,9 @@ class spell_warl_molten_core_dot : public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA) && caster->getLevel() >= 69)
-                        if (roll_chance_i(8))
+                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
                             caster->CastSpell(caster, WARLOCK_MOLTEN_CORE, true);
-
-                    caster->EnergizeBySpell(caster, aurEff->GetSpellInfo()->Id, 2, POWER_DEMONIC_FURY);
-                }
             }
 
             void Register()
