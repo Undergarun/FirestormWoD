@@ -474,7 +474,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA) && _spellInfo->Id != 774) // Hack Fix Rejuvenation, doesn't use the target level for basepoints
                 level = target->getLevel();
 
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * GT_MAX_LEVEL + level - 1))
             {
                 float multiplier = gtScaling->value;
                 if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
@@ -586,7 +586,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
         if (CanScale())
         {
-            bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
+            bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC && caster->getClass() == CLASS_HUNTER;
             WeaponAttackType l_AttType = (_spellInfo->IsRangedWeaponSpell() && l_RangedClass) ? RANGED_ATTACK : BASE_ATTACK;
             float l_AttackPower = caster->GetTotalAttackPowerValue(l_AttType);
             float l_SpellPower = caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
