@@ -2097,7 +2097,7 @@ struct SpellRangeEntry
 
 struct SpellEquippedItemsEntry
 {
-    //uint32    Id;                                         // 0        m_ID
+    uint32  Id;                                             // 0        m_ID
     uint32  SpellID;                                        // 1        m_SpellID
     uint32  DifficultyID;                                   // 2        m_DifficultyID
     int32   EquippedItemClass;                              // 3        m_equippedItemClass (value)
@@ -2105,13 +2105,11 @@ struct SpellEquippedItemsEntry
     int32   EquippedItemSubClassMask;                       // 5        m_equippedItemSubclass (mask)
 };
 
-// SpellCooldowns.dbc
-// @author Selenium: 5.4 valid
 struct SpellCooldownsEntry
 {
-    //uint32    Id;                                         // 0        m_ID
-    uint32    m_SpellID;                                    // 1        m_SpellID
-    uint32    m_DifficultyID;                               // 2        m_DifficultyID
+    uint32  Id;                                             // 0        m_ID
+    uint32  m_SpellID;                                      // 1        m_SpellID
+    uint32  m_DifficultyID;                                 // 2        m_DifficultyID
     uint32  CategoryRecoveryTime;                           // 3        m_categoryRecoveryTime
     uint32  RecoveryTime;                                   // 4        m_recoveryTime
     uint32  StartRecoveryTime;                              // 5        m_startRecoveryTime
@@ -2119,7 +2117,7 @@ struct SpellCooldownsEntry
 
 struct SpellInterruptsEntry
 {
-    //uint32  Id;                                           // 0        m_ID
+    uint32  Id;                                             // 0        m_ID
     uint32  SpellID;                                        // 1        m_SpellID
     uint32  DifficultyID;                                   // 2        m_DifficultyID
     uint64  AuraInterruptFlags;                             // 3        m_auraInterruptFlags
@@ -2129,7 +2127,7 @@ struct SpellInterruptsEntry
 
 struct SpellLevelsEntry
 {
-    //uint32    Id;                                         // 0        m_ID
+    uint32  Id;                                             // 0        m_ID
     uint32  SpellID;                                        // 1        m_spellId
     uint32  DifficultyID;                                   // 2        m_DifficultyID
     uint32  baseLevel;                                      // 3        m_baseLevel
