@@ -1238,12 +1238,9 @@ class spell_warl_decimate : public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(WARLOCK_DECIMATE_AURA) && _player->getLevel() >= 73)
-                            if (target->GetHealthPct() < 25.0f)
+                        if (_player->HasAura(WARLOCK_DECIMATE_AURA))
+                            if (target->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_0].BasePoints)
                                 _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
-
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, GetSpellInfo()->Id == WARLOCK_SHADOW_BOLT ? 25 : 30, POWER_DEMONIC_FURY);
                 }
             }
 
