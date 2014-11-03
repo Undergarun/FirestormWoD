@@ -64,13 +64,9 @@ enum PriestSpells
     PRIEST_VAMPIRIC_TOUCH                           = 34914,
     PRIEST_PHANTASM_AURA                            = 108942,
     PRIEST_PHANTASM_PROC                            = 114239,
-    PRIEST_SPIRIT_SHELL_AURA                        = 109964,
-    PRIEST_SPIRIT_SHELL_ABSORPTION                  = 114908,
     PRIEST_ATONEMENT_AURA                           = 81749,
     PRIEST_ATONEMENT_HEAL                           = 81751,
     PRIEST_RAPTURE_ENERGIZE                         = 47755,
-    PRIEST_GRACE_AURA                               = 47517,
-    PRIEST_GRACE_PROC                               = 77613,
     PRIEST_WEAKENED_SOUL                            = 6788,
     PRIEST_EVANGELISM_AURA                          = 81662,
     PRIEST_EVANGELISM_STACK                         = 81661,
@@ -1188,37 +1184,6 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         }
 };
 
-// Called by Heal - 2050
-// Grace - 47517
-class spell_pri_grace : public SpellScriptLoader
-{
-    public:
-        spell_pri_grace() : SpellScriptLoader("spell_pri_grace") { }
-
-        class spell_pri_grace_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_grace_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(PRIEST_GRACE_AURA))
-                            _player->CastSpell(target, PRIEST_GRACE_PROC, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_grace_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_grace_SpellScript();
-        }
-};
-
 // Called by Power Word : Shield - 17
 // Rapture - 47536
 class spell_pri_rapture : public SpellScriptLoader
@@ -1314,60 +1279,6 @@ class spell_pri_atonement : public SpellScriptLoader
         }
 };
 
-// Called by Heal - 2050, Flash Heal - 2061, Greater Heal - 2060 and Prayer of Healing - 596
-// Spirit Shell - 109964
-class spell_pri_spirit_shell : public SpellScriptLoader
-{
-    public:
-        spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
-
-        class spell_pri_spirit_shell_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(PRIEST_SPIRIT_SHELL_AURA))
-                        {
-                            int32 bp = GetHitHeal();
-
-                            SetHitHeal(0);
-
-                            if (AuraEffectPtr shellAbsorption = target->GetAuraEffect(PRIEST_SPIRIT_SHELL_ABSORPTION, 0))
-                            {
-                                int32 existedbp = shellAbsorption->GetAmount();
-                                int32 maxAuraAmount = int32(CalculatePct(target->GetMaxHealth(), 60));
-                                if (existedbp + bp > maxAuraAmount)
-                                    shellAbsorption->SetAmount(existedbp + bp);
-                                else
-                                    shellAbsorption->SetAmount(maxAuraAmount);
-
-                                if (AuraPtr aur = shellAbsorption->GetBase())
-                                    aur->RefreshDuration();
-                            }
-                            else
-                                _player->CastCustomSpell(target, PRIEST_SPIRIT_SHELL_ABSORPTION, &bp, NULL, NULL, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_spirit_shell_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_spirit_shell_SpellScript();
-        }
-};
-
 // Purify - 527
 class spell_pri_purify : public SpellScriptLoader
 {
@@ -1384,32 +1295,20 @@ class spell_pri_purify : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        DispelChargesList dispelList[MAX_SPELL_EFFECTS];
+                        DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
                         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                         {
-                            uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                            uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            {
+                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
+                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
 
-                            // Purity can dispell Magic.
-                            if (GetSpellInfo()->Id == 527)
-                                dispelMask = ((1 << DISPEL_MAGIC));
-
-                            target->GetDispellableAuraList(caster, dispelMask, dispelList[i]);
+                                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                            }
                         }
-
-                        bool empty = true;
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            if (dispelList[i].empty())
-                                continue;
-
-                            empty = false;
-                            break;
-                        }
-
-                        if (empty)
+                        if (dispelList.empty())
                             return SPELL_FAILED_NOTHING_TO_DISPEL;
 
                         return SPELL_CAST_OK;
@@ -1723,7 +1622,7 @@ class spell_pri_cascade_second : public SpellScriptLoader
                         std::list<Unit*> targetList;
                         int32 affectedUnits = 0;
 
-                        _player->GetAttackableUnitListInRange(targetList, 40.0f);
+                        _player->GetAttackableUnitListInRange(targetList, GetSpellInfo()->Effects[EFFECT_1].RadiusEntry->radiusHostile);
 
                         for (auto itr : targetList)
                         {
@@ -2125,64 +2024,6 @@ class spell_pri_leap_of_faith : public SpellScriptLoader
         }
 };
 
-// Void Shift - 108968 and Void Shift - 142723
-class spell_pri_void_shift : public SpellScriptLoader
-{
-    public:
-        spell_pri_void_shift() : SpellScriptLoader("spell_pri_void_shift") { }
-
-        class spell_pri_void_shift_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_void_shift_SpellScript);
-
-            SpellCastResult CheckTarget()
-            {
-                if (GetExplTargetUnit())
-                    if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)
-                        return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        float playerPct;
-                        float targetPct;
-
-                        playerPct = _player->GetHealthPct();
-                        targetPct = target->GetHealthPct();
-
-                        if (playerPct < 25.0f)
-                            playerPct = 25.0f;
-                        if (targetPct < 25.0f)
-                            targetPct = 25.0f;
-
-                        playerPct /= 100.0f;
-                        targetPct /= 100.0f;
-
-                        _player->SetHealth(_player->GetMaxHealth() * targetPct);
-                        target->SetHealth(target->GetMaxHealth() * playerPct);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pri_void_shift_SpellScript::CheckTarget);
-                OnEffectHitTarget += SpellEffectFn(spell_pri_void_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_void_shift_SpellScript;
-        }
-};
-
 // Psychic Horror - 64044
 class spell_pri_psychic_horror : public SpellScriptLoader
 {
@@ -2548,10 +2389,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_word_sanctuary();
     new spell_pri_chakra_chastise();
     new spell_pri_lightwell_renew();
-    new spell_pri_grace();
     new spell_pri_rapture();
     new spell_pri_atonement();
-    new spell_pri_spirit_shell();
     new spell_pri_purify();
     new spell_pri_devouring_plague();
     new spell_pri_phantasm();
@@ -2563,7 +2402,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_halo_damage();
     new spell_pri_inner_fire_or_will();
     new spell_pri_leap_of_faith();
-    new spell_pri_void_shift();
     new spell_pri_psychic_horror();
     new spell_pri_guardian_spirit();
     new spell_pri_penance();
