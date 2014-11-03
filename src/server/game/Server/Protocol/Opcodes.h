@@ -891,6 +891,7 @@ enum Opcodes
     CMSG_OPENING_CINEMATIC                      = 0x0747,   ///< 6.0.2 19027
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x1107,   ///< 6.0.2 19027
     CMSG_COMPLETE_CINEMATIC                     = 0x0527,   ///< 6.0.2 19027
+    CMSG_REQUEST_CEMETERY_LIST                  = 0x04F0,   ///< 6.0.2 19027
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1420,7 +1421,6 @@ enum Opcodes
     CMSG_REPORT_SUGGESTION                            = 0x0000,
     CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x0000,
-    CMSG_REQUEST_CEMETERY_LIST                        = 0x0000,
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
     CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x0000,
