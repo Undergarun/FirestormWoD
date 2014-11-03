@@ -479,7 +479,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             float l_Multiplier = 0.0f;
 
             // Level scaling cap
-            if (l_SpellScaling->MaxScalingLevel && l_Level > l_SpellScaling->MaxScalingLevel)
+            if (l_SpellScaling->MaxScalingLevel && uint32(l_Level) > l_SpellScaling->MaxScalingLevel)
                 l_Level = l_SpellScaling->MaxScalingLevel;
 
             if (l_SpellScaling->ScalesFromItemLevel == 0)

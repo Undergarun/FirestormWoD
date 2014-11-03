@@ -562,7 +562,7 @@ enum WeaponAttackType
     MAX_ATTACK
 };
 
-// Last check : 6.0.2
+// Last check : 6.0.3
 enum CombatRating
 {
     CR_WEAPON_SKILL                     = 0,    // Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
@@ -591,13 +591,13 @@ enum CombatRating
     CR_EXPERTISE                        = 23,   // Deprecated
     CR_ARMOR_PENETRATION                = 24,   // Deprecated
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,   // Deprecated, CR_UNUSED_3 in PaperDollFrame.lua
-    CR_UNUSED                           = 27,   // CR_UNUSED_4 in PaperDollFrame.lua
+    CR_UNUSED_3                         = 26,   // Deprecated, CR_UNUSED_3 in PaperDollFrame.lua
+    CR_UNUSED_4                         = 27,   // CR_UNUSED_4 in PaperDollFrame.lua
     CR_VERSATILITY_DAMAGE_DONE          = 28,
-    CR_VERSATILITY_DAMAGE_TAKEN         = 29,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 30,
 };
 
-#define MAX_COMBAT_RATING         30
+#define MAX_COMBAT_RATING         31
 
 enum DamageEffectType
 {

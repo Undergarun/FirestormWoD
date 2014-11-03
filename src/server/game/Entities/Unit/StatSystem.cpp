@@ -574,11 +574,20 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
 void Player::UpdateAllCritPercentages()
 {
-    float crit = 0.0f;
+    uint8 l_Level  = getLevel();
+    uint32 l_Class = getClass();
 
-    SetBaseModValue(CRIT_PERCENTAGE, PCT_MOD, crit);
-    SetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD, crit);
-    SetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD, crit);
+    if (l_Level > GT_MAX_LEVEL)
+        l_Level = GT_MAX_LEVEL;
+
+    float l_Crit = 0.0f;
+    GtChanceToMeleeCritBaseEntry const* l_CritBase = sGtChanceToMeleeCritBaseStore.LookupEntry((l_Class - 1)*GT_MAX_LEVEL + l_Level - 1);
+    if (l_CritBase)
+        l_Crit = l_CritBase->base * 100;
+
+    SetBaseModValue(CRIT_PERCENTAGE, PCT_MOD, l_Crit);
+    SetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD, l_Crit);
+    SetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD, l_Crit);
 
     UpdateCritPercentage(BASE_ATTACK);
     UpdateCritPercentage(OFF_ATTACK);
