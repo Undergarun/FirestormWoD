@@ -70,12 +70,12 @@ m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
 
 GameObject::~GameObject()
 {
+    if (m_goInfo != nullptr && m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+        delete m_goValue->Transport.StopFrames;
+
     delete m_goValue;
     delete m_AI;
     delete m_model;
-
-    if (m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
-        delete m_goValue->Transport.StopFrames;
 
     if (GetTransport() && !ToTransport())
         GetTransport()->RemovePassenger(this);
