@@ -1790,9 +1790,9 @@ void Garrison::DeleteBuilding(uint32 p_PlotInstanceID)
     m_Owner->SendDirectMessage(&l_PlotPlacedPacket);
 
     WorldPacket l_BuildingRemovedPacket(SMSG_GARRISON_BUILDING_REMOVED, 12);
-    l_PlotPlacedPacket << uint32(GARRISON_PURCHASE_BUILDING_OK);
-    l_PlotPlacedPacket << uint32(p_PlotInstanceID);
-    l_PlotPlacedPacket << uint32(l_BuildingID);
+    l_BuildingRemovedPacket << uint32(GARRISON_PURCHASE_BUILDING_OK);
+    l_BuildingRemovedPacket << uint32(p_PlotInstanceID);
+    l_BuildingRemovedPacket << uint32(l_BuildingID);
 
     m_Owner->SendDirectMessage(&l_BuildingRemovedPacket);
 }
