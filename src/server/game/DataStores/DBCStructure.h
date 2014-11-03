@@ -1772,7 +1772,6 @@ struct QuestPOIPointEntry
     uint32  ID;                                             // 3        m_QuestPOIBlobID
 };
 
-// delete ? 6.0.1  18612
 struct RandomPropertiesPointsEntry
 {
     uint32  Id;                                             // 0
@@ -2187,8 +2186,8 @@ struct SpellScalingEntry
     int32   ScalingClass;                                   // 4        m_Class                 index * 100 + charLevel - 1 => gtSpellScaling.dbc
     float   CoefBase;                                       // 5        m_NerfFactor
     uint32  CoefLevelBase;                                  // 6        m_NerfMaxLevel
-    //uin32     m_MaxScalingLevel                           // 7        m_MaxScalingLevel
-    //uint32    m_ScalesFromItemLevel                       // 8        m_ScalesFromItemLevel
+    uint32  MaxScalingLevel;                                // 7        m_MaxScalingLevel
+    uint32  ScalesFromItemLevel;                            // 8        m_ScalesFromItemLevel
 };
 
 struct SpellDurationEntry

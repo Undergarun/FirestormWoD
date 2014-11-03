@@ -468,32 +468,59 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     // base amount modification based on spell lvl vs caster lvl
     if (ScalingMultiplier != 0.0f)
     {
-        if (p_Caster && !_spellInfo->IsCustomCalculated())
+        SpellScalingEntry const* l_SpellScaling = _spellInfo->GetSpellScaling();
+
+        if (p_Caster)
         {
             int32 l_Level = p_Caster->getLevel();
             if (p_Target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
                 l_Level = p_Target->getLevel();
 
-            if (GtSpellScalingEntry const* l_GtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + l_Level - 1))
+            float l_Multiplier = 0.0f;
+
+            // Level scaling cap
+            if (l_SpellScaling->MaxScalingLevel && l_Level > l_SpellScaling->MaxScalingLevel)
+                l_Level = l_SpellScaling->MaxScalingLevel;
+
+            if (l_SpellScaling->ScalesFromItemLevel == 0)
             {
-                float l_Multiplier = l_GtScaling->value;
-                if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > l_Level)
-                    l_Multiplier *= float(_spellInfo->CastTimeMin + (l_Level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
-                if (_spellInfo->CoefLevelBase > l_Level)
-                    l_Multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(l_Level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
-
-                float l_PreciseBasePoints = ScalingMultiplier * l_Multiplier;
-                if (DeltaScalingMultiplier)
+                if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT) == 0)
                 {
-                    float l_Delta = DeltaScalingMultiplier * ScalingMultiplier * l_Multiplier * 0.5f;
-                    l_PreciseBasePoints += frand(-l_Delta, l_Delta);
+                    GtSpellScalingEntry const* l_GtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * GT_MAX_LEVEL + l_Level - 1);
+                    if (l_GtScaling)
+                        l_Multiplier = l_GtScaling->value;
                 }
-
-                l_BasePoints = int32(l_PreciseBasePoints);
-
-                if (ComboScalingMultiplier)
-                    l_ComboDamage = ComboScalingMultiplier * l_Multiplier;
+                else
+                {
+                    // Not sure about how to calculate level to use in random properties points ... Need to revert Spell_C_GetMinMaxPoints more ...
+                    RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_Level);
+                    if (l_RandomPropertiesPoints)
+                        l_Multiplier = l_RandomPropertiesPoints->RarePropertiesPoints[0];
+                }
             }
+            else
+            {
+                RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_SpellScaling->ScalesFromItemLevel);
+                if (l_RandomPropertiesPoints)
+                    l_Multiplier = l_RandomPropertiesPoints->RarePropertiesPoints[0];
+            }
+
+            if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > l_Level)
+                l_Multiplier *= float(_spellInfo->CastTimeMin + (l_Level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
+            if (_spellInfo->CoefLevelBase > l_Level)
+                l_Multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(l_Level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
+
+            float l_PreciseBasePoints = ScalingMultiplier * l_Multiplier;
+            if (DeltaScalingMultiplier)
+            {
+                float l_Delta = DeltaScalingMultiplier * ScalingMultiplier * l_Multiplier * 0.5f;
+                l_PreciseBasePoints += frand(-l_Delta, l_Delta);
+            }
+
+            l_BasePoints = int32(l_PreciseBasePoints);
+
+            if (ComboScalingMultiplier)
+                l_ComboDamage = ComboScalingMultiplier * l_Multiplier;
         }
     }
     else
@@ -582,10 +609,6 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             float l_SPBonusDamage = l_SpellPower * BonusMultiplier;
             l_Value += l_APBonusDamage + l_SPBonusDamage;
         }
-
-        // Hack Fix Arcane Barrage triggered
-        if (_spellInfo->Id == 50273)
-            l_Value = float(l_BasePoints);
     }
 
     return int32(l_Value);
@@ -4116,23 +4139,6 @@ bool SpellInfo::CanTriggerHotStreak() const
         case 30455: // Ice Lance
         case 44614: // Frostfire Bolt
         case 108853:// Inferno Blast
-            return true;
-        default:
-            break;
-    }
-
-    return false;
-}
-
-bool SpellInfo::IsCustomCalculated() const
-{
-    switch (Id)
-    {
-        case 113344:// Bloodbath
-        case 124464:// Mastery: Shadowy Recall - Shadow Word: Pain
-        case 124465:// Mastery: Shadowy Recall - Vampiric Touch
-        case 124467:// Mastery: Shadowy Recall - Devouring Plague
-        case 124468:// Mastery: Shadowy Recall - Mind Flay
             return true;
         default:
             break;
