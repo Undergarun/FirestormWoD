@@ -406,7 +406,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                             20       21   22     23            24           25               26               27          28             29
                                              "speed_fly, scale, rank,  dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance,  unit_class, "
     //                                             30         31          32          33            34              35          36     37          38
-                                             "unit_flags, unit_flags2, dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, type "
+                                             "unit_flags, unit_flags2, dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
     //                                            39           40        41          42           43          44           45          46          47             48         49
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
     //                                           50      51      52     53       54     55       56     57       58              59        60        61     62       63
