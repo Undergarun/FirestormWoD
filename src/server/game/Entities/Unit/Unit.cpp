@@ -18980,6 +18980,12 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             l_Battlefield->HandleKill(l_KillerPlayer, l_KilledVictim);
     }
 
+    if (this != l_KilledVictim && l_KilledVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (OutdoorPvP* l_OutdoorPvP = l_KilledVictim->ToPlayer()->GetOutdoorPvP())
+            l_OutdoorPvP->HandlePlayerKilled(l_KilledVictim->ToPlayer());
+    }
+
     //if (victim->GetTypeId() == TYPEID_PLAYER)
     //    if (OutdoorPvP* pvp = victim->ToPlayer()->GetOutdoorPvP())
     //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();

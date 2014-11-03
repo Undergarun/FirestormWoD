@@ -232,6 +232,7 @@ class OutdoorPvP : public ZoneScript
         // handle npc/player kill
         virtual void HandleKill(Player* killer, Unit* killed);
         virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
+        virtual void HandlePlayerKilled(Player* p_Player) { }
 
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;

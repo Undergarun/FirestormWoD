@@ -70,6 +70,8 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
     ///< Sending the packet to player
     p_Player->SendDirectMessage(&l_Data);
+
+    p_Player->CastSpell(p_Player, SPELL_LOOTABLE, true);
 }
 
 void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
@@ -86,28 +88,41 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
     SendRemoveWorldStates(p_Player);
     p_Player->GetSession()->SendBfLeaveMessage(m_Guid);
+
+    p_Player->RemoveAura(SPELL_LOOTABLE);
 }
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 {
-    if (p_AreaID != ASHRAN_PRE_AREA_HORDE && p_AreaID != ASHRAN_PRE_AREA_ALLIANCE)
-        return;
-
     if (p_Player->GetMapId() != ASHRAN_NEUTRAL_MAP_ID && p_Player->GetMapId() != ASHRAN_MAP_ID)
         return;
 
-    p_Player->SwitchToPhasedMap(ASHRAN_NEUTRAL_MAP_ID);
+    if (p_AreaID == ASHRAN_PRE_AREA_HORDE || p_AreaID == ASHRAN_PRE_AREA_ALLIANCE)
+        p_Player->SwitchToPhasedMap(ASHRAN_NEUTRAL_MAP_ID);
+
+    if ((p_AreaID == ASHRAN_HORDE_BASE && p_Player->GetTeamId() == TEAM_HORDE) ||
+        (p_AreaID == ASHRAN_ALLIANCE_BASE && p_Player->GetTeamId() == TEAM_ALLIANCE))
+        p_Player->CastSpell(p_Player, SPELL_HOLD_YOUR_GROUND, true);
 }
 
 void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 {
-    if (p_AreaID != ASHRAN_PRE_AREA_HORDE && p_AreaID != ASHRAN_PRE_AREA_ALLIANCE)
-        return;
-
     if (p_Player->GetMapId() != ASHRAN_NEUTRAL_MAP_ID && p_Player->GetMapId() != ASHRAN_MAP_ID)
         return;
 
-    p_Player->SwitchToPhasedMap(ASHRAN_MAP_ID);
+    if (p_AreaID == ASHRAN_PRE_AREA_HORDE || p_AreaID == ASHRAN_PRE_AREA_ALLIANCE)
+        p_Player->SwitchToPhasedMap(ASHRAN_MAP_ID);
+
+    if (p_AreaID == ASHRAN_HORDE_BASE || p_AreaID == ASHRAN_ALLIANCE_BASE)
+        p_Player->RemoveAura(SPELL_HOLD_YOUR_GROUND);
+}
+
+void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
+{
+    // Drop half of artifact fragments at player death
+    // Even if he's killed by a creature
+    if (uint32 l_ArtifactCount = p_Player->GetCurrency(CURRENCY_TYPE_ARTIFACT_FRAGEMENT, false))
+        p_Player->ModifyCurrency(CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount / 2));
 }
 
 bool OutdoorPvPAshran::Update(uint32 p_Diff)
@@ -155,6 +170,133 @@ bool OutdoorPvPAshran::Update(uint32 p_Diff)
 
 void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
 {
+    /*
+    *p_Data << uint32(521) << uint32(0);
+    *p_Data << uint32(522) << uint32(0);
+    *p_Data << uint32(523) << uint32(0);
+    *p_Data << uint32(524) << uint32(0);
+    *p_Data << uint32(WORLD_STATE_ORE_COLLECTED_ALLIANCE) << uint32(0);
+    *p_Data << uint32(WORLD_STATE_ORE_COLLECTED_HORDE) << uint32(0);
+    *p_Data << uint32(1723) << uint32(0);
+    *p_Data << uint32(1724) << uint32(0);
+    *p_Data << uint32(1941) << uint32(0);
+    *p_Data << uint32(1942) << uint32(0);
+    *p_Data << uint32(1943) << uint32(0);
+    *p_Data << uint32(2259) << uint32(0);
+    *p_Data << uint32(2260) << uint32(0);
+    *p_Data << uint32(2261) << uint32(0);
+    *p_Data << uint32(2262) << uint32(0);
+    *p_Data << uint32(2263) << uint32(0);
+    *p_Data << uint32(2264) << uint32(0);
+    *p_Data << uint32(2265) << uint32(142);
+    *p_Data << uint32(2851) << uint32(0);
+    *p_Data << uint32(3085) << uint32(379);
+    *p_Data << uint32(3191) << uint32(16);
+    *p_Data << uint32(3327) << uint32(0);
+    *p_Data << uint32(3426) << uint32(3);
+    *p_Data << uint32(3600) << uint32(0);
+    *p_Data << uint32(3601) << uint32(0);
+    *p_Data << uint32(3610) << uint32(1);
+    *p_Data << uint32(3695) << uint32(0);
+    *p_Data << uint32(3710) << uint32(0);
+    *p_Data << uint32(3781) << uint32(0);
+    *p_Data << uint32(3801) << uint32(1);
+    *p_Data << uint32(3826) << uint32(4);
+    *p_Data << uint32(3901) << uint32(3);
+    *p_Data << uint32(4020) << uint32(1094);
+    *p_Data << uint32(4021) << uint32(7);
+    *p_Data << uint32(4022) << uint32(3);
+    *p_Data << uint32(4023) << uint32(4);
+    *p_Data << uint32(4024) << uint32(825);
+    *p_Data << uint32(4025) << uint32(269);
+    *p_Data << uint32(4062) << uint32(0);
+    *p_Data << uint32(4131) << uint32(60);
+    *p_Data << uint32(4273) << uint32(0);
+    *p_Data << uint32(4354) << uint32(time(NULL));
+    *p_Data << uint32(4375) << uint32(0);
+    *p_Data << uint32(4417) << uint32(1);
+    *p_Data << uint32(4418) << uint32(50);
+    *p_Data << uint32(4419) << uint32(0);
+    *p_Data << uint32(4485) << uint32(0);
+    *p_Data << uint32(4486) << uint32(0);
+    *p_Data << uint32(4862) << uint32(1000);
+    *p_Data << uint32(4863) << uint32(300);
+    *p_Data << uint32(4864) << uint32(100);
+    *p_Data << uint32(5037) << uint32(6);
+    *p_Data << uint32(5071) << uint32(6);
+    *p_Data << uint32(5115) << uint32(0);
+    *p_Data << uint32(5192) << uint32(0);
+    *p_Data << uint32(5193) << uint32(0);
+    *p_Data << uint32(5194) << uint32(0);
+    *p_Data << uint32(5195) << uint32(0);
+    *p_Data << uint32(5196) << uint32(0);
+    *p_Data << uint32(5332) << uint32(time(NULL));
+    *p_Data << uint32(5333) << uint32(0);
+    *p_Data << uint32(5334) << uint32(1);
+    *p_Data << uint32(5344) << uint32(0);
+    *p_Data << uint32(5360) << uint32(0);
+    *p_Data << uint32(5361) << uint32(0);
+    *p_Data << uint32(5508) << uint32(1);
+    *p_Data << uint32(5677) << uint32(0);
+    *p_Data << uint32(5678) << uint32(0);
+    *p_Data << uint32(5679) << uint32(0);
+    *p_Data << uint32(5684) << uint32(0);
+    *p_Data << uint32(6078) << uint32(0);
+    *p_Data << uint32(6095) << uint32(0);
+    *p_Data << uint32(6164) << uint32(35);
+    *p_Data << uint32(6174) << uint32(0);
+    *p_Data << uint32(6267) << uint32(25);
+    *p_Data << uint32(6306) << uint32(0);
+    *p_Data << uint32(6436) << uint32(0);
+    *p_Data << uint32(6895) << uint32(10);
+    *p_Data << uint32(6897) << uint32(10);
+    *p_Data << uint32(6898) << uint32(10);
+    *p_Data << uint32(7022) << uint32(0);
+    *p_Data << uint32(7242) << uint32(82);
+    *p_Data << uint32(7243) << uint32(1);
+    *p_Data << uint32(7244) << uint32(82);
+    *p_Data << uint32(7245) << uint32(1);
+    *p_Data << uint32(7511) << uint32(0);
+    *p_Data << uint32(7617) << uint32(5);
+    *p_Data << uint32(7618) << uint32(5);
+    *p_Data << uint32(7671) << uint32(0);
+    *p_Data << uint32(7738) << uint32(0);
+    *p_Data << uint32(7752) << uint32(0);
+    *p_Data << uint32(7774) << uint32(0);
+    *p_Data << uint32(7796) << uint32(0);
+    *p_Data << uint32(7797) << uint32(0);
+    *p_Data << uint32(7876) << uint32(0);
+    *p_Data << uint32(8012) << uint32(1);
+    *p_Data << uint32(8295) << uint32(15);
+    *p_Data << uint32(8306) << uint32(20);
+    *p_Data << uint32(8307) << uint32(20);
+    *p_Data << uint32(8391) << uint32(0);
+    *p_Data << uint32(8524) << uint32(0);
+    *p_Data << uint32(8525) << uint32(0);
+    *p_Data << uint32(8526) << uint32(0);
+    *p_Data << uint32(8527) << uint32(0);
+    *p_Data << uint32(8528) << uint32(0);
+    *p_Data << uint32(8529) << uint32(0);
+    *p_Data << uint32(8712) << uint32(0);
+    *p_Data << uint32(8722) << uint32(0);
+    *p_Data << uint32(8859) << uint32(0);
+    *p_Data << uint32(8860) << uint32(0);
+    *p_Data << uint32(8861) << uint32(0);
+    *p_Data << uint32(8862) << uint32(0);
+    *p_Data << uint32(8863) << uint32(1);
+    *p_Data << uint32(8890) << uint32(0);
+    *p_Data << uint32(8892) << uint32(0);
+    *p_Data << uint32(8911) << uint32(10);
+    *p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE) << uint32(65);
+    *p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_HORDE) << uint32(5);
+    *p_Data << uint32(8935) << uint32(1);
+    *p_Data << uint32(8938) << uint32(0);
+    *p_Data << uint32(WORLD_STATE_NEXT_BATTLE_TIMESTAMP) << uint32(time(NULL));
+    *p_Data << uint32(8946) << uint32(0);
+    *p_Data << uint32(8949) << uint32(1);
+    *p_Data << uint32(8950) << uint32(0);
+    *p_Data << uint32(WORLD_STATE_ACTIVE_STAGE) << uint32(0);
+    */
 }
 
 void OutdoorPvPAshran::SendRemoveWorldStates(Player* p_Player)

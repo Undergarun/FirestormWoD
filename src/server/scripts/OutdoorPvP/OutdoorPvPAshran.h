@@ -20,6 +20,9 @@
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "World.h"
@@ -39,32 +42,59 @@ enum eAshranDatas
     ASHRAN_NEUTRAL_MAP_ID       = 1116,
     ASHRAN_PRE_AREA_HORDE       = 7333,
     ASHRAN_PRE_AREA_ALLIANCE    = 7332,
+    ASHRAN_HORDE_BASE           = 7099,
+    ASHRAN_ALLIANCE_BASE        = 7100,
     ASHRAN_WORLD_PVP_AREA_ID    = 24,
     BATTLEFIELD_TYPE_WORLD_PVP  = 0x20000,
     PLAYER_MIN_LEVEL            = 100,
     ASHRAN_TIME_FOR_INVITE      = 20
 };
 
+enum eAshranSpells
+{
+    SPELL_LOOTABLE          = 161733,
+    SPELL_HOLD_YOUR_GROUND  = 173534,
+    SPELL_HALLOWED_GROUND   = 171496
+};
+
 enum eAshranWorldStates
 {
+    WORLD_STATE_ORE_COLLECTED_ALLIANCE          = 1581,
+    WORLD_STATE_ORE_COLLECTED_HORDE             = 1582,
     WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE         = 8933,
-    WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE_MAX     = 9801,
     WORLD_STATE_ENNEMIES_SLAIN_HORDE            = 8934,
-    WORLD_STATE_ENNEMIES_SLAIN_HORDE_MAX        = 9802,
     WORLD_STATE_NEXT_BATTLE_TIMESTAMP           = 8945,
     WORLD_STATE_ACTIVE_STAGE                    = 8955,
     WORLD_STATE_RISEN_SPIRITS_CAPTURED_ALLIANCE = 9200,
     WORLD_STATE_RISEN_SPIRITS_CAPTURED_HORDE    = 9201,
-    WORLD_STATE_ORE_COLLECTED_ALLIANCE          = 1581,
-    WORLD_STATE_ORE_COLLECTED_HORDE             = 1582,
     WORLD_STATE_LAPS_ALLIANCE                   = 9291,
     WORLD_STATE_LAPS_HORDE                      = 9292,
     WORLD_STATE_TIME_REMAINING                  = 9316,
-    WORLD_STATE_FIRES_CONTROLLED_ALLIANCE       = 9782,
-    WORLD_STATE_FIRES_CONTROLLED_HORDE          = 9783,
     WORLD_STATE_FIRES_SCORING_ALLIANCE          = 9418,
     WORLD_STATE_FIRES_SCORING_HORDE             = 9419,
+    WORLD_STATE_FIRES_CONTROLLED_ALLIANCE       = 9782,
+    WORLD_STATE_FIRES_CONTROLLED_HORDE          = 9783,
     WORLD_STATE_FIRES_SCORING_MAX               = 9784,
+    WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE_MAX     = 9801,
+    WORLD_STATE_ENNEMIES_SLAIN_HORDE_MAX        = 9802
+};
+
+enum eGraveyardsIDs
+{
+    GRAVEYARD_ALLIANCE_BASE     = 4742, // Ashran - Lane - Base GY (A)
+    GRAVEYARD_HORDE_BASE        = 4743, // Ashran - Lane - Base GY (H)
+    GRAVEYARD_ALLIANCE_CENTER   = 4822, // Ashran - Lane - Center GY (A)
+    GRAVEYARD_HORDE_CENTER      = 4825, // Ashran - Lane - Center GY (H)
+    GRAVEYARD_STAGE_1_ALLIANCE  = 4769, // Ashran - Lane - Stage 1 (Horde Approach) - Alliance GY
+    GRAVEYARD_STAGE_1_HORDE     = 4770, // Ashran - Lane - Stage 1 (Horde Approach) - Horde GY
+    GRAVEYARD_STAGE_3_ALLIANCE  = 4768, // Ashran - Lane - Stage 3 (Alliance Approach) - Alliance GY
+    GRAVEYARD_STAGE_3_HORDE     = 4767, // Ashran - Lane - Stage 3 (Alliance Approach) - Horde GY
+    GRAVEYARD_TOWER_ALLIANCE    = 4821, // Ashran - Lane - Tower GY (A)
+    GRAVEYARD_TOWER_HORDE       = 4824, // Ashran - Lane - Tower GY (H)
+    GRAVEYARD_QUARRY_ALLIANCE   = 4717, // Ashran - Quarry - Alliance TEMP GY
+    GRAVEYARD_QUARRY_HORDE      = 4718, // Ashran - Quarry - Horde TEMP GY
+    GRAVEYARD_ARENA_ALLIANCE    = 4730, // Ashran - The Arena - Alliance GY
+    GRAVEYARD_ARENA_HORDE       = 4731  // Ashran - The Arena - Horde GY
 };
 
 Position const g_HordeTeleportPos = { 5216.443359f, -3963.191406f, 5.553593f, 6.242684f };
@@ -81,6 +111,8 @@ class OutdoorPvPAshran : public OutdoorPvP
         void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID);
         void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID);
         void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID);
+
+        void HandlePlayerKilled(Player* p_Player);
 
         bool Update(uint32 p_Diff);
 
