@@ -1750,19 +1750,15 @@ class spell_warl_burning_rush : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_burning_rush_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
-                {
-                    // Drain 4% of health every second
-                    int32 basepoints = caster->CountPctFromMaxHealth(4);
-                    caster->DealDamage(caster, basepoints, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                }
+                    amount = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_burning_rush_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
             }
         };
 
