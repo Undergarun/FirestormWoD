@@ -606,6 +606,9 @@ typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
 typedef std::set<uint32> TalentsPlaceHoldersSpell;
 typedef std::set<uint32> TalentSpellSet;
 typedef std::vector<std::list<uint32> > SpellPowerVector;
+typedef std::map<uint32, std::set<uint32>> AvaiableDifficultySpell;
+typedef std::map<std::pair<uint32, uint32>, uint32> DataStoreMapPair;
+typedef std::map<std::string, DataStoreMapPair> DatastoreDifficultyKey;
 
 class SpellMgr
 {
@@ -712,6 +715,20 @@ class SpellMgr
         // Item Upgrade datas
         uint16 GetDatasForILevel(uint16 iLevel) { return mItemUpgradeDatas.find(iLevel) != mItemUpgradeDatas.end() ? mItemUpgradeDatas[iLevel] : 0; }
 
+        // Spell Difficulty
+        uint32 GetDifficultyEntryForDataStore(std::string p_DbcName, uint32 p_SpellID, uint32 p_DifficultyID) const
+        {
+            DatastoreDifficultyKey::const_iterator l_Itr = mDatastoreSpellDifficultyKey.find(p_DbcName);
+            if (l_Itr == mDatastoreSpellDifficultyKey.end())
+                return 0;
+
+            DataStoreMapPair::const_iterator l_Itr2 = l_Itr->second.find(std::make_pair(p_SpellID, p_DifficultyID));
+            if (l_Itr2 == l_Itr->second.end())
+                return 0;
+
+            return l_Itr2->second;
+        }
+
     // Modifiers
     public:
 
@@ -735,6 +752,7 @@ class SpellMgr
         void LoadPetLevelupSpellMap();
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
+        void InitializeSpellDifficulty();
         void LoadSpellInfoStore();
         void LoadSpellClassInfo();
         void UnloadSpellInfoStore();
@@ -784,6 +802,8 @@ class SpellMgr
         std::list<uint32>          mForbiddenSpells;
         TalentsPlaceHoldersSpell   mPlaceHolderSpells;
         ItemUpgradeDatas           mItemUpgradeDatas;
+        AvaiableDifficultySpell    mAvaiableDifficultyBySpell;
+        DatastoreDifficultyKey     mDatastoreSpellDifficultyKey;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

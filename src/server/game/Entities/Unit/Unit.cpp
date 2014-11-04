@@ -643,6 +643,7 @@ bool Unit::HasCrowdControlAura(Unit* excludeCasterChannel) const
             || HasCrowdControlAuraType(SPELL_AURA_MOD_FEAR_2, excludeAura)
             || HasCrowdControlAuraType(SPELL_AURA_MOD_STUN, excludeAura)
             || HasCrowdControlAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
+            || HasCrowdControlAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
             || HasCrowdControlAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
@@ -666,6 +667,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
@@ -12986,7 +12988,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 break;
                             case 33878: // Mangle (Bear)
                                 if (ToPlayer() && HasAura(108373) &&
-                                    ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DROOD_BEAR)
+                                    ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_GUARDIAN)
                                     crit_chance += 10.0f;
                                 break;
                         }
@@ -16538,7 +16540,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_SOUL_SHARDS:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION) ? 400 : 0);
         case POWER_ECLIPSE:
-            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DROOD_BALANCE) ? 100 : 0); // Should be -100 to 100 this needs the power to be int32 instead of uint32
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE) ? 100 : 0); // Should be -100 to 100 this needs the power to be int32 instead of uint32
         case POWER_HOLY_POWER:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_PALADIN ? 3 : 0);
         case POWER_HEALTH:
@@ -16996,6 +16998,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_FEAR] = true; // Aura does not have charges but needs to be removed on trigger
     isTriggerAura[SPELL_AURA_MOD_FEAR_2] = true; // Aura does not have charges but needs to be removed on trigger
     isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
+    isTriggerAura[SPELL_AURA_MOD_ROOT_2] = true;
     isTriggerAura[SPELL_AURA_TRANSFORM] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
@@ -17033,6 +17036,7 @@ bool InitTriggerAuraData()
     isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR_2] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT_2] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
     isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
     isAlwaysTriggeredAura[SPELL_AURA_SPELL_MAGNET] = true;
@@ -17653,6 +17657,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_FEAR_2:
                     case SPELL_AURA_MOD_STUN:
                     case SPELL_AURA_MOD_ROOT:
+                    case SPELL_AURA_MOD_ROOT_2:
                     case SPELL_AURA_TRANSFORM:
                     {
                         if (IsNoBreakingCC(isVictim, target, procFlag, procExtra, attType, procSpell, damage, absorb, procAura, spellInfo))
@@ -19071,7 +19076,7 @@ void Unit::SetControlled(bool apply, UnitState state)
                     SetStunned(false);
                 break;
             case UNIT_STATE_ROOT:
-                if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
+                if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2) || GetVehicle())
                     return;
                 else
                     SetRooted(false);
@@ -19232,7 +19237,7 @@ void Unit::SetRooted(bool apply)
 
 void Unit::SetFeared(bool apply)
 {
-    if (apply && !HasAuraType(SPELL_AURA_MOD_ROOT))
+    if (apply && !HasAuraType(SPELL_AURA_MOD_ROOT) && !HasAuraType(SPELL_AURA_MOD_ROOT_2))
     {
         SetTarget(0);
 

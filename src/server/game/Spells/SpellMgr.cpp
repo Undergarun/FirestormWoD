@@ -2996,198 +2996,195 @@ static const uint32 SkillClass[MAX_CLASSES] = {0, 840, 800, 795, 921, 804, 796, 
 void SpellMgr::LoadSpellClassInfo()
 {
     mSpellClassInfo.resize(MAX_CLASSES);
-    for (int ClassID = 0; ClassID < MAX_CLASSES; ClassID++)
+    for (int l_ClassID = 0; l_ClassID < MAX_CLASSES; l_ClassID++)
     {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(ClassID);
+        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(l_ClassID);
         if (!classEntry)
             continue;
 
-        // Player damage reduction (72% base resilience)
-        mSpellClassInfo[ClassID].insert(115043);
-        mSpellClassInfo[ClassID].insert(142689);
-        // Player mastery activation
-        mSpellClassInfo[ClassID].insert(114585);
-        // Battle Fatigue
-        mSpellClassInfo[ClassID].insert(134732);
-
-        // All Rune for DK
-        if (ClassID == CLASS_DEATH_KNIGHT)
-        {
-            mSpellClassInfo[ClassID].insert(53323);
-            mSpellClassInfo[ClassID].insert(54447);
-            mSpellClassInfo[ClassID].insert(53342);
-            mSpellClassInfo[ClassID].insert(53331);
-            mSpellClassInfo[ClassID].insert(54446);
-            mSpellClassInfo[ClassID].insert(53323);
-            mSpellClassInfo[ClassID].insert(53344);
-            mSpellClassInfo[ClassID].insert(70164);
-            mSpellClassInfo[ClassID].insert(62158);
-        }
-
-        // Swift Flight Form
-        if (ClassID == CLASS_DRUID)
-            mSpellClassInfo[ClassID].insert(40120);
-
-        // Dark Soul
-        if (ClassID == CLASS_WARLOCK)
-            mSpellClassInfo[ClassID].insert(77801);
-
-        // All portals and teleports for mages and Mana Attunement
-        if (ClassID == CLASS_MAGE)
-        {
-            mSpellClassInfo[ClassID].insert(3561);
-            mSpellClassInfo[ClassID].insert(3562);
-            mSpellClassInfo[ClassID].insert(3563);
-            mSpellClassInfo[ClassID].insert(3565);
-            mSpellClassInfo[ClassID].insert(3566);
-            mSpellClassInfo[ClassID].insert(3567);
-            mSpellClassInfo[ClassID].insert(32271);
-            mSpellClassInfo[ClassID].insert(32272);
-            mSpellClassInfo[ClassID].insert(49359);
-            mSpellClassInfo[ClassID].insert(49360);
-            mSpellClassInfo[ClassID].insert(32266);
-            mSpellClassInfo[ClassID].insert(32267);
-            mSpellClassInfo[ClassID].insert(10059);
-            mSpellClassInfo[ClassID].insert(11416);
-            mSpellClassInfo[ClassID].insert(11417);
-            mSpellClassInfo[ClassID].insert(11418);
-            mSpellClassInfo[ClassID].insert(11419);
-            mSpellClassInfo[ClassID].insert(11420);
-            mSpellClassInfo[ClassID].insert(49358);
-            mSpellClassInfo[ClassID].insert(49361);
-            mSpellClassInfo[ClassID].insert(35715);
-            mSpellClassInfo[ClassID].insert(33690);
-            mSpellClassInfo[ClassID].insert(33691);
-            mSpellClassInfo[ClassID].insert(35717);
-            mSpellClassInfo[ClassID].insert(53140);
-            mSpellClassInfo[ClassID].insert(53142);
-            mSpellClassInfo[ClassID].insert(88342);
-            mSpellClassInfo[ClassID].insert(88344);
-            mSpellClassInfo[ClassID].insert(88345);
-            mSpellClassInfo[ClassID].insert(88346);
-            mSpellClassInfo[ClassID].insert(121039);
-            mSpellClassInfo[ClassID].insert(132626);
-            mSpellClassInfo[ClassID].insert(132627);
-            mSpellClassInfo[ClassID].insert(132621);
-            mSpellClassInfo[ClassID].insert(132620);
-        }
-
-        // Ancestral Focus
-        if (ClassID == CLASS_SHAMAN)
-            mSpellClassInfo[ClassID].insert(89920);
-
-        // Plate Mail skill
-        if (ClassID == CLASS_PALADIN || ClassID == CLASS_WARRIOR)
-            mSpellClassInfo[ClassID].insert(750);
-
-        // Mail skill
-        if (ClassID == CLASS_SHAMAN || ClassID == CLASS_HUNTER)
-            mSpellClassInfo[ClassID].insert(8737);
-
-        // Dual Wield
-        if (ClassID == CLASS_WARRIOR || ClassID == CLASS_HUNTER || ClassID == CLASS_ROGUE || ClassID == CLASS_DEATH_KNIGHT || ClassID == CLASS_MONK)
-            mSpellClassInfo[ClassID].insert(674);
-
-        // Natural Insight druid
-        if (ClassID == CLASS_DRUID)
-            mSpellClassInfo[ClassID].insert(112857);
-
-        // Sinister Strike Enabler
-        if (ClassID == CLASS_ROGUE)
-            mSpellClassInfo[ClassID].insert(79327);
-
         // Opening gameobject
-        if (ClassID == CLASS_MONK)
+        if (l_ClassID == CLASS_MONK)
         {
-            mSpellClassInfo[ClassID].insert(3365);
-            mSpellClassInfo[ClassID].insert(6247);
-            mSpellClassInfo[ClassID].insert(6477);
-            mSpellClassInfo[ClassID].insert(6478);
-            mSpellClassInfo[ClassID].insert(21651);
-            mSpellClassInfo[ClassID].insert(22810);
-            mSpellClassInfo[ClassID].insert(61437);
-            mSpellClassInfo[ClassID].insert(68398);
-            mSpellClassInfo[ClassID].insert(96220);
+            mSpellClassInfo[l_ClassID].insert(3365);
+            mSpellClassInfo[l_ClassID].insert(6247);
+            mSpellClassInfo[l_ClassID].insert(6477);
+            mSpellClassInfo[l_ClassID].insert(6478);
+            mSpellClassInfo[l_ClassID].insert(21651);
+            mSpellClassInfo[l_ClassID].insert(22810);
+            mSpellClassInfo[l_ClassID].insert(61437);
+            mSpellClassInfo[l_ClassID].insert(68398);
+            mSpellClassInfo[l_ClassID].insert(96220);
         }
 
-        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        for (uint32 l_I = 0; l_I < sSkillLineAbilityStore.GetNumRows(); ++l_I)
         {
-            SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(i);
-            if (!skillLine)
+            SkillLineAbilityEntry const* l_SkillLine = sSkillLineAbilityStore.LookupEntry(l_I);
+            if (!l_SkillLine)
                 continue;
 
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(skillLine->spellId);
-            if (!spellEntry)
+            SpellInfo const* l_SpellEntry = sSpellMgr->GetSpellInfo(l_SkillLine->spellId);
+            if (!l_SpellEntry)
                 continue;
 
-            if (spellEntry->SpellLevel == 0)
+            if (l_SpellEntry->SpellLevel == 0)
                 continue;
 
-            if (skillLine->skillId !=  SkillClass[ClassID] || skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+            if (l_SkillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
                 continue;
 
-            // See CGSpellBook::InitFutureSpells in client
-            if (spellEntry->Attributes & SPELL_ATTR0_TRADESPELL || spellEntry->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE
-                || spellEntry->AttributesEx8 & SPELL_ATTR8_UNK13 || spellEntry->AttributesEx4 & SPELL_ATTR4_UNK15)
+            if (l_SkillLine->skillId != SkillClass[l_ClassID])
+            {
+                if ((l_SkillLine->classmask & 1 << l_ClassID) == 0)
+                    continue;
+            }
+
+            if (sSpellMgr->IsTalent(l_SpellEntry->Id))
                 continue;
 
-            if (sSpellMgr->IsTalent(spellEntry->Id))
-                continue;
-
-            mSpellClassInfo[ClassID].insert(spellEntry->Id);
+            mSpellClassInfo[l_ClassID].insert(l_SpellEntry->Id);
         }
 
-        for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); ++i)
+        for (uint32 l_I = 0; l_I < sSpecializationSpellStore.GetNumRows(); ++l_I)
         {
-            SpecializationSpellEntry const* specializationInfo = sSpecializationSpellStore.LookupEntry(i);
-            if (!specializationInfo)
+            SpecializationSpellEntry const* l_SpecializationInfo = sSpecializationSpellStore.LookupEntry(l_I);
+            if (!l_SpecializationInfo)
                 continue;
 
-            ChrSpecializationsEntry const* chrSpec = sChrSpecializationsStore.LookupEntry(specializationInfo->SpecializationEntry);
-            if (!chrSpec)
+            ChrSpecializationsEntry const* l_ChrSpec = sChrSpecializationsStore.LookupEntry(l_SpecializationInfo->SpecializationEntry);
+            if (!l_ChrSpec)
                 continue;
 
-            mSpellClassInfo[chrSpec->ClassID].insert(specializationInfo->LearnSpell);
+            mSpellClassInfo[l_ChrSpec->ClassID].insert(l_SpecializationInfo->LearnSpell);
         }
 
-        for (uint32 i = 0; i < sMinorTalentStore.GetNumRows(); i++)
+        for (uint32 l_I = 0; l_I < sMinorTalentStore.GetNumRows(); l_I++)
         {
-            MinorTalentEntry const* minorTalent = sMinorTalentStore.LookupEntry(i);
+            MinorTalentEntry const* l_MinorTalent = sMinorTalentStore.LookupEntry(l_I);
 
-            if (!minorTalent)
+            if (!l_MinorTalent)
                 continue;
 
-            mSpecializationPerks[minorTalent->specializationID].insert(minorTalent);
+            mSpecializationPerks[l_MinorTalent->specializationID].insert(l_MinorTalent);
         }
 
     }
 }
 
-struct spellDifficultyLoadInfo
+void SpellMgr::InitializeSpellDifficulty()
 {
-    uint32 id;
-    std::list<uint32> difficultyList;
-};
+    mAvaiableDifficultyBySpell.clear();
+
+    /// SpellAuraOptions
+    for (uint32 l_I = 0; l_I < sSpellAuraOptionsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellAuraOptionsEntry const* l_SpellAuraOption = sSpellAuraOptionsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellAuraOption->m_SpellID].insert(l_SpellAuraOption->m_DifficultyID);
+
+            if (l_SpellAuraOption->m_DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellAuraOptionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellAuraOption->m_SpellID, l_SpellAuraOption->m_DifficultyID), l_SpellAuraOption->Id));
+        }
+    }
+
+    /// SpellCategories
+    for (uint32 l_I = 0; l_I < sSpellCategoriesStore.GetNumRows(); ++l_I)
+    {
+        if (SpellCategoriesEntry const* l_SpellCategories = sSpellCategoriesStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellCategories->SpellId].insert(l_SpellCategories->m_DifficultyID);
+
+            if (l_SpellCategories->m_DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellCategoriesStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellCategories->SpellId, l_SpellCategories->m_DifficultyID), l_SpellCategories->Id));
+        }
+    }
+
+    /// SpellCooldowns
+    for (uint32 l_I = 0; l_I < sSpellCooldownsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellCooldownsEntry const* l_SpellCooldown = sSpellCooldownsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellCooldown->m_SpellID].insert(l_SpellCooldown->m_DifficultyID);
+
+            if (l_SpellCooldown->m_DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellCooldownsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellCooldown->m_SpellID, l_SpellCooldown->m_DifficultyID), l_SpellCooldown->Id));
+        }
+    }
+
+    /// SpellEffect
+    for (uint32 l_I = 0; l_I < sSpellEffectStore.GetNumRows(); ++l_I)
+    {
+        if (SpellEffectEntry const* l_SpellEffect = sSpellEffectStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellEffect->EffectSpellId].insert(l_SpellEffect->EffectDifficulty);
+
+            if (l_SpellEffect->EffectDifficulty != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellEffectStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellEffect->EffectSpellId, l_SpellEffect->EffectDifficulty), l_SpellEffect->Id));
+        }
+    }
+
+    /// SpellEquippedItems
+    for (uint32 l_I = 0; l_I < sSpellEquippedItemsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellEquippedItemsEntry const* l_SpellEquippedItem = sSpellEquippedItemsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellEquippedItem->SpellID].insert(l_SpellEquippedItem->DifficultyID);
+
+            if (l_SpellEquippedItem->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellEquippedItemsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellEquippedItem->SpellID, l_SpellEquippedItem->DifficultyID), l_SpellEquippedItem->Id));
+        }
+    }
+
+    // SpellInterrupts
+    for (uint32 l_I = 0; l_I < sSpellInterruptsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellInterruptsEntry const* l_SpellInterrupt = sSpellInterruptsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellInterrupt->SpellID].insert(l_SpellInterrupt->DifficultyID);
+
+            if (l_SpellInterrupt->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellInterruptsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellInterrupt->SpellID, l_SpellInterrupt->DifficultyID), l_SpellInterrupt->Id));
+
+        }
+    }
+
+    // SpellLevels
+    for (uint32 l_I = 0; l_I < sSpellLevelsStore.GetNumRows(); ++l_I)
+    {
+        if (SpellLevelsEntry const* l_SpellLevel = sSpellLevelsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellLevel->SpellID].insert(l_SpellLevel->DifficultyID);
+
+            if (l_SpellLevel->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellLevelsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellLevel->SpellID, l_SpellLevel->DifficultyID), l_SpellLevel->Id));
+        }
+    }
+
+    // SpellTargetStriction
+    for (uint32 l_I = 0; l_I < sSpellTargetRestrictionsStore.GetNumRows(); l_I++)
+    {
+        if (SpellTargetRestrictionsEntry const* l_SpellTargetRestriction = sSpellTargetRestrictionsStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_SpellTargetRestriction->SpellId].insert(l_SpellTargetRestriction->DifficultyID);
+
+            if (l_SpellTargetRestriction->DifficultyID != Difficulty::NONE_DIFFICULTY)
+                mDatastoreSpellDifficultyKey[sSpellTargetRestrictionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellTargetRestriction->SpellId, l_SpellTargetRestriction->DifficultyID), l_SpellTargetRestriction->Id));
+        }
+    }
+}
 
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
 
-    std::map<uint32, std::set<uint32> > spellDifficultyList;
-
-    for (uint32 l_I = 0; l_I < sSpellEffectStore.GetNumRows(); ++l_I)
-        if (SpellEffectEntry const* spellEffect = sSpellEffectStore.LookupEntry(l_I))
-            spellDifficultyList[spellEffect->EffectSpellId].insert(spellEffect->EffectDifficulty);
-
     UnloadSpellInfoStore();
     for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
-        mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), NULL);
+        mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
     for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
-            std::set<uint32> difficultyInfo = spellDifficultyList[l_I];
+            std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
                 mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr));
         }
@@ -6194,17 +6191,28 @@ void SpellMgr::LoadTalentSpellInfo()
     }
 }
 
-const SpellInfo* SpellMgr::GetSpellInfo(uint32 spellId, Difficulty difficulty) const
+const SpellInfo* SpellMgr::GetSpellInfo(uint32 p_SpellID, Difficulty p_Difficulty) const
 {
-    if (spellId < GetSpellInfoStoreSize())
+    if (p_SpellID < GetSpellInfoStoreSize())
     {
-        if (mSpellInfoMap[difficulty][spellId])
-            return mSpellInfoMap[difficulty][spellId];
+        if (p_Difficulty != NONE_DIFFICULTY)
+        {
+            /// If spell isn't available in difficulty we want, check fallback difficulty ...
+            DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(p_Difficulty);
+            while (l_Difficulty != nullptr)
+            {
+                SpellInfo const* l_SpellInfo = mSpellInfoMap[l_Difficulty->ID][p_SpellID];
+                if (l_SpellInfo != nullptr)
+                    return l_SpellInfo;
 
-        return mSpellInfoMap[NONE_DIFFICULTY][spellId];
+                l_Difficulty = sDifficultyStore.LookupEntry(l_Difficulty->FallbackDifficultyID);
+            }
+        }
+
+        return mSpellInfoMap[NONE_DIFFICULTY][p_SpellID];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void SpellMgr::LoadSpellPowerInfo()

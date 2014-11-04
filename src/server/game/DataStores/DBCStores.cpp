@@ -49,6 +49,7 @@ struct WMOAreaTableTripple
 };
 
 typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
+ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 DBCStorage <AreaTableEntry>               sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry>               sAreaGroupStore(AreaGroupEntryfmt);
@@ -86,6 +87,8 @@ DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore(CriteriaTreefmt);
 DBCStorage <ModifierTreeEntry>            sModifierTreeStore(ModifierTreefmt);
 
 DBCStorage <DestructibleModelDataEntry>   sDestructibleModelDataStore(DestructibleModelDatafmt);
+DBCStorage <DifficultyEntry>              sDifficultyStore(DifficultyEntryfmt);
+
 DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore(DungeonEncounterfmt);
 DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore(DurabilityQualityfmt);
 DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore(DurabilityCostsfmt);
@@ -124,6 +127,7 @@ DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmo
 DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore(ImportPriceQualityfmt);
 DBCStorage <ImportPriceShieldEntry>       sImportPriceShieldStore(ImportPriceShieldfmt);
 DBCStorage <ImportPriceWeaponEntry>       sImportPriceWeaponStore(ImportPriceWeaponfmt);
+DBCStorage <ItemSetSpellEntry>            sItemSetSpellStore(ItemSetSpellFmt);
 DBCStorage <ItemPriceBaseEntry>           sItemPriceBaseStore(ItemPriceBasefmt);
 DBCStorage <ItemArmorQualityEntry>        sItemArmorQualityStore(ItemArmorQualityfmt);
 DBCStorage <ItemArmorShieldEntry>         sItemArmorShieldStore(ItemArmorShieldfmt);
@@ -356,13 +360,14 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureTypeStore,           dbcPath, "CreatureType.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sCurrencyTypesStore,          dbcPath, "CurrencyTypes.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDestructibleModelDataStore,  dbcPath, "DestructibleModelData.dbc");                                        // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sDifficultyStore,             dbcPath, "Difficulty.dbc");                                                   // 19027
     LoadDBC(availableDbcLocales, bad_dbc_files, sDungeonEncounterStore,       dbcPath, "DungeonEncounter.dbc");                                             // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityCostsStore,        dbcPath, "DurabilityCosts.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityQualityStore,      dbcPath, "DurabilityQuality.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesStore,                 dbcPath, "Emotes.dbc");                                                       // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesTextStore,             dbcPath, "EmotesText.dbc");                                                   // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");                                                      // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc"); 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc");                                                 // 17399
 
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
@@ -389,8 +394,8 @@ void LoadDBCStores(const std::string& dataPath)
                 std::swap(*(float*)(&info->maxZ), *(float*)(&info->minZ));
         }
     }
-    
-    LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");  
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGemPropertiesStore,          dbcPath, "GemProperties.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphPropertiesStore,        dbcPath, "GlyphProperties.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphSlotStore,              dbcPath, "GlyphSlot.dbc");                                                    // 19027
@@ -416,6 +421,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceQualityStore,     dbcPath, "ImportPriceQuality.dbc");                                           // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceShieldStore,      dbcPath, "ImportPriceShield.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceWeaponStore,      dbcPath, "ImportPriceWeapon.dbc");                                            // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetSpellStore,           dbcPath, "ItemSetSpell.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemPriceBaseStore,          dbcPath, "ItemPriceBase.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemBagFamilyStore,          dbcPath, "ItemBagFamily.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemClassStore,              dbcPath, "ItemClass.dbc");                                                    // 17399
@@ -579,17 +585,19 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
     {
         if (SpellEffectEntry const *spellEffect = sSpellEffectStore.LookupEntry(i))
-        {
             sSpellEffectMap[spellEffect->EffectSpellId].effects[spellEffect->EffectDifficulty][spellEffect->EffectIndex] = spellEffect;
-        }
     }
 
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         if (SpellEntry const * spell = sSpellStore.LookupEntry(i))
+        {
             if (const SpellEffectEntry* spellEffect = spell->GetSpellEffect(EFFECT_1, 0))
+            {
                 if (spellEffect->Effect == SPELL_EFFECT_SKILL && IsProfessionSkill(spellEffect->EffectMiscValue))
                     sSpellSkillingList.push_back(spell);
+            }
+        }
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastTimesStore,         dbcPath, "SpellCastTimes.dbc");                                               // 17399
@@ -670,6 +678,16 @@ void LoadDBCStores(const std::string& dataPath)
     // Battle pets
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetXPStore,            dbcPath, "gtBattlePetXP.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetTypeDamageModStore, dbcPath, "gtBattlePetTypeDamageMod.dbc");                                     // 17399
+
+    for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); i++)
+    {
+        ItemSetSpellEntry const* setSpells = sItemSetSpellStore.LookupEntry(i);
+
+        if (!setSpells)
+            continue;
+
+        sItemSetSpellsByItemIDStore[setSpells->ItemSetID].push_back(setSpells);
+    }
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)

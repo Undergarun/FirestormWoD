@@ -27,7 +27,7 @@
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
 DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage <ItemSparseEntry>                sItemSparseStore (ItemSparsefmt);
+DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
 DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
@@ -93,7 +93,6 @@ TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 SpellTotemMap sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
-
 typedef std::list<std::string> StoreProblemList1;
 
 uint32 DB2FilesCount = 0;

@@ -494,6 +494,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //435 SPELL_AURA_435
     &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_436
     &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
+    &AuraEffect::HandleNULL,                                      //438 SPELL_AURA_438
     &AuraEffect::HandleNULL,                                      //439 SPELL_AURA_439
     &AuraEffect::HandleAuraMultistrike,                           //440 SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     &AuraEffect::HandleAuraMultistrike,                           //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
@@ -510,7 +511,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
     &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_453
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
-    &AuraEffect::HandleNULL,                                      //455 SPELL_AURA_455
+    &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_457
     &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_458
@@ -676,6 +677,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_FEAR:
         case SPELL_AURA_MOD_STUN:
         case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOT_2:
         case SPELL_AURA_TRANSFORM:
         case SPELL_AURA_MOD_FEAR_2:
         {
@@ -870,7 +872,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
                     // In feral spec : 0.484 * $AP * cp
-                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DROOD_CAT)
+                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_FERAL)
                         amount += int32(cp * AP * 0.484f);
                     // In other spec : 0.387 * $AP * cp
                     else
@@ -4298,6 +4300,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
@@ -4331,6 +4334,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
@@ -4369,6 +4373,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
@@ -4413,6 +4418,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
@@ -4448,6 +4454,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
@@ -4522,25 +4529,33 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
 
     if (aura_immunity_list.empty())
     {
-            if (miscVal & (1<<10))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-            if (miscVal & (1<<1))
-                aura_immunity_list.push_back(SPELL_AURA_TRANSFORM);
+        if (miscVal & (1 << 10))
+            aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
 
-            // These flag can be recognized wrong:
-            if (miscVal & (1<<6))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-            if (miscVal & (1<<0))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-            if (miscVal & (1<<2))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-            if (miscVal & (1<<9))
-            {
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
-            }
-            if (miscVal & (1<<7))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DISARM);
+        if (miscVal & (1 << 1))
+            aura_immunity_list.push_back(SPELL_AURA_TRANSFORM);
+
+        // These flag can be recognized wrong:
+        if (miscVal & (1 << 6))
+            aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
+
+        if (miscVal & (1 << 0))
+        {
+            aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+            aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
+        }
+
+        if (miscVal & (1 << 2))
+            aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
+
+        if (miscVal & (1 << 9))
+        {
+            aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+            aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR_2);
+        }
+
+        if (miscVal & (1 << 7))
+            aura_immunity_list.push_back(SPELL_AURA_MOD_DISARM);
     }
 
     // apply immunities

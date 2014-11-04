@@ -72,6 +72,9 @@ uint32 GetLiquidFlags(uint32 liquidType);
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
+typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSetSpellsByItemID;
+extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
@@ -101,6 +104,7 @@ extern DBCStorage <CriteriaEntry>                sCriteriaStore;
 extern DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore;
 extern DBCStorage <ModifierTreeEntry>            sModifierTreeStore;
 extern DBCStorage <DestructibleModelDataEntry>   sDestructibleModelDataStore;
+extern DBCStorage <DifficultyEntry>              sDifficultyStore;
 extern DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore;
 extern DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore;
 extern DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore;
@@ -132,6 +136,7 @@ extern DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore;
 extern DBCStorage <ImportPriceShieldEntry>       sImportPriceShieldStore;
 extern DBCStorage <ImportPriceWeaponEntry>       sImportPriceWeaponStore;
+extern DBCStorage <ItemSetSpellEntry>            sItemSetSpellStore;
 extern DBCStorage <ItemPriceBaseEntry>           sItemPriceBaseStore;
 extern DBCStorage <ItemArmorQualityEntry>        sItemArmorQualityStore;
 extern DBCStorage <ItemArmorShieldEntry>         sItemArmorShieldStore;

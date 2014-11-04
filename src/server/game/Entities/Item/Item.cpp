@@ -30,84 +30,89 @@
 // @issue : #260
 void AddItemsSetItem(Player* player, Item* item)
 {
-    //ItemTemplate const* proto = item->GetTemplate();
-    //uint32 setid = proto->ItemSet;
+    ItemTemplate const* proto = item->GetTemplate();
+    uint32 setid = proto->ItemSet;
 
-    //ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
+    ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
 
-    //if (!set)
-    //{
-    //    sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
-    //    return;
-    //}
+    if (!set)
+    {
+        sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        return;
+    }
 
-    //if (set->required_skill_id && player->GetSkillValue(set->required_skill_id) < set->required_skill_value)
-    //    return;
+    ItemSetSpellsByItemID::const_iterator iter = sItemSetSpellsByItemIDStore.find(setid);
+    if (iter == sItemSetSpellsByItemIDStore.end())
+        return;
 
-    //ItemSetEffect* eff = NULL;
+    std::list<ItemSetSpellEntry const*> const& setSpells = iter->second;
 
-    //for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
-    //{
-    //    if (player->ItemSetEff[x] && player->ItemSetEff[x]->setid == setid)
-    //    {
-    //        eff = player->ItemSetEff[x];
-    //        break;
-    //    }
-    //}
+    if (set->required_skill_id && player->GetSkillValue(set->required_skill_id) < set->required_skill_value)
+        return;
 
-    //if (!eff)
-    //{
-    //    eff = new ItemSetEffect();
-    //    eff->setid = setid;
+    ItemSetEffect* eff = NULL;
 
-    //    size_t x = 0;
-    //    for (; x < player->ItemSetEff.size(); ++x)
-    //        if (!player->ItemSetEff[x])
-    //            break;
+    for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
+    {
+        if (player->ItemSetEff[x] && player->ItemSetEff[x]->setid == setid)
+        {
+            eff = player->ItemSetEff[x];
+            break;
+        }
+    }
 
-    //    if (x < player->ItemSetEff.size())
-    //        player->ItemSetEff[x]=eff;
-    //    else
-    //        player->ItemSetEff.push_back(eff);
-    //}
+    if (!eff)
+    {
+        eff = new ItemSetEffect();
+        eff->setid = setid;
 
-    //++eff->item_count;
+        size_t x = 0;
+        for (; x < player->ItemSetEff.size(); ++x)
+            if (!player->ItemSetEff[x])
+                break;
 
-    //for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; ++x)
-    //{
-    //    if (!set->spells [x])
-    //        continue;
-    //    //not enough for  spell
-    //    if (set->items_to_triggerspell[x] > eff->item_count)
-    //        continue;
+        if (x < player->ItemSetEff.size())
+            player->ItemSetEff[x]=eff;
+        else
+            player->ItemSetEff.push_back(eff);
+    }
 
-    //    uint32 z = 0;
-    //    for (; z < MAX_ITEM_SET_SPELLS; ++z)
-    //        if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
-    //            break;
+    ++eff->item_count;
 
-    //    if (z < MAX_ITEM_SET_SPELLS)
-    //        continue;
+    int i = 0;
+    for (auto setSpell : setSpells)
+    {
+        if (!setSpell->SpellID)
+            continue;
 
-    //    //new spell
-    //    for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
-    //    {
-    //        if (!eff->spells[y])                             // free slot
-    //        {
-    //            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
-    //            if (!spellInfo)
-    //            {
-    //                sLog->outError(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
-    //                break;
-    //            }
+        if (setSpell->SpecializationID && setSpell->SpecializationID != player->GetSpecializationId(player->GetActiveSpec()))
+            continue;
 
-    //            // spell casted only if fit form requirement, in other case will casted at form change
-    //            player->ApplyEquipSpell(spellInfo, NULL, true);
-    //            eff->spells[y] = spellInfo;
-    //            break;
-    //        }
-    //    }
-    //}
+        //not enough for  spell
+        if (setSpell->PieceRequirement > eff->item_count)
+
+        if (i < MAX_ITEM_SET_SPELLS)
+            continue;
+
+          //new spell
+        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
+        {
+            if (!eff->spells[y])                             // free slot
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(setSpell->SpellID);
+                if (!spellInfo)
+                {
+                    sLog->outError(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", setSpell->SpellID, setid);
+                    break;
+                }
+
+                // spell casted only if fit form requirement, in other case will casted at form change
+                player->ApplyEquipSpell(spellInfo, NULL, true);
+                eff->spells[y] = spellInfo;
+                break;
+            }
+        }
+    }
 }
 
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
@@ -139,26 +144,35 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     --eff->item_count;
 
-    //for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
-    //{
-    //    if (!set->spells[x])
-    //        continue;
+    ItemSetSpellsByItemID::const_iterator iter = sItemSetSpellsByItemIDStore.find(setid);
+    if (iter == sItemSetSpellsByItemIDStore.end())
+        return;
 
-    //    // enough for spell
-    //    if (set->items_to_triggerspell[x] <= eff->item_count)
-    //        continue;
+    std::list<ItemSetSpellEntry const*> const& setSpells = iter->second;
 
-    //    for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
-    //    {
-    //        if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
-    //        {
-    //            // spell can be not active if not fit form requirement
-    //            player->ApplyEquipSpell(eff->spells[z], NULL, false);
-    //            eff->spells[z]=NULL;
-    //            break;
-    //        }
-    //    }
-    //}
+    for (auto setSpell : setSpells)
+    {
+        if (!setSpell->SpellID)
+            continue;
+
+        if (setSpell->SpecializationID && setSpell->SpecializationID != player->GetSpecializationId(player->GetActiveSpec()))
+            continue;
+
+        // enough for spell
+        if (setSpell->PieceRequirement <= eff->item_count)
+            continue;
+
+        for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
+        {
+            if (eff->spells[z] && eff->spells[z]->Id == setSpell->SpellID)
+            {
+                // spell can be not active if not fit form requirement
+                player->ApplyEquipSpell(eff->spells[z], NULL, false);
+                eff->spells[z]=NULL;
+                break;
+            }
+        }
+    }
 
     if (!eff->item_count)                                    //all items of a set were removed
     {

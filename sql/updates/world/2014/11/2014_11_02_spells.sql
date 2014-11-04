@@ -4,7 +4,7 @@ DELETE FROM spell_script_names WHERE ScriptName IN
 "spell_sha_lava_lash_spread",
 "spell_sha_windfury",
 "spell_sha_flametongue",
-"spell_sha_improoved_flame_shock",
+"spell_sha_improoved_flame_shock"
 );
 
 INSERT INTO spell_script_names VALUES

@@ -797,7 +797,7 @@ class spell_pal_cleanse : public SpellScriptLoader
                                 uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
 
                                 // Epuration can dispell Magic with Sacred Cleansing
-                                if (dispelMask = DISPEL_MAGIC && !caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)
+                                if (dispelMask == DISPEL_MAGIC && !caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)
                                     continue;
 
                                 target->GetDispellableAuraList(caster, dispelMask, dispelList);

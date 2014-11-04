@@ -84,15 +84,15 @@ enum SpecIndex
     SPEC_PET_FEROCITY           = 74,
     SPEC_PET_CUNNING            = 79,
     SPEC_PET_TENACITY           = 81,
-    SPEC_DROOD_BALANCE          = 102,
-    SPEC_DROOD_CAT              = 103,
-    SPEC_DROOD_BEAR             = 104,
-    SPEC_DROOD_RESTORATION      = 105,
+    SPEC_DRUID_BALANCE          = 102,
+    SPEC_DRUID_FERAL            = 103,
+    SPEC_DRUID_GUARDIAN         = 104,
+    SPEC_DRUID_RESTORATION      = 105,
     SPEC_DK_BLOOD               = 250,
     SPEC_DK_FROST               = 251,
     SPEC_DK_UNHOLY              = 252,
-    SPEC_HUNTER_BEASTMASTER     = 253,
-    SPEC_HUNTER_MARKSMAN        = 254,
+    SPEC_HUNTER_BEASTMASTERY    = 253,
+    SPEC_HUNTER_MARKSMANSHIP    = 254,
     SPEC_HUNTER_SURVIVAL        = 255,
     SPEC_PRIEST_DISCIPLINE      = 256,
     SPEC_PRIEST_HOLY            = 257,
@@ -231,10 +231,10 @@ inline uint8 GetClassBySpec(uint32 spec)
         case SPEC_WARRIOR_PROTECTION:
             return CLASS_WARRIOR;
 
-        case SPEC_DROOD_BALANCE:
-        case SPEC_DROOD_CAT:
-        case SPEC_DROOD_BEAR:
-        case SPEC_DROOD_RESTORATION:
+        case SPEC_DRUID_BALANCE:
+        case SPEC_DRUID_FERAL:
+        case SPEC_DRUID_GUARDIAN:
+        case SPEC_DRUID_RESTORATION:
             return CLASS_DRUID;
 
         case SPEC_DK_BLOOD:
@@ -242,8 +242,8 @@ inline uint8 GetClassBySpec(uint32 spec)
         case SPEC_DK_UNHOLY:
             return CLASS_DEATH_KNIGHT;
 
-        case SPEC_HUNTER_BEASTMASTER:
-        case SPEC_HUNTER_MARKSMAN:
+        case SPEC_HUNTER_BEASTMASTERY:
+        case SPEC_HUNTER_MARKSMANSHIP:
         case SPEC_HUNTER_SURVIVAL:
             return CLASS_HUNTER;
 

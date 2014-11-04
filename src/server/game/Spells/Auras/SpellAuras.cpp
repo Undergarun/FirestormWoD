@@ -339,6 +339,7 @@ void AuraApplication::ClientUpdate(bool p_Remove)
                     break;
 
                 case SPELL_AURA_MOD_ROOT:
+                case SPELL_AURA_MOD_ROOT_2:
                     l_Mechanic = MECHANIC_ROOT;
                     break;
 

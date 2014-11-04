@@ -2079,7 +2079,7 @@ class spell_dru_eclipse : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (!_player->HasAura(SPELL_DRUID_CELESTIAL_ALIGNMENT) && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DROOD_BALANCE)
+                        if (!_player->HasAura(SPELL_DRUID_CELESTIAL_ALIGNMENT) && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DRUID_BALANCE)
                         {
                             float modifier = 1.0f;
 
@@ -2212,7 +2212,7 @@ class spell_dru_eclipse : public SpellScriptLoader
             {
                 if (Player* plr = GetCaster()->ToPlayer())
                 {
-                    if (plr->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_DROOD_RESTORATION &&
+                    if (plr->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
                         GetSpellInfo()->Id == SPELL_DRUID_WRATH)
                     {
                         int32 bp = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100);
