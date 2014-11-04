@@ -1423,47 +1423,6 @@ class spell_pri_evangelism : public SpellScriptLoader
         }
 };
 
-// Archangel - 81700
-class spell_pri_archangel : public SpellScriptLoader
-{
-    public:
-        spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
-
-        class spell_pri_archangel_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_archangel_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    int stackNumber = _player->GetAura(PRIEST_EVANGELISM_STACK)->GetStackAmount();
-                    if (!(stackNumber > 0))
-                        return;
-
-                    if (AuraPtr archangel = _player->GetAura(GetSpellInfo()->Id))
-                    {
-                        if (archangel->GetEffect(0))
-                        {
-                            archangel->GetEffect(0)->ChangeAmount(archangel->GetEffect(0)->GetAmount() * stackNumber);
-                            _player->RemoveAura(PRIEST_EVANGELISM_STACK);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_archangel_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_archangel_SpellScript;
-        }
-};
-
 // Cascade - 127630 (damage trigger) or Cascade - 120786 (heal trigger)
 class spell_pri_cascade_second : public SpellScriptLoader
 {
@@ -2230,7 +2189,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_touch();
     new spell_pri_renew();
     new spell_pri_evangelism();
-    new spell_pri_archangel();
     new spell_pri_levitate();
 
     // Player Script
