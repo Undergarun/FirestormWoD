@@ -45,7 +45,6 @@ AreaTrigger::AreaTrigger() : WorldObject(false), m_Duration(0), m_Caster(NULL), 
 
 AreaTrigger::~AreaTrigger()
 {
-    ASSERT(!m_Caster);
 }
 
 void AreaTrigger::AddToWorld()
@@ -106,6 +105,43 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo cons
 
     if (spell->GetDuration() != -1)
         SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
+
+    SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
+
+    if (!GetMap()->AddToMap(this))
+        return false;
+
+    return true;
+}
+
+bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map)
+{
+    ASSERT(p_Map != nullptr);
+
+    SetMap(p_Map);
+    Relocate(p_Pos);
+    if (!IsPositionValid())
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (entry %u) not created. Invalid coordinates (X: %f Y: %f)", p_Entry, GetPositionX(), GetPositionY());
+        return false;
+    }
+
+    WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_PhaseMask);
+
+    SetEntry(p_Entry);
+    SetDuration(p_Duration);
+    SetObjectScale(1);
+
+    SetGuidValue(AREATRIGGER_FIELD_CASTER, 0);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, 0);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, p_SpellVisualID);
+
+    SetSource(p_Pos);
+    SetTrajectory(AREATRIGGER_INTERPOLATION_NONE);
+    SetUpdateTimerInterval(60);
+
+    if (p_Duration != -1)
+        SetUInt32Value(AREATRIGGER_FIELD_DURATION, p_Duration);
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
 
@@ -608,19 +644,19 @@ void AreaTrigger::Remove(uint32 p_time)
 
 void AreaTrigger::BindToCaster()
 {
-    //ASSERT(!m_caster);
     m_Caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
-    //ASSERT(GetCaster());
-    //ASSERT(GetCaster()->GetMap() == GetMap());
+
     if (m_Caster)
         m_Caster->_RegisterAreaTrigger(this);
 }
 
 void AreaTrigger::UnbindFromCaster()
 {
-    ASSERT(m_Caster);
-    m_Caster->_UnregisterAreaTrigger(this);
-    m_Caster = NULL;
+    if (m_Caster)
+    {
+        m_Caster->_UnregisterAreaTrigger(this);
+        m_Caster = NULL;
+    }
 }
 
 void AreaTrigger::SendMovementUpdate()

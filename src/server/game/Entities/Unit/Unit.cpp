@@ -16417,10 +16417,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     m_powers[l_PowerIndex] = p_PowerValue;
 
-    uint32 regen_diff = getMSTime() - m_lastRegenTime[l_PowerIndex];
-
-    m_powers[l_PowerIndex] = p_PowerValue;
-
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
     if (p_Regen)
@@ -18978,6 +18974,12 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
 
         if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(l_KillerPlayer->GetZoneId()))
             l_Battlefield->HandleKill(l_KillerPlayer, l_KilledVictim);
+    }
+
+    if (this != l_KilledVictim && l_KilledVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (OutdoorPvP* l_OutdoorPvP = l_KilledVictim->ToPlayer()->GetOutdoorPvP())
+            l_OutdoorPvP->HandlePlayerKilled(l_KilledVictim->ToPlayer());
     }
 
     //if (victim->GetTypeId() == TYPEID_PLAYER)

@@ -24,3 +24,20 @@ INSERT INTO spell_script_names VALUES
     (102280, 'spell_dru_activate_cat_form'),
     (1850, 'spell_dru_activate_cat_form');
 INSERT INTO spell_script_names VALUES (18562, 'spell_dru_swiftmend');
+
+-- warlock
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_demonic_slash';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_fury_ward';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_dark_apotheosis';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_glyph_of_demon_hunting';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_soulburn_drain_life';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_soulburn_remove';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_void_ray';
+INSERT INTO spell_script_names VALUES (103964, 'spell_warl_touch_of_chaos');
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_metamorphosis_cost';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_wave';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_demonic_leap_jump';
+INSERT INTO spell_script_names VALUES (169157, 'spell_warl_demonic_leap_jump');
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_bolt';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_fel_flame';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_pandemic';

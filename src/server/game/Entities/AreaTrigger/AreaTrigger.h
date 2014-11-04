@@ -129,6 +129,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void RemoveFromWorld();
 
         bool CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest);
+        bool CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map);
+
         void Update(uint32 p_time);
 
         void Remove(uint32 p_time);

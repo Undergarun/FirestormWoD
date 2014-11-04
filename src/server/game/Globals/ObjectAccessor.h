@@ -198,6 +198,7 @@ class ObjectAccessor
         static Creature* FindCreature(uint64);
         static Unit* FindUnit(uint64);
         static Player* FindPlayerByName(const char* name);
+        static GameObject* FindGameObject(uint64);
 
         // when using this, you must use the hashmapholder's lock
         static HashMapHolder<Player>::MapType const& GetPlayers()
