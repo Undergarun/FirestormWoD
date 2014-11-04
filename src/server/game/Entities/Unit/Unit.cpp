@@ -179,6 +179,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     , m_HostileRefManager(this)
     , _lastDamagedTime(0)
     , m_disableHealthRegen(false)
+    , m_disableEnterEvadeMode(false)
 
 {
 #ifdef _MSC_VER
