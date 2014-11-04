@@ -3983,7 +3983,6 @@ void Player::GiveGatheringXP()
 // Current player experience not update (must be update by caller)
 void Player::GiveLevel(uint8 level)
 {
-
     uint8 oldLevel = getLevel();
     if (level == oldLevel)
         return;
@@ -4054,6 +4053,11 @@ void Player::GiveLevel(uint8 level)
 
     UpdateAllStats();
     _ApplyAllLevelScaleItemMods(true);                      // Moved to above SetFullHealth so player will have full health from Heirlooms
+
+    // Refresh amount of all auras (aura which use scaling for basepoint calcul need to be refresh at level up ...)
+    AuraApplicationMap const& l_AppliedAuras =  GetAppliedAuras();
+    for (AuraApplicationMap::const_iterator i = l_AppliedAuras.begin(); i != l_AppliedAuras.end(); ++i)
+        i->second->GetBase()->RecalculateAmountOfEffects(true);
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetFullHealth();

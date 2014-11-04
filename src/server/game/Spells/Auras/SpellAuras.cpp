@@ -1336,13 +1336,13 @@ bool Aura::HasEffectType(AuraType type) const
     return false;
 }
 
-void Aura::RecalculateAmountOfEffects()
+void Aura::RecalculateAmountOfEffects(bool p_Force)
 {
     ASSERT (!IsRemoved());
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (HasEffect(i))
-            m_effects[i]->RecalculateAmount(caster);
+            m_effects[i]->RecalculateAmount(caster, p_Force);
 }
 
 void Aura::HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply)
