@@ -64,7 +64,7 @@ enum WarlockSpells
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
-    //WARLOCK_METAMORPHOSIS                   = 103958,
+    WARLOCK_METAMORPHOSIS                   = 103958,
     WARLOCK_DEMONIC_LEAP_JUMP               = 54785,
     WARLOCK_ITEM_S12_TIER_4                 = 131632,
     WARLOCK_TWILIGHT_WARD_S12               = 131623,
@@ -1346,7 +1346,7 @@ class spell_warl_chaos_wave : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA) && caster->getLevel() >= 69)
+                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
                         caster->CastSpell(caster, WARLOCK_MOLTEN_CORE, true);
             }
 
@@ -1359,34 +1359,6 @@ class spell_warl_chaos_wave : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_chaos_wave_SpellScript();
-        }
-};
-
-// Metamorphosis - 103958
-class spell_warl_metamorphosis_cost : public SpellScriptLoader
-{
-    public:
-        spell_warl_metamorphosis_cost() : SpellScriptLoader("spell_warl_metamorphosis_cost") { }
-
-        class spell_warl_metamorphosis_cost_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_metamorphosis_cost_AuraScript);
-
-            void OnTick(constAuraEffectPtr /*aurEff*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->EnergizeBySpell(caster, WARLOCK_METAMORPHOSIS, -6, POWER_DEMONIC_FURY);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_metamorphosis_cost_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_metamorphosis_cost_AuraScript();
         }
 };
 
@@ -3002,9 +2974,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_molten_core_dot();
     new spell_warl_decimate();
     new spell_warl_demonic_call();
-    new spell_warl_void_ray();
+    new spell_warl_touch_of_chaos();
     new spell_warl_chaos_wave();
-    new spell_warl_metamorphosis_cost();
     new spell_warl_immolation_aura();
     new spell_warl_dark_bargain_on_absorb();
     new spell_warl_dark_regeneration();
