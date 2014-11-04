@@ -38,8 +38,6 @@ enum PriestSpells
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
     PRIEST_LEAP_OF_FAITH                            = 73325,
     PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
-    PRIEST_INNER_WILL                               = 73413,
-    PRIEST_INNER_FIRE                               = 588,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -1902,7 +1900,7 @@ class spell_pri_halo_damage : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         int32 damage = GetHitDamage();
-                        damage += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 1.95f);
+                        damage += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 3.26f);
 
                         float Distance = _player->GetDistance(target);
                         float pct = Distance / 25.0f;
@@ -1937,52 +1935,6 @@ class spell_pri_halo_damage : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_halo_damage_SpellScript;
-        }
-};
-
-// Inner Fire - 588 or Inner Will - 73413
-class spell_pri_inner_fire_or_will : public SpellScriptLoader
-{
-    public:
-        spell_pri_inner_fire_or_will() : SpellScriptLoader("spell_pri_inner_fire_or_will") { }
-
-        class spell_pri_inner_fire_or_will_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_inner_fire_or_will_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_INNER_FIRE) || !sSpellMgr->GetSpellInfo(PRIEST_INNER_WILL))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (GetSpellInfo()->Id == PRIEST_INNER_FIRE)
-                    {
-                        if (_player->HasAura(PRIEST_INNER_WILL))
-                            _player->RemoveAura(PRIEST_INNER_WILL);
-                    }
-                    else if (GetSpellInfo()->Id == PRIEST_INNER_WILL)
-                    {
-                        if (_player->HasAura(PRIEST_INNER_FIRE))
-                            _player->RemoveAura(PRIEST_INNER_FIRE);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_inner_fire_or_will_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_inner_fire_or_will_SpellScript;
         }
 };
 
@@ -2040,7 +1992,7 @@ class spell_pri_psychic_horror : public SpellScriptLoader
                             if (AuraPtr psychicHorror = target->GetAura(64044))
                             {
                                 int32 maxDuration = psychicHorror->GetMaxDuration();
-                                int32 newDuration = maxDuration + currentPower * IN_MILLISECONDS;
+                                int32 newDuration = maxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + currentPower * IN_MILLISECONDS;
                                 psychicHorror->SetDuration(newDuration);
 
                                 if (newDuration > maxDuration)
@@ -2391,7 +2343,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_first();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
-    new spell_pri_inner_fire_or_will();
     new spell_pri_leap_of_faith();
     new spell_pri_psychic_horror();
     new spell_pri_guardian_spirit();
