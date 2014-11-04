@@ -1361,7 +1361,7 @@ class spell_warl_immolation_aura : public SpellScriptLoader
         }
 };
 
-// Dark Bargain - 110013
+// Dark Bargain - 110913
 class spell_warl_dark_bargain_on_absorb : public SpellScriptLoader
 {
     public:
@@ -1440,12 +1440,15 @@ class spell_warl_soul_leech : public SpellScriptLoader
                 {
                     if (_player->HasAura(WARLOCK_SOUL_LEECH_AURA))
                     {
-                        int32 bp = int32(GetHitDamage() / 10);
-
-                        _player->CastCustomSpell(_player, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
+                        int32 bp = _player->GetDamageDoneInPastSecs(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
                         if (Pet* pet = _player->GetPet())
+                        {
+                            bp += pet->GetDamageDoneInPastSecs(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                             _player->CastCustomSpell(pet, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
+                        }
+
+                        _player->CastCustomSpell(_player, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
                     }
                 }
             }
@@ -1480,16 +1483,16 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
 
                     if (Guardian* guardian = caster->GetGuardianPet())
                     {
-                        sacrifiedHealth = guardian->CountPctFromCurHealth(25);
+                        sacrifiedHealth = guardian->CountPctFromCurHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                         guardian->ModifyHealth(-sacrifiedHealth);
                     }
                     else
                     {
-                        sacrifiedHealth = caster->CountPctFromCurHealth(25);
+                        sacrifiedHealth = caster->CountPctFromCurHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                         caster->ModifyHealth(-sacrifiedHealth);
                     }
 
-                    amount = sacrifiedHealth * 4;
+                    amount = CalculatePct(sacrifiedHealth, aurEff->GetBaseAmount() / 100);
                 }
             }
 
