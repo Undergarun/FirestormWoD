@@ -39,3 +39,5 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_wave';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_demonic_leap_jump';
 INSERT INTO spell_script_names VALUES (169157, 'spell_warl_demonic_leap_jump');
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_bolt';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_fel_flame';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_pandemic';

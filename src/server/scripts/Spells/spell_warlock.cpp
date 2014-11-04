@@ -42,9 +42,10 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
+    WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
-    WARLOCK_DOOM                            = 603,
+    //WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
     WARLOCK_IMMOLATE                        = 348,
     WARLOCK_SHADOWBURN_ENERGIZE             = 125882,
@@ -122,7 +123,7 @@ enum WarlockSpells
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
-    //WARLOCK_DARK_APOTHEOSIS                 = 114168,
+    WARLOCK_DARK_APOTHEOSIS                 = 114168,
     //WARLOCK_METAMORPHOSIS_OVERRIDER         = 103965,
     //WARLOCK_METAMORPHOSIS_RESISTANCE        = 54817,
     //WARLOCK_METAMORPHOSIS_MODIFIERS         = 54879,
@@ -2162,7 +2163,7 @@ class spell_warl_shadowburn : public SpellScriptLoader
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 20); // Give 2 Burning Embers
+                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * 10); // Give 2 Burning Embers
                     else if (removeMode == AURA_REMOVE_BY_EXPIRE)
                         caster->CastSpell(caster, WARLOCK_SHADOWBURN_ENERGIZE, true);
                 }
@@ -2218,91 +2219,6 @@ class spell_warl_burning_embers : public SpellScriptLoader
         }
 };
 
-// Fel Flame - 77799
-class spell_warl_fel_flame : public SpellScriptLoader
-{
-    public:
-        spell_warl_fel_flame() : SpellScriptLoader("spell_warl_fel_flame") { }
-
-        class spell_warl_fel_flame_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_fel_flame_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 15, POWER_DEMONIC_FURY);
-
-                        // Increases the duration of Corruption and Unstable Affliction by 6s
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-                        {
-                            if (AuraPtr unstableAffliction = target->GetAura(WARLOCK_UNSTABLE_AFFLICTION, _player->GetGUID()))
-                            {
-                                unstableAffliction->SetDuration(unstableAffliction->GetDuration() + 6000);
-                                unstableAffliction->SetNeedClientUpdateForTargets();
-                            }
-                            if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, _player->GetGUID()))
-                            {
-                                corruption->SetDuration(corruption->GetDuration() + 6000);
-                                corruption->SetNeedClientUpdateForTargets();
-                            }
-                        }
-                        // Increases the duration of Corruption by 6s
-                        else if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        {
-                            if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, _player->GetGUID()))
-                            {
-                                corruption->SetDuration(corruption->GetDuration() + 6000);
-                                corruption->SetNeedClientUpdateForTargets();
-                            }
-                            else if (AuraPtr doom = target->GetAura(WARLOCK_DOOM, _player->GetGUID()))
-                            {
-                                doom->SetDuration(doom->GetDuration() + 6000);
-                                doom->SetNeedClientUpdateForTargets();
-                            }
-                        }
-                        // Increases the duration of Immolate by 6s
-                        else if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-                        {
-                            if (AuraPtr corruption = target->GetAura(WARLOCK_IMMOLATE, _player->GetGUID()))
-                            {
-                                corruption->SetDuration(corruption->GetDuration() + 6000);
-                                corruption->SetNeedClientUpdateForTargets();
-                            }
-
-                            if (GetSpell()->IsCritForTarget(target))
-                                _player->SetPower(POWER_BURNING_EMBERS, _player->GetPower(POWER_BURNING_EMBERS) + 2);
-                            else
-                                _player->SetPower(POWER_BURNING_EMBERS, _player->GetPower(POWER_BURNING_EMBERS) + 1);
-                        }
-                        // Increases the duration of Corruption by 6s
-                        else
-                        {
-                            if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, _player->GetGUID()))
-                            {
-                                corruption->SetDuration(corruption->GetDuration() + 6000);
-                                corruption->SetNeedClientUpdateForTargets();
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_fel_flame_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_fel_flame_SpellScript();
-        }
-};
-
 // Drain Life - 689
 class spell_warl_drain_life : public SpellScriptLoader
 {
@@ -2321,13 +2237,8 @@ class spell_warl_drain_life : public SpellScriptLoader
                     if (!_player)
                         return;
 
-                    // Restoring 2% of the caster's total health every 1s
-                    int32 basepoints = _player->GetMaxHealth() / 50;
-
-                    // In Demonology spec : Generates 10 Demonic Fury per second
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        _player->EnergizeBySpell(_player, WARLOCK_DRAIN_LIFE_ORIGINAL, 10, POWER_DEMONIC_FURY);
-
+                    // Restoring 1% of the caster's total health every 1s
+                    int32 basepoints = CalculatePct(_player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
                     _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
                 }
             }
@@ -2375,10 +2286,10 @@ class spell_warl_soul_harverst : public SpellScriptLoader
                     {
                         if (!_player->isInCombat() && !_player->InArena() && _player->isAlive())
                         {
-                            _player->SetHealth(_player->GetHealth() + int32(_player->GetMaxHealth() / 50));
+                            _player->SetHealth(_player->GetHealth() + CalculatePct(_player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000));
 
                             if (Pet* pet = _player->GetPet())
-                                pet->SetHealth(pet->GetHealth() + int32(pet->GetMaxHealth() / 50));
+                                pet->SetHealth(pet->GetHealth() + CalculatePct(_player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000));
                         }
                     }
 
@@ -2419,7 +2330,7 @@ class spell_warl_life_tap : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 amount = int32(caster->GetMaxHealth() * 0.15f);
+                    int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
                     {
@@ -2569,6 +2480,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
         }
 };
 
+// Seed of Corruption - 27285
 class spell_warl_seed_of_corruption : public SpellScriptLoader
 {
     public:
@@ -2596,6 +2508,7 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
         }
 };
 
+// Soulshatter - 29858
 class spell_warl_soulshatter : public SpellScriptLoader
 {
     public:
@@ -2785,72 +2698,6 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 146739, Agony - 980, Unstable Affliction - 30108, Immolate - 348, Doom - 603
-// Pandemic - 131973
-class spell_warl_pandemic : public SpellScriptLoader
-{
-    public:
-        spell_warl_pandemic() : SpellScriptLoader("spell_warl_pandemic") { }
-
-        class spell_warl_pandemic_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_pandemic_SpellScript);
-
-            int32 duration;
-
-            void HandlePandemic()
-            {
-                if (Player* player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, player->GetGUID()))
-                            duration = aura->GetDuration();
-                        else
-                            duration = 0;
-                    }
-                }
-            }
-
-            void HandleOnHit()
-            {
-                if (Player* player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (AuraPtr aura = target->GetAura(GetSpellInfo()->Id, player->GetGUID()))
-                        {
-                            int32 newDuration;
-                            int32 maxDuration = sSpellMgr->GetSpellInfo(aura->GetId())->GetMaxDuration();
-                            int32 newMaxDuration = maxDuration * 1.5f;
-                            if (duration == 0)
-                                newDuration = maxDuration;
-                            else
-                                newDuration = duration + maxDuration < newMaxDuration ? duration + maxDuration : newMaxDuration;
-                            aura->SetDuration(newDuration);
-
-                            if (newDuration > maxDuration)
-                                aura->SetMaxDuration(newDuration);
-
-                            duration = 0;
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_warl_pandemic_SpellScript::HandlePandemic);
-                OnHit += SpellHitFn(spell_warl_pandemic_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_pandemic_SpellScript();
-        }
-};
-
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
@@ -2900,7 +2747,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
-    new spell_warl_fel_flame();
     new spell_warl_drain_life();
     new spell_warl_soul_harverst();
     new spell_warl_life_tap();
@@ -2912,5 +2758,4 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
-    new spell_warl_pandemic();
 }
