@@ -47,14 +47,14 @@ enum ClientType
 /// 19027
 const struct RewriteItem Win32Patchs[] = 
 {
-    { 0x0A374D0, sizeof(config_data),               config_data                 },                  ///< Change default configuration file
-    { 0x0A5B80C, sizeof(build_date_data),           build_date_data             },                  ///< Change build date
-    { 0x0AFB0A4, sizeof(bnet_portal_data),          bnet_portal_data            },                  ///< Change bnet portal
-    { 0x0B9B7E0, sizeof(bnet_logon_data),           bnet_logon_data             },                  ///< Change bnet logon
-    { 0x0A6722C, sizeof(bnet_agent_data),           bnet_agent_data             },                  ///< Change bnet agent
-    { 0x0A36760, sizeof(bnet_versions_data),        bnet_versions_data          },                  ///< Change bnet versions data
-    { 0x0A3678C, sizeof(bnet_cdns_data),            bnet_cdns_data              },                  ///< Change bnet cdns data
-    { 0x0248430, sizeof(jam_dispatch_check_data),   jam_dispatch_check_data     },                  ///< Bypass jam dispatch socket check
+    { 0x00A392C8, sizeof(config_data),               config_data                 },                  ///< Change default configuration file
+    { 0x00A5D85C, sizeof(build_date_data),           build_date_data             },                  ///< Change build date
+    { 0x00AFD3C4, sizeof(bnet_portal_data),          bnet_portal_data            },                  ///< Change bnet portal
+    { 0x00B9DBE0, sizeof(bnet_logon_data),           bnet_logon_data             },                  ///< Change bnet logon
+    { 0x00A69234, sizeof(bnet_agent_data),           bnet_agent_data             },                  ///< Change bnet agent
+    { 0x00A38560, sizeof(bnet_versions_data),        bnet_versions_data          },                  ///< Change bnet versions data
+    { 0x00A3858C, sizeof(bnet_cdns_data),            bnet_cdns_data              },                  ///< Change bnet cdns data
+    { 0x002496D7, sizeof(jam_dispatch_check_data),   jam_dispatch_check_data     },                  ///< Bypass jam dispatch socket check
 };
 
 const struct RewriteItem Mac64Patchs[] = 
