@@ -5706,6 +5706,8 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131369)
     {
         m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+        m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT_2);
+
         // Overkill
         if (m_caster->ToPlayer()->HasSpell(58426))
             m_caster->CastSpell(m_caster, 58427, true);

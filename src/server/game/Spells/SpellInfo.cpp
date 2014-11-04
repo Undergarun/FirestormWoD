@@ -2224,7 +2224,8 @@ AuraStateType SpellInfo::GetAuraState() const
     if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (Effects[i].IsAura() && (Effects[i].ApplyAuraName == SPELL_AURA_MOD_STUN
-                || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT))
+                || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT
+                || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT_2))
                 return AURA_STATE_FROZEN;
 
     switch (Id)
@@ -3009,6 +3010,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                         return true;
                     return false;
                 case SPELL_AURA_MOD_ROOT:
+                case SPELL_AURA_MOD_ROOT_2:
                 case SPELL_AURA_MOD_SILENCE:
                 case SPELL_AURA_GHOST:
                 case SPELL_AURA_PERIODIC_LEECH:
@@ -3344,6 +3346,7 @@ bool SpellInfo::_IsCrowdControl(uint8 effMask, bool nodamage) const
             case SPELL_AURA_MOD_FEAR:
             case SPELL_AURA_MOD_FEAR_2:
             case SPELL_AURA_MOD_ROOT:
+            case SPELL_AURA_MOD_ROOT_2:
             case SPELL_AURA_TRANSFORM:
                 if (!IsPositive())
                     return true;

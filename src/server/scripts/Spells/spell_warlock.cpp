@@ -909,6 +909,7 @@ class spell_warl_unbound_will : public SpellScriptLoader
                     caster->RemoveAurasByType(SPELL_AURA_MOD_FEAR_2);
                     caster->RemoveAurasByType(SPELL_AURA_MOD_STUN);
                     caster->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+                    caster->RemoveAurasByType(SPELL_AURA_MOD_ROOT_2);
                     caster->RemoveAurasByType(SPELL_AURA_TRANSFORM);
                 }
             }
@@ -2045,7 +2046,7 @@ class spell_warl_demonic_leap_jump : public SpellScriptLoader
                     caster->RemoveAura(WARLOCK_METAMORPHOSIS);
                     return SPELL_FAILED_NOPATH;
                 }
-                else if (caster->HasAuraType(SPELL_AURA_MOD_ROOT))
+                else if (caster->HasAuraType(SPELL_AURA_MOD_ROOT) || caster->HasAuraType(SPELL_AURA_MOD_ROOT_2))
                 {
                     caster->RemoveAura(WARLOCK_METAMORPHOSIS);
                     return SPELL_FAILED_ROOTED;
