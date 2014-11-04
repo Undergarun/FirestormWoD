@@ -352,8 +352,8 @@ public:
     uint32 StartRecoveryCategory;
     uint32 StartRecoveryTime;
     uint32 InterruptFlags;
-    uint32 AuraInterruptFlags;
-    uint32 ChannelInterruptFlags;
+    uint64 AuraInterruptFlags;
+    uint64 ChannelInterruptFlags;
     uint32 ProcFlags;
     uint32 ProcChance;
     uint32 ProcCharges;
@@ -428,6 +428,9 @@ public:
 
     // TalentInfo
     uint32 talentId;
+
+    // Difficulty
+    uint32 DifficultyID;
 
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
@@ -596,7 +599,6 @@ public:
     bool IsAffectedByResilience() const;
     bool IsLethalPoison() const;
     bool CanTriggerHotStreak() const;
-    bool IsCustomCalculated() const;
     bool IsInterruptSpell() const;
     bool CannotBeAddedToCharm() const;
     bool IsCustomArchaeologySpell() const;

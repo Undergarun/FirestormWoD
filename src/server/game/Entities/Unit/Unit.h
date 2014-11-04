@@ -562,17 +562,17 @@ enum WeaponAttackType
     MAX_ATTACK
 };
 
-// Last check : 6.0.2
+// Last check : 6.0.3
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,    // Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
-    CR_DEFENSE_SKILL                    = 1,    // Deprecated
+    CR_WEAPON_SKILL                     = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
+    CR_DEFENSE_SKILL                    = 1,    //< Deprecated
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
     CR_BLOCK                            = 4,
-    CR_HIT_MELEE                        = 5,    // Deprecated
-    CR_HIT_RANGED                       = 6,    // Deprecated
-    CR_HIT_SPELL                        = 7,    // Deprecated
+    CR_HIT_MELEE                        = 5,    //< Deprecated
+    CR_HIT_RANGED                       = 6,    //< Deprecated
+    CR_HIT_SPELL                        = 7,    //< Deprecated
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
@@ -586,18 +586,18 @@ enum CombatRating
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
     CR_AVOIDANCE                        = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,   // Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
-    CR_WEAPON_SKILL_RANGED              = 22,   // Deprecated
-    CR_EXPERTISE                        = 23,   // Deprecated
-    CR_ARMOR_PENETRATION                = 24,   // Deprecated
+    CR_WEAPON_SKILL_OFFHAND             = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
+    CR_WEAPON_SKILL_RANGED              = 22,   //< Deprecated
+    CR_EXPERTISE                        = 23,   //< Deprecated
+    CR_ARMOR_PENETRATION                = 24,   //< Deprecated
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,   // Deprecated, CR_UNUSED_3 in PaperDollFrame.lua
-    CR_UNUSED                           = 27,   // CR_UNUSED_4 in PaperDollFrame.lua
+    CR_PVP_POWER                        = 26,   //< WoD item doesn't have pvp power, and blizz has removed pvp power from the paper doll, but i think the stat still exist for MoP items ...
+    CR_UNUSED_4                         = 27,   //< CR_UNUSED_4 in PaperDollFrame.lua
     CR_VERSATILITY_DAMAGE_DONE          = 28,
-    CR_VERSATILITY_DAMAGE_TAKEN         = 29,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 30,
 };
 
-#define MAX_COMBAT_RATING         30
+#define MAX_COMBAT_RATING         31
 
 enum DamageEffectType
 {
@@ -1670,7 +1670,7 @@ class Unit : public WorldObject
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2); }
-        bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
+        bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;

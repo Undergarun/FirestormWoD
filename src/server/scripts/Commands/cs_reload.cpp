@@ -456,13 +456,12 @@ public:
             cInfo->speed_fly           = fields[l_Index++].GetFloat();
             cInfo->scale               = fields[l_Index++].GetFloat();
             cInfo->rank                = fields[l_Index++].GetUInt8();
-            cInfo->mindmg              = fields[l_Index++].GetFloat();
-            cInfo->maxdmg              = fields[l_Index++].GetFloat();
             cInfo->dmgschool           = fields[l_Index++].GetUInt8();
-            cInfo->attackpower         = fields[l_Index++].GetUInt32();
             cInfo->dmg_multiplier      = fields[l_Index++].GetFloat();
             cInfo->baseattacktime      = fields[l_Index++].GetUInt32();
             cInfo->rangeattacktime     = fields[l_Index++].GetUInt32();
+            cInfo->baseVariance        = fields[l_Index++].GetFloat();
+            cInfo->rangeVariance       = fields[l_Index++].GetFloat();
             cInfo->unit_class          = fields[l_Index++].GetUInt8();
             cInfo->unit_flags          = fields[l_Index++].GetUInt32();
             cInfo->unit_flags2         = fields[l_Index++].GetUInt32();
@@ -472,9 +471,6 @@ public:
             cInfo->trainer_spell       = fields[l_Index++].GetUInt32();
             cInfo->trainer_class       = fields[l_Index++].GetUInt8();
             cInfo->trainer_race        = fields[l_Index++].GetUInt8();
-            cInfo->minrangedmg         = fields[l_Index++].GetFloat();
-            cInfo->maxrangedmg         = fields[l_Index++].GetFloat();
-            cInfo->rangedattackpower   = fields[l_Index++].GetUInt16();
             cInfo->type                = fields[l_Index++].GetUInt8();
             cInfo->type_flags          = fields[l_Index++].GetUInt32();
             cInfo->type_flags2         = fields[l_Index++].GetUInt32();

@@ -1,0 +1,2 @@
+ALTER TABLE `creature_template` DROP COLUMN `attackpower`, DROP COLUMN `mindmg`, DROP COLUMN `maxdmg`, DROP COLUMN `minrangedmg`, DROP COLUMN `maxrangedmg`, DROP COLUMN `rangedattackpower`; 
+ALTER TABLE `creature_template` ADD COLUMN `baseVariance` FLOAT(10) DEFAULT '1' NOT NULL AFTER `rangeattacktime`, ADD COLUMN `rangeVariance` FLOAT(10) DEFAULT '1' NOT NULL AFTER `baseVariance`;
