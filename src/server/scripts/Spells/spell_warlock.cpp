@@ -76,6 +76,7 @@ enum WarlockSpells
     WARLOCK_MOLTEN_CORE                     = 122355,
     WARLOCK_MOLTEN_CORE_AURA                = 122351,
     WARLOCK_WILD_IMP_SUMMON                 = 104317,
+    WARLOCK_DEMONIC_CALL                    = 114925,
     WARLOCK_DECIMATE_AURA                   = 108869,
     WARLOCK_SOUL_LEECH_AURA                 = 108370,
     WARLOCK_SOUL_LINK_TALENT                = 108415,
@@ -1275,10 +1276,10 @@ class spell_warl_demonic_call : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    if (/*caster->HasAura(WARLOCK_DEMONIC_CALL) && */!caster->HasAura(WARLOCK_DISRUPTED_NETHER))
+                    if (caster->HasAura(WARLOCK_DEMONIC_CALL) && !caster->HasAura(WARLOCK_DISRUPTED_NETHER))
                     {
                         caster->CastSpell(caster, WARLOCK_WILD_IMP_SUMMON, true);
-                        //caster->RemoveAura(WARLOCK_DEMONIC_CALL);
+                        caster->RemoveAura(WARLOCK_DEMONIC_CALL);
                     }
                 }
             }
@@ -1295,15 +1296,15 @@ class spell_warl_demonic_call : public SpellScriptLoader
         }
 };
 
-// Void Ray - 115422 and Touch of Chaos - 103964
-class spell_warl_void_ray : public SpellScriptLoader
+// Touch of Chaos - 103964
+class spell_warl_touch_of_chaos : public SpellScriptLoader
 {
     public:
-        spell_warl_void_ray() : SpellScriptLoader("spell_warl_void_ray") { }
+        spell_warl_touch_of_chaos() : SpellScriptLoader("spell_warl_touch_of_chaos") { }
 
-        class spell_warl_void_ray_SpellScript : public SpellScript
+        class spell_warl_touch_of_chaos_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_void_ray_SpellScript);
+            PrepareSpellScript(spell_warl_touch_of_chaos_SpellScript);
 
             void HandleOnHit()
             {
@@ -1313,12 +1314,7 @@ class spell_warl_void_ray : public SpellScriptLoader
                     {
                         if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, caster->GetGUID()))
                         {
-                            corruption->SetDuration(corruption->GetDuration() + 4000);
-                            corruption->SetNeedClientUpdateForTargets();
-                        }
-                        else if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, caster->GetGUID()))
-                        {
-                            corruption->SetDuration(corruption->GetDuration() + 4000);
+                            corruption->SetDuration(corruption->GetDuration() + 6 * IN_MILLISECONDS); // Not sure for the 6 seconds
                             corruption->SetNeedClientUpdateForTargets();
                         }
                     }
@@ -1327,13 +1323,13 @@ class spell_warl_void_ray : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_void_ray_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_warl_touch_of_chaos_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warl_void_ray_SpellScript();
+            return new spell_warl_touch_of_chaos_SpellScript();
         }
 };
 
