@@ -10945,6 +10945,9 @@ void Unit::setPowerType(Powers new_powertype)
     }
 
     SetPower(new_powertype, GetPower(new_powertype));
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->UpdateManaRegen();
 }
 
 FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
