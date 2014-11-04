@@ -622,7 +622,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 {
                     lockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
                     lockData.SubReason1 = ar->item;
-                    lockData.SubReason2 = ar->item2
+                    lockData.SubReason2 = ar->item2;
                 }
             }
             else if (ar->item2 && !player->HasItemCount(ar->item2))
