@@ -1134,11 +1134,17 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
     {
         // Broadcast realm first reached
+        std::string l_OwnerName = GetOwner()->GetName() ? GetOwner()->GetName() : "";
+
         WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, strlen(GetOwner()->GetName()) + 1 + 8 + 4 + 4);
-        data << GetOwner()->GetName();
-        data << uint64(GetOwner()->GetGUID());
+        data.WriteBits(l_OwnerName.size(), 7);
+        data.WriteBit(false);                           ///< GuildAchievement
+        data.FlushBits();
+
+        data.appendPackGUID(GetOwner()->GetGUID());
         data << uint32(achievement->ID);
-        data << uint32(0);                                  // 1=link supplied string as player name, 0=display plain string
+        data.WriteString(l_OwnerName);
+
         sWorld->SendGlobalMessage(&data);
     }
     // If player is in world he can tell his friends about new achievement

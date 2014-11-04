@@ -923,7 +923,7 @@ class WorldSession
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
         void HandleLfgGetStatus(WorldPacket& recvData);
 
-        void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
+        void SendLfgRoleChosen(uint64 p_Guid, uint8 p_Roles);
         void SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck);
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(uint64 guid_, const LfgJoinResultData& joinData);

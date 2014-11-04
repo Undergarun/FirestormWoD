@@ -16295,24 +16295,29 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
 
     l_Data << uint32(p_Count);
+    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
 
-    l_Data.WriteBit(!true);                         // DisplayToastMethod
     l_Data.WriteBit(p_BonusRoll);
     l_Data.WriteBits(p_Type, 2);
+    l_Data.FlushBits();
 
     if (p_Type == TOAST_TYPE_NEW_ITEM)
     {
         l_Data.WriteBit(p_Mailed);
+        l_Data.FlushBits();
 
-        l_Data << uint32(l_ItemTpl->RandomSuffix);
-        l_Data << uint32(0);                        // Unk
-        l_Data << uint32(GetLootSpecId());
-        l_Data << uint32(l_ItemTpl->RandomProperty);
-        l_Data << uint32(445);                      // ReforgeID
         l_Data << uint32(p_Entry);
-    }
+        l_Data << uint32(l_ItemTpl->RandomSuffix);
+        l_Data << uint32(l_ItemTpl->RandomProperty);
+        l_Data.WriteBit(false);
+        l_Data.WriteBit(false);
+        l_Data.FlushBits();
 
-    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
+        l_Data << uint32(GetLootSpecId());
+        l_Data << uint32(0);                        // Unk
+//         
+//         l_Data << uint32(445);                      // ReforgeID
+    }
 
     if (p_Type == TOAST_TYPE_NEW_CURRENCY)
         l_Data << uint32(p_Entry);
@@ -25531,6 +25536,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
     l_Data << uint8(0);                                           ///< Server Expansion Tier
     l_Data << uint32(1135753200);                                 ///< Server Region ID
+    l_Data << uint32(0);                                          ///< Raid origin
 
     for (int l_I = 0; l_I < 2500; ++l_I)
         l_Data << uint8(0);                                       ///< Quest completed bit
@@ -25699,11 +25705,12 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(time);
+    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4 + 4 + 4 + 4);
+    data << uint32(type);
     data << uint32(mapid);
     data << uint32(difficulty);                         // difficulty
-    data << uint32(type);
+    data << uint32(time);
+
     data.WriteBit(0);                                   // is locked
     data.WriteBit(0);                                   // is extended, ignored if prev field is 0
     data.FlushBits();
@@ -28267,6 +28274,7 @@ void Player::SendEquipmentSetList()
 
         l_Data << uint64(l_Itr->second.Guid);
         l_Data << uint32(l_Itr->first);
+        l_Data << uint32(0);
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {

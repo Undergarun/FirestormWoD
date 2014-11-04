@@ -307,8 +307,8 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket & p_Packet)
             LfgLockStatus l_LockData = l_It->second;
             l_Data << uint32(l_It->first);                          ///< Slot
             l_Data << uint32(l_LockData.lockstatus);                ///< Reason
-            l_Data << uint32(l_LockData.itemLevel);                 ///< Sub Reason 1
-            l_Data << uint32(GetPlayer()->GetAverageItemLevel());   ///< Sub Reason 2
+            l_Data << uint32(l_LockData.SubReason1);                ///< Sub Reason 1
+            l_Data << uint32(l_LockData.SubReason2);                ///< Sub Reason 2
         }
 
         for (LfgDungeonSet::const_iterator l_It = l_RandomDungeons.begin(); l_It != l_RandomDungeons.end(); ++l_It)
@@ -455,221 +455,112 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
     }*/
 }
 
-void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
+void WorldSession::SendLfgRoleChosen(uint64 p_Guid, uint8 p_Roles)
 {
-    uint8 byteOrder[8] = {4, 2, 5, 1, 6, 3, 0, 7};
+    WorldPacket l_Data(SMSG_LFG_ROLE_CHOSEN, 12);
+    l_Data.appendPackGUID(p_Guid);
+    l_Data << uint32(p_Roles);
 
-    WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 12);
+    l_Data.WriteBit(p_Roles > 0);
+    l_Data.FlushBits();
 
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(roles > 0);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data << uint32(roles);
-    data.WriteBytesSeq(guid, byteOrder);
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck* pRoleCheck)
+void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
 {
-    ASSERT(pRoleCheck);
-    LfgDungeonSet dungeons;
-    if (pRoleCheck->rDungeonId)
-        dungeons.insert(pRoleCheck->rDungeonId);
+    ASSERT(p_RoleCheck);
+    LfgDungeonSet l_JoinSlots;
+
+    if (p_RoleCheck->rDungeonId)
+        l_JoinSlots.insert(p_RoleCheck->rDungeonId);
     else
-        dungeons = pRoleCheck->dungeons;
+        l_JoinSlots = p_RoleCheck->dungeons;
 
-    ObjectGuid unkGuid = 0;
+    uint64 l_BGqueueID = 0;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_ROLE_CHECK_UPDATE [" UI64FMTD "]", GetPlayer()->GetGUID());
-    WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
-    ByteBuffer dataBuffer;
+    WorldPacket l_Data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + l_JoinSlots.size() * 4 + 1 + p_RoleCheck->roles.size() * (8 + 1 + 4 + 1));
 
-    data.WriteBit(pRoleCheck->state == LFG_ROLECHECK_INITIALITING);
-    data.WriteBit(unkGuid[5]);
-    data.WriteBit(unkGuid[3]);
-    data.WriteBit(unkGuid[6]);
-    data.WriteBit(unkGuid[4]);
-    data.WriteBits(dungeons.size(), 22);
-    data.WriteBit(unkGuid[0]);
-    data.WriteBit(unkGuid[1]);
-    data.WriteBits(pRoleCheck->roles.size(), 21);
+    l_Data << uint8(1);                                                                     ///< Party index
+    l_Data << uint8(p_RoleCheck->state);                                                    ///< Role check status
+    l_Data << uint32(l_JoinSlots.size());                                                   ///< Join Slots count
+    l_Data.appendPackGUID(l_BGqueueID);                                                     ///< BG Queue ID
+    l_Data << uint32(0);                                                                    ///< Activity ID
+    l_Data << uint32(p_RoleCheck->roles.size());                                            ///< Member count
 
-    if (!pRoleCheck->roles.empty())
+    if (!l_JoinSlots.empty())
     {
-        ObjectGuid guid = pRoleCheck->leader;
-        uint8 roles = pRoleCheck->roles.find(guid)->second;
-        Player* player = ObjectAccessor::FindPlayer(guid);
-
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(roles > 0);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[5]);
-
-        dataBuffer << uint32(roles);                                   // Roles
-        dataBuffer.WriteByteSeq(guid[1]);
-        dataBuffer << uint8(player ? player->getLevel() : 0);          // Level
-        dataBuffer.WriteByteSeq(guid[3]);
-        dataBuffer.WriteByteSeq(guid[7]);
-        dataBuffer.WriteByteSeq(guid[4]);
-        dataBuffer.WriteByteSeq(guid[0]);
-        dataBuffer.WriteByteSeq(guid[5]);
-        dataBuffer.WriteByteSeq(guid[2]);
-        dataBuffer.WriteByteSeq(guid[6]);
-
-        for (LfgRolesMap::const_reverse_iterator it = pRoleCheck->roles.rbegin(); it != pRoleCheck->roles.rend(); ++it)
+        for (LfgDungeonSet::iterator l_It = l_JoinSlots.begin(); l_It != l_JoinSlots.end(); ++l_It)
         {
-            if (it->first == pRoleCheck->leader)
+            LFGDungeonEntry const* l_DungeonEntry = sLFGDungeonStore.LookupEntry(*l_It);
+            l_Data << uint32(l_DungeonEntry ? l_DungeonEntry->Entry() : 0);                 ///< Dungeon
+        }
+    }
+
+    if (!p_RoleCheck->roles.empty())
+    {
+        ObjectGuid guid = p_RoleCheck->leader;
+        uint8 l_Roles = p_RoleCheck->roles.find(guid)->second;
+        Player* l_CurrentPlayer = ObjectAccessor::FindPlayer(guid);
+
+        l_Data.appendPackGUID(l_CurrentPlayer->GetGUID());                                  ///< Guid
+        l_Data << uint32(l_Roles);                                                          ///< Roles Desired
+        l_Data << uint8(l_CurrentPlayer ? l_CurrentPlayer->getLevel() : 0);                 ///< Level
+        l_Data.WriteBit(l_Roles > 0);                                                       ///< Role Check Complete
+        l_Data.FlushBits();
+
+        for (LfgRolesMap::const_reverse_iterator l_It = p_RoleCheck->roles.rbegin(); l_It != p_RoleCheck->roles.rend(); ++l_It)
+        {
+            if (l_It->first == p_RoleCheck->leader)
                 continue;
 
-            guid = it->first;
-            roles = it->second;
-            player = ObjectAccessor::FindPlayer(guid);
+            l_Roles = l_It->second;
+            l_CurrentPlayer = ObjectAccessor::FindPlayer(l_It->first);
 
-            data.WriteBit(guid[7]);
-            data.WriteBit(guid[6]);
-            data.WriteBit(roles > 0);
-            data.WriteBit(guid[4]);
-            data.WriteBit(guid[3]);
-            data.WriteBit(guid[1]);
-            data.WriteBit(guid[0]);
-            data.WriteBit(guid[2]);
-            data.WriteBit(guid[5]);
-
-            dataBuffer << uint32(roles);                                   // Roles
-            dataBuffer.WriteByteSeq(guid[1]);
-            dataBuffer << uint8(player ? player->getLevel() : 0);          // Level
-            dataBuffer.WriteByteSeq(guid[3]);
-            dataBuffer.WriteByteSeq(guid[7]);
-            dataBuffer.WriteByteSeq(guid[4]);
-            dataBuffer.WriteByteSeq(guid[0]);
-            dataBuffer.WriteByteSeq(guid[5]);
-            dataBuffer.WriteByteSeq(guid[2]);
-            dataBuffer.WriteByteSeq(guid[6]);
+            l_Data.appendPackGUID(l_CurrentPlayer->GetGUID());                              ///< Guid
+            l_Data << uint32(l_Roles);                                                      ///< Roles Desired
+            l_Data << uint8(l_CurrentPlayer ? l_CurrentPlayer->getLevel() : 0);             ///< Level
+            l_Data.WriteBit(l_Roles > 0);                                                   ///< Role Check Complete
+            l_Data.FlushBits();
         }
     }
 
-    data.WriteBit(unkGuid[7]);
-    data.WriteBit(unkGuid[2]);
-    data.FlushBits();
-    data.WriteByteSeq(unkGuid[1]);
+    l_Data.WriteBit(p_RoleCheck->state == LFG_ROLECHECK_INITIALITING);                      ///< Is Beginning
+    l_Data.WriteBit(false);                                                                 ///< Re queue
 
-    data.append(dataBuffer);
-    data << uint8(1);
-
-    data.WriteByteSeq(unkGuid[3]);
-    data.WriteByteSeq(unkGuid[4]);
-    data.WriteByteSeq(unkGuid[0]);
-    data.WriteByteSeq(unkGuid[5]);
-    data.WriteByteSeq(unkGuid[6]);
-
-    data << uint8(pRoleCheck->state);
-
-    data.WriteByteSeq(unkGuid[7]);
-
-    if (!dungeons.empty())
-    {
-        for (LfgDungeonSet::iterator it = dungeons.begin(); it != dungeons.end(); ++it)
-        {
-            LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
-            data << uint32(dungeon ? dungeon->Entry() : 0); // Dungeon
-        }
-    }
-
-    data.WriteByteSeq(unkGuid[2]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgJoinResult(uint64 guid_, const LfgJoinResultData& joinData)
+void WorldSession::SendLfgJoinResult(uint64 p_Guid, const LfgJoinResultData & p_JoinData)
 {
-    ObjectGuid guid = guid_;
+    WorldPacket l_Data(SMSG_LFG_JOIN_RESULT, 500);
 
-    uint32 size = 0;
-    for (LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
-        size += 8 + 4 + uint32(it->second.size()) * (4 + 4 + 4 + 4);
+    l_Data.appendPackGUID(p_Guid);                                      ///< Requester Guid
+    l_Data << uint32(0);                                                ///< ID
+    l_Data << uint32(3);                                                ///< Type
+    l_Data << uint32(getMSTime());                                      ///< Time
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_JOIN_RESULT [" UI64FMTD "] checkResult: %u checkValue: %u", GetPlayer()->GetGUID(), joinData.result, joinData.state);
+    l_Data << uint8(p_JoinData.result);                                 ///< Result
+    l_Data << uint8(p_JoinData.state);                                  ///< Result Detail
+    l_Data << uint32(p_JoinData.lockmap.size());                        ///< BlackList count
 
-    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + size);
-
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-
-    data.WriteBits(joinData.lockmap.size(), 22);
-
-    for (LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
+    for (LfgLockPartyMap::const_iterator l_It = p_JoinData.lockmap.begin(); l_It != p_JoinData.lockmap.end(); ++l_It)
     {
-        ObjectGuid guid1 = it->first;
+        l_Data.appendPackGUID(l_It->first);                             ///< Guid
+        l_Data << uint32(l_It->second.size());                          ///< Slot count
 
-        data.WriteBit(guid1[4]);
-        data.WriteBit(guid1[5]);
-        data.WriteBit(guid1[6]);
-        data.WriteBit(guid1[0]);
-
-        data.WriteBits(it->second.size(), 20);
-
-        data.WriteBit(guid1[7]);
-        data.WriteBit(guid1[3]);
-        data.WriteBit(guid1[2]);
-        data.WriteBit(guid1[1]);
-    }
-
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-
-    for (LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
-    {
-        LfgLockMap second = it->second;
-        for (LfgLockMap::const_iterator itr = second.begin(); itr != second.end(); ++itr)
+        LfgLockMap l_LockMap = l_It->second;
+        for (LfgLockMap::const_iterator l_LockMapIT = l_LockMap.begin(); l_LockMapIT != l_LockMap.end(); ++l_LockMapIT)
         {
-            auto lockData = itr->second;
-            data << uint32(GetPlayer()->GetAverageItemLevel());
-            data << uint32(itr->first);                         // Dungeon entry (id + type)
-            data << uint32(lockData.itemLevel);                 // Lock status
-            data << uint32(lockData.lockstatus);
+            auto l_LockData = l_LockMapIT->second;
+            l_Data << uint32(l_LockMapIT->first);                       ///< Dungeon entry (id + type)
+            l_Data << uint32(l_LockData.lockstatus);                    ///< Reason
+            l_Data << uint32(l_LockData.itemLevel);                     ///< Sub Reason 1
+            l_Data << uint32(GetPlayer()->GetAverageItemLevel());       ///< Sub Reason 2
         }
-
-        ObjectGuid guid1 = it->first;
-
-        uint8 byteOrder[8] = {0, 1, 2, 5, 3, 6, 4, 7};
-        data.WriteBytesSeq(guid1, byteOrder);
     }
 
-    data << uint8(joinData.result);                       // Check Result
-    data << uint8(joinData.state);                        // Check Value
-
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-
-    data << uint32(3);                                    // Unk
-    data << uint32(getMSTime());                          // Time
-
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-
-    data << uint32(0);                                    // Queue Id
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 p_AvgWaitTime, int32 p_WaitTimeTanks, int32 p_WaitTimeHealer, int32 p_WaitTimeDps, uint32 p_QueuedTime, uint8 p_TankCount, uint8 p_HealerCount, uint8 p_DPSCount)
@@ -703,235 +594,194 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* qRew)
+void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* p_Quest)
 {
-    if (!rdungeonEntry || !sdungeonEntry || !qRew)
+    if (!rdungeonEntry || !sdungeonEntry || !p_Quest)
         return;
 
-    uint8 itemNum = uint8(qRew ? qRew->GetRewItemsCount() + qRew->GetRewCurrencyCount()  : 0);
+    uint8 l_ItemCount = uint8(p_Quest ? p_Quest->GetRewItemsCount() + p_Quest->GetRewCurrencyCount()  : 0);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_PLAYER_REWARD [" UI64FMTD "] rdungeonEntry: %u - sdungeonEntry: %u - done: %u", GetPlayer()->GetGUID(), rdungeonEntry, sdungeonEntry, done);
+    WorldPacket l_Data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + l_ItemCount * (4 + 4 + 4));
+    l_Data << uint32(rdungeonEntry);                            ///< Queue Slot
+    l_Data << uint32(sdungeonEntry);                            ///< Actual Slot
+    l_Data << uint32(p_Quest->GetRewOrReqMoney());              ///< Reward money
+    l_Data << uint32(p_Quest->XPValue(GetPlayer()));            ///< Added XP
+    l_Data << uint32(l_ItemCount);                              ///< Reward count
 
-    ByteBuffer bytereward;
-    WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
-    data << uint32(rdungeonEntry);                         // Random Dungeon Finished
-    data << uint32(sdungeonEntry);                         // Dungeon Finished
-    data << uint32(qRew->GetRewOrReqMoney());
-    data << uint32(qRew->XPValue(GetPlayer()));
-    data.WriteBits(itemNum, 20);
-
-    if (qRew && qRew->GetRewItemsCount())
+    if (p_Quest && p_Quest->GetRewItemsCount())
     {
-        ItemTemplate const* iProto = NULL;
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        for (uint8 l_I = 0; l_I < QUEST_REWARDS_COUNT; ++l_I)
         {
-            if (!qRew->RewardItemId[i])
+            if (!p_Quest->RewardItemId[l_I])
                 continue;
 
-            data.WriteBit(0);
+            l_Data << uint32(p_Quest->RewardItemId[l_I]);       ///< RewardItem
+            l_Data << uint32(p_Quest->RewardItemIdCount[l_I]);  ///< RewardItemQuantity
+            l_Data << uint32(0);                                ///< BonusCurrency
 
-            iProto = sObjectMgr->GetItemTemplate(qRew->RewardItemId[i]);
-
-            bytereward << uint32(iProto ? iProto->DisplayInfoID : 0);
-            bytereward << uint32(qRew->RewardItemId[i]);
-            bytereward << uint32(0);
-            bytereward << uint8(qRew->RewardItemIdCount[i]);
+            l_Data.WriteBit(0);                                 ///< Is Currency
+            l_Data.FlushBits();
         }
     }
-    if (qRew && qRew->GetRewCurrencyCount())
+    if (p_Quest && p_Quest->GetRewCurrencyCount())
     {
-        for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+        for (uint8 l_I = 0; l_I < QUEST_REWARD_CURRENCY_COUNT; ++l_I)
         {
-            if (!qRew->RewardCurrencyId[i])
+            if (!p_Quest->RewardCurrencyId[l_I])
                 continue;
 
-            data.WriteBit(1);
+            l_Data << uint32(p_Quest->RewardCurrencyId[l_I]);   ///< RewardItem
+            l_Data << uint32(p_Quest->RewardCurrencyCount[l_I]);///< RewardItemQuantity
+            l_Data << uint32(0);                                ///< BonusCurrency
 
-            bytereward << uint32(0);
-            bytereward << uint32(qRew->RewardCurrencyId[i]);
-            bytereward << uint32(0);
-            bytereward << uint32(qRew->RewardCurrencyCount[i]);
+            l_Data.WriteBit(1);                                 ///< Is Currency
+            l_Data.FlushBits();
         }
     }
-    data.append(bytereward);
-    SendPacket(&data);
+
+    SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgBootPlayer(const LfgPlayerBoot* pBoot)
+void WorldSession::SendLfgBootPlayer(const LfgPlayerBoot* p_Boot)
 {
-    uint64 guid = GetPlayer()->GetGUID();
-    LfgAnswer playerVote = pBoot->votes.find(guid)->second;
-    uint8 votesNum = 0;
-    uint8 agreeNum = 0;
-    uint32 secsleft = uint8((pBoot->cancelTime - time(NULL)) / 1000);
-    for (LfgAnswerMap::const_iterator it = pBoot->votes.begin(); it != pBoot->votes.end(); ++it)
+    LfgAnswer l_MyVote = p_Boot->votes.find(GetPlayer()->GetGUID())->second;
+    uint8 l_VoteCount = 0;
+    uint8 l_BootVoteCount = 0;
+    uint32 l_TimeLeft = uint8((p_Boot->cancelTime - time(NULL)) / 1000);
+
+    for (LfgAnswerMap::const_iterator l_It = p_Boot->votes.begin(); l_It != p_Boot->votes.end(); ++l_It)
     {
-        if (it->second != LFG_ANSWER_PENDING)
+        if (l_It->second != LFG_ANSWER_PENDING)
         {
-            ++votesNum;
-            if (it->second == LFG_ANSWER_AGREE)
-                ++agreeNum;
+            ++l_VoteCount;
+
+            if (l_It->second == LFG_ANSWER_AGREE)
+                ++l_BootVoteCount;
         }
     }
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_BOOT_PLAYER [" UI64FMTD "] inProgress: %u - didVote: %u - agree: %u - victim: [" UI64FMTD "] votes: %u - agrees: %u - left: %u - needed: %u - reason %s",
-        guid, uint8(pBoot->inProgress), uint8(playerVote != LFG_ANSWER_PENDING), uint8(playerVote == LFG_ANSWER_AGREE), pBoot->victim, votesNum, agreeNum, secsleft, pBoot->votedNeeded, pBoot->reason.c_str());
-    WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + pBoot->reason.length());
-    data << uint8(pBoot->inProgress);                      // Vote in progress
-    data << uint8(playerVote != LFG_ANSWER_PENDING);       // Did Vote
-    data << uint8(playerVote == LFG_ANSWER_AGREE);         // Agree
-    data << uint8(0);                                      // Unknown 4.2.2
-    data << uint64(pBoot->victim);                         // Victim GUID
-    data << uint32(votesNum);                              // Total Votes
-    data << uint32(agreeNum);                              // Agree Count
-    data << uint32(secsleft);                              // Time Left
-    data << uint32(pBoot->votedNeeded);                    // Needed Votes
-    data << pBoot->reason.c_str();                         // Kick reason
-    SendPacket(&data);
+
+    WorldPacket l_Data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + p_Boot->reason.length());
+    l_Data.WriteBit(p_Boot->inProgress);                        ///< Vote in progress
+    l_Data.WriteBit(l_BootVoteCount >= p_Boot->votedNeeded);    ///< Vote Passed
+    l_Data.WriteBit(l_MyVote != LFG_ANSWER_PENDING);            ///< My Vote Completed
+    l_Data.WriteBit(l_MyVote);                                  ///< My Vote
+    l_Data.WriteBits(p_Boot->reason.size(), 8);                 ///< Reason length
+    l_Data.FlushBits();
+
+    l_Data.appendPackGUID(p_Boot->victim);                      ///< Target
+    l_Data << uint32(l_VoteCount);                              ///< Total Votes
+    l_Data << uint32(l_BootVoteCount);                          ///< Boot votes
+    l_Data << uint32(l_TimeLeft);                               ///< Time left
+    l_Data << uint32(p_Boot->votedNeeded);                      ///< Votes needed
+
+    l_Data.WriteString(p_Boot->reason);                         ///< Reason
+
+    SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgUpdateProposal(uint32 proposalId, const LfgProposal* pProp)
+void WorldSession::SendLfgUpdateProposal(uint32 p_ProposalID, const LfgProposal * p_Proposal)
 {
-    if (!pProp)
+    if (!p_Proposal)
         return;
 
-    uint64 guid = GetPlayer()->GetGUID();
-    LfgProposalPlayerMap::const_iterator itPlayer = pProp->players.find(guid);
-    if (itPlayer == pProp->players.end())                  // Player MUST be in the proposal
+    uint64 l_Guid = GetPlayer()->GetGUID();
+    LfgProposalPlayerMap::const_iterator l_PlayerIt = p_Proposal->players.find(l_Guid);
+
+    if (l_PlayerIt == p_Proposal->players.end())                  // Player MUST be in the proposal
         return;
 
-    LfgProposalPlayer* ppPlayer = itPlayer->second;
-    uint32 pLowGroupGuid = ppPlayer->groupLowGuid;
-    uint32 dLowGuid = pProp->groupLowGuid;
-    uint32 dungeonId = pProp->dungeonId;
-    bool isSameDungeon = false;
-    bool isContinue = false;
-    Group* grp = dLowGuid ? sGroupMgr->GetGroupByGUID(dLowGuid) : NULL;
-    uint32 completedEncounters = 0;
-    if (grp)
+    LfgProposalPlayer* l_ProposalPlayer = l_PlayerIt->second;
+
+    uint32 l_CompletedEncounters    = 0;
+    uint32 l_PlayerLowGuid          = l_ProposalPlayer->groupLowGuid;
+    uint32 l_GroupLowGuid           = p_Proposal->groupLowGuid;
+    uint32 l_DungeonID              = p_Proposal->dungeonId;
+
+    bool l_Silent           = false;
+    bool l_CompletedMask    = false;
+    bool l_IsContinue       = false;
+
+    Group* l_Group = l_GroupLowGuid ? sGroupMgr->GetGroupByGUID(l_GroupLowGuid) : NULL;
+
+    if (l_Group)
     {
-        uint64 gguid = grp->GetGUID();
-        isContinue = grp->isLFGGroup() && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
-        isSameDungeon = GetPlayer()->GetGroup() == grp && isContinue;
+        l_IsContinue    = l_Group->isLFGGroup() && sLFGMgr->GetState(l_Group->GetGUID()) != LFG_STATE_FINISHED_DUNGEON;
+        l_CompletedMask = l_Group->isLFGGroup() && sLFGMgr->GetState(l_Group->GetGUID()) == LFG_STATE_FINISHED_DUNGEON;
+        l_Silent        = GetPlayer()->GetGroup() == l_Group && l_IsContinue;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_PROPOSAL_UPDATE [" UI64FMTD "] state: %u", GetPlayer()->GetGUID(), pProp->state);
-    WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
+    WorldPacket l_Data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + p_Proposal->players.size() * (4 + 1 + 1 + 1 + 1 +1));
 
-    if (!isContinue)                                       // Only show proposal dungeon if it's continue
+    if (!l_IsContinue)                                       // Only show proposal dungeon if it's continue
     {
-        LfgDungeonSet playerDungeons = sLFGMgr->GetSelectedDungeons(guid);
+        LfgDungeonSet playerDungeons = sLFGMgr->GetSelectedDungeons(l_Guid);
+
         if (playerDungeons.size() == 1)
-            dungeonId = (*playerDungeons.begin());
+            l_DungeonID = (*playerDungeons.begin());
     }
 
-    if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
+    if (const LFGDungeonEntry * l_DungeonEntry = sLFGDungeonStore.LookupEntry(l_DungeonID))
     {
-        dungeonId = dungeon->Entry();
+        l_DungeonID = l_DungeonEntry->Entry();
 
         // Select a player inside to be get completed encounters from
-        if (grp)
+        if (l_Group)
         {
-            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference * l_It = l_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())
             {
-                Player* groupMember = itr->getSource();
-                if (groupMember && groupMember->GetMapId() == uint32(dungeon->map))
+                Player * l_GroupMember = l_It->getSource();
+
+                if (l_GroupMember && l_GroupMember->GetMapId() == uint32(l_DungeonEntry->map))
                 {
-                    if (InstanceScript* instance = groupMember->GetInstanceScript())
-                        completedEncounters = instance->GetCompletedEncounterMask();
+                    if (InstanceScript* l_Instance = l_GroupMember->GetInstanceScript())
+                        l_CompletedEncounters = l_Instance->GetCompletedEncounterMask();
+
                     break;
                 }
             }
         }
     }
 
-    ObjectGuid playerGUID = guid;
-    ObjectGuid InstanceSaveGUID = MAKE_NEW_GUID(dungeonId, 0, HIGHGUID_INSTANCE_SAVE);
+    uint64 InstanceSaveGUID = MAKE_NEW_GUID(l_DungeonID, 0, HIGHGUID_INSTANCE_SAVE);
 
-    data.WriteBit(playerGUID[1]);
+    l_Data.appendPackGUID(l_Guid);                                          ///< RequesterGuid
+    l_Data << uint32(0);                                                    ///< Id
+    l_Data << uint32(0x03);                                                 ///< Type
+    l_Data << uint32(getMSTime());                                          ///< Time
 
-    data.WriteBit(isContinue);
+    l_Data << uint64(InstanceSaveGUID);                                     ///< Instance ID
+    l_Data << uint32(p_ProposalID);                                         ///< Proposal Id
+    l_Data << uint32(l_DungeonID);                                            ///< Slot
+    l_Data << uint8(p_Proposal->state);                                     ///< State
+    l_Data << uint32(l_CompletedEncounters);                                ///< CompletedMask
+    l_Data << uint32(p_Proposal->players.size());
 
-    data.WriteBit(InstanceSaveGUID[0]);
-    data.WriteBit(InstanceSaveGUID[1]);
-    data.WriteBit(playerGUID[4]);
-    data.WriteBit(InstanceSaveGUID[7]);
-    data.WriteBit(playerGUID[2]);
-    data.WriteBit(InstanceSaveGUID[3]);
-    data.WriteBit(InstanceSaveGUID[5]);
-
-    data.WriteBits(pProp->players.size(), 21);
-
-    data.WriteBit(InstanceSaveGUID[4]);
-    data.WriteBit(isSameDungeon);
-    data.WriteBit(playerGUID[6]);
-
-    for (itPlayer = pProp->players.begin(); itPlayer != pProp->players.end(); ++itPlayer)
+    for (l_PlayerIt = p_Proposal->players.begin(); l_PlayerIt != p_Proposal->players.end(); ++l_PlayerIt)
     {
-        bool inDungeon = false;
-        bool inSameGroup = false;
+        bool l_MyParty   = false;
+        bool l_SameParty = false;
 
-        if (itPlayer->second->groupLowGuid)
+        if (l_PlayerIt->second->groupLowGuid)
         {
-            inDungeon = itPlayer->second->groupLowGuid == dLowGuid;
-            inSameGroup = itPlayer->second->groupLowGuid == pLowGroupGuid;
+            l_MyParty = l_PlayerIt->second->groupLowGuid == l_GroupLowGuid;
+            l_SameParty = l_PlayerIt->second->groupLowGuid == l_PlayerLowGuid;
         }
 
-        data.WriteBit(inDungeon);                                       // In dungeon (silent)
-        data.WriteBit(itPlayer->second->accept == LFG_ANSWER_AGREE);    // Accepted
-        data.WriteBit(itPlayer->first == guid);                         // Self player
-        data.WriteBit(itPlayer->second->accept!= LFG_ANSWER_PENDING);   // Answered
-        data.WriteBit(inSameGroup);                                     // Same Group than player
+        l_Data << uint32(l_PlayerIt->second->role);                         ///< Roles
+
+        l_Data.WriteBit(l_PlayerIt->first == l_Guid);                       ///< Self player
+        l_Data.WriteBit(l_SameParty);                                       ///< Same Group than player
+        l_Data.WriteBit(l_MyParty);                                         ///< In dungeon (silent)
+        l_Data.WriteBit(l_PlayerIt->second->accept != LFG_ANSWER_PENDING);  ///< Answered
+        l_Data.WriteBit(l_PlayerIt->second->accept == LFG_ANSWER_AGREE);    ///< Accepted
+        l_Data.FlushBits();
     }
 
-    data.WriteBit(playerGUID[5]);
-    data.WriteBit(playerGUID[7]);
-    data.WriteBit(playerGUID[3]);
+    l_Data.WriteBit(l_CompletedMask);                                       ///< Valid Completed Mask
+    l_Data.WriteBit(l_Silent);                                              ///< Proposal Silent
+    l_Data.FlushBits();
 
-    data.WriteBit(InstanceSaveGUID[2]);
-    data.WriteBit(InstanceSaveGUID[6]);
-
-    data.WriteBit(playerGUID[0]);
-
-    data.WriteByteSeq(InstanceSaveGUID[5]);
-    data.WriteByteSeq(InstanceSaveGUID[1]);
-    data.WriteByteSeq(playerGUID[5]);
-
-    data << uint32(proposalId);                            // Proposal Id
-
-    data.WriteByteSeq(InstanceSaveGUID[2]);
-    data.WriteByteSeq(InstanceSaveGUID[3]);
-    data.WriteByteSeq(InstanceSaveGUID[7]);
-
-    data << uint8(pProp->state);                           // Result state
-    data << uint32(dungeonId);                             // Dungeon
-
-    data.WriteByteSeq(InstanceSaveGUID[4]);
-    data.WriteByteSeq(InstanceSaveGUID[6]);
-
-    data << uint32(completedEncounters);                   // Bosses killed
-
-    data.WriteByteSeq(playerGUID[4]);
-    data.WriteByteSeq(playerGUID[3]);
-    data.WriteByteSeq(playerGUID[0]);
-    data.WriteByteSeq(playerGUID[2]);
-    data.WriteByteSeq(playerGUID[6]);
-
-    data << uint32(getMSTime());                           // Date
-
-    data.WriteByteSeq(playerGUID[7]);
-
-    for (itPlayer = pProp->players.begin(); itPlayer != pProp->players.end(); ++itPlayer)
-        data << uint32(itPlayer->second->role);                    // Role
-
-    data.WriteByteSeq(playerGUID[1]);
-
-    data << uint32(0x03);                                  // unk id or flags ? always 3
-
-    data.WriteByteSeq(InstanceSaveGUID[0]);
-
-    data << uint32(0);                                     // QueueId
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::SendLfgUpdateSearch(bool update)
@@ -949,22 +799,21 @@ void WorldSession::SendLfgDisabled()
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
+void WorldSession::SendLfgOfferContinue(uint32 p_DungeonEntry)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_OFFER_CONTINUE [" UI64FMTD "] dungeon entry: %u", GetPlayer()->GetGUID(), dungeonEntry);
-    WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
-    data << uint32(dungeonEntry);
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_LFG_OFFER_CONTINUE, 4);
+    l_Data << uint32(p_DungeonEntry);
+
+    SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgTeleportError(uint8 err)
+void WorldSession::SendLfgTeleportError(uint8 p_Error)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_TELEPORT_DENIED [" UI64FMTD "] reason: %u", GetPlayer()->GetGUID(), err);
-    WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
-    //Not sure it is no 4bits.
-    data.WriteBits(err, 4);                                   // Error
-    data.FlushBits();
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_LFG_TELEPORT_DENIED, 4);
+    l_Data.WriteBits(p_Error, 4);                                   // Error
+    l_Data.FlushBits();
+
+    SendPacket(&l_Data);
 }
 
 /*

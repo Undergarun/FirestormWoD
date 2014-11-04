@@ -185,9 +185,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         return;
     else timeLastWhoCommand = now;
 
-    uint32 matchcount = 0;
+    uint32 l_MatchCount = 0;
 
-    uint32 level_min, level_max, racemask, classmask, zones_count, str_count;
+    uint32 l_LevelMin, l_LevelMax, l_RaceMask, l_ClassMask, zones_count, str_count;
     uint32 zoneids[10];                                     // 10 is client limit
 
     bool unk1, unk2, bit725, bit740;
@@ -195,10 +195,10 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     uint8 unkLen2, unkLen3;
     std::string player_name, guild_name;
 
-    recvData >> classmask;                                  // class mask
-    recvData >> level_max;                                  // minimal player level, default 100 (MAX_LEVEL)
-    recvData >> level_min;                                  // maximal player level, default 0
-    recvData >> racemask;                                   // race mask
+    recvData >> l_ClassMask;                                  // class mask
+    recvData >> l_LevelMax;                                  // minimal player level, default 100 (MAX_LEVEL)
+    recvData >> l_LevelMin;                                  // maximal player level, default 0
+    recvData >> l_RaceMask;                                   // race mask
 
     guildLen = recvData.ReadBits(7);
     playerLen = recvData.ReadBits(6);
@@ -266,108 +266,112 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         recvData >> unk1 >> unk2 >> unk3;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", level_min, level_max, player_name.c_str(), guild_name.c_str(), racemask, classmask, zones_count, str_count);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", l_LevelMin, l_LevelMax, player_name.c_str(), guild_name.c_str(), l_RaceMask, l_ClassMask, zones_count, str_count);
 
-    std::wstring wplayer_name;
-    std::wstring wguild_name;
-    if (!(Utf8toWStr(player_name, wplayer_name) && Utf8toWStr(guild_name, wguild_name)))
+    std::wstring l_WQueryerPlayerName;
+    std::wstring l_WQueryerPlayerGuildName;
+
+    if (!(Utf8toWStr(player_name, l_WQueryerPlayerName) && Utf8toWStr(guild_name, l_WQueryerPlayerGuildName)))
         return;
-    wstrToLower(wplayer_name);
-    wstrToLower(wguild_name);
 
-    // client send in case not set max level value 100 but Trinity supports 255 max level,
-    // update it to show GMs with characters after 100 level
-    if (level_max >= MAX_LEVEL)
-        level_max = STRONG_MAX_LEVEL;
+    wstrToLower(l_WQueryerPlayerName);
+    wstrToLower(l_WQueryerPlayerGuildName);
 
-    uint32 team = m_Player->GetTeam();
-    uint32 security = GetSecurity();
-    bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
-    uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
-    uint8 displaycount = 0;
+    /// Client send in case not set max level value 100 but Trinity supports 255 max level,
+    /// update it to show GMs with characters after 100 level
+    if (l_LevelMax >= MAX_LEVEL)
+        l_LevelMax = STRONG_MAX_LEVEL;
 
-    ByteBuffer bitsData;
-    ByteBuffer bytesData;
-    WorldPacket data(SMSG_WHO);
-    size_t pos = data.wpos();
+    uint32 l_QueryerPlayerTeam = m_Player->GetTeam();
+    uint32 l_Security = GetSecurity();
+    bool l_AllowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
+    uint32 l_GMLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
+    uint8 l_MemberCount = 0;
 
-    bitsData.WriteBits(displaycount, 6);
+    WorldPacket l_Data(SMSG_WHO);
+    ByteBuffer l_Buffer;
 
     TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
-    HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+    HashMapHolder<Player>::MapType const& l_PlayersMap = sObjectAccessor->GetPlayers();
+
+    for (HashMapHolder<Player>::MapType::const_iterator l_It = l_PlayersMap.begin(); l_It != l_PlayersMap.end(); ++l_It)
     {
-        if (AccountMgr::IsPlayerAccount(security))
+        if (AccountMgr::IsPlayerAccount(l_Security))
         {
-            // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-            if (itr->second->GetTeam() != team && !allowTwoSideWhoList)
+            /// Player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
+            if (l_It->second->GetTeam() != l_QueryerPlayerTeam && !l_AllowTwoSideWhoList)
                 continue;
 
-            // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-            if ((itr->second->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList)))
+            /// Player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
+            if ((l_It->second->GetSession()->GetSecurity() > AccountTypes(l_GMLevelInWhoList)))
                 continue;
         }
 
-        //do not process players which are not in world
-        if (!(itr->second->IsInWorld()))
+        /// Do not process players which are not in world
+        if (!(l_It->second->IsInWorld()))
             continue;
 
-        // check if target is globally visible for player
-        if (!(itr->second->IsVisibleGloballyFor(m_Player)))
+        /// check if target is globally visible for player
+        if (!(l_It->second->IsVisibleGloballyFor(m_Player)))
             continue;
 
-        // check if target's level is in level range
-        uint8 lvl = itr->second->getLevel();
-        if (lvl < level_min || lvl > level_max)
+        uint32  l_PlayerClass   = l_It->second->getClass();
+        uint32  l_PlayerRace    = l_It->second->getRace();
+        uint32  l_AreaID        = l_It->second->GetZoneId();
+        uint8   l_PlayerLevel   = l_It->second->getLevel();
+        uint8   l_PlayerSex     = l_It->second->getGender();
+
+        /// Check if target's level is in level range
+        if (l_PlayerLevel < l_LevelMin || l_PlayerLevel > l_LevelMax)
             continue;
 
-        // check if class matches classmask
-        uint32 class_ = itr->second->getClass();
-        if (!(classmask & (1 << class_)))
+        /// Check if class matches classmask
+        if (!(l_ClassMask & (1 << l_PlayerClass)))
             continue;
 
         // check if race matches racemask
-        uint32 race = itr->second->getRace();
-        if (!(racemask & (1 << race)))
+        if (!(l_RaceMask & (1 << l_PlayerRace)))
             continue;
 
-        uint32 pzoneid = itr->second->GetZoneId();
-        uint8 gender = itr->second->getGender();
-
-        bool z_show = true;
+        bool l_ZoneShow = true;
         for (uint32 i = 0; i < zones_count; ++i)
         {
-            if (zoneids[i] == pzoneid)
+            if (zoneids[i] == l_AreaID)
             {
-                z_show = true;
+                l_ZoneShow = true;
                 break;
             }
 
-            z_show = false;
+            l_ZoneShow = false;
         }
-        if (!z_show)
+
+        if (!l_ZoneShow)
             continue;
 
-        std::string pname = itr->second->GetName();
-        std::wstring wpname;
-        if (!Utf8toWStr(pname, wpname))
-            continue;
-        wstrToLower(wpname);
+        std::string  l_PlayerName = l_It->second->GetName();
+        std::wstring l_WPlayerName;
 
-        if (!(wplayer_name.empty() || wpname.find(wplayer_name) != std::wstring::npos))
+        if (!Utf8toWStr(l_PlayerName, l_WPlayerName))
             continue;
 
-        std::string gname = sGuildMgr->GetGuildNameById(itr->second->GetGuildId());
-        std::wstring wgname;
-        if (!Utf8toWStr(gname, wgname))
-            continue;
-        wstrToLower(wgname);
+        wstrToLower(l_WPlayerName);
 
-        if (!(wguild_name.empty() || wgname.find(wguild_name) != std::wstring::npos))
+        if (!(l_WQueryerPlayerName.empty() || l_WPlayerName.find(l_WQueryerPlayerName) != std::wstring::npos))
+            continue;
+
+        std::string  l_GuildName = sGuildMgr->GetGuildNameById(l_It->second->GetGuildId());
+        std::wstring l_WGuildName;
+
+        if (!Utf8toWStr(l_GuildName, l_WGuildName))
+            continue;
+
+        wstrToLower(l_WGuildName);
+
+        if (!(l_WQueryerPlayerGuildName.empty() || l_WGuildName.find(l_WQueryerPlayerGuildName) != std::wstring::npos))
             continue;
 
         std::string aname;
-        if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(itr->second->GetZoneId()))
+        if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(l_It->second->GetZoneId()))
             aname = areaEntry->AreaNameLang[GetSessionDbcLocale()];
 
         bool s_show = true;
@@ -375,8 +379,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         {
             if (!str[i].empty())
             {
-                if (wgname.find(str[i]) != std::wstring::npos ||
-                    wpname.find(str[i]) != std::wstring::npos ||
+                if (l_WGuildName.find(str[i]) != std::wstring::npos ||
+                    l_WPlayerName.find(str[i]) != std::wstring::npos ||
                     Utf8FitTo(aname, str[i]))
                 {
                     s_show = true;
@@ -388,9 +392,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if (!s_show)
             continue;
 
-        // 49 is maximum player count sent to client - can be overridden
-        // through config, but is unstable
-        if ((matchcount++) >= sWorld->getIntConfig(CONFIG_MAX_WHO))
+        /// 49 is maximum player count sent to client - can be overridden
+        /// through config, but is unstable
+        if ((l_MatchCount++) >= sWorld->getIntConfig(CONFIG_MAX_WHO))
         {
             if (sWorld->getBoolConfig(CONFIG_LIMIT_WHO_ONLINE))
                 break;
@@ -400,115 +404,58 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             break;
         }
 
-        ObjectGuid playerGuid = itr->second->GetGUID();
-        ObjectGuid unkGuid = 0;
-        ObjectGuid guildGuid = itr->second->GetGuild() ? itr->second->GetGuild()->GetGUID() : 0;
+        uint64 l_GuildGUID = l_It->second->GetGuild() ? l_It->second->GetGuild()->GetGUID() : 0;
+        
+        l_Buffer.WriteBit(false);                                                                       ///< Is Deleted
+        l_Buffer.WriteBits(l_PlayerName.size(), 6);                                                     ///< Name length
 
-        bitsData.WriteBit(guildGuid[4]);
-
-        if (DeclinedName const* names = itr->second->GetDeclinedNames())
+        if (DeclinedName const* l_DeclinedNames = l_It->second->GetDeclinedNames())
         {
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                bitsData.WriteBits(names->name[i].size(), 7);
+            for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+                l_Buffer.WriteBits(l_DeclinedNames->name[l_I].size(), 7);                               ///< DeclinedName[l_I] length
         }
         else
         {
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                bitsData.WriteBits(0, 7);
+            for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)                                   ///< DeclinedName[l_I] length
+                l_Buffer.WriteBits(0, 7);
+        }
+        l_Buffer.FlushBits();
+
+        if (DeclinedName const* l_DeclinedNames = l_It->second->GetDeclinedNames())
+        {
+            for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+                l_Buffer.WriteString(l_DeclinedNames->name[l_I]);                                       ///< DeclinedName[l_I] 
         }
 
-        bitsData.WriteBits(gname.size(), 7);
-        bitsData.WriteBit(unkGuid[3]);
-        bitsData.WriteBit(playerGuid[1]);
-        bitsData.WriteBits(pname.size(), 6);
-        bitsData.WriteBit(guildGuid[2]);
-        bitsData.WriteBit(playerGuid[7]);
-        bitsData.WriteBit(unkGuid[2]);
-        bitsData.WriteBit(guildGuid[6]);
-        bitsData.WriteBit(guildGuid[7]);
-        bitsData.WriteBit(unkGuid[7]);
-        bitsData.WriteBit(playerGuid[3]);
-        bitsData.WriteBit(unkGuid[4]);
-        bitsData.WriteBit(0);
-        bitsData.WriteBit(unkGuid[1]);
-        bitsData.WriteBit(unkGuid[0]);
-        bitsData.WriteBit(playerGuid[4]);
-        bitsData.WriteBit(0);
-        bitsData.WriteBit(guildGuid[1]);
-        bitsData.WriteBit(guildGuid[3]);
-        bitsData.WriteBit(unkGuid[6]);
-        bitsData.WriteBit(guildGuid[0]);
-        bitsData.WriteBit(playerGuid[2]);
-        bitsData.WriteBit(playerGuid[5]);
-        bitsData.WriteBit(playerGuid[6]);
-        bitsData.WriteBit(guildGuid[5]);
-        bitsData.WriteBit(unkGuid[5]);
-        bitsData.WriteBit(playerGuid[0]);
+        l_Buffer.appendPackGUID(l_It->second ? l_It->second->GetSession()->GetWoWAccountGUID() : 0);    ///< WoW account GUID
+        l_Buffer.appendPackGUID(l_It->second ? l_It->second->GetSession()->GetBNetAccountGUID() : 0);   ///< BNet account GUID
+        l_Buffer.appendPackGUID(l_It->second->GetGUID());                                               ///< Player GUID
+        l_Buffer << uint32(g_RealmID);                                                                  ///< Virtual Realm Address
+        l_Buffer << uint8(l_PlayerRace);                                                                ///< Race
+        l_Buffer << uint8(l_PlayerSex);                                                                 ///< Sex
+        l_Buffer << uint8(l_PlayerClass);                                                               ///< Class ID
+        l_Buffer << uint8(l_PlayerLevel);                                                               ///< Level
 
-        bytesData.WriteByteSeq(playerGuid[7]);
-        bytesData.WriteByteSeq(guildGuid[4]);
-        bytesData.WriteByteSeq(guildGuid[1]);
-        bytesData << uint32(38297239);
-        bytesData.WriteByteSeq(playerGuid[0]);
+        l_Buffer.WriteString(l_PlayerName);                                                             ///< Name
 
-        if (pname.size() > 0)
-            bytesData.append(pname.c_str(), pname.size());
+        l_Buffer.appendPackGUID(l_GuildGUID);                                                           ///< Guild GUID
+        l_Buffer << uint32(g_RealmID);                                                                  ///< Guild Virtual Realm Address
+        l_Buffer << uint32(l_AreaID);                                                                   ///< Area ID
 
-        bytesData.WriteByteSeq(unkGuid[0]);
-        bytesData.WriteByteSeq(guildGuid[6]);
-        bytesData << uint32(pzoneid);
-        bytesData.WriteByteSeq(unkGuid[7]);
-        bytesData.WriteByteSeq(unkGuid[5]);
-        bytesData.WriteByteSeq(playerGuid[3]);
-        bytesData.WriteByteSeq(playerGuid[6]);
-        bytesData << uint32(g_RealmID);
-        bytesData << uint8(race);
-        bytesData << uint8(lvl);
-        bytesData.WriteByteSeq(playerGuid[2]);
-        bytesData.WriteByteSeq(playerGuid[1]);
-        bytesData << uint8(gender);
-        bytesData << uint32(g_RealmID);
-        bytesData.WriteByteSeq(guildGuid[0]);
-        bytesData.WriteByteSeq(guildGuid[5]);
-        bytesData.WriteByteSeq(guildGuid[7]);
+        l_Buffer.WriteBits(l_GuildName.size(), 7);                                                      ///< Guild Name length
+        l_Buffer.WriteBit(l_It->second->isGameMaster());                                                ///< Is Game Master
+        l_Buffer.FlushBits();
 
-        if (DeclinedName const* names = itr->second->GetDeclinedNames())
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                if (names->name[i].size() > 0)
-                    bytesData.append(names->name[i].c_str(), names->name[i].size());
+        l_Buffer.WriteString(l_GuildName);                                                              ///< Guild Name
 
-        bytesData.WriteByteSeq(playerGuid[5]);
-        bytesData.WriteByteSeq(guildGuid[3]);
-        bytesData.WriteByteSeq(playerGuid[4]);
-
-        if (gname.size() > 0)
-            bytesData.append(gname.c_str(), gname.size());
-
-        bytesData << uint8(class_);
-        bytesData.WriteByteSeq(unkGuid[4]);
-        bytesData.WriteByteSeq(guildGuid[2]);
-        bytesData.WriteByteSeq(unkGuid[3]);
-        bytesData.WriteByteSeq(unkGuid[6]);
-        bytesData.WriteByteSeq(unkGuid[2]);
-        bytesData.WriteByteSeq(unkGuid[1]);
-
-        ++displaycount;
+        ++l_MemberCount;
     }
 
-    if (displaycount != 0)
-    {
-        bitsData.FlushBits();
-        uint8 firstByte = bitsData.contents()[0];
-        data << uint8(displaycount << 2 | firstByte & 0x3);
-        for (size_t i = 1; i < bitsData.size(); i++)
-            data << uint8(bitsData.contents()[i]);
+    l_Data.WriteBits(l_MemberCount, 6);
+    l_Data.FlushBits();
+    l_Data.append(l_Buffer);
 
-        data.append(bytesData);
-    }
-    else
-        data.WriteBits(0, 6);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 
     delete[] unkLens;
     delete[] unkStrings;
@@ -1253,8 +1200,8 @@ void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
     l_Response << uint32(l_DestSize);               /// compressed length
     l_Response.WriteBits(l_Type, 3);
     l_Response.FlushBits();
-    l_Response.append(l_CompressedData);            /// compressed data
     l_Response << uint32(l_Size);                   /// decompressed length
+    l_Response.append(l_CompressedData);            /// compressed data
 
     SendPacket(&l_Response);
 }
@@ -2351,7 +2298,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
     uint32 l_Count  = 0;
 
     p_RecvPacket >> l_Type;
-    p_RecvPacket >> l_Count;
+    l_Count = p_RecvPacket.ReadBits(13);
 
     uint64 * l_Guids = new uint64[l_Count];
 

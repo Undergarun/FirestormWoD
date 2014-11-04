@@ -564,7 +564,11 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         }
 
         if (dungeon->expansion > expansion)
+        {
             lockData.lockstatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
+            lockData.SubReason1 = dungeon->expansion;
+            lockData.SubReason2 = expansion;
+        }
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > REGULAR_5_DIFFICULTY && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
@@ -573,41 +577,72 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
         }
         else if (dungeon->minlevel > level || LevelMin)
+        {
             lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+            lockData.SubReason1 = dungeon->minlevel;
+            lockData.SubReason2 = level;
+        }
         else if (dungeon->maxlevel < level || LevelMax)
+        {
             lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+            lockData.SubReason1 = dungeon->maxlevel;
+            lockData.SubReason2 = level;
+        }
         else if (dungeon->flags & LFG_FLAG_SEASONAL)
         {
             if (HolidayIds holiday = sLFGMgr->GetDungeonSeason(dungeon->ID))
+            {
                 if (holiday == HOLIDAY_WOTLK_LAUNCH || !IsHolidayActive(holiday))
+                {
                     lockData.lockstatus = LFG_LOCKSTATUS_NOT_IN_SEASON;
+                    lockData.SubReason1 = holiday;
+                }
+            }
         }
         else if (lockData.lockstatus == LFG_LOCKSTATUS_OK && ar)
         {
             if (ar->achievement && !player->GetAchievementMgr().HasAchieved(ar->achievement))
+            {
                 lockData.lockstatus = LFG_LOCKSTATUS_ACHIEVEMENT_NOT_COMPLITED;
+                lockData.SubReason1 = ar->achievement;
+            }
             else if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
+            {
                 lockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                lockData.SubReason1 = ar->quest_A;
+            }
             else if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
+            {
                 lockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                lockData.SubReason1 = ar->quest_H;
+            }
             else if (ar->item)
             {
                 if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
+                {
                     lockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
+                    lockData.SubReason1 = ar->item;
+                    lockData.SubReason2 = ar->item2
+                }
             }
             else if (ar->item2 && !player->HasItemCount(ar->item2))
+            {
                 lockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
+                lockData.SubReason1 = ar->item2;
+            }
             else
             {
                 uint32 avgItemLevel = (uint32)player->GetAverageItemLevel();
                 if (ar->itemlevelMin && ar->itemlevelMin > avgItemLevel)
                 {
-                    lockData.itemLevel = ar->itemlevelMin;
+                    lockData.SubReason1 = ar->itemlevelMin;
+                    lockData.SubReason2 = (uint32)player->GetAverageItemLevel();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
                 if (ar->itemlevelMax && ar->itemlevelMax < avgItemLevel)
                 {
-                    lockData.itemLevel = ar->itemlevelMax;
+                    lockData.SubReason1 = ar->itemlevelMax;
+                    lockData.SubReason2 = (uint32)player->GetAverageItemLevel();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
                 }
             }
@@ -625,7 +660,8 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
                 if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
                 {
-                    lockData.itemLevel = 999;
+                    lockData.SubReason1 = 999;
+                    lockData.SubReason2 = (uint32)player->GetAverageItemLevel();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
             }

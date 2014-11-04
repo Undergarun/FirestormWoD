@@ -34,7 +34,7 @@ AreaTrigger::AreaTrigger() : WorldObject(false), m_Duration(0), m_Caster(NULL), 
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
 
-    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_AREATRIGGER;
+    m_updateFlag = UPDATEFLAG_HAS_POSITION | UPDATEFLAG_HAS_AREATRIGGER;
 
     m_valuesCount = AREATRIGGER_END;
     m_CreatedTime = 0;

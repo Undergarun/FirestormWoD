@@ -1035,6 +1035,7 @@ void WorldSession::SendAddonsInfo()
         if (l_HasUrl)
         {
             l_Data.WriteBits(l_Url.length(), 8);                            ///< Url length
+            l_Data.FlushBits();
             l_Data.WriteString(l_Url);                                      ///< Url str
         }
 
@@ -1074,6 +1075,9 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_StoreEnabled                         = true;
     bool l_StoreIsDisabledByParentalControls    = false;
     bool l_StoreIsAvailable                     = true;
+    bool l_IsRestrictedAccount                  = false;
+    bool l_IsTutorialEnabled                    = true;
+    bool l_ShowNPETutorial                      = true;
 
     uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
     uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
@@ -1106,6 +1110,9 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
     l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
     l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.)
+    l_Data.WriteBit(l_IsRestrictedAccount);                         ///< Is restricted account
+    l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
+    l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
     l_Data.FlushBits();
 
     if (l_EuropaTicketSystemEnabled)

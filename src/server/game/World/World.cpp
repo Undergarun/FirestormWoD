@@ -3038,15 +3038,22 @@ void World::ShutdownCancel()
 /// Send a server message to the user(s)
 void World::SendServerMessage(ServerMessageType type, const char *text, Player* player)
 {
-    WorldPacket data(SMSG_CHAT_SERVER_MESSAGE, 50);              // guess size
-    data << uint32(type);
+    std::string l_Message = "";
+
     if (type <= SERVER_MSG_STRING)
-        data << text;
+        l_Message = text;
+
+    WorldPacket l_Data(SMSG_CHAT_SERVER_MESSAGE, 50);              // guess size
+    l_Data << uint32(type);
+    l_Data.WriteBits(l_Message.size(), 11);
+    l_Data.FlushBits();
+
+    l_Data.WriteString(l_Message);
 
     if (player)
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(&l_Data);
     else
-        SendGlobalMessage(&data);
+        SendGlobalMessage(&l_Data);
 }
 
 void World::UpdateSessions(uint32 diff)

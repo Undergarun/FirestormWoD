@@ -91,12 +91,14 @@ enum LfgLockStatusType : uint16
 /// Dungeon and reason why player can't join
 struct LfgLockStatus
 {
-    uint16 itemLevel;                                      ///< Required item level
     LfgLockStatusType lockstatus;                          ///< Lock type
+    uint32 SubReason1;
+    uint32 SubReason2;
 
     LfgLockStatus()
     {
-        itemLevel = 0;
+        SubReason1 = 0;
+        SubReason2 = 0;
         lockstatus = LFG_LOCKSTATUS_OK;
     }
 };

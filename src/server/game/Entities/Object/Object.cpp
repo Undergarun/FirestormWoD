@@ -199,13 +199,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         return;
 
     uint8  updateType = UPDATETYPE_CREATE_OBJECT;
-    uint16 flags      = m_updateFlag;
+    uint32 flags      = m_updateFlag;
 
     uint32 valCount = m_valuesCount;
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
-        flags |= UPDATEFLAG_SELF;
+        flags |= UPDATEFLAG_THIS_IS_YOU;
     //else if (GetTypeId() == TYPEID_PLAYER && target != this)
         //valCount = PLAYER_END_NOT_SELF;
 
@@ -228,7 +228,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             break;
     }
 
-    if (flags & UPDATEFLAG_STATIONARY_POSITION)
+    if (flags & UPDATEFLAG_HAS_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
         if (isType(TYPEMASK_GAMEOBJECT))
@@ -248,7 +248,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (ToUnit() && ToUnit()->getVictim())
-        flags |= UPDATEFLAG_HAS_TARGET;
+        flags |= UPDATEFLAG_HAS_COMBAT_VICTIM;
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -322,7 +322,7 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
     p_Target->GetSession()->SendPacket(&l_Data);
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
+void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 {
     const Player        * l_Player          = ToPlayer();
     const Unit          * l_Unit            = ToUnit();
@@ -337,42 +337,43 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
     if (l_Unit)
         const_cast<Unit*>(l_Unit)->m_movementInfo.Normalize();
 
-    if (p_Flags & UPDATEFLAG_HAS_TARGET && (!l_Unit || !l_Unit->getVictim()))
-        p_Flags = p_Flags & ~UPDATEFLAG_HAS_TARGET;
+    if (p_Flags & UPDATEFLAG_HAS_COMBAT_VICTIM && (!l_Unit || !l_Unit->getVictim()))
+        p_Flags = p_Flags & ~UPDATEFLAG_HAS_COMBAT_VICTIM;
 
-    if (p_Flags & UPDATEFLAG_VEHICLE && !l_Unit)
-        p_Flags = p_Flags & ~UPDATEFLAG_VEHICLE;
+    if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
+        p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
 
-    p_Data->WriteBit(0);                                            ///< Fake bit 1
-    p_Data->WriteBit(0);                                            ///< Fake bit 2
-    p_Data->WriteBit(0);                                            ///< Fake bit 3
-    p_Data->WriteBit(0);                                            ///< Fake bit 4
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_LIVING);                  ///< Living
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_GO_TRANSPORT_POSITION);   ///< Go Transport Position
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_STATIONARY_POSITION);     ///< Stationary Position
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_TARGET);              ///< Has Target
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_TRANSPORT);               ///< Transport
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_VEHICLE);                 ///< Vehicle
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_ANIMKITS);                ///< Anim Kits
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_ROTATION);                ///< Rotation
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_AREATRIGGER);             ///< Area trigger
-    p_Data->WriteBit(0);                                            ///< Unk
-    p_Data->WriteBit(p_Flags & UPDATEFLAG_SELF);                    ///< Self
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_NO_BIRTH_ANIM);           ///< No birth animation
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_ENABLE_PORTALS);          ///< Unk
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_PLAY_HOVER_ANIM);         ///< Play hover anim
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_SUPPRESSED_GREETINGS);    ///< Suppress NPC greetings
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_MOVEMENT_UPDATE);     ///< Living
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_TRANSPORT_POSITION);  ///< Go Transport Position
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_POSITION);            ///< Stationary Position
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_COMBAT_VICTIM);       ///< Has Target
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_SERVER_TIME);         ///< Transport
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE);      ///< Vehicle
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_ANIMKITS_CREATE);     ///< Anim Kits
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_ROTATION);            ///< Rotation
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_AREATRIGGER);         ///< Area trigger
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_HAS_GAMEOBJECT);          ///< Has game object
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_THIS_IS_YOU);             ///< Self
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_REPLACE_YOU);             ///< Replace current self object
     p_Data->WriteBit(p_Flags & UPDATEFLAG_SCENE_OBJECT);            ///< Scene Object
-    p_Data->WriteBit(0);                                            ///< Unk
+    p_Data->WriteBit(p_Flags & UPDATEFLAG_SCENE_PENDING_INSTANCES); ///< Unk
     p_Data->FlushBits();
 
     *p_Data << uint32(l_FrameCount);                                ///< Transport frame count
 
-    if (p_Flags & UPDATEFLAG_LIVING)
+    if (p_Flags & UPDATEFLAG_HAS_MOVEMENT_UPDATE)
     {
-        uint32 l_UnkCounter = 0;
+        uint32 l_MovementForceCount = 0;
 
         bool l_HasSpline = l_Unit->movespline->Initialized() && !l_Unit->movespline->Finalized();
 
         /// Movement
         {
-            uint32 l_MseCounter         = 0;
+            uint32 l_RemoveForcesCount  = 0;
             uint32 l_MovementFlags      = l_Unit->m_movementInfo.GetMovementFlags();
             uint32 l_ExtraMovementFlags = l_Unit->m_movementInfo.GetExtraMovementFlags();
 
@@ -390,11 +391,11 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             *p_Data << float(l_Unit->GetOrientation());                     ///< Mover position O
             *p_Data << float(l_Unit->m_movementInfo.pitch);                 ///< Mover pitch
             *p_Data << float(l_Unit->m_movementInfo.splineElevation);       ///< Mover spline elevation
-            *p_Data << uint32(l_MseCounter);                                ///< MSE Counter
-            *p_Data << uint32(0);                                           ///< Unk
+            *p_Data << uint32(l_RemoveForcesCount);                         ///< Remove force Count
+            *p_Data << uint32(0);                                           ///< Move Index
 
-            for (uint32 l_Frame = 0; l_Frame < l_MseCounter; l_Frame++)
-                *p_Data << uint32(0);
+            for (uint32 l_Frame = 0; l_Frame < l_RemoveForcesCount; l_Frame++)
+                *p_Data << uint32(0);                                       ///< Remove force IDs
 
             p_Data->WriteBits(l_MovementFlags, 30);                         ///< Movement flags
             p_Data->WriteBits(l_ExtraMovementFlags, 15);                    ///< Extra movement flags
@@ -416,21 +417,21 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                 *p_Data << int8(l_Unit->GetTransSeat());                    ///< Transport seat
                 *p_Data << uint32(l_Unit->GetTransTime());                  ///< Transport time 1
 
-                p_Data->WriteBit(l_Unit->m_movementInfo.t_time2);           ///< Has transport time 2
-                p_Data->WriteBit(l_Unit->m_movementInfo.t_time3);           ///< Has transport time 3
+                p_Data->WriteBit(l_Unit->m_movementInfo.PrevMoveTime);      ///< Has previous movement time
+                p_Data->WriteBit(l_Unit->m_movementInfo.VehicleRecID);      ///< Has vehicle rec ID
                 p_Data->FlushBits();
 
-                if (l_Unit->m_movementInfo.t_time2)
-                    *p_Data << uint32(l_Unit->m_movementInfo.t_time2);      ///< Transport time 2
+                if (l_Unit->m_movementInfo.PrevMoveTime)
+                    *p_Data << uint32(l_Unit->m_movementInfo.PrevMoveTime); ///< Transport time 2
 
-                if (l_Unit->m_movementInfo.t_time3)
-                    *p_Data << uint32(l_Unit->m_movementInfo.t_time3);      ///< Transport time 3
+                if (l_Unit->m_movementInfo.VehicleRecID)
+                    *p_Data << uint32(l_Unit->m_movementInfo.VehicleRecID); ///< Transport time 3
             }
 
             if (l_HasFallData)
             {
                 *p_Data << uint32(l_Unit->m_movementInfo.fallTime);         ///< Fall time
-                *p_Data << float(l_Unit->m_movementInfo.j_zspeed);          ///< Horizontal speed
+                *p_Data << float(l_Unit->m_movementInfo.JumpVelocity);      ///< Horizontal speed
 
                 p_Data->WriteBit(l_Unit->m_movementInfo.hasFallDirection);  ///< Has fall direction
                 p_Data->FlushBits();
@@ -444,27 +445,27 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             }
         }
 
-        *p_Data << l_Unit->GetSpeed(MOVE_SWIM_BACK);                        ///< Swim back speed
-        *p_Data << l_Unit->GetSpeed(MOVE_RUN);                              ///< Run speed
-        *p_Data << l_Unit->GetSpeed(MOVE_FLIGHT_BACK);                      ///< Flight back speed
-        *p_Data << l_Unit->GetSpeed(MOVE_SWIM);                             ///< Swim speed
         *p_Data << l_Unit->GetSpeed(MOVE_WALK);                             ///< Walk speed
-        *p_Data << l_Unit->GetSpeed(MOVE_FLIGHT);                           ///< Flight speed
+        *p_Data << l_Unit->GetSpeed(MOVE_RUN);                              ///< Run speed
         *p_Data << l_Unit->GetSpeed(MOVE_RUN_BACK);                         ///< Run back speed
+        *p_Data << l_Unit->GetSpeed(MOVE_SWIM);                             ///< Swim speed
+        *p_Data << l_Unit->GetSpeed(MOVE_SWIM_BACK);                        ///< Swim back speed
+        *p_Data << l_Unit->GetSpeed(MOVE_FLIGHT);                           ///< Flight speed
+        *p_Data << l_Unit->GetSpeed(MOVE_FLIGHT_BACK);                      ///< Flight back speed
         *p_Data << l_Unit->GetSpeed(MOVE_TURN_RATE);                        ///< Turn rate
         *p_Data << l_Unit->GetSpeed(MOVE_PITCH_RATE);                       ///< Pitch rate
-        *p_Data << uint32(l_UnkCounter);                                    ///< Unk counter
+        *p_Data << uint32(l_MovementForceCount);                            ///< Movement Force count
 
-        for (uint32 l_Frame = 0; l_Frame < l_UnkCounter; l_Frame++)
+        for (uint32 l_Frame = 0; l_Frame < l_MovementForceCount; l_Frame++)
         {
-            *p_Data << uint32(0);                                           ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << float(0);                                            ///< Unk
-            *p_Data << uint32(0);                                           ///< Unk
-            *p_Data << float(0);                                            ///< Unk
+            *p_Data << uint32(0);                                           ///< ID
+            *p_Data << float(0);                                            ///< Direction X
+            *p_Data << float(0);                                            ///< Direction Y
+            *p_Data << float(0);                                            ///< Direction Z
+            *p_Data << uint32(0);                                           ///< Transport ID
+            *p_Data << float(0);                                            ///< Magnitude
 
-            p_Data->WriteBits(0, 2);                                        ///< Unk
+            p_Data->WriteBits(0, 2);                                        ///< Type
             p_Data->FlushBits();
         }
 
@@ -499,9 +500,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
             {
                 bool l_IsParabolicAndNotEnded   = (l_Spline->splineflags & Movement::MoveSplineFlag::Parabolic) && l_Spline->effect_start_time < l_Spline->Duration();
                 bool l_IsParabolicOrAnimated    = l_Spline->splineflags & (Movement::MoveSplineFlag::Parabolic | Movement::MoveSplineFlag::Animation);
-                bool l_HasUnkSpline             = false;
+                bool l_HasFilterKeys             = false;
 
-                uint8 l_FinalFacingMove = 4;
+                uint8 l_FinalFacingMove = 0;
 
                 switch (l_Spline->splineflags & Movement::MoveSplineFlag::Mask_Final_Facing)
                 {
@@ -521,7 +522,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                 p_Data->WriteBit(l_IsParabolicAndNotEnded);                 ///< Is an parabolic movement and it's not ended
                 p_Data->WriteBit(l_IsParabolicOrAnimated);                  ///< Is an parabolic movement or it's animated
                 p_Data->WriteBits(uint8(l_Spline->spline.mode()), 2);       ///< Spline mode
-                p_Data->WriteBit(l_HasUnkSpline);                           ///< Has unk spline part
+                p_Data->WriteBit(l_HasFilterKeys);                           ///< Has unk spline part
                 p_Data->FlushBits();
 
                 *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
@@ -549,19 +550,19 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
                 if (l_IsParabolicOrAnimated)
                     *p_Data << uint32(l_Spline->effect_start_time);         ///< Effect start time
 
-                if (l_HasUnkSpline)
+                if (l_HasFilterKeys)
                 {
-                    uint32 l_BlockCount = 0;
+                    uint32 l_FilterKeysCount = 0;
 
-                    *p_Data << uint32(l_BlockCount);                        ///< Unk block count
+                    *p_Data << uint32(l_FilterKeysCount);                   ///< Filter Keys Count
 
-                    for (uint32 l_Block = 0; l_Block < l_BlockCount; l_Block++)
+                    for (uint32 l_Block = 0; l_Block < l_FilterKeysCount; l_Block++)
                     {
-                        *p_Data << float(0);                                ///< Unk
-                        *p_Data << float(0);                                ///< Unk
+                        *p_Data << float(0);                                ///< In
+                        *p_Data << float(0);                                ///< Out
                     }
 
-                    p_Data->WriteBits(0, 2);                                ///< Unk
+                    p_Data->WriteBits(0, 2);                                ///< Filter Flags
                     p_Data->FlushBits();
                 }
 
@@ -577,7 +578,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         }
     }
 
-    if (p_Flags & UPDATEFLAG_GO_TRANSPORT_POSITION)
+    if (p_Flags & UPDATEFLAG_HAS_TRANSPORT_POSITION)
     {
         p_Data->appendPackGUID(l_WorldObject->m_movementInfo.t_guid);       ///< Transport Guid
         *p_Data << float(l_WorldObject->GetTransOffsetX());                 ///< Transport X offset
@@ -587,18 +588,18 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         *p_Data << int8(l_WorldObject->GetTransSeat());                     ///< Transport seat
         *p_Data << uint32(l_WorldObject->GetTransTime());                   ///< Transport time 1
 
-        p_Data->WriteBit(l_WorldObject->m_movementInfo.t_time2);            ///< Has transport time 2
-        p_Data->WriteBit(l_WorldObject->m_movementInfo.t_time3);            ///< Has transport time 3
+        p_Data->WriteBit(l_WorldObject->m_movementInfo.PrevMoveTime);            ///< Has transport time 2
+        p_Data->WriteBit(l_WorldObject->m_movementInfo.VehicleRecID);            ///< Has transport time 3
         p_Data->FlushBits();
 
-        if (l_WorldObject->m_movementInfo.t_time2)
-            *p_Data << uint32(l_WorldObject->m_movementInfo.t_time2);       ///< Transport time 2
+        if (l_WorldObject->m_movementInfo.PrevMoveTime)
+            *p_Data << uint32(l_WorldObject->m_movementInfo.PrevMoveTime);       ///< Transport time 2
 
-        if (l_WorldObject->m_movementInfo.t_time3)
-            *p_Data << uint32(l_WorldObject->m_movementInfo.t_time3);       ///< Transport time 3
+        if (l_WorldObject->m_movementInfo.VehicleRecID)
+            *p_Data << uint32(l_WorldObject->m_movementInfo.VehicleRecID);       ///< Transport time 3
     }
 
-    if (p_Flags & UPDATEFLAG_STATIONARY_POSITION)
+    if (p_Flags & UPDATEFLAG_HAS_POSITION)
     {
         *p_Data << float(l_WorldObject->GetStationaryX());                  ///< Stationary position X
         *p_Data << float(l_WorldObject->GetStationaryY());                  ///< Stationary position Y
@@ -606,10 +607,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O            
     }
 
-    if (p_Flags & UPDATEFLAG_HAS_TARGET)
+    if (p_Flags & UPDATEFLAG_HAS_COMBAT_VICTIM)
         p_Data->appendPackGUID(l_Unit->getVictim()->GetGUID());             ///< Target victim guid
 
-    if (p_Flags & UPDATEFLAG_TRANSPORT)
+    if (p_Flags & UPDATEFLAG_HAS_SERVER_TIME)
     {
         uint32 l_TransportTime = getMSTime();
 
@@ -619,23 +620,23 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         *p_Data << uint32(l_TransportTime);                                 ///< Transport time
     }
                                     
-    if (p_Flags & UPDATEFLAG_VEHICLE)
+    if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE)
     {
         *p_Data << uint32(l_Unit->GetVehicleKit()->GetVehicleInfo()->m_ID); ///< Vehicle ID
         *p_Data << float(l_Unit->GetOrientation());                         ///< Vehicle orientation
     }
 
-    if (p_Flags & UPDATEFLAG_ANIMKITS)
+    if (p_Flags & UPDATEFLAG_HAS_ANIMKITS_CREATE)
     {
         *p_Data << uint16(0);                                               ///< AnimKit1
         *p_Data << uint16(0);                                               ///< AnimKit2
         *p_Data << uint16(0);                                               ///< AnimKit3
     }
 
-    if (p_Flags & UPDATEFLAG_ROTATION)
+    if (p_Flags & UPDATEFLAG_HAS_ROTATION)
         *p_Data << uint64(l_GameObject->GetRotation());                     ///< Game object rotation quaternion
 
-    if (p_Flags & UPDATEFLAG_AREATRIGGER)
+    if (p_Flags & UPDATEFLAG_HAS_AREATRIGGER)
     {
         AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
 
@@ -776,11 +777,34 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint16 p_Flags) const
         }
     }
 
-    /// Here unk block
+    if (p_Flags & UPDATEFLAG_HAS_GAMEOBJECT)
+    {
+        *p_Data << uint32(0);                                                           ///< World Effect ID
+
+        if (p_Data->WriteBit(0))
+        {
+            p_Data->FlushBits();
+            *p_Data << uint32(0);
+        }
+        else
+            p_Data->FlushBits();
+    }
 
     if (p_Flags & UPDATEFLAG_SCENE_OBJECT)
     {
         /// TODO
+    }
+
+    if (p_Flags & UPDATEFLAG_SCENE_PENDING_INSTANCES)
+    {
+        uint32 l_SceneInstanceIDsCount = 0;
+
+        *p_Data << uint32(l_SceneInstanceIDsCount);                                     ///< Scene Instance IDs Count
+
+        for (uint32 l_I = 0; l_I < l_SceneInstanceIDsCount; ++l_I)
+        {
+            *p_Data << uint32(0);                                                       ///< Scene Instance IDs
+        }
     }
 
     if (l_FrameCount > 0)
@@ -1507,7 +1531,7 @@ void MovementInfo::OutDebug()
         sLog->outInfo(LOG_FILTER_GENERAL, "seat: %i", t_seat);
         sLog->outInfo(LOG_FILTER_GENERAL, "time: %u", t_time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            sLog->outInfo(LOG_FILTER_GENERAL, "time2: %u", t_time2);
+            sLog->outInfo(LOG_FILTER_GENERAL, "time2: %u", PrevMoveTime);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
@@ -1515,7 +1539,7 @@ void MovementInfo::OutDebug()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "fallTime: %u", fallTime);
     if (flags & MOVEMENTFLAG_FALLING)
-        sLog->outInfo(LOG_FILTER_GENERAL, "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed);
+        sLog->outInfo(LOG_FILTER_GENERAL, "j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", JumpVelocity, j_sinAngle, j_cosAngle, j_xyspeed);
 
     if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
         sLog->outInfo(LOG_FILTER_GENERAL, "splineElevation: %f", splineElevation);

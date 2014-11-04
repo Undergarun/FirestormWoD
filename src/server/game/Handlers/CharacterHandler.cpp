@@ -257,8 +257,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     l_Data.WriteBit(0);                             ///< unk
     l_Data.FlushBits();
 
-    l_Data << l_CharacterCount;                     ///< Account character count
-    l_Data << l_FactionChangeRestrictions;          ///< Faction change restrictions
+    l_Data << uint32(l_CharacterCount);             ///< Account character count
+    l_Data << uint32(l_FactionChangeRestrictions);  ///< Faction change restrictions
 
     if (p_Result)
     {

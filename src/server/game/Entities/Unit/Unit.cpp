@@ -187,7 +187,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
 
-    m_updateFlag = UPDATEFLAG_LIVING;
+    m_updateFlag = UPDATEFLAG_HAS_MOVEMENT_UPDATE;
 
     m_attackTimer[BASE_ATTACK] = 0;
     m_attackTimer[OFF_ATTACK] = 0;
@@ -19559,7 +19559,7 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
         return false;
 
     m_vehicleKit = new Vehicle(this, vehInfo, creatureEntry);
-    m_updateFlag |= UPDATEFLAG_VEHICLE;
+    m_updateFlag |= UPDATEFLAG_HAS_VEHICLE_CREATE;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
     return true;
 }
@@ -19574,7 +19574,7 @@ void Unit::RemoveVehicleKit(bool dismount/* = false*/)
 
     m_vehicleKit = NULL;
 
-    m_updateFlag &= ~UPDATEFLAG_VEHICLE;
+    m_updateFlag &= ~UPDATEFLAG_HAS_VEHICLE_CREATE;
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
     RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
@@ -21373,7 +21373,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     if (interPolatedTurning)
     {
         *data << (uint32)m_movementInfo.fallTime;
-        *data << (float)m_movementInfo.j_zspeed;
+        *data << (float)m_movementInfo.JumpVelocity;
         if (jumping)
         {
             *data << (float)m_movementInfo.j_sinAngle;
