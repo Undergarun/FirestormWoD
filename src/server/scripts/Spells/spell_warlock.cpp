@@ -587,7 +587,7 @@ class spell_warl_imp_swarm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_imp_swarm_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1330,35 +1330,6 @@ class spell_warl_touch_of_chaos : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_touch_of_chaos_SpellScript();
-        }
-};
-
-// Chaos Wave - 124916
-class spell_warl_chaos_wave : public SpellScriptLoader
-{
-    public:
-        spell_warl_chaos_wave() : SpellScriptLoader("spell_warl_chaos_wave") { }
-
-        class spell_warl_chaos_wave_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_chaos_wave_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
-                        caster->CastSpell(caster, WARLOCK_MOLTEN_CORE, true);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_warl_chaos_wave_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_chaos_wave_SpellScript();
         }
 };
 
@@ -2950,16 +2921,12 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
-    new spell_warl_dark_apotheosis();
-    new spell_warl_glyph_of_demon_hunting();
     new spell_warl_siphon_life();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
-    new spell_warl_soulburn_drain_life();
     new spell_warl_soulburn_health_funnel();
     new spell_warl_soulburn_seed_of_corruption_damage();
     new spell_warl_soulburn_seed_of_corruption();
-    new spell_warl_soulburn_remove();
     new spell_warl_soulburn_override();
     new spell_warl_imp_swarm();
     new spell_warl_glyph_of_imp_swarm();
@@ -2975,7 +2942,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_decimate();
     new spell_warl_demonic_call();
     new spell_warl_touch_of_chaos();
-    new spell_warl_chaos_wave();
     new spell_warl_immolation_aura();
     new spell_warl_dark_bargain_on_absorb();
     new spell_warl_dark_regeneration();

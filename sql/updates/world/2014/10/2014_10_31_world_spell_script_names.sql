@@ -35,3 +35,4 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_soulburn_remove';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_void_ray';
 INSERT INTO spell_script_names VALUES (103964, 'spell_warl_touch_of_chaos');
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_metamorphosis_cost';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_wave';
