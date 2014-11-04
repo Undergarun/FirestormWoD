@@ -16417,10 +16417,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     m_powers[l_PowerIndex] = p_PowerValue;
 
-    uint32 regen_diff = getMSTime() - m_lastRegenTime[l_PowerIndex];
-
-    m_powers[l_PowerIndex] = p_PowerValue;
-
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
     if (p_Regen)

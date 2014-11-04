@@ -53,7 +53,6 @@ enum WarlockSpells
     WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE     = 108686,
     WARLOCK_FIRE_AND_BRIMSTONE              = 108683,
     WARLOCK_BACKDRAFT                       = 117828,
-    WARLOCK_PYROCLASM                       = 123686,
     WARLOCK_RAIN_OF_FIRE                    = 104232,
     WARLOCK_RAIN_OF_FIRE_TRIGGERED          = 104233,
     WARLOCK_SPAWN_PURPLE_DEMONIC_GATEWAY    = 113890,
@@ -1834,7 +1833,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
                             caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
                             if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(86121, 0, time(NULL) + 30);
+                                caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, time(NULL) + 30);
                         }
                     }
                 }
@@ -1863,22 +1862,22 @@ class spell_warl_nightfall : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_nightfall_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(WARLOCK_NIGHTFALL))
-                        if (roll_chance_i(10))
-                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 100);
+                        if (roll_chance_i(aurEff->GetBaseAmount() / 1000))
+                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * 100);
 
-                    if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), int32(caster->CountPctFromMaxHealth(1) / 2), false);
+                    if (AuraPtr glyphSiphonOfLife = caster->GetAura(WARLOCK_GLYPH_OF_SIPHON_LIFE, caster->GetGUID()))
+                        caster->HealBySpell(caster, glyphSiphonOfLife->GetSpellInfo(), caster->CountPctFromMaxHealth(glyphSiphonOfLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000), false);
                 }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1904,7 +1903,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 300);
+                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * 100);
                 }
             }
 
@@ -2031,36 +2030,6 @@ class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_rain_of_fire_despawn_SpellScript();
-        }
-};
-
-// Chaos Bolt - 116858
-class spell_warl_chaos_bolt : public SpellScriptLoader
-{
-    public:
-        spell_warl_chaos_bolt() : SpellScriptLoader("spell_warl_chaos_bolt") { }
-
-        class spell_warl_chaos_bolt_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_PYROCLASM))
-                        if (AuraPtr backdraft = caster->GetAura(WARLOCK_BACKDRAFT))
-                            backdraft->ModCharges(-3);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_chaos_bolt_SpellScript();
         }
 };
 
@@ -2915,7 +2884,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan();
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
-    new spell_warl_hellfire();
     new spell_warl_hellfire_periodic();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
@@ -2927,7 +2895,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();
     new spell_warl_rain_of_fire_despawn();
-    new spell_warl_chaos_bolt();
     new spell_warl_ember_tap();
     new spell_warl_fire_and_brimstone();
     new spell_warl_conflagrate_aura();
