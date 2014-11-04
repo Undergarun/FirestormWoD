@@ -555,8 +555,8 @@ void WorldSession::SendLfgJoinResult(uint64 p_Guid, const LfgJoinResultData & p_
             auto l_LockData = l_LockMapIT->second;
             l_Data << uint32(l_LockMapIT->first);                       ///< Dungeon entry (id + type)
             l_Data << uint32(l_LockData.lockstatus);                    ///< Reason
-            l_Data << uint32(l_LockData.itemLevel);                     ///< Sub Reason 1
-            l_Data << uint32(GetPlayer()->GetAverageItemLevel());       ///< Sub Reason 2
+            l_Data << uint32(l_LockData.SubReason1);                    ///< Sub Reason 1
+            l_Data << uint32(l_LockData.SubReason2);                    ///< Sub Reason 2
         }
     }
 
