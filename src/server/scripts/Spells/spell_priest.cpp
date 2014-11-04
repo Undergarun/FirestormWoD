@@ -1307,7 +1307,7 @@ class spell_pri_purify : public SpellScriptLoader
                             {
                                 uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
                                 uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
-
+                                if (GetSpellInfo()->Id == 527)
                                 target->GetDispellableAuraList(caster, dispelMask, dispelList);
                             }
                         }
@@ -1863,8 +1863,7 @@ class spell_pri_halo_heal : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         int32 heal = GetHitHeal();
-                        heal += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 3.25f);
-
+                        heal += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier);
                         float Distance = _player->GetDistance(target);
                         float pct = Distance / 25.0f;
                         heal = int32(heal * pct);
