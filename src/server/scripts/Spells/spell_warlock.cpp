@@ -1346,10 +1346,7 @@ class spell_warl_immolation_aura : public SpellScriptLoader
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
-                {
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -25, POWER_DEMONIC_FURY);
                     caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
-                }
             }
 
             void Register()
@@ -1374,35 +1371,17 @@ class spell_warl_dark_bargain_on_absorb : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_dark_bargain_on_absorb_AuraScript);
 
-            uint32 totalAbsorbAmount;
-
-            bool Load()
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                totalAbsorbAmount = 0;
-                return true;
-            }
-
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                amount = int32(100000000);
-            }
-
-            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
-            {
-                totalAbsorbAmount += dmgInfo.GetDamage();
-            }
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                // (totalAbsorbAmount / 16) it's for totalAbsorbAmount 50% & totalAbsorbAmount / 8 (for each tick of custom spell)
                 if (Unit* caster = GetCaster())
-                    caster->CastCustomSpell(WARLOCK_DARK_BARGAIN_DOT, SPELLVALUE_BASE_POINT0, (totalAbsorbAmount / 16) , caster, true);
+                {
+                    uint32 damageTaken = CalculatePct(caster->GetDamageTakenInPastSecs(GetSpellInfo()->GetDuration(), aurEff->GetBaseAmount());
+                    caster->CastCustomSpell(WARLOCK_DARK_BARGAIN_DOT, SPELLVALUE_BASE_POINT0, damageTaken, caster, true);
+                }
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_dark_bargain_on_absorb_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_dark_bargain_on_absorb_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_warl_dark_bargain_on_absorb_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
