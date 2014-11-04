@@ -1506,17 +1506,6 @@ class spell_pri_mind_spike : public SpellScriptLoader
                             if (target->HasAura(PRIEST_VAMPIRIC_TOUCH, _player->GetGUID()))
                                 target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, _player->GetGUID());
                         }
-                        // ... and deals 50% additional damage.
-                        else if (AuraPtr surgeOfDarkness = _player->GetAura(PRIEST_SURGE_OF_DARKNESS))
-                        {
-                            SetHitDamage(int32(GetHitDamage() * 1.5f));
-
-                            int32 stacks = surgeOfDarkness->GetStackAmount();
-                            if (stacks <= 1)
-                                _player->RemoveAura(PRIEST_SURGE_OF_DARKNESS);
-                            else
-                                surgeOfDarkness->SetStackAmount(stacks - 1);
-                        }
                     }
                 }
             }
