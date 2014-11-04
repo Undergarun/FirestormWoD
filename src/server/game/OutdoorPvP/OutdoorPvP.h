@@ -131,7 +131,7 @@ class OPvPCapturePoint
 
         virtual void DeleteSpawns();
 
-        uint32 m_capturePointGUID;
+        uint64 m_capturePointGUID;
 
         GameObject* m_capturePoint;
 
@@ -143,6 +143,10 @@ class OPvPCapturePoint
 
     protected:
 
+        bool AddObject(uint32 p_Type, go_type p_Data)
+        {
+            return AddObject(p_Type, p_Data.entry, p_Data.map, p_Data.x, p_Data.y, p_Data.z, p_Data.o, p_Data.rot0, p_Data.rot1, p_Data.rot2, p_Data.rot3);
+        }
         bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
             float rotation0, float rotation1, float rotation2, float rotation3);
         bool AddCreature(uint32 type, uint32 entry, uint32 teamval, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
@@ -203,7 +207,7 @@ class OutdoorPvP : public ZoneScript
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();
 
-        typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<uint64/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
         virtual void FillInitialWorldStates(ByteBuffer & /*data*/) {}
 
@@ -284,9 +288,9 @@ class OutdoorPvP : public ZoneScript
             m_capturePoints[cp->m_capturePointGUID] = cp;
         }
 
-        OPvPCapturePoint * GetCapturePoint(uint32 lowguid) const
+        OPvPCapturePoint * GetCapturePoint(uint64 p_Guid) const
         {
-            OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
+            OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(p_Guid);
             if (itr != m_capturePoints.end())
                 return itr->second;
             return NULL;
@@ -297,6 +301,8 @@ class OutdoorPvP : public ZoneScript
         bool HasPlayer(Player* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
+
+        void AddAreaTrigger(uint32 p_Entry, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

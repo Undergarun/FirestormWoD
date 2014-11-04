@@ -177,6 +177,11 @@ Player* ObjectAccessor::FindPlayer(uint64 guid)
     return GetObjectInWorld(guid, (Player*)NULL);
 }
 
+Creature* ObjectAccessor::FindCreature(uint64 p_Guid)
+{
+    return GetObjectInWorld(p_Guid, (Creature*)NULL);
+}
+
 Unit* ObjectAccessor::FindUnit(uint64 guid)
 {
     return GetObjectInWorld(guid, (Unit*)NULL);
@@ -199,6 +204,11 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
     }
 
     return NULL;
+}
+
+GameObject* ObjectAccessor::FindGameObject(uint64 p_Guid)
+{
+    return GetObjectInWorld(p_Guid, (GameObject*)NULL);
 }
 
 void ObjectAccessor::SaveAllPlayers()

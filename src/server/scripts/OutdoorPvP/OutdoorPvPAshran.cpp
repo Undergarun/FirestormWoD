@@ -19,10 +19,437 @@
 
 #include "OutdoorPvPAshran.h"
 
+OPvPCapturePoint_Middle::OPvPCapturePoint_Middle(OutdoorPvP* p_Outdoor, eAshranBattleType p_Type, uint8 p_Faction)
+    : OPvPCapturePoint(p_Outdoor), m_BattleType(p_Type), m_BattleFaction(p_Faction)
+{
+    if (SetCapturePointData(g_CapturePoint[p_Type].entry,
+        g_CapturePoint[p_Type].map,
+        g_CapturePoint[p_Type].x,
+        g_CapturePoint[p_Type].y,
+        g_CapturePoint[p_Type].z,
+        g_CapturePoint[p_Type].o,
+        g_CapturePoint[p_Type].rot0,
+        g_CapturePoint[p_Type].rot1,
+        g_CapturePoint[p_Type].rot2,
+        g_CapturePoint[p_Type].rot3))
+    {
+        if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
+        {
+            switch (p_Type)
+            {
+                case BATTLE_TYPE_EMBERFALL_TOWER:
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_HORDE);
+                    break;
+                case BATTLE_TYPE_VOLRATHS_ADVANCE:
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_HORDE);
+                    break;
+                case BATTLE_TYPE_THE_CROSSROADS:
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
+                    break;
+                case BATTLE_TYPE_TREMBLADES_VANGUARD:
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_ALLIANCE);
+                    break;
+                case BATTLE_TYPE_ARCHMAGE_OVERWATCH:
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_ALLIANCE);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    SpawnFactionGuards(m_BattleType, m_BattleFaction);
+}
+
+void OPvPCapturePoint_Middle::ChangeState()
+{
+    uint32 l_FieldID = 0;
+    switch (m_OldState)
+    {
+        case OBJECTIVESTATE_NEUTRAL:
+            break;
+        case OBJECTIVESTATE_ALLIANCE:
+            break;
+        case OBJECTIVESTATE_HORDE:
+            break;
+        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+            break;
+        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+            break;
+        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+            break;
+        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+            break;
+        default:
+            break;
+    }
+
+    if (l_FieldID)
+    {
+        m_PvP->SendUpdateWorldState(l_FieldID, 0);
+        l_FieldID = 0;
+    }
+
+    uint32 l_UpdateVal = 0;
+    switch (m_State)
+    {
+        case OBJECTIVESTATE_NEUTRAL:
+            m_BattleFaction = TEAM_NEUTRAL;
+            SpawnFactionGuards(m_BattleType, m_BattleFaction);
+            l_UpdateVal = FLAG_NEUTRAL;
+            break;
+        case OBJECTIVESTATE_ALLIANCE:
+            m_BattleFaction = TEAM_ALLIANCE;
+            SpawnFactionGuards(m_BattleType, m_BattleFaction);
+            l_UpdateVal = FLAG_ALLIANCE;
+            break;
+        case OBJECTIVESTATE_HORDE:
+            m_BattleFaction = TEAM_HORDE;
+            SpawnFactionGuards(m_BattleType, m_BattleFaction);
+            l_UpdateVal = FLAG_HORDE;
+            break;
+        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+            m_BattleFaction = TEAM_NEUTRAL;
+            break;
+        default:
+            break;
+    }
+
+    GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
+    if (l_Flag)
+        l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, l_UpdateVal);
+
+    if (l_FieldID)
+        m_PvP->SendUpdateWorldState(l_FieldID, 1);
+
+    UpdateTowerState();
+}
+
+void OPvPCapturePoint_Middle::SendChangePhase()
+{
+    SendUpdateWorldState(WORLD_STATE_ENABLE_TOWER_PROGRESS_BAR, WORLD_STATE_ENABLED);
+    uint32 l_Value = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
+    SendUpdateWorldState(WORLD_STATE_TOWER_PROGRESS_BAR, l_Value);
+    SendUpdateWorldState(WORLD_STATE_TOWER_PROGRESS_BAR_GREY_PCT, m_neutralValuePct);
+}
+
+void OPvPCapturePoint_Middle::FillInitialWorldStates(ByteBuffer& p_Data)
+{
+    p_Data << uint32(WORLD_STATE_ENABLE_TOWER_PROGRESS_BAR) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_TOWER_PROGRESS_BAR) << uint32(50); // Neutral
+    p_Data << uint32(WORLD_STATE_TOWER_PROGRESS_BAR_GREY_PCT) << uint32(80);
+}
+
+void OPvPCapturePoint_Middle::UpdateTowerState()
+{
+    m_PvP->SendUpdateWorldState(WORLD_STATE_ENABLE_TOWER_PROGRESS_BAR, WORLD_STATE_DISABLED);
+    m_PvP->SendUpdateWorldState(WORLD_STATE_TOWER_PROGRESS_BAR, 50);
+    m_PvP->SendUpdateWorldState(WORLD_STATE_TOWER_PROGRESS_BAR_GREY_PCT, 80);
+}
+
+bool OPvPCapturePoint_Middle::HandlePlayerEnter(Player* p_Player)
+{
+    if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
+    {
+        p_Player->SendUpdateWorldState(WORLD_STATE_ENABLE_TOWER_PROGRESS_BAR, WORLD_STATE_ENABLED);
+        uint32 l_Value = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
+        p_Player->SendUpdateWorldState(WORLD_STATE_TOWER_PROGRESS_BAR, l_Value);
+        p_Player->SendUpdateWorldState(WORLD_STATE_TOWER_PROGRESS_BAR_GREY_PCT, m_neutralValuePct);
+        return true;
+    }
+
+    return false;
+}
+
+void OPvPCapturePoint_Middle::HandlePlayerLeave(Player* p_Player)
+{
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENABLE_TOWER_PROGRESS_BAR, WORLD_STATE_DISABLED);
+    OPvPCapturePoint::HandlePlayerLeave(p_Player);
+}
+
+void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, uint8 p_Faction)
+{
+    switch (p_BattleID)
+    {
+        case BATTLE_TYPE_EMBERFALL_TOWER:
+        {
+            switch (p_Faction)
+            {
+                case TEAM_ALLIANCE:
+                    break;
+                case TEAM_HORDE:
+                    //SummonCreature(NPC_WARSPEAR_RAPTOR_RIDER,
+                    //SummonCreature(NPC_WARSPEAR_BLOOD_GUARD, 4791.99f, -4180.81f, 33.22f, 4.95f);
+                    //SummonCreature(NPC_WARSPEAR_BLOOD_GUARD, 4788.07f, -4182.17f, 33.22f, 5.80f);
+                    //SummonCreature(NPC_WARSPEAR_BLOOD_GUARD, 4775.78f, -4217.50f, 32.58f, 0.00f);
+                    //SummonCreature(NPC_WARSPEAR_BLOOD_GUARD, 4776.99f, -4220.96f, 32.33f, 0.91f);
+                    //SummonCreature(NPC_WARSPEAR_HEADHUNTER,
+                    break;
+                case TEAM_NEUTRAL:
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        case BATTLE_TYPE_VOLRATHS_ADVANCE:
+        {
+            switch (p_Faction)
+            {
+                case TEAM_ALLIANCE:
+                    break;
+                case TEAM_HORDE:
+                    break;
+                case TEAM_NEUTRAL:
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        case BATTLE_TYPE_THE_CROSSROADS:
+        {
+            switch (p_Faction)
+            {
+                case TEAM_ALLIANCE:
+                    break;
+                case TEAM_HORDE:
+                    break;
+                case TEAM_NEUTRAL:
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        case BATTLE_TYPE_TREMBLADES_VANGUARD:
+        {
+            switch (p_Faction)
+            {
+                case TEAM_ALLIANCE:
+                    break;
+                case TEAM_HORDE:
+                    break;
+                case TEAM_NEUTRAL:
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        case BATTLE_TYPE_ARCHMAGE_OVERWATCH:
+        {
+            switch (p_Faction)
+            {
+                case TEAM_ALLIANCE:
+                    break;
+                case TEAM_HORDE:
+                    break;
+                case TEAM_NEUTRAL:
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+OPvPCapturePoint_Graveyard::OPvPCapturePoint_Graveyard(OutdoorPvP* p_Outdoor) : OPvPCapturePoint(p_Outdoor)
+{
+    m_GraveyardState = TEAM_NEUTRAL;
+    m_ControlTime = 0;
+
+    SetCapturePointData(g_GraveyardBanner_N.entry,
+        g_GraveyardBanner_N.map,
+        g_GraveyardBanner_N.x,
+        g_GraveyardBanner_N.y,
+        g_GraveyardBanner_N.z,
+        g_GraveyardBanner_N.o,
+        g_GraveyardBanner_N.rot0,
+        g_GraveyardBanner_N.rot1,
+        g_GraveyardBanner_N.rot2,
+        g_GraveyardBanner_N.rot3);
+}
+
+void OPvPCapturePoint_Graveyard::ChangeState()
+{
+    uint32 l_FieldID = 0;
+    switch (m_OldState)
+    {
+        case OBJECTIVESTATE_NEUTRAL:
+        case OBJECTIVESTATE_ALLIANCE:
+        case OBJECTIVESTATE_HORDE:
+        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        default:
+            break;
+    }
+
+    if (l_FieldID)
+    {
+        m_PvP->SendUpdateWorldState(l_FieldID, 0);
+        l_FieldID = 0;
+    }
+
+    uint32 l_UpdateVal = 0;
+    switch (m_State)
+    {
+        case OBJECTIVESTATE_ALLIANCE:
+        {
+            m_GraveyardState = TEAM_ALLIANCE;
+            SpawnFactionFlags(m_GraveyardState);
+            l_UpdateVal = FLAG_ALLIANCE;
+            m_ControlTime = 15 * MINUTE * IN_MILLISECONDS;
+
+            if (Creature* l_Herald = ((OutdoorPvPAshran*)m_PvP)->GetHerald())
+                l_Herald->AI()->DoAction(ACTION_ANNOUNCE_ALLIANCE_GRAVEYARD_OWNER);
+
+            DelCapturePoint();
+            SendUpdateWorldState(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR, WORLD_STATE_DISABLED);
+            break;
+        }
+        case OBJECTIVESTATE_HORDE:
+        {
+            m_GraveyardState = TEAM_HORDE;
+            SpawnFactionFlags(m_GraveyardState);
+            l_UpdateVal = FLAG_HORDE;
+            m_ControlTime = 15 * MINUTE * IN_MILLISECONDS;
+
+            if (Creature* l_Herald = ((OutdoorPvPAshran*)m_PvP)->GetHerald())
+                l_Herald->AI()->DoAction(ACTION_ANNOUNCE_HORDE_GRAVEYARD_OWNER);
+
+            DelCapturePoint();
+            SendUpdateWorldState(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR, WORLD_STATE_DISABLED);
+            break;
+        }
+        case OBJECTIVESTATE_NEUTRAL:
+        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        {
+            m_GraveyardState = TEAM_NEUTRAL;
+            SpawnFactionFlags(m_GraveyardState);
+            l_UpdateVal = FLAG_NEUTRAL;
+
+            if (Creature* l_Herald = ((OutdoorPvPAshran*)m_PvP)->GetHerald())
+                l_Herald->AI()->DoAction(ACTION_ANNOUNCE_MARKETPLACE_GRAVEYARD);
+
+            SetCapturePointData(g_GraveyardBanner_N.entry,
+                g_GraveyardBanner_N.map,
+                g_GraveyardBanner_N.x,
+                g_GraveyardBanner_N.y,
+                g_GraveyardBanner_N.z,
+                g_GraveyardBanner_N.o,
+                g_GraveyardBanner_N.rot0,
+                g_GraveyardBanner_N.rot1,
+                g_GraveyardBanner_N.rot2,
+                g_GraveyardBanner_N.rot3);
+            break;
+        }
+        default:
+            break;
+    }
+
+    GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
+    if (l_Flag)
+        l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, l_UpdateVal);
+
+    if (l_FieldID)
+        m_PvP->SendUpdateWorldState(l_FieldID, 1);
+}
+
+void OPvPCapturePoint_Graveyard::SendChangePhase()
+{
+    SendUpdateWorldState(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR, WORLD_STATE_ENABLED);
+    uint32 l_Value = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
+    SendUpdateWorldState(WORLD_STATE_GRAVEYARD_PROGRESS_BAR, l_Value);
+    SendUpdateWorldState(WORLD_STATE_GRAVEYARD_PROGRESS_BAR_GREY_PCT, m_neutralValuePct);
+}
+
+void OPvPCapturePoint_Graveyard::FillInitialWorldStates(ByteBuffer& p_Data)
+{
+    p_Data << uint32(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_GRAVEYARD_PROGRESS_BAR) << uint32(50); // Neutral
+    p_Data << uint32(WORLD_STATE_GRAVEYARD_PROGRESS_BAR_GREY_PCT) << uint32(70);
+}
+
+bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
+{
+    if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
+    {
+        p_Player->SendUpdateWorldState(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR, WORLD_STATE_ENABLED);
+        uint32 l_Value = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
+        p_Player->SendUpdateWorldState(WORLD_STATE_GRAVEYARD_PROGRESS_BAR, l_Value);
+        p_Player->SendUpdateWorldState(WORLD_STATE_GRAVEYARD_PROGRESS_BAR_GREY_PCT, m_neutralValuePct);
+        return true;
+    }
+
+    return false;
+}
+
+void OPvPCapturePoint_Graveyard::HandlePlayerLeave(Player* p_Player)
+{
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR, WORLD_STATE_DISABLED);
+    OPvPCapturePoint::HandlePlayerLeave(p_Player);
+}
+
+void OPvPCapturePoint_Graveyard::SpawnFactionFlags(uint8 p_Faction)
+{
+    for (uint8 l_Index = GRAVEYARD_BANNER_0; l_Index < GRAVEYARD_MAX_BANNER; ++l_Index)
+    {
+        switch (p_Faction)
+        {
+            case TEAM_ALLIANCE:
+                AddObject(l_Index, g_GraveyardBanner_A[l_Index]);
+                break;
+            case TEAM_HORDE:
+                AddObject(l_Index, g_GraveyardBanner_H[l_Index]);
+                break;
+            case TEAM_NEUTRAL:
+                DelObject(l_Index);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+bool OPvPCapturePoint_Graveyard::Update(uint32 p_Diff)
+{
+    if (m_ControlTime)
+    {
+        if (m_ControlTime <= p_Diff)
+        {
+            m_value = 0;
+            m_State = OBJECTIVESTATE_NEUTRAL;
+            m_ControlTime = 0;
+        }
+        else
+            m_ControlTime -= p_Diff;
+    }
+
+    return OPvPCapturePoint::Update(p_Diff);
+}
+
 OutdoorPvPAshran::OutdoorPvPAshran()
 {
     m_TypeId            = OUTDOOR_PVP_ASHRAN;
     m_WorldPvPAreaId    = ASHRAN_WORLD_PVP_AREA_ID;
+    m_HeraldGuid        = 0;
 
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= BATTLEFIELD_TYPE_WORLD_PVP;
@@ -32,12 +459,45 @@ OutdoorPvPAshran::OutdoorPvPAshran()
         m_PlayersInWar[l_Team].clear();
         m_InvitedPlayers[l_Team].clear();
         m_PlayersWillBeKick[l_Team].clear();
+        m_EnnemiesKilled[l_Team] = 0;
+        m_EnnemiesKilledMax[l_Team] = 100;
+        m_CurrentBattleState = WORLD_STATE_THE_CROSSROADS_BATTLE;
+        m_NextBattleTimer = ASHRAN_TIME_FOR_BATTLE * IN_MILLISECONDS;
     }
 }
 
 bool OutdoorPvPAshran::SetupOutdoorPvP()
 {
     RegisterZone(ASHRAN_ZONE_ID);
+
+    for (uint8 l_TeamID = TEAM_ALLIANCE; l_TeamID <= TEAM_HORDE; ++l_TeamID)
+        AddAreaTrigger(g_HallowedGroundEntries[l_TeamID], 1, ASHRAN_HALLOWED_GROUND_ID, g_HallowedGroundPos[l_TeamID], 0, sMapMgr->FindMap(ASHRAN_MAP_ID, 0));
+
+    for (uint8 l_BattleIndex = BATTLE_TYPE_EMBERFALL_TOWER; l_BattleIndex < BATTLE_TYPE_MAX; ++l_BattleIndex)
+    {
+        if (g_MiddleBattlesEntries[l_BattleIndex] == m_CurrentBattleState)
+            AddCapturePoint(new OPvPCapturePoint_Middle(this, eAshranBattleType(l_BattleIndex), TEAM_NEUTRAL));
+        else
+        {
+            if (l_BattleIndex < 2)
+                AddCapturePoint(new OPvPCapturePoint_Middle(this, eAshranBattleType(l_BattleIndex), TEAM_HORDE));
+            else
+                AddCapturePoint(new OPvPCapturePoint_Middle(this, eAshranBattleType(l_BattleIndex), TEAM_ALLIANCE));
+        }
+    }
+
+    /*
+    * - Kings' Rest (west):
+    *     Just west of the center of the zone lies Kings' Rest, a small area with links to nearby secondary areas.
+    *     The area is notable for holding the Marketplace Graveyard, a capturable graveyard and the only resurrection point
+    *     outside of the faction bases. The Graveyard can be captured similarly to bases in Eye of the Storm,
+    *     allowing a faction to seize control of it for 15 minutes, after which it will revert to a neutral state.
+    *     While captured, players of the controlling faction will be able to respawn there. To capture the Graveyard,
+    *     the capture bar must be moved all the way to the far end.
+    */
+    m_GraveYard = new OPvPCapturePoint_Graveyard(this);
+    AddCapturePoint(m_GraveYard);
+
     return true;
 }
 
@@ -165,142 +625,105 @@ bool OutdoorPvPAshran::Update(uint32 p_Diff)
         }
     }
 
-    return true;
+    if (m_NextBattleTimer)
+    {
+        if (m_NextBattleTimer <= p_Diff)
+        {
+            m_NextBattleTimer = 0;
+            SendUpdateWorldState(WORLD_STATE_CONTROL_THE_FLAG, WORLD_STATE_ENABLED);
+            SendUpdateWorldState(WORLD_STATE_NEXT_BATTLE_ENABLED, WORLD_STATE_DISABLED);
+        }
+        else
+            m_NextBattleTimer -= p_Diff;
+    }
+
+    return OutdoorPvP::Update(p_Diff);
 }
 
 void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
 {
-    /*
-    *p_Data << uint32(521) << uint32(0);
-    *p_Data << uint32(522) << uint32(0);
-    *p_Data << uint32(523) << uint32(0);
-    *p_Data << uint32(524) << uint32(0);
-    *p_Data << uint32(WORLD_STATE_ORE_COLLECTED_ALLIANCE) << uint32(0);
-    *p_Data << uint32(WORLD_STATE_ORE_COLLECTED_HORDE) << uint32(0);
-    *p_Data << uint32(1723) << uint32(0);
-    *p_Data << uint32(1724) << uint32(0);
-    *p_Data << uint32(1941) << uint32(0);
-    *p_Data << uint32(1942) << uint32(0);
-    *p_Data << uint32(1943) << uint32(0);
-    *p_Data << uint32(2259) << uint32(0);
-    *p_Data << uint32(2260) << uint32(0);
-    *p_Data << uint32(2261) << uint32(0);
-    *p_Data << uint32(2262) << uint32(0);
-    *p_Data << uint32(2263) << uint32(0);
-    *p_Data << uint32(2264) << uint32(0);
-    *p_Data << uint32(2265) << uint32(142);
-    *p_Data << uint32(2851) << uint32(0);
-    *p_Data << uint32(3085) << uint32(379);
-    *p_Data << uint32(3191) << uint32(16);
-    *p_Data << uint32(3327) << uint32(0);
-    *p_Data << uint32(3426) << uint32(3);
-    *p_Data << uint32(3600) << uint32(0);
-    *p_Data << uint32(3601) << uint32(0);
-    *p_Data << uint32(3610) << uint32(1);
-    *p_Data << uint32(3695) << uint32(0);
-    *p_Data << uint32(3710) << uint32(0);
-    *p_Data << uint32(3781) << uint32(0);
-    *p_Data << uint32(3801) << uint32(1);
-    *p_Data << uint32(3826) << uint32(4);
-    *p_Data << uint32(3901) << uint32(3);
-    *p_Data << uint32(4020) << uint32(1094);
-    *p_Data << uint32(4021) << uint32(7);
-    *p_Data << uint32(4022) << uint32(3);
-    *p_Data << uint32(4023) << uint32(4);
-    *p_Data << uint32(4024) << uint32(825);
-    *p_Data << uint32(4025) << uint32(269);
-    *p_Data << uint32(4062) << uint32(0);
-    *p_Data << uint32(4131) << uint32(60);
-    *p_Data << uint32(4273) << uint32(0);
-    *p_Data << uint32(4354) << uint32(time(NULL));
-    *p_Data << uint32(4375) << uint32(0);
-    *p_Data << uint32(4417) << uint32(1);
-    *p_Data << uint32(4418) << uint32(50);
-    *p_Data << uint32(4419) << uint32(0);
-    *p_Data << uint32(4485) << uint32(0);
-    *p_Data << uint32(4486) << uint32(0);
-    *p_Data << uint32(4862) << uint32(1000);
-    *p_Data << uint32(4863) << uint32(300);
-    *p_Data << uint32(4864) << uint32(100);
-    *p_Data << uint32(5037) << uint32(6);
-    *p_Data << uint32(5071) << uint32(6);
-    *p_Data << uint32(5115) << uint32(0);
-    *p_Data << uint32(5192) << uint32(0);
-    *p_Data << uint32(5193) << uint32(0);
-    *p_Data << uint32(5194) << uint32(0);
-    *p_Data << uint32(5195) << uint32(0);
-    *p_Data << uint32(5196) << uint32(0);
-    *p_Data << uint32(5332) << uint32(time(NULL));
-    *p_Data << uint32(5333) << uint32(0);
-    *p_Data << uint32(5334) << uint32(1);
-    *p_Data << uint32(5344) << uint32(0);
-    *p_Data << uint32(5360) << uint32(0);
-    *p_Data << uint32(5361) << uint32(0);
-    *p_Data << uint32(5508) << uint32(1);
-    *p_Data << uint32(5677) << uint32(0);
-    *p_Data << uint32(5678) << uint32(0);
-    *p_Data << uint32(5679) << uint32(0);
-    *p_Data << uint32(5684) << uint32(0);
-    *p_Data << uint32(6078) << uint32(0);
-    *p_Data << uint32(6095) << uint32(0);
-    *p_Data << uint32(6164) << uint32(35);
-    *p_Data << uint32(6174) << uint32(0);
-    *p_Data << uint32(6267) << uint32(25);
-    *p_Data << uint32(6306) << uint32(0);
-    *p_Data << uint32(6436) << uint32(0);
-    *p_Data << uint32(6895) << uint32(10);
-    *p_Data << uint32(6897) << uint32(10);
-    *p_Data << uint32(6898) << uint32(10);
-    *p_Data << uint32(7022) << uint32(0);
-    *p_Data << uint32(7242) << uint32(82);
-    *p_Data << uint32(7243) << uint32(1);
-    *p_Data << uint32(7244) << uint32(82);
-    *p_Data << uint32(7245) << uint32(1);
-    *p_Data << uint32(7511) << uint32(0);
-    *p_Data << uint32(7617) << uint32(5);
-    *p_Data << uint32(7618) << uint32(5);
-    *p_Data << uint32(7671) << uint32(0);
-    *p_Data << uint32(7738) << uint32(0);
-    *p_Data << uint32(7752) << uint32(0);
-    *p_Data << uint32(7774) << uint32(0);
-    *p_Data << uint32(7796) << uint32(0);
-    *p_Data << uint32(7797) << uint32(0);
-    *p_Data << uint32(7876) << uint32(0);
-    *p_Data << uint32(8012) << uint32(1);
-    *p_Data << uint32(8295) << uint32(15);
-    *p_Data << uint32(8306) << uint32(20);
-    *p_Data << uint32(8307) << uint32(20);
-    *p_Data << uint32(8391) << uint32(0);
-    *p_Data << uint32(8524) << uint32(0);
-    *p_Data << uint32(8525) << uint32(0);
-    *p_Data << uint32(8526) << uint32(0);
-    *p_Data << uint32(8527) << uint32(0);
-    *p_Data << uint32(8528) << uint32(0);
-    *p_Data << uint32(8529) << uint32(0);
-    *p_Data << uint32(8712) << uint32(0);
-    *p_Data << uint32(8722) << uint32(0);
-    *p_Data << uint32(8859) << uint32(0);
-    *p_Data << uint32(8860) << uint32(0);
-    *p_Data << uint32(8861) << uint32(0);
-    *p_Data << uint32(8862) << uint32(0);
-    *p_Data << uint32(8863) << uint32(1);
-    *p_Data << uint32(8890) << uint32(0);
-    *p_Data << uint32(8892) << uint32(0);
-    *p_Data << uint32(8911) << uint32(10);
-    *p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE) << uint32(65);
-    *p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_HORDE) << uint32(5);
-    *p_Data << uint32(8935) << uint32(1);
-    *p_Data << uint32(8938) << uint32(0);
-    *p_Data << uint32(WORLD_STATE_NEXT_BATTLE_TIMESTAMP) << uint32(time(NULL));
-    *p_Data << uint32(8946) << uint32(0);
-    *p_Data << uint32(8949) << uint32(1);
-    *p_Data << uint32(8950) << uint32(0);
-    *p_Data << uint32(WORLD_STATE_ACTIVE_STAGE) << uint32(0);
-    */
+    p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE) << uint32(m_EnnemiesKilled[TEAM_ALLIANCE]);
+    p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_HORDE) << uint32(m_EnnemiesKilled[TEAM_HORDE]);
+
+    p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE_MAX) << uint32(m_EnnemiesKilledMax[TEAM_ALLIANCE]);
+    p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_HORDE_MAX) << uint32(m_EnnemiesKilledMax[TEAM_HORDE]);
+
+    p_Data << uint32(WORLD_STATE_ACTIVE_STAGE) << uint32(-1);
+    p_Data << uint32(WORLD_STATE_CONTROL_THE_FLAG) << uint32(WORLD_STATE_DISABLED);
+
+    // Laps event
+    p_Data << uint32(WORLD_STATE_ENABLE_LAPS_EVENT) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_LAPS_ALLIANCE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_LAPS_HORDE) << uint32(WORLD_STATE_DISABLED);
+
+    // Ore collection event
+    p_Data << uint32(WORLD_STATE_ORE_COLLECTED_ALLIANCE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_ORE_COLLECTED_HORDE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_ENABLE_ORE_COLLECTION) << uint32(WORLD_STATE_DISABLED);
+
+    // Fire scoring event
+    p_Data << uint32(WORLD_STATE_FIRES_SCORING_ALLIANCE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_FIRES_SCORING_HORDE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_FIRES_SCORING_ENABLED) << uint32(WORLD_STATE_DISABLED);
+
+    // Risen spirits event
+    p_Data << uint32(WORLD_STATE_RISEN_SPIRITS_CAPTURED_ALLIANCE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_RISEN_SPIRITS_CAPTURED_HORDE) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_RISEN_SPIRITS_CAPTURE_ENABLED) << uint32(WORLD_STATE_DISABLED);
+
+    // Battle timers
+    p_Data << uint32(WORLD_STATE_NEXT_BATTLE_TIMESTAMP) << uint32(time(NULL) + (m_NextBattleTimer / IN_MILLISECONDS));
+    p_Data << uint32(WORLD_STATE_NEXT_BATTLE_ENABLED) << uint32(WORLD_STATE_ENABLED);
+
+    // Faction bosses
+    p_Data << uint32(WORLD_STATE_TIME_REMAINING_FOR_BOSS) << uint32(time(NULL));
+    p_Data << uint32(WORLD_STATE_SLAY_VOLRATH) << uint32(WORLD_STATE_DISABLED);
+    p_Data << uint32(WORLD_STATE_SLAY_TREMBLADE) << uint32(WORLD_STATE_DISABLED);
+
+    // Faction mini-bosses
+    for (uint32 l_BattleIndex : g_MiddleBattlesEntries)
+    {
+        if (m_CurrentBattleState == l_BattleIndex)
+            p_Data << uint32(m_CurrentBattleState) << uint32(WORLD_STATE_ENABLED);
+        else
+            p_Data << uint32(l_BattleIndex) << uint32(WORLD_STATE_DISABLED);
+    }
+
+    for (OPvPCapturePointMap::iterator l_CapturePoint = m_capturePoints.begin(); l_CapturePoint != m_capturePoints.end(); ++l_CapturePoint)
+        l_CapturePoint->second->FillInitialWorldStates(p_Data);
 }
 
 void OutdoorPvPAshran::SendRemoveWorldStates(Player* p_Player)
 {
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENNEMIES_SLAIN_HORDE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENNEMIES_SLAIN_ALLIANCE_MAX, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENNEMIES_SLAIN_HORDE_MAX, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ACTIVE_STAGE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_CONTROL_THE_FLAG, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENABLE_LAPS_EVENT, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_LAPS_ALLIANCE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_LAPS_HORDE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ORE_COLLECTED_ALLIANCE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ORE_COLLECTED_HORDE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ENABLE_ORE_COLLECTION, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_FIRES_SCORING_ALLIANCE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_FIRES_SCORING_HORDE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_FIRES_SCORING_ENABLED, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_RISEN_SPIRITS_CAPTURED_ALLIANCE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_RISEN_SPIRITS_CAPTURED_HORDE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_RISEN_SPIRITS_CAPTURE_ENABLED, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_NEXT_BATTLE_TIMESTAMP, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_NEXT_BATTLE_ENABLED, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_TIME_REMAINING_FOR_BOSS, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_SLAY_VOLRATH, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_SLAY_TREMBLADE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_EMBERFALL_TOWER_BATTLE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_VOLRATHS_ADVANCE_BATTLE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_THE_CROSSROADS_BATTLE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_TREMBLADES_VANGUARD_BATTLE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_ARCHMAGE_OVERWATCH_BATTLE, 0);
+    p_Player->SendUpdateWorldState(WORLD_STATE_GRAND_MARSHAL_TREMBLADE_BATTLE, 0);
 }
 
 void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player)
@@ -319,6 +742,17 @@ void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p
     }
 }
 
+void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)
+{
+    if (p_Creature->GetEntry() == ASHRAN_HERALD)
+        m_HeraldGuid = p_Creature->GetGUID();
+}
+
+Creature* OutdoorPvPAshran::GetHerald() const
+{
+    return sObjectAccessor->FindCreature(m_HeraldGuid);
+}
+
 class OutdoorPvP_Ashran : public OutdoorPvPScript
 {
     public:
@@ -331,7 +765,48 @@ class OutdoorPvP_Ashran : public OutdoorPvPScript
         }
 };
 
+// Ashran Herald - 84113
+class npc_ashran_herald : public CreatureScript
+{
+    public:
+        npc_ashran_herald() : CreatureScript("npc_ashran_herald") { }
+
+        struct npc_ashran_heraldAI : public ScriptedAI
+        {
+            npc_ashran_heraldAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case ACTION_ANNOUNCE_MARKETPLACE_GRAVEYARD:
+                        Talk(TALK_ANNOUNCE_NEUTRAL_GRAVEYARD);
+                        break;
+                    case ACTION_ANNOUNCE_HORDE_GRAVEYARD_OWNER:
+                        Talk(TALK_ANNOUNCE_HORDE_GRAVEYARD);
+                        break;
+                    case ACTION_ANNOUNCE_ALLIANCE_GRAVEYARD_OWNER:
+                        Talk(TALK_ANNOUNCE_ALLIANCE_GRAVEYARD);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_heraldAI(p_Creature);
+        }
+};
+
 void AddSC_OutdoorPvPAshran()
 {
     new OutdoorPvP_Ashran();
+    new npc_ashran_herald();
 }
