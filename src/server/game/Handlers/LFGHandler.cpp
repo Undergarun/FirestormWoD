@@ -247,8 +247,8 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket & p_Packet)
                 LfgLockStatus l_LockData = l_It2->second;
                 l_Data << uint32(l_It2->first);                         ///< Slot
                 l_Data << uint32(l_LockData.lockstatus);                ///< Reason
-                l_Data << uint32(l_LockData.itemLevel);                 ///< Sub Reason 1
-                l_Data << uint32(GetPlayer()->GetAverageItemLevel());   ///< Sub Reason 2
+                l_Data << uint32(l_LockData.SubReason1);                ///< Sub Reason 1
+                l_Data << uint32(l_LockData.SubReason2);                ///< Sub Reason 2
             }
         }
 
