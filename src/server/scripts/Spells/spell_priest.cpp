@@ -278,7 +278,7 @@ class spell_pri_holy_nova_heal : public SpellScriptLoader
 
             void CorrectTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.size() <= sSpellMgr->GetSpellInfo(PRIEST_SPELL_HOLY_NOVA)->Effects[EFFECT_1].BasePoints)
+                if (targets.size() < sSpellMgr->GetSpellInfo(PRIEST_SPELL_HOLY_NOVA)->Effects[EFFECT_1].BasePoints + 1)
                     return;
 
                 JadeCore::RandomResizeList(targets, sSpellMgr->GetSpellInfo(PRIEST_SPELL_HOLY_NOVA)->Effects[EFFECT_1].BasePoints);
