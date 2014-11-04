@@ -1207,7 +1207,7 @@ class spell_warl_molten_core_dot : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                        if (roll_chance_i(aurEff->GetBaseAmount()))
                             caster->CastSpell(caster, WARLOCK_MOLTEN_CORE, true);
             }
 
@@ -1375,7 +1375,7 @@ class spell_warl_dark_bargain_on_absorb : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    uint32 damageTaken = CalculatePct(caster->GetDamageTakenInPastSecs(GetSpellInfo()->GetDuration(), aurEff->GetBaseAmount());
+                    uint32 damageTaken = CalculatePct(caster->GetDamageTakenInPastSecs(GetSpellInfo()->GetDuration()), aurEff->GetBaseAmount());
                     caster->CastCustomSpell(WARLOCK_DARK_BARGAIN_DOT, SPELLVALUE_BASE_POINT0, damageTaken, caster, true);
                 }
             }
@@ -1475,7 +1475,7 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_sacrificial_pact_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1612,37 +1612,6 @@ class spell_warl_twilight_ward_s12 : public SpellScriptLoader
         }
 };
 
-// Hellfire - 5857
-class spell_warl_hellfire : public SpellScriptLoader
-{
-    public:
-        spell_warl_hellfire() : SpellScriptLoader("spell_warl_hellfire") { }
-
-        class spell_warl_hellfire_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_hellfire_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetHitUnit())
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 4, POWER_DEMONIC_FURY);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_hellfire_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_hellfire_SpellScript();
-        }
-};
-
 // Hellfire - 1949
 class spell_warl_hellfire_periodic : public SpellScriptLoader
 {
@@ -1653,15 +1622,33 @@ class spell_warl_hellfire_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
+            std::list<Unit*> targetList;
+
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
+                {
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
                     caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+                }
+            }
+
+            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
+            {
+                aurEff->GetTargetList(targetList);
+
+                if (Unit* caster = GetCaster())
+                    for (auto itr : targetList)
+                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
+
+                targetList.clear();
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_warl_hellfire_periodic_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+
             }
         };
 
