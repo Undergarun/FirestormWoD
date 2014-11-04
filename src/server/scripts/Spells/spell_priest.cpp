@@ -1248,13 +1248,16 @@ class spell_pri_atonement : public SpellScriptLoader
                             std::list<Unit*> groupList;
 
                             _player->GetPartyMembers(groupList);
-
+                            for (auto itr : groupList) // Get players at valid distance
+                            {
+                                if (_player->GetDistance(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ()) > GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                                    groupList.remove(itr);
+                            }
                             if (groupList.size() > 1)
                             {
                                 groupList.sort(JadeCore::HealthPctOrderPred());
                                 groupList.resize(1);
                             }
-
                             for (auto itr : groupList)
                             {
                                 if (itr->GetGUID() == _player->GetGUID())
