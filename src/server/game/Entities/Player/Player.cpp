@@ -505,45 +505,45 @@ inline void KillRewarder::_RewardHonor(Player* player)
         player->RewardHonor(_victim, _count, -1, true);
 }
 
-inline void KillRewarder::_RewardXP(Player* player, float rate)
+inline void KillRewarder::_RewardXP(Player* p_player, float p_rate)
 {
-    uint32 xp(_xp);
+    uint32 l_xp(_xp);
     if (_group)
     {
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && player->isAlive() &&
-            _maxNotGrayMember->getLevel() >= player->getLevel())
-            xp = _isFullXP ?
-                uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
-                uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
+        if (_maxNotGrayMember && p_player->isAlive() &&
+            _maxNotGrayMember->getLevel() >= p_player->getLevel())
+            l_xp = _isFullXP ?
+                uint32(l_xp * p_rate) :             // Reward FULL XP if all group members are not gray.
+                uint32(l_xp * p_rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
-            xp = 0;
+            l_xp = 0;
     }
-    if (xp)
+    if (l_xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
-        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            AddPct(xp, (*i)->GetAmount());
+        Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
+            AddPct(l_xp, (*i)->GetAmount());
 
         // 4.2.3. Calculate expansion penalty
-        if (_victim->GetTypeId() == TYPEID_UNIT && player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
-            xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
+        if (_victim->GetTypeId() == TYPEID_UNIT && p_player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
+            l_xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
 
         // 4.2.4. Give XP to player.
-        player->GiveXP(xp, _victim, _groupRate);
-        if (Pet* pet = player->GetPet())
+        p_player->GiveXP(l_xp, _victim, _groupRate);
+        if (Pet* pet = p_player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-            pet->GivePetXP(_group ? xp / 2 : xp);
+            pet->GivePetXP(_group ? l_xp / 2 : l_xp);
         
         // Modificate xp for racial aura of trolls (+20% if beast)
         if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
         {
-            Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
-            for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            AddPct(xp, (*i)->GetAmount());
+            Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
+            for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
+        AddPct(l_xp, (*i)->GetAmount());
         }
     }
 }
