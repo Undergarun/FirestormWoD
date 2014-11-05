@@ -836,9 +836,9 @@ void Group::Disband(bool hideDestroy /* = false */)
             uint32 l_MemberCount = 0;
 
             l_Data.Initialize(SMSG_PARTY_UPDATE);
-            l_Data << uint8(GetGroupType());
             l_Data << uint8(0); /// PartyFlags
             l_Data << uint8(0); /// PartyIndex
+            l_Data << uint8(GetGroupType());
             l_Data << int32(-1);
             l_Data.appendPackGUID(l_GroupGUID);
             l_Data << uint32(m_UpdateCount++);
@@ -2103,9 +2103,9 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     WorldPacket l_Data(SMSG_PARTY_UPDATE);
 
-    l_Data << uint8(GetGroupType());
     l_Data << uint8(l_HasJamCliPartyLFGInfo ? 2 : 0); /// PartyFlags
     l_Data << uint8(l_HasJamCliPartyLFGInfo ? 3 : 1); /// PartyIndex
+    l_Data << uint8(GetGroupType());
     l_Data << int32(l_MyPosition);
     l_Data.appendPackGUID(l_GroupGUID);
     l_Data << uint32(m_UpdateCount++);
