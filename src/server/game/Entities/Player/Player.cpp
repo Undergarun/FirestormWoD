@@ -537,6 +537,14 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
         if (Pet* pet = player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
             pet->GivePetXP(_group ? xp / 2 : xp);
+        
+        // Modificate xp for racial aura of trolls (+20% if beast)
+        if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
+            {
+                Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
+                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                    AddPct(xp, (*i)->GetAmount());
+            }
     }
 }
 
