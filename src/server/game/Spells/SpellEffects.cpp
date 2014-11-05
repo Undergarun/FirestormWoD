@@ -243,7 +243,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET
     &Spell::EffectDestroyItem,                              //169 SPELL_EFFECT_DESTROY_ITEM
     &Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
-    &Spell::EffectNULL,                                     //171 SPELL_EFFECT_171
+    &Spell::EffectSummonObject,                             //171 SPELL_EFFECT_SUMMON_OBJECT
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectNULL,                                     //174 SPELL_EFFECT_APPLY_AURA_ON_PET
@@ -6162,64 +6162,70 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     if (go_id == 0)
         return;
 
-    uint8 slot = 0;
+    int8 slot = 0;
 
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-        slot = m_spellInfo->Effects[effIndex].MiscValueB;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-        slot = 1;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-        slot = 2;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-        slot = 3;
-        break;
-    default:
-        return;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            slot = m_spellInfo->Effects[effIndex].MiscValueB;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            slot = 1;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            slot = 2;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            slot = 3;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT:
+            slot = -1;
+            break;
+        default:
+            return;
     }
 
     switch (m_spellInfo->Id)
     {
-    case 84996: // Raid Marker 1
-    case 84997: // Raid Marker 2
-    case 84998: // Raid Marker 3
-    case 84999: // Raid Marker 4
-    case 85000: // Raid Marker 5
-    {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    float x = 0.0f, y = 0.0f, z = 0.0f;
-                    if (m_targets.HasDst())
-                        destTarget->GetPosition(x, y, z);
-
-                    if (Group* group = m_caster->ToPlayer()->GetGroup())
-                        group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
-                    return;
-    }
-    default:
-        break;
-    }
-
-    uint64 guid = m_caster->m_ObjectSlot[slot];
-    if (guid != 0)
-    {
-        GameObject* obj = NULL;
-        if (m_caster)
-            obj = m_caster->GetMap()->GetGameObject(guid);
-
-        if (obj)
+        case 84996: // Raid Marker 1
+        case 84997: // Raid Marker 2
+        case 84998: // Raid Marker 3
+        case 84999: // Raid Marker 4
+        case 85000: // Raid Marker 5
         {
-            // Recast case - null spell id to make auras not be removed on object remove from world
-            if (m_spellInfo->Id == obj->GetSpellId())
-                obj->SetSpellId(0);
-            m_caster->RemoveGameObject(obj, true);
+            if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            float x = 0.0f, y = 0.0f, z = 0.0f;
+            if (m_targets.HasDst())
+                destTarget->GetPosition(x, y, z);
+
+            if (Group* group = m_caster->ToPlayer()->GetGroup())
+                group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
+            return;
         }
-        m_caster->m_ObjectSlot[slot] = 0;
+        default:
+            break;
+    }
+
+    if (slot != -1)
+    {
+        uint64 guid = m_caster->m_ObjectSlot[slot];
+        if (guid != 0)
+        {
+            GameObject* obj = NULL;
+            if (m_caster)
+                obj = m_caster->GetMap()->GetGameObject(guid);
+
+            if (obj)
+            {
+                // Recast case - null spell id to make auras not be removed on object remove from world
+                if (m_spellInfo->Id == obj->GetSpellId())
+                    obj->SetSpellId(0);
+                m_caster->RemoveGameObject(obj, true);
+            }
+            m_caster->m_ObjectSlot[slot] = 0;
+        }
     }
 
     GameObject* pGameObj = new GameObject;
@@ -6240,9 +6246,9 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         return;
     }
 
-    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     if (!duration)
         duration = m_spellInfo->GetDuration();
+
     pGameObj->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(pGameObj);
@@ -6251,7 +6257,8 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
     map->AddToMap(pGameObj);
 
-    m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
+    if (slot != -1)
+        m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)
