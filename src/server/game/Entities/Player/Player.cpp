@@ -540,11 +540,11 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
         
         // Modificate xp for racial aura of trolls (+20% if beast)
         if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
-            {
-                Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
-                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-                    AddPct(xp, (*i)->GetAmount());
-            }
+        {
+            Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
+            for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+            AddPct(xp, (*i)->GetAmount());
+        }
     }
 }
 
