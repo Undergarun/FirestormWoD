@@ -7330,29 +7330,37 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     UpdateRating(cr);
 }
 
-void Player::UpdateRating(CombatRating cr)
+void Player::UpdateRating(CombatRating p_CombatRating)
 {
-    int32 amount = m_baseRatingValue[cr];
+    int32 l_Amount = m_baseRatingValue[p_CombatRating];
 
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if ((*i)->GetMiscValue() & (1<<cr))
-            amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+        if ((*i)->GetMiscValue() & ( 1 << p_CombatRating))
+            l_Amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
 
-    if (amount < 0)
-        amount = 0;
+    if (l_Amount < 0)
+        l_Amount = 0;
 
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr, uint32(amount));
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + p_CombatRating, uint32(l_Amount));
 
-    if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
+    if (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL)
     {
-        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        float l_Haste = 1.f / (1.f + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100.f);
         // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
+
+        AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+        for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+        {
+            (*iter)->SetCanBeRecalculated(true);
+            (*iter)->RecalculateAmount();
+        }
+
         UpdateManaRegen();
         UpdateEnergyRegen();
         UpdateAllRunesRegen();
@@ -7360,24 +7368,24 @@ void Player::UpdateRating(CombatRating cr)
 
     // Custom MoP Script
     // Way of the Monk - 120275
-    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL))
+    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
     {
-        float haste = 1.0f / (1.0f + (amount * GetRatingMultiplier(cr) + 40.0f) / 100.0f);
+        float l_Haste = 1.0f / (1.0f + (l_Amount * GetRatingMultiplier(p_CombatRating) + 40.0f) / 100.0f);
         // Update melee haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
     }
-    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL))
+    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
     {
-        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        float l_Hate = 1 / (1 + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100);
         // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Hate);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Hate);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Hate);
     }
 
     bool affectStats = CanModifyStats();
 
-    switch (cr)
+    switch (p_CombatRating)
     {
         case CR_DEFENSE_SKILL:
             break;
@@ -23364,7 +23372,15 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
                         l_Value += float((*l_It)->value)/100;
 
                 if (p_Modifier->value)
-                    l_Value += p_Apply ? float(p_Modifier->value)/100 : -(float(p_Modifier->value)/100);
+                    l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+
+                uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+                if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                {
+                    // This needs to be done so sclient receives precise numbers
+                    l_Value -= float(p_Modifier->value) / 100.f;
+                    l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                }
 
                 l_Buffer << float(l_Value);
                 l_Buffer << uint8(l_EffectIndex);

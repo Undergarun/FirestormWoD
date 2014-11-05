@@ -3986,6 +3986,15 @@ bool SpellEffectInfo::CanScale() const
                 case SPELL_AURA_SCHOOL_ABSORB:
                 case SPELL_AURA_SCHOOL_HEAL_ABSORB:
                     return true;
+                case SPELL_AURA_DUMMY:
+                    switch (_spellInfo->Id)
+                    {
+                        // Earthquake
+                        case 61882:
+                            return true;
+                        default:
+                            break;
+                    }
                 default:
                     break;
             }

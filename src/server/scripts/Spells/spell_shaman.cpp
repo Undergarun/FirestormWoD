@@ -102,7 +102,11 @@ enum ShamanSpells
     SPELL_SHA_LAVA_BURST                    = 51505,
     SPELL_SPIRIT_HUNT_HEAL                  = 58879,
     SPELL_SHA_WINDFURY_ATTACK               = 25504,
-    SPELL_FLAMETONGUE_ATTACK                = 10444,
+    SPELL_SHA_LAMETONGUE_ATTACK             = 10444,
+    SPELL_SHA_PVP_BONUS_WOD_2               = 166103,
+    SPELL_SHA_PVP_BONUS_WOD_4               = 171121,
+    SPELL_SHA_LIGHTNING_SHIELD              = 324,
+    SPELL_SHA_IMPROVED_CHAIN_LIGHTNING      = 157766,
 };
 
 // Totemic Projection - 108287
@@ -764,31 +768,23 @@ class spell_sha_fulmination : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (!GetHitDamage())
-                            return;
-
-                        AuraEffectPtr fulminationAura = _player->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2010, EFFECT_0);
-                        if (!fulminationAura)
-                            return;
-
                         AuraPtr lightningShield = _player->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
                         if (!lightningShield)
                             return;
 
-                        uint8 lsCharges = lightningShield->GetCharges();
-                        if (lsCharges <= 1)
+                        uint8 charges = lightningShield->GetCharges() - 1;
+                        if (!charges)
                             return;
-
-                        uint8 usedCharges = lsCharges - 1;
 
                         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE);
                         if (!spellInfo)
                             return;
-                        int32 basePoints = _player->CalculateSpellDamage(target, spellInfo, EFFECT_0);
-                        uint32 damage = usedCharges * _player->SpellDamageBonusDone(target, spellInfo, basePoints, EFFECT_0, SPELL_DIRECT_DAMAGE);
 
-                        _player->CastCustomSpell(SPELL_SHA_FULMINATION_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, target, true, NULL, fulminationAura);
-                        lightningShield->SetCharges(lsCharges - usedCharges);
+                        int32 basePoints = _player->CalculateSpellDamage(target, spellInfo, EFFECT_0);
+                        uint32 damage = charges * _player->SpellDamageBonusDone(target, spellInfo, basePoints, EFFECT_0, SPELL_DIRECT_DAMAGE);
+
+                        _player->CastCustomSpell(SPELL_SHA_FULMINATION_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, target, true);
+                        lightningShield->SetCharges(1);
 
                         _player->RemoveAura(SPELL_SHA_FULMINATION_INFO);
                     }
@@ -807,8 +803,7 @@ class spell_sha_fulmination : public SpellScriptLoader
         }
 };
 
-// Triggered by Flame Shock - 8050
-// Lava Surge - 77756
+// 77762 Lava Surge
 class spell_sha_lava_surge : public SpellScriptLoader
 {
     public:
@@ -818,13 +813,20 @@ class spell_sha_lava_surge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleAuraApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasSpellCooldown(SPELL_SHA_LAVA_BURST))
+                    l_Player->RemoveSpellCooldown(SPELL_SHA_LAVA_BURST, true);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_lava_surge_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::HandleAuraApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -969,16 +971,33 @@ class spell_sha_earthquake : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_earthquake_AuraScript);
 
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                 m_PctBonus = 0.f;
+
+                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
+                {
+                    m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount();
+                    l_Aura->Remove();
+                }
+
+            }
+
             void OnTick(constAuraEffectPtr aurEff)
             {
+                int32 l_bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster()) * m_PctBonus / 100;
+
                 if (Unit* caster = GetCaster())
                     if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_EARTHQUAKE))
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, true);
+                        caster->CastCustomSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, &l_bp0, nullptr, nullptr, true);
             }
+
+            float m_PctBonus;
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectApply += AuraEffectApplyFn(spell_sha_earthquake_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1322,16 +1341,22 @@ class spell_sha_windfury : public SpellScriptLoader
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
                 Player* caster = GetCaster()->ToPlayer();
+                PreventDefaultAction();
 
                 if (!caster->HasSpellCooldown(GetSpellInfo()->Id))
                 {
                     if (Unit* victim = eventInfo.GetActionTarget())
                     {
-                        if (victim->IsHostileTo(caster))
+                        if (!victim->IsFriendlyTo(caster))
                         {
                             caster->AddSpellCooldown(GetSpellInfo()->Id, 0, time(NULL) + 5);
 
-                            for (int i = 0; i < 3; i++)
+                            int count = 3; // Blame blizz
+
+                            if (AuraPtr bonus = GetCaster()->GetAura(SPELL_SHA_PVP_BONUS_WOD_4))
+                                count += bonus->GetEffect(EFFECT_0)->GetAmount();
+
+                            for (int i = 0; i < count; i++)
                                 caster->CastSpell(victim, SPELL_SHA_WINDFURY_ATTACK, true);
                         }
                     }
@@ -1368,7 +1393,7 @@ class spell_sha_flametongue : public SpellScriptLoader
                 SpellInfo const* spellProto = GetSpellInfo();
 
                 if (eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK || spellProto)
-                    GetCaster()->CastSpell(target, SPELL_FLAMETONGUE_ATTACK, true);
+                    GetCaster()->CastSpell(target, SPELL_SHA_LAMETONGUE_ATTACK, true);
             }
 
             void Register()
@@ -1413,6 +1438,109 @@ class spell_sha_improoved_flame_shock : public SpellScriptLoader
         }
 };
 
+// 51533 - Feral Spirit
+class spell_sha_feral_spirit : public SpellScriptLoader
+{
+    public:
+        spell_sha_feral_spirit() : SpellScriptLoader("spell_sha_feral_spirit") { }
+
+        class spell_sha_feral_spirit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_feral_spirit_SpellScript);
+
+            void OnLaunch(SpellEffIndex effIndex)
+            {
+                // Broken spellproc
+                if (Unit* caster = GetCaster())
+                    if (AuraPtr aura = caster->GetAura(SPELL_SHA_PVP_BONUS_WOD_2))
+                        caster->CastSpell(caster, aura->GetSpellInfo()->Effects[0].TriggerSpell);
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_sha_feral_spirit_SpellScript::OnLaunch, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_feral_spirit_SpellScript();
+        }
+};
+
+// 88766 - Fulmination
+class spell_sha_fulmination_proc : public SpellScriptLoader
+{
+    public:
+        spell_sha_fulmination_proc() : SpellScriptLoader("spell_sha_fulmination_proc") { }
+
+        class spell_sha_fulmination_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_fulmination_proc_AuraScript);
+
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* target = eventInfo.GetProcTarget();
+
+                if (!target)
+                    return;
+
+                uint32 maxCharges = GetEffect(EFFECT_0)->CalculateAmount(GetCaster());
+                if (AuraPtr aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
+                {
+                    if (aura->GetCharges() < maxCharges)
+                        aura->SetCharges(aura->GetCharges() + 1);
+
+                    if (aura->GetCharges() == maxCharges && !GetCaster()->HasAura(SPELL_SHA_FULMINATION_INFO))
+                        GetCaster()->CastSpell(GetCaster(), SPELL_SHA_FULMINATION_INFO, true);
+                }
+
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_fulmination_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_fulmination_proc_AuraScript();
+        }
+};
+
+// 157765 Enhanced Chain Lightning
+class spell_sha_enhanced_chain_lightning : public SpellScriptLoader
+{
+    public:
+        spell_sha_enhanced_chain_lightning() : SpellScriptLoader("spell_sha_enhanced_chain_lightning") { }
+
+        class spell_sha_enhanced_chain_lightning_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_enhanced_chain_lightning_AuraScript);
+
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetCaster()->CastSpell(GetCaster(), SPELL_SHA_IMPROVED_CHAIN_LIGHTNING, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_enhanced_chain_lightning_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_enhanced_chain_lightning_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_totemic_projection();
@@ -1443,4 +1571,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_windfury();
     new spell_sha_flametongue();
     new spell_sha_improoved_flame_shock();
+    new spell_sha_feral_spirit();
+    new spell_sha_fulmination_proc();
+    new spell_sha_enhanced_chain_lightning();
 }

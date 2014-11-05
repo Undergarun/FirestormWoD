@@ -474,7 +474,7 @@ enum AuraType
     SPELL_AURA_413                                          = 413,  // 5.0.5 unk aura
     SPELL_AURA_414                                          = 414,  // 5.0.5 unk aura
     SPELL_AURA_415                                          = 415,  // 5.0.5 unk aura
-    SPELL_AURA_SANCTITY_OF_BATTLE                           = 416,  // SPELL_AURA_SANCTITY_OF_BATTLE
+    SPELL_AURA_MOD_COOLDOWN_BY_HASTE                        = 416,  // SPELL_AURA_MOD_COOLDOWN_BY_HASTE
     SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
     SPELL_AURA_MOD_MAX_POWER                                = 418,  // SPELL_AURA_MOD_MAX_POWER
     SPELL_AURA_MODIFY_MANA_POOL_PCT                         = 419,  // SPELL_AURA_MODIFY_MANA_POOL_PCT

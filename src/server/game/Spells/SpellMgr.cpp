@@ -3449,6 +3449,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            // Lava Surge
+            case 77756:
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
+                break;
             // Magma Totem Passive
             case 8188:
             // Healing Streams
@@ -5181,9 +5185,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52042: // Healing Stream - Totem
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
-                break;
-            case 324:   // Lightning Shield
-                spellInfo->ProcCharges = 0;
                 break;
             case 116740:// Tigereye Brew
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);

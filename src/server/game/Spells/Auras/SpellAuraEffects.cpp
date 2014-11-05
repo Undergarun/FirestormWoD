@@ -472,7 +472,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //413 SPELL_AURA_413
     &AuraEffect::HandleNULL,                                      //414 SPELL_AURA_414
     &AuraEffect::HandleNULL,                                      //415 SPELL_AURA_415
-    &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
+    &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
     &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModifyManaPoolPct,                     //419 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
@@ -663,6 +663,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // custom amount calculations go here
     switch (GetAuraType())
     {
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
+                amount = -ceil(((float)GetSpellInfo()->Effects[GetEffIndex()].BasePoints * ((1.f / caster->GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)));
+            break;
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
@@ -1483,15 +1486,18 @@ void AuraEffect::CalculateSpellMod()
                     break;
             }
             break;
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
             {
+                SpellModType type = GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER ? SPELLMOD_FLAT : SPELLMOD_PCT;
+
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
                 ASSERT(m_spellmod->op < MAX_SPELLMOD);
 
-                m_spellmod->type = SpellModType(uint32(GetAuraType()));    // SpellModType value == spell aura types
+                m_spellmod->type = type;    // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
                 m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
@@ -1549,30 +1555,6 @@ void AuraEffect::CalculateSpellMod()
             }
 
             break;
-        case SPELL_AURA_SANCTITY_OF_BATTLE:
-        {
-            if (!GetCaster()->ToPlayer())
-                break;
-
-            if (!m_spellmod)
-            {
-                m_spellmod = new SpellModifier(GetBase());
-                m_spellmod->op = SPELLMOD_COOLDOWN;
-                m_spellmod->type = SPELLMOD_PCT;
-                m_spellmod->spellId = GetId();
-                m_spellmod->mask[1] = 0x04248082;
-                m_spellmod->mask[0] = 0x00804020;
-            }
-            float haste = GetCaster()->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetCaster()->ToPlayer()->GetRatingMultiplier(CR_HASTE_MELEE);
-            if (int32(haste) > 100)
-                haste = 100.0f;
-
-            float newValue = -int32(haste);
-            if (newValue > 0)
-                newValue = 0;
-            m_spellmod->value = newValue;
-            break;
-        }
         default:
             break;
     }
