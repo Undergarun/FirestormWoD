@@ -8782,6 +8782,6 @@ void AuraEffect::HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_m
         return;
 
     if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateVesatility();
+        l_player->UpdateVersatility();
 }
 
