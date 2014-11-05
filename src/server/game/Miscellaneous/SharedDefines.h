@@ -1242,7 +1242,7 @@ enum SpellEffects
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
     SPELL_EFFECT_UPDATE_PLAYER_PHASE                = 167,
-    SPELL_EFFECT_CONTROL_PET                        = 168, // allow hunter and warlock control pet
+    SPELL_EFFECT_ALLOW_CONTROL_PET                  = 168,
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES       = 170,
     SPELL_EFFECT_171                                = 171, // Summons gamebject (player farm related)
