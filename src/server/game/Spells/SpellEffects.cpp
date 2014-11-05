@@ -250,7 +250,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175                      only one spell : Wild fixation (125570) 6.0.3
     &Spell::EffectBecomeUntargettable,                      //176 SPELL_EFFECT_BECOME_UNTARGETTABLE
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_DESPAWN_AREA_AURA
-    &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
+    &Spell::EffectUnused,                                   //178 SPELL_EFFECT_ABANDON_SCENARIO_QUEST
     &Spell::EffectCreateAreatrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
     &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
     &Spell::EffectUnlearnTalent,                            //181 SPELL_EFFECT_UNLEARN_TALENT

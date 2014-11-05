@@ -1252,7 +1252,7 @@ enum SpellEffects
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_BECOME_UNTARGETTABLE               = 176,
     SPELL_EFFECT_DESPAWN_AREA_AURA                  = 177,
-    SPELL_EFFECT_178                                = 178, // 177249 Abandon Scenario Quest
+    SPELL_EFFECT_ABANDON_SCENARIO_QUEST             = 178, // 177249 Abandon Scenario Quest
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // "Update Area Triggers" 106584 & 1333355
     SPELL_EFFECT_UNLEARN_TALENT                     = 181,
