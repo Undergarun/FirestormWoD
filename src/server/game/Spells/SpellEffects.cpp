@@ -232,7 +232,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
-    &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      1 spell - 45534
+    &Spell::EffectForcePlayerInteraction,                   //160 SPELL_EFFECT_FORCE_PLAYER_INTERACTION
     &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
     &Spell::EffectUnused,                                   //163 SPELL_EFFECT_163  unused
@@ -8439,7 +8439,7 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
     player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
 }
 
-void Spell::EffectThreatAll(SpellEffIndex effIndex)
+void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -8452,4 +8452,20 @@ void Spell::EffectThreatAll(SpellEffIndex effIndex)
         l_Target->getThreatManager().clearReferences();
         l_Target->getThreatManager().doAddThreat(m_caster, m_spellInfo->Effects[effIndex].BasePoints);
     }
+}
+
+void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetMap()->GetDifficulty());
+    if (l_SpellInfo == nullptr)
+        return;
+
+    Unit* l_Target = unitTarget;
+    if (l_Target == nullptr)
+        l_Target = m_caster;
+
+    m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
 }
