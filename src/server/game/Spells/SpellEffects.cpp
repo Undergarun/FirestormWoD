@@ -240,85 +240,85 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectDamageFromMaxHealthPCT,                   //165 SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT
     &Spell::EffectGiveCurrency,                             //166 SPELL_EFFECT_GIVE_CURRENCY
     &Spell::EffectNULL,                                     //167 SPELL_EFFECT_UPDATE_PLAYER_PHASE
-    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET
+    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET        @TODO: Implement it, it's needed to havn't action pet bar (hunter & warlocks) until level 10
     &Spell::EffectDestroyItem,                              //169 SPELL_EFFECT_DESTROY_ITEM
     &Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
     &Spell::EffectSummonObject,                             //171 SPELL_EFFECT_SUMMON_OBJECT
-    &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
+    &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA      Aoe resurrection (guild perk)
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
-    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175                      only one spell : Wild fixation (125570) 6.0.3
+    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175                      Only one spell : Wild fixation (125570) 6.0.3
     &Spell::EffectBecomeUntargettable,                      //176 SPELL_EFFECT_BECOME_UNTARGETTABLE
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_DESPAWN_AREA_AURA
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_ABANDON_SCENARIO_QUEST
     &Spell::EffectCreateAreatrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
-    &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
+    &Spell::EffectUnused,                                   //180 SPELL_EFFECT_UPDATE_AREATRIGGER      "Update Area Triggers" 106584 & 1333355
     &Spell::EffectUnlearnTalent,                            //181 SPELL_EFFECT_UNLEARN_TALENT
     &Spell::EffectDespawnAreaTrigger,                       //182 SPELL_EFFECT_DESPAWN_AREA_TRIGGER
-    &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183
-    &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION_REWARD
+    &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION_REWARD       add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
-    &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187
-    &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
-    &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS
-    &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
-    &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
-    &Spell::EffectUncagePetBattle,                          //192 SPELL_EFFECT_UNCAGE_BATTLE_PET
-    &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193
-    &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
-    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
-    &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196
-    &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
+    &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187                     126957 only
+    &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188                     Stampede 121818
+    &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS              Boss loot bonus ?
+    &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
+    &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE     Teleport player to an random digsite (Archaeology)
+    &Spell::EffectUncagePetBattle,                          //192 SPELL_EFFECT_UNCAGE_BATTLE_PET       Battle pet exchange (123302)
+    &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193                     157417 Launch NPC Pet Battle
+    &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195                     Scene related
+    &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196                     summon multi NPC
+    &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197                     Scene related
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_PLAY_CINEMATIC
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
-    &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS
-    &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE
-    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
-    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
-    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204
-    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205
-    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206
-    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207
-    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
-    &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
+    &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS    Battle pet Healing  125439, 125801
+    &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE           Battle pet first slot and track
+    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202                     Unk 5.4.0
+    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203                     Unk 5.4.0
+    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204                     BATTLEPET System 5.4.0
+    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205                     Garrison related 6.0.3
+    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206                     used for TimelessIsle 5.4.0
+    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207                     Quest Garrison related (value = questid)
+    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208                     Unk 5.4.0
+    &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209                     test spell
     &Spell::EffectLearnBluePrint,                           //210 SPELL_EFFECT_LEARN_BLUE_PRINT
-    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
-    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
+    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211                     Garrison learn (specialization)
+    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.0.3
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214
-    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215
-    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216
-    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217
-    &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
-    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
-    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220
-    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
-    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223
-    &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING Finalize building construction
-    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225
-    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
-    &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
-    &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
-    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229
-    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230
-    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231
-    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233
-    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
-    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
-    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236
-    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238
-    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239
-    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240
-    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
-    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244
-    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_245
-    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246
+    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214                     Create Garrison
+    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217                     Upgrade Garrison (171905)
+    &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222                     Create Heirloom
+    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223                     Unk 6.0.1
+    &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
+    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225                     Battle-Training Stone
+    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227                     Teleport Into Karabor
+    &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228                     Recruit A Friend Summon Effect
+    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229                     Upgrade follower to epic
+    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230                     level follower related
+    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231                     level up an follower (debug PTR spell)
+    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232                     Phase related
+    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233                     Retrain Follower (Reroll the abilities and traits on a follower.)
+    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236                     Burst of Experience (follower)
+    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238                     Garrison restore item (give X in skill)
+    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239                     Garrison skip contruction
+    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243                     Illusion spells (visual enchant)
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244                     learn an follower ability NYI
+    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_245                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246                     Unused 6.0.3
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
