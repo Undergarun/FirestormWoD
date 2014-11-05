@@ -91,8 +91,8 @@ SpellDestination::SpellDestination(WorldObject const& wObj)
 
 SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 {
-    m_objectTarget = NULL;
-    m_itemTarget = NULL;
+    m_objectTarget = nullptr;
+    m_itemTarget   = nullptr;
 
     m_objectTargetGUID   = 0;
     m_itemTargetGUID   = 0;
@@ -423,7 +423,7 @@ void SpellCastTargets::Update(Unit* caster)
 {
     m_objectTarget = m_objectTargetGUID ? ((m_objectTargetGUID == caster->GetGUID()) ? caster : ObjectAccessor::GetWorldObject(*caster, m_objectTargetGUID)) : NULL;
 
-    m_itemTarget = NULL;
+    m_itemTarget = nullptr;
     if (caster->GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = caster->ToPlayer();
@@ -558,10 +558,13 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_CastItem = NULL;
     m_castItemGUID = 0;
 
-    unitTarget = NULL;
-    itemTarget = NULL;
-    gameObjTarget = NULL;
-    focusObject = NULL;
+    /// Target used in SpellEffect
+    unitTarget    = nullptr;
+    itemTarget    = nullptr;
+    gameObjTarget = nullptr;
+    focusObject   = nullptr;
+    m_AreaTrigger = nullptr;
+
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_preCastSpell = 0;
@@ -1033,48 +1036,48 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
     }
 }
 
-void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
+void Spell::SelectImplicitNearbyTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
+    if (p_TargetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
     {
         ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target reference type");
         return;
     }
 
-    float range = 0.0f;
-    switch (targetType.GetCheckType())
+    float l_Range = 0.0f;
+    switch (p_TargetType.GetCheckType())
     {
         case TARGET_CHECK_ENEMY:
-            range = m_spellInfo->GetMaxRange(false, m_caster, this);
+            l_Range = m_spellInfo->GetMaxRange(false, m_caster, this);
             break;
         case TARGET_CHECK_ALLY:
         case TARGET_CHECK_PARTY:
         case TARGET_CHECK_RAID:
         case TARGET_CHECK_RAID_CLASS:
         case TARGET_CHECK_ALLY_OR_RAID:
-            range = m_spellInfo->GetMaxRange(true, m_caster, this);
+            l_Range = m_spellInfo->GetMaxRange(true, m_caster, this);
             break;
         case TARGET_CHECK_ENTRY:
         case TARGET_CHECK_DEFAULT:
-            range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive(), m_caster, this);
+            l_Range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive(), m_caster, this);
             break;
         default:
             ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented selection check type");
             break;
     }
 
-    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
+    ConditionList* l_CondList = m_spellInfo->Effects[p_EffIndex].ImplicitTargetConditions;
 
     // handle emergency case - try to use other provided targets if no conditions provided
-    if (targetType.GetCheckType() == TARGET_CHECK_ENTRY && (!condList || condList->empty()))
+    if (p_TargetType.GetCheckType() == TARGET_CHECK_ENTRY && (!l_CondList || l_CondList->empty()))
     {
-        switch (targetType.GetObjectType())
+        switch (p_TargetType.GetObjectType())
         {
             case TARGET_OBJECT_TYPE_GOBJ:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
                     if (focusObject)
-                        AddGOTarget(focusObject, effMask);
+                        AddGOTarget(focusObject, p_EffMask);
                     return;
                 }
                 break;
@@ -1091,62 +1094,65 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
         }
     }
 
-    WorldObject* target = SearchNearbyTarget(range, targetType.GetObjectType(), targetType.GetCheckType(), condList);
-    if (!target)
+    WorldObject* l_Target = SearchNearbyTarget(l_Range, p_TargetType.GetObjectType(), p_TargetType.GetCheckType(), l_CondList);
+    if (!l_Target)
         return;
 
-    CallScriptObjectTargetSelectHandlers(target, effIndex);
+    CallScriptObjectTargetSelectHandlers(l_Target, p_EffIndex);
 
-    switch (targetType.GetObjectType())
+    switch (p_TargetType.GetObjectType())
     {
+        case TARGET_OBJECT_TYPE_AREATRIGGER:
+            if (AreaTrigger* l_AreaTrigger = l_Target->ToAreaTrigger())
+                AddAreaTriggerTarget(l_AreaTrigger, p_EffMask);
         case TARGET_OBJECT_TYPE_UNIT:
-            if (Unit* unitTarget = target->ToUnit())
-                AddUnitTarget(unitTarget, effMask, true, false);
+            if (Unit* l_UnitTarget = l_Target->ToUnit())
+                AddUnitTarget(l_UnitTarget, p_EffMask, true, false);
             break;
         case TARGET_OBJECT_TYPE_GOBJ:
-            if (GameObject* gobjTarget = target->ToGameObject())
-                AddGOTarget(gobjTarget, effMask);
+            if (GameObject* l_GobjTarget = l_Target->ToGameObject())
+                AddGOTarget(l_GobjTarget, p_EffMask);
             break;
         case TARGET_OBJECT_TYPE_DEST:
-            m_targets.SetDst(*target);
+            m_targets.SetDst(*l_Target);
             break;
         default:
             ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target object type");
             break;
     }
 
-    SelectImplicitChainTargets(effIndex, targetType, target, effMask);
+    SelectImplicitChainTargets(p_EffIndex, p_TargetType, l_Target, p_EffMask);
 }
 
-void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
+void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
+    if (p_TargetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
     {
         ASSERT(false && "Spell::SelectImplicitConeTargets: received not implemented target reference type");
         return;
     }
-    std::list<WorldObject*> targets;
-    SpellTargetObjectTypes objectType = targetType.GetObjectType();
-    SpellTargetCheckTypes selectionType = targetType.GetCheckType();
-    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
-    float coneAngle = ((m_caster->GetTypeId() == TYPEID_PLAYER) ? M_PI * (2.0f / 3.0f) : M_PI / 2.0f);
+    std::list<WorldObject*> l_Targets;
+    SpellTargetObjectTypes l_ObjectType = p_TargetType.GetObjectType();
+    SpellTargetCheckTypes l_SelectionType = p_TargetType.GetCheckType();
+    ConditionList* l_ConditionsList = m_spellInfo->Effects[p_EffIndex].ImplicitTargetConditions;
+    float l_ConeAngle = ((m_caster->GetTypeId() == TYPEID_PLAYER) ? M_PI * (2.0f / 3.0f) : M_PI / 2.0f);
 
-    switch (m_spellInfo->Effects[effIndex].TargetA.GetTarget())
+    switch (m_spellInfo->Effects[p_EffIndex].TargetA.GetTarget())
     {
         case TARGET_UNIT_CONE_ENEMY_24:
-            coneAngle = M_PI / 7.5f;
+            l_ConeAngle = M_PI / 7.5f;
             break;
         case TARGET_UNIT_CONE_ENEMY_54:
-            coneAngle = M_PI / 3.33f;
+            l_ConeAngle = M_PI / 3.33f;
             break;
         case TARGET_UNIT_CONE_ENEMY_104:
-            coneAngle = M_PI / 1.73f;
+            l_ConeAngle = M_PI / 1.73f;
             break;
         case TARGET_UNIT_CONE_ENEMY_110:
-            coneAngle = M_PI / 1.64f;
+            l_ConeAngle = M_PI / 1.64f;
             break;
         case TARGET_UNIT_CONE_ENEMY_129:
-            coneAngle = M_PI / 1.40f;
+            l_ConeAngle = M_PI / 1.40f;
             break;
         default:
             break;
@@ -1155,92 +1161,98 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     switch (m_spellInfo->Id)
     {
         case 118094:
-            coneAngle = M_PI/2;
+            l_ConeAngle = M_PI/2;
             break;
         case 118105:
-            coneAngle = M_PI/4;
+            l_ConeAngle = M_PI/4;
             break;
         case 118106:
-            coneAngle = M_PI/6;
+            l_ConeAngle = M_PI/6;
             break;
         case 136740:// Double swipe (back)
-            coneAngle += M_PI;
+            l_ConeAngle += M_PI;
             break;
         default:
             break;
     }
 
-    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+    float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
-    if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
+    if (uint32 l_ContainerTypeMask = GetSearcherTypeMask(l_ObjectType, l_ConditionsList))
     {
-        JadeCore::WorldObjectSpellConeTargetCheck check(coneAngle, radius, m_caster, m_spellInfo, selectionType, condList);
-        JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-        SearchTargets<JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
+        JadeCore::WorldObjectSpellConeTargetCheck l_Check(l_ConeAngle, l_Radius, m_caster, m_spellInfo, l_SelectionType, l_ConditionsList);
+        JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellConeTargetCheck> l_Searcher(m_caster, l_Targets, l_Check, l_ContainerTypeMask);
+        SearchTargets<JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellConeTargetCheck> >(l_Searcher, l_ContainerTypeMask, m_caster, m_caster, l_Radius);
 
-        CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
+        CallScriptObjectAreaTargetSelectHandlers(l_Targets, p_EffIndex);
 
-        if (!targets.empty())
+        if (!l_Targets.empty())
         {
             // Other special target selection goes here
-            if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                JadeCore::Containers::RandomResizeList(targets, maxTargets);
+            if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+                JadeCore::Containers::RandomResizeList(l_Targets, l_MaxTargets);
 
             // for compability with older code - add only unit and go targets
             // TODO: remove this
-            std::list<Unit*> unitTargets;
-            std::list<GameObject*> gObjTargets;
+            std::list<Unit*>        l_UnitTargets;
+            std::list<GameObject*>  l_GObjTargets;
+            std::list<AreaTrigger*> l_AreaTriggerTargets;
 
-            for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            for (std::list<WorldObject*>::iterator l_Iterator = l_Targets.begin(); l_Iterator != l_Targets.end(); ++l_Iterator)
             {
-                if (Unit* unitTarget = (*itr)->ToUnit())
-                    unitTargets.push_back(unitTarget);
-                else if (GameObject* gObjTarget = (*itr)->ToGameObject())
-                    gObjTargets.push_back(gObjTarget);
+                if (Unit* l_UnitTarget = (*l_Iterator)->ToUnit())
+                    l_UnitTargets.push_back(l_UnitTarget);
+                else if (GameObject* l_GObjTarget = (*l_Iterator)->ToGameObject())
+                    l_GObjTargets.push_back(l_GObjTarget);
+                else if (AreaTrigger* l_AreaTrigger = (*l_Iterator)->ToAreaTrigger())
+                    l_AreaTriggerTargets.push_back(l_AreaTrigger);
             }
 
             // Light of Dawn
             if (m_spellInfo->Id == 85222)
             {
-                uint8 maxSize = m_caster->HasAura(54940) ? 4 : 6; // Glyph of Light of Dawn
-                unitTargets.push_back(m_caster);
-                if (unitTargets.size() > maxSize)
+                uint8 l_MaxSize = m_caster->HasAura(54940) ? 4 : 6; // Glyph of Light of Dawn
+                l_UnitTargets.push_back(m_caster);
+                if (l_UnitTargets.size() > l_MaxSize)
                 {
-                    unitTargets.sort(JadeCore::HealthPctOrderPred());
-                    unitTargets.resize(maxSize);
+                    l_UnitTargets.sort(JadeCore::HealthPctOrderPred());
+                    l_UnitTargets.resize(l_MaxSize);
                 }
             }
 
-            for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
-                AddUnitTarget(*itr, effMask, false);
+            for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end(); ++l_Iterator)
+                AddUnitTarget(*l_Iterator, p_EffMask, false);
 
-            for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
-                AddGOTarget(*itr, effMask);
+            for (std::list<GameObject*>::iterator l_Iterator = l_GObjTargets.begin(); l_Iterator != l_GObjTargets.end(); ++l_Iterator)
+                AddGOTarget(*l_Iterator, p_EffMask);
+
+            for (std::list<AreaTrigger*>::iterator l_Iterator = l_AreaTriggerTargets.begin(); l_Iterator != l_AreaTriggerTargets.end(); ++l_Iterator)
+                AddAreaTriggerTarget(*l_Iterator, p_EffMask);
         }
     }
 }
 
-void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
+void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    Unit* referer = NULL;
-    switch (targetType.GetReferenceType())
+    Unit* l_Referer = NULL;
+    switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
         case TARGET_REFERENCE_TYPE_DEST:
         case TARGET_REFERENCE_TYPE_CASTER:
-            referer = m_caster;
+            l_Referer = m_caster;
             break;
         case TARGET_REFERENCE_TYPE_TARGET:
-            referer = m_targets.GetUnitTarget();
+            l_Referer = m_targets.GetUnitTarget();
             break;
         case TARGET_REFERENCE_TYPE_LAST:
         {
             // find last added target for this effect
-            for (std::list<TargetInfo>::reverse_iterator ihit = m_UniqueTargetInfo.rbegin(); ihit != m_UniqueTargetInfo.rend(); ++ihit)
+            for (std::list<TargetInfo>::reverse_iterator l_Iterator = m_UniqueTargetInfo.rbegin(); l_Iterator != m_UniqueTargetInfo.rend(); ++l_Iterator)
             {
-                if (ihit->effectMask & (1<<effIndex))
+                if (l_Iterator->effectMask & (1<<p_EffIndex))
                 {
-                    referer = ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
+                    l_Referer = ObjectAccessor::GetUnit(*m_caster, l_Iterator->targetGUID);
                     break;
                 }
             }
@@ -1250,30 +1262,31 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
             return;
     }
-    if (!referer)
+    if (!l_Referer)
         return;
 
-    Position const* center = NULL;
-    switch (targetType.GetReferenceType())
+    Position const* l_Center = NULL;
+    switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
-            center = m_targets.GetSrcPos();
+            l_Center = m_targets.GetSrcPos();
             break;
         case TARGET_REFERENCE_TYPE_DEST:
-            center = m_targets.GetDstPos();
+            l_Center = m_targets.GetDstPos();
             break;
         case TARGET_REFERENCE_TYPE_CASTER:
         case TARGET_REFERENCE_TYPE_TARGET:
         case TARGET_REFERENCE_TYPE_LAST:
-            center = referer;
+            l_Center = l_Referer;
             break;
          default:
              ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
              return;
     }
-    std::list<WorldObject*> targets;
-    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
-    SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
+
+    std::list<WorldObject*> l_Targets;
+    float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+    SearchAreaTargets(l_Targets, l_Radius, l_Center, l_Referer, p_TargetType.GetObjectType(), p_TargetType.GetCheckType(), m_spellInfo->Effects[p_EffIndex].ImplicitTargetConditions);
 
     // Custom entries
     // TODO: remove those
@@ -1284,11 +1297,11 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             // remove existing targets
             CleanupTargetList();
 
-            if (!targets.empty())
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            if (!l_Targets.empty())
+                for (std::list<WorldObject*>::iterator itr = l_Targets.begin(); itr != l_Targets.end(); ++itr)
                     if ((*itr) && (*itr)->ToUnit())
                         if ((*itr)->GetEntry() == 60512)
-                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
+                            AddUnitTarget((*itr)->ToUnit(), 1 << p_EffIndex, false);
 
             return;
         }
@@ -1297,11 +1310,11 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             // remove existing targets
             CleanupTargetList();
 
-            if (!targets.empty())
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            if (!l_Targets.empty())
+                for (std::list<WorldObject*>::iterator itr = l_Targets.begin(); itr != l_Targets.end(); ++itr)
                     if ((*itr) && (*itr)->ToUnit())
                         if ((*itr)->GetEntry() == 60583 || (*itr)->GetEntry() == 60585 || (*itr)->GetEntry() == 60586)
-                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
+                            AddUnitTarget((*itr)->ToUnit(), 1 << p_EffIndex, false);
 
             return;
         }
@@ -1310,11 +1323,11 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             // remove existing targets
             CleanupTargetList();
 
-            if (!targets.empty())
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            if (!l_Targets.empty())
+                for (std::list<WorldObject*>::iterator itr = l_Targets.begin(); itr != l_Targets.end(); ++itr)
                     if ((*itr) && (*itr)->ToUnit())
                         if ((*itr)->GetEntry() == 61334 || (*itr)->GetEntry() == 61989)
-                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
+                            AddUnitTarget((*itr)->ToUnit(), 1 << p_EffIndex, false);
 
             return;
         }
@@ -1322,31 +1335,34 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             break;
     }
 
-    CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
+    CallScriptObjectAreaTargetSelectHandlers(l_Targets, p_EffIndex);
 
-    std::list<Unit*> unitTargets;
-    std::list<GameObject*> gObjTargets;
+    std::list<Unit*> l_UnitTargets;
+    std::list<GameObject*> l_GObjTargets;
+    std::list<AreaTrigger*> l_AreaTriggerTargets;
     // for compability with older code - add only unit and go targets
     // TODO: remove this
-    if (!targets.empty())
+    if (!l_Targets.empty())
     {
-        for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+        for (std::list<WorldObject*>::iterator l_Iterator = l_Targets.begin(); l_Iterator != l_Targets.end(); ++l_Iterator)
         {
-            if ((*itr))
+            if ((*l_Iterator))
             {
-                if (Unit* unitTarget = (*itr)->ToUnit())
-                    unitTargets.push_back(unitTarget);
-                else if (GameObject* gObjTarget = (*itr)->ToGameObject())
-                    gObjTargets.push_back(gObjTarget);
+                if (Unit* l_UnitTarget = (*l_Iterator)->ToUnit())
+                    l_UnitTargets.push_back(l_UnitTarget);
+                else if (GameObject* l_GObjTarget = (*l_Iterator)->ToGameObject())
+                    l_GObjTargets.push_back(l_GObjTarget);
+                else if (AreaTrigger* l_AreaTrigger = (*l_Iterator)->ToAreaTrigger())
+                    l_AreaTriggerTargets.push_back(l_AreaTrigger);
             }
         }
     }
 
-    if (!unitTargets.empty())
+    if (!l_UnitTargets.empty())
     {
         // Special target selection for smart heals and energizes
-        uint32 maxSize = 0;
-        int32 power = -1;
+        uint32 l_MaxSize = 0;
+        int32 l_Power = -1;
         switch (m_spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -1361,19 +1377,19 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                     case 109825: // Nick of Time, Windward Heart (heroic)
                     case 108000: // Nick of Time, Windward Heart (normal)
                     case 109822: // Nick of Time, Windward Heart (lfr)
-                        maxSize = 1;
-                        power = POWER_HEALTH;
+                        l_MaxSize = 1;
+                        l_Power = POWER_HEALTH;
                         break;
                     case 57669: // Replenishment
                         // In arenas Replenishment may only affect the caster
                         if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->InArena())
                         {
-                            unitTargets.clear();
-                            unitTargets.push_back(m_caster);
+                            l_UnitTargets.clear();
+                            l_UnitTargets.push_back(m_caster);
                             break;
                         }
-                        maxSize = 10;
-                        power = POWER_MANA;
+                        l_MaxSize = 10;
+                        l_Power = POWER_MANA;
                         break;
                     default:
                         break;
@@ -1382,29 +1398,29 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             case SPELLFAMILY_PRIEST:
                 if (m_spellInfo->Id == 34861) // Circle of Healing
                 {
-                    maxSize = m_caster->HasAura(55675) ? 6 : 5; // Glyph of Circle of Healing
-                    power = POWER_HEALTH;
+                    l_MaxSize = m_caster->HasAura(55675) ? 6 : 5; // Glyph of Circle of Healing
+                    l_Power = POWER_HEALTH;
                 }
                 else if (m_spellInfo->Id == 64844) // Divine Hymn
                 {
-                    maxSize = 5;
-                    power = POWER_HEALTH;
+                    l_MaxSize = 5;
+                    l_Power = POWER_HEALTH;
                 }
                 else if (m_spellInfo->Id == 64904) // Hymn of Hope
                 {
-                    maxSize = 3;
-                    power = POWER_MANA;
+                    l_MaxSize = 3;
+                    l_Power = POWER_MANA;
                 }
                 else
                     break;
 
                 // Remove targets outside caster's raid
-                for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end();)
+                for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
                 {
-                    if (!(*itr)->IsInRaidWith(m_caster))
-                        itr = unitTargets.erase(itr);
+                    if (!(*l_Iterator)->IsInRaidWith(m_caster))
+                        l_Iterator = l_UnitTargets.erase(l_Iterator);
                     else
-                        ++itr;
+                        ++l_Iterator;
                 }
                 break;
             case SPELLFAMILY_PALADIN:
@@ -1413,31 +1429,31 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 {
                     case 119072:// Holy Wrath
                     {
-                        static const uint8 types_noglyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, 0};
-                        static const uint8 types_glyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, CREATURE_TYPE_ELEMENTAL, CREATURE_TYPE_DRAGONKIN, 0};
-                        const uint8 *types = m_caster->HasAura(54923) ? types_glyph: types_noglyph;
+                        static const uint8 s_TypesNoglyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, 0};
+                        static const uint8 sTypeGlyph[] = {CREATURE_TYPE_DEMON, CREATURE_TYPE_UNDEAD, CREATURE_TYPE_ELEMENTAL, CREATURE_TYPE_DRAGONKIN, 0};
+                        const uint8 *l_Types = m_caster->HasAura(54923) ? sTypeGlyph: s_TypesNoglyph;
 
                         // Normal case
-                        if (effIndex == 0 && !m_caster->HasAura(115738))
+                        if (p_EffIndex == 0 && !m_caster->HasAura(115738))
                         {
-                            for (std::list<Unit*>::iterator itr = unitTargets.begin() ; itr != unitTargets.end();)
+                            for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin() ; l_Iterator != l_UnitTargets.end();)
                             {
-                                bool found = false;
-                                uint8 types_i = 0;
+                                bool l_Found = false;
+                                uint8 l_TypesI = 0;
                                 do
                                 {
-                                    if ((*itr)->GetCreatureType() == types[types_i])
+                                    if ((*l_Iterator)->GetCreatureType() == l_Types[l_TypesI])
                                     {
-                                        found = true;
+                                        l_Found = true;
                                         break;
                                     }
                                 }
-                                while (types[++types_i]);
+                                while (l_Types[++l_TypesI]);
 
-                                if (found)
-                                    itr++;
+                                if (l_Found)
+                                    l_Iterator++;
                                 else
-                                    itr = unitTargets.erase(itr);
+                                    l_Iterator = l_UnitTargets.erase(l_Iterator);
                             }
                         }
                         // Glyph of Focused Wrath
@@ -1446,65 +1462,65 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                             if (m_caster->GetTypeId() != TYPEID_PLAYER)
                                 break;
 
-                            Player* player = m_caster->ToPlayer();
-                            if (!player)
+                            Player* l_Player = m_caster->ToPlayer();
+                            if (l_Player == nullptr)
                                 break;
 
-                            if (Unit* target = player->GetSelectedUnit())
+                            if (Unit* l_Target = l_Player->GetSelectedUnit())
                             {
-                                if (effIndex == 0)
+                                if (p_EffIndex == 0)
                                 {
-                                    bool found = false;
-                                    uint8 types_i = 0;
+                                    bool l_Found = false;
+                                    uint8 l_TypesI = 0;
                                     do
                                     {
-                                        if (target->GetCreatureType() == types[types_i])
+                                        if (l_Target->GetCreatureType() == l_Types[l_TypesI])
                                         {
-                                            found = true;
+                                            l_Found = true;
                                             break;
                                         }
                                     }
-                                    while (types[++types_i]);
+                                    while (l_Types[++l_TypesI]);
 
-                                    unitTargets.clear();
-                                    if (found)
-                                        unitTargets.push_back(target);
+                                    l_UnitTargets.clear();
+                                    if (l_Found)
+                                        l_UnitTargets.push_back(l_Target);
                                 }
                                 else
                                 {
-                                    unitTargets.clear();
-                                    unitTargets.push_back(target);
+                                    l_UnitTargets.clear();
+                                    l_UnitTargets.push_back(l_Target);
                                 }
                             }
                             else
                             {
-                                unitTargets.sort(JadeCore::WorldObjectDistanceCompareOrderPred(m_caster));
-                                Unit* victim = (*unitTargets.begin())->ToUnit();
+                                l_UnitTargets.sort(JadeCore::WorldObjectDistanceCompareOrderPred(m_caster));
+                                Unit* l_Victim = (*l_UnitTargets.begin())->ToUnit();
 
-                                if (victim)
+                                if (l_Victim)
                                 {
-                                    if (effIndex == 0)
+                                    if (p_EffIndex == 0)
                                     {
-                                        bool found = false;
-                                        uint8 types_i = 0;
+                                        bool l_Found = false;
+                                        uint8 l_TypesI = 0;
                                         do
                                         {
-                                            if (victim->GetCreatureType() == types[types_i])
+                                            if (l_Victim->GetCreatureType() == l_Types[l_TypesI])
                                             {
-                                                found = true;
+                                                l_Found = true;
                                                 break;
                                             }
                                         }
-                                        while (types[++types_i]);
+                                        while (l_Types[++l_TypesI]);
 
-                                        unitTargets.clear();
-                                        if (found)
-                                            unitTargets.push_back(victim);
+                                        l_UnitTargets.clear();
+                                        if (l_Found)
+                                            l_UnitTargets.push_back(l_Victim);
                                     }
                                     else
                                     {
-                                        unitTargets.clear();
-                                        unitTargets.push_back(victim);
+                                        l_UnitTargets.clear();
+                                        l_UnitTargets.push_back(l_Victim);
                                     }
                                 }
                             }
@@ -1523,69 +1539,69 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 {
                     // Firebloom, Item  Druid T12 Restoration 4P Bonus
                     case 99017:
-                        maxSize = 1;
-                        power = POWER_HEALTH;
+                        l_MaxSize = 1;
+                        l_Power = POWER_HEALTH;
                         break;
                     // Efflorescence
                     case 81269:
-                        maxSize = 3;
-                        power = POWER_HEALTH;
+                        l_MaxSize = 3;
+                        l_Power = POWER_HEALTH;
                         break;
                     // Tranquility
                     case 44203:
-                        maxSize = 5;
-                        power = POWER_HEALTH;
+                        l_MaxSize = 5;
+                        l_Power = POWER_HEALTH;
                         break;
                 }
                 if (m_spellInfo->SpellFamilyFlags[1] == 0x04000000) // Wild Growth
                 {
-                    maxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
-                    power = POWER_HEALTH;
+                    l_MaxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
+                    l_Power = POWER_HEALTH;
                 }
                 else
                     break;
 
                 // Remove targets outside caster's raid
-                for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end();)
-                    if (!(*itr)->IsInRaidWith(m_caster))
-                        itr = unitTargets.erase(itr);
+                for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
+                    if (!(*l_Iterator)->IsInRaidWith(m_caster))
+                        l_Iterator = l_UnitTargets.erase(l_Iterator);
                     else
-                        ++itr;
+                        ++l_Iterator;
                 break;
             default:
                 break;
         }
 
-        if (maxSize && power != -1)
+        if (l_MaxSize && l_Power != -1)
         {
-            if (Powers(power) == POWER_HEALTH)
+            if (Powers(l_Power) == POWER_HEALTH)
             {
-                if (unitTargets.size() > maxSize)
+                if (l_UnitTargets.size() > l_MaxSize)
                 {
-                    unitTargets.sort(JadeCore::HealthPctOrderPred());
-                    unitTargets.resize(maxSize);
+                    l_UnitTargets.sort(JadeCore::HealthPctOrderPred());
+                    l_UnitTargets.resize(l_MaxSize);
                 }
             }
             else
             {
-                for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end();)
-                    if ((*itr)->getPowerType() != (Powers)power)
-                        itr = unitTargets.erase(itr);
+                for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
+                    if ((*l_Iterator)->getPowerType() != (Powers)l_Power)
+                        l_Iterator = l_UnitTargets.erase(l_Iterator);
                     else
-                        ++itr;
+                        ++l_Iterator;
 
-                if (unitTargets.size() > maxSize)
+                if (l_UnitTargets.size() > l_MaxSize)
                 {
-                    unitTargets.sort(JadeCore::PowerPctOrderPred((Powers)power));
-                    unitTargets.resize(maxSize);
+                    l_UnitTargets.sort(JadeCore::PowerPctOrderPred((Powers)l_Power));
+                    l_UnitTargets.resize(l_MaxSize);
                 }
             }
         }
 
         // todo: move to scripts, but we must call it before resize list by MaxAffectedTargets
         // Intimidating Shout
-        if (m_spellInfo->Id == 5246 && effIndex != EFFECT_0)
-            unitTargets.remove(m_targets.GetUnitTarget());
+        if (m_spellInfo->Id == 5246 && p_EffIndex != EFFECT_0)
+            l_UnitTargets.remove(m_targets.GetUnitTarget());
 
         // Custom MoP Script
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -1593,7 +1609,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
             switch (m_spellInfo->Id)
             {
                 case 46968: // Shockwave
-                    if (unitTargets.size() < 3)
+                    if (l_UnitTargets.size() < 3)
                         break;
 
                     m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
@@ -1602,7 +1618,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 case 107270:
                 case 117640:
                 case 148187:
-                    if (m_caster->ToPlayer()->HasSpellCooldown(129881) || unitTargets.size() < 3)
+                    if (m_caster->ToPlayer()->HasSpellCooldown(129881) || l_UnitTargets.size() < 3)
                         break;
 
                     m_caster->CastSpell(m_caster, 129881, true);
@@ -1621,20 +1637,29 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                     m_caster->AddAura(36032, m_caster);
 
         // Other special target selection goes here
-        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            JadeCore::Containers::RandomResizeList(unitTargets, maxTargets);
+        if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+            JadeCore::Containers::RandomResizeList(l_UnitTargets, l_MaxTargets);
 
-        for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
-            AddUnitTarget(*itr, effMask, false);
+        for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end(); ++l_Iterator)
+            AddUnitTarget(*l_Iterator, p_EffMask, false);
     }
 
-    if (!gObjTargets.empty())
+    if (!l_GObjTargets.empty())
     {
-        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            JadeCore::Containers::RandomResizeList(gObjTargets, maxTargets);
+        if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+            JadeCore::Containers::RandomResizeList(l_GObjTargets, l_MaxTargets);
 
-        for (std::list<GameObject*>::iterator itr = gObjTargets.begin(); itr != gObjTargets.end(); ++itr)
-            AddGOTarget(*itr, effMask);
+        for (std::list<GameObject*>::iterator l_Iterator = l_GObjTargets.begin(); l_Iterator != l_GObjTargets.end(); ++l_Iterator)
+            AddGOTarget(*l_Iterator, p_EffMask);
+    }
+
+    if (!l_AreaTriggerTargets.empty())
+    {
+        if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+            JadeCore::Containers::RandomResizeList(l_AreaTriggerTargets, l_MaxTargets);
+
+        for (std::list<AreaTrigger*>::iterator l_Iterator = l_AreaTriggerTargets.begin(); l_Iterator != l_AreaTriggerTargets.end(); ++l_Iterator)
+            AddAreaTriggerTarget(*l_Iterator, p_EffMask);
     }
 }
 
@@ -1806,7 +1831,7 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
         AddUnitTarget(target->ToUnit(), 1 << effIndex, checkIfValid);
 }
 
-void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
+void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType)
 {
     // Persistent auras should cast trigger spells when they is activated on target
     if (m_spellInfo->HasPersistenAura())
@@ -1814,85 +1839,87 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
 
     ASSERT((m_targets.GetObjectTarget() || m_targets.GetItemTarget() || m_targets.GetUnitTarget()) && "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
 
-    WorldObject* target = m_targets.GetObjectTarget();
+    WorldObject* l_Target = m_targets.GetObjectTarget();
 
-    CallScriptObjectTargetSelectHandlers(target, effIndex);
+    CallScriptObjectTargetSelectHandlers(l_Target, p_EffIndex);
 
-    if (target)
+    if (l_Target)
     {
-        if (Unit* unit = target->ToUnit())
-            AddUnitTarget(unit, 1 << effIndex, m_redirected == true ? false : true, false, effIndex);
-        else if (GameObject* gobj = target->ToGameObject())
-            AddGOTarget(gobj, 1 << effIndex);
+        if (Unit* l_Unit = l_Target->ToUnit())
+            AddUnitTarget(l_Unit, 1 << p_EffIndex, m_redirected == true ? false : true, false, p_EffIndex);
+        else if (GameObject* l_GameObject = l_Target->ToGameObject())
+            AddGOTarget(l_GameObject, 1 << p_EffIndex);
+        else if (AreaTrigger* l_AreaTrigger = l_Target->ToAreaTrigger())
+            AddAreaTriggerTarget(l_AreaTrigger, 1 << p_EffIndex);
 
-        SelectImplicitChainTargets(effIndex, targetType, target, 1 << effIndex);
+        SelectImplicitChainTargets(p_EffIndex, p_TargetType, l_Target, 1 << p_EffIndex);
     }
     // Script hook can remove object target and we would wrongly land here
-    else if (Item* item = m_targets.GetItemTarget())
-        AddItemTarget(item, 1 << effIndex);
+    else if (Item* l_Item = m_targets.GetItemTarget())
+        AddItemTarget(l_Item, 1 << p_EffIndex);
 
-    switch (targetType.GetTarget())
+    switch (p_TargetType.GetTarget())
     {
         case TARGET_UNIT_ALLY_OR_RAID: // Raids buffs
         {
-            if (!target || !target->ToUnit() || !m_caster->ToPlayer())
+            if (!l_Target || !l_Target->ToUnit() || !m_caster->ToPlayer())
                 break;
 
-            bool sameRaid = false;
-            if (Player* player = target->ToPlayer())
+            bool l_SameRaid = false;
+            if (Player* l_Player = l_Target->ToPlayer())
             {
-                if (player->IsInSameGroupWith(m_caster->ToPlayer()) || player->IsInSameRaidWith(m_caster->ToPlayer()))
-                    sameRaid = true;
+                if (l_Player->IsInSameGroupWith(m_caster->ToPlayer()) || l_Player->IsInSameRaidWith(m_caster->ToPlayer()))
+                    l_SameRaid = true;
             }
-            else if (Unit* owner = target->ToUnit()->GetOwner())
+            else if (Unit* l_Owner = l_Target->ToUnit()->GetOwner())
             {
-                if (Player* plrOwner = owner->ToPlayer())
+                if (Player* l_PlayerOwner = l_Owner->ToPlayer())
                 {
-                    if (plrOwner->IsInSameGroupWith(m_caster->ToPlayer()) || plrOwner->IsInSameRaidWith(m_caster->ToPlayer()))
-                        sameRaid = true;
+                    if (l_PlayerOwner->IsInSameGroupWith(m_caster->ToPlayer()) || l_PlayerOwner->IsInSameRaidWith(m_caster->ToPlayer()))
+                        l_SameRaid = true;
                 }
             }
 
-            if (sameRaid)
+            if (l_SameRaid)
             {
                 CleanupTargetList();
 
-                for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (uint32 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
                 {
                     // not call for empty effect.
                     // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
-                    if (!m_spellInfo->Effects[i].IsEffect())
+                    if (!m_spellInfo->Effects[l_I].IsEffect())
                         continue;
 
-                    Position const* center = m_caster;
-                    std::list<WorldObject*> targets;
-                    float radius = m_spellInfo->Effects[i].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+                    Position const* l_Center = m_caster;
+                    std::list<WorldObject*> l_Targets;
+                    float l_Raidus = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
-                    SearchAreaTargets(targets, radius, center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[i].ImplicitTargetConditions);
+                    SearchAreaTargets(l_Targets, l_Raidus, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
 
-                    std::list<Unit*> unitTargets;
+                    std::list<Unit*> l_UnitTargets;
                     // for compatibility with older code - add only unit and go targets
                     // TODO: remove this
-                    if (!targets.empty())
+                    if (!l_Targets.empty())
                     {
-                        for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                        for (std::list<WorldObject*>::iterator l_Iterator = l_Targets.begin(); l_Iterator != l_Targets.end(); ++l_Iterator)
                         {
-                            if ((*itr))
+                            if ((*l_Iterator))
                             {
-                                if (Unit* unitTarget = (*itr)->ToUnit())
-                                    unitTargets.push_back(unitTarget);
+                                if (Unit* unitTarget = (*l_Iterator)->ToUnit())
+                                    l_UnitTargets.push_back(unitTarget);
                             }
                         }
                     }
 
-                    if (!unitTargets.empty())
+                    if (!l_UnitTargets.empty())
                     {
                         // Other special target selection goes here
-                        if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                            JadeCore::Containers::RandomResizeList(unitTargets, maxTargets);
+                        if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+                            JadeCore::Containers::RandomResizeList(l_UnitTargets, l_MaxTargets);
 
-                        for (std::list<Unit*>::iterator itr = unitTargets.begin(); itr != unitTargets.end(); ++itr)
-                            AddUnitTarget(*itr, 1 << i, false);
+                        for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end(); ++l_Iterator)
+                            AddUnitTarget(*l_Iterator, 1 << l_I, false);
                     }
                 }
             }
@@ -2128,22 +2155,22 @@ void Spell::SelectImplicitTrajTargets()
     }
 }
 
-void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
+void Spell::SelectEffectTypeImplicitTargets(uint8 p_EffIndex)
 {
     // special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER
     // TODO: this is a workaround - target shouldn't be stored in target map for those spells
-    switch (m_spellInfo->Effects[effIndex].Effect)
+    switch (m_spellInfo->Effects[p_EffIndex].Effect)
     {
         case SPELL_EFFECT_SUMMON_RAF_FRIEND:
         case SPELL_EFFECT_SUMMON_PLAYER:
             if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelection())
             {
-                WorldObject* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
+                WorldObject* l_Target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
 
-                CallScriptObjectTargetSelectHandlers(target, SpellEffIndex(effIndex));
+                CallScriptObjectTargetSelectHandlers(l_Target, SpellEffIndex(p_EffIndex));
 
-                if (target && target->ToPlayer())
-                    AddUnitTarget(target->ToUnit(), 1 << effIndex, false);
+                if (l_Target && l_Target->ToPlayer())
+                    AddUnitTarget(l_Target->ToUnit(), 1 << p_EffIndex, false);
             }
             return;
         default:
@@ -2151,63 +2178,64 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
     }
 
     // select spell implicit targets based on effect type
-    if (!m_spellInfo->Effects[effIndex].GetImplicitTargetType())
+    if (!m_spellInfo->Effects[p_EffIndex].GetImplicitTargetType())
         return;
 
-    uint32 targetMask = m_spellInfo->Effects[effIndex].GetMissingTargetMask();
-
-    if (!targetMask)
+    uint32 l_TargetMask = m_spellInfo->Effects[p_EffIndex].GetMissingTargetMask();
+    if (!l_TargetMask)
         return;
 
-    WorldObject* target = NULL;
+    WorldObject* l_Target = NULL;
 
-    switch (m_spellInfo->Effects[effIndex].GetImplicitTargetType())
+    switch (m_spellInfo->Effects[p_EffIndex].GetImplicitTargetType())
     {
         // add explicit object target or self to the target map
         case EFFECT_IMPLICIT_TARGET_EXPLICIT:
             // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
-            if (targetMask & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK))
+            if (l_TargetMask & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK))
             {
-                if (Unit* unitTarget = m_targets.GetUnitTarget())
-                    target = unitTarget;
-                else if (targetMask & TARGET_FLAG_CORPSE_MASK)
+                if (Unit* l_UnitTarget = m_targets.GetUnitTarget())
+                    l_Target = l_UnitTarget;
+                else if (l_TargetMask & TARGET_FLAG_CORPSE_MASK)
                 {
-                    if (Corpse* corpseTarget = m_targets.GetCorpseTarget())
+                    if (Corpse* l_CorpseTarget = m_targets.GetCorpseTarget())
                     {
                         // TODO: this is a workaround - corpses should be added to spell target map too, but we can't do that so we add owner instead
-                        if (Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID()))
-                            target = owner;
+                        if (Player* l_Owner = ObjectAccessor::FindPlayer(l_CorpseTarget->GetOwnerGUID()))
+                            l_Target = l_Owner;
                     }
                 }
                 else //if (targetMask & TARGET_FLAG_UNIT_MASK)
-                    target = m_caster;
+                    l_Target = m_caster;
             }
-            if (targetMask & TARGET_FLAG_ITEM_MASK)
+            if (l_TargetMask & TARGET_FLAG_ITEM_MASK)
             {
-                if (Item* itemTarget = m_targets.GetItemTarget())
-                    AddItemTarget(itemTarget, 1 << effIndex);
+                if (Item* l_ItemTarget = m_targets.GetItemTarget())
+                    AddItemTarget(l_ItemTarget, 1 << p_EffIndex);
                 return;
             }
-            if (targetMask & TARGET_FLAG_GAMEOBJECT_MASK)
-                target = m_targets.GetGOTarget();
+            if (l_TargetMask & TARGET_FLAG_GAMEOBJECT_MASK)
+                l_Target = m_targets.GetGOTarget();
             break;
         // add self to the target map
         case EFFECT_IMPLICIT_TARGET_CASTER:
-            if (targetMask & TARGET_FLAG_UNIT_MASK)
-                target = m_caster;
+            if (l_TargetMask & TARGET_FLAG_UNIT_MASK)
+                l_Target = m_caster;
             break;
         default:
             break;
     }
 
-    CallScriptObjectTargetSelectHandlers(target, SpellEffIndex(effIndex));
+    CallScriptObjectTargetSelectHandlers(l_Target, SpellEffIndex(p_EffIndex));
 
-    if (target)
+    if (l_Target)
     {
-        if (target->ToUnit())
-            AddUnitTarget(target->ToUnit(), 1 << effIndex, false);
-        else if (target->ToGameObject())
-            AddGOTarget(target->ToGameObject(), 1 << effIndex);
+        if (l_Target->ToUnit())
+            AddUnitTarget(l_Target->ToUnit(), 1 << p_EffIndex, false);
+        else if (l_Target->ToGameObject())
+            AddGOTarget(l_Target->ToGameObject(), 1 << p_EffIndex);
+        else if (l_Target->ToAreaTrigger())
+            AddAreaTriggerTarget(l_Target->ToAreaTrigger(), 1 << p_EffIndex);
     }
 }
 
@@ -2229,6 +2257,9 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList*
         case TARGET_OBJECT_TYPE_GOBJ:
         case TARGET_OBJECT_TYPE_GOBJ_ITEM:
             retMask &= GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
+        case TARGET_OBJECT_TYPE_AREATRIGGER:
+            retMask &= GRID_MAP_TYPE_MASK_AREATRIGGER;
             break;
         default:
             break;
@@ -2678,14 +2709,14 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
         {
             switch (m_spellInfo->Effects[effIndex].Effect)
             {
-            case SPELL_EFFECT_GAMEOBJECT_DAMAGE:
-            case SPELL_EFFECT_GAMEOBJECT_REPAIR:
-            case SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE:
-                if (go->GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-                    effectMask &= ~(1 << effIndex);
-                break;
-            default:
-                break;
+                case SPELL_EFFECT_GAMEOBJECT_DAMAGE:
+                case SPELL_EFFECT_GAMEOBJECT_REPAIR:
+                case SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE:
+                    if (go->GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+                        effectMask &= ~(1 << effIndex);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -2755,12 +2786,43 @@ void Spell::AddItemTarget(Item* item, uint32 effectMask)
     }
 
     // This is new target add data
-
     ItemTargetInfo target;
     target.item       = item;
     target.effectMask = effectMask;
 
     m_UniqueItemInfo.push_back(target);
+}
+
+void Spell::AddAreaTriggerTarget(AreaTrigger* p_AreaTrigger, uint32 p_EffectMask)
+{
+    for (uint32 l_EffectIndex = 0; l_EffectIndex < MAX_SPELL_EFFECTS; ++l_EffectIndex)
+    {
+        if (!m_spellInfo->Effects[l_EffectIndex].IsEffect())
+            p_EffectMask &= ~(1 << l_EffectIndex);
+    }
+
+    if (!p_EffectMask)
+        return;
+
+    uint64 l_TargetGUID = p_AreaTrigger->GetGUID();
+
+    // Lookup target in already in list
+    for (std::list<AreaTriggerTargetInfo>::iterator l_Iterator = m_UniqueAreaTriggerTargetInfo.begin(); l_Iterator != m_UniqueAreaTriggerTargetInfo.end(); ++l_Iterator)
+    {
+        if (l_TargetGUID == l_Iterator->targetGUID)                 // Found in list
+        {
+            l_Iterator->effectMask |= p_EffectMask;                 // Add only effect mask
+            return;
+        }
+    }
+
+    AreaTriggerTargetInfo l_AreaTriggerTargetInfo;
+    l_AreaTriggerTargetInfo.targetGUID = p_AreaTrigger->GetGUID();
+    l_AreaTriggerTargetInfo.processed  = false;
+    l_AreaTriggerTargetInfo.effectMask = p_EffectMask;
+    l_AreaTriggerTargetInfo.timeDelay  = 0.0f;
+
+    m_UniqueAreaTriggerTargetInfo.push_back(l_AreaTriggerTargetInfo);
 }
 
 void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
@@ -2799,7 +2861,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // can't use default call because of threading, do stuff as fast as possible
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (farMask & (1 << i))
-                HandleEffects(unit, NULL, NULL, i, SPELL_EFFECT_HANDLE_HIT_TARGET);
+                HandleEffects(unit, nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_HIT_TARGET);
         return;
     }
 
@@ -3338,7 +3400,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
-            HandleEffects(unit, NULL, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
+            HandleEffects(unit, nullptr, nullptr, nullptr, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     return SPELL_MISS_NONE;
 }
@@ -3415,7 +3477,7 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
-            HandleEffects(NULL, NULL, go, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
+            HandleEffects(nullptr, nullptr, go, nullptr, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     CallScriptOnHitHandlers();
 
@@ -3438,10 +3500,33 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo* target)
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
-            HandleEffects(NULL, target->item, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
+            HandleEffects(nullptr, target->item, nullptr, nullptr, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     CallScriptOnHitHandlers();
 
+    CallScriptAfterHitHandlers();
+}
+
+void Spell::DoAllEffectOnTarget(AreaTriggerTargetInfo* p_Target)
+{
+    uint32 effectMask = p_Target->effectMask;
+    if (!p_Target->targetGUID || !effectMask)
+        return;
+
+    AreaTrigger* l_AreaTrigger = sObjectAccessor->GetAreaTrigger(*m_caster, p_Target->targetGUID);
+    if (l_AreaTrigger == nullptr)
+        return;
+
+    PrepareScriptHitHandlers();
+    CallScriptBeforeHitHandlers();
+
+    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+    {
+        if (effectMask & (1 << effectNumber))
+            HandleEffects(nullptr, nullptr, nullptr, l_AreaTrigger, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
+    }
+
+    CallScriptOnHitHandlers();
     CallScriptAfterHitHandlers();
 }
 
@@ -4111,7 +4196,7 @@ void Spell::_handle_immediate_phase()
             continue;
 
         // call effect handlers to handle destination hit
-        HandleEffects(NULL, NULL, NULL, j, SPELL_EFFECT_HANDLE_HIT);
+        HandleEffects(nullptr, nullptr, nullptr, nullptr, j, SPELL_EFFECT_HANDLE_HIT);
     }
 
     // process items
@@ -5919,24 +6004,21 @@ void Spell::HandleHolyPower(Player* caster)
     }
 }
 
-void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode)
+void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_GOTarget, AreaTrigger* p_AreaTrigger, uint32 p_I, SpellEffectHandleMode p_Mode)
 {
-    effectHandleMode = mode;
-    unitTarget = pUnitTarget;
-    itemTarget = pItemTarget;
-    gameObjTarget = pGOTarget;
-    destTarget = &m_destTargets[i]._position;
+    effectHandleMode = p_Mode;
+    unitTarget       = p_UnitTarget;
+    itemTarget       = p_ItemTarget;
+    gameObjTarget    = p_GOTarget;
+    m_AreaTrigger    = p_AreaTrigger;
+    destTarget       = &m_destTargets[p_I]._position;
 
-    uint8 eff = m_spellInfo->Effects[i].Effect;
+    uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
+    damage         = CalculateDamage(p_I, unitTarget);
 
-    damage = CalculateDamage(i, unitTarget);
-
-    bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i, mode);
-
-    if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
-    {
-        (this->*SpellEffects[eff])((SpellEffIndex)i);
-    }
+    bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
+    if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)
+        (this->*SpellEffects[l_Effect])((SpellEffIndex)p_I);
 }
 
 SpellCastResult Spell::CheckCast(bool strict)
@@ -8156,7 +8238,7 @@ void Spell::HandleLaunchPhase()
         if (!m_spellInfo->Effects[i].IsEffect())
             continue;
 
-        HandleEffects(NULL, NULL, NULL, i, SPELL_EFFECT_HANDLE_LAUNCH);
+        HandleEffects(nullptr, nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_LAUNCH);
     }
 
     float multiplier[MAX_SPELL_EFFECTS];
@@ -8222,7 +8304,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
             m_damage = 0;
             m_healing = 0;
 
-            HandleEffects(unit, NULL, NULL, i, SPELL_EFFECT_HANDLE_LAUNCH_TARGET);
+            HandleEffects(unit, nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_LAUNCH_TARGET);
 
             if (m_damage > 0)
             {

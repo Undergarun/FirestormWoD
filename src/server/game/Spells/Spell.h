@@ -449,6 +449,7 @@ public:
     void EffectThreatAll(SpellEffIndex p_EffIndex);
     void EffectForcePlayerInteraction(SpellEffIndex p_EffIndex);
     void EffectBecomeUntargettable(SpellEffIndex p_EffIndex);
+    void EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex);
 
     typedef std::set<AuraPtr> UsedSpellMods;
 
@@ -553,7 +554,7 @@ public:
     void SendResurrectRequest(Player* target);
 
     void HandleHolyPower(Player* caster);
-    void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
+    void HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_GOTarget, AreaTrigger* p_AreaTrigger, uint32 i, SpellEffectHandleMode mode);
     void HandleThreatSpells();
 
     SpellInfo const* const m_spellInfo;
@@ -660,6 +661,7 @@ protected:
     Unit* unitTarget;
     Item* itemTarget;
     GameObject* gameObjTarget;
+    AreaTrigger* m_AreaTrigger;
     WorldLocation* destTarget;
     int32 damage;
     SpellEffectHandleMode effectHandleMode;
@@ -723,11 +725,21 @@ protected:
     };
     std::list<ItemTargetInfo> m_UniqueItemInfo;
 
+    struct AreaTriggerTargetInfo
+    {
+        uint64 targetGUID;
+        uint64 timeDelay;
+        uint32 effectMask : 32;
+        bool   processed  : 1;
+    };
+    std::list<AreaTriggerTargetInfo> m_UniqueAreaTriggerTargetInfo;
+
     SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
 
     void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, uint8 effectIndex = EFFECT_0);
     void AddGOTarget(GameObject* target, uint32 effectMask);
     void AddItemTarget(Item* item, uint32 effectMask);
+    void AddAreaTriggerTarget(AreaTrigger* p_Target, uint32 p_EffectMask);
     void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
     void DoAllEffectOnTarget(TargetInfo* target);
@@ -735,6 +747,7 @@ protected:
     void DoTriggersOnSpellHit(Unit* unit, uint32 effMask);
     void DoAllEffectOnTarget(GOTargetInfo* target);
     void DoAllEffectOnTarget(ItemTargetInfo* target);
+    void DoAllEffectOnTarget(AreaTriggerTargetInfo* p_Target);
     bool UpdateChanneledTargetList();
     bool IsValidDeadOrAliveTarget(Unit const* target) const;
     void HandleLaunchPhase();

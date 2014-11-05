@@ -347,7 +347,24 @@ namespace JadeCore
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
-    // Gameobject searchers
+    /// AreaTriggers searchers
+    template<class Check>
+    struct AreaTriggerListSearcher
+    {
+        uint32 m_PhaseMask;
+        std::list<AreaTrigger*> &m_AreaTriggers;
+        Check& m_Check;
+
+        AreaTriggerListSearcher(WorldObject const* p_Searcher, std::list<AreaTrigger*>& p_AreaTriggers, Check& p_Check)
+            : m_PhaseMask(p_Searcher->GetPhaseMask()), m_AreaTriggers(p_AreaTriggers), m_Check(p_Check) {}
+
+        void Visit(AreaTriggerMapType& p_AreaTriggerMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
+
+
+    /// Gameobject searchers
 
     template<class Check>
     struct GameObjectSearcher
@@ -1521,17 +1538,30 @@ namespace JadeCore
         uint32 entry;
     };
 
-    class AllWorldObjectsInRange
+    class AllAreaTriggersInRangeCheck
     {
     public:
-        AllWorldObjectsInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
-        bool operator() (WorldObject* go)
+        AllAreaTriggersInRangeCheck(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
+        bool operator() (AreaTrigger* p_AreaTrigger)
         {
-            return m_pObject->IsWithinDist(go, m_fRange, false) && m_pObject->InSamePhase(go);
+            return m_pObject->IsWithinDist(p_AreaTrigger, m_fRange, false) && m_pObject->InSamePhase(p_AreaTrigger);
         }
     private:
         const WorldObject* m_pObject;
         float m_fRange;
+    };
+
+    class AllWorldObjectsInRange
+    {
+        public:
+            AllWorldObjectsInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
+            bool operator() (WorldObject* go)
+            {
+                return m_pObject->IsWithinDist(go, m_fRange, false) && m_pObject->InSamePhase(go);
+            }
+        private:
+            const WorldObject* m_pObject;
+            float m_fRange;
     };
 
     class ObjectTypeIdCheck

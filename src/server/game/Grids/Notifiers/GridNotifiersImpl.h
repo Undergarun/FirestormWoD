@@ -355,7 +355,22 @@ void JadeCore::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
             i_objects.push_back(itr->getSource());
 }
 
-// Gameobject searchers
+/// AreaTrigger searchers
+
+template<class Check>
+void JadeCore::AreaTriggerListSearcher<Check>::Visit(AreaTriggerMapType& p_AreaTriggerMap)
+{
+    for (AreaTriggerMapType::iterator l_Iterator = p_AreaTriggerMap.begin(); l_Iterator != p_AreaTriggerMap.end(); ++l_Iterator)
+    {
+        if (l_Iterator->getSource()->InSamePhase(m_PhaseMask))
+        {
+            if (m_Check(l_Iterator->getSource()))
+                m_AreaTriggers.push_back(l_Iterator->getSource());
+        }
+    }
+}
+
+/// Gameobject searchers
 
 template<class Check>
 void JadeCore::GameObjectSearcher<Check>::Visit(GameObjectMapType &m)
