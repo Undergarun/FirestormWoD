@@ -256,7 +256,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUnlearnTalent,                            //181 SPELL_EFFECT_UNLEARN_TALENT
     &Spell::EffectDespawnAreaTrigger,                       //182 SPELL_EFFECT_DESPAWN_AREA_TRIGGER
     &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION_REWARD       add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
+    &Spell::EffectReputation,                               //184 SPELL_EFFECT_REPUTATION_REWARD       add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
     &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187                     126957 only
