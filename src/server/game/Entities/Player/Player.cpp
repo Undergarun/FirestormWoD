@@ -530,7 +530,7 @@ inline void KillRewarder::_RewardXP(Player* p_player, float p_rate)
 
         // 4.2.3. Calculate expansion penalty
         if (_victim->GetTypeId() == TYPEID_UNIT && p_player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
-            l_xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
+            l_xp = CalculatePct(l_xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
 
         // 4.2.4. Give XP to player.
         p_player->GiveXP(l_xp, _victim, _groupRate);
@@ -7436,7 +7436,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVesatillity();
+            UpdateVersatility();
             break;
         case CR_AVOIDANCE:
             UpdateAvoidance();

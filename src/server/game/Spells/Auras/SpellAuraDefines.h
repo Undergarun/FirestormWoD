@@ -501,7 +501,7 @@ enum AuraType
     SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT                   = 440,  // 6.0.X SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     SPELL_AURA_MOD_MULTISTRIKE_PCT                          = 441,  // 6.0.X SPELL_AURA_MOD_MULTISTRIKE_PCT
     SPELL_AURA_442                                          = 442,  // 6.0.X
-    SPELL_AURA_443                                          = 443,  // 6.0.X
+    SPELL_AURA_MOD_LEECH_PCT                                = 443,  // 6.0.X SPELL_AURA_MOD_LEECH_PCT
     SPELL_AURA_444                                          = 444,  // 6.0.X
     SPELL_AURA_445                                          = 445,  // 6.0.X
     SPELL_AURA_446                                          = 446,  // 6.0.X
@@ -526,10 +526,10 @@ enum AuraType
     SPELL_AURA_465                                          = 465,  // 6.0.X
     SPELL_AURA_466                                          = 466,  // 6.0.X
     SPELL_AURA_467                                          = 467,  // 6.0.X
-    SPELL_AURA_468                                          = 468,  // 6.0.X
+    SPELL_AURA_MOD_VERSATILITY                              = 468,  // 6.0.X SPELL_AURA_MOD_VERSATILITY
     SPELL_AURA_469                                          = 469,  // 6.0.X
     SPELL_AURA_470                                          = 470,  // 6.0.X
-    SPELL_AURA_471                                          = 471,  // 6.0.X
+    SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X SPELL_AURA_MOD_VERSATILITY_PCT
     SPELL_AURA_472                                          = 472,  // 6.0.X
     SPELL_AURA_473                                          = 473,  // 6.0.X
     SPELL_AURA_474                                          = 474,  // 6.0.X

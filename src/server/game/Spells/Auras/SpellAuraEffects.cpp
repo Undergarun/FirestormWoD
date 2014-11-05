@@ -499,7 +499,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraMultistrike,                           //440 SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     &AuraEffect::HandleAuraMultistrike,                           //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
     &AuraEffect::HandleNULL,                                      //442 SPELL_AURA_442
-    &AuraEffect::HandleNULL,                                      //443 SPELL_AURA_443
+    &AuraEffect::HandleAuraLeechPct,                              //443 SPELL_AURA_MOD_LEECH_PCT
     &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
     &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
     &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
@@ -524,10 +524,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_465
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_466
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
-    &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_468
+    &AuraEffect::HandleAuraVesatility,                            //468 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
-    &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_471
+    &AuraEffect::HandleAuraVesatility,                            //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
     &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
@@ -2533,22 +2533,6 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     else
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-}
-
-void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
-{
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    Unit* l_target = p_aurApp->GetTarget();
-
-    if (l_target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Actually this aura is only use when we go to a Duel
-    // Enter in Arena reset the same way cooldowns that enter in duel
-    if (p_apply)
-        l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
 }
 
 void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -8758,11 +8742,46 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint
     player->SetMaxPower(POWER_MANA, mod* mana);
 }
 
-void AuraEffect::HandleAuraMultistrike(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* player = GetCaster()->ToPlayer())
-        player->UpdateMultistrike();
+    if (Player* l_player = GetCaster()->ToPlayer())
+        l_player->UpdateMultistrike();
 }
+
+void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_target = p_aurApp->GetTarget();
+
+    if (l_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // Actually this aura is only use when we go to a Duel
+    // Enter in Arena reset the same way cooldowns that enter in duel
+    if (p_apply)
+        l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+}
+
+void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_player = GetCaster()->ToPlayer())
+        l_player->UpdateLeech();
+}
+
+void AuraEffect::HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_player = GetCaster()->ToPlayer())
+        l_player->UpdateVesatility();
+}
+

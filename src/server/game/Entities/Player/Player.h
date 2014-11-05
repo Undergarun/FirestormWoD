@@ -2321,7 +2321,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePvPPowerPercentage();
         void UpdateMultistrike();
         void UpdateLeech();
-        void UpdateVesatillity();
+        void UpdateVersatility();
         void UpdateAvoidance();
 
         void UpdateAllSpellCritChances();

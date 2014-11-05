@@ -249,6 +249,8 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraModifyManaRegenFromManaPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraMultistrike(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraLeechPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const;
 
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
