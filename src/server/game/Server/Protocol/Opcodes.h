@@ -798,7 +798,7 @@ enum Opcodes
     CMSG_BINDER_ACTIVATE                        = 0x02F3,   ///< 6.0.3 19116
     CMSG_REQUEST_FORCED_REACTIONS               = 0x02C3,   ///< 6.0.3 19116
     CMSG_DESTROY_ITEM                           = 0x01EE,   ///< 6.0.3 19116
-    CMSG_OPEN_ITEM                              = 0x0000,   ///< 
+    CMSG_OPEN_ITEM                              = 0x08AD,   ///< 6.0.3 19116
     CMSG_SET_TITLE                              = 0x0BC6,   ///< 6.0.3 19116
     CMSG_PLAYED_TIME                            = 0x1BB2,   ///< 6.0.3 19116
     CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
@@ -1205,15 +1205,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_DFGET_SYSTEM_INFO                         = 0x030F,    ///< 6.0.3 19116
     CMSG_LFG_GET_PLAYER_INFO                       = 0x0000,
-    CMSG_LFG_GET_STATUS                            = 0x0000,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_JOIN                                  = 0x0000,    ///< 6.0.2 19027
-    CMSG_LFG_LEAVE                                 = 0x0000,    ///< 6.0.2 19027
-    CMSG_LFG_PARTY_LOCK_INFO_REQUEST               = 0x0000,
-    CMSG_LFG_PROPOSAL_RESULT                       = 0x0000,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_SET_BOOT_VOTE                         = 0x0000,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_GET_STATUS                            = 0x0000,    ///< 6.0.2 19027
+    CMSG_LFG_JOIN                                  = 0x0925,    ///< 6.0.3 19116
+    CMSG_LFG_LEAVE                                 = 0x01A2,    ///< 6.0.3 19116
+    CMSG_LFG_PROPOSAL_RESULT                       = 0x0509,    ///< 6.0.3 19116
+    CMSG_LFG_SET_BOOT_VOTE                         = 0x0000,    ///< 6.0.2 19027
     CMSG_LFG_SET_COMMENT                           = 0x0000,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_SET_ROLES                             = 0x0000,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_TELEPORT                              = 0x0000,    ///< 6.0.2 19027 (unused)
+    CMSG_LFG_SET_ROLES                             = 0x0000,    ///< 6.0.2 19027
+    CMSG_LFG_TELEPORT                              = 0x0000,    ///< 6.0.2 19027
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< 6.0.2 19027 (unused)
 

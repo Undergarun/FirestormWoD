@@ -95,61 +95,24 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  /*recvData*/)
         sLFGMgr->Leave(GetPlayer(), l_Group);
 }
 
-void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& p_Packet)
 {
-    uint32 lfgGroupID;                                     // Internal lfgGroupID
-    bool accept;                                           // Accept to join?
+    uint32 l_ProposalID;                                    ///< Internal lfgGroupID
+    bool l_Accepted;                                        ///< Accept to join?
 
-    recvData.read_skip<uint32>();                          // QueueId
-    recvData.read_skip<uint32>();                          // Time
-    recvData >> lfgGroupID;                                // ProposalId
-    recvData.read_skip<uint32>();                          // Const flag 3
+    uint64 l_RequesterGUID  = 0;
+    uint64 l_QueueID        = 0;
 
-    ObjectGuid guid1;
-    ObjectGuid guid2;
+    p_Packet.readPackGUID(l_RequesterGUID);                 ///< Requester Guid
+    p_Packet.read_skip<uint32>();                           ///< Ticket ID
+    p_Packet.read_skip<uint32>();                           ///< Ticket type
+    p_Packet.read_skip<uint32>();                           ///< Ticket Time
 
-    guid1[3] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
+    p_Packet >> l_QueueID;                                  ///< Instance ID
+    p_Packet >> l_ProposalID;                               ///< Proposal ID
+    l_Accepted = p_Packet.ReadBit();
 
-    accept = recvData.ReadBit();
-
-    guid2[4] = recvData.ReadBit();
-    guid1[4] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid1[7] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid1[6] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(guid1[2]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid1[5]);
-
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid1[7]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid2[6]);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_PROPOSAL_RESULT [" UI64FMTD "] proposal: %u accept: %u", GetPlayer()->GetGUID(), lfgGroupID, accept ? 1 : 0);
-    sLFGMgr->UpdateProposal(lfgGroupID, GetPlayer()->GetGUID(), accept);
+    sLFGMgr->UpdateProposal(l_ProposalID, GetPlayer()->GetGUID(), l_Accepted);
 }
 
 void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
@@ -537,7 +500,7 @@ void WorldSession::SendLfgJoinResult(uint64 p_Guid, const LfgJoinResultData & p_
 
     l_Data.appendPackGUID(p_Guid);                                      ///< Requester Guid
     l_Data << uint32(0);                                                ///< ID
-    l_Data << uint32(3);                                                ///< Type
+    l_Data << uint32(2);                                                ///< Type
     l_Data << uint32(getMSTime());                                      ///< Time
 
     l_Data << uint8(p_JoinData.result);                                 ///< Result
