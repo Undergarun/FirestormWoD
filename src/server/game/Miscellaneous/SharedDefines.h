@@ -1251,12 +1251,12 @@ enum SpellEffects
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
     SPELL_EFFECT_BECOME_UNTARGETTABLE               = 176,
-    SPELL_EFFECT_177                                = 177,
+    SPELL_EFFECT_DESPAWN_AREA_AURA                  = 177,
     SPELL_EFFECT_178                                = 178, // 177249 Abandon Scenario Quest
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // "Update Area Triggers" 106584 & 1333355
     SPELL_EFFECT_UNLEARN_TALENT                     = 181,
-    SPELL_EFFECT_182                                = 182, // despawwn areatrigger
+    SPELL_EFFECT_DESPAWN_AREA_TRIGGER               = 182,
     SPELL_EFFECT_183                                = 183, // Unused 6.0.3
     SPELL_EFFECT_REPUTATION_REWARD                  = 184, // add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
     SPELL_EFFECT_PLAY_SCENEOBJECT                   = 185,

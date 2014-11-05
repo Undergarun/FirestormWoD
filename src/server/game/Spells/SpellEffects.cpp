@@ -249,12 +249,12 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175                      only one spell : Wild fixation (125570) 6.0.3
     &Spell::EffectBecomeUntargettable,                      //176 SPELL_EFFECT_BECOME_UNTARGETTABLE
-    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
+    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_DESPAWN_AREA_AURA
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreatrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
     &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
     &Spell::EffectUnlearnTalent,                            //181 SPELL_EFFECT_UNLEARN_TALENT
-    &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
+    &Spell::EffectDespawnAreaTrigger,                       //182 SPELL_EFFECT_DESPAWN_AREA_TRIGGER
     &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183
     &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION_REWARD
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
@@ -8485,4 +8485,32 @@ void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
     WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
     l_Data.appendPackGUID(m_caster->GetGUID());
     m_caster->SendMessageToSet(&l_Data, true);
+}
+
+void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    std::list<AreaTrigger*> l_AreaTriggers;
+
+    if (m_AreaTrigger != nullptr)
+        l_AreaTriggers.push_back(m_AreaTrigger);
+    else
+    {
+        float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster, this);
+
+        CellCoord l_Pair(JadeCore::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+        Cell l_Cell(l_Pair);
+        l_Cell.SetNoCreate();
+
+        JadeCore::AllAreaTriggersInRangeCheck l_Check(m_caster, l_Radius);
+        JadeCore::AreaTriggerListSearcher<JadeCore::AllAreaTriggersInRangeCheck> l_Searcher(m_caster, l_AreaTriggers, l_Check);
+        TypeContainerVisitor<JadeCore::AreaTriggerListSearcher<JadeCore::AllAreaTriggersInRangeCheck>, GridTypeMapContainer> l_Visitor(l_Searcher);
+
+        l_Cell.Visit(l_Pair, l_Visitor, *m_caster->GetMap(), *m_caster, l_Radius);
+    }
+
+    for (AreaTrigger* l_AreaTrigger : l_AreaTriggers)
+        l_AreaTrigger->Remove(0);
 }
