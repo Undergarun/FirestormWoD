@@ -516,7 +516,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_457
     &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_458
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
-    &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_460
+    &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
@@ -2533,6 +2533,22 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     else
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+}
+
+void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_target = p_aurApp->GetTarget();
+
+    if (l_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // Actually this aura is only use when we go to a Duel
+    // Enter in Arena reset the same way cooldowns that enter in duel
+    if (p_apply)
+        l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
 }
 
 void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const

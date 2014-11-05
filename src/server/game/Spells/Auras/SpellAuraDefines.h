@@ -518,7 +518,7 @@ enum AuraType
     SPELL_AURA_457                                          = 457,  // 6.0.X
     SPELL_AURA_458                                          = 458,  // 6.0.X
     SPELL_AURA_459                                          = 459,  // 6.0.X
-    SPELL_AURA_460                                          = 460,  // 6.0.X
+    SPELL_AURA_RESET_COOLDOWNS                              = 460,  // 6.0.X SPELL_AURA_RESET_COOLDOWNS
     SPELL_AURA_461                                          = 461,  // 6.0.X
     SPELL_AURA_462                                          = 462,  // 6.0.X
     SPELL_AURA_463                                          = 463,  // 6.0.X
