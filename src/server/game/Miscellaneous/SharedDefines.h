@@ -1250,7 +1250,7 @@ enum SpellEffects
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174,
     SPELL_EFFECT_175                                = 175, // random target ? only 125570
-    SPELL_EFFECT_SANCTUARY_2                        = 176, // Some kind of sanctuary effect (Vanish)
+    SPELL_EFFECT_BECOME_UNTARGETTABLE               = 176,
     SPELL_EFFECT_177                                = 177,
     SPELL_EFFECT_178                                = 178, // 177249 Abandon Scenario Quest
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,

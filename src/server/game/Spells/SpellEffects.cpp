@@ -247,8 +247,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
-    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175
-    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
+    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175                      only one spell : Wild fixation (125570) 6.0.3
+    &Spell::EffectBecomeUntargettable,                      //176 SPELL_EFFECT_BECOME_UNTARGETTABLE
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreatrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
@@ -8477,7 +8477,12 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
 }
 
-void Spell::EffectApplyAuraOnPet(SpellEffIndex p_EffIndex)
+void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
 {
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
 
+    WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    m_caster->SendMessageToSet(&l_Data, true);
 }
