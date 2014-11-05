@@ -456,7 +456,7 @@ bool SpellEffectInfo::IsFarDestTargetEffect() const
 
 bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 {
-    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
+    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
 int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target) const
@@ -473,7 +473,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
         if (p_Caster)
         {
             int32 l_Level = p_Caster->getLevel();
-            if (p_Target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+            if (p_Target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET))
                 l_Level = p_Target->getLevel();
 
             float l_Multiplier = 0.0f;
@@ -2427,7 +2427,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
         {
             switch (Effects[i].ApplyAuraName)
             {
@@ -2548,7 +2548,8 @@ uint32 SpellInfo::GetMaxTicks() const
 
     for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
     {
-        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA
+            || Effects[x].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
             switch (Effects[x].ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -2736,6 +2737,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
     {
         if (IsPositiveEffect(i) &&
             (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA ||
+            Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
             !Effects[i].ScalingMultiplier)
@@ -2955,6 +2957,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
 
             // non-positive aura use
         case SPELL_EFFECT_APPLY_AURA:
+        case SPELL_EFFECT_APPLY_AURA_ON_PET:
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
         {
             switch (Effects[effIndex].ApplyAuraName)
@@ -3977,6 +3980,7 @@ bool SpellEffectInfo::CanScale() const
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
         case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
         case SPELL_EFFECT_APPLY_AURA:
+        case SPELL_EFFECT_APPLY_AURA_ON_PET:
         {
             switch (ApplyAuraName)
             {

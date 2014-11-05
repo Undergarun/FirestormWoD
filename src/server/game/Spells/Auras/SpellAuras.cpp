@@ -2365,6 +2365,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
         {
             // area auras should not stack (shaman totem)
             if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA
+                && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA_ON_PET
                 && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_PERSISTENT_AREA_AURA)
                 continue;
 
@@ -2460,8 +2461,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     {
         for (int i = 0; i < 3; ++i)
         {
-            if ((m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
-                (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+            if ((m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET) &&
+                (existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID || existingSpellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET) &&
                 m_spellInfo->Effects[i].ApplyAuraName == existingSpellInfo->Effects[i].ApplyAuraName)
             {
                 switch (m_spellInfo->Effects[i].ApplyAuraName)
@@ -3296,6 +3297,15 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
         if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA)
         {
             targetList.push_back(GetUnitOwner());
+        }
+        else if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
+        {
+            if (GetUnitOwner()->GetTypeId() == TYPEID_PLAYER)
+            {
+                Pet* l_Pet = GetUnitOwner()->ToPlayer()->GetPet();
+                if (l_Pet != nullptr)
+                    targetList.push_back(l_Pet);
+            }
         }
         else
         {

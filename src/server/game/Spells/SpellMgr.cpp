@@ -2439,6 +2439,7 @@ void SpellMgr::LoadSpellPetAuras()
             }
             if (spellInfo->Effects[eff].Effect != SPELL_EFFECT_DUMMY &&
                 (spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA ||
+                spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA_ON_PET ||
                 spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY))
             {
                 sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);

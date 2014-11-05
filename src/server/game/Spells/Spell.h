@@ -446,8 +446,9 @@ public:
     void EffectResurectPetBattles(SpellEffIndex effIndex);
     void EffectUncagePetBattle(SpellEffIndex effIndex);
     void EffectCanPetBattle(SpellEffIndex effIndex);
-    void EffectThreatAll(SpellEffIndex p_effIndex);
-    void EffectForcePlayerInteraction(SpellEffIndex p_effIndex);
+    void EffectThreatAll(SpellEffIndex p_EffIndex);
+    void EffectForcePlayerInteraction(SpellEffIndex p_EffIndex);
+    void EffectApplyAuraOnPet(SpellEffIndex p_EffIndex);
 
     typedef std::set<AuraPtr> UsedSpellMods;
 

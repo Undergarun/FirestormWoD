@@ -2601,6 +2601,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
                 case SPELL_EFFECT_APPLY_AURA:
+                case SPELL_EFFECT_APPLY_AURA_ON_PET:
                 case SPELL_EFFECT_POWER_BURN:
                 case SPELL_EFFECT_DISPEL:
                 {
@@ -3268,7 +3269,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     m_spellAura->Remove();
                     bool found = false;
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (effectMask & (1 << i) && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
+                    if (effectMask & (1 << i) && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA && m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA_ON_PET)
                             found = true;
                     if (!found)
                         return SPELL_MISS_IMMUNE;
@@ -3453,8 +3454,10 @@ bool Spell::UpdateChanneledTargetList()
     uint32 channelTargetEffectMask = m_channelTargetEffectMask;
     uint32 channelAuraMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
-            channelAuraMask |= 1<<i;
+    {
+        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
+            channelAuraMask |= 1 << i;
+    }
 
     channelAuraMask &= channelTargetEffectMask;
 
@@ -3515,7 +3518,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
             {
                 // Change aura with ranks only if basepoints are taken from spellInfo and aura is positive
                 if (m_spellInfo->IsPositiveEffect(i))
@@ -7130,7 +7133,7 @@ bool Spell::CanAutoCast(Unit* target)
 
     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
-        if (m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA || m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
         {
             if (m_spellInfo->StackAmount <= 1)
             {

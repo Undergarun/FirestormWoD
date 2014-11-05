@@ -246,7 +246,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectSummonObject,                             //171 SPELL_EFFECT_SUMMON_OBJECT
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
-    &Spell::EffectNULL,                                     //174 SPELL_EFFECT_APPLY_AURA_ON_PET
+    &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175
     &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
@@ -8196,45 +8196,45 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-    case 126956: // Lorewalker's Lodestone
-    {
-                     uint16 siteId = target->GetArchaeologyMgr().GetRandomActiveSiteInMap(870);
+        case 126956: // Lorewalker's Lodestone
+        {
+            uint16 siteId = target->GetArchaeologyMgr().GetRandomActiveSiteInMap(870);
 
-                     ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
-                     if (loot.empty())
-                         break;
+            ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
+            if (loot.empty())
+                break;
 
-                     ResearchLootVector lootListTemp;
-                     ResearchLootVector lootList;
+            ResearchLootVector lootListTemp;
+            ResearchLootVector lootList;
 
-                     for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
-                     {
-                         ResearchLootEntry entry = (*itr);
-                         if (entry.id == siteId)
-                             lootListTemp.push_back(entry);
-                     }
+            for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
+            {
+                ResearchLootEntry entry = (*itr);
+                if (entry.id == siteId)
+                    lootListTemp.push_back(entry);
+            }
 
-                     if (lootListTemp.empty())
-                         break;
+            if (lootListTemp.empty())
+                break;
 
-                     lootList.push_back(JadeCore::Containers::SelectRandomContainerElement(lootListTemp));
-                     if (lootList.empty())
-                         break;
+            lootList.push_back(JadeCore::Containers::SelectRandomContainerElement(lootListTemp));
+            if (lootList.empty())
+                break;
 
-                     float x, y, z;
-                     for (auto itr : lootList)
-                     {
-                         x = itr.x;
-                         y = itr.y;
-                         z = itr.z;
-                         break;
-                     }
+            float x, y, z;
+            for (auto itr : lootList)
+            {
+                x = itr.x;
+                y = itr.y;
+                z = itr.z;
+                break;
+            }
 
-                     target->NearTeleportTo(x, y, z, target->GetOrientation());
-                     break;
-    }
-    default:
-        break;
+            target->NearTeleportTo(x, y, z, target->GetOrientation());
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -8457,7 +8457,7 @@ void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)
         Unit* l_Target = l_Itr->getTarget();
 
         l_Target->getThreatManager().clearReferences();
-        l_Target->getThreatManager().doAddThreat(m_caster, m_spellInfo->Effects[effIndex].BasePoints);
+        l_Target->getThreatManager().doAddThreat(m_caster, m_spellInfo->Effects[p_EffIndex].BasePoints);
     }
 }
 
@@ -8475,4 +8475,9 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
         l_Target = m_caster;
 
     m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
+}
+
+void Spell::EffectApplyAuraOnPet(SpellEffIndex p_EffIndex)
+{
+
 }
