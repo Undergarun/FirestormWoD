@@ -153,7 +153,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUnused,                                   // 78 SPELL_EFFECT_ATTACK
     &Spell::EffectSanctuary,                                // 79 SPELL_EFFECT_SANCTUARY
     &Spell::EffectAddComboPoints,                           // 80 SPELL_EFFECT_ADD_COMBO_POINTS
-    &Spell::EffectUnused,                                   // 81 SPELL_EFFECT_CREATE_HOUSE             one spell: Create House (TEST)
+    &Spell::EffectUnused,                                   // 81 SPELL_EFFECT_CREATE_HOUSE             (unused)
     &Spell::EffectNULL,                                     // 82 SPELL_EFFECT_BIND_SIGHT
     &Spell::EffectDuel,                                     // 83 SPELL_EFFECT_DUEL
     &Spell::EffectStuck,                                    // 84 SPELL_EFFECT_STUCK
@@ -163,7 +163,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectGameObjectRepair,                         // 88 SPELL_EFFECT_GAMEOBJECT_REPAIR
     &Spell::EffectGameObjectSetDestructionState,            // 89 SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
-    &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
+    &Spell::EffectThreatAll,                                // 91 SPELL_EFFECT_THREAT_ALL
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
     &Spell::EffectForceDeselect,                            // 93 SPELL_EFFECT_FORCE_DESELECT
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
@@ -184,7 +184,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectSummonDeadPet,                            //109 SPELL_EFFECT_SUMMON_DEAD_PET
     &Spell::EffectDestroyAllTotems,                         //110 SPELL_EFFECT_DESTROY_ALL_TOTEMS
     &Spell::EffectDurabilityDamage,                         //111 SPELL_EFFECT_DURABILITY_DAMAGE
-    &Spell::EffectUnused,                                   //112 SPELL_EFFECT_112
+    &Spell::EffectUnused,                                   //112 SPELL_EFFECT_FORCE_RIDE_ROCKET
     &Spell::EffectResurrectNew,                             //113 SPELL_EFFECT_RESURRECT_NEW
     &Spell::EffectTaunt,                                    //114 SPELL_EFFECT_ATTACK_ME
     &Spell::EffectDurabilityDamagePCT,                      //115 SPELL_EFFECT_DURABILITY_DAMAGE_PCT
@@ -8437,4 +8437,19 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
         return;
 
     player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+}
+
+void Spell::EffectThreatAll(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    std::list<HostileReference*> l_ThreadList = m_caster->getThreatManager().getThreatList();
+    for (HostileReference* l_Itr : l_ThreadList)
+    {
+        Unit* l_Target = l_Itr->getTarget();
+
+        l_Target->getThreatManager().clearReferences();
+        l_Target->getThreatManager().doAddThreat(m_caster, m_spellInfo->Effects[effIndex].BasePoints);
+    }
 }
