@@ -3,6 +3,7 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_soul_of_the_forest'
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_tigers_fury';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_play_death';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_shattering_blow';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_moonfire_damage';
 INSERT INTO spell_script_names VALUES (164812, 'spell_dru_moonfire_damage');
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_rip_duration';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_bear_form';
@@ -19,6 +20,7 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_frenzied_regenerati
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_stampeding_roar_speed';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_growl';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_prowl';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_dru_activate_cat_form';
 INSERT INTO spell_script_names VALUES
     (102547, 'spell_dru_activate_cat_form'),
     (102280, 'spell_dru_activate_cat_form'),
@@ -33,6 +35,7 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_glyph_of_demon_hun
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_soulburn_drain_life';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_soulburn_remove';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_void_ray';
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_touch_of_chaos';
 INSERT INTO spell_script_names VALUES (103964, 'spell_warl_touch_of_chaos');
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_metamorphosis_cost';
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_wave';
