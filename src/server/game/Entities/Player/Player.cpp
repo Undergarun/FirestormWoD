@@ -539,8 +539,8 @@ inline void KillRewarder::_RewardXP(Player* p_Player, float p_Rate)
             pet->GivePetXP(_group ? l_Xp / 2 : l_Xp);
         
         // Modificate xp for racial aura of trolls (+20% if beast)
-        Unit::AuraEffectList const& l_auras = p_Player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE);
-        for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
+        Unit::AuraEffectList const& l_AurasXpPct = p_Player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE);
+        for (Unit::AuraEffectList::const_iterator i = l_AurasXpPct.begin(); i != l_AurasXpPct.end(); ++i)
         {
             if (_victim->ToCreature() && _victim->ToCreature()->isType((*i)->GetMiscValue()))
                 AddPct(l_Xp, (*i)->GetAmount());
@@ -1471,111 +1471,35 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     return false;
 }
 
-void Player::RewardCurrencyAtKill(Unit* victim)
+void Player::RewardCurrencyAtKill(Unit* p_Victim)
 {
-    if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
+    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    if (!victim->ToCreature())
+    if (!p_Victim->ToCreature())
         return;
 
-    if (!victim->ToCreature()->GetEntry())
+    if (!p_Victim->ToCreature()->GetEntry())
         return;
 
-    CurrencyOnKillEntry const* Curr = sObjectMgr->GetCurrencyOnKillEntry(victim->ToCreature()->GetEntry());
-    if (!Curr)
+    CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
+    if (!l_Curr)
         return;
 
-    bool result = true;
-    if (victim->ToCreature()->AI())
-        victim->ToCreature()->AI()->CurrenciesRewarder(result);
+    bool l_Result = true;
+    if (p_Victim->ToCreature()->AI())
+        p_Victim->ToCreature()->AI()->CurrenciesRewarder(l_Result);
 
-    if (!result)
+    if (!l_Result)
         return;
 
-    // Players won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
-    if ((Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS
-        || Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS
-        || Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS
-        || Curr->currencyId1 == CURRENCY_TYPE_VALOR_POINTS
-        || Curr->currencyId2 == CURRENCY_TYPE_VALOR_POINTS
-        || Curr->currencyId3 == CURRENCY_TYPE_VALOR_POINTS)
-        && victim->GetMap()->Expansion() != EXPANSION_MISTS_OF_PANDARIA
-        && getLevel() > 85)
-        return;
-
-    if (Curr->currencyId1 && Curr->currencyCount1)
+    Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+    for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
     {
-        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
+        for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
         {
-            if (Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS)
-            {
-                if ((GetCurrency(Curr->currencyId1, true) + Curr->currencyCount1) > GetCurrencyTotalCap(entry))
-                {
-                    uint32 max = GetCurrencyTotalCap(entry);
-                    uint32 lessPoint = max - GetCurrency(Curr->currencyId1, true);
-                    uint32 rest = Curr->currencyCount1 - lessPoint;
-
-                    ModifyCurrency(Curr->currencyId1, lessPoint);
-
-                    if (rest > 0)
-                        ModifyMoney(rest * 4750);
-                }
-                else
-                    ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
-            }
-            else
-                ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
-        }
-    }
-
-    if (Curr->currencyId2 && Curr->currencyCount2)
-    {
-        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId2))
-        {
-            if (Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS)
-            {
-                if ((GetCurrency(Curr->currencyId2, true) + Curr->currencyCount2) > GetCurrencyTotalCap(entry))
-                {
-                    uint32 max = GetCurrencyTotalCap(entry);
-                    uint32 lessPoint = max - GetCurrency(Curr->currencyId2, true);
-                    uint32 rest = Curr->currencyCount2 - lessPoint;
-
-                    ModifyCurrency(Curr->currencyId2, lessPoint);
-
-                    if (rest > 0)
-                        ModifyMoney(rest * 4750);
-                }
-                else
-                    ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
-            }
-            else
-                ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
-        }
-    }
-
-    if (Curr->currencyId3 && Curr->currencyCount3)
-    {
-        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId3))
-        {
-            if (Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS)
-            {
-                if ((GetCurrency(Curr->currencyId3, true) + Curr->currencyCount3) > GetCurrencyTotalCap(entry))
-                {
-                    uint32 max = GetCurrencyTotalCap(entry);
-                    uint32 lessPoint = max - GetCurrency(Curr->currencyId3, true);
-                    uint32 rest = Curr->currencyCount3 - lessPoint;
-
-                    ModifyCurrency(Curr->currencyId3, lessPoint);
-
-                    if (rest > 0)
-                        ModifyMoney(rest * 4750);
-                }
-                else
-                    ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
-            }
-            else
-                ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+            if (idx->first == (*i)->GetMiscValue())
+                ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
         }
     }
 }

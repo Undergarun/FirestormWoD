@@ -532,7 +532,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
     &AuraEffect::HandleNULL,                                      //475 SPELL_AURA_475
-    &AuraEffect::HandleNULL,                                      //476 SPELL_AURA_476
+    &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     &AuraEffect::HandleNULL,                                      //477 SPELL_AURA_477
     &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
 };
@@ -8796,4 +8796,3 @@ void AuraEffect::HandleAuraVesatility(AuraApplication const* p_AurApp, uint8 p_M
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
         l_Player->UpdateVersatility();
 }
-

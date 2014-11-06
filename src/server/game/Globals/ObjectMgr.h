@@ -507,16 +507,6 @@ struct RepSpilloverTemplate
     uint32 faction_rank[MAX_SPILLOVER_FACTIONS];
 };
 
-struct CurrencyOnKillEntry
-{
-    uint32 currencyId1;
-    uint32 currencyId2;
-    uint32 currencyId3;
-    int32 currencyCount1;
-    int32 currencyCount2;
-    int32 currencyCount3;
-};
-
 struct PointOfInterest
 {
     uint32 entry;
@@ -557,6 +547,7 @@ typedef std::pair<GossipMenusContainer::iterator, GossipMenusContainer::iterator
 typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
 typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
+typedef std::map<uint32, int32> CurrencyOnKillEntry;
 
 struct QuestPOIPoint
 {

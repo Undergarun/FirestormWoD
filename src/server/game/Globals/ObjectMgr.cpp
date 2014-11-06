@@ -7099,52 +7099,31 @@ void ObjectMgr::LoadCurrencyOnKill()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field *l_Fields = result->Fetch();
 
-        uint32 creature_id = fields[0].GetUInt32();
+        uint32 l_Creature_id = l_Fields[0].GetUInt32();
 
-        CurrencyOnKillEntry currOnKill;
-        currOnKill.currencyId1          = fields[1].GetUInt16();
-        currOnKill.currencyId2          = fields[2].GetUInt16();
-        currOnKill.currencyId3          = fields[3].GetUInt16();
-        currOnKill.currencyCount1       = fields[4].GetInt32();
-        currOnKill.currencyCount2       = fields[5].GetInt32();
-        currOnKill.currencyCount3       = fields[6].GetInt32();
+        CurrencyOnKillEntry l_CurrOnKill;
+        l_CurrOnKill[l_Fields[1].GetUInt16()] = l_Fields[4].GetInt32();
+        l_CurrOnKill[l_Fields[2].GetUInt16()] = l_Fields[5].GetInt32();
+        l_CurrOnKill[l_Fields[3].GetUInt16()] = l_Fields[6].GetInt32();
 
-        if (!GetCreatureTemplate(creature_id))
+
+        if (!GetCreatureTemplate(l_Creature_id))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `creature_creature` have data for not existed creature entry (%u), skipped", creature_id);
             continue;
         }
-
-        if (currOnKill.currencyId1)
+        for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)
         {
-            if (!sCurrencyTypesStore.LookupEntry(currOnKill.currencyId1))
+            if (!sCurrencyTypesStore.LookupEntry(i->first))
             {
-                sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", currOnKill.currencyId1);
+                sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", i->first);
                 continue;
             }
         }
-
-        if (currOnKill.currencyId2)
-        {
-            if (!sCurrencyTypesStore.LookupEntry(currOnKill.currencyId2))
-            {
-                sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", currOnKill.currencyId2);
-                continue;
-            }
-        }
-
-        if (currOnKill.currencyId3)
-        {
-            if (!sCurrencyTypesStore.LookupEntry(currOnKill.currencyId3))
-            {
-                sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", currOnKill.currencyId3);
-                continue;
-            }
-        }
-
-        _curOnKillStore[creature_id] = currOnKill;
+ 
+        _curOnKillStore[l_Creature_id] = l_CurrOnKill;
 
         ++count;
     }
