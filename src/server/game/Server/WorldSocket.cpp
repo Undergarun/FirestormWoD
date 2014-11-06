@@ -45,6 +45,7 @@
 #include "PacketLog.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
+#include "ObjectMgr.h"
 
 #if defined(__GNUC__)
 #pragma pack(1)
@@ -898,6 +899,7 @@ void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_Q
 
     uint32 l_RealmRaceCount = 15;
     uint32 l_RealmClassCount = 11;
+
 
     l_Data << uint8(p_AuthResult);
     l_Data.WriteBit(p_AuthResult == AUTH_OK);

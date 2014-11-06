@@ -286,6 +286,9 @@ ObjectMgr::~ObjectMgr()
     for (DungeonEncounterContainer::iterator itr =_dungeonEncounterStore.begin(); itr != _dungeonEncounterStore.end(); ++itr)
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
             delete *encounterItr;
+
+    for (CharacterTemplates::iterator l_Iter = m_CharacterTemplatesStore.begin(); l_Iter != m_CharacterTemplatesStore.end(); l_Iter++)
+        delete l_Iter->second;
 }
 
 void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data)
@@ -8952,10 +8955,10 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         stats.BaseMana = fields[index++].GetUInt32();
         stats.BaseArmor = fields[index++].GetUInt32();
-        
+
         stats.AttackPower = fields[index++].GetInt16();
         stats.RangedAttackPower = fields[index++].GetInt16();
-        
+
         stats.BaseDamage = fields[index++].GetFloat();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
@@ -9694,4 +9697,110 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild challenge reward data in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+
+void ObjectMgr::LoadCharacterTempalteData()
+{
+    uint32 l_OldMSTime = getMSTime();
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap FROM character_template WHERE disabled = 0");
+    uint32 l_Count = 0;
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 character tempaltes.");
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_ID = l_Fields[0].GetUInt32();
+
+        CharacterTemplate* l_CharacterTemplate = new CharacterTemplate();
+        {
+            l_CharacterTemplate->m_ID = l_ID;
+            l_CharacterTemplate->m_PlayerClass = l_Fields[1].GetUInt8();
+            l_CharacterTemplate->m_Name = l_Fields[2].GetString();
+            l_CharacterTemplate->m_Description = l_Fields[3].GetString();
+            l_CharacterTemplate->m_Level = l_Fields[4].GetUInt8();
+            l_CharacterTemplate->m_Money = l_Fields[5].GetUInt64();
+            l_CharacterTemplate->m_AliancePos.Relocate(l_Fields[6].GetFloat(), l_Fields[7].GetFloat(), l_Fields[8].GetFloat(), l_Fields[9].GetFloat());
+            l_CharacterTemplate->m_AlianceMapID = l_Fields[10].GetInt16();
+            l_CharacterTemplate->m_HordePos.Relocate(l_Fields[11].GetFloat(), l_Fields[12].GetFloat(), l_Fields[13].GetFloat(), l_Fields[14].GetFloat());
+            l_CharacterTemplate->m_HordeMapID = l_Fields[15].GetInt16();
+        }
+
+        if (!sChrClassesStore.LookupEntry(l_CharacterTemplate->m_PlayerClass))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Template %u defined in `character_template` with class %u does not exists, skipped.", l_ID, l_CharacterTemplate->m_PlayerClass);
+            delete l_CharacterTemplate;
+            continue;
+        }
+
+        if (!l_ID)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Template %u defined in `character_template` cannot have null index, skipped.", l_ID);
+            delete l_CharacterTemplate;
+            continue;
+        }
+
+        if (!l_CharacterTemplate->m_Level)
+            l_CharacterTemplate->m_Level = 1;
+
+        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, count FROM character_template_item WHERE id = %i", l_ID);
+        if (l_ItemResult)
+        {
+            do
+            {
+                Field* l_ItemFields = l_ItemResult->Fetch();
+
+                CharacterTemplate::TemplateItem l_TemplateItem;
+                {
+                    l_TemplateItem.m_ItemID = l_ItemFields[0].GetUInt32();
+                    l_TemplateItem.m_Count = l_ItemFields[1].GetUInt32();
+                }
+
+                if (!GetItemTemplate(l_TemplateItem.m_ItemID))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "ItemID %u defined in `character_template_item` does not exists, ignoring.", l_TemplateItem.m_ItemID);
+                    continue;
+                }
+
+                l_CharacterTemplate->m_TemplateItems.push_back(l_TemplateItem);
+            }
+            while (l_ItemResult->NextRow());
+        }
+
+        QueryResult l_SpellsResult = WorldDatabase.PQuery("SELECT spellId FROM character_template_spell WHERE id = %i", l_ID);
+        if (l_SpellsResult)
+        {
+            do
+            {
+                Field* l_SpellFields = l_SpellsResult->Fetch();
+                uint32 l_SpellID = l_SpellFields[0].GetUInt32();
+
+                if (!sSpellMgr->GetSpellInfo(l_SpellID))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SpellId %u defined in `character_template_spell` does not exists, ignoring.", l_SpellID);
+                    continue;
+                }
+
+                l_CharacterTemplate->m_SpellIDs.push_back(l_SpellID);
+            }
+            while (l_SpellsResult->NextRow());
+        }
+
+        m_CharacterTemplatesStore[l_ID] = l_CharacterTemplate;
+        l_Count++;
+    }
+
+    while (l_Result->NextRow());
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u character templates %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+CharacterTemplate const* ObjectMgr::GetCharacterTemplate(uint32 p_ID) const
+{
+    CharacterTemplates::const_iterator l_Iter = m_CharacterTemplatesStore.find(p_ID);
+    return l_Iter != m_CharacterTemplatesStore.end() ? l_Iter->second : nullptr;
 }

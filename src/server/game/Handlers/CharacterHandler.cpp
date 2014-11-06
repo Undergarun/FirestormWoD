@@ -347,6 +347,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     WorldPacket l_CreationResponse(SMSG_CREATE_CHAR, 1);                    ///< returned with diff.values in all cases
 
+    if (l_TemplateSetID)
+    {
+        CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateSetID);
+        if (!l_Template || l_Template->m_PlayerClass != l_CharacterClass)
+        {
+            l_CreationResponse << (uint8)CHAR_CREATE_ERROR;
+            SendPacket(&l_CreationResponse);
+            return;
+        }
+    }
+
     if (AccountMgr::IsPlayerAccount(GetSecurity()))
     {
         if (uint32 l_Mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))
@@ -471,7 +482,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     delete _charCreateCallback.GetParam();  // Delete existing if any, to make the callback chain reset to stage 0
 
-    _charCreateCallback.SetParam(new CharacterCreateInfo(l_CharacterName, l_CharacterRace, l_CharacterClass, l_CharacterGender, l_CharacterSkin, l_CharacterFace, l_CharacterHairStyle, l_CharacterHairColor, l_CharacterFacialHair, l_CharacterOutfitID, p_RecvData));
+    _charCreateCallback.SetParam(new CharacterCreateInfo(l_CharacterName, l_CharacterRace, l_CharacterClass, l_CharacterGender, l_CharacterSkin, l_CharacterFace, l_CharacterHairStyle, l_CharacterHairColor, l_CharacterFacialHair, l_CharacterOutfitID, l_TemplateSetID, p_RecvData));
 
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     l_Stmt->setString(0, l_CharacterName);
@@ -1146,7 +1157,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         //data << uint32(DB2_REPLY_ITEM_EXTENDED_COST);
         //data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, DB2_REPLY_ITEM_EXTENDED_COST));
         //data << uint32(extendedCost->ID);
-        
+
         //SendPacket(&data);
     }
 
@@ -2229,7 +2240,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     // get the players old (at this moment current) race
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGuid);
-    if (!nameData)	
+    if (!nameData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
         data << uint8(CHAR_CREATE_ERROR);

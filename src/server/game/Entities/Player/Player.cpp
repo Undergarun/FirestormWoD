@@ -537,7 +537,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
         if (Pet* pet = player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
             pet->GivePetXP(_group ? xp / 2 : xp);
-        
+
         // Modificate xp for racial aura of trolls (+20% if beast)
         if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
         {
@@ -1070,21 +1070,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // also do it in Player::BuildEnumData, Player::LoadFromDB
 
     Object::_Create(guidlow, 0, HIGHGUID_PLAYER);
+    CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(createInfo->TemplateId);
 
     m_name = createInfo->Name;
-
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
-    if (!info)
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid race/class pair (%u/%u) - refusing to do so.",
-                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Race, createInfo->Class);
-        return false;
-    }
-
-    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
-        m_items[i] = NULL;
-
-    Relocate(info->positionX, info->positionY, info->positionZ, info->orientation);
 
     ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(createInfo->Class);
     if (!cEntry)
@@ -1093,8 +1081,6 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Class);
         return false;
     }
-
-    SetMap(sMapMgr->CreateMap(info->mapId, this));
 
     uint8 powertype = cEntry->DisplayPower;
 
@@ -1109,6 +1095,37 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
         return false;
     }
+
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
+    if (!info)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid race/class pair (%u/%u) - refusing to do so.",
+                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Race, createInfo->Class);
+        return false;
+    }
+
+    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
+        m_items[i] = NULL;
+
+    if (l_Template && (GetTeam() == HORDE ? l_Template->m_HordeMapID != -1 : l_Template->m_AlianceMapID != -1))
+    {
+        if (GetTeam() == HORDE)
+        {
+            Relocate(l_Template->m_HordePos);
+            SetMap(sMapMgr->CreateMap(l_Template->m_HordeMapID, this));
+        }
+        else
+        {
+            Relocate(l_Template->m_AliancePos);
+            SetMap(sMapMgr->CreateMap(l_Template->m_AlianceMapID, this));
+        }
+    }
+    else
+    {
+        Relocate(info->positionX, info->positionY, info->positionZ, info->orientation);
+        SetMap(sMapMgr->CreateMap(info->mapId, this));
+    }
+
 
     uint32 RaceClassPower = (createInfo->Race) | (createInfo->Class << 8) | (powertype << 16);
 
@@ -1164,11 +1181,19 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             start_level = gm_level;
     }
 
-    SetUInt32Value(UNIT_FIELD_LEVEL, start_level);
+    if (l_Template)
+    {
+        SetUInt64Value(PLAYER_FIELD_COINAGE, l_Template->m_Money);
+        SetUInt32Value(UNIT_FIELD_LEVEL, l_Template->m_Level);
+    }
+    else
+    {
+        SetUInt64Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
+        SetUInt32Value(UNIT_FIELD_LEVEL, start_level);
+    }
 
     InitRunes();
 
-    SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
     SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_CONQUEST_POINTS));
@@ -1259,6 +1284,10 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetMaxPower(POWER_RUNIC_POWER, 1000);
     }
 
+    if (l_Template)
+        for (auto l_Spell : l_Template->m_SpellIDs)
+            addSpell(l_Spell, true, true, true, false);
+
     // original spells
     learnDefaultSpells();
 
@@ -1266,78 +1295,87 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     for (PlayerCreateInfoActions::const_iterator action_itr = info->action.begin(); action_itr != info->action.end(); ++action_itr)
         addActionButton(action_itr->button, action_itr->action, action_itr->type);
 
-    // original items
-    CharStartOutfitEntry const* oEntry = NULL;
-    for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+    if (l_Template)
     {
-        if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+        for (auto& l_Item : l_Template->m_TemplateItems)
+            StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+    }
+    else
+    {
+        // original items
+        CharStartOutfitEntry const* oEntry = NULL;
+        for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
         {
-            if (entry->RaceID  == createInfo->Race  &&
-                entry->ClassID == createInfo->Class &&
-                entry->SexID   == createInfo->Gender)
+            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
             {
-                oEntry = entry;
-                break;
+                if (entry->RaceID  == createInfo->Race  &&
+                    entry->ClassID == createInfo->Class &&
+                    entry->SexID   == createInfo->Gender)
+                {
+                    oEntry = entry;
+                    break;
+                }
             }
         }
-    }
 
-    if (oEntry)
-    {
-        for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        if (oEntry)
         {
-            if (oEntry->ItemId[j] <= 0)
-                continue;
-
-            uint32 itemId = oEntry->ItemId[j];
-
-            // just skip, reported in ObjectMgr::LoadItemTemplates
-            ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
-            if (!iProto)
-                continue;
-
-            // BuyCount by default
-            uint32 count = iProto->BuyCount;
-
-            // @todo remove this, use data in dbc or player_createinfoitem.
-            // special amount for food/drink
-            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
+            for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
             {
-                switch (iProto->Spells[0].SpellCategory)
+                if (oEntry->ItemId[j] <= 0)
+                    continue;
+
+                uint32 itemId = oEntry->ItemId[j];
+
+                // just skip, reported in ObjectMgr::LoadItemTemplates
+                ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
+                if (!iProto)
+                    continue;
+
+                // BuyCount by default
+                uint32 count = iProto->BuyCount;
+
+                // @todo remove this, use data in dbc or player_createinfoitem.
+                // special amount for food/drink
+                if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
                 {
-                    case SPELL_CATEGORY_FOOD:                                // food
-                        count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
-                        break;
-                    case SPELL_CATEGORY_DRINK:                                // drink
-                        count = 2;
+                    switch (iProto->Spells[0].SpellCategory)
+                    {
+                        case SPELL_CATEGORY_FOOD:                                // food
+                            count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
+                            break;
+                        case SPELL_CATEGORY_DRINK:                                // drink
+                            count = 2;
+                            break;
+                    }
+                    if (iProto->GetMaxStackSize() < count)
+                        count = iProto->GetMaxStackSize();
+                }
+
+                switch(itemId)
+                {
+                    // Pandaren start weapons, they are given with the first quest
+                    case 73207:
+                    case 73208:
+                    case 73209:
+                    case 73210:
+                    case 73211:
+                    case 73212:
+                    case 73213:
+                    case 76390:
+                    case 76391:
+                    case 76392:
+                    case 76393:
+                        continue;
+                    default:
                         break;
                 }
-                if (iProto->GetMaxStackSize() < count)
-                    count = iProto->GetMaxStackSize();
-            }
 
-            switch(itemId)
-            {
-                // Pandaren start weapons, they are given with the first quest
-                case 73207:
-                case 73208:
-                case 73209:
-                case 73210:
-                case 73211:
-                case 73212:
-                case 73213:
-                case 76390:
-                case 76391:
-                case 76392:
-                case 76393:
-                    continue;
-                default:
-                    break;
+                StoreNewItemInBestSlots(itemId, count);
             }
-
-            StoreNewItemInBestSlots(itemId, count);
         }
     }
+
 
     for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr)
         StoreNewItemInBestSlots(item_id_itr->item_id, item_id_itr->item_amount);
@@ -16345,7 +16383,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
-//         
+//
 //         l_Data << uint32(445);                      // ReforgeID
     }
 
