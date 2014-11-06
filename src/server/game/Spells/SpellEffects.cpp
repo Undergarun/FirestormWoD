@@ -8180,7 +8180,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     SendResurrectRequest(target);
 }
 
-void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
+void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8188,54 +8188,60 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
-    Player* target = unitTarget->ToPlayer();
-    if (!target)
-        return;
-    if (!target->isAlive())
+    Player* l_Target = unitTarget->ToPlayer();
+    if (!l_Target)
         return;
 
-    switch (m_spellInfo->Id)
+    if (!l_Target->isAlive())
+        return;
+
+    std::vector<uint32> l_Maps;
+
+    AreaGroupEntry const* l_AreaGroupEntry = sAreaGroupStore.LookupEntry(m_spellInfo->AreaGroupId);
+    while (l_AreaGroupEntry)
     {
-        case 126956: // Lorewalker's Lodestone
+        for (uint8 l_I = 0; l_I < MAX_GROUP_AREA_IDS; ++l_I)
         {
-            uint16 siteId = target->GetArchaeologyMgr().GetRandomActiveSiteInMap(870);
+            uint32 l_AreaId = l_AreaGroupEntry->AreaId[l_I];
+            AreaTableEntry const* l_AreaTable = sAreaStore.LookupEntry(l_AreaId);
+            if (l_AreaTable == nullptr)
+                continue;
 
-            ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
-            if (loot.empty())
-                break;
+            l_Maps.push_back(l_AreaTable->ContinentID);
 
-            ResearchLootVector lootListTemp;
-            ResearchLootVector lootList;
-
-            for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
-            {
-                ResearchLootEntry entry = (*itr);
-                if (entry.id == siteId)
-                    lootListTemp.push_back(entry);
-            }
-
-            if (lootListTemp.empty())
-                break;
-
-            lootList.push_back(JadeCore::Containers::SelectRandomContainerElement(lootListTemp));
-            if (lootList.empty())
-                break;
-
-            float x, y, z;
-            for (auto itr : lootList)
-            {
-                x = itr.x;
-                y = itr.y;
-                z = itr.z;
-                break;
-            }
-
-            target->NearTeleportTo(x, y, z, target->GetOrientation());
-            break;
         }
-        default:
-            break;
+        // Try search in next group
+        l_AreaGroupEntry = sAreaGroupStore.LookupEntry(l_AreaGroupEntry->nextGroup);
     }
+
+    if (l_Maps.empty())
+        return;
+
+    std::random_shuffle(l_Maps.begin(), l_Maps.end());
+
+    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInMap(l_Maps[0]);
+    ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
+    if (l_Loot.empty())
+        return;
+
+    ResearchLootVector l_LootListTemp;
+    ResearchLootVector l_LootList;
+
+    for (ResearchLootVector::const_iterator l_Iterator = l_Loot.begin(); l_Iterator != l_Loot.end(); ++l_Iterator)
+    {
+        ResearchLootEntry entry = (*l_Iterator);
+        if (entry.id == l_SiteId)
+            l_LootListTemp.push_back(entry);
+    }
+
+    if (l_LootListTemp.empty())
+        return;
+
+    l_LootList.push_back(JadeCore::Containers::SelectRandomContainerElement(l_LootListTemp));
+    if (l_LootList.empty())
+        return;
+
+    l_Target->NearTeleportTo(l_LootList[0].x, l_LootList[0].y, l_LootList[0].z, l_Target->GetOrientation());
 }
 
 void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
