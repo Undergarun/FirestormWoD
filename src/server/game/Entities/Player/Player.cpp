@@ -9858,7 +9858,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_MASTERY, int32(val), applyStats);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
-                //HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), applyStats);
+                ApplyModPositiveFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR, float(val), applyStats);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), applyStats);
