@@ -468,7 +468,7 @@ enum AuraType
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // SPELL_AURA_MOD_FEAR_2
     SPELL_AURA_408                                          = 408,  // 5.0.5 unk aura
     SPELL_AURA_ALLOW_MOVE_WHILE_FALLING                     = 409,  // SPELL_AURA_ALLOW_MOVE_WHILE_FALLING
-    SPELL_AURA_410                                          = 410,  // 5.0.5 unk aura
+    SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET                    = 410,  // SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET
     SPELL_AURA_MOD_CHARGES                                  = 411,  // SPELL_AURA_MOD_CHARGES
     SPELL_AURA_MOD_MANA_REGEN_BY_HASTE                      = 412,  // SPELL_AURA_MOD_MANA_REGEN_BY_HASTE
     SPELL_AURA_413                                          = 413,  // 5.0.5 unk aura
@@ -501,7 +501,7 @@ enum AuraType
     SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT                   = 440,  // 6.0.X SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     SPELL_AURA_MOD_MULTISTRIKE_PCT                          = 441,  // 6.0.X SPELL_AURA_MOD_MULTISTRIKE_PCT
     SPELL_AURA_442                                          = 442,  // 6.0.X
-    SPELL_AURA_443                                          = 443,  // 6.0.X
+    SPELL_AURA_MOD_LEECH_PCT                                = 443,  // 6.0.X SPELL_AURA_MOD_LEECH_PCT
     SPELL_AURA_444                                          = 444,  // 6.0.X
     SPELL_AURA_445                                          = 445,  // 6.0.X
     SPELL_AURA_446                                          = 446,  // 6.0.X
@@ -518,7 +518,7 @@ enum AuraType
     SPELL_AURA_457                                          = 457,  // 6.0.X
     SPELL_AURA_458                                          = 458,  // 6.0.X
     SPELL_AURA_459                                          = 459,  // 6.0.X
-    SPELL_AURA_460                                          = 460,  // 6.0.X
+    SPELL_AURA_RESET_COOLDOWNS                              = 460,  // 6.0.X SPELL_AURA_RESET_COOLDOWNS
     SPELL_AURA_461                                          = 461,  // 6.0.X
     SPELL_AURA_462                                          = 462,  // 6.0.X
     SPELL_AURA_463                                          = 463,  // 6.0.X
@@ -526,10 +526,10 @@ enum AuraType
     SPELL_AURA_465                                          = 465,  // 6.0.X
     SPELL_AURA_466                                          = 466,  // 6.0.X
     SPELL_AURA_467                                          = 467,  // 6.0.X
-    SPELL_AURA_468                                          = 468,  // 6.0.X
+    SPELL_AURA_MOD_VERSATILITY                              = 468,  // 6.0.X SPELL_AURA_MOD_VERSATILITY
     SPELL_AURA_469                                          = 469,  // 6.0.X
     SPELL_AURA_470                                          = 470,  // 6.0.X
-    SPELL_AURA_471                                          = 471,  // 6.0.X
+    SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X SPELL_AURA_MOD_VERSATILITY_PCT
     SPELL_AURA_472                                          = 472,  // 6.0.X
     SPELL_AURA_473                                          = 473,  // 6.0.X
     SPELL_AURA_474                                          = 474,  // 6.0.X

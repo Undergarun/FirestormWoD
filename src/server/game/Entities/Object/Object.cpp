@@ -476,7 +476,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         {
             Movement::MoveSpline * l_Spline = l_Unit->movespline;
 
-            *p_Data << uint32(getMSTime());                                 ///< Move Ticks
+            *p_Data << uint32(l_Spline->GetId());                           ///< Move spline ID
 
             if (!l_Spline->isCyclic())
             {
@@ -568,7 +568,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
                 for (uint32 l_I = 0; l_I < l_Spline->getPath().size(); l_I++)
                 {
-                    *p_Data << float(l_Spline->getPath()[l_I].x);           ///< Path node X
+                    float l_Salt = (float(l_I) / 1000.f);
+
+                    /// Add a salt in points because the client doesn't like to have 2 time the same points
+                    *p_Data << float(l_Spline->getPath()[l_I].x + l_Salt);  ///< Path node X
                     *p_Data << float(l_Spline->getPath()[l_I].y);           ///< Path node Y
                     *p_Data << float(l_Spline->getPath()[l_I].z);           ///< Path node Z
                 }

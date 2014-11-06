@@ -65,114 +65,72 @@ namespace Movement
         MonsterMoveStop         = 4
     };
 
-    inline void operator << (ByteBuffer& b, const Vector3& v)
-    {
-        b << v.x << v.y << v.z;
-    }
-
-    inline void operator >> (ByteBuffer& b, Vector3& v)
-    {
-        b >> v.x >> v.y >> v.z;
-    }
-
-    void WriteLinearPath(const Spline<int32>& spline, ByteBuffer& data)
-    {
-        uint32 last_idx = spline.getPointCount() - 3;
-        const Vector3 * real_path = &spline.getPoint(1);
-
-        data << real_path[last_idx];   // destination
-        if (last_idx > 1)
-        {
-            Vector3 middle = (real_path[0] + real_path[last_idx]) / 2.f;
-            Vector3 offset;
-            // first and last points already appended
-            for (uint32 i = 1; i < last_idx; ++i)
-            {
-                offset = middle - real_path[i];
-                data.appendPackXYZ(offset.x, offset.y, offset.z);
-            }
-        }
-    }
-
-    void WriteCatmullRomPath(const Spline<int32>& spline, ByteBuffer& data)
-    {
-        uint32 count = spline.getPointCount() - 3;
-        for (uint32 i = 0; i < count; i++)
-            data << spline.getPoint(i+2).x << spline.getPoint(i+2).y << spline.getPoint(i+2).z;
-    }
-
-    void WriteCatmullRomCyclicPath(const Spline<int32>& spline, ByteBuffer& data)
-    {
-        uint32 count = spline.getPointCount() - 2;
-        data << spline.getPoint(1).x << spline.getPoint(1).y << spline.getPoint(1).z ; // fake point, client will erase it from the spline after first cycle done
-        for (uint32 i = 0; i < count; i++)
-            data << spline.getPoint(i+1).x << spline.getPoint(i+1).y << spline.getPoint(i+1).z;
-    }
-
     void MoveSplineInit::Launch()
     {
         MoveSpline& l_MoveSpline = *m_Unit.movespline;
 
-        Location real_position(m_Unit.GetPositionX(), m_Unit.GetPositionY(), m_Unit.GetPositionZMinusOffset(), m_Unit.GetOrientation());
-        // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
+        Location l_RealPosition(m_Unit.GetPositionX(), m_Unit.GetPositionY(), m_Unit.GetPositionZMinusOffset(), m_Unit.GetOrientation());
+
+        /// Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
         if (m_Unit.GetTransGUID())
         {
-            real_position.x = m_Unit.GetTransOffsetX();
-            real_position.y = m_Unit.GetTransOffsetY();
-            real_position.z = m_Unit.GetTransOffsetZ();
-            real_position.orientation = m_Unit.GetTransOffsetO();
+            l_RealPosition.x = m_Unit.GetTransOffsetX();
+            l_RealPosition.y = m_Unit.GetTransOffsetY();
+            l_RealPosition.z = m_Unit.GetTransOffsetZ();
+            l_RealPosition.orientation = m_Unit.GetTransOffsetO();
         }
 
-        // there is a big chance that current position is unknown if current state is not finalized, need compute it
-        // this also allows calculate spline position and update map position in much greater intervals
-        // Don't compute for transport movement if the unit is in a motion between two transports
+        /// There is a big chance that current position is unknown if current state is not finalized, need compute it
+        /// this also allows calculate spline position and update map position in much greater intervals
+        /// Don't compute for transport movement if the unit is in a motion between two transports
         if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == (m_Unit.GetTransGUID() != 0))
-            real_position = l_MoveSpline.ComputePosition();
+            l_RealPosition = l_MoveSpline.ComputePosition();
 
-        // should i do the things that user should do? - no.
+        /// Should i do the things that user should do? - no.
         if (args.path.empty())
             return;
 
-        // correct first vertex
-        args.path[0] = real_position;
-        args.initialOrientation = real_position.orientation;
+        /// Correct first vertex
+        args.path[0] = l_RealPosition;
+        args.initialOrientation = l_RealPosition.orientation;
         l_MoveSpline.onTransport = (m_Unit.GetTransGUID() != 0);
 
-        uint32 moveFlags = m_Unit.m_movementInfo.GetMovementFlags();
+        uint32 l_MoveFlags = m_Unit.m_movementInfo.GetMovementFlags();
+        
         if (args.flags.walkmode)
-            moveFlags |= MOVEMENTFLAG_WALKING;
+            l_MoveFlags |= MOVEMENTFLAG_WALKING;
         else
-            moveFlags &= ~MOVEMENTFLAG_WALKING;
+            l_MoveFlags &= ~MOVEMENTFLAG_WALKING;
 
-        moveFlags |= MOVEMENTFLAG_FORWARD;
+        l_MoveFlags |= MOVEMENTFLAG_FORWARD;
 
         if (!args.HasVelocity)
-            args.velocity = m_Unit.GetSpeed(SelectSpeedType(moveFlags));
+            args.velocity = m_Unit.GetSpeed(SelectSpeedType(l_MoveFlags));
 
         if (!args.Validate())
         {
             if (!(args.velocity > 0.1f))
-                sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: args.velocity '%f', flags: %u, speedType: %u, speed %f, hasVelocity %u", args.velocity, moveFlags, SelectSpeedType(moveFlags), m_Unit.GetSpeed(SelectSpeedType(moveFlags)), args.HasVelocity);
+                sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: args.velocity '%f', flags: %u, speedType: %u, speed %f, hasVelocity %u", args.velocity, l_MoveFlags, SelectSpeedType(l_MoveFlags), m_Unit.GetSpeed(SelectSpeedType(l_MoveFlags)), args.HasVelocity);
 
             return;
         }
 
-        if (moveFlags & MOVEMENTFLAG_ROOT)
-            moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
+        if (l_MoveFlags & MOVEMENTFLAG_ROOT)
+            l_MoveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
 
-        m_Unit.m_movementInfo.SetMovementFlags(moveFlags);
+        m_Unit.m_movementInfo.SetMovementFlags(l_MoveFlags);
         l_MoveSpline.Initialize(args);
 
         //////////////////////////////////////////////////////////////////////////
 
-        MoveSplineFlag l_Splineflags = l_MoveSpline.splineflags;
-        l_Splineflags.enter_cycle = l_MoveSpline.isCyclic();
+        MoveSplineFlag l_Splineflags    = l_MoveSpline.splineflags;
+        l_Splineflags.enter_cycle       = l_MoveSpline.isCyclic();
 
         uint64 l_MoverGUID      = m_Unit.GetGUID();
         uint64 l_TransportGUID  = m_Unit.GetTransGUID();
 
         uint32 l_CompressedWayPointCount    = l_Splineflags & MoveSplineFlag::UncompressedPath ? 0 : l_MoveSpline.spline.getPointCount() - 3;
-        uint32 l_UncompressedWayPointCount  = !l_CompressedWayPointCount ? l_MoveSpline.spline.getPointCount() - 3 : 1;
+        uint32 l_UncompressedWayPointCount  = !l_CompressedWayPointCount ? l_MoveSpline.spline.getPointCount() - 2 : 1;
 
         uint8   l_FinalFacingMode   = 0;
         int8    l_TransportSeat     = m_Unit.GetTransSeat();
@@ -199,27 +157,30 @@ namespace Movement
 
         if ((l_Splineflags & MoveSplineFlag::UncompressedPath) == 0)
         {
-            uint32 l_LastIndex = l_MoveSpline.spline.getPointCount() - 3;
+            uint32 l_LastIndex = l_MoveSpline.spline.getPointCount() - 2;
             const Vector3 * l_RealPath = &l_MoveSpline.spline.getPoint(1);
 
-            l_SplineDestinationX = l_RealPath[l_LastIndex].x;
+            /// Add a salt in points because the client doesn't like to have 2 time the same points
+            l_SplineDestinationX = l_RealPath[l_LastIndex].x + (float(50) / 1000.f);
             l_SplineDestinationY = l_RealPath[l_LastIndex].y;
             l_SplineDestinationZ = l_RealPath[l_LastIndex].z;
         }
 
+        Movement::Location  l_Position = l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first());
+
         WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
         l_Data.appendPackGUID(l_MoverGUID);
-        l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
-        l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
-        l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
-        l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
-        l_Data << float(l_SplineDestinationX);                                                      ///< Spline destination X
-        l_Data << float(l_SplineDestinationY);                                                      ///< Spline destination Y
-        l_Data << float(l_SplineDestinationZ);                                                      ///< Spline destination Z
+        l_Data << float(l_Position.x);                                                              ///< Spline current position X
+        l_Data << float(l_Position.y);                                                              ///< Spline current position Y
+        l_Data << float(l_Position.z);                                                              ///< Spline current position Z
+        l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Spline ID
+        l_Data << float(0);                                                                         ///< Spline destination X
+        l_Data << float(0);                                                                         ///< Spline destination Y
+        l_Data << float(0);                                                                         ///< Spline destination Z
         l_Data << uint32(l_Splineflags & ~MoveSplineFlag::Mask_No_Monster_Move);                    ///< Spline raw flags
         l_Data << uint8(l_Splineflags.getAnimationId());                                            ///< Animation ID
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Animation Time
-        l_Data << uint32(l_MoveSpline.timeElapsed());                                               ///< Elapsed time
+        l_Data << uint32(l_MoveSpline.timePassed());                                                ///< Elapsed time
         l_Data << uint32(l_MoveSpline.Duration());                                                  ///< Duration
         l_Data << float(l_MoveSpline.vertical_acceleration);                                        ///< Vertical Acceleration (AKA Jump gravity)
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Parabolic Time (AKA Special time)
@@ -233,16 +194,35 @@ namespace Movement
         if (l_Splineflags & MoveSplineFlag::UncompressedPath)
         {
             if (l_Splineflags.cyclic)
-                WriteCatmullRomCyclicPath(l_MoveSpline.spline, l_Data);
+            {
+                uint32 p_Count = l_MoveSpline.spline.getPointCount() - 2;
+
+                ///< fake point, client will erase it from the spline after first cycle done
+                l_Data << (l_MoveSpline.spline.getPoint(1).x + (float(50) / 1000.f)) << l_MoveSpline.spline.getPoint(1).y << l_MoveSpline.spline.getPoint(1).z;
+
+                for (uint32 l_I = 0; l_I < p_Count; l_I++)
+                {
+                    /// Add a salt in points because the client doesn't like to have 2 time the same points
+                    l_Data << (l_MoveSpline.spline.getPoint(l_I + 1).x + (float(l_I) / 1000.f)) << l_MoveSpline.spline.getPoint(l_I + 1).y << l_MoveSpline.spline.getPoint(l_I + 1).z;
+                }
+            }
             else
-                WriteCatmullRomPath(l_MoveSpline.spline, l_Data);
+            {
+                uint32 l_Count = l_MoveSpline.spline.getPointCount() - 2;
+
+                for (uint32 l_I = 0; l_I < l_Count; l_I++)
+                {
+                    /// Add a salt in points because the client doesn't like to have 2 time the same points
+                    l_Data << (l_MoveSpline.spline.getPoint(l_I + 2).x + (float(l_I) / 1000.f)) << l_MoveSpline.spline.getPoint(l_I + 2).y << l_MoveSpline.spline.getPoint(l_I + 2).z;
+                }
+            }
         }
         else
         {
             /// Fake waypoints
-            l_Data << float(l_SplineDestinationX);                                                      ///< Spline destination X
-            l_Data << float(l_SplineDestinationY);                                                      ///< Spline destination Y
-            l_Data << float(l_SplineDestinationZ);                                                      ///< Spline destination Z
+            l_Data << float(l_SplineDestinationX);                                                  ///< Spline destination X
+            l_Data << float(l_SplineDestinationY);                                                  ///< Spline destination Y
+            l_Data << float(l_SplineDestinationZ);                                                  ///< Spline destination Z
         }
 
         if ((l_Splineflags & MoveSplineFlag::UncompressedPath) == 0)
@@ -264,18 +244,18 @@ namespace Movement
             }
         }
 
-        l_Data.WriteBits(l_FinalFacingMode, 2);
-        l_Data.WriteBit(0);                         ///< Has monster spline filter
+        l_Data.WriteBits(l_FinalFacingMode, 2);                                                     ///< Facing
+        l_Data.WriteBit(0);                                                                         ///< Has monster spline filter
         l_Data.FlushBits();
 
         if (l_FinalFacingMode == MonsterMoveFacingAngle)
-            l_Data << l_MoveSpline.facing.angle;
+            l_Data << l_MoveSpline.facing.angle;                                                    ///< Facing angle
         else if (l_FinalFacingMode == MonsterMoveFacingTarget)
-            l_Data.appendPackGUID(l_MoveSpline.facing.target);
+            l_Data.appendPackGUID(l_MoveSpline.facing.target);                                      ///< Facing target
         else if (l_FinalFacingMode == MonsterMoveFacingSpot)
-            l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;
+            l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;///< Facing position
 
-        l_Data.WriteBit(0);                         ///< Crz teleport
+        l_Data.WriteBit(0);                                                                         ///< Crz teleport
         l_Data.WriteBits(0, 2);
         l_Data.FlushBits();
 

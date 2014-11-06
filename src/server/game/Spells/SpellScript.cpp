@@ -646,11 +646,11 @@ bool AuraScript::_Validate(SpellInfo const* entry)
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have area aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraDispelHandler>::iterator itr = OnDispel.begin(); itr != OnDispel.end();  ++itr)
-        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+     if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA_ON_PET) && !entry->HasAreaAuraEffect())
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `OnDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraDispelHandler>::iterator itr = AfterDispel.begin(); itr != AfterDispel.end();  ++itr)
-        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA_ON_PET) && !entry->HasAreaAuraEffect())
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
@@ -706,19 +706,19 @@ bool AuraScript::_Validate(SpellInfo const* entry)
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectManaShield` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     for (std::list<CheckProcHandler>::iterator itr = DoCheckProc.begin(); itr != DoCheckProc.end(); ++itr)
-        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA_ON_PET) && !entry->HasAreaAuraEffect())
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `DoCheckProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraProcHandler>::iterator itr = DoPrepareProc.begin(); itr != DoPrepareProc.end(); ++itr)
-        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) &&  !entry->HasEffect(SPELL_EFFECT_APPLY_AURA_ON_PET) && !entry->HasAreaAuraEffect())
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `DoPrepareProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraProcHandler>::iterator itr = OnProc.begin(); itr != OnProc.end(); ++itr)
-        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA_ON_PET) && !entry->HasAreaAuraEffect())
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `OnProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraProcHandler>::iterator itr = AfterProc.begin(); itr != AfterProc.end(); ++itr)
-        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA_ON_PET) && !entry->HasAreaAuraEffect())
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<EffectProcHandler>::iterator itr = OnEffectProc.begin(); itr != OnEffectProc.end(); ++itr)

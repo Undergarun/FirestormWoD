@@ -894,6 +894,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 39,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY             = 40,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS    = 41,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2321,7 +2322,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePvPPowerPercentage();
         void UpdateMultistrike();
         void UpdateLeech();
-        void UpdateVesatillity();
+        void UpdateVersatility();
         void UpdateAvoidance();
 
         void UpdateAllSpellCritChances();

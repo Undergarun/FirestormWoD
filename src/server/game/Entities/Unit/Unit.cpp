@@ -179,6 +179,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     , m_HostileRefManager(this)
     , _lastDamagedTime(0)
     , m_disableHealthRegen(false)
+    , m_disableEnterEvadeMode(false)
 
 {
 #ifdef _MSC_VER
@@ -10839,6 +10840,9 @@ void Unit::setPowerType(Powers new_powertype)
     }
 
     SetPower(new_powertype, GetPower(new_powertype));
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->UpdateManaRegen();
 }
 
 FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
@@ -15694,9 +15698,9 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints) const
+int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints, Item const* p_Item) const
 {
-    return spellProto->Effects[effect_index].CalcValue(this, basePoints, target);
+    return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item);
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
@@ -18238,6 +18242,7 @@ uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectTyp
                 DirectDamage = true;
                 break;
             case SPELL_EFFECT_APPLY_AURA:
+            case SPELL_EFFECT_APPLY_AURA_ON_PET:
                 switch (spellProto->Effects[i].ApplyAuraName)
                 {
                     case SPELL_AURA_PERIODIC_DAMAGE:
@@ -18285,7 +18290,7 @@ uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectTyp
     for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         if (spellProto->Effects[j].Effect == SPELL_EFFECT_HEALTH_LEECH ||
-            (spellProto->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA && spellProto->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH))
+            ((spellProto->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA || spellProto->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET) && spellProto->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH))
         {
             CastingTime /= 2;
             break;
