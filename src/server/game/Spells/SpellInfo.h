@@ -285,13 +285,13 @@ public:
     bool IsPeriodicEffect() const;
     bool CanScale() const;
 
-    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL) const;
+    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, Item const* p_Item = nullptr) const;
     int32 CalcBaseValue(int32 value) const;
-    float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
-    float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
+    float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
+    float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
 
     bool HasRadius() const;
-    float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
+    float CalcRadius(Unit* caster = nullptr, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;

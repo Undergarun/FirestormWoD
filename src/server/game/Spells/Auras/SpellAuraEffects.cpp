@@ -626,42 +626,44 @@ void AuraEffect::GetApplicationList(std::list<AuraApplication*> & applicationLis
 int32 AuraEffect::CalculateAmount(Unit* caster)
 {
     int32 amount;
+
+    Item* l_Item = nullptr;
+    if (uint64 itemGUID = GetBase()->GetCastItemGUID())
+    {
+        if (Player* l_PlayerCaster = caster->ToPlayer())
+            l_Item = l_PlayerCaster->GetItemByGuid(itemGUID);
+    }
+
     // default amount calculation
-    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
+    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), l_Item);
 
     // check item enchant aura cast
     if (!amount && caster)
     {
-        if (uint64 itemGUID = GetBase()->GetCastItemGUID())
+        if (l_Item != nullptr)
         {
-            if (Player* playerCaster = caster->ToPlayer())
+            if (l_Item->GetItemSuffixFactor())
             {
-                if (Item* castItem = playerCaster->GetItemByGuid(itemGUID))
+                ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(l_Item->GetItemRandomPropertyId()));
+                if (item_rand_suffix)
                 {
-                    if (castItem->GetItemSuffixFactor())
+                    for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
                     {
-                        ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
-                        if (item_rand_suffix)
+                        SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
+                        if (pEnchant)
                         {
-                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
+                            for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
                             {
-                                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
-                                if (pEnchant)
+                                if (pEnchant->spellid[t] == m_spellInfo->Id)
                                 {
-                                    for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
-                                    {
-                                        if (pEnchant->spellid[t] == m_spellInfo->Id)
-                                        {
-                                            amount = uint32((item_rand_suffix->prefix[k] * castItem->GetItemSuffixFactor()) / 10000);
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (amount)
+                                    amount = uint32((item_rand_suffix->prefix[k] * l_Item->GetItemSuffixFactor()) / 10000);
                                     break;
+                                }
                             }
                         }
+
+                        if (amount)
+                            break;
                     }
                 }
             }

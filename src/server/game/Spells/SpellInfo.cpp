@@ -459,7 +459,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target) const
+int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, Item const* p_Item) const
 {
     float l_BasePointsPerLevel = RealPointsPerLevel;
     int32 l_BasePoints = p_Bp ? *p_Bp : BasePoints;
@@ -484,7 +484,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
             if (l_SpellScaling->ScalesFromItemLevel == 0)
             {
-                if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_INCREASE_HEALTH_FLAT) == 0)
+                if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_CAST_WITH_ITEM) == 0)
                 {
                     GtSpellScalingEntry const* l_GtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * GT_MAX_LEVEL + l_Level - 1);
                     if (l_GtScaling)
@@ -492,8 +492,12 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                 }
                 else
                 {
+                    uint32 l_ItemLevel = l_Level;
+                    if (p_Item != nullptr)
+                        l_ItemLevel = p_Item->GetTemplate()->ItemLevel;
+
                     // Not sure about how to calculate level to use in random properties points ... Need to revert Spell_C_GetMinMaxPoints more ...
-                    RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_Level);
+                    RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_ItemLevel);
                     if (l_RandomPropertiesPoints)
                         l_Multiplier = l_RandomPropertiesPoints->RarePropertiesPoints[0];
                 }

@@ -15807,9 +15807,9 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints) const
+int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints, Item const* p_Item) const
 {
-    return spellProto->Effects[effect_index].CalcValue(this, basePoints, target);
+    return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item);
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
