@@ -1472,6 +1472,47 @@ class spell_rog_shadowstep : public SpellScriptLoader
         }
 };
 
+// Stealth - 1784
+class spell_rog_stealth : public SpellScriptLoader
+{
+    public:
+        spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
+
+        class spell_rog_stealth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_stealth_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->CastSpell(l_Caster, 158188, true);
+                    l_Caster->CastSpell(l_Caster, 158185, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->RemoveAura(158188);
+                    l_Caster->RemoveAura(158185);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_stealth_AuraScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_killing_spree();
@@ -1501,4 +1542,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_preparation();
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
+    new spell_rog_stealth();
 }

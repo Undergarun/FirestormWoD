@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUES (1784, 'spell_rog_stealth');
