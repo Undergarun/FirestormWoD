@@ -503,7 +503,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
     &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
     &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
-    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_PCT_FROM_BEAST
+    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
@@ -8779,21 +8779,21 @@ void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8
         l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
 }
 
-void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateLeech();
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateLeech();
 }
 
-void AuraEffect::HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+void AuraEffect::HandleAuraVesatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateVersatility();
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateVersatility();
 }
 
