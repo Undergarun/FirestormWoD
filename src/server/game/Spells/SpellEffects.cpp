@@ -260,7 +260,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
     &Spell::EffectRandomizeArchaeologyDigsites,             //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
-    &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188                     Stampede 121818
+    &Spell::EffectSummonMultipleHunterPets,                 //188 SPELL_EFFECT_SUMMON_MULTIPLE_HUNTER_PETS
     &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS              Boss loot bonus ?
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
     &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE     Teleport player to an random digsite (Archaeology)
@@ -8540,4 +8540,45 @@ void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
 
     for (AreaTrigger* l_AreaTrigger : l_AreaTriggers)
         l_AreaTrigger->Remove(0);
+}
+
+void Spell::EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex)
+{
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    Player* l_Player = m_caster->ToPlayer();
+    Unit*   l_Target = unitTarget;
+
+    if (l_Target == nullptr)
+        return;
+
+    uint32 l_MalusSpell     = m_spellInfo->Effects[p_EffIndex].TriggerSpell;
+    bool   l_OnlyCurrentPet = l_Player->HasAuraType(SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET);
+
+    uint32 l_CurrentSlot = l_Player->m_currentPetSlot;
+    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST); ++l_PetSlotIndex)
+    {
+        if (l_PetSlotIndex != l_CurrentSlot)
+        {
+            float l_X, l_Y, l_Z;
+            l_Player->GetClosePoint(l_X, l_Y, l_Z, l_Player->GetObjectSize());
+            Pet* l_Pet = l_Player->SummonPet(0, l_X, l_Y, l_Z, l_Player->GetOrientation(), SUMMON_PET, l_Player->CalcSpellDuration(GetSpellInfo()), PetSlot(l_OnlyCurrentPet ? l_CurrentSlot : l_PetSlotIndex), true);
+            if (!l_Pet)
+                return;
+
+            if (!l_Pet->isAlive())
+                l_Pet->setDeathState(ALIVE);
+
+            // Set pet at full health
+            l_Pet->SetHealth(l_Pet->GetMaxHealth());
+            l_Pet->SetReactState(REACT_AGGRESSIVE);
+            l_Pet->m_Stampeded = true;
+
+            l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
+            if (l_MalusSpell != 0)
+                l_Pet->CastSpell(l_Pet, l_MalusSpell, true);
+            l_Pet->AI()->AttackStart(l_Target);
+        }
+    }
 }
