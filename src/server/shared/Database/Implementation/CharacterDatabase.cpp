@@ -307,9 +307,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // Archaeology
     PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY, "DELETE FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY, "INSERT INTO character_archaeology  (guid, counts, projects) VALUES (?, ?, ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY, "INSERT INTO character_archaeology  (guid, counts, projects) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY_SITES, "DELETE FROM character_archaeology_sites WHERE guid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY_SITES, "INSERT INTO character_archaeology_sites  (guid, map, sites) VALUES (?, ?, ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY_SITES, "INSERT INTO character_archaeology_sites  (guid, map, sites) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS, "DELETE FROM character_archaeology_projects WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS, "INSERT INTO character_archaeology_projects (guid, project, count, first_date) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
 
