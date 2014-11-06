@@ -271,36 +271,37 @@ void Player::UpdateResistances(uint32 school)
 
 void Player::UpdateArmor()
 {
-    float value = 0.0f;
-    UnitMods unitMod = UNIT_MOD_ARMOR;
+    float l_Armor = 0.0f;
+    UnitMods l_UnitMod = UNIT_MOD_ARMOR;
 
-    value  = GetModifierValue(unitMod, BASE_VALUE);         // base armor (from items)
-    value *= GetModifierValue(unitMod, BASE_PCT);           // armor percent from items
-    value += GetModifierValue(unitMod, TOTAL_VALUE);
-
-    // Custom MoP Script
-    // 77494 - Mastery : Nature's Guardian
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77494))
-    {
-        float Mastery = 1.0f + GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-        value *= Mastery;
-    }
+    l_Armor  = GetModifierValue(l_UnitMod, BASE_VALUE);         // base armor (from items)
+    l_Armor *= GetModifierValue(l_UnitMod, BASE_PCT);           // armor percent from items
+    l_Armor += GetModifierValue(l_UnitMod, TOTAL_VALUE);
+    l_Armor *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
     //add dynamic flat mods
     AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
     {
         if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
+            l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
+    l_Armor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
+    l_Armor += CalculatePct(l_Armor, GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT));
 
-    SetArmor(int32(value));
+    // Custom MoP Script
+    // 77494 - Mastery : Nature's Guardian
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(77494))
+    {
+        float l_Mastery = 1.0f + GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
+        l_Armor *= l_Mastery;
+    }
 
-    Pet* pet = GetPet();
-    if (pet)
-        pet->UpdateArmor();
+    SetArmor(int32(l_Armor));
+
+    if (Pet* l_Pet = GetPet())
+        l_Pet->UpdateArmor();
 
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
 }

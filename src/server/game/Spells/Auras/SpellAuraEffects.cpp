@@ -499,7 +499,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraMultistrike,                           //440 SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     &AuraEffect::HandleAuraMultistrike,                           //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
     &AuraEffect::HandleNULL,                                      //442 SPELL_AURA_442
-    &AuraEffect::HandleAuraLeechPct,                              //443 SPELL_AURA_MOD_LEECH_PCT
+    &AuraEffect::HandleAuraLeech,                                 //443 SPELL_AURA_MOD_LEECH_PCT
     &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
     &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
     &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
@@ -521,13 +521,13 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
     &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
-    &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_465
-    &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_466
+    &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
+    &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
-    &AuraEffect::HandleAuraVesatility,                            //468 SPELL_AURA_MOD_VERSATILITY
+    &AuraEffect::HandleAuraVersatility,                           //468 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
-    &AuraEffect::HandleAuraVesatility,                            //471 SPELL_AURA_MOD_VERSATILITY_PCT
+    &AuraEffect::HandleAuraVersatility,                           //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
     &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
@@ -8754,32 +8754,16 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint
     player->SetMaxPower(POWER_MANA, mod* mana);
 }
 
-void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateMultistrike();
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateMultistrike();
 }
 
-void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
-{
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    Unit* l_target = p_aurApp->GetTarget();
-
-    if (l_target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Actually this aura is only use when we go to a Duel
-    // Enter in Arena reset the same way cooldowns that enter in duel
-    if (p_apply)
-        l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
-}
-
-void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -8788,7 +8772,7 @@ void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_AurApp, uint8 p_Mod
         l_Player->UpdateLeech();
 }
 
-void AuraEffect::HandleAuraVesatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -8797,3 +8781,27 @@ void AuraEffect::HandleAuraVesatility(AuraApplication const* p_AurApp, uint8 p_M
         l_Player->UpdateVersatility();
 }
 
+void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateArmor();
+}
+
+void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // Actually this aura is only use when we go to a Duel
+    // Enter in Arena reset the same way cooldowns that enter in duel
+    if (p_Apply)
+        l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+}
