@@ -496,7 +496,6 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                     if (p_Item != nullptr)
                         l_ItemLevel = p_Item->GetTemplate()->ItemLevel;
 
-                    // Not sure about how to calculate level to use in random properties points ... Need to revert Spell_C_GetMinMaxPoints more ...
                     RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_ItemLevel);
                     if (l_RandomPropertiesPoints)
                         l_Multiplier = l_RandomPropertiesPoints->RarePropertiesPoints[0];

@@ -269,8 +269,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SAVE_GUILD_NEWS, "INSERT INTO guild_news_log (guild, id, eventType, playerGuid, data, flags, date) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // Archaeology
-    PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY, "SELECT sites0, sites1, sites2, sites3, sites4, counts, projects FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY, "SELECT counts, projects FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY_PROJECTS, "SELECT project, count, first_date FROM character_archaeology_projects WHERE guid = ?", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_SEL_CHAR_ARCHAEOLOGY_SITES, "SELECT map, sites FROM character_archaeology_sites WHERE guid = ?", CONNECTION_ASYNC);
 
     // Chat channel handling
     PREPARE_STATEMENT(CHAR_SEL_CHANNEL, "SELECT announce, ownership, password, bannedList FROM channels WHERE name = ? AND team = ?", CONNECTION_SYNCH)
@@ -306,7 +307,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // Archaeology
     PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY, "DELETE FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY, "INSERT INTO character_archaeology  (guid, sites0, sites1, sites2, sites3, sites4, counts, projects) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY, "INSERT INTO character_archaeology  (guid, counts, projects) VALUES (?, ?, ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY_SITES, "DELETE FROM character_archaeology_sites WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY_SITES, "INSERT INTO character_archaeology_sites  (guid, map, sites) VALUES (?, ?, ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS, "DELETE FROM character_archaeology_projects WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS, "INSERT INTO character_archaeology_projects (guid, project, count, first_date) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
 

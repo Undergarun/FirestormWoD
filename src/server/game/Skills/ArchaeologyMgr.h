@@ -89,7 +89,7 @@ class ArchaeologyMgr
 
         ~ArchaeologyMgr() { }
 
-        void LoadArchaeology(PreparedQueryResult result, PreparedQueryResult resultProjects);
+        void LoadArchaeology(PreparedQueryResult p_Result, PreparedQueryResult p_ResultProjects, PreparedQueryResult p_ResultSites);
         void SaveArchaeology(SQLTransaction& trans);
 
         void AddProjectCost(uint32 entry, uint32 count, bool isCurrency)
