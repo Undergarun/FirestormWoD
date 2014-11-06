@@ -7379,7 +7379,6 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_READINESS:
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
@@ -9808,9 +9807,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             case ITEM_MOD_MULTISTRIKE_RATING:
                 ApplyRatingMod(CR_MULTISTRIKE, int32(val), applyStats);
-                break;
-            case ITEM_MOD_READINESS_RATING:
-                ApplyRatingMod(CR_READINESS, int32(val), applyStats);
                 break;
             case ITEM_MOD_SPEED_RATING:
                 ApplyRatingMod(CR_SPEED, int32(val), applyStats);

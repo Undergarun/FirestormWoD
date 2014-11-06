@@ -79,7 +79,7 @@ enum ItemModType
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
     ITEM_MOD_PVP_POWER                = 57,
     ITEM_MOD_MULTISTRIKE_RATING       = 59,
-    ITEM_MOD_READINESS_RATING         = 60,
+    ITEM_MOD_READINESS_RATING         = 60, // Deprecated
     ITEM_MOD_SPEED_RATING             = 61,
     ITEM_MOD_LEECH_RATING             = 62,
     ITEM_MOD_AVOIDANCE_RATING         = 63,
