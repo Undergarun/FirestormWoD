@@ -7111,7 +7111,7 @@ void ObjectMgr::LoadCurrencyOnKill()
 
         if (!GetCreatureTemplate(l_Creature_id))
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_creature` have data for not existed creature entry (%u), skipped", creature_id);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_creature` have data for not existed creature entry (%u), skipped", l_Creature_id);
             continue;
         }
         for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)

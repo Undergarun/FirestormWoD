@@ -398,7 +398,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 attPowerMod -= temp;
         }
     }
-
+    attPowerMod += CalculatePct(GetFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraMultiplier(SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR));
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;

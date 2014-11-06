@@ -520,7 +520,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
-    &AuraEffect::HandleNULL,                                      //464 SPELL_AURA_464
+    &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_465
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_466
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
@@ -8796,3 +8796,4 @@ void AuraEffect::HandleAuraVesatility(AuraApplication const* p_AurApp, uint8 p_M
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
         l_Player->UpdateVersatility();
 }
+
