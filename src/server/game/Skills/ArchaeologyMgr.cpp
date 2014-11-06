@@ -399,19 +399,41 @@ void ArchaeologyMgr::GenerateResearchSites()
     for (ResearchSitesMap::iterator l_Iterator = _researchSites.begin(); l_Iterator != _researchSites.end(); ++l_Iterator)
         l_Iterator->second.clear();
 
-    for (std::set<ResearchSiteEntry const*>::const_iterator itr = sResearchSiteSet.begin(); itr != sResearchSiteSet.end(); ++itr)
+    for (std::set<ResearchSiteEntry const*>::const_iterator l_Iterator = sResearchSiteSet.begin(); l_Iterator != sResearchSiteSet.end(); ++l_Iterator)
     {
-        if (CanResearchWithLevel((*itr)->ID))
-            _researchSites[(*itr)->mapId].insert((*itr)->ID);
+        if (CanResearchWithLevel((*l_Iterator)->ID))
+            _researchSites[(*l_Iterator)->mapId].insert((*l_Iterator)->ID);
     }
 
     for (ResearchSitesMap::iterator l_Iterator = _researchSites.begin(); l_Iterator != _researchSites.end(); ++l_Iterator)
         JadeCore::Containers::RandomResizeSet(l_Iterator->second, RESEARCH_SITES_PER_MAP);
 
     _archaeologyChanged = true;
-
     ShowResearchSites();
 }
+
+void ArchaeologyMgr::GenerateResearchSitesForMap(uint32 p_MapId, uint32 p_SitesCount)
+{
+    if (sResearchSiteSet.empty())
+        return;
+
+    _researchSites[p_MapId].clear();
+
+    for (std::set<ResearchSiteEntry const*>::const_iterator l_Iterator = sResearchSiteSet.begin(); l_Iterator != sResearchSiteSet.end(); ++l_Iterator)
+    {
+        if ((*l_Iterator)->mapId != p_MapId)
+            continue;
+
+        if (CanResearchWithLevel((*l_Iterator)->ID))
+            _researchSites[p_MapId].insert((*l_Iterator)->ID);
+    }
+
+    JadeCore::Containers::RandomResizeSet(_researchSites[p_MapId], p_SitesCount);
+
+    _archaeologyChanged = true;
+    ShowResearchSites();
+}
+
 
 void ArchaeologyMgr::GenerateResearchProjects()
 {

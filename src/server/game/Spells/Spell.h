@@ -450,6 +450,7 @@ public:
     void EffectForcePlayerInteraction(SpellEffIndex p_EffIndex);
     void EffectBecomeUntargettable(SpellEffIndex p_EffIndex);
     void EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex);
+    void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
 
     typedef std::set<AuraPtr> UsedSpellMods;
 

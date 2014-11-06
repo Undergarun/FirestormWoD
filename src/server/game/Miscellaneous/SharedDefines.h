@@ -1261,7 +1261,7 @@ enum SpellEffects
     SPELL_EFFECT_REPUTATION_REWARD                  = 184,
     SPELL_EFFECT_PLAY_SCENEOBJECT                   = 185,
     SPELL_EFFECT_PLAY_SCENEOBJECT_2                 = 186,
-    SPELL_EFFECT_RANDOM_DIGSITE                     = 187,
+    SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES     = 187,
     SPELL_EFFECT_STAMPEDE                           = 188,
     SPELL_EFFECT_LOOT_BONUS                         = 189,
     SPELL_EFFECT_190                                = 190,

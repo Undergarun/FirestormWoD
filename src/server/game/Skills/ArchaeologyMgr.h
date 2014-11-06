@@ -106,6 +106,7 @@ class ArchaeologyMgr
 
         void GenerateResearchProjects();
         void GenerateResearchSites();
+        void GenerateResearchSitesForMap(uint32 p_MapId, uint32 p_SitesCount);
 
         void ShowResearchProjects();
         void ShowResearchSites();

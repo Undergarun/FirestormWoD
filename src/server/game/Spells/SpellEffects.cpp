@@ -256,10 +256,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUnlearnTalent,                            //181 SPELL_EFFECT_UNLEARN_TALENT
     &Spell::EffectDespawnAreaTrigger,                       //182 SPELL_EFFECT_DESPAWN_AREA_TRIGGER
     &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183                     Unused 6.0.3
-    &Spell::EffectReputation,                               //184 SPELL_EFFECT_REPUTATION_REWARD       add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
+    &Spell::EffectReputation,                               //184 SPELL_EFFECT_REPUTATION_REWARD
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
-    &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187                     126957 only
+    &Spell::EffectRandomizeArchaeologyDigsites,             //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
     &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188                     Stampede 121818
     &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS              Boss loot bonus ?
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
@@ -8242,6 +8242,27 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
         return;
 
     l_Target->NearTeleportTo(l_LootList[0].x, l_LootList[0].y, l_LootList[0].z, l_Target->GetOrientation());
+}
+
+void Spell::EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Target = unitTarget->ToPlayer();
+    if (!l_Target)
+        return;
+
+    if (!l_Target->isAlive())
+        return;
+
+    uint32 l_MapId     = m_spellInfo->Effects[p_EffIndex].MiscValue;
+    uint32 l_SiteCount = m_spellInfo->Effects[p_EffIndex].BasePoints;
+
+    l_Target->GetArchaeologyMgr().GenerateResearchSitesForMap(l_MapId, l_SiteCount);
 }
 
 void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
