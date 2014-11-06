@@ -1336,6 +1336,16 @@ bool Aura::HasEffectType(AuraType type) const
     return false;
 }
 
+uint8 Aura::GetEffectIndexByType(AuraType type) const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (HasEffect(i) && m_effects[i]->GetAuraType() == type)
+            return i;
+    }
+    return MAX_SPELL_EFFECTS;
+}
+
 void Aura::RecalculateAmountOfEffects()
 {
     ASSERT (!IsRemoved());

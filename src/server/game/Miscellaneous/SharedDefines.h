@@ -3638,7 +3638,7 @@ enum CreatureFamily
     CREATURE_FAMILY_GHOUL               = 40,
     CREATURE_FAMILY_SILITHID            = 41,
     CREATURE_FAMILY_WORM                = 42,
-    CREATURE_FAMILY_RHINO               = 43,
+    CREATURE_FAMILY_CLEFTHOOF           = 43,
     CREATURE_FAMILY_WASP                = 44,
     CREATURE_FAMILY_CORE_HOUND          = 45,
     CREATURE_FAMILY_SPIRIT_BEAST        = 46,
@@ -3649,12 +3649,10 @@ enum CreatureFamily
     CREATURE_FAMILY_BEETLE              = 53,
     CREATURE_FAMILY_SHALE_SPIDER        = 55,
     CREATURE_FAMILY_ZOMBIE              = 56,
-    CREATURE_FAMILY_BEETLE_OLD          = 57,
-    CREATURE_FAMILY_SILITHID_2          = 59,
-    CREATURE_FAMILY_WASP_2              = 66,
+    CREATURE_FAMILY_QA_TEST             = 57,
     CREATURE_FAMILY_HYDRA               = 68,       // 5.0.5
     CREATURE_FAMILY_FEL_IMP             = 100,      // 5.0.5
-    CREATURE_FAMILY_VOID_WALKER         = 101,      // 5.0.5
+    CREATURE_FAMILY_VOIDLORD            = 101,      // 5.0.5
     CREATURE_FAMILY_SHIVARRA            = 102,      // 5.0.5
     CREATURE_FAMILY_OBSERVER            = 103,      // 5.0.5
     CREATURE_FAMILY_WRATH_GUARD         = 104,      // 5.0.5

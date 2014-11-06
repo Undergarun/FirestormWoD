@@ -1605,23 +1605,23 @@ void Player::UpdateMultistrike()
 {
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
     float effect = 30.f; // Default value
-    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
     value += GetRatingBonusValue(CR_MULTISTRIKE);
+    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
 }
 
 void Player::UpdateLeech()
 {
-    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float value = GetTotalAuraModifier(SPELL_AURA_MOD_LEECH_PCT);
     value += GetRatingBonusValue(CR_LIFESTEAL);
     SetFloatValue(PLAYER_FIELD_LIFESTEAL, value);
 }
 
-void Player::UpdateVesatillity()
+void Player::UpdateVersatility()
 {
-    float valueDone = 0.f;//GetTotalAuraModifier(SPELL_AURA);
-    float valueTaken = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float valueDone = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+    float valueTaken = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
     valueDone += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
     valueTaken += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
     SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);

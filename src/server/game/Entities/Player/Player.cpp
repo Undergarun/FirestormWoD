@@ -505,38 +505,46 @@ inline void KillRewarder::_RewardHonor(Player* player)
         player->RewardHonor(_victim, _count, -1, true);
 }
 
-inline void KillRewarder::_RewardXP(Player* player, float rate)
+inline void KillRewarder::_RewardXP(Player* p_player, float p_rate)
 {
-    uint32 xp(_xp);
+    uint32 l_xp(_xp);
     if (_group)
     {
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && player->isAlive() &&
-            _maxNotGrayMember->getLevel() >= player->getLevel())
-            xp = _isFullXP ?
-                uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
-                uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
+        if (_maxNotGrayMember && p_player->isAlive() &&
+            _maxNotGrayMember->getLevel() >= p_player->getLevel())
+            l_xp = _isFullXP ?
+                uint32(l_xp * p_rate) :             // Reward FULL XP if all group members are not gray.
+                uint32(l_xp * p_rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
-            xp = 0;
+            l_xp = 0;
     }
-    if (xp)
+    if (l_xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
-        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            AddPct(xp, (*i)->GetAmount());
+        Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
+            AddPct(l_xp, (*i)->GetAmount());
 
         // 4.2.3. Calculate expansion penalty
-        if (_victim->GetTypeId() == TYPEID_UNIT && player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
-            xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
+        if (_victim->GetTypeId() == TYPEID_UNIT && p_player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
+            l_xp = CalculatePct(l_xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
 
         // 4.2.4. Give XP to player.
-        player->GiveXP(xp, _victim, _groupRate);
-        if (Pet* pet = player->GetPet())
+        p_player->GiveXP(l_xp, _victim, _groupRate);
+        if (Pet* pet = p_player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-            pet->GivePetXP(_group ? xp / 2 : xp);
+            pet->GivePetXP(_group ? l_xp / 2 : l_xp);
+        
+        // Modificate xp for racial aura of trolls (+20% if beast)
+        if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
+        {
+            Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
+            for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
+        AddPct(l_xp, (*i)->GetAmount());
+        }
     }
 }
 
@@ -7322,29 +7330,37 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     UpdateRating(cr);
 }
 
-void Player::UpdateRating(CombatRating cr)
+void Player::UpdateRating(CombatRating p_CombatRating)
 {
-    int32 amount = m_baseRatingValue[cr];
+    int32 l_Amount = m_baseRatingValue[p_CombatRating];
 
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if ((*i)->GetMiscValue() & (1<<cr))
-            amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+        if ((*i)->GetMiscValue() & ( 1 << p_CombatRating))
+            l_Amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
 
-    if (amount < 0)
-        amount = 0;
+    if (l_Amount < 0)
+        l_Amount = 0;
 
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr, uint32(amount));
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + p_CombatRating, uint32(l_Amount));
 
-    if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
+    if (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL)
     {
-        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        float l_Haste = 1.f / (1.f + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100.f);
         // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
+
+        AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+        for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+        {
+            (*iter)->SetCanBeRecalculated(true);
+            (*iter)->RecalculateAmount();
+        }
+
         UpdateManaRegen();
         UpdateEnergyRegen();
         UpdateAllRunesRegen();
@@ -7352,24 +7368,24 @@ void Player::UpdateRating(CombatRating cr)
 
     // Custom MoP Script
     // Way of the Monk - 120275
-    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL))
+    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
     {
-        float haste = 1.0f / (1.0f + (amount * GetRatingMultiplier(cr) + 40.0f) / 100.0f);
+        float l_Haste = 1.0f / (1.0f + (l_Amount * GetRatingMultiplier(p_CombatRating) + 40.0f) / 100.0f);
         // Update melee haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
     }
-    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL))
+    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
     {
-        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        float l_Hate = 1 / (1 + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100);
         // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Hate);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Hate);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Hate);
     }
 
     bool affectStats = CanModifyStats();
 
-    switch (cr)
+    switch (p_CombatRating)
     {
         case CR_DEFENSE_SKILL:
             break;
@@ -7420,7 +7436,7 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVesatillity();
+            UpdateVersatility();
             break;
         case CR_AVOIDANCE:
             UpdateAvoidance();
@@ -23356,7 +23372,15 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
                         l_Value += float((*l_It)->value)/100;
 
                 if (p_Modifier->value)
-                    l_Value += p_Apply ? float(p_Modifier->value)/100 : -(float(p_Modifier->value)/100);
+                    l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+
+                uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+                if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                {
+                    // This needs to be done so sclient receives precise numbers
+                    l_Value -= float(p_Modifier->value) / 100.f;
+                    l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                }
 
                 l_Buffer << float(l_Value);
                 l_Buffer << uint8(l_EffectIndex);

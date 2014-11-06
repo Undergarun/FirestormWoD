@@ -472,7 +472,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //413 SPELL_AURA_413
     &AuraEffect::HandleNULL,                                      //414 SPELL_AURA_414
     &AuraEffect::HandleNULL,                                      //415 SPELL_AURA_415
-    &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_SANCTITY_OF_BATTLE
+    &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE
     &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
     &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModifyManaPoolPct,                     //419 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
@@ -499,11 +499,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraMultistrike,                           //440 SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     &AuraEffect::HandleAuraMultistrike,                           //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
     &AuraEffect::HandleNULL,                                      //442 SPELL_AURA_442
-    &AuraEffect::HandleNULL,                                      //443 SPELL_AURA_443
+    &AuraEffect::HandleAuraLeechPct,                              //443 SPELL_AURA_MOD_LEECH_PCT
     &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
     &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
     &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
-    &AuraEffect::HandleNULL,                                      //447 SPELL_AURA_447
+    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_PCT_FROM_BEAST
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
@@ -516,7 +516,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_457
     &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_458
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
-    &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_460
+    &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
@@ -524,10 +524,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_465
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_466
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
-    &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_468
+    &AuraEffect::HandleAuraVesatility,                            //468 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
-    &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_471
+    &AuraEffect::HandleAuraVesatility,                            //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
     &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
@@ -663,6 +663,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // custom amount calculations go here
     switch (GetAuraType())
     {
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
+                amount = -ceil(((float)GetSpellInfo()->Effects[GetEffIndex()].BasePoints * ((1.f / caster->GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)));
+            break;
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
@@ -1483,15 +1486,18 @@ void AuraEffect::CalculateSpellMod()
                     break;
             }
             break;
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
             {
+                SpellModType type = GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER ? SPELLMOD_FLAT : SPELLMOD_PCT;
+
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
                 ASSERT(m_spellmod->op < MAX_SPELLMOD);
 
-                m_spellmod->type = SpellModType(uint32(GetAuraType()));    // SpellModType value == spell aura types
+                m_spellmod->type = type;    // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
                 m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
@@ -1549,30 +1555,6 @@ void AuraEffect::CalculateSpellMod()
             }
 
             break;
-        case SPELL_AURA_SANCTITY_OF_BATTLE:
-        {
-            if (!GetCaster()->ToPlayer())
-                break;
-
-            if (!m_spellmod)
-            {
-                m_spellmod = new SpellModifier(GetBase());
-                m_spellmod->op = SPELLMOD_COOLDOWN;
-                m_spellmod->type = SPELLMOD_PCT;
-                m_spellmod->spellId = GetId();
-                m_spellmod->mask[1] = 0x04248082;
-                m_spellmod->mask[0] = 0x00804020;
-            }
-            float haste = GetCaster()->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetCaster()->ToPlayer()->GetRatingMultiplier(CR_HASTE_MELEE);
-            if (int32(haste) > 100)
-                haste = 100.0f;
-
-            float newValue = -int32(haste);
-            if (newValue > 0)
-                newValue = 0;
-            m_spellmod->value = newValue;
-            break;
-        }
         default:
             break;
     }
@@ -8760,11 +8742,46 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint
     player->SetMaxPower(POWER_MANA, mod* mana);
 }
 
-void AuraEffect::HandleAuraMultistrike(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* player = GetCaster()->ToPlayer())
-        player->UpdateMultistrike();
+    if (Player* l_player = GetCaster()->ToPlayer())
+        l_player->UpdateMultistrike();
 }
+
+void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_target = p_aurApp->GetTarget();
+
+    if (l_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // Actually this aura is only use when we go to a Duel
+    // Enter in Arena reset the same way cooldowns that enter in duel
+    if (p_apply)
+        l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+}
+
+void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_player = GetCaster()->ToPlayer())
+        l_player->UpdateLeech();
+}
+
+void AuraEffect::HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+{
+    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_player = GetCaster()->ToPlayer())
+        l_player->UpdateVersatility();
+}
+
