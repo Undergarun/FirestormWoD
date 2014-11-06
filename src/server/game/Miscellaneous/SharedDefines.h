@@ -84,15 +84,15 @@ enum SpecIndex
     SPEC_PET_FEROCITY           = 74,
     SPEC_PET_CUNNING            = 79,
     SPEC_PET_TENACITY           = 81,
-    SPEC_DROOD_BALANCE          = 102,
-    SPEC_DROOD_CAT              = 103,
-    SPEC_DROOD_BEAR             = 104,
-    SPEC_DROOD_RESTORATION      = 105,
+    SPEC_DRUID_BALANCE          = 102,
+    SPEC_DRUID_FERAL            = 103,
+    SPEC_DRUID_GUARDIAN         = 104,
+    SPEC_DRUID_RESTORATION      = 105,
     SPEC_DK_BLOOD               = 250,
     SPEC_DK_FROST               = 251,
     SPEC_DK_UNHOLY              = 252,
-    SPEC_HUNTER_BEASTMASTER     = 253,
-    SPEC_HUNTER_MARKSMAN        = 254,
+    SPEC_HUNTER_BEASTMASTERY    = 253,
+    SPEC_HUNTER_MARKSMANSHIP    = 254,
     SPEC_HUNTER_SURVIVAL        = 255,
     SPEC_PRIEST_DISCIPLINE      = 256,
     SPEC_PRIEST_HOLY            = 257,
@@ -231,10 +231,10 @@ inline uint8 GetClassBySpec(uint32 spec)
         case SPEC_WARRIOR_PROTECTION:
             return CLASS_WARRIOR;
 
-        case SPEC_DROOD_BALANCE:
-        case SPEC_DROOD_CAT:
-        case SPEC_DROOD_BEAR:
-        case SPEC_DROOD_RESTORATION:
+        case SPEC_DRUID_BALANCE:
+        case SPEC_DRUID_FERAL:
+        case SPEC_DRUID_GUARDIAN:
+        case SPEC_DRUID_RESTORATION:
             return CLASS_DRUID;
 
         case SPEC_DK_BLOOD:
@@ -242,8 +242,8 @@ inline uint8 GetClassBySpec(uint32 spec)
         case SPEC_DK_UNHOLY:
             return CLASS_DEATH_KNIGHT;
 
-        case SPEC_HUNTER_BEASTMASTER:
-        case SPEC_HUNTER_MARKSMAN:
+        case SPEC_HUNTER_BEASTMASTERY:
+        case SPEC_HUNTER_MARKSMANSHIP:
         case SPEC_HUNTER_SURVIVAL:
             return CLASS_HUNTER;
 
@@ -3638,7 +3638,7 @@ enum CreatureFamily
     CREATURE_FAMILY_GHOUL               = 40,
     CREATURE_FAMILY_SILITHID            = 41,
     CREATURE_FAMILY_WORM                = 42,
-    CREATURE_FAMILY_RHINO               = 43,
+    CREATURE_FAMILY_CLEFTHOOF           = 43,
     CREATURE_FAMILY_WASP                = 44,
     CREATURE_FAMILY_CORE_HOUND          = 45,
     CREATURE_FAMILY_SPIRIT_BEAST        = 46,
@@ -3649,12 +3649,10 @@ enum CreatureFamily
     CREATURE_FAMILY_BEETLE              = 53,
     CREATURE_FAMILY_SHALE_SPIDER        = 55,
     CREATURE_FAMILY_ZOMBIE              = 56,
-    CREATURE_FAMILY_BEETLE_OLD          = 57,
-    CREATURE_FAMILY_SILITHID_2          = 59,
-    CREATURE_FAMILY_WASP_2              = 66,
+    CREATURE_FAMILY_QA_TEST             = 57,
     CREATURE_FAMILY_HYDRA               = 68,       // 5.0.5
     CREATURE_FAMILY_FEL_IMP             = 100,      // 5.0.5
-    CREATURE_FAMILY_VOID_WALKER         = 101,      // 5.0.5
+    CREATURE_FAMILY_VOIDLORD            = 101,      // 5.0.5
     CREATURE_FAMILY_SHIVARRA            = 102,      // 5.0.5
     CREATURE_FAMILY_OBSERVER            = 103,      // 5.0.5
     CREATURE_FAMILY_WRATH_GUARD         = 104,      // 5.0.5

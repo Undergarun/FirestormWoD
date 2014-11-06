@@ -43,7 +43,7 @@ m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
-    m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
+    m_updateFlag = (UPDATEFLAG_HAS_POSITION | UPDATEFLAG_HAS_ROTATION);
 
     m_valuesCount = GAMEOBJECT_END;
     m_respawnTime = 0;
@@ -205,7 +205,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     }
 
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
-        m_updateFlag |= UPDATEFLAG_TRANSPORT;
+        m_updateFlag |= UPDATEFLAG_HAS_SERVER_TIME;
 
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);

@@ -801,7 +801,7 @@ void AddSC_WanderingIsland_South();
 void AddSC_timeless_isle();
 
 // Draenor
-void AddSC_ashran();
+void AddSC_tanaan_jungle();
 
 // battlegrounds
 void AddSC_BattlegroundDGScripts();
@@ -812,6 +812,7 @@ void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
 void AddSC_outdoorpvp_zm();
+void AddSC_OutdoorPvPAshran();
 
 // player
 void AddSC_chat_log();
@@ -856,7 +857,9 @@ void AddSpellScripts()
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_holiday_spell_scripts();
+#ifdef SCRIPTS
     AddSC_petbattle_abilities();
+#endif
 }
 
 void AddCommandScripts()
@@ -1643,7 +1646,7 @@ void AddPandarieScripts()
 void AddDraenorScripts()
 {
 #ifdef SCRIPTS
-    AddSC_ashran();
+    AddSC_tanaan_jungle();
 #endif
 }
 
@@ -1655,6 +1658,7 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
     AddSC_outdoorpvp_zm();
+    AddSC_OutdoorPvPAshran();
 #endif
 }
 

@@ -1309,6 +1309,7 @@ class Player : public Unit, public GridObject<Player>
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
         bool TeleportToBGEntryPoint();
+        void SwitchToPhasedMap(uint32 p_MapID);
 
         void SetSummonPoint(uint32 mapid, float x, float y, float z)
         {
@@ -2321,7 +2322,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePvPPowerPercentage();
         void UpdateMultistrike();
         void UpdateLeech();
-        void UpdateVesatillity();
+        void UpdateVersatility();
         void UpdateAvoidance();
 
         void UpdateAllSpellCritChances();
@@ -2552,7 +2553,7 @@ class Player : public Unit, public GridObject<Player>
         std::vector<ItemSetEffect*> ItemSetEff;
 
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
-        void SendLootRelease(uint64 guid);
+        void SendLootRelease(uint64 p_LootGuid);
         void SendNotifyLootItemRemoved(uint8 lootSlot);
         void SendNotifyLootMoneyRemoved(uint64 gold);
 

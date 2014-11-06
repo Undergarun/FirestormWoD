@@ -24,6 +24,7 @@
 
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "Opcodes.h"
 
 //This send to player windows for invite player to join the war
@@ -33,10 +34,10 @@
 void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pTime)
 {
     ///< Send packet
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE);
+    WorldPacket data(SMSG_BFMGR_ENTRY_INVITE);
     data << uint64(guid);               ///< QueueID
     data << uint32(zoneId);             ///< Zone Id
-    data << uint32(time(NULL) + pTime); ///< Invite lasts until
+    data << uint32(pTime);              ///< Invite lasts until
 
     ///< Sending the packet to player
     SendPacket(&data);
@@ -142,18 +143,33 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & p_Packet)
 
     sLog->outTrace(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", uint64(l_QueueID), l_AcceptedInvite);
 
-    Battlefield* l_Battlefield = sBattlefieldMgr->GetBattlefieldByGUID(l_QueueID);
+    OutdoorPvP* l_OutdoorPVP = nullptr;
+    uint32 l_GuidLow = GUID_LOPART(l_QueueID);
+    if (l_GuidLow & 0x20000)
+    {
+        // BATTLEFIELD_TYPE_WORLD_PVP
+        l_GuidLow &= ~0x20000;
 
-    if (!l_Battlefield)
+        if (World_PVP_AreaEntry const* l_PvPArea = sWorld_PVP_AreaStore.LookupEntry(l_GuidLow))
+            l_OutdoorPVP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(l_PvPArea->AreaID);
+    }
+
+    Battlefield* l_Battlefield = sBattlefieldMgr->GetBattlefieldByGUID(l_QueueID);
+    if (!l_Battlefield && !l_OutdoorPVP)
         return;
 
-    if (l_AcceptedInvite)
-        l_Battlefield->PlayerAcceptInviteToWar(m_Player);
-    else
+    if (l_Battlefield)
     {
-        if (m_Player->GetZoneId() == l_Battlefield->GetZoneId())
-            l_Battlefield->KickPlayerFromBattlefield(m_Player->GetGUID());
+        if (l_AcceptedInvite)
+            l_Battlefield->PlayerAcceptInviteToWar(m_Player);
+        else
+        {
+            if (m_Player->GetZoneId() == l_Battlefield->GetZoneId())
+                l_Battlefield->KickPlayerFromBattlefield(m_Player->GetGUID());
+        }
     }
+    else if (l_OutdoorPVP)
+        l_OutdoorPVP->HandleBFMGREntryInviteResponse(l_AcceptedInvite, m_Player);
 }
 
 void WorldSession::HandleBfQueueRequest(WorldPacket& p_Packet)

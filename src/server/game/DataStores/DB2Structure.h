@@ -123,7 +123,7 @@ struct ItemSparseEntry
     float      StatScalingFactor;                            // 98
     int32      CurrencySubstitutionId;                       // 99
     int32      CurrencySubstitutionCount;                    // 100
-    int32      unk;                                          // 101
+    int32      ItemNameDescriptionID;                        // 101
 };
 
 struct ItemEffectEntry
@@ -581,7 +581,7 @@ struct GarrAbilityEntry
 struct GarrAbilityEffectEntry
 {
     uint32 EffectID;                                    // 0
-    uint32 EffectType;                                  // 1 
+    uint32 EffectType;                                  // 1
     uint32 AbilityID;                                   // 2
     uint32 TargetMask;                                  // 3
     uint32 CounterMechanicTypeID;                       // 4

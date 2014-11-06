@@ -505,38 +505,46 @@ inline void KillRewarder::_RewardHonor(Player* player)
         player->RewardHonor(_victim, _count, -1, true);
 }
 
-inline void KillRewarder::_RewardXP(Player* player, float rate)
+inline void KillRewarder::_RewardXP(Player* p_player, float p_rate)
 {
-    uint32 xp(_xp);
+    uint32 l_xp(_xp);
     if (_group)
     {
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && player->isAlive() &&
-            _maxNotGrayMember->getLevel() >= player->getLevel())
-            xp = _isFullXP ?
-                uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
-                uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
+        if (_maxNotGrayMember && p_player->isAlive() &&
+            _maxNotGrayMember->getLevel() >= p_player->getLevel())
+            l_xp = _isFullXP ?
+                uint32(l_xp * p_rate) :             // Reward FULL XP if all group members are not gray.
+                uint32(l_xp * p_rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
-            xp = 0;
+            l_xp = 0;
     }
-    if (xp)
+    if (l_xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
-        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            AddPct(xp, (*i)->GetAmount());
+        Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
+            AddPct(l_xp, (*i)->GetAmount());
 
         // 4.2.3. Calculate expansion penalty
-        if (_victim->GetTypeId() == TYPEID_UNIT && player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
-            xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
+        if (_victim->GetTypeId() == TYPEID_UNIT && p_player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
+            l_xp = CalculatePct(l_xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
 
         // 4.2.4. Give XP to player.
-        player->GiveXP(xp, _victim, _groupRate);
-        if (Pet* pet = player->GetPet())
+        p_player->GiveXP(l_xp, _victim, _groupRate);
+        if (Pet* pet = p_player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-            pet->GivePetXP(_group ? xp / 2 : xp);
+            pet->GivePetXP(_group ? l_xp / 2 : l_xp);
+        
+        // Modificate xp for racial aura of trolls (+20% if beast)
+        if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
+        {
+            Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
+            for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
+        AddPct(l_xp, (*i)->GetAmount());
+        }
     }
 }
 
@@ -978,7 +986,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
         m_itemScale[i] = 0;
 
     m_LastSummonedBattlePet = 0;
-    
+
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
         m_BattlePetCombatTeam[l_CurrentPetSlot] = BattlePet::Ptr();
 }
@@ -2982,6 +2990,98 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+void Player::SwitchToPhasedMap(uint32 p_MapID)
+{
+    MapEntry const* l_MapEntry = sMapStore.LookupEntry(p_MapID);
+    if (!l_MapEntry)
+        return;
+
+    // Check enter rights before map getting to avoid creating instance copy for player
+    // this check not dependent from map instance copy and same for all instance copies of selected map
+    if (!sMapMgr->CanPlayerEnter(p_MapID, this, false))
+        return;
+
+    if (Group* l_Group = GetGroup())
+    {
+        if (l_MapEntry->IsDungeon())
+            l_Group->IncrementPlayersInInstance();
+        else
+            l_Group->DecrementPlayersInInstance();
+    }
+
+    SetSelection(0);
+    CombatStop();
+    ResetContestedPvP();
+
+    // Remove player from battleground on far teleport (when changing maps)
+    if (Battleground const* l_Battleground = GetBattleground())
+    {
+        if (l_Battleground->GetMapId() != p_MapID)
+            LeaveBattleground(false);
+    }
+
+    // Remove pet on map change
+    if (Pet* l_Pet = GetPet())
+        UnsummonPetTemporaryIfAny();
+
+    UnsummonCurrentBattlePetIfAny(true);
+
+    // Remove all dynamic objects and AreaTrigger
+    RemoveAllDynObjects();
+    RemoveAllAreasTrigger();
+
+    // Stop spellcasting
+    // Not attempt interrupt teleportation spell at caster teleport
+    if (IsNonMeleeSpellCasted(true))
+        InterruptNonMeleeSpells(true);
+
+    // Remove auras before removing from map...
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
+
+    // Remove from old map now
+    if (Map* l_OldMap = IsInWorld() ? GetMap() : NULL)
+        l_OldMap->RemovePlayerFromMap(this, false);
+
+    // Relocate the player to the teleport destination
+    Map* l_NewMap = sMapMgr->CreateMap(p_MapID, this);
+    if (!l_NewMap || !l_NewMap->CanEnter(this))
+        return;
+
+    // New final coordinates
+    float l_X = GetPositionX();
+    float l_Y = GetPositionY();
+    float l_Z = GetPositionZ();
+    float l_Orientation = GetOrientation();
+    m_teleport_dest = WorldLocation(p_MapID, l_X, l_Y, l_Z, l_Orientation);
+    SetFallInformation(0, l_Z);
+    WorldLocation const l_NewLoc = GetTeleportDest();
+
+    Relocate(&l_NewLoc);
+    ResetMap();
+    SetMap(l_NewMap);
+
+    if (!GetSession()->PlayerLogout())
+    {
+        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+
+        l_Data << uint32(p_MapID);                                  ///< uint32
+        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
+        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
+        l_Data << uint32(21);                                       ///< Reason
+
+        GetSession()->SendPacket(&l_Data);
+    }
+
+    GetMap()->AddPlayerToMap(this);
+
+    // Update zone immediately, otherwise leave channel will cause crash in mtmap
+    uint32 l_NewZone, l_NewArea;
+    GetZoneAndAreaId(l_NewZone, l_NewArea);
+    UpdateZone(l_NewZone, l_NewArea);
+}
+
 bool Player::TeleportToBGEntryPoint()
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
@@ -4111,6 +4211,14 @@ void Player::GiveLevel(uint8 level)
         if (quest)
             AddQuest(quest, NULL);
     }
+    else if (level == 90)
+    {
+        if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(34398)) // Add quest for starting oD missions and go to Draenor
+        {
+            if (GetQuestStatus(34398) == QUEST_STATUS_NONE || GetQuestStatus(34398) == QUEST_STATUS_FAILED)
+                AddQuest(l_Quest, NULL);
+        }
+    }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
@@ -5064,7 +5172,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             pet.UpdateStats();
             pet.Health = pet.InfoMaxHealth;
 
-            pet.AddToPlayer(this); 
+            pet.AddToPlayer(this);
             ReloadPetBattles();
             break;
         }
@@ -5834,16 +5942,30 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
 
         if (!loading)
+        {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+            {
                 if (Item* item = m_items[i])
+                {
                     _ApplyItemMods(item, i, false);
+                    RemoveItemsSetItem(this, item->GetTemplate());
+                }
+            }
+        }
 
         _talentMgr->SpecInfo[spec].SpecializationId = id;
 
         if (!loading)
+        {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+            {
                 if (Item* item = m_items[i])
+                {
                     _ApplyItemMods(item, i, true);
+                    AddItemsSetItem(this, item);
+                }
+            }
+        }
 
         SetHealth(GetMaxHealth() * pct / 100);
         return;
@@ -7212,29 +7334,37 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     UpdateRating(cr);
 }
 
-void Player::UpdateRating(CombatRating cr)
+void Player::UpdateRating(CombatRating p_CombatRating)
 {
-    int32 amount = m_baseRatingValue[cr];
+    int32 l_Amount = m_baseRatingValue[p_CombatRating];
 
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if ((*i)->GetMiscValue() & (1<<cr))
-            amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+        if ((*i)->GetMiscValue() & ( 1 << p_CombatRating))
+            l_Amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
 
-    if (amount < 0)
-        amount = 0;
+    if (l_Amount < 0)
+        l_Amount = 0;
 
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr, uint32(amount));
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + p_CombatRating, uint32(l_Amount));
 
-    if (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL)
+    if (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL)
     {
-        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        float l_Haste = 1.f / (1.f + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100.f);
         // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
+
+        AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+        for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+        {
+            (*iter)->SetCanBeRecalculated(true);
+            (*iter)->RecalculateAmount();
+        }
+
         UpdateManaRegen();
         UpdateEnergyRegen();
         UpdateAllRunesRegen();
@@ -7242,24 +7372,24 @@ void Player::UpdateRating(CombatRating cr)
 
     // Custom MoP Script
     // Way of the Monk - 120275
-    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL))
+    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
     {
-        float haste = 1.0f / (1.0f + (amount * GetRatingMultiplier(cr) + 40.0f) / 100.0f);
+        float l_Haste = 1.0f / (1.0f + (l_Amount * GetRatingMultiplier(p_CombatRating) + 40.0f) / 100.0f);
         // Update melee haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
     }
-    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (cr == CR_HASTE_MELEE || cr == CR_HASTE_RANGED || cr == CR_HASTE_SPELL))
+    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
     {
-        float haste = 1 / (1 + (amount * GetRatingMultiplier(cr)) / 100);
+        float l_Hate = 1 / (1 + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100);
         // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Hate);
+        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Hate);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Hate);
     }
 
     bool affectStats = CanModifyStats();
 
-    switch (cr)
+    switch (p_CombatRating)
     {
         case CR_DEFENSE_SKILL:
             break;
@@ -7310,7 +7440,7 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVesatillity();
+            UpdateVersatility();
             break;
         case CR_AVOIDANCE:
             UpdateAvoidance();
@@ -9201,6 +9331,8 @@ uint32 Player::GetLevelFromDB(uint64 guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    uint32 l_OldArea = m_areaUpdateId;
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId    = newArea;
@@ -9231,6 +9363,12 @@ void Player::UpdateArea(uint32 newArea)
         RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 
     phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
+
+    if (l_OldArea != newArea)
+    {
+        sOutdoorPvPMgr->HandlePlayerLeaveArea(this, l_OldArea);
+        sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
+    }
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -10470,16 +10608,13 @@ void Player::RemovedInsignia(Player* looterPlr)
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
-void Player::SendLootRelease(uint64 guid)
+void Player::SendLootRelease(uint64 p_LootGuid)
 {
-    WorldPacket data(SMSG_LOOT_RELEASE_RESPONSE);
-    ObjectGuid guidd(guid);
+    uint64 l_LootObject = MAKE_NEW_GUID(GUID_LOPART(p_LootGuid), 0, HIGHGUID_LOOT);
 
-    uint8 bitOrder[8] = {6, 0, 3, 1, 4, 7, 2, 5};
-    data.WriteBitInOrder(guidd, bitOrder);
-
-    uint8 byteOrder[8] = {6, 0, 2, 7, 4, 1, 5, 3};
-    data.WriteBytesSeq(guidd, byteOrder);
+    WorldPacket data(SMSG_LOOT_RELEASE);
+    data.appendPackGUID(l_LootObject);
+    data.appendPackGUID(p_LootGuid);
 
     SendDirectMessage(&data);
 }
@@ -11499,6 +11634,139 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 l_Buffer << uint32(7881) << uint32(0);          // WORLDSTATE_DG_SCORE_HORDE
                 l_Buffer << uint32(7904) << uint32(1);          // WORLDSTATE_DG_CART_ALLIANCE
                 l_Buffer << uint32(7887) << uint32(1);          // WORLDSTATE_DG_CART_HORDE
+            }
+            break;
+        // Ashran
+        case 6941:
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_ASHRAN)
+                pvp->FillInitialWorldStates(l_Buffer);
+            else
+            {
+                l_Buffer << uint32(521) << uint32(0);
+                l_Buffer << uint32(522) << uint32(0);
+                l_Buffer << uint32(523) << uint32(0);
+                l_Buffer << uint32(524) << uint32(0);
+                l_Buffer << uint32(1581) << uint32(0);
+                l_Buffer << uint32(1582) << uint32(0);
+                l_Buffer << uint32(1723) << uint32(0);
+                l_Buffer << uint32(1724) << uint32(0);
+                l_Buffer << uint32(1941) << uint32(0);
+                l_Buffer << uint32(1942) << uint32(0);
+                l_Buffer << uint32(1943) << uint32(0);
+                l_Buffer << uint32(2259) << uint32(0);
+                l_Buffer << uint32(2260) << uint32(0);
+                l_Buffer << uint32(2261) << uint32(0);
+                l_Buffer << uint32(2262) << uint32(0);
+                l_Buffer << uint32(2263) << uint32(0);
+                l_Buffer << uint32(2264) << uint32(0);
+                l_Buffer << uint32(2265) << uint32(142);
+                l_Buffer << uint32(2851) << uint32(0);
+                l_Buffer << uint32(3085) << uint32(379);
+                l_Buffer << uint32(3191) << uint32(16);
+                l_Buffer << uint32(3327) << uint32(0);
+                l_Buffer << uint32(3426) << uint32(3);
+                l_Buffer << uint32(3600) << uint32(0);
+                l_Buffer << uint32(3601) << uint32(0);
+                l_Buffer << uint32(3610) << uint32(1);
+                l_Buffer << uint32(3695) << uint32(0);
+                l_Buffer << uint32(3710) << uint32(0);
+                l_Buffer << uint32(3781) << uint32(0);
+                l_Buffer << uint32(3801) << uint32(1);
+                l_Buffer << uint32(3826) << uint32(4);
+                l_Buffer << uint32(3901) << uint32(3);
+                l_Buffer << uint32(4020) << uint32(1094);
+                l_Buffer << uint32(4021) << uint32(7);
+                l_Buffer << uint32(4022) << uint32(3);
+                l_Buffer << uint32(4023) << uint32(4);
+                l_Buffer << uint32(4024) << uint32(825);
+                l_Buffer << uint32(4025) << uint32(269);
+                l_Buffer << uint32(4062) << uint32(0);
+                l_Buffer << uint32(4131) << uint32(60);
+                l_Buffer << uint32(4273) << uint32(0);
+                l_Buffer << uint32(4354) << uint32(time(NULL));
+                l_Buffer << uint32(4375) << uint32(0);
+                l_Buffer << uint32(4417) << uint32(1);
+                l_Buffer << uint32(4418) << uint32(50);
+                l_Buffer << uint32(4419) << uint32(0);
+                l_Buffer << uint32(4485) << uint32(0);
+                l_Buffer << uint32(4486) << uint32(0);
+                l_Buffer << uint32(4862) << uint32(1000);
+                l_Buffer << uint32(4863) << uint32(300);
+                l_Buffer << uint32(4864) << uint32(100);
+                l_Buffer << uint32(5037) << uint32(6);
+                l_Buffer << uint32(5071) << uint32(6);
+                l_Buffer << uint32(5115) << uint32(0);
+                l_Buffer << uint32(5192) << uint32(0);
+                l_Buffer << uint32(5193) << uint32(0);
+                l_Buffer << uint32(5194) << uint32(0);
+                l_Buffer << uint32(5195) << uint32(0);
+                l_Buffer << uint32(5196) << uint32(0);
+                l_Buffer << uint32(5332) << uint32(time(NULL));
+                l_Buffer << uint32(5333) << uint32(0);
+                l_Buffer << uint32(5334) << uint32(1);
+                l_Buffer << uint32(5344) << uint32(0);
+                l_Buffer << uint32(5360) << uint32(0);
+                l_Buffer << uint32(5361) << uint32(0);
+                l_Buffer << uint32(5508) << uint32(1);
+                l_Buffer << uint32(5677) << uint32(0);
+                l_Buffer << uint32(5678) << uint32(0);
+                l_Buffer << uint32(5679) << uint32(0);
+                l_Buffer << uint32(5684) << uint32(0);
+                l_Buffer << uint32(6078) << uint32(0);
+                l_Buffer << uint32(6095) << uint32(0);
+                l_Buffer << uint32(6164) << uint32(35);
+                l_Buffer << uint32(6174) << uint32(0);
+                l_Buffer << uint32(6267) << uint32(25);
+                l_Buffer << uint32(6306) << uint32(0);
+                l_Buffer << uint32(6436) << uint32(0);
+                l_Buffer << uint32(6895) << uint32(10);
+                l_Buffer << uint32(6897) << uint32(10);
+                l_Buffer << uint32(6898) << uint32(10);
+                l_Buffer << uint32(7022) << uint32(0);
+                l_Buffer << uint32(7242) << uint32(82);
+                l_Buffer << uint32(7243) << uint32(1);
+                l_Buffer << uint32(7244) << uint32(82);
+                l_Buffer << uint32(7245) << uint32(1);
+                l_Buffer << uint32(7511) << uint32(0);
+                l_Buffer << uint32(7617) << uint32(5);
+                l_Buffer << uint32(7618) << uint32(5);
+                l_Buffer << uint32(7671) << uint32(0);
+                l_Buffer << uint32(7738) << uint32(0);
+                l_Buffer << uint32(7752) << uint32(0);
+                l_Buffer << uint32(7774) << uint32(0);
+                l_Buffer << uint32(7796) << uint32(0);
+                l_Buffer << uint32(7797) << uint32(0);
+                l_Buffer << uint32(7876) << uint32(0);
+                l_Buffer << uint32(8012) << uint32(1);
+                l_Buffer << uint32(8295) << uint32(15);
+                l_Buffer << uint32(8306) << uint32(20);
+                l_Buffer << uint32(8307) << uint32(20);
+                l_Buffer << uint32(8391) << uint32(0);
+                l_Buffer << uint32(8524) << uint32(0);
+                l_Buffer << uint32(8525) << uint32(0);
+                l_Buffer << uint32(8526) << uint32(0);
+                l_Buffer << uint32(8527) << uint32(0);
+                l_Buffer << uint32(8528) << uint32(0);
+                l_Buffer << uint32(8529) << uint32(0);
+                l_Buffer << uint32(8712) << uint32(0);
+                l_Buffer << uint32(8722) << uint32(0);
+                l_Buffer << uint32(8859) << uint32(0);
+                l_Buffer << uint32(8860) << uint32(0);
+                l_Buffer << uint32(8861) << uint32(0);
+                l_Buffer << uint32(8862) << uint32(0);
+                l_Buffer << uint32(8863) << uint32(1);
+                l_Buffer << uint32(8890) << uint32(0);
+                l_Buffer << uint32(8892) << uint32(0);
+                l_Buffer << uint32(8911) << uint32(10);
+                l_Buffer << uint32(8933) << uint32(65);
+                l_Buffer << uint32(8934) << uint32(5);
+                l_Buffer << uint32(8935) << uint32(1);
+                l_Buffer << uint32(8938) << uint32(0);
+                l_Buffer << uint32(8945) << uint32(time(NULL));
+                l_Buffer << uint32(8946) << uint32(0);
+                l_Buffer << uint32(8949) << uint32(1);
+                l_Buffer << uint32(8950) << uint32(0);
+                l_Buffer << uint32(8955) << uint32(0);
             }
             break;
         default:
@@ -16061,24 +16329,29 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
 
     l_Data << uint32(p_Count);
+    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
 
-    l_Data.WriteBit(!true);                         // DisplayToastMethod
     l_Data.WriteBit(p_BonusRoll);
     l_Data.WriteBits(p_Type, 2);
+    l_Data.FlushBits();
 
     if (p_Type == TOAST_TYPE_NEW_ITEM)
     {
         l_Data.WriteBit(p_Mailed);
+        l_Data.FlushBits();
 
-        l_Data << uint32(l_ItemTpl->RandomSuffix);
-        l_Data << uint32(0);                        // Unk
-        l_Data << uint32(GetLootSpecId());
-        l_Data << uint32(l_ItemTpl->RandomProperty);
-        l_Data << uint32(445);                      // ReforgeID
         l_Data << uint32(p_Entry);
-    }
+        l_Data << uint32(l_ItemTpl->RandomSuffix);
+        l_Data << uint32(l_ItemTpl->RandomProperty);
+        l_Data.WriteBit(false);
+        l_Data.WriteBit(false);
+        l_Data.FlushBits();
 
-    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
+        l_Data << uint32(GetLootSpecId());
+        l_Data << uint32(0);                        // Unk
+//         
+//         l_Data << uint32(445);                      // ReforgeID
+    }
 
     if (p_Type == TOAST_TYPE_NEW_CURRENCY)
         l_Data << uint32(p_Entry);
@@ -23104,7 +23377,15 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
                         l_Value += float((*l_It)->value)/100;
 
                 if (p_Modifier->value)
-                    l_Value += p_Apply ? float(p_Modifier->value)/100 : -(float(p_Modifier->value)/100);
+                    l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+
+                uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+                if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                {
+                    // This needs to be done so sclient receives precise numbers
+                    l_Value -= float(p_Modifier->value) / 100.f;
+                    l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                }
 
                 l_Buffer << float(l_Value);
                 l_Buffer << uint8(l_EffectIndex);
@@ -25298,6 +25579,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
     l_Data << uint8(0);                                           ///< Server Expansion Tier
     l_Data << uint32(1135753200);                                 ///< Server Region ID
+    l_Data << uint32(0);                                          ///< Raid origin
 
     for (int l_I = 0; l_I < 2500; ++l_I)
         l_Data << uint8(0);                                       ///< Quest completed bit
@@ -25466,11 +25748,12 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(time);
+    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4 + 4 + 4 + 4);
+    data << uint32(type);
     data << uint32(mapid);
     data << uint32(difficulty);                         // difficulty
-    data << uint32(type);
+    data << uint32(time);
+
     data.WriteBit(0);                                   // is locked
     data.WriteBit(0);                                   // is extended, ignored if prev field is 0
     data.FlushBits();
@@ -28034,6 +28317,7 @@ void Player::SendEquipmentSetList()
 
         l_Data << uint64(l_Itr->second.Guid);
         l_Data << uint32(l_Itr->first);
+        l_Data << uint32(0);
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
@@ -30296,7 +30580,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
     if (!p_Result)
     {
         bool l_Add = false;
- 
+
         for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
         {
             BattlePet l_BattlePet;
@@ -30305,7 +30589,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
             l_BattlePet.Species         = m_OldPetBattleSpellToMerge[l_I].second;
             l_BattlePet.DisplayModelID  = 0;
             l_BattlePet.Flags           = 0;
- 
+
             if (BattlePetTemplate const* l_Template = sObjectMgr->GetBattlePetTemplate(m_OldPetBattleSpellToMerge[l_I].second))
             {
                 l_BattlePet.Breed   = l_Template->Breed;
@@ -30318,23 +30602,23 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
                 l_BattlePet.Quality = BATTLEPET_QUALITY_COMMON;
                 l_BattlePet.Level   = 1;
             }
- 
+
             // Calculate XP for level
             l_BattlePet.XP = 0;
- 
+
             if (l_BattlePet.Level > 1 && l_BattlePet.Level < 100)
                 l_BattlePet.XP = sGtBattlePetXPStore.LookupEntry(l_BattlePet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + l_BattlePet.Level - 2)->value;
- 
+
             // Calculate stats
             l_BattlePet.UpdateStats();
             l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
             l_BattlePet.AddToPlayer(this);
- 
+
             l_Add = true;
         }
- 
+
         m_OldPetBattleSpellToMerge.clear();
- 
+
         if (l_Add)
             return false;
     }

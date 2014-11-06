@@ -409,14 +409,14 @@ class Object
 
         bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
 
-        void BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
+        void BuildMovementUpdate(ByteBuffer * data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
         void BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data) const;
 
         uint16 m_objectType;
 
         TypeID m_objectTypeId;
-        uint16 m_updateFlag;
+        uint32 m_updateFlag;
 
         union
         {
@@ -601,8 +601,8 @@ struct MovementInfo
     Position t_pos;
     int8 t_seat;
     uint32 t_time;
-    uint32 t_time2;
-    uint32 t_time3;
+    uint32 PrevMoveTime;
+    uint32 VehicleRecID;
     // swimming/flying
     union
     {
@@ -612,7 +612,7 @@ struct MovementInfo
     // falling
     uint32 fallTime;
     // jumping
-    float j_zspeed, j_cosAngle, j_sinAngle, j_xyspeed;
+    float JumpVelocity, j_cosAngle, j_sinAngle, j_xyspeed;
     // spline
     union
     {
@@ -630,9 +630,9 @@ struct MovementInfo
         guid = 0;
         flags = 0;
         flags2 = 0;
-        time = t_time = t_time2 = t_time3 = fallTime = 0;
+        time = t_time = PrevMoveTime = VehicleRecID = fallTime = 0;
         splineElevation = 0.0f;
-        pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
+        pitch = JumpVelocity = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
         t_guid = 0;
         t_pos.Relocate(0, 0, 0, 0);
         t_seat = -1;

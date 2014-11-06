@@ -181,20 +181,34 @@ bool BattlefieldWG::SetupBattlefield()
     // Spawn all gameobjects
     for (uint8 i = 0; i < WG_MAX_OBJ; i++)
     {
-        GameObject* go = SpawnGameObject(WGGameObjectBuilding[i].entry, WGGameObjectBuilding[i].x, WGGameObjectBuilding[i].y, WGGameObjectBuilding[i].z, WGGameObjectBuilding[i].o);
-        BfWGGameObjectBuilding* b = new BfWGGameObjectBuilding(this);
-        b->Init(go, WGGameObjectBuilding[i].type, WGGameObjectBuilding[i].WorldState, WGGameObjectBuilding[i].nameId);
-        if (!IsEnabled() && go->GetGOInfo()->entry == GO_WINTERGRASP_VAULT_GATE)
-            go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-        BuildingsInZone.insert(b);
+        if (GameObject* go = SpawnGameObject(WGGameObjectBuilding[i].entry, WGGameObjectBuilding[i].x, WGGameObjectBuilding[i].y, WGGameObjectBuilding[i].z, WGGameObjectBuilding[i].o))
+        {
+            BfWGGameObjectBuilding* b = new BfWGGameObjectBuilding(this);
+            b->Init(go, WGGameObjectBuilding[i].type, WGGameObjectBuilding[i].WorldState, WGGameObjectBuilding[i].nameId);
+            if (!IsEnabled() && go->GetGOInfo()->entry == GO_WINTERGRASP_VAULT_GATE)
+                go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+            BuildingsInZone.insert(b);
+        }
+        else
+        {
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "WarsongGulch: Can't Create Some Object");
+            return false;
+        }
     }
 
     // Spawning portal defender
     for (uint8 i = 0; i < WG_MAX_TELEPORTER; i++)
     {
-        GameObject* go = SpawnGameObject(WGPortalDefenderData[i].entry, WGPortalDefenderData[i].x, WGPortalDefenderData[i].y, WGPortalDefenderData[i].z, WGPortalDefenderData[i].o);
-        DefenderPortalList.insert(go);
-        go->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[GetDefenderTeam()]);
+        if (GameObject* go = SpawnGameObject(WGPortalDefenderData[i].entry, WGPortalDefenderData[i].x, WGPortalDefenderData[i].y, WGPortalDefenderData[i].z, WGPortalDefenderData[i].o))
+        {
+            DefenderPortalList.insert(go);
+            go->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[GetDefenderTeam()]);
+        }
+        else
+        {
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "WarsongGulch: Can't Create Some Object");
+            return false;
+        }
     }
 
     // Spawn banners in the keep
@@ -205,10 +219,20 @@ bool BattlefieldWG::SetupBattlefield()
             go->SetRespawnTime(GetDefenderTeam()? RESPAWN_ONE_DAY : RESPAWN_IMMEDIATELY);
             m_KeepGameObject[1].insert(go);
         }
+        else
+        {
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "WarsongGulch: Can't Create Some Object");
+            return false;
+        }
         if (GameObject* go = SpawnGameObject(WGKeepGameObject[i].entryAlliance, WGKeepGameObject[i].x, WGKeepGameObject[i].y, WGKeepGameObject[i].z, WGKeepGameObject[i].o))
         {
             go->SetRespawnTime(GetDefenderTeam()? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
             m_KeepGameObject[0].insert(go);
+        }
+        else
+        {
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "WarsongGulch: Can't Create Some Object");
+            return false;
         }
     }
 

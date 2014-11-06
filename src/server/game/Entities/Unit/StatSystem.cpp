@@ -810,8 +810,8 @@ void Player::UpdatePvPPowerPercentage()
         case SPEC_WARRIOR_ARMS:
         case SPEC_WARRIOR_FURY:
         case SPEC_WARRIOR_PROTECTION:
-        case SPEC_HUNTER_BEASTMASTER:
-        case SPEC_HUNTER_MARKSMAN:
+        case SPEC_HUNTER_BEASTMASTERY:
+        case SPEC_HUNTER_MARKSMANSHIP:
         case SPEC_HUNTER_SURVIVAL:
         case SPEC_ROGUE_ASSASSINATION:
         case SPEC_ROGUE_COMBAT:
@@ -832,7 +832,7 @@ void Player::UpdatePvPPowerPercentage()
         case SPEC_PRIEST_DISCIPLINE:
         case SPEC_PRIEST_HOLY:
         case SPEC_SHAMAN_RESTORATION:
-        case SPEC_DROOD_RESTORATION:
+        case SPEC_DRUID_RESTORATION:
         case SPEC_MONK_MISTWEAVER:
             damage_value = 0.0f;
             break;
@@ -1605,23 +1605,23 @@ void Player::UpdateMultistrike()
 {
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
     float effect = 30.f; // Default value
-    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
     value += GetRatingBonusValue(CR_MULTISTRIKE);
+    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
 }
 
 void Player::UpdateLeech()
 {
-    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float value = GetTotalAuraModifier(SPELL_AURA_MOD_LEECH_PCT);
     value += GetRatingBonusValue(CR_LIFESTEAL);
     SetFloatValue(PLAYER_FIELD_LIFESTEAL, value);
 }
 
-void Player::UpdateVesatillity()
+void Player::UpdateVersatility()
 {
-    float valueDone = 0.f;//GetTotalAuraModifier(SPELL_AURA);
-    float valueTaken = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float valueDone = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+    float valueTaken = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
     valueDone += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
     valueTaken += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
     SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);

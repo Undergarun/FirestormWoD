@@ -133,7 +133,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
     }
 
-    m_capturePointGUID = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
+    m_capturePointGUID = MAKE_NEW_GUID(sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3), entry, HIGHGUID_GAMEOBJECT);
     if (!m_capturePointGUID)
         return false;
 
@@ -207,13 +207,14 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
 bool OPvPCapturePoint::DelCapturePoint()
 {
-    sObjectMgr->DeleteGOData(m_capturePointGUID);
+    sObjectMgr->DeleteGOData(GUID_LOPART(m_capturePointGUID));
     m_capturePointGUID = 0;
 
     if (m_capturePoint)
     {
         m_capturePoint->SetRespawnTime(0);                                 // not save respawn time
         m_capturePoint->Delete();
+        m_capturePoint = nullptr;
     }
 
     return true;
@@ -605,6 +606,13 @@ void OutdoorPvP::TeamCastSpell(TeamId team, int32 spellId)
             (*itr)->RemoveAura((uint32)-spellId); // by stack?
 }
 
+void OutdoorPvP::AddAreaTrigger(uint32 p_Entry, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map)
+{
+    AreaTrigger* l_AreaTrigger = new AreaTrigger;
+    if (!l_AreaTrigger->CreateAreaTrigger(p_Entry, sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), p_PhaseMask, p_SpellVisualID, p_Pos, p_Duration, p_Map))
+        delete l_AreaTrigger;
+}
+
 void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 {
     TeamCastSpell(team, spellId);
@@ -616,7 +624,7 @@ void OutdoorPvP::OnGameObjectCreate(GameObject* go)
     if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
-    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetDBTableGUIDLow()))
+    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))
         cp->m_capturePoint = go;
 }
 

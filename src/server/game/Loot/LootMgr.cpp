@@ -911,18 +911,6 @@ bool Loot::hasOverThresholdItem() const
     return false;
 }
 
-ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
-{
-    b << uint32(li.count);                                  // Item count
-    b << uint32(sObjectMgr->GetItemTemplate(li.itemid)->DisplayInfoID);
-    b << uint32(li.randomSuffix);
-    b << uint32(li.randomPropertyId);
-    b << uint32(0);                                         // Unk bytes counter
-    b << uint32(li.itemid);
-
-    return b;
-}
-
 ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 {
     if (lv.permission == NONE_PERMISSION)

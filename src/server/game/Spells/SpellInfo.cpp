@@ -589,7 +589,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
         if (CanScale())
         {
-            bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC;
+            bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC && p_Caster->getClass() == CLASS_HUNTER;
             WeaponAttackType l_AttType = (_spellInfo->IsRangedWeaponSpell() && l_RangedClass) ? RANGED_ATTACK : BASE_ATTACK;
             float l_AttackPower = p_Caster->GetTotalAttackPowerValue(l_AttType);
             float l_SpellPower = p_Caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
@@ -4075,6 +4075,15 @@ bool SpellEffectInfo::CanScale() const
                 case SPELL_AURA_SCHOOL_ABSORB:
                 case SPELL_AURA_SCHOOL_HEAL_ABSORB:
                     return true;
+                case SPELL_AURA_DUMMY:
+                    switch (_spellInfo->Id)
+                    {
+                        // Earthquake
+                        case 61882:
+                            return true;
+                        default:
+                            break;
+                    }
                 default:
                     break;
             }

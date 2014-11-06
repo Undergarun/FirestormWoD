@@ -911,16 +911,16 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", p_Packet.GetOpcode());
 }
 
-void WorldSession::SendPlayerNotFoundNotice(std::string name)
+void WorldSession::SendPlayerNotFoundNotice(std::string p_Name)
 {
-    WorldPacket data(SMSG_CHAT_PLAYER_NOTFOUND, name.size()+1);
+    WorldPacket l_Data(SMSG_CHAT_PLAYER_NOTFOUND, p_Name.size()+1);
 
-    data.WriteBits((name.size() - (name.size() % 2)) / 2, 8);
-    data.WriteBit((name.size() % 2));
-    data.FlushBits();
-    data.append(name.c_str(), name.size());
+    l_Data.WriteBits(p_Name.size(), 9);
+    l_Data.FlushBits();
 
-    SendPacket(&data);
+    l_Data.WriteString(p_Name);
+
+    SendPacket(&l_Data);
 }
 
 void WorldSession::SendPlayerAmbiguousNotice(std::string p_Name)

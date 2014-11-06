@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_mage_invocation','spell_mage_mirror_image_summon','spell_mage_flamestrike','spell_mage_incanters_ward_cooldown','spell_mage_incanters_ward','spell_mage_pyromaniac');
+INSERT INTO spell_script_names VALUES (157981,'spell_mage_blast_wave');

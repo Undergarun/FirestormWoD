@@ -878,14 +878,10 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
-    ObjectGuid guid;
+    uint64 guid;
     uint32 displayId = recvData.read<uint32>();
 
-    uint8 bits[8] = { 0, 4, 1, 7, 6, 2, 5, 3 };
-    recvData.ReadBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 4, 0, 6, 7, 3, 2, 1, 5 };
-    recvData.ReadBytesSeq(guid, bytes);
+    recvData.readPackGUID(guid);
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -913,40 +909,21 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         if (uint32 guildId = player->GetGuildId())
             guild = sGuildMgr->GetGuildById(guildId);
 
-        ObjectGuid guildGuid = guild ?  guild->GetGUID() : 0;
+        uint64 guildGuid = guild ?  guild->GetGUID() : 0;
 
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3)); // haircolor
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2)); // hair
+        data.appendPackGUID(guid);
+        data << uint32(player->GetDisplayId());
         data << uint8(player->getRace());
         data << uint8(player->getGender());
-        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, 0));     // facialhair
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0)); // skin
-        data << uint32(player->GetDisplayId());
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 1)); // face
         data << uint8(player->getClass());
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0)); // skin
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 1)); // face
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2)); // hair
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3)); // haircolor
+        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, 0));     // facialhair
+        data.appendPackGUID(guildGuid);
 
-        data.WriteBit(guid[7]);
-        data.WriteBit(guildGuid[3]);
-        data.WriteBit(guildGuid[1]);
-        data.WriteBit(guildGuid[5]);
-        data.WriteBit(guildGuid[7]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guildGuid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guildGuid[6]);
-        data.WriteBits(11, 22);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guildGuid[2]);
-        data.WriteBit(guildGuid[0]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[2]);
-
-        data.WriteByteSeq(guildGuid[5]);
-        data.WriteByteSeq(guildGuid[2]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[6]);
+        data << uint32(11);
 
         static EquipmentSlots const itemSlots[] =
         {
@@ -982,68 +959,24 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             else
                 data << uint32(0);
         }
-
-        data.WriteByteSeq(guildGuid[1]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guildGuid[3]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guildGuid[4]);
-        data.WriteByteSeq(guildGuid[0]);
-        data.WriteByteSeq(guildGuid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guildGuid[7]);
     }
     else
     {
         ObjectGuid guildGuid = 0;
 
-        data << uint8(0);   // skin
+        data.appendPackGUID(guid);
+        data << uint32(creator->GetDisplayId());
         data << uint8(creator->getRace());
-        data << uint8(0);   // face
         data << uint8(creator->getGender());
+        data << uint8(creator->getClass());
+        data << uint8(0);   // skin
+        data << uint8(0);   // face
         data << uint8(0);   // hair
         data << uint8(0);   // haircolor
-        data << uint32(creator->GetDisplayId());
         data << uint8(0);   // facialhair
-        data << uint8(creator->getClass());
+        data.appendPackGUID(guildGuid);
 
-        data.WriteBit(guid[7]);
-        data.WriteBit(guildGuid[3]);
-        data.WriteBit(guildGuid[1]);
-        data.WriteBit(guildGuid[5]);
-        data.WriteBit(guildGuid[7]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guildGuid[4]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guildGuid[6]);
-        data.WriteBits(0, 22);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guildGuid[2]);
-        data.WriteBit(guildGuid[0]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[2]);
-
-        data.WriteByteSeq(guildGuid[5]);
-        data.WriteByteSeq(guildGuid[2]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guildGuid[1]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guildGuid[3]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guildGuid[4]);
-        data.WriteByteSeq(guildGuid[0]);
-        data.WriteByteSeq(guildGuid[6]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guildGuid[7]);
+        data << uint32(0);
     }
 
     SendPacket(&data);

@@ -391,118 +391,115 @@ void WorldSession::HandleForcedReactionsOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->GetReputationMgr().SendForceReactions();
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
 {
-    uint32 textID;
-    uint64 guid;
+    uint32 l_TextID;
+    uint64 l_Guid;
 
-    recvData >> textID;
+    p_Packet >> l_TextID;
+    p_Packet.readPackGUID(l_Guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", l_TextID);
 
-    recvData.readPackGUID(guid);
+    GetPlayer()->SetSelection(l_Guid);
 
-    GetPlayer()->SetSelection(guid);
-
-    GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
+    GossipText const* pGossip = sObjectMgr->GetGossipText(l_TextID);
 
     bool l_Allow = true;
 
-    WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
-    data << textID;
-    data.WriteBit(l_Allow);     // unk bit (true on retail sniff)
-    data.FlushBits();
+    WorldPacket l_Data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
+    l_Data << l_TextID;
+    l_Data.WriteBit(l_Allow);     // unk bit (true on retail sniff)
+    l_Data.FlushBits();
 
     ByteBuffer l_Buffer;
 
-    for (size_t l_I = 0; l_I < 8; l_I++)
-        l_Buffer << uint32(textID);
+    /// Text probability
+    for (size_t l_I = 0; l_I < MAX_GOSSIP_TEXT_OPTIONS; l_I++)
+        l_Buffer << float(pGossip ? pGossip->Options[l_I].Probability : 0);
 
-    for (size_t l_I = 0; l_I < 8; l_I++)
-        l_Buffer << uint32(textID);
+    l_Buffer << uint32(l_TextID);
 
-    data << uint32(l_Buffer.size());
-    data.append(l_Buffer);
+    /// Text ID
+    for (size_t l_I = 0; l_I < MAX_GOSSIP_TEXT_OPTIONS - 1; l_I++)
+        l_Buffer << uint32(0);
 
-    SendPacket(&data);
+    l_Data << uint32(l_Buffer.size());
+    l_Data.append(l_Buffer);
+
+    SendPacket(&l_Data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
 #define DEFAULT_GREETINGS_GOSSIP      68
 
-void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
+void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
 {
-    ByteBuffer buff;
+    ByteBuffer l_ReplyContent;
 
     WorldPacket data(SMSG_DB_REPLY);
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
-    data << uint32(entry);
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
+    data << uint32(p_Entry);
+    data << uint32(sObjectMgr->GetHotfixDate(p_Entry, DB2_REPLY_BROADCAST_TEXT));
 
     //////////////////////////////////////////////////////////////////////////
 
-    GossipText const* pGossip = sObjectMgr->GetGossipText(entry);
+    GossipText const* l_Gossip = sObjectMgr->GetGossipText(p_Entry);
 
-    if (!pGossip)
-        pGossip = sObjectMgr->GetGossipText(DEFAULT_GREETINGS_GOSSIP);
+    if (!l_Gossip)
+        l_Gossip = sObjectMgr->GetGossipText(DEFAULT_GREETINGS_GOSSIP);
 
-    std::string text = "Greetings, $N";
-    std::string text1 = pGossip ? pGossip->Options[0].Text_0 : text;
-    std::string text2 = pGossip ? pGossip->Options[0].Text_1 : text;
+    std::string l_DefaultText = "Greetings, $N";
+    std::string l_Text1 = l_Gossip ? l_Gossip->Options[0].Text_0 : l_DefaultText;
+    std::string l_Text2 = l_Gossip ? l_Gossip->Options[0].Text_1 : l_DefaultText;
 
-    uint16 size1 = text1.size();
-    uint16 size2 = text2.size();
-
-    int loc_idx = GetSessionDbLocaleIndex();
-    if (loc_idx >= 0 && loc_idx <= MAX_LOCALES)
+    int l_LocaleIndex = GetSessionDbLocaleIndex();
+    if (l_LocaleIndex >= 0 && l_LocaleIndex <= MAX_LOCALES)
     {
-        if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(entry))
+        if (NpcTextLocale const* l_NpcTextLocale = sObjectMgr->GetNpcTextLocale(p_Entry))
         {
-            ObjectMgr::GetLocaleString(nl->Text_0[loc_idx], loc_idx, text1);
-            ObjectMgr::GetLocaleString(nl->Text_1[loc_idx], loc_idx, text2);
-            size1 = text1.size();
-            size2 = text2.size();
+            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_0[l_LocaleIndex], l_LocaleIndex, l_Text1);
+            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_1[l_LocaleIndex], l_LocaleIndex, l_Text2);
         }
     }
 
-    buff << uint32(entry);
-    buff << uint32(pGossip != 0 ? pGossip->Options[0].Language : LANG_UNIVERSAL);
-    buff << uint16(size1);
+    l_ReplyContent << uint32(p_Entry);
+    l_ReplyContent << uint32(l_Gossip != 0 ? l_Gossip->Options[0].Language : LANG_UNIVERSAL);
+    l_ReplyContent << uint16(l_Text1.size() ? l_Text1.size() + 1 : 0);
 
-    if (size1)
-        buff << std::string(text1);
+    if (l_Text1.size())
+        l_ReplyContent << std::string(l_Text1);
 
-    buff << uint16(size2);
+    l_ReplyContent << uint16(l_Text2.size() ? l_Text2.size() + 1 : 0);
 
-    if (size2)
-        buff << std::string(text2);
+    if (l_Text2.size())
+        l_ReplyContent << std::string(l_Text2);
 
-    if (pGossip)
+    if (l_Gossip)
     {
-        for (int j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            buff << pGossip->Options[0].Emotes[j]._Emote;
-        for (int j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            buff << pGossip->Options[0].Emotes[j]._Delay;
+        for (int l_J = 0; l_J < MAX_GOSSIP_TEXT_EMOTES; ++l_J)
+            l_ReplyContent << uint32(l_Gossip->Options[0].Emotes[l_J]._Emote);
+        for (int l_J = 0; l_J < MAX_GOSSIP_TEXT_EMOTES; ++l_J)
+            l_ReplyContent << uint32(l_Gossip->Options[0].Emotes[l_J]._Delay);
     }
     else
     {
-        for (int j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
+        for (int l_J = 0; l_J < MAX_GOSSIP_TEXT_EMOTES; ++l_J)
         {
-            buff << uint32(0);
-            buff << uint32(0);
+            l_ReplyContent << uint32(0);
+            l_ReplyContent << uint32(0);
         }
     }
 
-    buff << uint32(0);
-    buff << uint32(0);
-
-    buff << uint32(0x01);	/// unk
+    l_ReplyContent << uint32(0);
+    l_ReplyContent << uint32(0);
+    l_ReplyContent << uint32(0x01);   /// unk
 
     //////////////////////////////////////////////////////////////////////////
 
-    data << uint32(buff.size());
-    data.append(buff);
+    data << uint32(l_ReplyContent.size());
+    data.append(l_ReplyContent);
 
     SendPacket(&data);
 }

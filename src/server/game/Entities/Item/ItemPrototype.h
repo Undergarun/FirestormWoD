@@ -730,6 +730,7 @@ struct ItemTemplate
     float  StatScalingFactor;
     uint32 CurrencySubstitutionId;                          // May be used instead of a currency
     uint32 CurrencySubstitutionCount;
+    uint32 ItemNameDescriptionID;
 
     // extra fields, not part of db2 files
     float  DamageMin;

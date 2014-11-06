@@ -725,12 +725,12 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
 
             case MSETransportTime2:
                 if (l_HasTransportData && l_HasTransportTime2)
-                    p_Data >> p_MovementInformation->t_time2;
+                    p_Data >> p_MovementInformation->PrevMoveTime;
                 break;
 
             case MSETransportTime3:
                 if (l_HasTransportData && l_HasTransportTime3)
-                    p_Data >> p_MovementInformation->t_time3;
+                    p_Data >> p_MovementInformation->VehicleRecID;
                 break;
 
             case MSEPitch:
@@ -745,7 +745,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
 
             case MSEFallVerticalSpeed:
                 if (p_MovementInformation->HasFallData)
-                    p_Data >> p_MovementInformation->j_zspeed;
+                    p_Data >> p_MovementInformation->JumpVelocity;
                 break;
 
             case MSEFallCosAngle:
@@ -920,12 +920,12 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
 
             case MSEHasTransportTime2:
                 if (l_HasTransportData)
-                    p_Data.WriteBit(p_MovementInformation->t_time2);
+                    p_Data.WriteBit(p_MovementInformation->PrevMoveTime);
                 break;
 
             case MSEHasTransportTime3:
                 if (l_HasTransportData)
-                    p_Data.WriteBit(p_MovementInformation->t_time3);
+                    p_Data.WriteBit(p_MovementInformation->VehicleRecID);
                 break;
 
             case MSEHasFallData:
@@ -1009,13 +1009,13 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
                 break;
 
             case MSETransportTime2:
-                if (l_HasTransportData && p_MovementInformation->t_time2)
-                    p_Data << p_MovementInformation->t_time2;
+                if (l_HasTransportData && p_MovementInformation->PrevMoveTime)
+                    p_Data << p_MovementInformation->PrevMoveTime;
                 break;
 
             case MSETransportTime3:
-                if (l_HasTransportData && p_MovementInformation->t_time3)
-                    p_Data << p_MovementInformation->t_time3;
+                if (l_HasTransportData && p_MovementInformation->VehicleRecID)
+                    p_Data << p_MovementInformation->VehicleRecID;
                 break;
 
             case MSEPitch:
@@ -1029,7 +1029,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
 
             case MSEFallVerticalSpeed:
                 if (p_MovementInformation->HasFallData)
-                    p_Data << p_MovementInformation->j_zspeed;
+                    p_Data << p_MovementInformation->JumpVelocity;
                 break;
 
             case MSEFallCosAngle:

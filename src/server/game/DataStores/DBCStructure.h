@@ -1379,6 +1379,14 @@ struct ImportPriceWeaponEntry
     float   Factor;                                         // 1        m_data
 };
 
+struct ItemSetSpellEntry
+{
+    uint32 ItemSetID;
+    uint32 SpellID;
+    uint32 PieceRequirement;
+    uint32 SpecializationID;
+};
+
 struct ItemPriceBaseEntry
 {
     //uint32    ID;                                         // 0        m_ID
@@ -2479,6 +2487,18 @@ struct WorldMapOverlayEntry
     //uint32    m_HitRectBottom;                            // 13       m_HitRectBottom
     //uint32    m_HitRectRight;                             // 14       m_HitRectRight
     //uint32    m_PlayerConditionID;                        // 15       m_PlayerConditionID
+};
+
+struct World_PVP_AreaEntry
+{
+    uint32 ID;
+    uint32 AreaID;
+    uint32 NextTimeWorldState;
+    uint32 GameTimeWorldState;
+    uint32 BattlePopulateTime;
+    uint32 MinLevel;
+    uint32 MaxLevel;
+    int32  MapID;
 };
 
 struct WorldSafeLocsEntry

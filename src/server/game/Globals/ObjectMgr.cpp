@@ -2568,6 +2568,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
         itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionId;
         itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
+        itemTemplate.ItemNameDescriptionID = sparse->ItemNameDescriptionID;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
@@ -2730,6 +2731,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.StatScalingFactor         = fields[131].GetFloat();
             itemTemplate.CurrencySubstitutionId    = fields[132].GetInt32();
             itemTemplate.CurrencySubstitutionCount = fields[133].GetInt32();
+            itemTemplate.ItemNameDescriptionID     = 0;
             itemTemplate.ScriptId                  = 0;
             itemTemplate.FoodType                  = 0;
             itemTemplate.MinMoneyLoot              = 0;
@@ -9222,7 +9224,7 @@ void ObjectMgr::LoadPhaseDefinitions()
         pd.zoneId                = fields[0].GetUInt32();
         pd.entry                 = fields[1].GetUInt16();
         pd.phasemask             = fields[2].GetUInt64();
-        pd.phaseId               = fields[3].GetUInt8();
+        pd.phaseId               = fields[3].GetUInt16();
         pd.terrainswapmap        = fields[4].GetUInt16();
         pd.flags                 = fields[5].GetUInt8();
 

@@ -3450,6 +3450,23 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            // Lava Surge
+            case 77756:
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
+                break;
+            // Magma Totem Passive
+            case 8188:
+            // Healing Streams
+            case 5672:
+            // Healing Tide
+            case 114941:
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+                break;
+            case 73683:  // Unleash Flame
+            case 165462: // Unleash Flame
+                spellInfo->ProcCharges = 1;
+                break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
@@ -4288,9 +4305,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 15473: // Shadowform - hotfix 5.4.2
                 spellInfo->Effects[6].BasePoints = 100;
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
-                break;
-            case 49020: // Obliterate - hotfix 5.4.2
-                spellInfo->Effects[1].BasePoints = 250;
                 break;
             case 91107: // Unholy Might
                 spellInfo->Effects[0].BasePoints = 35;
@@ -5172,9 +5186,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52042: // Healing Stream - Totem
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
-                break;
-            case 324:   // Lightning Shield
-                spellInfo->ProcCharges = 0;
                 break;
             case 116740:// Tigereye Brew
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
