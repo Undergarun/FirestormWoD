@@ -401,21 +401,9 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_GET_STATUS [" UI64FMTD "]", GetPlayer()->GetGUID());
 
-    /*uint64 guid = GetPlayer()->GetGUID();
+    uint64 guid = GetPlayer()->GetGUID();
     LfgUpdateData updateData = sLFGMgr->GetLfgStatus(guid);
-
-    if (GetPlayer()->GetGroup())
-    {
-        sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
-        updateData.dungeons.clear();
-        sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
-    }
-    else
-    {
-        sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
-        updateData.dungeons.clear();
-        sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
-    }*/
+    sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
 }
 
 void WorldSession::SendLfgRoleChosen(uint64 p_Guid, uint8 p_Roles)
@@ -444,7 +432,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
 
     WorldPacket l_Data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + l_JoinSlots.size() * 4 + 1 + p_RoleCheck->roles.size() * (8 + 1 + 4 + 1));
 
-    l_Data << uint8(1);                                                                     ///< Party index
+    l_Data << uint8(GetPlayer()->GetGroup()->GetPartyIndex());                              ///< Party index
     l_Data << uint8(p_RoleCheck->state);                                                    ///< Role check status
     l_Data << uint32(l_JoinSlots.size());                                                   ///< Join Slots count
     l_Data.appendPackGUID(l_BGqueueID);                                                     ///< BG Queue ID
@@ -709,12 +697,12 @@ void WorldSession::SendLfgUpdateProposal(uint32 p_ProposalID, const LfgProposal 
 
     l_Data.appendPackGUID(l_Guid);                                          ///< RequesterGuid
     l_Data << uint32(0);                                                    ///< Id
-    l_Data << uint32(0x03);                                                 ///< Type
+    l_Data << uint32(2);                                                    ///< Type
     l_Data << uint32(getMSTime());                                          ///< Time
 
     l_Data << uint64(InstanceSaveGUID);                                     ///< Instance ID
     l_Data << uint32(p_ProposalID);                                         ///< Proposal Id
-    l_Data << uint32(l_DungeonID);                                            ///< Slot
+    l_Data << uint32(l_DungeonID);                                          ///< Slot
     l_Data << uint8(p_Proposal->state);                                     ///< State
     l_Data << uint32(l_CompletedEncounters);                                ///< CompletedMask
     l_Data << uint32(p_Proposal->players.size());
