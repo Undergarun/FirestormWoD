@@ -60,6 +60,7 @@ class GameObjectAI
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
         virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) {}
         virtual void EventInform(uint32 /*eventId*/) {}
+        virtual void OnGetVisibilityRange(float &p_Visibility) {}
 };
 
 class NullGameObjectAI : public GameObjectAI
