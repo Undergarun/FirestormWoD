@@ -35,7 +35,7 @@ enum LfgUpdateType : uint8
     LFG_UPDATETYPE_ADDED_TO_QUEUE                = 24, ///< 6.0.2 19027 OK
     LFG_UPDATETYPE_JOIN_QUEUE                    = 13, ///< 6.0.2 19027 OK
     LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,  ///< 6.0.2 19027 OK
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 47, ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 15, ///< 6.0.2 19027 OK
 
 
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,  ///< 6.0.2 19027
