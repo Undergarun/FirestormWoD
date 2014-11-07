@@ -407,13 +407,13 @@ void ScriptMgr::FillSpellSummary()
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL_MAX_HEALTH ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL_MECHANICAL ||
-                ((pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA || pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_2)
+                ((pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA || pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
                 && pTempSpell->Effects[j].ApplyAuraName == 8))
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
 
             // Make sure that this spell applies an aura.
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA ||
-                pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_2)
+                pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_AURA-1);
         }
     }

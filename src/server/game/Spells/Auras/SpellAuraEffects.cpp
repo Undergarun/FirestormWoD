@@ -466,7 +466,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModFear,                                   //407 SPELL_AURA_MOD_FEAR_2      TODO : Find the difference between 7 & 407
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
     &AuraEffect::HandleAllowMoveWhileFalling,                     //409 SPELL_AURA_ALLOW_MOVE_WHILE_FALLING
-    &AuraEffect::HandleNULL,                                      //410 SPELL_AURA_410
+    &AuraEffect::HandleNoImmediateEffect,                         //410 SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET implemented in EffectSummonMultipleHunterPets
     &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_CHARGES implemented with SpellChargesTracker
     &AuraEffect::HandleModManaRegenByHaste,                       //412 SPELL_AURA_412
     &AuraEffect::HandleNULL,                                      //413 SPELL_AURA_413
@@ -499,11 +499,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraMultistrike,                           //440 SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT
     &AuraEffect::HandleAuraMultistrike,                           //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
     &AuraEffect::HandleNULL,                                      //442 SPELL_AURA_442
-    &AuraEffect::HandleAuraLeechPct,                              //443 SPELL_AURA_MOD_LEECH_PCT
+    &AuraEffect::HandleAuraLeech,                                 //443 SPELL_AURA_MOD_LEECH_PCT
     &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
     &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
     &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
-    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_PCT_FROM_BEAST
+    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
@@ -520,19 +520,19 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
-    &AuraEffect::HandleNULL,                                      //464 SPELL_AURA_464
-    &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_465
-    &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_466
+    &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
+    &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
+    &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
-    &AuraEffect::HandleAuraVesatility,                            //468 SPELL_AURA_MOD_VERSATILITY
+    &AuraEffect::HandleAuraVersatility,                           //468 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
-    &AuraEffect::HandleAuraVesatility,                            //471 SPELL_AURA_MOD_VERSATILITY_PCT
+    &AuraEffect::HandleAuraVersatility,                           //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
     &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
     &AuraEffect::HandleNULL,                                      //475 SPELL_AURA_475
-    &AuraEffect::HandleNULL,                                      //476 SPELL_AURA_476
+    &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     &AuraEffect::HandleNULL,                                      //477 SPELL_AURA_477
     &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
 };
@@ -626,37 +626,49 @@ void AuraEffect::GetApplicationList(std::list<AuraApplication*> & applicationLis
 int32 AuraEffect::CalculateAmount(Unit* caster)
 {
     int32 amount;
+
+    Item* l_Item = nullptr;
+    if (uint64 itemGUID = GetBase()->GetCastItemGUID())
+    {
+        if (Player* l_PlayerCaster = caster->ToPlayer())
+            l_Item = l_PlayerCaster->GetItemByGuid(itemGUID);
+    }
+
     // default amount calculation
-    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
+    amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), l_Item);
 
     // check item enchant aura cast
     if (!amount && caster)
-        if (uint64 itemGUID = GetBase()->GetCastItemGUID())
-            if (Player* playerCaster = caster->ToPlayer())
-                if (Item* castItem = playerCaster->GetItemByGuid(itemGUID))
-                    if (castItem->GetItemSuffixFactor())
+    {
+        if (l_Item != nullptr)
+        {
+            if (l_Item->GetItemSuffixFactor())
+            {
+                ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(l_Item->GetItemRandomPropertyId()));
+                if (item_rand_suffix)
+                {
+                    for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
                     {
-                        ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
-                        if (item_rand_suffix)
+                        SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
+                        if (pEnchant)
                         {
-                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
+                            for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
                             {
-                                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
-                                if (pEnchant)
+                                if (pEnchant->spellid[t] == m_spellInfo->Id)
                                 {
-                                    for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
-                                        if (pEnchant->spellid[t] == m_spellInfo->Id)
-                                    {
-                                        amount = uint32((item_rand_suffix->prefix[k]*castItem->GetItemSuffixFactor()) / 10000);
-                                        break;
-                                    }
-                                }
-
-                                if (amount)
+                                    amount = uint32((item_rand_suffix->prefix[k] * l_Item->GetItemSuffixFactor()) / 10000);
                                     break;
+                                }
                             }
                         }
+
+                        if (amount)
+                            break;
                     }
+                }
+            }
+        }
+    }
 
     float DoneActualBenefit = 0.0f;
 
@@ -8742,46 +8754,54 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint
     player->SetMaxPower(POWER_MANA, mod* mana);
 }
 
-void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateMultistrike();
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateMultistrike();
 }
 
-void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
+void AuraEffect::HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* l_target = p_aurApp->GetTarget();
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateLeech();
+}
 
-    if (l_target->GetTypeId() != TYPEID_PLAYER)
+void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateVersatility();
+}
+
+void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateArmor();
+}
+
+void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // Actually this aura is only use when we go to a Duel
     // Enter in Arena reset the same way cooldowns that enter in duel
-    if (p_apply)
-        l_target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+    if (p_Apply)
+        l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
 }
-
-void AuraEffect::HandleAuraLeechPct(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
-{
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateLeech();
-}
-
-void AuraEffect::HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const
-{
-    if (!(p_mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    if (Player* l_player = GetCaster()->ToPlayer())
-        l_player->UpdateVersatility();
-}
-

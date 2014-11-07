@@ -78,7 +78,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);
         void RecalculateAmount(bool reapplyingEffects = false) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false, reapplyingEffects); }
-        void RecalculateAmount(Unit* caster) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
+        void RecalculateAmount(Unit* p_Caster, bool p_Force = false) { if (!p_Force && !CanBeRecalculated()) return; ChangeAmount(CalculateAmount(p_Caster), false); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
         void SetCanBeRecalculated(bool val) { m_canBeRecalculated = val; }
         void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply);
@@ -248,9 +248,10 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModifyManaRegenFromManaPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraMultistrike(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraLeechPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraVesatility(AuraApplication const* p_aurApp, uint8 p_mode, bool p_apply) const;
+        void HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;

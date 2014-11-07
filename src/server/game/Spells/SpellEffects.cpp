@@ -153,7 +153,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUnused,                                   // 78 SPELL_EFFECT_ATTACK
     &Spell::EffectSanctuary,                                // 79 SPELL_EFFECT_SANCTUARY
     &Spell::EffectAddComboPoints,                           // 80 SPELL_EFFECT_ADD_COMBO_POINTS
-    &Spell::EffectUnused,                                   // 81 SPELL_EFFECT_CREATE_HOUSE             one spell: Create House (TEST)
+    &Spell::EffectUnused,                                   // 81 SPELL_EFFECT_CREATE_HOUSE             (unused)
     &Spell::EffectNULL,                                     // 82 SPELL_EFFECT_BIND_SIGHT
     &Spell::EffectDuel,                                     // 83 SPELL_EFFECT_DUEL
     &Spell::EffectStuck,                                    // 84 SPELL_EFFECT_STUCK
@@ -163,7 +163,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectGameObjectRepair,                         // 88 SPELL_EFFECT_GAMEOBJECT_REPAIR
     &Spell::EffectGameObjectSetDestructionState,            // 89 SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
-    &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
+    &Spell::EffectThreatAll,                                // 91 SPELL_EFFECT_THREAT_ALL
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
     &Spell::EffectForceDeselect,                            // 93 SPELL_EFFECT_FORCE_DESELECT
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
@@ -184,7 +184,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectSummonDeadPet,                            //109 SPELL_EFFECT_SUMMON_DEAD_PET
     &Spell::EffectDestroyAllTotems,                         //110 SPELL_EFFECT_DESTROY_ALL_TOTEMS
     &Spell::EffectDurabilityDamage,                         //111 SPELL_EFFECT_DURABILITY_DAMAGE
-    &Spell::EffectUnused,                                   //112 SPELL_EFFECT_112
+    &Spell::EffectUnused,                                   //112 SPELL_EFFECT_FORCE_RIDE_ROCKET
     &Spell::EffectResurrectNew,                             //113 SPELL_EFFECT_RESURRECT_NEW
     &Spell::EffectTaunt,                                    //114 SPELL_EFFECT_ATTACK_ME
     &Spell::EffectDurabilityDamagePCT,                      //115 SPELL_EFFECT_DURABILITY_DAMAGE_PCT
@@ -232,93 +232,93 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
-    &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      1 spell - 45534
+    &Spell::EffectForcePlayerInteraction,                   //160 SPELL_EFFECT_FORCE_PLAYER_INTERACTION
     &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
-    &Spell::EffectUnused,                                   //163 SPELL_EFFECT_163  unused
+    &Spell::EffectUnused,                                   //163 SPELL_EFFECT_163                      (unused, 6.0.3)
     &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
     &Spell::EffectDamageFromMaxHealthPCT,                   //165 SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT
     &Spell::EffectGiveCurrency,                             //166 SPELL_EFFECT_GIVE_CURRENCY
-    &Spell::EffectNULL,                                     //167 SPELL_EFFECT_167
-    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_168
+    &Spell::EffectNULL,                                     //167 SPELL_EFFECT_UPDATE_PLAYER_PHASE
+    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET        @TODO: Implement it, it's needed to havn't action pet bar (hunter & warlocks) until level 10
     &Spell::EffectDestroyItem,                              //169 SPELL_EFFECT_DESTROY_ITEM
     &Spell::EffectNULL,                                     //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
-    &Spell::EffectNULL,                                     //171 SPELL_EFFECT_171
-    &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
+    &Spell::EffectSummonObject,                             //171 SPELL_EFFECT_SUMMON_OBJECT
+    &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA      Aoe resurrection (guild perk)
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
-    &Spell::EffectNULL,                                     //174 SPELL_EFFECT_APPLY_AURA_ON_PET
-    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175
-    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
-    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
-    &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
+    &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
+    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175                      Only one spell : Wild fixation (125570) 6.0.3
+    &Spell::EffectBecomeUntargettable,                      //176 SPELL_EFFECT_BECOME_UNTARGETTABLE
+    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_DESPAWN_AREA_AURA
+    &Spell::EffectUnused,                                   //178 SPELL_EFFECT_ABANDON_SCENARIO_QUEST
     &Spell::EffectCreateAreatrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
-    &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
+    &Spell::EffectUnused,                                   //180 SPELL_EFFECT_UPDATE_AREATRIGGER      "Update Area Triggers" 106584 & 1333355
     &Spell::EffectUnlearnTalent,                            //181 SPELL_EFFECT_UNLEARN_TALENT
-    &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
-    &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183
-    &Spell::EffectNULL,                                     //184 SPELL_EFFECT_REPUTATION_REWARD
+    &Spell::EffectDespawnAreaTrigger,                       //182 SPELL_EFFECT_DESPAWN_AREA_TRIGGER
+    &Spell::EffectNULL,                                     //183 SPELL_EFFECT_183                     Unused 6.0.3
+    &Spell::EffectReputation,                               //184 SPELL_EFFECT_REPUTATION_REWARD
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
-    &Spell::EffectNULL,                                     //187 SPELL_EFFECT_187
-    &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
-    &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS
-    &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
-    &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
-    &Spell::EffectUncagePetBattle,                          //192 SPELL_EFFECT_UNCAGE_BATTLE_PET
-    &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193
-    &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
-    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
-    &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196
-    &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
+    &Spell::EffectRandomizeArchaeologyDigsites,             //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
+    &Spell::EffectSummonMultipleHunterPets,                 //188 SPELL_EFFECT_SUMMON_MULTIPLE_HUNTER_PETS
+    &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS              Boss loot bonus ?
+    &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
+    &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE     Teleport player to an random digsite (Archaeology)
+    &Spell::EffectUncagePetBattle,                          //192 SPELL_EFFECT_UNCAGE_BATTLE_PET       Battle pet exchange (123302)
+    &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193                     157417 Launch NPC Pet Battle
+    &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195                     Scene related
+    &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196                     summon multi NPC
+    &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197                     Scene related
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_PLAY_CINEMATIC
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
-    &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS
-    &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE
-    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
-    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
-    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204
-    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205
-    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206
-    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207
-    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
-    &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
+    &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS    Battle pet Healing  125439, 125801
+    &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE           Battle pet first slot and track
+    &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202                     Unk 5.4.0
+    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203                     Unk 5.4.0
+    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204                     BATTLEPET System 5.4.0
+    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205                     Garrison related 6.0.3
+    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206                     used for TimelessIsle 5.4.0
+    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207                     Quest Garrison related (value = questid)
+    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208                     Unk 5.4.0
+    &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209                     test spell
     &Spell::EffectLearnBluePrint,                           //210 SPELL_EFFECT_LEARN_BLUE_PRINT
-    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
-    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
+    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211                     Garrison learn (specialization)
+    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.0.3
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214
-    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215
-    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216
-    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217
-    &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
-    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
-    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220
-    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
-    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223
-    &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING Finalize building construction
-    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225
-    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
-    &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
-    &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
-    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229
-    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230
-    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231
-    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233
-    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
-    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
-    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236
-    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238
-    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239
-    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240
-    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
-    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244
-    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_245
-    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246
+    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214                     Create Garrison
+    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217                     Upgrade Garrison (171905)
+    &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222                     Create Heirloom
+    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223                     Unk 6.0.1
+    &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
+    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225                     Battle-Training Stone
+    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227                     Teleport Into Karabor
+    &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228                     Recruit A Friend Summon Effect
+    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229                     Upgrade follower to epic
+    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230                     level follower related
+    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231                     level up an follower (debug PTR spell)
+    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232                     Phase related
+    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233                     Retrain Follower (Reroll the abilities and traits on a follower.)
+    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236                     Burst of Experience (follower)
+    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238                     Garrison restore item (give X in skill)
+    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239                     Garrison skip contruction
+    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243                     Illusion spells (visual enchant)
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244                     learn an follower ability NYI
+    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_245                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246                     Unused 6.0.3
 };
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
@@ -6164,64 +6164,70 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     if (go_id == 0)
         return;
 
-    uint8 slot = 0;
+    int8 slot = 0;
 
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-        slot = m_spellInfo->Effects[effIndex].MiscValueB;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-        slot = 1;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-        slot = 2;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-        slot = 3;
-        break;
-    default:
-        return;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            slot = m_spellInfo->Effects[effIndex].MiscValueB;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            slot = 1;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            slot = 2;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            slot = 3;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT:
+            slot = -1;
+            break;
+        default:
+            return;
     }
 
     switch (m_spellInfo->Id)
     {
-    case 84996: // Raid Marker 1
-    case 84997: // Raid Marker 2
-    case 84998: // Raid Marker 3
-    case 84999: // Raid Marker 4
-    case 85000: // Raid Marker 5
-    {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    float x = 0.0f, y = 0.0f, z = 0.0f;
-                    if (m_targets.HasDst())
-                        destTarget->GetPosition(x, y, z);
-
-                    if (Group* group = m_caster->ToPlayer()->GetGroup())
-                        group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
-                    return;
-    }
-    default:
-        break;
-    }
-
-    uint64 guid = m_caster->m_ObjectSlot[slot];
-    if (guid != 0)
-    {
-        GameObject* obj = NULL;
-        if (m_caster)
-            obj = m_caster->GetMap()->GetGameObject(guid);
-
-        if (obj)
+        case 84996: // Raid Marker 1
+        case 84997: // Raid Marker 2
+        case 84998: // Raid Marker 3
+        case 84999: // Raid Marker 4
+        case 85000: // Raid Marker 5
         {
-            // Recast case - null spell id to make auras not be removed on object remove from world
-            if (m_spellInfo->Id == obj->GetSpellId())
-                obj->SetSpellId(0);
-            m_caster->RemoveGameObject(obj, true);
+            if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            float x = 0.0f, y = 0.0f, z = 0.0f;
+            if (m_targets.HasDst())
+                destTarget->GetPosition(x, y, z);
+
+            if (Group* group = m_caster->ToPlayer()->GetGroup())
+                group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
+            return;
         }
-        m_caster->m_ObjectSlot[slot] = 0;
+        default:
+            break;
+    }
+
+    if (slot != -1)
+    {
+        uint64 guid = m_caster->m_ObjectSlot[slot];
+        if (guid != 0)
+        {
+            GameObject* obj = NULL;
+            if (m_caster)
+                obj = m_caster->GetMap()->GetGameObject(guid);
+
+            if (obj)
+            {
+                // Recast case - null spell id to make auras not be removed on object remove from world
+                if (m_spellInfo->Id == obj->GetSpellId())
+                    obj->SetSpellId(0);
+                m_caster->RemoveGameObject(obj, true);
+            }
+            m_caster->m_ObjectSlot[slot] = 0;
+        }
     }
 
     GameObject* pGameObj = new GameObject;
@@ -6242,9 +6248,9 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         return;
     }
 
-    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     if (!duration)
         duration = m_spellInfo->GetDuration();
+
     pGameObj->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(pGameObj);
@@ -6253,7 +6259,8 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
     map->AddToMap(pGameObj);
 
-    m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
+    if (slot != -1)
+        m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)
@@ -8175,7 +8182,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     SendResurrectRequest(target);
 }
 
-void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
+void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8183,54 +8190,81 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
-    Player* target = unitTarget->ToPlayer();
-    if (!target)
-        return;
-    if (!target->isAlive())
+    Player* l_Target = unitTarget->ToPlayer();
+    if (!l_Target)
         return;
 
-    switch (m_spellInfo->Id)
+    if (!l_Target->isAlive())
+        return;
+
+    std::vector<uint32> l_Maps;
+
+    AreaGroupEntry const* l_AreaGroupEntry = sAreaGroupStore.LookupEntry(m_spellInfo->AreaGroupId);
+    while (l_AreaGroupEntry)
     {
-    case 126956: // Lorewalker's Lodestone
+        for (uint8 l_I = 0; l_I < MAX_GROUP_AREA_IDS; ++l_I)
+        {
+            uint32 l_AreaId = l_AreaGroupEntry->AreaId[l_I];
+            AreaTableEntry const* l_AreaTable = sAreaStore.LookupEntry(l_AreaId);
+            if (l_AreaTable == nullptr)
+                continue;
+
+            l_Maps.push_back(l_AreaTable->ContinentID);
+
+        }
+        // Try search in next group
+        l_AreaGroupEntry = sAreaGroupStore.LookupEntry(l_AreaGroupEntry->nextGroup);
+    }
+
+    if (l_Maps.empty())
+        return;
+
+    std::random_shuffle(l_Maps.begin(), l_Maps.end());
+
+    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInMap(l_Maps[0]);
+    ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
+    if (l_Loot.empty())
+        return;
+
+    ResearchLootVector l_LootListTemp;
+    ResearchLootVector l_LootList;
+
+    for (ResearchLootVector::const_iterator l_Iterator = l_Loot.begin(); l_Iterator != l_Loot.end(); ++l_Iterator)
     {
-                     uint16 siteId = target->GetArchaeologyMgr().GetRandomActiveSiteInMap(870);
-
-                     ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
-                     if (loot.empty())
-                         break;
-
-                     ResearchLootVector lootListTemp;
-                     ResearchLootVector lootList;
-
-                     for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
-                     {
-                         ResearchLootEntry entry = (*itr);
-                         if (entry.id == siteId)
-                             lootListTemp.push_back(entry);
-                     }
-
-                     if (lootListTemp.empty())
-                         break;
-
-                     lootList.push_back(JadeCore::Containers::SelectRandomContainerElement(lootListTemp));
-                     if (lootList.empty())
-                         break;
-
-                     float x, y, z;
-                     for (auto itr : lootList)
-                     {
-                         x = itr.x;
-                         y = itr.y;
-                         z = itr.z;
-                         break;
-                     }
-
-                     target->NearTeleportTo(x, y, z, target->GetOrientation());
-                     break;
+        ResearchLootEntry entry = (*l_Iterator);
+        if (entry.id == l_SiteId)
+            l_LootListTemp.push_back(entry);
     }
-    default:
-        break;
-    }
+
+    if (l_LootListTemp.empty())
+        return;
+
+    l_LootList.push_back(JadeCore::Containers::SelectRandomContainerElement(l_LootListTemp));
+    if (l_LootList.empty())
+        return;
+
+    l_Target->NearTeleportTo(l_LootList[0].x, l_LootList[0].y, l_LootList[0].z, l_Target->GetOrientation());
+}
+
+void Spell::EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Target = unitTarget->ToPlayer();
+    if (!l_Target)
+        return;
+
+    if (!l_Target->isAlive())
+        return;
+
+    uint32 l_MapId     = m_spellInfo->Effects[p_EffIndex].MiscValue;
+    uint32 l_SiteCount = m_spellInfo->Effects[p_EffIndex].BasePoints;
+
+    l_Target->GetArchaeologyMgr().GenerateResearchSitesForMap(l_MapId, l_SiteCount);
 }
 
 void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
@@ -8439,4 +8473,114 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
         return;
 
     player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+}
+
+void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    std::list<HostileReference*> l_ThreadList = m_caster->getThreatManager().getThreatList();
+    for (HostileReference* l_Itr : l_ThreadList)
+    {
+        Unit* l_Target = l_Itr->getTarget();
+
+        l_Target->getThreatManager().clearReferences();
+        l_Target->getThreatManager().doAddThreat(m_caster, m_spellInfo->Effects[p_EffIndex].BasePoints);
+    }
+}
+
+void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetMap()->GetDifficulty());
+    if (l_SpellInfo == nullptr)
+        return;
+
+    Unit* l_Target = unitTarget;
+    if (l_Target == nullptr)
+        l_Target = m_caster;
+
+    m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
+}
+
+void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    m_caster->SendMessageToSet(&l_Data, true);
+}
+
+void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    std::list<AreaTrigger*> l_AreaTriggers;
+
+    if (m_AreaTrigger != nullptr)
+        l_AreaTriggers.push_back(m_AreaTrigger);
+    else
+    {
+        float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster, this);
+
+        CellCoord l_Pair(JadeCore::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+        Cell l_Cell(l_Pair);
+        l_Cell.SetNoCreate();
+
+        JadeCore::AllAreaTriggersInRangeCheck l_Check(m_caster, l_Radius);
+        JadeCore::AreaTriggerListSearcher<JadeCore::AllAreaTriggersInRangeCheck> l_Searcher(m_caster, l_AreaTriggers, l_Check);
+        TypeContainerVisitor<JadeCore::AreaTriggerListSearcher<JadeCore::AllAreaTriggersInRangeCheck>, GridTypeMapContainer> l_Visitor(l_Searcher);
+
+        l_Cell.Visit(l_Pair, l_Visitor, *m_caster->GetMap(), *m_caster, l_Radius);
+    }
+
+    for (AreaTrigger* l_AreaTrigger : l_AreaTriggers)
+        l_AreaTrigger->Remove(0);
+}
+
+void Spell::EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex)
+{
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    Player* l_Player = m_caster->ToPlayer();
+    Unit*   l_Target = unitTarget;
+
+    if (l_Target == nullptr)
+        return;
+
+    uint32 l_MalusSpell     = m_spellInfo->Effects[p_EffIndex].TriggerSpell;
+    bool   l_OnlyCurrentPet = l_Player->HasAuraType(SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET);
+
+    uint32 l_CurrentSlot = l_Player->m_currentPetSlot;
+    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST); ++l_PetSlotIndex)
+    {
+        if (l_PetSlotIndex != l_CurrentSlot)
+        {
+            float l_X, l_Y, l_Z;
+            l_Player->GetClosePoint(l_X, l_Y, l_Z, l_Player->GetObjectSize());
+            Pet* l_Pet = l_Player->SummonPet(0, l_X, l_Y, l_Z, l_Player->GetOrientation(), SUMMON_PET, l_Player->CalcSpellDuration(GetSpellInfo()), PetSlot(l_OnlyCurrentPet ? l_CurrentSlot : l_PetSlotIndex), true);
+            if (!l_Pet)
+                return;
+
+            if (!l_Pet->isAlive())
+                l_Pet->setDeathState(ALIVE);
+
+            // Set pet at full health
+            l_Pet->SetHealth(l_Pet->GetMaxHealth());
+            l_Pet->SetReactState(REACT_AGGRESSIVE);
+            l_Pet->m_Stampeded = true;
+
+            l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
+            if (l_MalusSpell != 0)
+                l_Pet->CastSpell(l_Pet, l_MalusSpell, true);
+            l_Pet->AI()->AttackStart(l_Target);
+        }
+    }
 }

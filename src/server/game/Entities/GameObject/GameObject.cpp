@@ -2405,3 +2405,13 @@ void GameObject::SendTransportToOutOfRangePlayers() const
             itr->getSource()->GetSession()->SendPacket(&pkt);
     }
 }
+
+float GameObject::GetVisibilityRange() const
+{
+    float l_Visibility = WorldObject::GetVisibilityRange();
+
+    if (AI())
+        AI()->OnGetVisibilityRange(l_Visibility);
+
+    return l_Visibility;
+}

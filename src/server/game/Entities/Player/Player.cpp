@@ -505,45 +505,45 @@ inline void KillRewarder::_RewardHonor(Player* player)
         player->RewardHonor(_victim, _count, -1, true);
 }
 
-inline void KillRewarder::_RewardXP(Player* p_player, float p_rate)
+inline void KillRewarder::_RewardXP(Player* p_Player, float p_Rate)
 {
-    uint32 l_xp(_xp);
+    uint32 l_Xp(_xp);
     if (_group)
     {
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && p_player->isAlive() &&
-            _maxNotGrayMember->getLevel() >= p_player->getLevel())
-            l_xp = _isFullXP ?
-                uint32(l_xp * p_rate) :             // Reward FULL XP if all group members are not gray.
-                uint32(l_xp * p_rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
+        if (_maxNotGrayMember && p_Player->isAlive() &&
+            _maxNotGrayMember->getLevel() >= p_Player->getLevel())
+            l_Xp = _isFullXP ?
+                uint32(l_Xp * p_Rate) :             // Reward FULL XP if all group members are not gray.
+                uint32(l_Xp * p_Rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
-            l_xp = 0;
+            l_Xp = 0;
     }
-    if (l_xp)
+    if (l_Xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
-        for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
-            AddPct(l_xp, (*i)->GetAmount());
+        Unit::AuraEffectList const& l_Auras = p_Player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
+            AddPct(l_Xp, (*i)->GetAmount());
 
         // 4.2.3. Calculate expansion penalty
-        if (_victim->GetTypeId() == TYPEID_UNIT && p_player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
-            l_xp = CalculatePct(l_xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
+        if (_victim->GetTypeId() == TYPEID_UNIT && p_Player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
+            l_Xp = CalculatePct(l_Xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
 
         // 4.2.4. Give XP to player.
-        p_player->GiveXP(l_xp, _victim, _groupRate);
-        if (Pet* pet = p_player->GetPet())
+        p_Player->GiveXP(l_Xp, _victim, _groupRate);
+        if (Pet* pet = p_Player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-            pet->GivePetXP(_group ? l_xp / 2 : l_xp);
+            pet->GivePetXP(_group ? l_Xp / 2 : l_Xp);
         
         // Modificate xp for racial aura of trolls (+20% if beast)
-        if (_victim->ToCreature() && _victim->ToCreature()->isType(CREATURE_TYPE_BEAST))
+        Unit::AuraEffectList const& l_AurasXpPct = p_Player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE);
+        for (Unit::AuraEffectList::const_iterator i = l_AurasXpPct.begin(); i != l_AurasXpPct.end(); ++i)
         {
-            Unit::AuraEffectList const& l_auras = p_player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_BEAST);
-            for (Unit::AuraEffectList::const_iterator i = l_auras.begin(); i != l_auras.end(); ++i)
-        AddPct(l_xp, (*i)->GetAmount());
+            if (_victim->ToCreature() && _victim->ToCreature()->isType((*i)->GetMiscValue()))
+                AddPct(l_Xp, (*i)->GetAmount());
         }
     }
 }
@@ -1070,21 +1070,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // also do it in Player::BuildEnumData, Player::LoadFromDB
 
     Object::_Create(guidlow, 0, HIGHGUID_PLAYER);
+    CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(createInfo->TemplateId);
 
     m_name = createInfo->Name;
-
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
-    if (!info)
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid race/class pair (%u/%u) - refusing to do so.",
-                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Race, createInfo->Class);
-        return false;
-    }
-
-    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
-        m_items[i] = NULL;
-
-    Relocate(info->positionX, info->positionY, info->positionZ, info->orientation);
 
     ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(createInfo->Class);
     if (!cEntry)
@@ -1093,8 +1081,6 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Class);
         return false;
     }
-
-    SetMap(sMapMgr->CreateMap(info->mapId, this));
 
     uint8 powertype = cEntry->DisplayPower;
 
@@ -1109,6 +1095,37 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
         return false;
     }
+
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
+    if (!info)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid race/class pair (%u/%u) - refusing to do so.",
+                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Race, createInfo->Class);
+        return false;
+    }
+
+    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
+        m_items[i] = NULL;
+
+    if (l_Template && (GetTeam() == HORDE ? l_Template->m_HordeMapID != -1 : l_Template->m_AlianceMapID != -1))
+    {
+        if (GetTeam() == HORDE)
+        {
+            Relocate(l_Template->m_HordePos);
+            SetMap(sMapMgr->CreateMap(l_Template->m_HordeMapID, this));
+        }
+        else
+        {
+            Relocate(l_Template->m_AliancePos);
+            SetMap(sMapMgr->CreateMap(l_Template->m_AlianceMapID, this));
+        }
+    }
+    else
+    {
+        Relocate(info->positionX, info->positionY, info->positionZ, info->orientation);
+        SetMap(sMapMgr->CreateMap(info->mapId, this));
+    }
+
 
     uint32 RaceClassPower = (createInfo->Race) | (createInfo->Class << 8) | (powertype << 16);
 
@@ -1164,11 +1181,19 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             start_level = gm_level;
     }
 
-    SetUInt32Value(UNIT_FIELD_LEVEL, start_level);
+    if (l_Template)
+    {
+        SetUInt64Value(PLAYER_FIELD_COINAGE, l_Template->m_Money);
+        SetUInt32Value(UNIT_FIELD_LEVEL, l_Template->m_Level);
+    }
+    else
+    {
+        SetUInt64Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
+        SetUInt32Value(UNIT_FIELD_LEVEL, start_level);
+    }
 
     InitRunes();
 
-    SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
     SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_CONQUEST_POINTS));
@@ -1259,6 +1284,10 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetMaxPower(POWER_RUNIC_POWER, 1000);
     }
 
+    if (l_Template)
+        for (auto l_Spell : l_Template->m_SpellIDs)
+            addSpell(l_Spell, true, true, true, false);
+
     // original spells
     learnDefaultSpells();
 
@@ -1266,78 +1295,87 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     for (PlayerCreateInfoActions::const_iterator action_itr = info->action.begin(); action_itr != info->action.end(); ++action_itr)
         addActionButton(action_itr->button, action_itr->action, action_itr->type);
 
-    // original items
-    CharStartOutfitEntry const* oEntry = NULL;
-    for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+    if (l_Template)
     {
-        if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+        for (auto& l_Item : l_Template->m_TemplateItems)
+            StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+    }
+    else
+    {
+        // original items
+        CharStartOutfitEntry const* oEntry = NULL;
+        for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
         {
-            if (entry->RaceID  == createInfo->Race  &&
-                entry->ClassID == createInfo->Class &&
-                entry->SexID   == createInfo->Gender)
+            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
             {
-                oEntry = entry;
-                break;
+                if (entry->RaceID  == createInfo->Race  &&
+                    entry->ClassID == createInfo->Class &&
+                    entry->SexID   == createInfo->Gender)
+                {
+                    oEntry = entry;
+                    break;
+                }
             }
         }
-    }
 
-    if (oEntry)
-    {
-        for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        if (oEntry)
         {
-            if (oEntry->ItemId[j] <= 0)
-                continue;
-
-            uint32 itemId = oEntry->ItemId[j];
-
-            // just skip, reported in ObjectMgr::LoadItemTemplates
-            ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
-            if (!iProto)
-                continue;
-
-            // BuyCount by default
-            uint32 count = iProto->BuyCount;
-
-            // @todo remove this, use data in dbc or player_createinfoitem.
-            // special amount for food/drink
-            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
+            for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
             {
-                switch (iProto->Spells[0].SpellCategory)
+                if (oEntry->ItemId[j] <= 0)
+                    continue;
+
+                uint32 itemId = oEntry->ItemId[j];
+
+                // just skip, reported in ObjectMgr::LoadItemTemplates
+                ItemTemplate const* iProto = sObjectMgr->GetItemTemplate(itemId);
+                if (!iProto)
+                    continue;
+
+                // BuyCount by default
+                uint32 count = iProto->BuyCount;
+
+                // @todo remove this, use data in dbc or player_createinfoitem.
+                // special amount for food/drink
+                if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
                 {
-                    case SPELL_CATEGORY_FOOD:                                // food
-                        count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
-                        break;
-                    case SPELL_CATEGORY_DRINK:                                // drink
-                        count = 2;
+                    switch (iProto->Spells[0].SpellCategory)
+                    {
+                        case SPELL_CATEGORY_FOOD:                                // food
+                            count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
+                            break;
+                        case SPELL_CATEGORY_DRINK:                                // drink
+                            count = 2;
+                            break;
+                    }
+                    if (iProto->GetMaxStackSize() < count)
+                        count = iProto->GetMaxStackSize();
+                }
+
+                switch(itemId)
+                {
+                    // Pandaren start weapons, they are given with the first quest
+                    case 73207:
+                    case 73208:
+                    case 73209:
+                    case 73210:
+                    case 73211:
+                    case 73212:
+                    case 73213:
+                    case 76390:
+                    case 76391:
+                    case 76392:
+                    case 76393:
+                        continue;
+                    default:
                         break;
                 }
-                if (iProto->GetMaxStackSize() < count)
-                    count = iProto->GetMaxStackSize();
-            }
 
-            switch(itemId)
-            {
-                // Pandaren start weapons, they are given with the first quest
-                case 73207:
-                case 73208:
-                case 73209:
-                case 73210:
-                case 73211:
-                case 73212:
-                case 73213:
-                case 76390:
-                case 76391:
-                case 76392:
-                case 76393:
-                    continue;
-                default:
-                    break;
+                StoreNewItemInBestSlots(itemId, count);
             }
-
-            StoreNewItemInBestSlots(itemId, count);
         }
     }
+
 
     for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr)
         StoreNewItemInBestSlots(item_id_itr->item_id, item_id_itr->item_amount);
@@ -1433,111 +1471,35 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     return false;
 }
 
-void Player::RewardCurrencyAtKill(Unit* victim)
+void Player::RewardCurrencyAtKill(Unit* p_Victim)
 {
-    if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
+    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    if (!victim->ToCreature())
+    if (!p_Victim->ToCreature())
         return;
 
-    if (!victim->ToCreature()->GetEntry())
+    if (!p_Victim->ToCreature()->GetEntry())
         return;
 
-    CurrencyOnKillEntry const* Curr = sObjectMgr->GetCurrencyOnKillEntry(victim->ToCreature()->GetEntry());
-    if (!Curr)
+    CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
+    if (!l_Curr)
         return;
 
-    bool result = true;
-    if (victim->ToCreature()->AI())
-        victim->ToCreature()->AI()->CurrenciesRewarder(result);
+    bool l_Result = true;
+    if (p_Victim->ToCreature()->AI())
+        p_Victim->ToCreature()->AI()->CurrenciesRewarder(l_Result);
 
-    if (!result)
+    if (!l_Result)
         return;
 
-    // Players won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
-    if ((Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS
-        || Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS
-        || Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS
-        || Curr->currencyId1 == CURRENCY_TYPE_VALOR_POINTS
-        || Curr->currencyId2 == CURRENCY_TYPE_VALOR_POINTS
-        || Curr->currencyId3 == CURRENCY_TYPE_VALOR_POINTS)
-        && victim->GetMap()->Expansion() != EXPANSION_MISTS_OF_PANDARIA
-        && getLevel() > 85)
-        return;
-
-    if (Curr->currencyId1 && Curr->currencyCount1)
+    Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+    for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
     {
-        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId1))
+        for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
         {
-            if (Curr->currencyId1 == CURRENCY_TYPE_JUSTICE_POINTS)
-            {
-                if ((GetCurrency(Curr->currencyId1, true) + Curr->currencyCount1) > GetCurrencyTotalCap(entry))
-                {
-                    uint32 max = GetCurrencyTotalCap(entry);
-                    uint32 lessPoint = max - GetCurrency(Curr->currencyId1, true);
-                    uint32 rest = Curr->currencyCount1 - lessPoint;
-
-                    ModifyCurrency(Curr->currencyId1, lessPoint);
-
-                    if (rest > 0)
-                        ModifyMoney(rest * 4750);
-                }
-                else
-                    ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
-            }
-            else
-                ModifyCurrency(Curr->currencyId1, Curr->currencyCount1);
-        }
-    }
-
-    if (Curr->currencyId2 && Curr->currencyCount2)
-    {
-        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId2))
-        {
-            if (Curr->currencyId2 == CURRENCY_TYPE_JUSTICE_POINTS)
-            {
-                if ((GetCurrency(Curr->currencyId2, true) + Curr->currencyCount2) > GetCurrencyTotalCap(entry))
-                {
-                    uint32 max = GetCurrencyTotalCap(entry);
-                    uint32 lessPoint = max - GetCurrency(Curr->currencyId2, true);
-                    uint32 rest = Curr->currencyCount2 - lessPoint;
-
-                    ModifyCurrency(Curr->currencyId2, lessPoint);
-
-                    if (rest > 0)
-                        ModifyMoney(rest * 4750);
-                }
-                else
-                    ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
-            }
-            else
-                ModifyCurrency(Curr->currencyId2, Curr->currencyCount2);
-        }
-    }
-
-    if (Curr->currencyId3 && Curr->currencyCount3)
-    {
-        if (CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(Curr->currencyId3))
-        {
-            if (Curr->currencyId3 == CURRENCY_TYPE_JUSTICE_POINTS)
-            {
-                if ((GetCurrency(Curr->currencyId3, true) + Curr->currencyCount3) > GetCurrencyTotalCap(entry))
-                {
-                    uint32 max = GetCurrencyTotalCap(entry);
-                    uint32 lessPoint = max - GetCurrency(Curr->currencyId3, true);
-                    uint32 rest = Curr->currencyCount3 - lessPoint;
-
-                    ModifyCurrency(Curr->currencyId3, lessPoint);
-
-                    if (rest > 0)
-                        ModifyMoney(rest * 4750);
-                }
-                else
-                    ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
-            }
-            else
-                ModifyCurrency(Curr->currencyId3, Curr->currencyCount3);
+            if (idx->first == (*i)->GetMiscValue())
+                ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
         }
     }
 }
@@ -4083,7 +4045,6 @@ void Player::GiveGatheringXP()
 // Current player experience not update (must be update by caller)
 void Player::GiveLevel(uint8 level)
 {
-
     uint8 oldLevel = getLevel();
     if (level == oldLevel)
         return;
@@ -4154,6 +4115,11 @@ void Player::GiveLevel(uint8 level)
 
     UpdateAllStats();
     _ApplyAllLevelScaleItemMods(true);                      // Moved to above SetFullHealth so player will have full health from Heirlooms
+
+    // Refresh amount of all auras (aura which use scaling for basepoint calcul need to be refresh at level up ...)
+    AuraApplicationMap const& l_AppliedAuras =  GetAppliedAuras();
+    for (AuraApplicationMap::const_iterator i = l_AppliedAuras.begin(); i != l_AppliedAuras.end(); ++i)
+        i->second->GetBase()->RecalculateAmountOfEffects(true);
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetFullHealth();
@@ -7413,7 +7379,6 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_READINESS:
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
@@ -9816,7 +9781,8 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_MASTERY, int32(val), applyStats);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
-                //HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), apply);
+                HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), applyStats);
+                ApplyModPositiveFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR, float(val), applyStats);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), applyStats);
@@ -9841,9 +9807,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             case ITEM_MOD_MULTISTRIKE_RATING:
                 ApplyRatingMod(CR_MULTISTRIKE, int32(val), applyStats);
-                break;
-            case ITEM_MOD_READINESS_RATING:
-                ApplyRatingMod(CR_READINESS, int32(val), applyStats);
                 break;
             case ITEM_MOD_SPEED_RATING:
                 ApplyRatingMod(CR_SPEED, int32(val), applyStats);
@@ -16345,7 +16308,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
-//         
+//
 //         l_Data << uint32(445);                      // ReforgeID
     }
 
@@ -19675,7 +19638,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // load skills after InitStatsForLevel because it triggering aura apply also
     _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSKILLS));
     m_archaeologyMgr.LoadArchaeology(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY),
-                                     holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS));
+                                     holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS),
+                                     holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES));
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 

@@ -925,7 +925,7 @@ class WorldObject : public Object, public WorldLocation
         void AddObjectToRemoveList();
 
         float GetGridActivationRange() const;
-        float GetVisibilityRange() const;
+        virtual float GetVisibilityRange() const;
         float GetSightRange(const WorldObject* target = NULL) const;
         bool canSeeOrDetect(WorldObject const* obj, bool ignoreStealth = false, bool distanceCheck = false) const;
 

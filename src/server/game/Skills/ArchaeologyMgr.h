@@ -74,6 +74,7 @@ typedef std::set<uint32> ProjectSet;
 typedef std::map<uint32, ProjectSet> Projects;
 
 typedef std::set<uint32> ResearchSiteSet;
+typedef std::map<uint32, ResearchSiteSet> ResearchSitesMap;
 typedef std::set<uint32> ResearchProjectSet;
 typedef std::map<uint32, CompletedProject> CompletedProjectMap;
 
@@ -88,7 +89,7 @@ class ArchaeologyMgr
 
         ~ArchaeologyMgr() { }
 
-        void LoadArchaeology(PreparedQueryResult result, PreparedQueryResult resultProjects);
+        void LoadArchaeology(PreparedQueryResult p_Result, PreparedQueryResult p_ResultProjects, PreparedQueryResult p_ResultSites);
         void SaveArchaeology(SQLTransaction& trans);
 
         void AddProjectCost(uint32 entry, uint32 count, bool isCurrency)
@@ -105,6 +106,7 @@ class ArchaeologyMgr
 
         void GenerateResearchProjects();
         void GenerateResearchSites();
+        void GenerateResearchSitesForMap(uint32 p_MapId, uint32 p_SitesCount);
 
         void ShowResearchProjects();
         void ShowResearchSites();
@@ -120,23 +122,17 @@ class ArchaeologyMgr
         Player* _player;
         std::vector<ProjectCost> costData;
         DigitSite _digSites[20];
-        ResearchSiteSet _researchSites[5];
+        ResearchSitesMap _researchSites;
         ResearchProjectSet _researchProjects;
         CompletedProjectMap _completedProjects;
         bool _archaeologyChanged;
 
-        bool HasResearchSite(uint32 id, uint32 mapId) const
+        bool HasResearchSite(uint32 id, uint32 mapId)
         {
-            switch (mapId)
-            {
-                case 0: return _researchSites[0].find(id) != _researchSites[0].end();
-                case 1: return _researchSites[1].find(id) != _researchSites[1].end();
-                case 530: return _researchSites[2].find(id) != _researchSites[2].end();
-                case 571: return _researchSites[3].find(id) != _researchSites[3].end();
-                case 870: return _researchSites[4].find(id) != _researchSites[4].end();
-                default: return false;
-            }
-            return false;
+            if (_researchSites.find(mapId) == _researchSites.end())
+                return false;
+
+            return _researchSites[mapId].find(id) != _researchSites[mapId].end();
         }
 
         bool HasResearchProject(uint32 id) const
@@ -148,7 +144,7 @@ class ArchaeologyMgr
 
         uint16 GetResearchSiteID();
 
-        void GenerateResearchSiteInMap(uint32 mapId, uint32 map);
+        void GenerateResearchSiteInMap(uint32 p_MapId);
         ResearchWithLevelResult CanResearchWithLevel(uint32 siteId);
 
         void ValidateSites();
