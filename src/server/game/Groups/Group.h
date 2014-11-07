@@ -316,7 +316,7 @@ class Group
 
         uint8 GetPartyIndex() const
         {
-            return isLFGGroup() ? 3 : 1;
+            return isLFGGroup() ? 1 : 0;
         }
 
         Difficulty GetDifficulty(bool isRaid) const;

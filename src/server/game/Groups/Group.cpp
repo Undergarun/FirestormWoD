@@ -773,7 +773,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
-    uint8 l_PartyIndex = 0;
+    uint8 l_PartyIndex = GetPartyIndex();
     std::string l_Name = slot->name;
 
     WorldPacket data(SMSG_GROUP_NEW_LEADER);
@@ -835,9 +835,11 @@ void Group::Disband(bool hideDestroy /* = false */)
 
             uint32 l_MemberCount = 0;
 
+            bool l_HasJamCliPartyLFGInfo = isLFGGroup();
+
             l_Data.Initialize(SMSG_PARTY_UPDATE);
-            l_Data << uint8(0); /// PartyFlags
-            l_Data << uint8(0); /// PartyIndex
+            l_Data << uint8(l_HasJamCliPartyLFGInfo ? 4 : 0); /// PartyFlags
+            l_Data << uint8(GetPartyIndex());
             l_Data << uint8(GetGroupType());
             l_Data << int32(-1);
             l_Data.appendPackGUID(l_GroupGUID);
@@ -2103,9 +2105,9 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     WorldPacket l_Data(SMSG_PARTY_UPDATE);
 
-    l_Data << uint8(l_HasJamCliPartyLFGInfo ? 2 : 0); /// PartyFlags
-    l_Data << uint8(l_HasJamCliPartyLFGInfo ? 3 : 1); /// PartyIndex
-    l_Data << uint8(GetGroupType());
+    l_Data << uint8(l_HasJamCliPartyLFGInfo ? 4 : 0); /// PartyFlags
+    l_Data << uint8(GetPartyIndex());
+     l_Data << uint8(GetGroupType());
     l_Data << int32(l_MyPosition);
     l_Data.appendPackGUID(l_GroupGUID);
     l_Data << uint32(m_UpdateCount++);
