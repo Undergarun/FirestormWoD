@@ -44,8 +44,8 @@ class npc_archmage_khadgar : public CreatureScript
 
                 if (Creature* l_creature = p_Creature->SummonCreature(NPC_IRON_GRUNT, l_Pos))
                 {
-                    p_Creature->SetReactState(REACT_AGGRESSIVE);
-                    p_Creature->GetAI()->AttackStart(p_Player);
+                    l_creature->SetReactState(REACT_AGGRESSIVE);
+                    l_creature->GetAI()->AttackStart(p_Player);
                 }
             }
             return true;
