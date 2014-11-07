@@ -71,13 +71,14 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
 {
     WorldPacket l_Data(SMSG_AUTH_RESPONSE);
 
+    CharacterTemplates const& l_CharacterTemplates = sObjectMgr->GetCharacterTemplates();
+
     uint32 l_VirtualRealmsCount         = 1;
     uint32 l_TimeRemain                 = 0;
     uint32 l_TimeOptions                = 0;
     uint32 l_TimeRested                 = 0;
     uint32 l_RealmRaceCount             = 0;
     uint32 l_RealmClassCount            = 0;
-    uint32 l_TemplatesCount             = 0;
     uint32 l_TimeSecondsUntilPCKick     = 0;
     uint32 l_CurrencyID                 = 0;
 
@@ -118,7 +119,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
         l_Data << uint32(l_TimeSecondsUntilPCKick);                         ///< Time Seconds Until PC Kick
         l_Data << uint32(l_RealmRaceCount);                                 ///< Available Classes
         l_Data << uint32(l_RealmClassCount);                                ///< Available Races
-        l_Data << uint32(l_TemplatesCount);                                 ///< Templates Count
+        l_Data << uint32(l_CharacterTemplates.size());                      ///< Templates Count
         l_Data << uint32(l_CurrencyID);                                     ///< Currency ID
 
         for (uint32 l_I = 0; l_I < l_VirtualRealmsCount; ++l_I)
@@ -153,28 +154,27 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
             }
         }
 
-        for (uint32 l_I = 0; l_I < l_TemplatesCount; ++l_I)
+        for (auto& l_Itr : l_CharacterTemplates)
         {
-            std::string l_TemplateName = "";
-            std::string l_TemplateDescription = "";
+            CharacterTemplate const* l_Tempalte = l_Itr.second;
+            l_Data << uint32(l_Tempalte->m_ID);                             ///< TemplateSetID
+            l_Data << uint32(2);                                            ///< Classes Count
 
-            uint32 l_ClassesCount = 0;
-
-            l_Data << uint32(0);                                            ///< TemplateSetID
-            l_Data << uint32(l_ClassesCount);                               ///< Classes Count
-
-            for (uint32 l_Y = 0; l_Y < l_ClassesCount; l_Y++)
+            // Loop here
+            // 3/5 = ally/horde
             {
-                l_Data << uint8(0);                                         ///< Class ID
-                l_Data << uint8(0);                                         ///< Faction Group
+                l_Data << uint8(l_Tempalte->m_PlayerClass);                 ///< Class ID
+                l_Data << uint8(3);                                         ///< Faction Group
+                l_Data << uint8(l_Tempalte->m_PlayerClass);                 ///< Class ID
+                l_Data << uint8(5);                                         ///< Faction Group
             }
 
-            l_Data.WriteBits(l_TemplateName.size(), 7);                     ///< Name
-            l_Data.WriteBits(l_TemplateDescription.size(), 10);             ///< Description
+            l_Data.WriteBits(l_Tempalte->m_Name.size(), 7);                 ///< Name
+            l_Data.WriteBits(l_Tempalte->m_Description.size(), 10);         ///< Description
             l_Data.FlushBits();
 
-            l_Data.WriteString(l_TemplateName);                             ///< Name
-            l_Data.WriteString(l_TemplateDescription);                      ///< Description
+            l_Data.WriteString(l_Tempalte->m_Name);                         ///< Name
+            l_Data.WriteString(l_Tempalte->m_Description);                  ///< Description
         }
 
         l_Data.WriteBit(l_IsExpansionTrial);                                ///< Is Expansion Trial

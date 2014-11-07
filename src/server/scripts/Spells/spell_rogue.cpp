@@ -28,29 +28,20 @@
 
 enum RogueSpells
 {
-    ROGUE_SPELL_SHIV_TRIGGERED                  = 5940,
     ROGUE_SPELL_RECUPERATE                      = 73651,
     ROGUE_SPELL_DEADLY_POISON                   = 2823,
     ROGUE_SPELL_WOUND_POISON                    = 8679,
-    ROGUE_SPELL_MIND_NUMBLING_POISON            = 5761,
     ROGUE_SPELL_CRIPPLING_POISON                = 3408,
     ROGUE_SPELL_CRIPPLING_POISON_DEBUFF         = 3409,
     ROGUE_SPELL_LEECHING_POISON                 = 108211,
     ROGUE_SPELL_LEECHING_POISON_DEBUFF          = 112961,
-    ROGUE_SPELL_PARALYTIC_POISON                = 108215,
-    ROGUE_SPELL_PARALYTIC_POISON_DEBUFF         = 113952,
     ROGUE_SPELL_DEBILITATING_POISON             = 115196,
-    ROGUE_SPELL_MIND_PARALYSIS                  = 115194,
     ROGUE_SPELL_LEECH_VITALITY                  = 116921,
-    ROGUE_SPELL_PARTIAL_PARALYSIS               = 115197,
-    ROGUE_SPELL_TOTAL_PARALYSIS                 = 113953,
     ROGUE_SPELL_DEADLY_POISON_DOT               = 2818,
     ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE    = 113780,
     ROGUE_SPELL_SLICE_AND_DICE                  = 5171,
     ROGUE_SPELL_SMOKE_BOMB_AREA_DUMMY           = 76577,
     ROGUE_SPELL_SMOKE_BOMB_AURA                 = 88611,
-    ROGUE_SPELL_MASTER_POISONER_AURA            = 58410,
-    ROGUE_SPELL_MASTER_POISONER_DEBUFF          = 93068,
     ROGUE_SPELL_CRIMSON_TEMPEST_DOT             = 122233,
     ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA      = 115834,
     ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE           = 51637,
@@ -60,8 +51,6 @@ enum RogueSpells
     ROGUE_SPELL_CUT_TO_THE_CHASE_AURA           = 51667,
     ROGUE_SPELL_ADRENALINE_RUSH                 = 13750,
     ROGUE_SPELL_KILLING_SPREE                   = 51690,
-    ROGUE_SPELL_REDIRECT                        = 73981,
-    ROGUE_SPELL_SHADOW_BLADES                   = 121471,
     ROGUE_SPELL_SPRINT                          = 2983,
     ROGUE_SPELL_HEMORRHAGE_DOT                  = 89775,
     ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF          = 124271,
@@ -77,8 +66,6 @@ enum RogueSpells
     ROGUE_SPELL_BLADE_FLURRY_DAMAGE             = 22482,
     ROGUE_SPELL_CHEAT_DEATH_REDUCE_DAMAGE       = 45182,
     ROGUE_SPELL_CHEATED_DEATH_MARKER            = 45181,
-    ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR           = 56803,
-    ROGUE_SPELL_WEAKENED_ARMOR                  = 113746,
     ROGUE_SPELL_DEADLY_BREW                     = 51626,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGE             = 56807,
     ROGUE_SPELL_CLOAK_AND_DAGGER                = 138106,
@@ -322,45 +309,6 @@ class spell_rog_cloak_and_dagger : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_rog_cloak_and_dagger_SpellScript();
-        }
-};
-
-// Called by Expose Armor - 8647
-// Glyph of Expose Armor - 56803
-class spell_rog_glyph_of_expose_armor : public SpellScriptLoader
-{
-    public:
-        spell_rog_glyph_of_expose_armor() : SpellScriptLoader("spell_rog_glyph_of_expose_armor") { }
-
-        class spell_rog_glyph_of_expose_armor_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_glyph_of_expose_armor_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (caster->HasAura(ROGUE_SPELL_GLYPH_OF_EXPOSE_ARMOR))
-                        {
-                            caster->CastSpell(target, ROGUE_SPELL_WEAKENED_ARMOR, true);
-                            caster->CastSpell(target, ROGUE_SPELL_WEAKENED_ARMOR, true);
-                            caster->CastSpell(target, ROGUE_SPELL_WEAKENED_ARMOR, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_glyph_of_expose_armor_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_glyph_of_expose_armor_SpellScript();
         }
 };
 
@@ -815,73 +763,6 @@ class spell_rog_hemorrhage : public SpellScriptLoader
         }
 };
 
-// Called by Crimson Tempest - 121411, Rupture - 1943 and Eviscerate - 2098
-// Restless Blades - 79096
-class spell_rog_restless_blades : public SpellScriptLoader
-{
-    public:
-        spell_rog_restless_blades() : SpellScriptLoader("spell_rog_restless_blades") { }
-
-        class spell_rog_restless_blades_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_restless_blades_SpellScript);
-
-            int32 comboPoints;
-
-            bool Load()
-            {
-                comboPoints = 0;
-                return true;
-            }
-
-            void HandleBeforeCast()
-            {
-                if (Player* player = GetCaster()->ToPlayer())
-                    comboPoints = player->GetComboPoints();
-            }
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (comboPoints)
-                        {
-                            if (_player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, comboPoints * 2000);
-
-                            if (_player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, comboPoints * 2000);
-
-                            if (_player->HasSpellCooldown(ROGUE_SPELL_REDIRECT))
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_REDIRECT, comboPoints * 2000);
-
-                            if (_player->HasSpellCooldown(ROGUE_SPELL_SHADOW_BLADES))
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SHADOW_BLADES, comboPoints * 2000);
-
-                            if (_player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                                _player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, comboPoints * 2000);
-
-                            comboPoints = 0;
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeCast += SpellCastFn(spell_rog_restless_blades_SpellScript::HandleBeforeCast);
-                OnHit += SpellHitFn(spell_rog_restless_blades_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_restless_blades_SpellScript();
-        }
-};
-
 // Called by Envenom - 32645 and Eviscerate - 2098
 // Cut to the Chase - 51667
 class spell_rog_cut_to_the_chase : public SpellScriptLoader
@@ -1185,46 +1066,6 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
         }
 };
 
-// Called by Wound Poison - 8680, Deadly Poison - 2818, Mind-Numbing Poison - 5760, Crippling Poison - 3409
-// Paralytic Poison - 113952, Leeching Poison - 112961 and Deadly Poison : Instant damage - 113780
-// Master Poisoner - 58410
-class spell_rog_master_poisoner : public SpellScriptLoader
-{
-    public:
-        spell_rog_master_poisoner() : SpellScriptLoader("spell_rog_master_poisoner") { }
-
-        class spell_rog_master_poisoner_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_master_poisoner_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (caster->HasAura(ROGUE_SPELL_MASTER_POISONER_AURA))
-                            caster->CastSpell(target, ROGUE_SPELL_MASTER_POISONER_DEBUFF, true);
-
-                        if (GetSpellInfo()->IsLethalPoison())
-                            if (caster->HasAura(ROGUE_SPELL_DEADLY_BREW))
-                                caster->CastSpell(target, ROGUE_SPELL_CRIPPLING_POISON_DEBUFF, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_master_poisoner_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_master_poisoner_SpellScript();
-        }
-};
-
 // Slice and Dice - 5171
 class spell_rog_slice_and_dice : public SpellScriptLoader
 {
@@ -1322,46 +1163,6 @@ class spell_rog_deadly_poison_instant_damage : public SpellScriptLoader
         }
 };
 
-// Paralytic Poison - 113952
-class spell_rog_paralytic_poison : public SpellScriptLoader
-{
-    public:
-        spell_rog_paralytic_poison() : SpellScriptLoader("spell_rog_paralytic_poison") { }
-
-        class spell_rog_paralytic_poison_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_paralytic_poison_SpellScript);
-
-            void HandleAfterHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (AuraPtr paralyticPoison = target->GetAura(ROGUE_SPELL_PARALYTIC_POISON_DEBUFF))
-                        {
-                            if (paralyticPoison->GetStackAmount() >= 4 && !target->HasAura(ROGUE_SPELL_TOTAL_PARALYSIS))
-                            {
-                                caster->CastSpell(target, ROGUE_SPELL_TOTAL_PARALYSIS, true);
-                                target->RemoveAura(ROGUE_SPELL_PARALYTIC_POISON_DEBUFF);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_rog_paralytic_poison_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_paralytic_poison_SpellScript();
-        }
-};
-
 // Shiv - 5938
 class spell_rog_shiv : public SpellScriptLoader
 {
@@ -1378,14 +1179,10 @@ class spell_rog_shiv : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (caster->HasAura(ROGUE_SPELL_MIND_NUMBLING_POISON))
-                            caster->CastSpell(target, ROGUE_SPELL_MIND_PARALYSIS, true);
-                        else if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
+                        if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
                             caster->CastSpell(target, ROGUE_SPELL_DEBILITATING_POISON, true);
                         else if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
                             caster->CastSpell(caster, ROGUE_SPELL_LEECH_VITALITY, true);
-                        else if (caster->HasAura(ROGUE_SPELL_PARALYTIC_POISON))
-                            caster->CastSpell(target, ROGUE_SPELL_PARTIAL_PARALYSIS, true);
                     }
                 }
             }
@@ -1425,44 +1222,16 @@ class spell_rog_poisons : public SpellScriptLoader
                                 caster->RemoveAura(ROGUE_SPELL_DEADLY_POISON);
                             break;
                         }
-                        case ROGUE_SPELL_MIND_NUMBLING_POISON:
-                        {
-                            if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_CRIPPLING_POISON);
-                            if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_LEECHING_POISON);
-                            if (caster->HasAura(ROGUE_SPELL_PARALYTIC_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_PARALYTIC_POISON);
-                            break;
-                        }
                         case ROGUE_SPELL_CRIPPLING_POISON:
                         {
-                            if (caster->HasAura(ROGUE_SPELL_MIND_NUMBLING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_MIND_NUMBLING_POISON);
                             if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
                                 caster->RemoveAura(ROGUE_SPELL_LEECHING_POISON);
-                            if (caster->HasAura(ROGUE_SPELL_PARALYTIC_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_PARALYTIC_POISON);
                             break;
                         }
                         case ROGUE_SPELL_LEECHING_POISON:
                         {
-                            if (caster->HasAura(ROGUE_SPELL_MIND_NUMBLING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_MIND_NUMBLING_POISON);
                             if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
                                 caster->RemoveAura(ROGUE_SPELL_CRIPPLING_POISON);
-                            if (caster->HasAura(ROGUE_SPELL_PARALYTIC_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_PARALYTIC_POISON);
-                            break;
-                        }
-                        case ROGUE_SPELL_PARALYTIC_POISON:
-                        {
-                            if (caster->HasAura(ROGUE_SPELL_MIND_NUMBLING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_MIND_NUMBLING_POISON);
-                            if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_CRIPPLING_POISON);
-                            if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_LEECHING_POISON);
                             break;
                         }
                         case ROGUE_SPELL_DEADLY_POISON:
@@ -1703,6 +1472,47 @@ class spell_rog_shadowstep : public SpellScriptLoader
         }
 };
 
+// Stealth - 1784
+class spell_rog_stealth : public SpellScriptLoader
+{
+    public:
+        spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
+
+        class spell_rog_stealth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_stealth_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->CastSpell(l_Caster, 158188, true);
+                    l_Caster->CastSpell(l_Caster, 158185, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->RemoveAura(158188);
+                    l_Caster->RemoveAura(158185);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_stealth_AuraScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_killing_spree();
@@ -1710,7 +1520,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shuriken_toss();
     new spell_rog_marked_for_death();
     new spell_rog_cloak_and_dagger();
-    new spell_rog_glyph_of_expose_armor();
     new spell_rog_cheat_death();
     new spell_rog_blade_flurry();
     new spell_rog_growl();
@@ -1720,20 +1529,18 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_nightstalker();
     new spell_rog_sanguinary_vein();
     new spell_rog_hemorrhage();
-    new spell_rog_restless_blades();
     new spell_rog_cut_to_the_chase();
     new spell_rog_venomous_wounds();
     new spell_rog_redirect();
     new spell_rog_shroud_of_concealment();
     new spell_rog_crimson_tempest();
-    new spell_rog_master_poisoner();
     new spell_rog_slice_and_dice();
     new spell_rog_deadly_poison_instant_damage();
-    new spell_rog_paralytic_poison();
     new spell_rog_shiv();
     new spell_rog_poisons();
     new spell_rog_recuperate();
     new spell_rog_preparation();
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
+    new spell_rog_stealth();
 }

@@ -577,7 +577,7 @@ enum CombatRating
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
     CR_MULTISTRIKE                      = 11,
-    CR_READINESS                        = 12,
+    CR_READINESS                        = 12,   //< Deprecated
     CR_SPEED                            = 13,
     CR_RESILIENCE_CRIT_TAKEN            = 14,
     CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,

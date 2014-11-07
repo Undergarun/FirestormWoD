@@ -1,0 +1,1 @@
+DELETE FROM spell_script_names WHERE ScriptName IN ("spell_rog_paralytic_poison","spell_rog_master_poisoner","spell_rog_restless_blades","spell_rog_glyph_of_expose_armor");

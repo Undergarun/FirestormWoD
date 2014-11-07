@@ -1514,7 +1514,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
     sObjectMgr->LoadGarrisonPlotBuildingContent();
-    
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
@@ -1592,7 +1592,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates difficulties...");
     sObjectMgr->LoadCreatureTemplatesDifficulties();
-    
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
 
@@ -2042,6 +2042,9 @@ void World::SetInitialWorldSettings()
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Character Template data");
+    sObjectMgr->LoadCharacterTempalteData();
+
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();
 
@@ -2305,7 +2308,7 @@ void World::Update(uint32 diff)
                     LoginDatabase.PExecute("UPDATE transferts SET nb_attempt = nb_attempt + 1 WHERE id = %u", l_Transaction);
                     continue;
                 }
-            } 
+            }
             while (l_ToDump->NextRow());
         }
 
@@ -2340,7 +2343,7 @@ void World::Update(uint32 diff)
                 }
 
                 LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)l_Error, l_Transaction);
-            } 
+            }
             while (l_ToLoad->NextRow());
         }
 

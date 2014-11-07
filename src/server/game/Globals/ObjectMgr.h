@@ -329,6 +329,33 @@ struct ScriptInfo
     std::string GetDebugInfo() const;
 };
 
+
+struct CharacterTemplate
+{
+    struct TemplateItem
+    {
+        int32 m_ItemID;
+        int32 m_Count;
+    };
+
+    uint32 m_ID;
+    uint8 m_PlayerClass;
+    std::string m_Name;
+    std::string m_Description;
+
+    Position m_AliancePos;
+    Position m_HordePos;
+    int16 m_AlianceMapID;
+    int16 m_HordeMapID;
+    uint8 m_Level;
+    uint64 m_Money;
+
+    std::list<TemplateItem> m_TemplateItems;
+    std::list<uint32> m_SpellIDs;
+};
+
+typedef std::unordered_map<uint32, CharacterTemplate*> CharacterTemplates;
+
 typedef std::multimap<uint32, ScriptInfo> ScriptMap;
 typedef std::map<uint32, ScriptMap > ScriptMapMap;
 typedef std::multimap<uint32, uint32> SpellScriptsContainer;
@@ -480,16 +507,6 @@ struct RepSpilloverTemplate
     uint32 faction_rank[MAX_SPILLOVER_FACTIONS];
 };
 
-struct CurrencyOnKillEntry
-{
-    uint32 currencyId1;
-    uint32 currencyId2;
-    uint32 currencyId3;
-    int32 currencyCount1;
-    int32 currencyCount2;
-    int32 currencyCount3;
-};
-
 struct PointOfInterest
 {
     uint32 entry;
@@ -530,6 +547,7 @@ typedef std::pair<GossipMenusContainer::iterator, GossipMenusContainer::iterator
 typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
 typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
+typedef std::map<uint32, int32> CurrencyOnKillEntry;
 
 struct QuestPOIPoint
 {
@@ -1042,6 +1060,7 @@ class ObjectMgr
         void LoadResearchSiteZones();
         void LoadResearchSiteLoot();
 
+        void LoadCharacterTempalteData();
         BattlePetTemplate const* GetBattlePetTemplate(uint32 species) const
         {
             BattlePetTemplateContainer::const_iterator itr = _battlePetTemplateStore.find(species);
@@ -1369,6 +1388,8 @@ class ObjectMgr
             return AreaTriggerTemplateList();
         }
 
+        CharacterTemplates const& GetCharacterTemplates() const { return m_CharacterTemplatesStore; }
+        CharacterTemplate const* GetCharacterTemplate(uint32 p_ID) const;
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1456,6 +1477,7 @@ class ObjectMgr
         std::vector<GarrisonPlotBuildingContent> m_GarrisonPlotBuildingContents;
 
     private:
+        CharacterTemplates m_CharacterTemplatesStore;
         void LoadScripts(ScriptsType type);
         void CheckScripts(ScriptsType type, std::set<int32>& ids);
         void LoadQuestRelationsHelper(QuestRelations& map, std::string table, bool starter, bool go);
