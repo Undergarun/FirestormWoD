@@ -138,8 +138,15 @@ class OPvPCapturePoint
         void AddGO(uint32 type, uint32 guid, uint32 entry = 0);
         void AddCre(uint32 type, uint32 guid, uint32 entry = 0);
 
+        bool SetCapturePointData(go_type p_Data)
+        {
+            return SetCapturePointData(p_Data.entry, p_Data.map, p_Data.x, p_Data.y, p_Data.z, p_Data.o, p_Data.rot0, p_Data.rot1, p_Data.rot2, p_Data.rot3);
+        }
         bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o = 0,
             float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+
+        void SetState(ObjectiveStates p_State) { m_State = p_State; }
+        void SetValue(float p_Value) { m_value = p_Value; }
 
     protected:
 
@@ -149,6 +156,10 @@ class OPvPCapturePoint
         }
         bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
             float rotation0, float rotation1, float rotation2, float rotation3);
+        bool AddCreature(uint32 p_Type, creature_type p_Data, uint32 p_SpawnTime = 0)
+        {
+            return AddCreature(p_Type, p_Data.entry, p_Data.teamval, p_Data.map, p_Data.x, p_Data.y, p_Data.z, p_Data.o, p_SpawnTime);
+        }
         bool AddCreature(uint32 type, uint32 entry, uint32 teamval, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
 
         bool DelCreature(uint32 type);
@@ -207,7 +218,7 @@ class OutdoorPvP : public ZoneScript
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();
 
-        typedef std::map<uint64/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<uint64, OPvPCapturePoint*> OPvPCapturePointMap;
 
         virtual void FillInitialWorldStates(ByteBuffer & /*data*/) {}
 

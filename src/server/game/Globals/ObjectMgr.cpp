@@ -1762,18 +1762,17 @@ void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
     }
 }
 
-uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
+bool ObjectMgr::AddGOData(uint32 p_LowGuid, uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
 {
     GameObjectTemplate const* goinfo = GetGameObjectTemplate(entry);
     if (!goinfo)
-        return 0;
+        return false;
 
     Map* map = sMapMgr->CreateBaseMap(mapId);
     if (!map)
-        return 0;
+        return false;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_GAMEOBJECT);
-    GameObjectData& data = NewGOData(guid);
+    GameObjectData& data = NewGOData(p_LowGuid);
     data.id             = entry;
     data.mapid          = mapId;
     data.posX           = x;
@@ -1792,24 +1791,24 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CONTROL_ZONE ? 21 : 0;
     data.dbData = false;
 
-    AddGameobjectToGrid(guid, &data);
+    AddGameobjectToGrid(p_LowGuid, &data);
 
     // Spawn if necessary (loaded grids only)
     // We use spawn coords to spawn
     if (!map->Instanceable() && map->IsGridLoaded(x, y))
     {
         GameObject* go = new GameObject;
-        if (!go->LoadGameObjectFromDB(guid, map))
+        if (!go->LoadGameObjectFromDB(p_LowGuid, map))
         {
             sLog->outError(LOG_FILTER_GENERAL, "AddGOData: cannot add gameobject entry %u to map", entry);
             delete go;
-            return 0;
+            return false;
         }
     }
 
-    sLog->outDebug(LOG_FILTER_MAPS, "AddGOData: dbguid %u entry %u map %u x %f y %f z %f o %f", guid, entry, mapId, x, y, z, o);
+    sLog->outDebug(LOG_FILTER_MAPS, "AddGOData: dbguid %u entry %u map %u x %f y %f z %f o %f", p_LowGuid, entry, mapId, x, y, z, o);
 
-    return guid;
+    return true;
 }
 
 bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
@@ -1859,7 +1858,10 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.id = entry;
     data.mapid = mapId;
     data.displayid = 0;
-    data.equipmentId = 0;
+    if (_equipmentInfoStore.find(entry) != _equipmentInfoStore.end())
+        data.equipmentId = 1; // Assuming equipmentId is 1
+    else
+        data.equipmentId = 0;
     data.posX = x;
     data.posY = y;
     data.posZ = z;
