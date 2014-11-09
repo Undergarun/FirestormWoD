@@ -23,6 +23,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "throne_of_thunder.h"
+#include "GridNotifiers.h"
 
 enum eSpells
 {
