@@ -21,6 +21,8 @@
 #include <limits>
 #include "GridNotifiers.h"
 #include "SpellScript.h"
+#include "Object.h"
+#include "Map.h"
 
 enum Spells
 {

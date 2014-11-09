@@ -20,6 +20,8 @@
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "GridNotifiers.h"
+#include "Object.h"
+#include "Map.h"
 
 enum AuriayaSpells
 {

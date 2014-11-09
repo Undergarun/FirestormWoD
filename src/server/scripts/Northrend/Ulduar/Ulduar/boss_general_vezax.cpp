@@ -22,6 +22,8 @@
 #include "ulduar.h"
 #include "Player.h"
 #include "GridNotifiers.h"
+#include "Object.h"
+#include "Map.h"
 
 enum VezaxYells
 {
@@ -266,7 +268,7 @@ class boss_general_vezax : public CreatureScript
             void DoAction(int32 const action)
             {
                 switch (action)
-                {   
+                {
                     case ACTION_VAPORS_DIE:
                         _vaporKilled = true;
                         break;
@@ -380,9 +382,9 @@ class npc_saronite_vapors : public CreatureScript
                 Talk(EMOTE_VAPORS);
                 _instance = me->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true); 
+                me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_DEATH_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true); 
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                 me->SetReactState(REACT_PASSIVE);
                 Reset();
             }
@@ -396,7 +398,7 @@ class npc_saronite_vapors : public CreatureScript
             {
                 if (_instance && _instance->GetBossState(BOSS_VEZAX) != IN_PROGRESS)
                     me->DisappearAndDie();
-                    
+
                 if (_randomMoveTimer <= diff)
                 {
                     me->GetMotionMaster()->MoveRandom(30.0f);
@@ -591,7 +593,7 @@ class spell_saronite_vapors : public SpellScriptLoader // Spell 63323
 
                             int32 manaGain = std::max( 100 << (stackCount-1), 0 ); // just for the case...
                             uint32 healthDamage = 2*manaGain;
-    
+
                             player->DealDamage(player, healthDamage, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_SHADOW); // Emulates 63338
                             player->ModifyPower(POWER_MANA, manaGain); // Emulates 63337
 
