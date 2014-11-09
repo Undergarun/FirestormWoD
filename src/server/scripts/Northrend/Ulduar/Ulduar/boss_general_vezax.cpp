@@ -15,15 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
-#include "Player.h"
-#include "GridNotifiers.h"
-#include "Object.h"
-#include "Map.h"
 
 enum VezaxYells
 {

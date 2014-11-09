@@ -15,14 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 #include <limits>
-#include "GridNotifiers.h"
-#include "SpellScript.h"
-#include "Object.h"
-#include "Map.h"
 
 enum Spells
 {
