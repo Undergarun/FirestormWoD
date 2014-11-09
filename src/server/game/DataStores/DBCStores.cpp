@@ -23,6 +23,7 @@
 #include "SpellMgr.h"
 #include "DBCfmt.h"
 #include "ItemPrototype.h"
+#include "TransportMgr.h"
 #include <iostream>
 #include <fstream>
 #include <map>

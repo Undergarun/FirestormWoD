@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "Creature.h"
+#include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"

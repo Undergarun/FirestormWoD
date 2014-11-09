@@ -21,6 +21,7 @@
 #include <ace/Singleton.h>
 #include <G3D/Quat.h>
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "../game/Movement//Spline/Spline.h"
 
 struct KeyFrame;

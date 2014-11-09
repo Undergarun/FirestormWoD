@@ -32,10 +32,10 @@
 #include "SignalHandler.h"
 #include "RealmList.h"
 #include "RealmAcceptor.h"
-#include "BNet2/WoWModules/PasswordAuth.hpp"
-#include "BNet2/WoWModules/RiskFingerprintAuth.hpp"
-#include "BNet2/WoWModules/ThumbprintAuth.hpp"
-#include "BNet2/WoWModules/SelectGameAccountAuth.hpp"
+#include "Bnet2/WoWModules/PasswordAuth.hpp"
+#include "Bnet2/WoWModules/RiskFingerprintAuth.hpp"
+#include "Bnet2/WoWModules/ThumbprintAuth.hpp"
+#include "Bnet2/WoWModules/SelectGameAccountAuth.hpp"
 
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
