@@ -1874,10 +1874,10 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
 
 unsigned int ExtractBitMaskBitCount(unsigned int p_Value)
 {
-    return 0x1010101
-        * ((((p_Value - ((p_Value >> 1) & 0x55555555)) & 0x33333333)
-        + (((p_Value - ((p_Value >> 1) & 0x55555555)) >> 2) & 0x33333333)
-        + ((((p_Value - ((p_Value >> 1) & 0x55555555)) & 0x33333333) + (((p_Value - ((p_Value >> 1) & 0x55555555)) >> 2) & 0x33333333)) >> 4)) & 0xF0F0F0F) >> 24;
+    unsigned int l_MaskPart = (p_Value - ((p_Value >> 1) & 0x55555555));
+
+    return 0x1010101 * (((l_MaskPart & 0x33333333) + ((l_MaskPart >> 2) & 0x33333333)
+            + (((l_MaskPart & 0x33333333) + ((l_MaskPart >> 2) & 0x33333333)) >> 4)) & 0xF0F0F0F) >> 24;
 }
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)

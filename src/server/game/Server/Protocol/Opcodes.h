@@ -1088,7 +1088,7 @@ enum Opcodes
     /// Petition
     //////////////////////////////////////////////////////////////////////////
     CMSG_OFFER_PETITION                         = 0x0000,
-    CMSG_PETITION_BUY                           = 0x0000,
+    CMSG_PETITION_BUY                           = 0x0010,   ///< 6.0.3 19116
     CMSG_PETITION_DECLINE                       = 0x0000,
     CMSG_PETITION_RENAME                        = 0x0000,
     CMSG_PETITION_SHOWLIST                      = 0x0000,
