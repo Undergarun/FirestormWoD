@@ -7124,7 +7124,7 @@ void ObjectMgr::LoadCurrencyOnKill()
                 continue;
             }
         }
- 
+
         _curOnKillStore[l_Creature_id] = l_CurrOnKill;
 
         ++count;
@@ -9683,13 +9683,19 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
 
 void ObjectMgr::LoadCharacterTempalteData()
 {
+    if (!sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 character templates because they were disabled in the config.");
+        return;
+    }
+
     uint32 l_OldMSTime = getMSTime();
     QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap FROM character_template WHERE disabled = 0");
     uint32 l_Count = 0;
 
     if (!l_Result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 character tempaltes.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 character templates.");
         return;
     }
 
@@ -9729,7 +9735,7 @@ void ObjectMgr::LoadCharacterTempalteData()
         if (!l_CharacterTemplate->m_Level)
             l_CharacterTemplate->m_Level = 1;
 
-        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, count FROM character_template_item WHERE id = %i", l_ID);
+        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i", l_ID);
         if (l_ItemResult)
         {
             do
@@ -9739,12 +9745,13 @@ void ObjectMgr::LoadCharacterTempalteData()
                 CharacterTemplate::TemplateItem l_TemplateItem;
                 {
                     l_TemplateItem.m_ItemID = l_ItemFields[0].GetUInt32();
-                    l_TemplateItem.m_Count = l_ItemFields[1].GetUInt32();
+                    l_TemplateItem.m_Faction = l_ItemFields[1].GetUInt8();
+                    l_TemplateItem.m_Count = l_ItemFields[2].GetUInt32();
                 }
 
                 if (!GetItemTemplate(l_TemplateItem.m_ItemID))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "ItemID %u defined in `character_template_item` does not exists, ignoring.", l_TemplateItem.m_ItemID);
+                    sLog->outError(LOG_FILTER_SQL, "ItemID %u defined in `character_template_item` does not exist, ignoring.", l_TemplateItem.m_ItemID);
                     continue;
                 }
 
@@ -9763,13 +9770,36 @@ void ObjectMgr::LoadCharacterTempalteData()
 
                 if (!sSpellMgr->GetSpellInfo(l_SpellID))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "SpellId %u defined in `character_template_spell` does not exists, ignoring.", l_SpellID);
+                    sLog->outError(LOG_FILTER_SQL, "SpellId %u defined in `character_template_spell` does not exist, ignoring.", l_SpellID);
                     continue;
                 }
 
                 l_CharacterTemplate->m_SpellIDs.push_back(l_SpellID);
             }
             while (l_SpellsResult->NextRow());
+        }
+
+        // NYI - will fix later
+        QueryResult l_ReputationResult = WorldDatabase.PQuery("SELECT factionID, reputation FROM character_template_reputation WHERE id = %i", l_ID);
+        if (l_ReputationResult)
+        {
+            do
+            {
+                Field* l_ReputationFields = l_ReputationResult->Fetch();
+                uint32 l_FactionID = l_ReputationFields[0].GetUInt32();
+
+                if (!sFactionStore.LookupEntry(l_FactionID))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "FactionID %u defined in `character_template_reputation` does not exist, ignoring.", l_FactionID);
+                    continue;
+                }
+
+                CharacterTemplate::TemplateFaction l_TemplateReputation;
+                l_TemplateReputation.m_FactionID = l_FactionID;
+                l_TemplateReputation.m_Reputaion = l_ReputationFields[1].GetUInt32();
+                l_CharacterTemplate->m_TemplateFactions.push_back(l_TemplateReputation);
+            }
+            while (l_ReputationResult->NextRow());
         }
 
         m_CharacterTemplatesStore[l_ID] = l_CharacterTemplate;

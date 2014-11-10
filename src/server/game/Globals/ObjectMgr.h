@@ -335,7 +335,14 @@ struct CharacterTemplate
     struct TemplateItem
     {
         int32 m_ItemID;
+        int32 m_Faction;
         int32 m_Count;
+    };
+
+    struct TemplateFaction
+    {
+        uint32 m_FactionID;
+        uint32 m_Reputaion;
     };
 
     uint32 m_ID;
@@ -351,6 +358,7 @@ struct CharacterTemplate
     uint64 m_Money;
 
     std::list<TemplateItem> m_TemplateItems;
+    std::list<TemplateFaction> m_TemplateFactions;
     std::list<uint32> m_SpellIDs;
 };
 

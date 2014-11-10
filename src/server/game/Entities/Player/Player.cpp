@@ -537,7 +537,7 @@ inline void KillRewarder::_RewardXP(Player* p_Player, float p_Rate)
         if (Pet* pet = p_Player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
             pet->GivePetXP(_group ? l_Xp / 2 : l_Xp);
-        
+
         // Modificate xp for racial aura of trolls (+20% if beast)
         Unit::AuraEffectList const& l_AurasXpPct = p_Player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE);
         for (Unit::AuraEffectList::const_iterator i = l_AurasXpPct.begin(); i != l_AurasXpPct.end(); ++i)
@@ -1254,6 +1254,11 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
     }
 
+    if (l_Template)
+        for (auto& l_ReputationInfo : l_Template->m_TemplateFactions)
+            if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_ReputationInfo.m_FactionID))
+                GetReputationMgr().SetReputation(l_Faction, l_ReputationInfo.m_Reputaion);
+
     // Played time
     m_Last_tick = time(NULL);
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
@@ -1298,7 +1303,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     if (l_Template)
     {
         for (auto& l_Item : l_Template->m_TemplateItems)
-            StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+            if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
+                StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
     }
     else
     {
