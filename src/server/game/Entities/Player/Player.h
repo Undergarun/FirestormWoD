@@ -2321,11 +2321,11 @@ class Player : public Unit, public GridObject<Player>
         void UpdateDodgePercentage();
         void UpdateMasteryPercentage();
         void UpdatePvPPowerPercentage();
-        void UpdateMultistrike();
-        void UpdateLeech();
-        void UpdateVersatility();
-        void UpdateAvoidance();
-        void UpdateSpeed();
+        void UpdateMultistrikePercentage();
+        void UpdateLeechPercentage();
+        void UpdateVersatilityPercentage();
+        void UpdateAvoidancePercentage();
+        void UpdateSpeedPercentage();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);

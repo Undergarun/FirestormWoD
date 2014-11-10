@@ -7386,7 +7386,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
                 UpdateAllSpellCritChances();
             break;
         case CR_SPEED:
-            UpdateSpeed();
+            UpdateSpeedPercentage();
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
             break;
@@ -7401,17 +7401,17 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             UpdatePvPPowerPercentage();
             break;
         case CR_MULTISTRIKE:
-            UpdateMultistrike();
+            UpdateMultistrikePercentage();
             break;
         case CR_LIFESTEAL:
-            UpdateLeech();
+            UpdateLeechPercentage();
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVersatility();
+            UpdateVersatilityPercentage();
             break;
         case CR_AVOIDANCE:
-            UpdateAvoidance();
+            UpdateAvoidancePercentage();
         default:
             break;
     }
