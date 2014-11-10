@@ -320,6 +320,14 @@ enum Opcodes
         /// Trainers
         SMSG_TRAINER_LIST                                       = 0x0BA9, ///< 6.0.3 19116
         SMSG_TRAINER_SERVICE                                    = 0x1BD2, ///< 6.0.3 19116
+
+        /// Void Storage
+        SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x1131, ///< 6.0.3 19116
+        SMSG_VOID_STORAGE_CONTENTS                              = 0x0108, ///< 6.0.3 19116
+        SMSG_VOID_STORAGE_FAILED                                = 0x0B01, ///< 6.0.3 19116
+        SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x0321, ///< 6.0.3 19116
+        SMSG_VOID_TRANSFER_RESULT                               = 0x0539, ///< 6.0.3 19116
+
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1232,6 +1240,14 @@ enum Opcodes
     CMSG_TRAINER_BUY_SPELL                         = 0x0A28,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
+    /// Void storage
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_VOID_STORAGE_QUERY                        = 0x019E,    ///< 6.0.3 19116
+    CMSG_VOID_STORAGE_TRANSFER                     = 0x0463,    ///< 6.0.3 19116
+    CMSG_VOID_STORAGE_UNLOCK                       = 0x13BB,    ///< 6.0.3 19116
+    CMSG_VOID_SWAP_ITEM                            = 0x0619,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1504,10 +1520,6 @@ enum Opcodes
     CMSG_UPGRADE_ITEM                                 = 0x0000,
     CMSG_USED_FOLLOW                                  = 0x0000,
     CMSG_VOICE_SESSION_ENABLE                         = 0x0000,
-    CMSG_VOID_STORAGE_QUERY                           = 0x0000,
-    CMSG_VOID_STORAGE_TRANSFER                        = 0x0000,
-    CMSG_VOID_STORAGE_UNLOCK                          = 0x0000,
-    CMSG_VOID_SWAP_ITEM                               = 0x0000,
     CMSG_WARDEN_DATA                                  = 0x0000,
     CMSG_WARGAME_ACCEPT                               = 0x0000,
     CMSG_WARGAME_START                                = 0x0000,
@@ -1967,11 +1979,6 @@ enum Opcodes
     SMSG_UPDATE_SERVER_PLAYER_POSITION                = 0x0000,
     SMSG_VOICE_SESSION_FULL                           = 0x0000,
     SMSG_VOICE_SET_TALKER_MUTED                       = 0x0000,
-    SMSG_VOID_ITEM_SWAP_RESPONSE                      = 0x0000,
-    SMSG_VOID_STORAGE_CONTENTS                        = 0x0000,
-    SMSG_VOID_STORAGE_FAILED                          = 0x0000,
-    SMSG_VOID_STORAGE_TRANSFER_CHANGES                = 0x0000,
-    SMSG_VOID_TRANSFER_RESULT                         = 0x0000,
     SMSG_WAIT_QUEUE_FINISH                            = 0x0000,
     SMSG_WAIT_QUEUE_UPDATE                            = 0x0000,
     SMSG_WARDEN_DATA                                  = 0x0000,
