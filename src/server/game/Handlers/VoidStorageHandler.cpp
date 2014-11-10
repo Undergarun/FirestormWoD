@@ -52,7 +52,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket & p_Packet)
 
     if (m_Player->IsVoidStorageUnlocked())
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageUnlock - Player (GUID: %u, name: %s) tried to unlock void storage a 2nd time.", m_Player->GetGUIDLow(), player->GetName());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageUnlock - Player (GUID: %u, name: %s) tried to unlock void storage a 2nd time.", m_Player->GetGUIDLow(), m_Player->GetName());
         return;
     }
 
@@ -94,20 +94,21 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
 
     for (uint8 l_I = 0; l_I < VOID_STORAGE_MAX_SLOT; ++l_I)
     {
-        VoidStorageItem* item = m_Player->GetVoidStorageItem(l_I);
-        if (!item)
+        VoidStorageItem* l_Item = m_Player->GetVoidStorageItem(l_I);
+
+        if (!l_Item)
             continue;
 
-        uint64 l_ItemGUID = item->ItemId;
-        uint64 l_CreatorGUID = item->CreatorGuid;
+        uint64 l_ItemGUID       = MAKE_NEW_GUID(l_Item->ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
+        uint64 l_CreatorGUID    = l_Item->CreatorGuid;
 
         l_Data.appendPackGUID(l_ItemGUID);
         l_Data.appendPackGUID(l_CreatorGUID);
 
         l_Data << uint32(l_I);
-        l_Data << uint32(item->ItemEntry);
-        l_Data << uint32(item->ItemSuffixFactor);
-        l_Data << uint32(item->ItemRandomPropertyId);
+        l_Data << uint32(l_Item->ItemEntry);
+        l_Data << uint32(l_Item->ItemSuffixFactor);
+        l_Data << uint32(l_Item->ItemRandomPropertyId);
 
         l_Data.WriteBit(false);
         l_Data.WriteBit(false);
@@ -136,13 +137,13 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
     for (uint32 l_I = 0; l_I < l_WithdrawalCount; ++l_I)
         p_Packet.readPackGUID(l_Withdrawals[l_I]);
 
-    if (l_WithdrawalCount > 9)
+    if (l_WithdrawalCount > VOID_STORAGE_MAX_WITHDRAW)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to withdraw more than 9 items (%u).", m_Player->GetGUIDLow(), m_Player->GetName(), l_WithdrawalCount);
         return;
     }
 
-    if (l_DepositCount > 9)
+    if (l_DepositCount > VOID_STORAGE_MAX_WITHDRAW)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to deposit more than 9 items (%u).", m_Player->GetGUIDLow(), m_Player->GetName(), l_DepositCount);
         return;
@@ -223,17 +224,17 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     m_Player->ModifyMoney(-l_Cost);
 
-    VoidStorageItem l_WithdrawItemsSecond[VOID_STORAGE_MAX_WITHDRAW];
+    uint64 l_WithdrawItemsSecond[VOID_STORAGE_MAX_WITHDRAW];
     uint8 l_WithdrawCountSecond = 0;
 
     for (std::vector<uint64>::iterator l_It = l_Withdrawals.begin(); l_It != l_Withdrawals.end(); ++l_It)
     {
         uint8 l_Slot;
-        VoidStorageItem * l_VoidStorageItem = m_Player->GetVoidStorageItem(*l_It, l_Slot);
+        VoidStorageItem * l_VoidStorageItem = m_Player->GetVoidStorageItem(GUID_LOPART(*l_It) & 0x0FFFFFFF, l_Slot);
 
         if (!l_VoidStorageItem)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) tried to withdraw an invalid item (id: " UI64FMTD ")", m_Player->GetGUIDLow(), m_Player->GetName(), uint64(*l_It));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) tried to withdraw an invalid item (id: %U)", m_Player->GetGUIDLow(), m_Player->GetName(), GUID_LOPART(*l_It) & 0x0FFFFFFF);
             continue;
         }
 
@@ -243,7 +244,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
         if (l_EquipMsg != EQUIP_ERR_OK)
         {
             SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) couldn't withdraw item id " UI64FMTD " because inventory was full.", m_Player->GetGUIDLow(), m_Player->GetName(), uint64(*l_It));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) couldn't withdraw item id %u because inventory was full.", m_Player->GetGUIDLow(), m_Player->GetName(), GUID_LOPART(*l_It) & 0x0FFFFFFF);
             return;
         }
 
@@ -252,7 +253,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
         l_Item->SetBinding(true);
         m_Player->SendNewItem(l_Item, 1, false, false, false);
 
-        l_WithdrawItemsSecond[l_WithdrawCountSecond++] = *l_VoidStorageItem;
+        l_WithdrawItemsSecond[l_WithdrawCountSecond++] = *l_It;
 
         m_Player->DeleteVoidStorageItem(l_Slot);
     }
@@ -265,7 +266,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     for (uint8 l_I = 0; l_I < l_DepositCountSecond; ++l_I)
     {
-        uint64 l_ItemGUID       = l_DepositItemsSecond[l_I].first.ItemId;
+        uint64 l_ItemGUID       = MAKE_NEW_GUID(l_DepositItemsSecond[l_I].first.ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
         uint64 l_CreatorGUID    = l_DepositItemsSecond[l_I].first.CreatorGuid;
 
         l_Data.appendPackGUID(l_ItemGUID);
@@ -284,7 +285,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     for (uint8 l_I = 0; l_I < l_WithdrawCountSecond; ++l_I)
     {
-        l_Data.appendPackGUID(l_WithdrawItemsSecond[l_I].ItemId);
+        l_Data.appendPackGUID(l_WithdrawItemsSecond[l_I]);
     }
 
     SendPacket(&l_Data);
@@ -303,7 +304,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket & p_Packet)
     p_Packet >> l_DstSlot;
 
     Creature* l_Unit = m_Player->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_VAULTKEEPER);
-
+    
     if (!l_Unit)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(l_NpcGUID));
@@ -317,19 +318,19 @@ void WorldSession::HandleVoidSwapItem(WorldPacket & p_Packet)
     }
 
     uint8 l_OldSlot;
-    if (!m_Player->GetVoidStorageItem(l_VoidItemGUID, l_OldSlot))
+    if (!m_Player->GetVoidStorageItem(GUID_LOPART(l_VoidItemGUID) & 0x0FFFFFFF, l_OldSlot))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: " UI64FMTD ").", m_Player->GetGUIDLow(), m_Player->GetName(), l_DstSlot, uint64(l_VoidItemGUID));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: %u).", m_Player->GetGUIDLow(), m_Player->GetName(), l_DstSlot, GUID_LOPART(l_VoidItemGUID) & 0x0FFFFFFF);
         return;
     }
 
     bool l_UsedSrcSlot  = m_Player->GetVoidStorageItem(l_OldSlot) != NULL; // should be always true
     bool l_UsedDestSlot = m_Player->GetVoidStorageItem(l_DstSlot) != NULL;
 
-    uint64 l_ItemIdDest;
+    uint64 l_ItemIdDest = 0;
 
     if (l_UsedDestSlot)
-        l_ItemIdDest = m_Player->GetVoidStorageItem(l_DstSlot)->ItemId;
+        l_ItemIdDest = MAKE_NEW_GUID(m_Player->GetVoidStorageItem(l_DstSlot)->ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
 
     if (!m_Player->SwapVoidStorageItem(l_OldSlot, l_DstSlot))
     {
@@ -340,9 +341,9 @@ void WorldSession::HandleVoidSwapItem(WorldPacket & p_Packet)
     WorldPacket l_Data(SMSG_VOID_ITEM_SWAP_RESPONSE);
 
     l_Data.appendPackGUID(l_VoidItemGUID);
-    l_Data << uint32(l_OldSlot);
-    l_Data.appendPackGUID(l_ItemIdDest);
     l_Data << uint32(l_DstSlot);
+    l_Data.appendPackGUID(l_ItemIdDest);
+    l_Data << uint32(l_OldSlot);
 
     SendPacket(&l_Data);
 }
