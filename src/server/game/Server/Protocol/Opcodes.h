@@ -316,6 +316,10 @@ enum Opcodes
 
         /// Mail
         SMSG_SEND_MAIL_RESULT                                   = 0x0000,
+
+        /// Trainers
+        SMSG_TRAINER_LIST                                       = 0x0BA9, ///< 6.0.3 19116
+        SMSG_TRAINER_SERVICE                                    = 0x1BD2, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1222,6 +1226,12 @@ enum Opcodes
     CMSG_AUCTION_HELLO                             = 0x13EA,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
+    /// Trainers
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_TRAINER_LIST                              = 0x0A2E,    ///< 6.0.3 19116
+    CMSG_TRAINER_BUY_SPELL                         = 0x0A28,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1483,8 +1493,6 @@ enum Opcodes
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
     CMSG_TOTEM_DESTROYED                              = 0x0000,
     CMSG_TRADE_INFO                                   = 0x0000,
-    CMSG_TRAINER_BUY_SPELL                            = 0x0000,
-    CMSG_TRAINER_LIST                                 = 0x0000,
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x0000,
     CMSG_TURN_IN_PETITION                             = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
@@ -1945,8 +1953,6 @@ enum Opcodes
     SMSG_TRADE_INFO                                   = 0x0000,
     SMSG_TRADE_STATUS                                 = 0x0000,
     SMSG_TRADE_UPDATED                                = 0x0000,
-    SMSG_TRAINER_LIST                                 = 0x0000,
-    SMSG_TRAINER_SERVICE                              = 0x0000,
     SMSG_TRIGGER_MOVIE                                = 0x0000,
     SMSG_TURN_IN_PETITION_RESULTS                     = 0x0000,
     SMSG_UI_TIME                                      = 0x0000,

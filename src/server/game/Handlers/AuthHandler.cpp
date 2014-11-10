@@ -128,7 +128,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
             l_Data << uint32(g_RealmID);                                    ///< Realm Address
 
             l_Data.WriteBit(true);                                          ///< Is Locale
-            l_Data.WriteBit(false);
+            l_Data.WriteBit(false);                                         ///< Is Internal
             l_Data.WriteBits(sWorld->GetRealmName().size(), 8);             ///< Realm Name Actual
             l_Data.WriteBits(sWorld->GetNormalizedRealmName().size(), 8);   ///< Realm Name Normalized
             l_Data.FlushBits();
