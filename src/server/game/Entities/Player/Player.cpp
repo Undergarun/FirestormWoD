@@ -13737,19 +13737,19 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     return EQUIP_ERR_BANK_FULL;
 }
 
-bool Player::IsItemSupplies(uint32 p_BagFamily) const
+bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
 {
-    switch (p_BagFamily)
+    switch (p_BagProto->SubClass)
     {
-    case BAG_FAMILY_MASK_MINING_SUPPLIES:
-    case BAG_FAMILY_MASK_FISHING_SUPPLIES:
-    case BAG_FAMILY_MASK_COOKING_SUPPLIES:
-    case BAG_FAMILY_MASK_ENGINEERING_SUPPLIES:
-    case BAG_FAMILY_MASK_ENCHANTING_SUPPLIES:
-    case BAG_FAMILY_MASK_LEATHERWORKING_SUPPLIES:
-    case BAG_FAMILY_MASK_INSCRIPTION_SUPPLIES:
-    case BAG_FAMILY_MASK_HERBS:
-    case BAG_FAMILY_MASK_GEMS:
+    case ITEM_SUBCLASS_HERB_CONTAINER:
+    case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
+    case ITEM_SUBCLASS_GEM_CONTAINER:
+    case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
+    case ITEM_SUBCLASS_MINING_CONTAINER:
+    case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
+    case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
+    case ITEM_SUBCLASS_TACKLE_CONTAINER:
+    case ITEM_SUBCLASS_COOKING_CONTAINER:
         return true;
     }
     return false;
@@ -13769,7 +13769,7 @@ InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVe
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
 
-    if (!IsItemSupplies(pProto->BagFamily))
+    if (!IsItemSupplies(pProto))
         return EQUIP_ERR_WRONG_SLOT;
 
     if (pItem->IsBindedNotWith(this))
