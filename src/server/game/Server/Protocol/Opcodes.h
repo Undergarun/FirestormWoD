@@ -328,12 +328,22 @@ enum Opcodes
         SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x0321, ///< 6.0.3 19116
         SMSG_VOID_TRANSFER_RESULT                               = 0x0539, ///< 6.0.3 19116
 
+        /// Petition
+        SMSG_PETITION_ALREADY_SIGNED                            = 0x0D8E, ///< 6.0.3 19116
+        SMSG_PETITION_DECLINED                                  = 0x11E9, ///< 6.0.3 19116
+        SMSG_PETITION_QUERY_RESPONSE                            = 0x13AC, ///< 6.0.3 19116
+        SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///< 6.0.3 19116
+        SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///< 6.0.3 19116
+        SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Guild
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGuild
+        /// Petition
+        SMSG_PETITION_RENAME                        = 0x1055,   ///< 6.0.3 19116
+
         /// Guild Finder
         SMSG_LFGUILD_BROWSE                         = 0x1215,   ///< 6.0.3 19116
         SMSG_LFGUILD_APPLICATIONS                   = 0x1227,   ///< 6.0.3 19116
@@ -1087,13 +1097,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Petition
     //////////////////////////////////////////////////////////////////////////
-    CMSG_OFFER_PETITION                         = 0x0000,
+    CMSG_OFFER_PETITION                         = 0x0315,   ///< 6.0.3 19116
     CMSG_PETITION_BUY                           = 0x0010,   ///< 6.0.3 19116
-    CMSG_PETITION_DECLINE                       = 0x0000,
-    CMSG_PETITION_RENAME                        = 0x0000,
-    CMSG_PETITION_SHOWLIST                      = 0x0000,
-    CMSG_PETITION_SHOW_SIGNATURES               = 0x0000,
-    CMSG_PETITION_SIGN                          = 0x0000,
+    CMSG_PETITION_DECLINE                       = 0x03EA,   ///< 6.0.3 19116
+    CMSG_PETITION_RENAME                        = 0x0920,   ///< 6.0.3 19116
+    CMSG_PETITION_SHOWLIST                      = 0x000F,   ///< 6.0.3 19116
+    CMSG_PETITION_SHOW_SIGNATURES               = 0x0BC4,   ///< 6.0.3 19116
+    CMSG_PETITION_SIGN                          = 0x0B03,   ///< 6.0.3 19116
+    CMSG_TURN_IN_PETITION                       = 0x1C89,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Pet
@@ -1514,7 +1525,6 @@ enum Opcodes
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
     CMSG_TOTEM_DESTROYED                              = 0x0000,
     CMSG_TRADE_INFO                                   = 0x0000,
-    CMSG_TURN_IN_PETITION                             = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
@@ -1831,12 +1841,6 @@ enum Opcodes
     SMSG_PAGE_TEXT                                    = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x0000,
     SMSG_PENDING_RAID_LOCK                            = 0x0000,
-    SMSG_PETITION_ALREADY_SIGNED                      = 0x0000,
-    SMSG_PETITION_DECLINED                            = 0x0000,
-    SMSG_PETITION_QUERY_RESPONSE                      = 0x0000,
-    SMSG_PETITION_RENAME                              = 0x0000,
-    SMSG_PETITION_SHOW_LIST                           = 0x0000,
-    SMSG_PETITION_SHOW_SIGNATURES                     = 0x0000,
     SMSG_PET_BATTLE_CHAT_RESTRICTED                   = 0x0000,
     SMSG_PET_BATTLE_DEBUG_QUEUE_DUMP_RESPONSE         = 0x0000,
     SMSG_PET_BATTLE_FULL_UPDATE                       = 0x0000,
@@ -1970,7 +1974,6 @@ enum Opcodes
     SMSG_TRADE_STATUS                                 = 0x0000,
     SMSG_TRADE_UPDATED                                = 0x0000,
     SMSG_TRIGGER_MOVIE                                = 0x0000,
-    SMSG_TURN_IN_PETITION_RESULTS                     = 0x0000,
     SMSG_UI_TIME                                      = 0x0000,
     SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x0000,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
