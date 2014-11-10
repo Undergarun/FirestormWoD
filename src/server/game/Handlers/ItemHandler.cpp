@@ -1872,133 +1872,138 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
     SendPacket(&data);
 }
 
-void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
+unsigned int ExtractBitMaskBitCount(unsigned int p_Value)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
+    return 0x1010101
+        * ((((p_Value - ((p_Value >> 1) & 0x55555555)) & 0x33333333)
+        + (((p_Value - ((p_Value >> 1) & 0x55555555)) >> 2) & 0x33333333)
+        + ((((p_Value - ((p_Value >> 1) & 0x55555555)) & 0x33333333) + (((p_Value - ((p_Value >> 1) & 0x55555555)) >> 2) & 0x33333333)) >> 4)) & 0xF0F0F0F) >> 24;
+}
 
-    Player* player = GetPlayer();
-    ObjectGuid npcGuid;
+void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
+{
+    uint64 l_NpcGUID = 0;
+    uint32 l_ItemCount = 0;
 
-    uint8 bitsNpcOrder[8] = { 2, 0, 5, 3, 7, 1, 6, 4 };
-    recvData.ReadBitInOrder(npcGuid, bitsNpcOrder);
+    p_Packet.readPackGUID(l_NpcGUID);
+    p_Packet >> l_ItemCount;
 
-    // Read data
-    uint32 count = recvData.ReadBits(21);
+    std::vector<uint64> l_SrcItemGUIDs(l_ItemCount, uint64(0));
+    std::vector<uint64> l_SrcVoidItemGUIDs(l_ItemCount, uint64(0));
+    std::vector<uint32> l_ItemIDs(l_ItemCount, 0);
+    std::vector<uint32> l_Slots(l_ItemCount, 0);
 
-    if (count < EQUIPMENT_SLOT_START || count >= EQUIPMENT_SLOT_END)
+    for (uint8 l_I = 0; l_I < l_ItemCount; ++l_I)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", player->GetGUIDLow(), player->GetName(), count);
-        recvData.rfinish();
+        bool l_HasSrcItemGUID       = p_Packet.ReadBit();           ///< Has Src Item GUID
+        bool l_HasSrcVoidItemGUID   = p_Packet.ReadBit();           ///< Has Src Void Item GUID
+
+        p_Packet >> l_ItemIDs[l_I];                                 ///< Item ID
+        p_Packet.read_skip<uint32>();                               ///< Random Properties Seed
+        p_Packet.read_skip<uint32>();                               ///< Random Properties ID
+
+        bool l_HasItemBonus         = p_Packet.ReadBit();           ///< Has Item bonus
+        bool l_HasModifications     = p_Packet.ReadBit();           ///< Has Modifications
+
+        if (l_HasItemBonus)
+        {
+            uint32 l_ItemBonusCount = 0;
+
+            p_Packet >> l_ItemBonusCount;                           ///< Bonus count
+
+            for (uint32 l_Y = 0; l_Y < l_ItemBonusCount; ++l_Y)
+                p_Packet.read_skip<uint32>();                       ///< Bonus[l_Y]
+        }
+
+        if (l_HasModifications)
+        {
+            uint32 l_ModificationCount = 0;
+            uint32 l_ModifierMask      = 0;
+
+            p_Packet >> l_ModifierMask;                             ///< Item modification mask
+
+            l_ModificationCount = ExtractBitMaskBitCount(l_ModifierMask);
+
+            for (uint32 l_Y = 0; l_Y < l_ModificationCount; ++l_Y)
+                p_Packet.read_skip<uint32>();                       ///< Modifier[l_Y]
+        }
+
+        p_Packet >> l_Slots[l_I];                                   ///< Slot
+
+        if (l_HasSrcItemGUID)
+            p_Packet.readPackGUID(l_SrcItemGUIDs[l_I]);             ///< Source Item GUID
+
+        if (l_HasSrcVoidItemGUID)
+            p_Packet.readPackGUID(l_SrcVoidItemGUIDs[l_I]);         ///< Source Void Item GUID
+    }
+
+    if (l_ItemCount < EQUIPMENT_SLOT_START || l_ItemCount >= EQUIPMENT_SLOT_END)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", m_Player->GetGUIDLow(), m_Player->GetName(), l_ItemCount);
+        p_Packet.rfinish();
         return;
     }
 
-    std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0));
-    std::vector<ObjectGuid> unkGuids(count, ObjectGuid(0));
-    std::vector<uint32> newEntries(count, 0);
-    std::vector<uint32> slots(count, 0);
-    std::vector<bool> hasItemGuid(count, false);
-    std::vector<bool> hasUnkGuid(count, false);
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        hasUnkGuid[i] = recvData.ReadBit();
-        hasItemGuid[i] = recvData.ReadBit();
-
-        if (hasItemGuid[i])
-        {
-            uint8 bitsOrder[8] = { 2, 3, 4, 1, 7, 6, 5, 0 };
-            recvData.ReadBitInOrder(itemGuids[i], bitsOrder);
-        }
-
-        if (hasUnkGuid[i])
-        {
-            uint8 bitsOrder[8] = { 3, 1, 5, 6, 2, 0, 4, 7 };
-            recvData.ReadBitInOrder(unkGuids[i], bitsOrder);
-        }
-    }
-
-    recvData.FlushBits();
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        recvData >> newEntries[i];
-        recvData >> slots[i];
-    }
-
-    uint8 bytesNpcOrder[8] = { 3, 2, 6, 5, 0, 1, 4, 7 };
-    recvData.ReadBytesSeq(npcGuid, bytesNpcOrder);
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        if (hasUnkGuid[i])
-        {
-            uint8 bytesOrder[8] = { 0, 7, 5, 2, 4, 1, 3, 6 };
-            recvData.ReadBytesSeq(unkGuids[i], bytesOrder);
-        }
-
-        if (hasItemGuid[i])
-        {
-            uint8 bytesOrder[8] = { 5, 4, 0, 7, 6, 3, 1, 2 };
-            recvData.ReadBytesSeq(itemGuids[i], bytesOrder);
-        }
-    }
-
     // Validate
-    if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
+    if (!m_Player->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_TRANSMOGRIFIER))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(l_NpcGUID));
         return;
     }
 
     float cost = 0;
-    for (uint8 i = 0; i < count; ++i)
+    for (uint8 l_I = 0; l_I < l_ItemCount; ++l_I)
     {
         // slot of the transmogrified item
-        if (slots[i] < EQUIPMENT_SLOT_START || slots[i] >= EQUIPMENT_SLOT_END)
+        if (l_Slots[l_I] < EQUIPMENT_SLOT_START || l_Slots[l_I] >= EQUIPMENT_SLOT_END)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUIDLow(), player->GetName(), GUID_LOPART(itemGuids[i]), slots[i]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", m_Player->GetGUIDLow(), m_Player->GetName(), GUID_LOPART(l_SrcItemGUIDs[l_I]), l_Slots[l_I]);
             return;
         }
 
         // entry of the transmogrifier item, if it's not 0
-        if (newEntries[i])
+        if (l_ItemIDs[l_I])
         {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(newEntries[i]);
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(l_ItemIDs[l_I]);
             if (!proto)
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUIDLow(), player->GetName(), newEntries[i]);
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", m_Player->GetGUIDLow(), m_Player->GetName(), l_ItemIDs[l_I]);
                 return;
             }
 
-            if (!player->HasItemCount(newEntries[i], 1, false))
+            if (!m_Player->HasItemCount(l_ItemIDs[l_I], 1, false))
                 return;
         }
 
         Item* itemTransmogrifier = NULL;
         // guid of the transmogrifier item, if it's not 0
-        if (itemGuids[i])
+        if (l_SrcItemGUIDs[l_I])
         {
-            itemTransmogrifier = player->GetItemByGuid(itemGuids[i]);
+            itemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
             if (!itemTransmogrifier)
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUIDLow(), player->GetName(), GUID_LOPART(itemGuids[i]));
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", m_Player->GetGUIDLow(), m_Player->GetName(), GUID_LOPART(l_SrcItemGUIDs[l_I]));
                 return;
             }
         }
+        else if (l_SrcVoidItemGUIDs[l_I])
+        {
+            /// TODO
+        }
 
         // transmogrified item
-        Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slots[i]);
+        Item* itemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
         if (!itemTransmogrified)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUIDLow(), player->GetName(), slots[i]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", m_Player->GetGUIDLow(), m_Player->GetName(), l_Slots[l_I]);
             return;
         }
 
-        if (!newEntries[i]) // reset look
+        if (!l_ItemIDs[l_I]) // reset look
         {
             itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, 0);
             itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
-            player->SetVisibleItemSlot(slots[i], itemTransmogrified);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
         }
         else
         {
@@ -2007,43 +2012,43 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
             if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).", player->GetGUIDLow(), player->GetName(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).", m_Player->GetGUIDLow(), m_Player->GetName(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
                 return;
             }
 
             // All okay, proceed
-            itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, newEntries[i]);
+            itemTransmogrified->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, l_ItemIDs[l_I]);
             itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
-            player->SetVisibleItemSlot(slots[i], itemTransmogrified);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
 
-            itemTransmogrified->UpdatePlayedTime(player);
+            itemTransmogrified->UpdatePlayedTime(m_Player);
 
-            itemTransmogrified->SetOwnerGUID(player->GetGUID());
-            itemTransmogrified->SetNotRefundable(player);
-            itemTransmogrified->ClearSoulboundTradeable(player);
+            itemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
+            itemTransmogrified->SetNotRefundable(m_Player);
+            itemTransmogrified->ClearSoulboundTradeable(m_Player);
 
             if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
                 itemTransmogrifier->SetBinding(true);
 
-            itemTransmogrifier->SetOwnerGUID(player->GetGUID());
-            itemTransmogrifier->SetNotRefundable(player);
-            itemTransmogrifier->ClearSoulboundTradeable(player);
+            itemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
+            itemTransmogrifier->SetNotRefundable(m_Player);
+            itemTransmogrifier->ClearSoulboundTradeable(m_Player);
 
             cost += itemTransmogrified->GetSpecialPrice();
         }
     }
 
     float costModifier = 1.0f;
-    Unit::AuraEffectList const& mModModifyPrice = player->GetAuraEffectsByType(SPELL_AURA_REDUCE_ITEM_MODIFY_COST);
-    for (Unit::AuraEffectList::const_iterator i = mModModifyPrice.begin(); i != mModModifyPrice.end(); ++i)
-        costModifier += float(float((*i)->GetAmount()) / 100.0f);
+    Unit::AuraEffectList const& mModModifyPrice = m_Player->GetAuraEffectsByType(SPELL_AURA_REDUCE_ITEM_MODIFY_COST);
+    for (Unit::AuraEffectList::const_iterator l_I = mModModifyPrice.begin(); l_I != mModModifyPrice.end(); ++l_I)
+        costModifier += float(float((*l_I)->GetAmount()) / 100.0f);
 
     cost *= costModifier;
 
     // trusting the client, if it got here it has to have enough money
     // ... unless client was modified
     if (cost) // 0 cost if reverting look
-        player->ModifyMoney(-int64(cost));
+        m_Player->ModifyMoney(-int64(cost));
 }
 
 void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
