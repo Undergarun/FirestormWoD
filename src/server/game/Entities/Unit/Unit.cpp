@@ -1401,9 +1401,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     // Apply Versatility damage bonus done/taken
     if (this->GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, this->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+        damage += CalculatePct(damage, this->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) / 2);
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) / 2);
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -1586,9 +1586,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
 
     // Apply Versatility damage bonus done/taken
     if (this->GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, this->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+        damage += CalculatePct(damage, this->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) / 2);
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) / 2);
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -2260,7 +2260,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     // Apply Versatility absorb bonus
     if (this->GetTypeId() == TYPEID_PLAYER)
-        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), this->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE)));
+        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), this->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY)));
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
@@ -13464,7 +13464,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
 
         // Apply Versatility healing bonus
-        AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) / 100);
+        AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY) / 100);
     }
     return AdvertisedBenefit;
 }

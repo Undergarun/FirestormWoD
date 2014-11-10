@@ -1626,8 +1626,8 @@ void Player::UpdateLeech()
 
 void Player::UpdateVersatility()
 {
-    float valueDone = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
-    float valueTaken = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+    float valueDone = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+    float valueTaken = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
     valueDone += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
     valueTaken += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
     SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);
