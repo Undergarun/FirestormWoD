@@ -7386,6 +7386,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
                 UpdateAllSpellCritChances();
             break;
         case CR_SPEED:
+            UpdateSpeed();
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
             break;

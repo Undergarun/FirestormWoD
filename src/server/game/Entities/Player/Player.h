@@ -2325,6 +2325,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateLeech();
         void UpdateVersatility();
         void UpdateAvoidance();
+        void UpdateSpeed();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);

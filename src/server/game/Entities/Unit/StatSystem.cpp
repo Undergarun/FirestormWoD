@@ -1640,3 +1640,10 @@ void Player::UpdateAvoidance()
     value += GetRatingBonusValue(CR_AVOIDANCE);
     SetFloatValue(PLAYER_FIELD_AVOIDANCE, value);
 }
+
+void Player::UpdateSpeed()
+{
+    float value = 0.f;
+    value += GetRatingBonusValue(CR_SPEED);
+    SetFloatValue(PLAYER_FIELD_SPEED, value);
+}
