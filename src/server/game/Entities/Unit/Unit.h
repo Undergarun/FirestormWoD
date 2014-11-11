@@ -1319,6 +1319,22 @@ enum Stagger
 
 struct SpellProcEventEntry;                                 // used only privately
 
+float const g_BaseEnemyParryChance[4] =
+{
+    -1.5f,
+    0.0f,
+    1.5f,
+    3.0f
+};
+
+float const g_BaseEnemyDodgeChance[4] =
+{
+    -4.5f,
+    -3.0f,
+    -1.5f,
+    0.0f
+};
+
 class Unit : public WorldObject
 {
     public:
@@ -1482,6 +1498,7 @@ class Unit : public WorldObject
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
+        int32 GetPowerCoeff(Powers p_powerType) const;
         void SetPower(Powers power, int32 val, bool regen = false);
         void SetMaxPower(Powers power, int32 val);
 
@@ -1601,10 +1618,10 @@ class Unit : public WorldObject
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
 
-        float GetUnitDodgeChance()    const;
-        float GetUnitParryChance()    const;
-        float GetUnitBlockChance()    const;
-        float GetUnitMissChance(WeaponAttackType attType)     const;
+        float GetUnitDodgeChance(Unit const* p_Attacker) const;
+        float GetUnitParryChance(Unit const* p_Attacker) const;
+        float GetUnitBlockChance(Unit const* p_Attacker) const;
+        float GetUnitMissChance(WeaponAttackType attType) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
         bool CanUseAttackType(uint8 attacktype) const
@@ -2423,6 +2440,8 @@ class Unit : public WorldObject
         void DisableEvadeMode() { m_disableEnterEvadeMode = true; }
         void ReenableEvadeMode() { m_disableEnterEvadeMode = false; }
         bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
+
+        void BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority = 0);
 
     public:
         uint64 _petBattleId;

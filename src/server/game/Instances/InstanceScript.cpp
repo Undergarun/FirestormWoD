@@ -488,15 +488,12 @@ void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, u
         case ENCOUNTER_FRAME_ENGAGE:
             if (!p_Unit)
                 return;
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 8 + 1);
-            l_Data.append(p_Unit->GetPackGUID());
-            l_Data << uint8(p_Param1);  // TargetFramePriority
+            p_Unit->BuildEncounterFrameData(&l_Data, true, p_Param1);
             break;
         case ENCOUNTER_FRAME_DISENGAGE:
             if (!p_Unit)
                 return;
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8);
-            l_Data.append(p_Unit->GetPackGUID());
+            p_Unit->BuildEncounterFrameData(&l_Data, false);
             break;
         case ENCOUNTER_FRAME_UPDATE_PRIORITY:
             if (!p_Unit)

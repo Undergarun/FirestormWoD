@@ -93,43 +93,52 @@ namespace BNet2 {
             if (m_BNet2Crypt.IsInitialized())
                 m_BNet2Crypt.Decrypt((uint8_t*)l_Buffer, l_Size);
 
-            Packet l_Packet((char*)l_Buffer, l_Size);
-
-            delete[] l_Buffer;
-
-            uint32_t l_Opcode   = l_Packet.GetOpcode();
-            uint32_t l_Channel  = l_Packet.GetChannel();
-
-            uint32_t l_I;
-
-            for (l_I = 0; l_I < AUTH_TOTAL_COMMANDS; ++l_I)
+            try
             {
-                if ((uint8)OpcodeTable[l_I].Opcode == l_Opcode && (uint8)OpcodeTable[l_I].Channel == l_Channel)
+                Packet l_Packet((char*)l_Buffer, l_Size);
+
+                delete[] l_Buffer;
+
+                uint32_t l_Opcode = l_Packet.GetOpcode();
+                uint32_t l_Channel = l_Packet.GetChannel();
+
+                printf("Receive Opcode %u on channel %u\n", l_Opcode, l_Channel);
+
+                uint32_t l_I;
+
+                for (l_I = 0; l_I < AUTH_TOTAL_COMMANDS; ++l_I)
                 {
-                    sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got data for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
-
-                    m_CurrentPacket = &l_Packet;
-
-                    if (!(*this.*OpcodeTable[l_I].Handler)(&l_Packet))
+                    if ((uint8)OpcodeTable[l_I].Opcode == l_Opcode && (uint8)OpcodeTable[l_I].Channel == l_Channel)
                     {
-                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
-                        GetSocket().shutdown();
-                        m_CurrentPacket = NULL;
-                        return;
+                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got data for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
+
+                        m_CurrentPacket = &l_Packet;
+
+                        if (!(*this.*OpcodeTable[l_I].Handler)(&l_Packet))
+                        {
+                            sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
+                            GetSocket().shutdown();
+                            m_CurrentPacket = NULL;
+                            return;
+                        }
+                        break;
                     }
-                    break;
                 }
-            }
 
-            // Report unknown packets in the error log
-            if (l_I == AUTH_TOTAL_COMMANDS)
-            {
-                sLog->outError(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u size %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel, l_Size);
+                // Report unknown packets in the error log
+                if (l_I == AUTH_TOTAL_COMMANDS)
+                {
+                    sLog->outError(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u size %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel, l_Size);
+                    m_CurrentPacket = NULL;
+                    return;
+                }
+
                 m_CurrentPacket = NULL;
-                return;
             }
-
-            m_CurrentPacket = NULL;
+            catch (...)
+            {
+                break;
+            }
         }
     }
     /// On accept
@@ -634,6 +643,7 @@ namespace BNet2 {
     /// Realm connection client request
     bool Session::WoW_Handle_JoinRequest(BNet2::Packet * p_Packet)
     {
+        printf("WoW_Handle_JoinRequest\n");
         uint8_t clientSalt[4];
         uint8_t serverSalt[4];
 
@@ -708,6 +718,8 @@ namespace BNet2 {
 
             l_RealmCount++;
         }
+
+        printf("SMSG_JOIN_RESPONSE\n");
 
         BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
 

@@ -3027,8 +3027,8 @@ void SpellMgr::LoadSpellClassInfo()
             if (!l_SpellEntry)
                 continue;
 
-            if (l_SpellEntry->SpellLevel == 0)
-                continue;
+            /*if (l_SpellEntry->SpellLevel == 0)
+                continue;*/
 
             if (l_SkillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
                 continue;
@@ -3067,7 +3067,6 @@ void SpellMgr::LoadSpellClassInfo()
 
             mSpecializationPerks[l_MinorTalent->specializationID].insert(l_MinorTalent);
         }
-
     }
 }
 

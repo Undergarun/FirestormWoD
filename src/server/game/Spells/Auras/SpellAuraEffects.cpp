@@ -413,7 +413,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //354 SPELL_AURA_354
     &AuraEffect::HandleUnused,                                    //355 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //356 SPELL_AURA_356
-    &AuraEffect::HandleNULL,                                      //357 SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME
+    &AuraEffect::HandleAuraEnableBossUnitFrame,                   //357 SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME
     &AuraEffect::HandleNoImmediateEffect,                         //358 SPELL_AURA_WORGEN_ALTERED_FORM clientside
     &AuraEffect::HandleNULL,                                      //359 SPELL_AURA_359
     &AuraEffect::HandleNULL,                                      //360 SPELL_AURA_360
@@ -3122,6 +3122,20 @@ void AuraEffect::HandleAuraInitializeImages(AuraApplication const* aurApp, uint8
     }
     else
         target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+}
+
+void AuraEffect::HandleAuraEnableBossUnitFrame(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target == nullptr || GetCaster() == nullptr)
+        return;
+
+    WorldPacket l_Data;
+    GetCaster()->BuildEncounterFrameData(&l_Data, p_Apply);
+    l_Target->SendMessageToSet(&l_Data, true);
 }
 
 /************************/
@@ -8754,34 +8768,34 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint
     player->SetMaxPower(POWER_MANA, mod* mana);
 }
 
-void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateMultistrike();
+        l_Player->UpdateMultistrikePercentage();
 }
 
-void AuraEffect::HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateLeech();
+        l_Player->UpdateLeechPercentage();
 }
 
-void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateVersatility();
+        l_Player->UpdateVersatilityPercentage();
 }
 
-void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;

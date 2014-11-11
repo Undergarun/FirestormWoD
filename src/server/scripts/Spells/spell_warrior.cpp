@@ -234,14 +234,14 @@ class spell_warr_shield_barrier : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 rage = int32(caster->GetPower(POWER_RAGE) / 10);
+                    int32 rage = int32(caster->GetPower(POWER_RAGE));
                     int32 AP = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK));
                     int32 Strength = int32(caster->GetStat(STAT_STRENGTH));
                     int32 Stamina = int32(caster->GetStat(STAT_STAMINA));
 
                     amount += std::max(int32(2 * (AP - 2 * (Strength - 10))), int32(Stamina * 2.5f)) * (std::min(60, rage) / 20);
 
-                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) - std::min(60, rage) * 10);
+                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) - std::min(60, rage));
                 }
             }
 

@@ -43,6 +43,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
+                ACE_Stack_Trace l_Trace;
+                printf("%s\n", l_Trace.c_str());
                 sLog->outWarn(LOG_FILTER_SQL, "Warning: GetUInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }

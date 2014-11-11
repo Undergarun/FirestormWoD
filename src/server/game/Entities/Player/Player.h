@@ -1467,7 +1467,7 @@ class Player : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
-        static bool IsReagentBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
+        static bool IsReagentBankPos(uint16 pos) { return IsReagentBankPos(pos >> 8, pos & 255); }
         static bool IsReagentBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
@@ -1478,6 +1478,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
+        bool IsItemSupplies(ItemTemplate const* p_BagProto) const;
         InventoryResult CanTakeMoreSimilarItems(Item* pItem) const { return CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem); }
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count) const { return CanTakeMoreSimilarItems(entry, count, NULL); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL) const
@@ -2320,10 +2321,11 @@ class Player : public Unit, public GridObject<Player>
         void UpdateDodgePercentage();
         void UpdateMasteryPercentage();
         void UpdatePvPPowerPercentage();
-        void UpdateMultistrike();
-        void UpdateLeech();
-        void UpdateVersatility();
-        void UpdateAvoidance();
+        void UpdateMultistrikePercentage();
+        void UpdateLeechPercentage();
+        void UpdateVersatilityPercentage();
+        void UpdateAvoidancePercentage();
+        void UpdateSpeedPercentage();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);

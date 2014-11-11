@@ -75,6 +75,18 @@ void usage(const char *prog)
 void RegisterBNet2Components()
 {
     BNet2::AuthComponentManager::GetSingleton()->Allow(37165, BNet2::BATTLENET2_PROGRAM_BNET, BNet2::BATTLENET2_PROGRAM_ALL, BNet2::BATTLENET2_LOCALE_NONE);
+
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT build FROM bnet_allowed_build");
+    if (l_Result)
+    {
+        do
+        {
+            Field* l_Fields = l_Result->Fetch();
+            uint32 l_AllowedBuild = l_Fields[0].GetUInt32();
+            BNet2::AuthComponentManager::GetSingleton()->Allow(l_AllowedBuild, BNet2::BATTLENET2_PROGRAM_ALL_CLIENTS, BNet2::BATTLENET2_PLATFORM_ALL, BNet2::BATTLENET2_LOCALE_ALL);
+        }
+        while (l_Result->NextRow());
+    }
 }
 
 void RegisterBNet2WoWModules()

@@ -7241,11 +7241,11 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
     switch (attType)
     {
         case BASE_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
         case OFF_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
         case RANGED_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
         default:
             break;
     }
@@ -7386,6 +7386,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
                 UpdateAllSpellCritChances();
             break;
         case CR_SPEED:
+            UpdateSpeedPercentage();
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
             break;
@@ -7400,17 +7401,17 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             UpdatePvPPowerPercentage();
             break;
         case CR_MULTISTRIKE:
-            UpdateMultistrike();
+            UpdateMultistrikePercentage();
             break;
         case CR_LIFESTEAL:
-            UpdateLeech();
+            UpdateLeechPercentage();
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVersatility();
+            UpdateVersatilityPercentage();
             break;
         case CR_AVOIDANCE:
-            UpdateAvoidance();
+            UpdateAvoidancePercentage();
         default:
             break;
     }
@@ -13737,6 +13738,24 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     return EQUIP_ERR_BANK_FULL;
 }
 
+bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
+{
+    switch (p_BagProto->SubClass)
+    {
+    case ITEM_SUBCLASS_HERB_CONTAINER:
+    case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
+    case ITEM_SUBCLASS_GEM_CONTAINER:
+    case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
+    case ITEM_SUBCLASS_MINING_CONTAINER:
+    case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
+    case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
+    case ITEM_SUBCLASS_TACKLE_CONTAINER:
+    case ITEM_SUBCLASS_COOKING_CONTAINER:
+        return true;
+    }
+    return false;
+}
+
 InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading) const
 {
     if (!pItem)
@@ -13751,7 +13770,7 @@ InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVe
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
 
-    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPPLIES))
+    if (!IsItemSupplies(pProto))
         return EQUIP_ERR_WRONG_SLOT;
 
     if (pItem->IsBindedNotWith(this))
