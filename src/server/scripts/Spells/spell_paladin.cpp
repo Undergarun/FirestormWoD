@@ -473,7 +473,7 @@ class spell_pal_selfless_healer : public SpellScriptLoader
                             int32 charges = _player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
 
                             if (_player->IsValidAssistTarget(target) && target != _player)
-                                SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * 0.35f) * charges)));
+                                SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * charges)));
                         }
                     }
                 }

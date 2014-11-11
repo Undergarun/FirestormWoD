@@ -21,6 +21,7 @@
 #include "Utilities/Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
+#include "ObjectAccessor.h"
 
 class GameObject;
 
@@ -276,6 +277,11 @@ class OutdoorPvP : public ZoneScript
 
         uint32 m_TypeId;
 
+        // map to store the various gameobjects and creatures spawned by the objective
+        //       type,   guid
+        std::map<uint32, uint64> m_Creatures;
+        std::map<uint64, uint32> m_CreatureTypes;
+
         bool m_sendUpdate;
 
         // world state stuff
@@ -297,6 +303,11 @@ class OutdoorPvP : public ZoneScript
         void AddCapturePoint(OPvPCapturePoint* cp)
         {
             m_capturePoints[cp->m_capturePointGUID] = cp;
+
+            // Must do that again, in case of we tried to add capture point before...
+            // ...we tried to add capture point itself
+            if (GameObject* l_Go = HashMapHolder<GameObject>::Find(cp->m_capturePointGUID))
+                cp->m_capturePoint = l_Go;
         }
 
         OPvPCapturePoint * GetCapturePoint(uint64 p_Guid) const
@@ -314,6 +325,13 @@ class OutdoorPvP : public ZoneScript
         void TeamCastSpell(TeamId team, int32 spellId);
 
         void AddAreaTrigger(uint32 p_Entry, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map);
+
+        bool AddCreature(uint32 p_Type, creature_type p_Data, uint32 p_SpawnTime = 0)
+        {
+            return AddCreature(p_Type, p_Data.entry, p_Data.teamval, p_Data.map, p_Data.x, p_Data.y, p_Data.z, p_Data.o, p_SpawnTime);
+        }
+        bool AddCreature(uint32 p_Type, uint32 p_Entry, uint32 p_Team, uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_SpawnTime = 0);
+        bool DelCreature(uint32 p_Type);
 };
 
 #endif /*OUTDOOR_PVP_H_*/

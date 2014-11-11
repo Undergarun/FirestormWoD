@@ -16410,13 +16410,13 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
     return MAX_POWERS;
 };
 
-int32 Unit::GetPower(Powers power) const
+int32 Unit::GetPower(Powers p_Power) const
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
-    if (powerIndex == MAX_POWERS)
+    uint32 l_PowerIndex = GetPowerIndexByClass(p_Power, getClass());
+    if (l_PowerIndex == MAX_POWERS)
         return 0;
 
-    return m_powers[powerIndex];
+    return m_powers[l_PowerIndex] / GetPowerCoeff(p_Power);
 }
 
 int32 Unit::GetMaxPower(Powers power) const
@@ -16428,8 +16428,42 @@ int32 Unit::GetMaxPower(Powers power) const
     return GetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex);
 }
 
+int32 Unit::GetPowerCoeff(Powers p_PowerType) const
+{
+    switch (p_PowerType) 
+    {
+    case POWER_MANA:
+        return 1;
+    case POWER_RAGE:
+        return 10;
+    case POWER_FOCUS:
+        return 1;
+    case POWER_ENERGY:
+        return 1;
+    case POWER_RUNIC_POWER:
+        return 10;
+    case POWER_SOUL_SHARDS:
+        return 100;
+    case POWER_ECLIPSE:
+        return 1;
+    case POWER_HOLY_POWER:
+        return 1;
+    case POWER_CHI:
+        return 1;
+    case POWER_SHADOW_ORB:
+        return 1;
+    case POWER_BURNING_EMBERS:
+        return 10;
+    case POWER_DEMONIC_FURY:
+        return 1;
+    }
+    return 1;
+}
+
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
+    p_PowerValue *= GetPowerCoeff(p_PowerType);
+
     uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
 
     if (l_PowerIndex == MAX_POWERS)
@@ -22571,4 +22605,19 @@ float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
     }
 
     return damageTakenFactor;
+}
+
+void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority /*= 0*/)
+{
+    if (p_Engage)
+    {
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 8 + 1);
+        p_Data->append(GetPackGUID());
+        *p_Data << uint8(p_TargetFramePriority);
+    }
+    else
+    {
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8 + 1);
+        p_Data->append(GetPackGUID());
+    }
 }

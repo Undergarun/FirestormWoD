@@ -615,6 +615,65 @@ void OutdoorPvP::AddAreaTrigger(uint32 p_Entry, uint32 p_PhaseMask, uint32 p_Spe
         delete l_AreaTrigger;
 }
 
+bool OutdoorPvP::AddCreature(uint32 p_Type, uint32 p_Entry, uint32 p_Team, uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_SpawnTime /*= 0*/)
+{
+    if (uint32 l_Guid = sObjectMgr->AddCreData(p_Entry, p_Team, p_MapID, p_X, p_Y, p_Z, p_O, p_SpawnTime))
+    {
+        if (!p_Entry)
+        {
+            CreatureData const* l_Data = sObjectMgr->GetCreatureData(l_Guid);
+            if (!l_Data)
+                return false;
+
+            p_Entry = l_Data->id;
+        }
+
+        m_Creatures[p_Type] = MAKE_NEW_GUID(l_Guid, p_Entry, HIGHGUID_UNIT);
+        m_CreatureTypes[m_Creatures[p_Type]] = p_Type;
+        return true;
+    }
+
+    return false;
+}
+
+bool OutdoorPvP::DelCreature(uint32 p_Type)
+{
+    if (!m_Creatures[p_Type])
+    {
+        sLog->outDebug(LOG_FILTER_OUTDOORPVP, "OutdoorPvP::DelCreature, creature type %u was already deleted", p_Type);
+        return false;
+    }
+
+    Creature* l_Creature = HashMapHolder<Creature>::Find(m_Creatures[p_Type]);
+    if (!l_Creature)
+    {
+        // Can happen when closing the core
+        m_Creatures[p_Type] = 0;
+        return false;
+    }
+
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "OutdoorPvP::DelCreature, deleting creature type %u", p_Type);
+
+    uint32 l_Guid = l_Creature->GetDBTableGUIDLow();
+
+    // Don't save respawn time
+    l_Creature->SetRespawnTime(0);
+    l_Creature->RemoveCorpse();
+
+    // Delete respawn time for this creature
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
+    l_Statement->setUInt32(0, l_Guid);
+    l_Statement->setUInt16(1, l_Creature->GetMapId());
+    l_Statement->setUInt32(2, 0);  // InstanceID, always 0 for world maps
+    CharacterDatabase.Execute(l_Statement);
+
+    l_Creature->AddObjectToRemoveList();
+    sObjectMgr->DeleteCreatureData(l_Guid);
+    m_CreatureTypes[m_Creatures[p_Type]] = 0;
+    m_Creatures[p_Type] = 0;
+    return true;
+}
+
 void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 {
     TeamCastSpell(team, spellId);
