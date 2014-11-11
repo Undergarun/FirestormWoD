@@ -1498,6 +1498,7 @@ class Unit : public WorldObject
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
+        int32 GetPowerCoeff(Powers p_powerType) const;
         void SetPower(Powers power, int32 val, bool regen = false);
         void SetMaxPower(Powers power, int32 val);
 

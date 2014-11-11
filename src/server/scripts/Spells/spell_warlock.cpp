@@ -1869,7 +1869,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                 {
                     if (caster->HasAura(WARLOCK_NIGHTFALL))
                         if (roll_chance_i(aurEff->GetBaseAmount() / 1000))
-                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * 100);
+                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1);
 
                     if (AuraPtr glyphSiphonOfLife = caster->GetAura(WARLOCK_GLYPH_OF_SIPHON_LIFE, caster->GetGUID()))
                         caster->HealBySpell(caster, glyphSiphonOfLife->GetSpellInfo(), caster->CountPctFromMaxHealth(glyphSiphonOfLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000), false);
@@ -1904,7 +1904,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * 100);
+                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1);
                 }
             }
 
@@ -2163,7 +2163,7 @@ class spell_warl_shadowburn : public SpellScriptLoader
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * 10); // Give 2 Burning Embers
+                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2); // Give 2 Burning Embers
                     else if (removeMode == AURA_REMOVE_BY_EXPIRE)
                         caster->CastSpell(caster, WARLOCK_SHADOWBURN_ENERGIZE, true);
                 }
