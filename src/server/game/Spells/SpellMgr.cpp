@@ -3067,7 +3067,6 @@ void SpellMgr::LoadSpellClassInfo()
 
             mSpecializationPerks[l_MinorTalent->specializationID].insert(l_MinorTalent);
         }
-
     }
 }
 
