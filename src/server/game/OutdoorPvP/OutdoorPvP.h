@@ -21,6 +21,7 @@
 #include "Utilities/Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
+#include "ObjectAccessor.h"
 
 class GameObject;
 
