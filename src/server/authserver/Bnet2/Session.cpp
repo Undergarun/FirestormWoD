@@ -559,8 +559,8 @@ namespace BNet2 {
              uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
              //Not visible if can't access realm
-             if (lock)
-                 continue;
+             //if (lock)
+             //    continue;
 
              //// don't work with realms which not compatible with the client
              //bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
@@ -589,18 +589,18 @@ namespace BNet2 {
              BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
 
              l_Buffer.WriteBits(true, 1);
-             l_Buffer.WriteBits(1, 32);
-             l_Buffer.WriteBits<float>(0, 32);
-             l_Buffer.WriteBits(0, 8);
-             l_Buffer.WriteBits(realm.m_ID, 19);
-             l_Buffer.WriteBits(0x80000000 + realm.icon, 32);
-             l_Buffer.WriteString(name, 10, false);
-             l_Buffer.WriteBits(false, 1);
-             l_Buffer.WriteBits(0, 8);
-             l_Buffer.WriteBits(0, 12);
-             l_Buffer.WriteBits(0, 8);
-             l_Buffer.WriteBits(0, 32);
-             l_Buffer.WriteBits(realmCounter, 8);
+             l_Buffer.WriteBits(i->second.timezone, 32);                    ///< Timezone
+             l_Buffer.WriteBits<float>(i->second.populationLevel, 32);      ///< Population
+             l_Buffer.WriteBits(lock, 8);                                   ///< Lock
+             l_Buffer.WriteBits(0, 19);                                     ///< Unk
+             l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
+             l_Buffer.WriteString(name, 10, false);                         ///< name
+             l_Buffer.WriteBits(false, 1);                                  ///< Version ? send id/port
+             l_Buffer.WriteBits(i->second.flag, 8);                         ///< Flags
+             l_Buffer.WriteBits(0, 8);                                      ///< Region
+             l_Buffer.WriteBits(0, 12);                                     ///< unk
+             l_Buffer.WriteBits(0, 8);                                      ///< Battlegroup
+             l_Buffer.WriteBits(realmCounter, 32);                          ///< index
 
              l_Buffer.FlushBits();
              l_Buffer.Write<uint8_t>(0x43);
@@ -713,8 +713,8 @@ namespace BNet2 {
             uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
             //Not visible if can't access realm
-            if (lock)
-                continue;
+           // if (lock)
+           //    continue;
 
             l_RealmCount++;
         }
@@ -734,8 +734,8 @@ namespace BNet2 {
             uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
             //Not visible if can't access realm
-            if (lock)
-                continue;
+            //if (lock)
+            //    continue;
 
             ACE_INET_Addr l_Address;
             l_Address.string_to_addr(realm.address.c_str());
