@@ -552,63 +552,39 @@ namespace BNet2 {
         ACE_INET_Addr l_ClientAddress;
         GetSocket().peer().get_remote_addr(l_ClientAddress);
 
-         uint32_t realmCounter = 0;
-         for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
-         {
-             const Realm &realm = i->second;
-             uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
+        uint32_t realmCounter = 0;
+        for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
+        {
+            const Realm &realm = i->second;
+            uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
-             //Not visible if can't access realm
-             //if (lock)
-             //    continue;
+            uint32 flag = realm.flag;
+            std::string name = i->first;
 
-             //// don't work with realms which not compatible with the client
-             //bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
 
-             uint32 flag = realm.flag;
-             //RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.gamebuild);
-             //if (!okBuild)
-             //{
-             //    if (!buildInfo)
-             //        continue;
+            BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
 
-             //    flag |= REALM_FLAG_OFFLINE | REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
-             //}
+            l_Buffer.WriteBits(true, 1);
+            l_Buffer.WriteBits(i->second.timezone, 32);                    ///< Timezone
+            l_Buffer.WriteBits<float>(i->second.populationLevel, 32);      ///< Population
+            l_Buffer.WriteBits(lock, 8);                                   ///< Lock
+            l_Buffer.WriteBits(0, 19);                                     ///< Unk
+            l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
+            l_Buffer.WriteString(name, 10, false);                         ///< name
+            l_Buffer.WriteBits(false, 1);                                  ///< Version ? send id/port
+            l_Buffer.WriteBits(i->second.flag, 8);                         ///< Flags
+            l_Buffer.WriteBits(0, 8);                                      ///< Region
+            l_Buffer.WriteBits(0, 12);                                     ///< unk
+            l_Buffer.WriteBits(0, 8);                                      ///< Battlegroup
+            l_Buffer.WriteBits(realmCounter, 32);                          ///< index
 
-             //if (!buildInfo)
-             //    flag &= ~REALM_FLAG_SPECIFYBUILD;
+            l_Buffer.FlushBits();
+            l_Buffer.Write<uint8_t>(0x43);
+            l_Buffer.Write<uint8_t>(0x02);
 
-             std::string name = i->first;
-             //if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
-             //{
-             //    std::ostringstream ss;
-             //    ss << name << " (" << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
-             //    name = ss.str();
-             //}
-
-             BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
-
-             l_Buffer.WriteBits(true, 1);
-             l_Buffer.WriteBits(i->second.timezone, 32);                    ///< Timezone
-             l_Buffer.WriteBits<float>(i->second.populationLevel, 32);      ///< Population
-             l_Buffer.WriteBits(lock, 8);                                   ///< Lock
-             l_Buffer.WriteBits(0, 19);                                     ///< Unk
-             l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
-             l_Buffer.WriteString(name, 10, false);                         ///< name
-             l_Buffer.WriteBits(false, 1);                                  ///< Version ? send id/port
-             l_Buffer.WriteBits(i->second.flag, 8);                         ///< Flags
-             l_Buffer.WriteBits(0, 8);                                      ///< Region
-             l_Buffer.WriteBits(0, 12);                                     ///< unk
-             l_Buffer.WriteBits(0, 8);                                      ///< Battlegroup
-             l_Buffer.WriteBits(realmCounter, 32);                          ///< index
-
-             l_Buffer.FlushBits();
-             l_Buffer.Write<uint8_t>(0x43);
-             l_Buffer.Write<uint8_t>(0x02);
-
-             l_Packet.AppendByteArray(l_Buffer.GetData(), l_Buffer.GetSize());
-             realmCounter++;
-         }
+            l_Packet.AppendByteArray(l_Buffer.GetData(), l_Buffer.GetSize());
+            realmCounter++;
+        }
 
         Send(&l_Packet);
 
@@ -644,10 +620,17 @@ namespace BNet2 {
     bool Session::WoW_Handle_JoinRequest(BNet2::Packet * p_Packet)
     {
         printf("WoW_Handle_JoinRequest\n");
-        uint8_t clientSalt[4];
-        uint8_t serverSalt[4];
 
-        *(uint32_t*)clientSalt = p_Packet->ReadBits<uint32_t>(32);
+        /// - Read packet data
+        uint8_t clientSalt[4];
+        *(uint32_t*)clientSalt = p_Packet->ReadBits<uint32_t>(32);			///< ClientSeed
+        uint32_t    l_Unknow = p_Packet->ReadBits<uint32_t>(20);			///< Unknow
+        uint8_t     l_Region = p_Packet->ReadBits<uint8_t>(8);			///< Region
+        uint16_t    l_Unknow2 = p_Packet->ReadBits<uint16_t>(12);			///< Unknow
+        uint8_t     l_Battlegroup = p_Packet->ReadBits<uint8_t>(8);		    ///< Battlegroup
+        uint32_t    l_Index = p_Packet->ReadBits<uint32_t>(32);			///< Index
+
+        uint8_t serverSalt[4];
         *(int32_t*)serverSalt = rand();
 
         uint8_t sessionKey[0x28];
@@ -670,13 +653,13 @@ namespace BNet2 {
         ASSERT(l_Hmac.GetLength() + l_Hmac2.GetLength() == sizeof(sessionKey));
         memcpy(sessionKey + l_Hmac.GetLength(), l_Hmac2.GetDigest(), l_Hmac2.GetLength());
 
-        char sSessionKey[sizeof(sessionKey) * 3];
+        char sSessionKey[sizeof(sessionKey)* 3];
         for (uint32_t i = 0; i < sizeof(sessionKey); ++i)
         {
             sprintf(sSessionKey + i * 2, "%02X", sessionKey[i]);
         }
 
-        sSessionKey[sizeof(sSessionKey) - 1] = 0;
+        sSessionKey[sizeof(sSessionKey)-1] = 0;
 
         BigNumber l_K = MakeBigNumber(sSessionKey);
 
@@ -687,58 +670,54 @@ namespace BNet2 {
 
         switch (GetClientPlatform())
         {
-            case BATTLENET2_PLATFORM_WIN:
-                stmt->setString(3, "Win");
-                break;
-            case BATTLENET2_PLATFORM_WIN64:
-                stmt->setString(3, "Wn64");
-                break;
-            case BATTLENET2_PLATFORM_MAC64:
-                stmt->setString(3, "Mc64");
-                break;
+        case BATTLENET2_PLATFORM_WIN:
+            stmt->setString(3, "Win");
+            break;
+        case BATTLENET2_PLATFORM_WIN64:
+            stmt->setString(3, "Wn64");
+            break;
+        case BATTLENET2_PLATFORM_MAC64:
+            stmt->setString(3, "Mc64");
+            break;
 
-            default:
-                stmt->setString(3, "unk");
-                break;
+        default:
+            stmt->setString(3, "unk");
+            break;
         }
 
         stmt->setString(4, m_AccountName);
 
         LoginDatabase.Query(stmt);
 
-        uint32_t l_RealmCount = 0;
+        Realm const* l_RealmRequested = nullptr;
+        uint32_t     l_RealmIdx = 0;
+        uint32_t     l_RealmCounter = 0;
+
         for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
         {
-            const Realm &realm = i->second;
-            uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
+            if (l_Index == l_RealmIdx)
+            {
+                l_RealmCounter = 1;
+                l_RealmRequested = &i->second;
+                break;
+            }
 
-            //Not visible if can't access realm
-           // if (lock)
-           //    continue;
-
-            l_RealmCount++;
+            l_RealmIdx++;
         }
 
         printf("SMSG_JOIN_RESPONSE\n");
 
         BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
 
-        l_Buffer.WriteBits(l_RealmCount == 0, 1);
+        l_Buffer.WriteBits(l_RealmRequested == nullptr, 1);			///< Response code
         l_Buffer.WriteBits(*(uint32_t*)serverSalt, 32);
-        l_Buffer.WriteBits(l_RealmCount, 5);
+        l_Buffer.WriteBits(l_RealmCounter, 5);
         l_Buffer.FlushBits();
 
-        for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
+        if (l_RealmRequested != nullptr)
         {
-            const Realm &realm = i->second;
-            uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
-
-            //Not visible if can't access realm
-            //if (lock)
-            //    continue;
-
             ACE_INET_Addr l_Address;
-            l_Address.string_to_addr(realm.address.c_str());
+            l_Address.string_to_addr(l_RealmRequested->address.c_str());
 
             uint8_t port[2];
             *(uint16_t*)port = l_Address.get_port_number();
@@ -755,8 +734,6 @@ namespace BNet2 {
         l_Buffer.WriteBits(0, 5);
 
         Send(&l_Buffer);
-
         return true;
     }
-
 }
