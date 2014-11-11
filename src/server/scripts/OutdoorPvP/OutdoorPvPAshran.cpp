@@ -18,6 +18,7 @@
  */
 
 #include "OutdoorPvPAshran.h"
+#include "ScriptPCH.h"
 
 OPvPCapturePoint_Middle::OPvPCapturePoint_Middle(OutdoorPvP* p_Outdoor, eAshranBattleType p_Type, uint8 p_Faction)
     : OPvPCapturePoint(p_Outdoor), m_BattleType(p_Type), m_BattleFaction(p_Faction)
