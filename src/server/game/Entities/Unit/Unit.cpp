@@ -16433,29 +16433,20 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
     switch (p_PowerType) 
     {
     case POWER_MANA:
+    case POWER_ECLIPSE:
+    case POWER_HOLY_POWER:
+    case POWER_CHI:
+    case POWER_ENERGY:
+    case POWER_FOCUS:
+    case POWER_SHADOW_ORB:
+    case POWER_DEMONIC_FURY:
         return 1;
     case POWER_RAGE:
-        return 10;
-    case POWER_FOCUS:
-        return 1;
-    case POWER_ENERGY:
-        return 1;
     case POWER_RUNIC_POWER:
+    case POWER_BURNING_EMBERS:
         return 10;
     case POWER_SOUL_SHARDS:
         return 100;
-    case POWER_ECLIPSE:
-        return 1;
-    case POWER_HOLY_POWER:
-        return 1;
-    case POWER_CHI:
-        return 1;
-    case POWER_SHADOW_ORB:
-        return 1;
-    case POWER_BURNING_EMBERS:
-        return 10;
-    case POWER_DEMONIC_FURY:
-        return 1;
     }
     return 1;
 }
