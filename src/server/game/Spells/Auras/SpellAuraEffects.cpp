@@ -8754,34 +8754,34 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint
     player->SetMaxPower(POWER_MANA, mod* mana);
 }
 
-void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateMultistrike();
+        l_Player->UpdateMultistrikePercentage();
 }
 
-void AuraEffect::HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateLeech();
+        l_Player->UpdateLeechPercentage();
 }
 
-void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateVersatility();
+        l_Player->UpdateVersatilityPercentage();
 }
 
-void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;

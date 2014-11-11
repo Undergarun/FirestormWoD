@@ -7241,11 +7241,11 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
     switch (attType)
     {
         case BASE_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
         case OFF_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
         case RANGED_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
         default:
             break;
     }
@@ -7386,6 +7386,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
                 UpdateAllSpellCritChances();
             break;
         case CR_SPEED:
+            UpdateSpeedPercentage();
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
             break;
@@ -7400,17 +7401,17 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             UpdatePvPPowerPercentage();
             break;
         case CR_MULTISTRIKE:
-            UpdateMultistrike();
+            UpdateMultistrikePercentage();
             break;
         case CR_LIFESTEAL:
-            UpdateLeech();
+            UpdateLeechPercentage();
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVersatility();
+            UpdateVersatilityPercentage();
             break;
         case CR_AVOIDANCE:
-            UpdateAvoidance();
+            UpdateAvoidancePercentage();
         default:
             break;
     }
