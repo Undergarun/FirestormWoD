@@ -7241,11 +7241,11 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
     switch (attType)
     {
         case BASE_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
         case OFF_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
         case RANGED_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
         default:
             break;
     }

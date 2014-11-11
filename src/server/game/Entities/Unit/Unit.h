@@ -1319,6 +1319,22 @@ enum Stagger
 
 struct SpellProcEventEntry;                                 // used only privately
 
+float const g_BaseEnemyParryChance[4] =
+{
+    -1.5f,
+    0.0f,
+    1.5f,
+    3.0f
+};
+
+float const g_BaseEnemyDodgeChance[4] =
+{
+    -4.5f,
+    -3.0f,
+    -1.5f,
+    0.0f
+};
+
 class Unit : public WorldObject
 {
     public:
@@ -1601,10 +1617,10 @@ class Unit : public WorldObject
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
 
-        float GetUnitDodgeChance()    const;
-        float GetUnitParryChance()    const;
-        float GetUnitBlockChance()    const;
-        float GetUnitMissChance(WeaponAttackType attType)     const;
+        float GetUnitDodgeChance(Unit const* p_Attacker) const;
+        float GetUnitParryChance(Unit const* p_Attacker) const;
+        float GetUnitBlockChance(Unit const* p_Attacker) const;
+        float GetUnitMissChance(WeaponAttackType attType) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
         bool CanUseAttackType(uint8 attacktype) const
