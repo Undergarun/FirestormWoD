@@ -552,7 +552,7 @@ namespace BNet2 {
         ACE_INET_Addr l_ClientAddress;
         GetSocket().peer().get_remote_addr(l_ClientAddress);
 
-         uint32_t realmCounter = 1;
+         uint32_t realmCounter = 0;
          for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
          {
              const Realm &realm = i->second;
