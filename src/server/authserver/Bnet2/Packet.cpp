@@ -62,7 +62,7 @@ namespace BNet2 {
         if (m_Data.size() < m_WritePosition + p_Size)
             m_Data.resize(m_WritePosition + p_Size);
 
-        std::memcpy(&m_Data[m_WritePosition], p_Buffer, p_Size);
+        memcpy(&m_Data[m_WritePosition], p_Buffer, p_Size);
 
         m_WritePosition += p_Size;
     }

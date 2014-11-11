@@ -362,6 +362,20 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
         }
     }
 
+    if (l_TemplateSetID && l_CharacterRace == RACE_PANDAREN_NEUTRAL)
+    {
+        l_CreationResponse << (uint8)CHAR_CREATE_CHARACTER_CHOOSE_RACE;
+        SendPacket(&l_CreationResponse);
+        return;
+    }
+
+    if (!l_TemplateSetID && (l_CharacterRace == RACE_PANDAREN_HORDE || l_CharacterRace == RACE_PANDAREN_ALLI))
+    {
+        l_CreationResponse << (uint8)CHAR_CREATE_ERROR;
+        SendPacket(&l_CreationResponse);
+        return;
+    }
+
     if (AccountMgr::IsPlayerAccount(GetSecurity()))
     {
         if (uint32 l_Mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))

@@ -221,18 +221,19 @@ class boss_commander_tharbek : public CreatureScript
 
             void Reset()
             {
+                me->ReenableEvadeMode();
+
+                if (m_Instance)
+                    m_Instance->SetBossState(DATA_COMMANDER_THARBEK, NOT_STARTED);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+                me->ResetLootMode();
+
+                m_Events.Reset();
+
                 if (m_Phase == PHASE_BOSS)
                 {
                     summons.remove(m_IronbarbSkyreaverGuid);
-
-                    _Reset();
-
-                    me->ReenableEvadeMode();
-
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
-
-                    if (m_Instance)
-                        m_Instance->SetBossState(DATA_COMMANDER_THARBEK, NOT_STARTED);
 
                     if (Creature* l_Skyreaver = Creature::GetCreature(*me, m_IronbarbSkyreaverGuid))
                     {
@@ -240,8 +241,6 @@ class boss_commander_tharbek : public CreatureScript
                         l_Skyreaver->GetMotionMaster()->Clear();
                         l_Skyreaver->GetMotionMaster()->MoveTargetedHome();
                     }
-
-                    m_Events.Reset();
                 }
             }
 
@@ -730,6 +729,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
             void Reset()
             {
                 me->RemoveAllAreasTrigger();
+                me->ReenableEvadeMode();
 
                 m_BossOut = false;
 
@@ -742,6 +742,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 {
                     l_Tharbek->EnterVehicle(me);
                     l_Tharbek->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->GetMotionMaster()->MovePoint(MOVE_LAST_POS, g_IronbarbLastFlyPos);
                 }
             }
 

@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2014-20xx AhsranCore <http://www.ahrasn.com/>
+* Copyright (C) 2014-20xx AhsranCore <http://www.ashran.com/>
 * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
 * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
@@ -23,6 +23,50 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "tanaan_jungle.h"
+#include "GameObjectAI.h"
+
+// /!\ IN PROGRESS ! /!\
+
+// Archmage Khadgar - 78558 (Main quest giver/taker)
+class npc_archmage_khadgar : public CreatureScript
+{
+    public:
+        npc_archmage_khadgar() : CreatureScript("npc_archmage_khadgar")
+        {
+        }
+
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest)
+        {
+            if (p_Quest->GetQuestId() == 35933)
+            {
+                Position l_Pos;
+                p_Player->GetPosition(&l_Pos);
+
+                if (Creature* l_creature = p_Creature->SummonCreature(NPC_IRON_GRUNT, l_Pos))
+                {
+                    l_creature->SetReactState(REACT_AGGRESSIVE);
+                    l_creature->GetAI()->AttackStart(p_Player);
+                }
+            }
+            return true;
+        }
+
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, Quest* const p_Quest)
+        {
+            if (p_Quest->GetQuestId() == 34393)
+            {
+                if (GameObject* l_Gob = GetClosestGameObjectWithEntry(p_Creature, 237670, 200.0f))
+                    l_Gob->DestroyForPlayer(p_Player); // remains there, wtf ? to check soon
+            }
+            else if (p_Quest->GetQuestId() == 34420)
+            {
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(30040))
+                    p_Player->AddQuest(l_Quest, p_Creature);
+            }
+
+            return true;
+        }
+};
 
 // 82188 - Mumper (Horde defenser)
 class npc_mumper : public CreatureScript
@@ -43,7 +87,7 @@ class npc_mumper : public CreatureScript
             {
                 me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                me->SummonCreature(NPC_IRON_GRUNT, 4042.2026f, -2319.1357f, 64.6786f);
+//                me->SummonCreature(NPC_IRON_GRUNT, 4042.2026f, -2319.1357f, 64.6786f);
             }
 
             void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
@@ -55,15 +99,12 @@ class npc_mumper : public CreatureScript
                 }
             }
 
-            void DamageDealt(Unit* p_Target, uint32& p_Damage, DamageEffectType /*damageType*/)
+            void KilledUnit(Unit* p_Victim)
             {
-                if (p_Target->ToCreature())
+                if (p_Victim->ToCreature())
                 {
-                    if (p_Target->GetHealth() <= p_Damage || p_Target->GetHealthPct() <= 30.0f)
-                    {
-                        me->SummonCreature(NPC_IRON_GRUNT, 4042.2026f, -2319.1357f, 64.6786f);
-                        me->SetFullHealth();
-                    }
+//                    me->SummonCreature(NPC_IRON_GRUNT, 4042.2026f, -2319.1357f, 64.6786f);
+                    me->SetFullHealth();
                 }
             }
 
@@ -103,7 +144,7 @@ class npc_moriccalas : public CreatureScript
             {
                 me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                me->SummonCreature(NPC_IRON_GRUNT, 4090.0317f, -2324.4582f, 64.57f);
+//                me->SummonCreature(NPC_IRON_GRUNT, 4090.0317f, -2324.4582f, 64.57f);
             }
 
             void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
@@ -115,15 +156,12 @@ class npc_moriccalas : public CreatureScript
                 }
             }
 
-            void DamageDealt(Unit* p_Target, uint32& p_Damage, DamageEffectType /*damageType*/)
+            void KilledUnit(Unit* p_Victim)
             {
-                if (p_Target->ToCreature())
+                if (p_Victim->ToCreature())
                 {
-                    if (p_Target->GetHealth() <= p_Damage || p_Target->GetHealthPct() <= 30.0f)
-                    {
-                        me->SummonCreature(NPC_IRON_GRUNT, 4090.0317f, -2324.4582f, 64.57f);
-                        me->SetFullHealth();
-                    }
+//                    me->SummonCreature(NPC_IRON_GRUNT, 4090.0317f, -2324.4582f, 64.57f);
+                    me->SetFullHealth();
                 }
             }
 
@@ -159,18 +197,12 @@ class npc_tore : public CreatureScript
         {
             npc_toreAI(Creature* creature) : ScriptedAI(creature) {}
 
-            EventMap m_Events;
-
             void Reset()
             {
                 me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                m_Events.Reset();
-
-                me->SummonCreature(NPC_IRON_GRUNT, 4049.7866f, -2293.332764f, 64.92f);
-                me->SummonCreature(NPC_IRON_GRUNT, 4049.0117f, -2296.74585f, 64.92f);
-
-                m_Events.ScheduleEvent(EVENT_AGGRO, 2000);
+//                me->SummonCreature(NPC_IRON_GRUNT, 4049.7866f, -2293.332764f, 64.92f);
+//                me->SummonCreature(NPC_IRON_GRUNT, 4049.0117f, -2296.74585f, 64.92f);
             }
 
             void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
@@ -182,21 +214,18 @@ class npc_tore : public CreatureScript
                 }
             }
 
-            void DamageDealt(Unit* p_Target, uint32& p_Damage, DamageEffectType /*damageType*/)
-            {
-                if (p_Target->ToCreature())
-                {
-                    if (p_Target->GetHealth() <= p_Damage || p_Target->GetHealthPct() <= 30.0f)
-                    {
-                        if (urand(0, 1))
-                            me->SummonCreature(NPC_IRON_GRUNT, 4049.7866f, -2293.332764f, 64.92f);
-                        else
-                            me->SummonCreature(NPC_IRON_GRUNT, 4049.0117f, -2296.74585f, 64.92f);
-
-                        m_Events.ScheduleEvent(EVENT_AGGRO, 2000);
-                    }
-                }
-            }
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                 {
+//                     if (urand(0, 1))
+//                         me->SummonCreature(NPC_IRON_GRUNT, 4049.7866f, -2293.332764f, 64.92f);
+//                     else
+//                         me->SummonCreature(NPC_IRON_GRUNT, 4049.0117f, -2296.74585f, 64.92f);
+//
+//                     me->SetFullHealth();
+//                 }
+//             }
 
             void MoveInLineOfSight(Unit* p_Who)
             {
@@ -212,17 +241,346 @@ class npc_tore : public CreatureScript
                     }
                 }
             }
+        };
+};
 
-            void UpdateAI(const uint32 p_Diff)
+// 82010 - Bonesaw (Horde defenser)
+class npc_bonesaw : public CreatureScript
+{
+    public:
+        npc_bonesaw() : CreatureScript("npc_bonesaw") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_bonesawAI(creature);
+        }
+
+        struct npc_bonesawAI : public ScriptedAI
+        {
+            npc_bonesawAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
             {
-                m_Events.Update(p_Diff);
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                if (m_Events.ExecuteEvent() == EVENT_AGGRO)
+//                 me->SummonCreature(NPC_IRON_GRUNT, 4048.229248f, -2315.651611f, 64.775131f, 0.169521f);
+//                 me->SummonCreature(NPC_IRON_GRUNT, 4047.729f, -2311.875977f, 64.49f, 0.742862f);
+            }
+
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            {
+                if (p_DoneBy->ToCreature())
                 {
-                    if (!UpdateVictim())
+                    if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
+                        me->SetFullHealth();
+                }
+            }
+
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                 {
+//                     if (urand(0, 1))
+//                         me->SummonCreature(NPC_IRON_GRUNT, 4048.229248f, -2315.651611f, 64.775131f, 0.169521f);
+//                     else
+//                         me->SummonCreature(NPC_IRON_GRUNT, 4047.729f, -2311.875977f, 64.49f, 0.742862f);
+//
+//                     me->SetFullHealth();
+//                 }
+//             }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who)
+                {
+                    if (me->GetDistance(p_Who) < 5.0f)
                     {
-                        if (Creature* l_IronGrunt = GetClosestCreatureWithEntry(me, NPC_IRON_GRUNT, 4.0f))
-                            AttackStart(l_IronGrunt);
+                        if (Creature* creature = p_Who->ToCreature())
+                        {
+                            if (creature->GetEntry() == NPC_IRON_GRUNT)
+                                AttackStart(p_Who);
+                        }
+                    }
+                }
+            }
+        };
+};
+
+// 81994 - Corselle (Horde defenser)
+class npc_corselle : public CreatureScript
+{
+    public:
+        npc_corselle() : CreatureScript("npc_corselle") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_corselleAI(creature);
+        }
+
+        struct npc_corselleAI : public ScriptedAI
+        {
+            npc_corselleAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+//                 me->SummonCreature(NPC_IRON_GRUNT, 4046.1f, -2306.198975f, 64.920486f, 0.636633f);
+//                 me->SummonCreature(NPC_IRON_GRUNT, 4046.62793f, -2302.73584f, 64.920486f, 5.352353f);
+            }
+
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            {
+                if (p_DoneBy->ToCreature())
+                {
+                    if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
+                        me->SetFullHealth();
+                }
+            }
+
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                 {
+//                     if (urand(0, 1))
+//                         me->SummonCreature(NPC_IRON_GRUNT, 4046.1f, -2306.198975f, 64.920486f, 0.636633f);
+//                     else
+//                         me->SummonCreature(NPC_IRON_GRUNT, 4046.62793f, -2302.73584f, 64.920486f, 5.352353f);
+//
+//                     me->SetFullHealth();
+//                 }
+//             }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who)
+                {
+                    if (me->GetDistance(p_Who) < 4.0f)
+                    {
+                        if (Creature* creature = p_Who->ToCreature())
+                        {
+                            if (creature->GetEntry() == NPC_IRON_GRUNT)
+                                AttackStart(p_Who);
+                        }
+                    }
+                }
+            }
+        };
+};
+
+// 82011 - Northpaul (Horde defenser)
+class npc_northpaul : public CreatureScript
+{
+    public:
+        npc_northpaul() : CreatureScript("npc_northpaul") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_northpaulAI(creature);
+        }
+
+        struct npc_northpaulAI : public ScriptedAI
+        {
+            npc_northpaulAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+//                me->SummonCreature(NPC_IRON_GRUNT, 4046.1f, -2306.198975f, 64.920486f, 0.636633f);
+            }
+
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            {
+                if (p_DoneBy->ToCreature())
+                {
+                    if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
+                        me->SetFullHealth();
+                }
+            }
+
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                 {
+//                     me->SummonCreature(NPC_IRON_GRUNT, 4112.6787f, -2376.455811f, 79.124863f, 0.636633f);
+//                     me->SetFullHealth();
+//                 }
+//             }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who)
+                {
+                    if (me->GetDistance(p_Who) < 4.0f)
+                    {
+                        if (Creature* creature = p_Who->ToCreature())
+                        {
+                            if (creature->GetEntry() == NPC_IRON_GRUNT)
+                                AttackStart(p_Who);
+                        }
+                    }
+                }
+            }
+        };
+};
+
+// 81997 - Roague (Horde defenser)
+class npc_roague : public CreatureScript
+{
+    public:
+        npc_roague() : CreatureScript("npc_roague") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_roagueAI(creature);
+        }
+
+        struct npc_roagueAI : public ScriptedAI
+        {
+            npc_roagueAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+//                me->SummonCreature(NPC_IRON_GRUNT, 4038.351807f, -2276.771973f, 64.920219f, 0.23f);
+            }
+
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            {
+                if (p_DoneBy->ToCreature())
+                {
+                    if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
+                        me->SetFullHealth();
+                }
+            }
+
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                     me->SummonCreature(NPC_IRON_GRUNT, 4038.351807f, -2276.771973f, 64.920219f, 0.23f);
+//             }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who)
+                {
+                    if (me->GetDistance(p_Who) < 4.0f)
+                    {
+                        if (Creature* creature = p_Who->ToCreature())
+                        {
+                            if (creature->GetEntry() == NPC_IRON_GRUNT)
+                                AttackStart(p_Who);
+                        }
+                    }
+                }
+            }
+        };
+};
+
+// 82082 - Racy (Horde defenser)
+class npc_racy : public CreatureScript
+{
+    public:
+        npc_racy() : CreatureScript("npc_racy") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_racyAI(creature);
+        }
+
+        struct npc_racyAI : public ScriptedAI
+        {
+            npc_racyAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+//                me->SummonCreature(NPC_IRON_GRUNT, 4034.043945f, -2427.018799f, 93.726318f, 0.140602f);
+            }
+
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            {
+                if (p_DoneBy->ToCreature())
+                {
+                    if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
+                        me->SetFullHealth();
+                }
+            }
+
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                     me->SummonCreature(NPC_IRON_GRUNT, 4034.043945f, -2427.018799f, 93.726318f, 0.140602f);
+//             }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who)
+                {
+                    if (me->GetDistance(p_Who) < 2.0f)
+                    {
+                        if (Creature* creature = p_Who->ToCreature())
+                        {
+                            if (creature->GetEntry() == NPC_IRON_GRUNT)
+                                AttackStart(p_Who);
+                        }
+                    }
+                }
+            }
+        };
+};
+
+// 82191 - High Warlord Shoju (Horde defenser)
+class npc_high_warlord_shoju : public CreatureScript
+{
+    public:
+        npc_high_warlord_shoju() : CreatureScript("npc_high_warlord_shoju") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_high_warlord_shojuAI(creature);
+        }
+
+        struct npc_high_warlord_shojuAI : public ScriptedAI
+        {
+            npc_high_warlord_shojuAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+//                me->SummonCreature(NPC_IRON_GRUNT, 4034.609131f, -2420.910889f, 93.813171f, 0.077768f);
+            }
+
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            {
+                if (p_DoneBy->ToCreature())
+                {
+                    if (me->GetHealth() <= p_Damage || me->GetHealthPct() <= 80.0f)
+                        me->SetFullHealth();
+                }
+            }
+
+//             void KilledUnit(Unit* p_Victim)
+//             {
+//                 if (p_Victim->ToCreature())
+//                     me->SummonCreature(NPC_IRON_GRUNT, 4034.609131f, -2420.910889f, 93.813171f, 0.077768f);
+//             }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who)
+                {
+                    if (me->GetDistance(p_Who) < 2.0f)
+                    {
+                        if (Creature* creature = p_Who->ToCreature())
+                        {
+                            if (creature->GetEntry() == NPC_IRON_GRUNT)
+                                AttackStart(p_Who);
+                        }
                     }
                 }
             }
@@ -286,18 +644,18 @@ class npc_iron_grunt : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32 &p_Damage)
             {
-                if (me->GetHealthPct() >= 30.0f)
-                    return;
+//                 if (me->GetHealthPct() >= 30.0f)
+//                     return;
 
-                switch (m_Summoner->GetEntry())
-                {
-                    case NPC_MUMPER:
-                        break;
-                    case NPC_MORICCALAS:
-                        break;
-                    default:
-                        break;
-                }
+//                 switch (m_Summoner->GetEntry())
+//                 {
+//                     case NPC_MUMPER:
+//                         break;
+//                     case NPC_MORICCALAS:
+//                         break;
+//                     default:
+//                         break;
+//                 }
             }
 
             void IsSummonedBy(Unit* p_Summoner)
@@ -366,12 +724,107 @@ class npc_iron_grunt : public CreatureScript
         };
 };
 
+// 82484 - Iron Gronnling (ennemy)
+class npc_iron_gronnling : public CreatureScript
+{
+    public:
+        npc_iron_gronnling() : CreatureScript("npc_iron_gronnling") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_iron_gronnlingAI(creature);
+        }
+
+        struct npc_iron_gronnlingAI : public ScriptedAI
+        {
+            npc_iron_gronnlingAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE || !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+
+                if (me->HasAura(166131))
+                    me->RemoveAura(166131);
+            }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+            }
+        };
+};
+
+// 81711 - ShadowMoon Ritualist (ennemy)
+class npc_shadowmoon_ritualist : public CreatureScript
+{
+    public:
+        npc_shadowmoon_ritualist() : CreatureScript("npc_shadowmoon_ritualist") { }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_shadowmoon_ritualistAI(creature);
+        }
+
+        struct npc_shadowmoon_ritualistAI : public ScriptedAI
+        {
+            npc_shadowmoon_ritualistAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE || !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+            }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+            }
+        };
+};
+
+// 237670/237667 - Dark Portal
+class go_platform_tanaan : public GameObjectScript
+{
+    public:
+        go_platform_tanaan() : GameObjectScript("go_platform_tanaan") { }
+
+        struct go_platform_tanaanAI : public GameObjectAI
+        {
+            go_platform_tanaanAI(GameObject* p_Go) : GameObjectAI(p_Go) { }
+
+            void OnGetVisibilityRange(float &p_Visibility) // Needs to be implemented for gob scripts
+            {
+                p_Visibility *= 2.0f;
+            }
+
+        };
+
+        GameObjectAI* GetAI(GameObject* p_Go) const
+        {
+            return new go_platform_tanaanAI(p_Go);
+        }
+};
 
 void AddSC_tanaan_jungle()
 {
+    new npc_archmage_khadgar();
     new npc_mumper();
     new npc_moriccalas();
     new npc_tore();
+    new npc_bonesaw();
+    new npc_corselle();
+    new npc_northpaul();
+    new npc_roague();
+    new npc_racy();
+    new npc_high_warlord_shoju();
     new npc_warsong_commander();
     new npc_iron_grunt();
+    new npc_iron_gronnling();
+    new npc_shadowmoon_ritualist();
+    new go_platform_tanaan();
 }

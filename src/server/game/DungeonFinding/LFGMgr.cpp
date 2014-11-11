@@ -1777,8 +1777,11 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(pProposal->dungeonId & 0xFFFF);
         ASSERT(dungeon);
 
+        LfgDungeonSet dungeons;
+        dungeons.insert(pProposal->dungeonId & 0xFFFF);
+
         // Create a new group (if needed)
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND, dungeons, "");
         Group* grp = pProposal->groupLowGuid ? sGroupMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
 
         if (dungeon->difficulty == RAID_TOOL_DIFFICULTY && grp != nullptr && !grp->isRaidGroup())
@@ -1789,6 +1792,9 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
             Player* player = (*it);
             uint64 pguid = player->GetGUID();
             Group* group = player->GetGroup();
+
+            SetSelectedDungeons(pguid, dungeons);
+
             if (sendUpdate)
                 player->GetSession()->SendLfgUpdateProposal(proposalId, pProposal);
 
@@ -2299,15 +2305,14 @@ void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateDat
             l_Queued    = true;
             break;
         /// OK
+        case LFG_UPDATETYPE_PROPOSAL_BEGIN:
         case LFG_UPDATETYPE_PROPOSAL_DECLINED:
             l_NotifyUI = true;
             break;
         /// OK
         case LFG_UPDATETYPE_UPDATE_STATUS:
             l_NotifyUI  = true;
-            l_IsParty   = true;
-            l_Joined    = true;
-            l_LfgJoined = true;
+            l_IsParty = true;
             break;
 
         case LFG_UPDATETYPE_LEADER_UNK1:
@@ -2318,15 +2323,9 @@ void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateDat
             l_NotifyUI = true;
             break;
 
-
         case LFG_UPDATETYPE_GROUP_FOUND:
             l_NotifyUI = true;
-            break;
-
-        case LFG_UPDATETYPE_PROPOSAL_BEGIN:
-            l_NotifyUI = true;
-            l_Joined = true;
-            l_LfgJoined = true;
+            l_IsParty = true;
             break;
 
         case LFG_UPDATETYPE_GROUP_DISBAND_UNK16:
@@ -2337,10 +2336,10 @@ void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateDat
     }
 
     WorldPacket l_Data(SMSG_LFG_UPDATE_STATUS, 48);
-    l_Data.appendPackGUID(p_Player->GetGUID());
-    l_Data << uint32(0);                              // QueueId
-    l_Data << uint32(2);                              // Flags
-    l_Data << uint32(l_Info->joinTime);
+    l_Data.appendPackGUID(p_Player->GetGUID());             ///< Requester GUID
+    l_Data << uint32(0);                                    ///< QueueId
+    l_Data << uint32(2);                                    ///< Flags
+    l_Data << uint32(l_Info->joinTime);                     ///< Time
 
     l_Data << uint8(l_Info->category);
     l_Data << uint8(p_UpdateData.updateType);           // Update type
@@ -2740,6 +2739,7 @@ void LFGMgr::RemoveGroupData(uint64 guid)
 LfgUpdateData LFGMgr::GetLfgStatus(uint64 guid)
 {
     LfgPlayerData& playerData = m_Players[guid];
+
     return LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS,  playerData.GetSelectedDungeons(), playerData.GetComment());
 }
 

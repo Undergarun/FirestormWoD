@@ -24,7 +24,7 @@
 
 #include "RealmSocket.h"
 #include "AuthSocket.h"
-#include "BNet2/Session.hpp"
+#include "Bnet2/Session.hpp"
 
 class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor>
 {

@@ -101,9 +101,10 @@ void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
 
 bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
 {
-    if (uint32 guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
+    uint32 l_Guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    if (sObjectMgr->AddGOData(l_Guid, entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
     {
-        AddGO(type, guid, entry);
+        AddGO(type, l_Guid, entry);
         return true;
     }
 
@@ -133,8 +134,8 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
     }
 
-    m_capturePointGUID = MAKE_NEW_GUID(sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3), entry, HIGHGUID_GAMEOBJECT);
-    if (!m_capturePointGUID)
+    m_capturePointGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, HIGHGUID_GAMEOBJECT);
+    if (!sObjectMgr->AddGOData(m_capturePointGUID, entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
         return false;
 
     // get the needed values from goinfo
@@ -207,7 +208,6 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
 bool OPvPCapturePoint::DelCapturePoint()
 {
-    sObjectMgr->DeleteGOData(GUID_LOPART(m_capturePointGUID));
     m_capturePointGUID = 0;
 
     if (m_capturePoint)
@@ -216,6 +216,8 @@ bool OPvPCapturePoint::DelCapturePoint()
         m_capturePoint->Delete();
         m_capturePoint = nullptr;
     }
+
+    sObjectMgr->DeleteGOData(GUID_LOPART(m_capturePointGUID));
 
     return true;
 }
@@ -633,6 +635,6 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* go)
     if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
-    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetDBTableGUIDLow()))
+    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))
         cp->m_capturePoint = NULL;
 }

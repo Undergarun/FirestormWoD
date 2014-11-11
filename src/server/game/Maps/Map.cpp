@@ -54,6 +54,9 @@ u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
 
 GridState* si_GridStates[MAX_GRID_STATE];
 
+template void Map::AddToActive<GameObject>(GameObject* obj);
+template void Map::AddToActive<Corpse>(Corpse* obj);
+
 Map::~Map()
 {
     sScriptMgr->OnDestroyMap(this);

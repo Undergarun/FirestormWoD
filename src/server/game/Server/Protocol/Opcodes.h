@@ -316,12 +316,34 @@ enum Opcodes
 
         /// Mail
         SMSG_SEND_MAIL_RESULT                                   = 0x0000,
+
+        /// Trainers
+        SMSG_TRAINER_LIST                                       = 0x0BA9, ///< 6.0.3 19116
+        SMSG_TRAINER_SERVICE                                    = 0x1BD2, ///< 6.0.3 19116
+
+        /// Void Storage
+        SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x1131, ///< 6.0.3 19116
+        SMSG_VOID_STORAGE_CONTENTS                              = 0x0108, ///< 6.0.3 19116
+        SMSG_VOID_STORAGE_FAILED                                = 0x0B01, ///< 6.0.3 19116
+        SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x0321, ///< 6.0.3 19116
+        SMSG_VOID_TRANSFER_RESULT                               = 0x0539, ///< 6.0.3 19116
+
+        /// Petition
+        SMSG_PETITION_ALREADY_SIGNED                            = 0x0D8E, ///< 6.0.3 19116
+        SMSG_PETITION_DECLINED                                  = 0x11E9, ///< 6.0.3 19116
+        SMSG_PETITION_QUERY_RESPONSE                            = 0x13AC, ///< 6.0.3 19116
+        SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///< 6.0.3 19116
+        SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///< 6.0.3 19116
+        SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Guild
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGuild
+        /// Petition
+        SMSG_PETITION_RENAME                        = 0x1055,   ///< 6.0.3 19116
+
         /// Guild Finder
         SMSG_LFGUILD_BROWSE                         = 0x1215,   ///< 6.0.3 19116
         SMSG_LFGUILD_APPLICATIONS                   = 0x1227,   ///< 6.0.3 19116
@@ -946,8 +968,8 @@ enum Opcodes
     CMSG_ADDON_REGISTERED_PREFIXES              = 0x03F4,   ///< 6.0.3 19116
 
     /// Chat
-    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x8007,   ///<
-    CMSG_CHAT_MESSAGE_PARTY                     = 0x0134,   ///< 6.0.3 19116
+    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0313,   ///< 6.0.3 19116
+    CMSG_CHAT_MESSAGE_PARTY                     = 0x0803,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_YELL                      = 0x1161,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_SAY                       = 0x1884,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_OFFICER                   = 0x0114,   ///< 6.0.3 19116
@@ -1075,13 +1097,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Petition
     //////////////////////////////////////////////////////////////////////////
-    CMSG_OFFER_PETITION                         = 0x0000,
-    CMSG_PETITION_BUY                           = 0x0000,
-    CMSG_PETITION_DECLINE                       = 0x0000,
-    CMSG_PETITION_RENAME                        = 0x0000,
-    CMSG_PETITION_SHOWLIST                      = 0x0000,
-    CMSG_PETITION_SHOW_SIGNATURES               = 0x0000,
-    CMSG_PETITION_SIGN                          = 0x0000,
+    CMSG_OFFER_PETITION                         = 0x0315,   ///< 6.0.3 19116
+    CMSG_PETITION_BUY                           = 0x0010,   ///< 6.0.3 19116
+    CMSG_PETITION_DECLINE                       = 0x03EA,   ///< 6.0.3 19116
+    CMSG_PETITION_RENAME                        = 0x0920,   ///< 6.0.3 19116
+    CMSG_PETITION_SHOWLIST                      = 0x000F,   ///< 6.0.3 19116
+    CMSG_PETITION_SHOW_SIGNATURES               = 0x0BC4,   ///< 6.0.3 19116
+    CMSG_PETITION_SIGN                          = 0x0B03,   ///< 6.0.3 19116
+    CMSG_TURN_IN_PETITION                       = 0x1C89,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Pet
@@ -1205,14 +1228,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_DFGET_SYSTEM_INFO                         = 0x030F,    ///< 6.0.3 19116
     CMSG_LFG_GET_PLAYER_INFO                       = 0x0000,
-    CMSG_LFG_GET_STATUS                            = 0x0000,    ///< 6.0.2 19027
+    CMSG_LFG_GET_STATUS                            = 0x1BA4,    ///< 6.0.3 19116
     CMSG_LFG_JOIN                                  = 0x0925,    ///< 6.0.3 19116
     CMSG_LFG_LEAVE                                 = 0x01A2,    ///< 6.0.3 19116
     CMSG_LFG_PROPOSAL_RESULT                       = 0x0509,    ///< 6.0.3 19116
-    CMSG_LFG_SET_BOOT_VOTE                         = 0x0000,    ///< 6.0.2 19027
+    CMSG_LFG_SET_BOOT_VOTE                         = 0x0308,    ///< 6.0.3 19116
     CMSG_LFG_SET_COMMENT                           = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_LFG_SET_ROLES                             = 0x0000,    ///< 6.0.2 19027
-    CMSG_LFG_TELEPORT                              = 0x0000,    ///< 6.0.2 19027
+    CMSG_LFG_TELEPORT                              = 0x0316,    ///< 6.0.3 19116
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< 6.0.2 19027 (unused)
 
@@ -1220,6 +1243,25 @@ enum Opcodes
     /// Auction House
     //////////////////////////////////////////////////////////////////////////
     CMSG_AUCTION_HELLO                             = 0x13EA,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Trainers
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_TRAINER_LIST                              = 0x0A2E,    ///< 6.0.3 19116
+    CMSG_TRAINER_BUY_SPELL                         = 0x0A28,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Void storage
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_VOID_STORAGE_QUERY                        = 0x019E,    ///< 6.0.3 19116
+    CMSG_VOID_STORAGE_TRANSFER                     = 0x0463,    ///< 6.0.3 19116
+    CMSG_VOID_STORAGE_UNLOCK                       = 0x13BB,    ///< 6.0.3 19116
+    CMSG_VOID_SWAP_ITEM                            = 0x0619,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Transmogrification
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_TRANSMOGRIFY_ITEMS                        = 0x0A85,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1483,10 +1525,6 @@ enum Opcodes
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
     CMSG_TOTEM_DESTROYED                              = 0x0000,
     CMSG_TRADE_INFO                                   = 0x0000,
-    CMSG_TRAINER_BUY_SPELL                            = 0x0000,
-    CMSG_TRAINER_LIST                                 = 0x0000,
-    CMSG_TRANSMOGRIFY_ITEMS                           = 0x0000,
-    CMSG_TURN_IN_PETITION                             = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
@@ -1496,10 +1534,6 @@ enum Opcodes
     CMSG_UPGRADE_ITEM                                 = 0x0000,
     CMSG_USED_FOLLOW                                  = 0x0000,
     CMSG_VOICE_SESSION_ENABLE                         = 0x0000,
-    CMSG_VOID_STORAGE_QUERY                           = 0x0000,
-    CMSG_VOID_STORAGE_TRANSFER                        = 0x0000,
-    CMSG_VOID_STORAGE_UNLOCK                          = 0x0000,
-    CMSG_VOID_SWAP_ITEM                               = 0x0000,
     CMSG_WARDEN_DATA                                  = 0x0000,
     CMSG_WARGAME_ACCEPT                               = 0x0000,
     CMSG_WARGAME_START                                = 0x0000,
@@ -1807,12 +1841,6 @@ enum Opcodes
     SMSG_PAGE_TEXT                                    = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x0000,
     SMSG_PENDING_RAID_LOCK                            = 0x0000,
-    SMSG_PETITION_ALREADY_SIGNED                      = 0x0000,
-    SMSG_PETITION_DECLINED                            = 0x0000,
-    SMSG_PETITION_QUERY_RESPONSE                      = 0x0000,
-    SMSG_PETITION_RENAME                              = 0x0000,
-    SMSG_PETITION_SHOW_LIST                           = 0x0000,
-    SMSG_PETITION_SHOW_SIGNATURES                     = 0x0000,
     SMSG_PET_BATTLE_CHAT_RESTRICTED                   = 0x0000,
     SMSG_PET_BATTLE_DEBUG_QUEUE_DUMP_RESPONSE         = 0x0000,
     SMSG_PET_BATTLE_FULL_UPDATE                       = 0x0000,
@@ -1945,10 +1973,7 @@ enum Opcodes
     SMSG_TRADE_INFO                                   = 0x0000,
     SMSG_TRADE_STATUS                                 = 0x0000,
     SMSG_TRADE_UPDATED                                = 0x0000,
-    SMSG_TRAINER_LIST                                 = 0x0000,
-    SMSG_TRAINER_SERVICE                              = 0x0000,
     SMSG_TRIGGER_MOVIE                                = 0x0000,
-    SMSG_TURN_IN_PETITION_RESULTS                     = 0x0000,
     SMSG_UI_TIME                                      = 0x0000,
     SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x0000,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
@@ -1961,11 +1986,6 @@ enum Opcodes
     SMSG_UPDATE_SERVER_PLAYER_POSITION                = 0x0000,
     SMSG_VOICE_SESSION_FULL                           = 0x0000,
     SMSG_VOICE_SET_TALKER_MUTED                       = 0x0000,
-    SMSG_VOID_ITEM_SWAP_RESPONSE                      = 0x0000,
-    SMSG_VOID_STORAGE_CONTENTS                        = 0x0000,
-    SMSG_VOID_STORAGE_FAILED                          = 0x0000,
-    SMSG_VOID_STORAGE_TRANSFER_CHANGES                = 0x0000,
-    SMSG_VOID_TRANSFER_RESULT                         = 0x0000,
     SMSG_WAIT_QUEUE_FINISH                            = 0x0000,
     SMSG_WAIT_QUEUE_UPDATE                            = 0x0000,
     SMSG_WARDEN_DATA                                  = 0x0000,

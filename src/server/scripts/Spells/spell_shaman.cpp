@@ -83,6 +83,7 @@ enum ShamanSpells
     SPELL_SHA_STONE_BULWARK_ABSORB          = 114893,
     SPELL_SHA_EARTHGRAB_IMMUNITY            = 116946,
     SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM = 116947,
+    SPELL_SHA_EARTHGRAB                     = 64695,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS          = 108283,
     SPELL_SHA_ANCESTRAL_GUIDANCE            = 114911,
     SPELL_SHA_CONDUCTIVITY_TALENT           = 108282,
@@ -107,6 +108,12 @@ enum ShamanSpells
     SPELL_SHA_PVP_BONUS_WOD_4               = 171121,
     SPELL_SHA_LIGHTNING_SHIELD              = 324,
     SPELL_SHA_IMPROVED_CHAIN_LIGHTNING      = 157766,
+    SPELL_SHA_MOLTEN_EARTH_DAMAGE           = 170379,
+    SPELL_SHA_MOLTEN_EARTH                  = 170374,
+    SPELL_SHA_MOLTEN_EARTH_PERIODICAL       = 170377,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL   = 159101,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT = 159103,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION = 159105,
 };
 
 // Totemic Projection - 108287
@@ -520,7 +527,7 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
         }
 };
 
-// Earthgrab - 64695
+// 64695 - Earthgrab
 class spell_sha_earthgrab : public SpellScriptLoader
 {
     public:
@@ -530,54 +537,45 @@ class spell_sha_earthgrab : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_earthgrab_SpellScript);
 
-            void HandleOnHit()
+            void HitTarget(SpellEffIndex)
             {
-                if (Unit* caster = GetCaster())
+                Unit* target = GetHitUnit();
+
+                if (target->HasAura(SPELL_SHA_EARTHGRAB_IMMUNITY))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->HasAura(SPELL_SHA_EARTHGRAB_IMMUNITY, caster->GetGUID()))
-                            caster->CastSpell(target, SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM, true);
-                        else
-                            caster->CastSpell(target, SPELL_SHA_EARTHGRAB_IMMUNITY, true);
-                    }
+                    GetCaster()->CastSpell(target, SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM, true);
+                    PreventHitAura();
+                    return;
                 }
+
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_SHA_EARTHGRAB_IMMUNITY, true);
+            }
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                for (std::list<WorldObject*>::iterator iter = unitList.begin(); iter != unitList.end();)
+                    if (Unit* target = (*iter)->ToUnit())
+                        if (target->HasAura(SPELL_SHA_EARTHGRAB))
+                            iter = unitList.erase(iter);
+                        else
+                            iter++;
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_sha_earthgrab_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_earthgrab_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_earthgrab_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
-
-        class spell_sha_earthgrab_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_earthgrab_AuraScript);
-
-            bool CanRefreshProcDummy()
-            {
-                return false;
-            }
-
-            void Register()
-            {
-                CanRefreshProc += AuraCanRefreshProcFn(spell_sha_earthgrab_AuraScript::CanRefreshProcDummy);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_earthgrab_AuraScript();
-        }
 
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_earthgrab_SpellScript();
         }
-
 };
 
-// Stone Bulwark - 114893
+// Stone Bulwark - 114889
 class spell_sha_stone_bulwark : public SpellScriptLoader
 {
     public:
@@ -587,32 +585,29 @@ class spell_sha_stone_bulwark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_stone_bulwark_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (Unit* owner = caster->GetOwner())
                     {
-                        float spellPower = 0.f;
+                        float spellPower = spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                        int32 amount = 0.875f * spellPower;
 
                         if (AuraPtr aura = owner->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
-                        {
-                            spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                            amount += (0.875 * spellPower * 4.f);
-                        }
+                            amount += aura->GetEffect(EFFECT_0)->GetAmount();
                         else
-                        {
-                            spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                            amount += 0.875f * spellPower;
-                            amount += aura->GetEffect(0)->GetAmount();
-                        }
+                            amount *= 4.f;
+
+                        if (AuraPtr aura = caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, owner))
+                            aura->GetEffect(EFFECT_0)->SetAmount(amount);
                     }
                 }
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_stone_bulwark_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_stone_bulwark_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -1541,6 +1536,152 @@ class spell_sha_enhanced_chain_lightning : public SpellScriptLoader
         }
 };
 
+// 170374 - Molten Earth
+class spell_sha_molten_earth : public SpellScriptLoader
+{
+    public:
+        spell_sha_molten_earth() : SpellScriptLoader("spell_sha_molten_earth") { }
+
+        class spell_sha_molten_earth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_molten_earth_AuraScript);
+
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_MOLTEN_EARTH_DAMAGE)
+                    return;
+
+                GetCaster()->AddAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL, eventInfo.GetDamageInfo()->GetVictim());
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_molten_earth_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_molten_earth_AuraScript();
+        }
+};
+
+// 170377 - Molten Earth Periodic
+class spell_sha_molten_earth_periodic : public SpellScriptLoader
+{
+    public:
+        spell_sha_molten_earth_periodic() : SpellScriptLoader("spell_sha_molten_earth_periodic") { }
+
+        class spell_sha_molten_earth_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_molten_earth_periodic_AuraScript);
+
+            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            {
+                PreventDefaultAction();
+
+                int l_Count = irand(1, 2);
+
+                for (int l_I = 0; l_I < l_Count; l_I++)
+                    GetCaster()->CastSpell(GetOwner()->ToUnit(), SPELL_SHA_MOLTEN_EARTH_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_molten_earth_periodic_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_molten_earth_periodic_AuraScript();
+        }
+};
+
+// 170379 - Molten Earth Damage
+class spell_sha_molten_earth_damage : public SpellScriptLoader
+{
+    public:
+        spell_sha_molten_earth_damage() : SpellScriptLoader("spell_sha_molten_earth_damage") { }
+
+        class spell_sha_molten_earth_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_molten_earth_damage_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (!l_Target)
+                    return;
+
+                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_MOLTEN_EARTH))
+                    if (Player* l_Player = GetCaster()->ToPlayer())
+                        SetHitDamage(GetHitDamage() * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * l_Aura->GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier / 100);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_molten_earth_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_molten_earth_damage_SpellScript();
+        }
+};
+
+
+// Echo of Elements - 108283
+class spell_sha_echo_of_elements : public SpellScriptLoader
+{
+    public:
+        spell_sha_echo_of_elements() : SpellScriptLoader("spell_sha_echo_of_elements") { }
+
+        class spell_sha_echo_of_elements_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_echo_of_elements_AuraScript);
+
+            void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                {
+                    case SPEC_SHAMAN_ELEMENTAL:
+                        l_Player->CastSpell(l_Player, SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL, true);
+                        break;
+                    case SPEC_SHAMAN_ENHANCEMENT:
+                        l_Player->CastSpell(l_Player, SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT, true);
+                        break;
+                    case SPEC_SHAMAN_RESTORATION:
+                        l_Player->CastSpell(l_Player, SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_echo_of_elements_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_totemic_projection();
@@ -1574,4 +1715,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_feral_spirit();
     new spell_sha_fulmination_proc();
     new spell_sha_enhanced_chain_lightning();
+    new spell_sha_molten_earth();
+    new spell_sha_molten_earth_periodic();
+    new spell_sha_molten_earth_damage();
+    new spell_sha_echo_of_elements();
 }

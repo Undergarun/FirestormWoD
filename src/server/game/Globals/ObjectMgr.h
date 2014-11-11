@@ -335,7 +335,14 @@ struct CharacterTemplate
     struct TemplateItem
     {
         int32 m_ItemID;
+        int32 m_Faction;
         int32 m_Count;
+    };
+
+    struct TemplateFaction
+    {
+        uint32 m_FactionID;
+        uint32 m_Reputaion;
     };
 
     uint32 m_ID;
@@ -351,6 +358,7 @@ struct CharacterTemplate
     uint64 m_Money;
 
     std::list<TemplateItem> m_TemplateItems;
+    std::list<TemplateFaction> m_TemplateFactions;
     std::list<uint32> m_SpellIDs;
 };
 
@@ -1230,7 +1238,7 @@ class ObjectMgr
         void RemoveCreatureFromGrid(uint32 guid, CreatureData const* data);
         void AddGameobjectToGrid(uint32 guid, GameObjectData const* data);
         void RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data);
-        uint32 AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+        bool AddGOData(uint32 p_LowGuid, uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
         uint32 AddCreData(uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
         bool MoveCreData(uint32 guid, uint32 map, Position pos);
 

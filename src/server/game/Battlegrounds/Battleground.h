@@ -24,6 +24,7 @@
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 #include "ByteBuffer.h"
+#include "Unit.h"
 
 class Creature;
 class GameObject;
@@ -31,6 +32,7 @@ class Group;
 class Player;
 class WorldPacket;
 class BattlegroundMap;
+class Unit;
 
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;

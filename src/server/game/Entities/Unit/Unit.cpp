@@ -8312,8 +8312,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     switch (procSpell->Id)
                     {
-                        case 77472: // Greater Healing Wave
-                        case 331:   // Healing Wave
+                        case 77472: // Healing Wave
                             break;  // Normal bp0
                         case 8004:  // Healing Surge
                         case 61295: // Riptide

@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "Creature.h"
+#include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
@@ -287,8 +288,12 @@ void Player::UpdateArmor()
             l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
-    l_Armor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
-    l_Armor += CalculatePct(l_Armor, GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT));
+    float l_BonusArmor = 0.0f;
+    l_BonusArmor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
+    l_BonusArmor += CalculatePct(l_Armor, GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT));
+    ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_BonusArmor), true);
+
+    l_Armor += l_BonusArmor;
 
     // Custom MoP Script
     // 77494 - Mastery : Nature's Guardian

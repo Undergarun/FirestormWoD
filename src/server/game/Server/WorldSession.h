@@ -404,8 +404,8 @@ class WorldSession
         // Guild/Arena Team
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
-        void SendPetitionSignResult(ObjectGuid ownerGuid, ObjectGuid petitionGuid, uint8 result);
-        void SendAlreadySigned(ObjectGuid playerGuid);
+        void SendPetitionSignResult(uint64 p_PlayerGUID, uint64 p_ItemGUID, uint8 p_Result);
+        void SendAlreadySigned(uint64 p_PlayerGUID);
 
         void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false);
 

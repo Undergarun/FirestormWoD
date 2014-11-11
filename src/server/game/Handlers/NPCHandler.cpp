@@ -117,19 +117,13 @@ void WorldSession::SendShowBank(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
+void WorldSession::HandleTrainerListOpcode(WorldPacket & p_Packet)
 {
-    ObjectGuid guid;
+    uint64 l_TrainerGUID = 0;
 
-    uint8 bitsOrder[8] = { 5, 7, 6, 3, 1, 4, 0, 2 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    p_Packet.readPackGUID(l_TrainerGUID);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 7, 5, 2, 1, 3, 0, 6 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    SendTrainerList(guid);
+    SendTrainerList(l_TrainerGUID);
 }
 
 void WorldSession::SendTrainerList(uint64 guid)
@@ -138,14 +132,12 @@ void WorldSession::SendTrainerList(uint64 guid)
     SendTrainerList(guid, str);
 }
 
-void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList");
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWith(p_NpcGUID, UNIT_NPC_FLAG_TRAINER);
+    if (!l_Unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(p_NpcGUID)));
         return;
     }
 
@@ -154,155 +146,141 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // trainer list loaded at check;
-    if (!unit->isCanTrainingOf(m_Player, true))
+    if (!l_Unit->isCanTrainingOf(m_Player, true))
         return;
 
-    CreatureTemplate const* ci = unit->GetCreatureTemplate();
+    const CreatureTemplate * l_CreatureTemplate = l_Unit->GetCreatureTemplate();
 
-    if (!ci)
+    if (!l_CreatureTemplate)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", GUID_LOPART(guid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", GUID_LOPART(p_NpcGUID));
         return;
     }
 
-    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
-    if (!trainer_spells)
+    const TrainerSpellData * l_TrainerSpells = l_Unit->GetTrainerSpells();
+
+    if (!l_TrainerSpells)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)",
-            GUID_LOPART(guid), unit->GetEntry());
+            GUID_LOPART(p_NpcGUID), l_Unit->GetEntry());
         return;
     }
 
-    ByteBuffer dataBuffer;
-    WorldPacket data(SMSG_TRAINER_LIST);
-    ObjectGuid npcGuid = guid;
-
-    data.WriteBit(npcGuid[0]);
-    data.WriteBits(strTitle.size(), 11);
-    data.WriteBit(npcGuid[5]);
-    data.WriteBit(npcGuid[6]);
-    data.WriteBit(npcGuid[1]);
-    data.WriteBit(npcGuid[2]);
-    data.WriteBit(npcGuid[7]);
-    data.WriteBit(npcGuid[4]);
-    data.WriteBit(npcGuid[3]);
+    ByteBuffer l_TrainerList;
 
     // reputation discount
-    float fDiscountMod = m_Player->GetReputationPriceDiscount(unit);
-    bool can_learn_primary_prof = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
+    float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Unit);
+    bool l_CanLearnPrimaryProfession = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
 
-    uint32 count = 0;
-    for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
+    uint32 l_TrainerSpellCount = 0;
+    for (TrainerSpellMap::const_iterator itr = l_TrainerSpells->spellList.begin(); itr != l_TrainerSpells->spellList.end(); ++itr)
     {
-        TrainerSpell const* tSpell = &itr->second;
+        TrainerSpell const* l_TrainerSpell = &itr->second;
 
-        bool valid = true;
-        bool primary_prof_first_rank = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        bool l_Valid = true;
+        bool l_PrimaryProfesionFirstRank = false;
+
+        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
         {
-            if (!tSpell->learnedSpell[i])
+            if (!l_TrainerSpell->learnedSpell[l_I])
                 continue;
-            if (!m_Player->IsSpellFitByClassAndRace(tSpell->learnedSpell[i]))
+
+            if (!m_Player->IsSpellFitByClassAndRace(l_TrainerSpell->learnedSpell[l_I]))
             {
-                valid = false;
+                l_Valid = false;
                 break;
             }
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(tSpell->learnedSpell[i]);
-            if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
-                primary_prof_first_rank = true;
+
+            const SpellInfo * l_LearnedSpellInfo = sSpellMgr->GetSpellInfo(l_TrainerSpell->learnedSpell[l_I]);
+
+            if (l_LearnedSpellInfo && l_LearnedSpellInfo->IsPrimaryProfessionFirstRank())
+                l_PrimaryProfesionFirstRank = true;
         }
-        if (!valid)
+
+        if (!l_Valid)
             continue;
 
-        TrainerSpellState state = m_Player->GetTrainerSpellState(tSpell);
+        TrainerSpellState state = m_Player->GetTrainerSpellState(l_TrainerSpell);
 
-        dataBuffer << uint32(tSpell->reqSkillValue);
-        dataBuffer << uint32(floor(tSpell->spellCost * fDiscountMod));
-        dataBuffer << uint8(tSpell->reqLevel);
+        l_TrainerList << uint32(l_TrainerSpell->spell);
+        l_TrainerList << uint32(floor(l_TrainerSpell->spellCost * l_DiscountMod));
+        l_TrainerList << uint32(l_TrainerSpell->reqSkill);
+        l_TrainerList << uint32(l_TrainerSpell->reqSkillValue);
 
         //prev + req or req + 0
-        uint8 maxReq = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        uint8 l_MaxReq = 0;
+        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
         {
-            if (!tSpell->learnedSpell[i])
+            if (!l_TrainerSpell->learnedSpell[l_I])
                 continue;
-            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
+
+            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(l_TrainerSpell->learnedSpell[l_I]))
             {
-                dataBuffer << uint32(prevSpellId);
-                ++maxReq;
+                l_TrainerList << uint32(prevSpellId);
+                ++l_MaxReq;
             }
-            if (maxReq == 1)
+
+            if (l_MaxReq == 1)
                 break;
-            SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
-            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 2; ++itr2)
+
+            SpellsRequiringSpellMapBounds l_RequiredSpells = sSpellMgr->GetSpellsRequiredForSpellBounds(l_TrainerSpell->learnedSpell[l_I]);
+
+            for (SpellsRequiringSpellMap::const_iterator l_It = l_RequiredSpells.first; l_It != l_RequiredSpells.second && l_MaxReq < 2; ++l_It)
             {
-                dataBuffer << uint32(itr2->second);
-                ++maxReq;
+                l_TrainerList << uint32(l_It->second);
+                ++l_MaxReq;
             }
-            if (maxReq == 1)
+
+            if (l_MaxReq == 1)
                 break;
         }
-        while (maxReq < 1)
+        while (l_MaxReq < 1)
         {
-            dataBuffer << uint32(0);
-            ++maxReq;
+            l_TrainerList << uint32(0);
+            ++l_MaxReq;
         }
+        l_TrainerList << uint32(0); // Profession Dialog or Profession Button
+        l_TrainerList << uint32(0); // Profession Dialog or Profession Button
 
-        dataBuffer << uint32(0); // Profession Dialog or Profession Button
-        dataBuffer << uint32(0); // Profession Dialog or Profession Button
-        dataBuffer << uint32(tSpell->spell);
-        dataBuffer << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
-        dataBuffer << uint32(tSpell->reqSkill);
+        l_TrainerList << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
+        l_TrainerList << uint8(l_TrainerSpell->reqLevel);
 
-        ++count;
+        ++l_TrainerSpellCount;
     }
 
-    data.WriteBits(count, 19);
-    data.FlushBits();
+    WorldPacket l_Data(SMSG_TRAINER_LIST);
 
-    if (dataBuffer.size() > 0)
-        data.append(dataBuffer);
+    l_Data.appendPackGUID(p_NpcGUID);
 
-    data.WriteByteSeq(npcGuid[5]);
-    data.WriteByteSeq(npcGuid[7]);
-    data.WriteByteSeq(npcGuid[6]);
+    l_Data << uint32(l_Unit->GetCreatureTemplate()->trainer_type);
+    l_Data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
+    l_Data << uint32(l_TrainerSpellCount);
 
-    if (strTitle.size() > 0)
-        data.append(strTitle.c_str(), strTitle.size());
+    l_Data.append(l_TrainerList);
 
-    data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
-    data.WriteByteSeq(npcGuid[2]);
-    data.WriteByteSeq(npcGuid[3]);
-    data.WriteByteSeq(npcGuid[1]);
-    data.WriteByteSeq(npcGuid[0]);
-    data.WriteByteSeq(npcGuid[4]);
-    data << uint32(unit->GetCreatureTemplate()->trainer_type);
+    l_Data.WriteBits(p_Title.size(), 11);
+    l_Data.FlushBits();
+    l_Data.WriteString(p_Title);
 
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
+void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& p_Packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-    int32 trainerId;
+    uint64 l_TrainerGUID = 0;
 
-    recvData >> trainerId >> spellId;
+    uint32 l_SpellID   = 0;
+    int32  l_TrainerID = 0;
 
-    uint8 bitsOrder[8] = { 0, 5, 4, 6, 1, 2, 7, 3 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    p_Packet.readPackGUID(l_TrainerGUID);
+    p_Packet >> l_TrainerID;
+    p_Packet >> l_SpellID;
 
-    recvData.FlushBits();
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_TrainerGUID, UNIT_NPC_FLAG_TRAINER);
 
-    uint8 bytesOrder[8] = { 3, 7, 2, 0, 5, 6, 1, 4 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    if (!l_Unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_TrainerGUID)));
         return;
     }
 
@@ -310,81 +288,78 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (!unit->isCanTrainingOf(m_Player, true))
+    if (!l_Unit->isCanTrainingOf(m_Player, true))
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerService(l_TrainerGUID, l_SpellID, 0);
         return;
     }
 
-    // check present spell in trainer spell list
-    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
-    if (!trainer_spells)
+    /// Check present spell in trainer spell list
+    const TrainerSpellData * l_TrainerSpells = l_Unit->GetTrainerSpells();
+    if (!l_TrainerSpells)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerService(l_TrainerGUID, l_SpellID, 0);
         return;
     }
 
-    // not found, cheat?
-    TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
-    if (!trainer_spell)
+    /// Not found, cheat?
+    const TrainerSpell * l_TrainerSpell = l_TrainerSpells->Find(l_SpellID);
+    if (!l_TrainerSpell)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerService(l_TrainerGUID, l_SpellID, 0);
         return;
     }
 
-    // can't be learn, cheat? Or double learn with lags...
-    if (m_Player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
+    /// Can't be learn, cheat? Or double learn with lags...
+    if (m_Player->GetTrainerSpellState(l_TrainerSpell) != TRAINER_SPELL_GREEN)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerService(l_TrainerGUID, l_SpellID, 0);
         return;
     }
 
-    // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * m_Player->GetReputationPriceDiscount(unit)));
+    /// Apply reputation discount
+    uint32 nSpellCost = uint32(floor(l_TrainerSpell->spellCost * m_Player->GetReputationPriceDiscount(l_Unit)));
 
-    // check money requirement
+    /// Check money requirement
     if (!m_Player->HasEnoughMoney(uint64(nSpellCost)))
     {
-        SendTrainerService(guid, spellId, 1);
+        SendTrainerService(l_TrainerGUID, l_SpellID, 1);
         return;
     }
 
     m_Player->ModifyMoney(-int64(nSpellCost));
 
-    unit->SendPlaySpellVisualKit(179, 0);       // 53 SpellCastDirected
+    l_Unit->SendPlaySpellVisualKit(179, 0);       // 53 SpellCastDirected
     m_Player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
 
-    // learn explicitly or cast explicitly
-    if (trainer_spell->IsCastable())
-        m_Player->CastSpell(m_Player, trainer_spell->spell, true);
+    /// Learn explicitly or cast explicitly
+    if (l_TrainerSpell->IsCastable())
+        m_Player->CastSpell(m_Player, l_TrainerSpell->spell, true);
     else
-        m_Player->learnSpell(spellId, false);
+        m_Player->learnSpell(l_SpellID, false);
 
-    SendTrainerService(guid, spellId, 2);
+    SendTrainerService(l_TrainerGUID, l_SpellID, 2);
 
     // Archeology
-    if (spellId == 78670)
+    if (l_SpellID == 78670)
     {
         m_Player->GetArchaeologyMgr().GenerateResearchSites();
         m_Player->GetArchaeologyMgr().GenerateResearchProjects();
     }
 }
 
-void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
+void WorldSession::SendTrainerService(uint64 p_Guid, uint32 p_SpellID, uint32 p_Result)
 {
-    WorldPacket data(SMSG_TRAINER_SERVICE, 16);
-    ObjectGuid npcGuid = guid;
+    if (p_Result == 2)
+        return;
 
-    data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
-    data << uint32(spellId);        // should be same as in packet from client
+    WorldPacket l_Data(SMSG_TRAINER_SERVICE, 2 + 16 + 4 + 4);
 
-    uint8 bitsOrder[8] = { 0, 3, 6, 1, 2, 5, 7, 4 };
-    data.WriteBitInOrder(npcGuid, bitsOrder);
+    l_Data.appendPackGUID(p_Guid);
+    l_Data << uint32(p_SpellID);        // should be same as in packet from client
+    l_Data << uint32(p_Result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
 
-    uint8 bytesOrder[8] = { 6, 2, 3, 5, 7, 4, 1, 0 };
-    data.WriteBytesSeq(npcGuid, bytesOrder);
-
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)

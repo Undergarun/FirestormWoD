@@ -537,7 +537,7 @@ inline void KillRewarder::_RewardXP(Player* p_Player, float p_Rate)
         if (Pet* pet = p_Player->GetPet())
             // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
             pet->GivePetXP(_group ? l_Xp / 2 : l_Xp);
-        
+
         // Modificate xp for racial aura of trolls (+20% if beast)
         Unit::AuraEffectList const& l_AurasXpPct = p_Player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE);
         for (Unit::AuraEffectList::const_iterator i = l_AurasXpPct.begin(); i != l_AurasXpPct.end(); ++i)
@@ -1254,6 +1254,11 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
     }
 
+    if (l_Template)
+        for (auto& l_ReputationInfo : l_Template->m_TemplateFactions)
+            if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_ReputationInfo.m_FactionID))
+                GetReputationMgr().SetReputation(l_Faction, l_ReputationInfo.m_Reputaion);
+
     // Played time
     m_Last_tick = time(NULL);
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
@@ -1298,7 +1303,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     if (l_Template)
     {
         for (auto& l_Item : l_Template->m_TemplateItems)
-            StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+            if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
+                StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
     }
     else
     {
@@ -9782,7 +9788,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
                 HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), applyStats);
-                ApplyModPositiveFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR, float(val), applyStats);
+                ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(val), applyStats);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), applyStats);
@@ -13731,6 +13737,24 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     return EQUIP_ERR_BANK_FULL;
 }
 
+bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
+{
+    switch (p_BagProto->SubClass)
+    {
+    case ITEM_SUBCLASS_HERB_CONTAINER:
+    case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
+    case ITEM_SUBCLASS_GEM_CONTAINER:
+    case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
+    case ITEM_SUBCLASS_MINING_CONTAINER:
+    case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
+    case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
+    case ITEM_SUBCLASS_TACKLE_CONTAINER:
+    case ITEM_SUBCLASS_COOKING_CONTAINER:
+        return true;
+    }
+    return false;
+}
+
 InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading) const
 {
     if (!pItem)
@@ -13745,7 +13769,7 @@ InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVe
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
 
-    if (!(pProto->BagFamily & BAG_FAMILY_MASK_MINING_SUPPLIES))
+    if (!IsItemSupplies(pProto))
         return EQUIP_ERR_WRONG_SLOT;
 
     if (pItem->IsBindedNotWith(this))
