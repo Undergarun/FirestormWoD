@@ -95,8 +95,8 @@ enum eAshranWorldStates
     // Amphitheater of Annihilation (northwest) - Event: The Race!
     //////////////////////////////////////////////////
     WORLD_STATE_TIME_REMAINING_FOR_BOSS         = 9316,
-    WORLD_STATE_SLAY_VOLRATH                    = 9317,
-    WORLD_STATE_SLAY_TREMBLADE                  = 9326,
+    WORLD_STATE_SLAY_VOLRATH                    = 9317, // Enable time remaining for boss
+    WORLD_STATE_SLAY_TREMBLADE                  = 9326, // Enable time remaining for boss
     //////////////////////////////////////////////////
     // Brute's Rise (northeast) - Event: Ogre Fires!
     WORLD_STATE_FIRES_SCORING_ENABLED           = 9414,
@@ -144,17 +144,27 @@ enum eAshranWorldStates
     WORLD_STATE_OGRE_KING_THRONE_STATUS         = 9113  // 0 - Neutral, 1 - Horde
 };
 
+enum eAshranControlStatus
+{
+    CONTROL_NEUTRAL     = 0,
+    CONTROL_HORDE       = 1,
+    CONTROL_ALLIANCE    = 2
+};
+
 enum eAshranCreatures
 {
     ASHRAN_HERALD                   = 84113,
+    ASHRAN_BLADE_TWISTER_TRIGGER    = 89320,
     ASHRAN_WARSPEAR_BLOOD_GUARD     = 83699,
     ASHRAN_WARSPEAR_RAPTOR_RIDER    = 80297,
     ASHRAN_WARSPEAR_HEADHUNTER      = 79993,
     ASHRAN_WARSPEAR_GRUNT           = 79269,
+    ASHRAN_HIGH_WARLORD_VOLRATH     = 82877,
     ASHRAN_STORMSHIELD_VANGUARD     = 83717,
     ASHRAN_STORMSHIELD_KNIGHT       = 80256,
     ASHRAN_STORMSHIELD_SENTINEL     = 79990,
     ASHRAN_STORMSHIELD_FOOTMAN      = 79268,
+    ASHRAN_GRAND_MARSHAL_TREMBLADE  = 82876,
     SLG_GENERIC_MOP_LARGE_AOI       = 68553
 };
 
@@ -176,7 +186,11 @@ enum eAshranActions
     ACTION_ANNOUNCE_HORDE_VICTORY,
     ACTION_ANNOUNCE_ALLIANCE_KILL_BOSS,
     ACTION_ANNOUNCE_ALLIANCE_VICTORY,
-    ACTION_ANNOUNCE_HORDE_KILL_BOSS
+    ACTION_ANNOUNCE_HORDE_KILL_BOSS,
+    ACTION_WARSPEAR_OUTPOST_IN_FIGHT,
+    ACTION_STORMSHIELD_STRONGHOLD_IN_FIGHT,
+    ACTION_WARSPEAR_VICTORY,
+    ACTION_STORMSHIELD_VICTORY
 };
 
 enum eGraveyardsIDs
@@ -473,6 +487,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         bool Update(uint32 p_Diff);
         void ScheduleNextBattle(uint32 p_Diff);
+        void ScheduleEndOfBattle(uint32 p_Diff);
         void ScheduleInitPoints(uint32 p_Diff);
 
         void FillInitialWorldStates(ByteBuffer& p_Data);
@@ -491,6 +506,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         void AddGenericMoPGuid(uint8 p_Type, uint64 p_Guid) { m_GenericMoPGuids[p_Type] = p_Guid; }
         uint64 GetGenericMoPGuid(uint8 p_Type) const { return m_GenericMoPGuids[p_Type]; }
+        uint64 GetFactionGenericMoP(uint8 p_Faction) const { return m_FactionGenericMoP[p_Faction]; }
 
         OPvPCapturePoint_Middle* GetCapturePoint(uint8 p_Index) const { return m_ControlPoints[p_Index]; }
 
@@ -499,11 +515,14 @@ class OutdoorPvPAshran : public OutdoorPvP
         OPvPCapturePoint_Graveyard* m_GraveYard;
         OPvPCapturePoint_Middle* m_ControlPoints[BATTLE_TYPE_MAX];
         uint64 m_GenericMoPGuids[BATTLE_TYPE_MAX];
+        uint64 m_FactionGenericMoP[BG_TEAMS_COUNT];
         uint32 m_InitPointsTimer;
         bool m_IsInitialized;
 
         uint64 m_Guid;
         uint64 m_HeraldGuid;
+        uint64 m_HighWarlordVolrath;
+        uint64 m_GrandMasrhalTremblade;
         uint32 m_WorldPvPAreaId;
 
         GuidSet m_PlayersInWar[BG_TEAMS_COUNT];
@@ -515,6 +534,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;
+        uint32 m_MaxBattleTime;
 };
 
 #endif
