@@ -709,6 +709,8 @@ namespace BNet2 {
             l_RealmCount++;
         }
 
+        printf("SMSG_JOIN_RESPONSE\n");
+
         BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
 
         l_Buffer.WriteBits(l_RealmCount == 0, 1);
