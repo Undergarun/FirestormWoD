@@ -100,6 +100,8 @@ namespace BNet2 {
             uint32_t l_Opcode   = l_Packet.GetOpcode();
             uint32_t l_Channel  = l_Packet.GetChannel();
 
+            printf("Receive Opcode %u on channel %u\n", l_Opcode, l_Channel);
+
             uint32_t l_I;
 
             for (l_I = 0; l_I < AUTH_TOTAL_COMMANDS; ++l_I)
@@ -634,6 +636,7 @@ namespace BNet2 {
     /// Realm connection client request
     bool Session::WoW_Handle_JoinRequest(BNet2::Packet * p_Packet)
     {
+        printf("WoW_Handle_JoinRequest\n");
         uint8_t clientSalt[4];
         uint8_t serverSalt[4];
 
