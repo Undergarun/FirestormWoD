@@ -22606,3 +22606,18 @@ float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
 
     return damageTakenFactor;
 }
+
+void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority /*= 0*/)
+{
+    if (p_Engage)
+    {
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 8 + 1);
+        p_Data->append(GetPackGUID());
+        *p_Data << uint8(p_TargetFramePriority);
+    }
+    else
+    {
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8 + 1);
+        p_Data->append(GetPackGUID());
+    }
+}

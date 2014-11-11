@@ -2441,6 +2441,8 @@ class Unit : public WorldObject
         void ReenableEvadeMode() { m_disableEnterEvadeMode = false; }
         bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
 
+        void BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority = 0);
+
     public:
         uint64 _petBattleId;
 
