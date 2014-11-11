@@ -52,8 +52,8 @@ void RealmList::UpdateRealm(uint32 ID, const std::string& name, const std::strin
     ss << address << ':' << port;
     realm.address = ss.str();
     realm.gamebuild = build;
-	
-	BNet2::AuthComponentManager::GetSingleton()->Allow(build, BNet2::BATTLENET2_PROGRAM_ALL_CLIENTS, BNet2::BATTLENET2_PLATFORM_ALL, BNet2::BATTLENET2_LOCALE_ALL);
+
+    BNet2::AuthComponentManager::GetSingleton()->Allow(build, BNet2::BATTLENET2_PROGRAM_ALL_CLIENTS, BNet2::BATTLENET2_PLATFORM_ALL, BNet2::BATTLENET2_LOCALE_ALL);
 }
 
 void RealmList::UpdateIfNeed()
