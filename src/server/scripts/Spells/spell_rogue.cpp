@@ -920,16 +920,13 @@ class spell_rog_redirect : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        uint8 cp = _player->GetComboPoints();
+                    uint8 cp = _player->GetComboPoints();
 
-                        if (cp > 5)
-                            cp = 5;
+                    if (cp > 5)
+                        cp = 5;
 
-                        _player->ClearComboPoints();
-                        _player->AddComboPoints(target, cp, GetSpell());
-                    }
+                    _player->ClearComboPoints();
+                    _player->AddComboPoints(cp, GetSpell());
                 }
             }
 

@@ -1364,9 +1364,9 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
     FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent);
 }
 
-void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
+void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZoneID, uint32 newArea)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, p_OldZoneID, newArea);
 }
 
 // Guild

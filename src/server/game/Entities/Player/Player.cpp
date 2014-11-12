@@ -746,7 +746,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_lootSpecId = 0;
     m_BonusRollFails = 0;
 
-    m_comboTarget = 0;
     m_comboPoints = 0;
 
     m_regenTimer = 0;
@@ -5954,6 +5953,17 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
     return ROLE_DAMAGE;
 }
 
+bool Player::IsActiveSpecTankSpec() const
+{
+    if (GetSpecializationId(GetActiveSpec()) == SPEC_PALADIN_PROTECTION ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_WARRIOR_PROTECTION ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_GUARDIAN ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_DK_BLOOD ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+        return true;
+    return false;
+}
+
 Mail* Player::GetMail(uint32 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
@@ -9336,6 +9346,30 @@ void Player::UpdateArea(uint32 newArea)
     {
         sOutdoorPvPMgr->HandlePlayerLeaveArea(this, l_OldArea);
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
+
+        /// Garrison phasing specific code
+        if (m_Garrison && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == GetGarrison()->GetGarrisonSiteLevelEntry()->MapID))
+        {
+            Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
+
+            uint32 l_DraenorBaseMap_Zone;
+            uint32 l_DraenorBaseMap_Area;
+
+            l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
+
+            const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+
+            if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+            {
+                m_Garrison->OnPlayerLeave();
+                SwitchToPhasedMap(GARRISON_BASE_MAP);
+            }
+            else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+            {
+                SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
+                m_Garrison->OnPlayerEnter();
+            }
+        }
     }
 }
 
@@ -9366,11 +9400,14 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         }
     }
 
+    uint32 l_OldZone  = m_zoneUpdateId;
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
 
     // zone changed, so area changed as well, update it
     UpdateArea(newArea);
+
+    sScriptMgr->OnPlayerUpdateZone(this, newZone, l_OldZone, newArea);
 
     AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
     if (!zone)
@@ -9389,8 +9426,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             }
         }
     }
-
-    sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
@@ -9603,15 +9638,8 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     }
 
     // cleanup combo points
-    if (GetComboTarget() == m_Duel->opponent->GetGUID())
-        ClearComboPoints();
-    else if (GetComboTarget() == m_Duel->opponent->GetPetGUID())
-        ClearComboPoints();
-
-    if (m_Duel->opponent->GetComboTarget() == GetGUID())
-        m_Duel->opponent->ClearComboPoints();
-    else if (m_Duel->opponent->GetComboTarget() == GetPetGUID())
-        m_Duel->opponent->ClearComboPoints();
+    ClearComboPoints();
+    m_Duel->opponent->ClearComboPoints();
 
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
@@ -10291,7 +10319,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
         if (!pEnchant)
             continue;
 
-        for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+        for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                 continue;
@@ -15932,7 +15960,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     if (!item->IsBroken())
     {
-        for (int s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+        for (int s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             uint32 enchant_display_type = pEnchant->type[s];
             uint32 enchant_amount = pEnchant->amount[s];
@@ -18756,6 +18784,9 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
 
 bool Player::HasQuestForItem(uint32 itemid) const
 {
+    if (!itemid)
+        return false;
+
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -25389,31 +25420,10 @@ Player* Player::GetSelectedPlayer() const
 
 void Player::SendComboPoints()
 {
-    Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
-
-    if (combotarget)
-    {
-        ObjectGuid guid = combotarget->GetGUID();
-        WorldPacket data(SMSG_UPDATE_COMBO_POINTS);
-
-        uint8 bitsOrder[8] = { 6, 2, 5, 4, 7, 0, 1, 3 };
-        data.WriteBitInOrder(guid, bitsOrder);
-
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
-        data << uint8(m_comboPoints);
-        data.WriteByteSeq(guid[6]);
-
-        GetSession()->SendPacket(&data);
-    }
+    SetPower(POWER_COMBO_POINT, m_comboPoints);
 }
 
-void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
+void Player::AddComboPoints(int8 count, Spell* spell)
 {
     if (!count)
         return;
@@ -25423,23 +25433,7 @@ void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
-    if (target->GetGUID() == m_comboTarget)
-        *comboPoints += count;
-    else
-    {
-        if (m_comboTarget)
-            if (Unit* target2 = ObjectAccessor::GetUnit(*this, m_comboTarget))
-                target2->RemoveComboPointHolder(GetGUIDLow());
-
-        // Spells will always add value to m_comboPoints eventualy, so it must be cleared first
-        if (spell)
-            m_comboPoints = 0;
-
-        m_comboTarget = target->GetGUID();
-        *comboPoints = count;
-
-        target->AddComboPointHolder(GetGUIDLow());
-    }
+    *comboPoints += count;
 
     if (*comboPoints > 5)
         *comboPoints = 5;
@@ -25464,20 +25458,13 @@ void Player::GainSpellComboPoints(int8 count)
 
 void Player::ClearComboPoints()
 {
-    if (!m_comboTarget)
-        return;
-
     // without combopoints lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
     m_comboPoints = 0;
+    SetPower(POWER_COMBO_POINT, m_comboPoints);
 
     SendComboPoints();
-
-    if (Unit* target = ObjectAccessor::GetUnit(*this, m_comboTarget))
-        target->RemoveComboPointHolder(GetGUIDLow());
-
-    m_comboTarget = 0;
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)
@@ -28534,6 +28521,34 @@ void Player::SetMap(Map* map)
 {
     Unit::SetMap(map);
     m_mapRef.link(map, this);
+
+    /// Garrison base map pet level map shift
+    if (ToPlayer() && ToPlayer()->GetGarrison() && map->GetId() == GARRISON_BASE_MAP)
+    {
+        uint32 l_GarrisonMapID = ToPlayer()->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+
+        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+
+        l_Data << uint32(l_GarrisonMapID);                          ///< uint32
+        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
+        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
+        l_Data << uint32(21);                                       ///< Reason
+
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
+
+        l_Data.Initialize(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+
+        l_Data << uint32(map->GetId());                             ///< uint32
+        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
+        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
+        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
+        l_Data << uint32(21);                                       ///< Reason
+
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
+    }
 }
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
@@ -28695,7 +28710,7 @@ void Player::ActivateSpec(uint8 spec)
     if (Pet* pet = GetPet())
         RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, true, pet->m_Stampeded);
 
-    ClearComboPointHolders();
+    ClearComboPoints();
     ClearAllReactives();
     UnsummonAllTotems();
     RemoveAllControlled();

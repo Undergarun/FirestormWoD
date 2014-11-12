@@ -122,6 +122,7 @@ enum Opcodes
         SMSG_WEATHER                                = 0x073E,   ///< 6.0.3 19116
         SMSG_SET_PHASE_SHIFT                        = 0x00D1,   ///< 6.0.3 19116
         SMSG_TRIGGER_CINEMATIC                      = 0x032F,   ///< 6.0.3 19116
+        SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -823,7 +824,6 @@ enum Opcodes
     CMSG_OPEN_ITEM                              = 0x08AD,   ///< 6.0.3 19116
     CMSG_SET_TITLE                              = 0x0BC6,   ///< 6.0.3 19116
     CMSG_PLAYED_TIME                            = 0x1BB2,   ///< 6.0.3 19116
-    CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -917,6 +917,8 @@ enum Opcodes
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x1B3A,   ///< 6.0.3 19116
     CMSG_COMPLETE_CINEMATIC                     = 0x1B51,   ///< 6.0.3 19116
     CMSG_REQUEST_CEMETERY_LIST                  = 0x10A2,   ///< 6.0.3 19116
+    CMSG_TOTEM_DESTROYED                        = 0x000D,   ///< 6.0.3 19116
+    CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1523,7 +1525,6 @@ enum Opcodes
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
     CMSG_TIME_SYNC_RESP                               = 0x0000,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
-    CMSG_TOTEM_DESTROYED                              = 0x0000,
     CMSG_TRADE_INFO                                   = 0x0000,
     CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
@@ -1969,7 +1970,6 @@ enum Opcodes
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,
     SMSG_TOGGLE_XP_GAIN                               = 0x0000,
-    SMSG_TOTEM_CREATED                                = 0x0000,
     SMSG_TRADE_INFO                                   = 0x0000,
     SMSG_TRADE_STATUS                                 = 0x0000,
     SMSG_TRADE_UPDATED                                = 0x0000,
@@ -1978,7 +1978,6 @@ enum Opcodes
     SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x0000,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
     SMSG_UNIT_SPELLCAST_START                         = 0x0000,
-    SMSG_UPDATE_COMBO_POINTS                          = 0x0000,
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x0000,
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x0000,
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x0000,
