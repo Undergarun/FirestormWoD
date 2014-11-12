@@ -21730,7 +21730,7 @@ void Unit::RewardRage(float baseRage, bool attacker)
         }
     }
 
-    ModifyPower(POWER_RAGE, uint32(addRage * 10));
+    ModifyPower(POWER_RAGE, uint32(addRage));
 }
 
 void Unit::StopAttackFaction(uint32 faction_id)
