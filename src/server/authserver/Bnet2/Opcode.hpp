@@ -24,6 +24,7 @@ namespace BNet2 {
         SMSG_REALM_AUTH_OK          = (BNet2::BATTLENET2_CHANNEL_WOW << 8) | 0x00,
         SMSG_REALM_UPDATE           = (BNet2::BATTLENET2_CHANNEL_WOW << 8) | 0x02,
         CMSG_JOIN_REQUEST           = (BNet2::BATTLENET2_CHANNEL_WOW << 8) | 0x08,
+        CMSG_MULTI_LOGON_REQUEST_V2 = (BNet2::BATTLENET2_CHANNEL_WOW << 8) | 0x09,
         SMSG_JOIN_RESPONSE          = (BNet2::BATTLENET2_CHANNEL_WOW << 8) | 0x08
 
     };

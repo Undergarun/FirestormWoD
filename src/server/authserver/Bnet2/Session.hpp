@@ -73,6 +73,8 @@ namespace BNet2 {
             bool WoW_Handle_RealmUpdate(BNet2::Packet * p_Packet);
             /// Realm connection client request
             bool WoW_Handle_JoinRequest(BNet2::Packet * p_Packet);
+            /// Multiple realm connection client request
+            bool WoW_Handle_MultiLogonRequest(BNet2::Packet * p_Packet);
 
         private:
             SessionState    m_State;            ///< Session state

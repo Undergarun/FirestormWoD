@@ -27,11 +27,13 @@ namespace BNet2 {
 
     const AuthHandler OpcodeTable[] =
     {
-        { OPCODE_ID(CMSG_INFORMATION_REQUEST),  OPCODE_CHANNEL(CMSG_INFORMATION_REQUEST),   &Session::None_Handle_InformationRequest    },
-        { OPCODE_ID(CMSG_PROOF_RESPONSE),       OPCODE_CHANNEL(CMSG_PROOF_RESPONSE),        &Session::None_Handle_ProofResponse         },
-        { OPCODE_ID(CMSG_PING),                 OPCODE_CHANNEL(CMSG_PING),                  &Session::Creep_Handle_Ping                 },
-        { OPCODE_ID(CMSG_REALM_UPDATE),         OPCODE_CHANNEL(CMSG_REALM_UPDATE),          &Session::WoW_Handle_RealmUpdate            },
-        { OPCODE_ID(CMSG_JOIN_REQUEST),         OPCODE_CHANNEL(CMSG_JOIN_REQUEST),          &Session::WoW_Handle_JoinRequest            },
+        { OPCODE_ID(CMSG_INFORMATION_REQUEST),    OPCODE_CHANNEL(CMSG_INFORMATION_REQUEST),    &Session::None_Handle_InformationRequest    },
+        { OPCODE_ID(CMSG_PROOF_RESPONSE),         OPCODE_CHANNEL(CMSG_PROOF_RESPONSE),         &Session::None_Handle_ProofResponse         },
+        { OPCODE_ID(CMSG_PING),                   OPCODE_CHANNEL(CMSG_PING),                   &Session::Creep_Handle_Ping                 },
+        { OPCODE_ID(CMSG_REALM_UPDATE),           OPCODE_CHANNEL(CMSG_REALM_UPDATE),           &Session::WoW_Handle_RealmUpdate            },
+        { OPCODE_ID(CMSG_JOIN_REQUEST),           OPCODE_CHANNEL(CMSG_JOIN_REQUEST),           &Session::WoW_Handle_JoinRequest            },
+        { OPCODE_ID(CMSG_MULTI_LOGON_REQUEST_V2), OPCODE_CHANNEL(CMSG_MULTI_LOGON_REQUEST_V2), &Session::WoW_Handle_JoinRequest            },
+
     };
 
     #define AUTH_TOTAL_COMMANDS 5
@@ -571,7 +573,7 @@ namespace BNet2 {
             l_Buffer.WriteBits(0, 19);                                     ///< Unk
             l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
             l_Buffer.WriteString(name, 10, false);                         ///< name
-            l_Buffer.WriteBits(l_Version, 1);                              ///< Version ? send id/port
+            l_Buffer.WriteBits(l_Version, 1);                               ///< Version ? send id/port
 
             // Version block
             if (l_Version)
@@ -637,6 +639,15 @@ namespace BNet2 {
         return l_Result;
     }
 
+    bool Session::WoW_Handle_MultiLogonRequest(BNet2::Packet * p_Packet)
+    {
+        printf("WoW_Handle_MultiLogonRequest\n");
+        for (int l_I = 0; l_I < p_Packet->GetSize(); l_I++)
+            printf("WoW_Handle_MultiLogonRequest byte[%u] : %u", l_I, p_Packet->ReadBits<uint8_t>(8));
+ 
+        return true;
+    }
+
     /// Realm connection client request
     bool Session::WoW_Handle_JoinRequest(BNet2::Packet * p_Packet)
     {
@@ -646,10 +657,10 @@ namespace BNet2 {
         uint8_t clientSalt[4];
         *(uint32_t*)clientSalt = p_Packet->ReadBits<uint32_t>(32);			///< ClientSeed
         uint32_t    l_Unknow = p_Packet->ReadBits<uint32_t>(20);			///< Unknow
-        uint8_t     l_Region = p_Packet->ReadBits<uint8_t>(8);			///< Region
+        uint8_t     l_Region = p_Packet->ReadBits<uint8_t>(8);			    ///< Region
         uint16_t    l_Unknow2 = p_Packet->ReadBits<uint16_t>(12);			///< Unknow
         uint8_t     l_Battlegroup = p_Packet->ReadBits<uint8_t>(8);		    ///< Battlegroup
-        uint32_t    l_Index = p_Packet->ReadBits<uint32_t>(32);			///< Index
+        uint32_t    l_Index = p_Packet->ReadBits<uint32_t>(32);			    ///< Index
 
         uint8_t serverSalt[4];
         *(int32_t*)serverSalt = rand();
