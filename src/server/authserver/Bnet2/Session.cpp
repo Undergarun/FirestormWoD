@@ -99,11 +99,10 @@ namespace BNet2 {
             {
                 Packet l_Packet((char*)l_Buffer, l_Size);
 
-                delete[] l_Buffer;
-
                 uint32_t l_Opcode  = l_Packet.GetOpcode();
                 uint32_t l_Channel = l_Packet.GetChannel();
                 uint32_t l_I;
+
 
                 for (l_I = 0; l_I < AUTH_TOTAL_COMMANDS; ++l_I)
                 {
@@ -118,11 +117,14 @@ namespace BNet2 {
                             sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
                             GetSocket().shutdown();
                             m_CurrentPacket = NULL;
+                            delete[] l_Buffer;
                             return;
                         }
                         break;
                     }
                 }
+
+                delete[] l_Buffer;
 
                 // Report unknown packets in the error log
                 if (l_I == AUTH_TOTAL_COMMANDS)
