@@ -571,7 +571,27 @@ namespace BNet2 {
             l_Buffer.WriteBits(0, 19);                                     ///< Unk
             l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
             l_Buffer.WriteString(name, 10, false);                         ///< name
-            l_Buffer.WriteBits(false, 1);                                  ///< Version ? send id/port
+            l_Buffer.WriteBits(true, 1);                                   ///< Version ? send id/port
+
+            // Version block
+            {
+                std::string l_Version = "";
+                l_Buffer.WriteString(l_Version, 5);
+
+                ACE_INET_Addr l_Address;
+                l_Address.string_to_addr(realm.address.c_str());
+
+                uint8_t port[2];
+                *(uint16_t*)port = l_Address.get_port_number();
+                std::reverse(port, port + sizeof(port));
+
+                uint32_t l_IpAddress = l_Address.get_ip_address();
+                EndianConvertReverse(l_IpAddress);
+
+                l_Buffer.Write(l_IpAddress);
+                l_Buffer.AppendByteArray(port, sizeof(port));
+            }
+
             l_Buffer.WriteBits(i->second.flag, 8);                         ///< Flags
             l_Buffer.WriteBits(0, 8);                                      ///< Region
             l_Buffer.WriteBits(0, 12);                                     ///< unk
