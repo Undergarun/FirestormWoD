@@ -350,7 +350,7 @@ namespace BNet2 {
 
                 // If the IP is 'locked', check that the player comes indeed from the correct IP address
                 bool l_Locked = false;
-                if (l_Fields[2].GetUInt8() == 1)                  // if ip is locked
+                if (l_Fields[2].GetUInt16() == 1)                  // if ip is locked
                 {
                     sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Account '%s' is locked to IP - '%s'", l_AccountName.c_str(), l_Fields[3].GetCString());
                     sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Player address is '%s'", l_IPAddress.c_str());
