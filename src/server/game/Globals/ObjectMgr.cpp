@@ -3040,9 +3040,9 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
         AreaTriggerTemplate l_Template;
         l_Template.m_SpellID       = l_Fields[l_Index++].GetUInt32();
-        l_Template.m_EffIndex      = l_Fields[l_Index++].GetUInt8();
+        l_Template.m_EffIndex      = l_Fields[l_Index++].GetUInt32();
         l_Template.m_Entry         = l_Fields[l_Index++].GetUInt32();
-        l_Template.m_Type          = l_Fields[l_Index++].GetUInt8();
+        l_Template.m_Type          = l_Fields[l_Index++].GetUInt32();
         l_Template.m_ScaleX        = l_Fields[l_Index++].GetFloat();
         l_Template.m_ScaleY        = l_Fields[l_Index++].GetFloat();
         l_Template.m_Flags         = l_Fields[l_Index++].GetUInt32();
