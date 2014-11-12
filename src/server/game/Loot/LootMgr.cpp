@@ -974,7 +974,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
                     uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                    if (lv.viewer && l_Loot.items[l_Loot.slot].itemid && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                    if (lv.viewer && l_Loot.items[l_I].itemid && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                     l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
