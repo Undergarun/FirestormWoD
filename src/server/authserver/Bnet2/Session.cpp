@@ -79,15 +79,15 @@ namespace BNet2 {
 
                 if (l_Size > 2)
                 {
-                    uint8_t * l_SecondBuffer = new uint8_t[l_Size - 2];
+                    uint8_t* l_SecondBuffer = new uint8_t[l_Size - 2];
                     memcpy(l_SecondBuffer, l_Buffer + 2, l_Size - 2);
 
-                    delete l_Buffer;
+					delete[] l_Buffer;
                     l_Buffer = l_SecondBuffer;
                 }
                 else
                 {
-                    delete l_Buffer;
+                    delete[] l_Buffer;
                     return;
                 }
             }
@@ -98,6 +98,8 @@ namespace BNet2 {
             try
             {
                 Packet l_Packet((char*)l_Buffer, l_Size);
+
+                delete[] l_Buffer;
 
                 uint32_t l_Opcode  = l_Packet.GetOpcode();
                 uint32_t l_Channel = l_Packet.GetChannel();
@@ -126,13 +128,11 @@ namespace BNet2 {
                 if (l_I == AUTH_TOTAL_COMMANDS)
                 {
                     sLog->outError(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u size %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel, l_Size);
-                    m_CurrentPacket = NULL;
+					m_CurrentPacket = NULL;
                     return;
                 }
 
                 m_CurrentPacket = NULL;
-
-				delete[] l_Buffer;
             }
             catch (...)
             {
