@@ -18784,6 +18784,9 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
 
 bool Player::HasQuestForItem(uint32 itemid) const
 {
+    if (!itemid)
+        return false;
+
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
