@@ -32,7 +32,7 @@ namespace BNet2 {
         { OPCODE_ID(CMSG_PING),                   OPCODE_CHANNEL(CMSG_PING),                   &Session::Creep_Handle_Ping                 },
         { OPCODE_ID(CMSG_REALM_UPDATE),           OPCODE_CHANNEL(CMSG_REALM_UPDATE),           &Session::WoW_Handle_RealmUpdate            },
         { OPCODE_ID(CMSG_JOIN_REQUEST),           OPCODE_CHANNEL(CMSG_JOIN_REQUEST),           &Session::WoW_Handle_JoinRequest            },
-        { OPCODE_ID(CMSG_MULTI_LOGON_REQUEST_V2), OPCODE_CHANNEL(CMSG_MULTI_LOGON_REQUEST_V2), &Session::WoW_Handle_JoinRequest            },
+        { OPCODE_ID(CMSG_MULTI_LOGON_REQUEST_V2), OPCODE_CHANNEL(CMSG_MULTI_LOGON_REQUEST_V2), &Session::WoW_Handle_MultiLogonRequest      },
 
     };
 
