@@ -12214,6 +12214,11 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 if (pItem != skipItem && pItem->GetEntry() == item)
                     count += pItem->GetCount();
+                
+        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
+            if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (pItem != skipItem && pItem->GetEntry() == item)
+                    count += pItem->GetCount();
 
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
             if (Bag* pBag = GetBagByPos(i))
@@ -12573,6 +12578,16 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
     if (inBankAlso)
     {
         for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; i++)
+        {
+            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                tempcount += pItem->GetCount();
+                if (tempcount >= count)
+                    return true;
+            }
+        }
+        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
         {
             Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
@@ -14113,7 +14128,6 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: StoreItem bag = %u, slot = %u, item = %u, count = %u, guid = %u", bag, slot, pItem->GetEntry(), count, pItem->GetGUIDLow());
 
     Item* pItem2 = GetItemByPos(bag, slot);
-
     if (!pItem2)
     {
         if (clone)
@@ -14783,6 +14797,33 @@ void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequ
 
     // in bank
     for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; i++)
+    {
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                if (pItem->GetCount() + remcount <= count)
+                {
+                    remcount += pItem->GetCount();
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+                    if (remcount >= count)
+                        return;
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                    pItem->SetCount(pItem->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        pItem->SendUpdateToPlayer(this);
+                    pItem->SetState(ITEM_CHANGED, this);
+                    return;
+                }
+            }
+        }
+    }
+
+    // in regeant bank
+    for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
     {
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
@@ -20228,6 +20269,13 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     {
                         ItemPosCountVec dest;
                         err = CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
+                        if (err == EQUIP_ERR_OK)
+                            item = BankItem(dest, item, true);
+                    }
+                    else if (IsReagentBankPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        ItemPosCountVec dest;
+                        err = CanReagentBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
                         if (err == EQUIP_ERR_OK)
                             item = BankItem(dest, item, true);
                     }
