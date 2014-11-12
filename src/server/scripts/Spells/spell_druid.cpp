@@ -451,7 +451,7 @@ class spell_dru_swipe : public SpellScriptLoader
 
                         // Award 1 combot point
                         if (Player* plr = caster->ToPlayer())
-                            plr->AddComboPoints(plr, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                            plr->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
                         // Swipe and Maul deals 20% more damage if target is bleeding
                         if (target->HasAuraState(AURA_STATE_BLEEDING))

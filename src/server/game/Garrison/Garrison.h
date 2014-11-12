@@ -89,11 +89,13 @@ enum GarrisonAbilityEffectTargetMask
     GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
 };
 
+extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
+#define GARRISON_BASE_MAP 1116
 #define GARRISON_PLOT_INSTANCE_COUNT 40
 #define GARRISON_CURRENCY_ID 824
 #define GARRISON_MAX_FOLLOWER_LEVEL 100
@@ -165,6 +167,11 @@ class Garrison
 
         /// Update the garrison
         void Update();
+
+        /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
+        void OnPlayerEnter();
+        /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
+        void OnPlayerLeave();
 
         /// set last used activation gameobject
         void SetLastUsedActivationGameObject(uint64 p_Guid);
@@ -259,8 +266,11 @@ class Garrison
         void Init();
         /// Init data for level
         void InitDataForLevel();
+
         /// Init Game objects
         void InitPlots();
+        /// Uninit plots
+        void UninitPlots();
 
         /// Update plot gameobject
         void UpdatePlot(uint32 p_PlotInstanceID);

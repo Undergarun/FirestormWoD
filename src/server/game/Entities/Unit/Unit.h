@@ -2316,10 +2316,6 @@ class Unit : public WorldObject
         void SetControlled(bool apply, UnitState state);
         void SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index);
 
-        void AddComboPointHolder(uint32 lowguid) { m_ComboPointHolders.insert(lowguid); }
-        void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }
-        void ClearComboPointHolders();
-
         ///----------Pet responses methods-----------------
         void SendPetCastFail(uint32 spellid, SpellCastResult msg);
         void SendPetActionFeedback (uint32 p_SpellID, uint8 p_Reason);

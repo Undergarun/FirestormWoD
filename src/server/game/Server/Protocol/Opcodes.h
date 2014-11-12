@@ -1978,7 +1978,6 @@ enum Opcodes
     SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x0000,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
     SMSG_UNIT_SPELLCAST_START                         = 0x0000,
-    SMSG_UPDATE_COMBO_POINTS                          = 0x0000,
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x0000,
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x0000,
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x0000,

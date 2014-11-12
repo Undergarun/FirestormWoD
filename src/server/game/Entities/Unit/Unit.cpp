@@ -7557,14 +7557,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!(procEx & PROC_EX_CRITICAL_HIT))
                         return false;
 
-                    Unit* spellTarget = ObjectAccessor::GetUnit(*player, player->GetComboTarget());
-                    if (!spellTarget)
-                        spellTarget = player->GetSelectedUnit();
-                    if (spellTarget && player->IsValidAttackTarget(spellTarget))
-                    {
-                        player->AddSpellCooldown(51701, 0, time(NULL) + 2);
-                        player->CastSpell(spellTarget, 51699, true);
-                    }
+//                     Unit* spellTarget = ObjectAccessor::GetUnit(*player, player->GetComboTarget());
+//                     if (!spellTarget)
+//                         spellTarget = player->GetSelectedUnit();
+//                     if (spellTarget && player->IsValidAttackTarget(spellTarget))
+//                     {
+//                         player->AddSpellCooldown(51701, 0, time(NULL) + 2);
+//                         player->CastSpell(spellTarget, 51699, true);
+//                     }
 
                     break;
                 }
@@ -14482,7 +14482,10 @@ void Unit::ClearInCombat()
             return;
     }
     else
+    {
         ToPlayer()->UpdatePotionCooldown();
+        ToPlayer()->ClearComboPoints();
+    }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
@@ -16560,6 +16563,8 @@ int32 Unit::GetCreatePowers(Powers power) const
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_PALADIN ? 3 : 0);
         case POWER_HEALTH:
             return 0;
+        case POWER_COMBO_POINT:
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_ROGUE ? 5 : 0);
         case POWER_CHI:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK ? 4 : 0);
         default:
@@ -16642,7 +16647,10 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    ClearComboPointHolders();
+    
+    if (ToPlayer())
+        ToPlayer()->ClearComboPoints();
+
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
@@ -17242,7 +17250,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 // Overpower on victim dodge
                 if (procExtra & PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
                 {
-                    ToPlayer()->AddComboPoints(target, 1);
+                    ToPlayer()->AddComboPoints(1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
                     CastSpell(this, 60503, true);
                 }
@@ -17278,7 +17286,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Revealing Strike - 84617
     if (GetTypeId() == TYPEID_PLAYER && target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
         if (roll_chance_i(20))
-            ToPlayer()->AddComboPoints(target, 1);
+            ToPlayer()->AddComboPoints(1);
 
     // Bandit's Guile - 84654
     // Your Sinister Strike and Revealing Strike abilities increase your damage dealt by up to 30%
@@ -18034,20 +18042,6 @@ void Unit::RestoreDisplayId()
     // no auras found - set modelid to default
     else
         SetDisplayId(GetNativeDisplayId());
-}
-
-void Unit::ClearComboPointHolders()
-{
-    while (!m_ComboPointHolders.empty())
-    {
-        uint32 lowguid = *m_ComboPointHolders.begin();
-
-        Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
-        if (player && player->GetComboTarget() == GetGUID())         // recheck for safe
-            player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
-        else
-            m_ComboPointHolders.erase(lowguid);             // or remove manually
-    }
 }
 
 void Unit::ClearAllReactives()

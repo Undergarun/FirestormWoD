@@ -4,6 +4,12 @@
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 
+uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
+{
+    7004,   ///< Horde
+    7078,   ///< Alliance
+};
+
 uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
 {
     /// Horde
@@ -439,6 +445,20 @@ void Garrison::Update()
             UpdatePlot(l_Building->PlotInstanceID);
         }
     }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
+void Garrison::OnPlayerEnter()
+{
+    InitPlots();    ///< AKA update plots
+}
+/// When the garrison owner leave the garrisson (@See Player::UpdateArea)
+void Garrison::OnPlayerLeave()
+{
+    UninitPlots();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1892,11 +1912,66 @@ void Garrison::InitDataForLevel()
             m_Plots.push_back(gGarrisonPlotInstanceInfoLocation[l_I]);
     }
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Init Game objects
 void Garrison::InitPlots()
 {
+    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+        return;
+
     for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
         UpdatePlot(m_Plots[l_I].PlotInstanceID);
+}
+/// Uninit plots
+void Garrison::UninitPlots()
+{
+    for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
+    {
+        GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(l_It->second);
+
+        if (l_Gob)
+        {
+            l_Gob->DestroyForNearbyPlayers();
+            l_Gob->CleanupsBeforeDelete();
+            delete l_Gob;
+        }
+    }
+
+    m_PlotsActivateGob.clear();
+
+    for (std::map<uint32, uint64>::iterator l_It = m_PlotsGob.begin(); l_It != m_PlotsGob.end(); ++l_It)
+    {
+        GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(l_It->second);
+
+        if (l_Gob)
+        {
+            l_Gob->DestroyForNearbyPlayers();
+            l_Gob->CleanupsBeforeDelete();
+            delete l_Gob;
+        }
+    }
+
+    m_PlotsGob.clear();
+
+    for (std::map<uint32, std::vector<uint64>>::iterator l_It = m_PlotsBuildingCosmeticGobs.begin(); l_It != m_PlotsBuildingCosmeticGobs.end(); ++l_It)
+    {
+        for (uint32 l_Y = 0; l_Y < l_It->second.size(); ++l_Y)
+        {
+            GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(l_It->second[l_Y]);
+
+            if (l_Gob)
+            {
+                l_Gob->DestroyForNearbyPlayers();
+                l_Gob->CleanupsBeforeDelete();
+                delete l_Gob;
+            }
+        }
+    }
+
+    m_PlotsBuildingCosmeticGobs.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1905,6 +1980,9 @@ void Garrison::InitPlots()
 /// Update plot game object
 void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 {
+    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+        return;
+
     GarrisonPlotInstanceInfoLocation l_PlotInfo = GetPlot(p_PlotInstanceID);
     
     if (m_PlotsGob[p_PlotInstanceID] != 0)
@@ -2048,8 +2126,8 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 /// Reapply the rotation on coords
                 G3D::Vector3 l_FinalPosition = l_Mat * l_NonRotatedPosition;
 
-                uint32 l_AnimProgress = 0;
-                uint32 l_Health = 255;
+                uint32 l_AnimProgress   = 0;
+                uint32 l_Health         = 255;
 
                 GameObject * l_ActivationGob = m_Owner->SummonGameObject(gGarrisonBuildingActivationGameObject[GetGarrisonFactionIndex()], l_FinalPosition.x, l_FinalPosition.y, l_FinalPosition.z, l_PlotInfo.O, 0, 0, 0, 0, 0, 0, 0, l_AnimProgress, l_Health);
                 
