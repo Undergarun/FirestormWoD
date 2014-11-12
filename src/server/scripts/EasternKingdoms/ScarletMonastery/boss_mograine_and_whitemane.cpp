@@ -147,7 +147,6 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                me->ClearComboPointHolders();
                 me->RemoveAllAuras();
                 me->ClearAllReactives();
 

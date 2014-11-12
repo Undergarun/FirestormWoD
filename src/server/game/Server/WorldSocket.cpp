@@ -1147,7 +1147,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s", l_Fields[5].GetCString(), l_Fields[4].GetCString());
 
     /// Re-check ip locking (same check as in auth server).
-    if (l_Fields[3].GetUInt8() == 1) // if ip is locked
+    if (l_Fields[3].GetUInt16() == 1) // if ip is locked
     {
         if (strcmp(l_Fields[2].GetCString(), GetRemoteAddress().c_str()))
         {

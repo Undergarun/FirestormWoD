@@ -64,22 +64,10 @@ void Totem::InitStats(uint32 duration)
         && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
         WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
-        ObjectGuid totemGuid = GetGUID();
-
-        uint8 bitsOrder[8] = { 2, 6, 4, 0, 7, 3, 5, 1 };
-        data.WriteBitInOrder(totemGuid, bitsOrder);
-
-        data << uint32(duration);
-        data.WriteByteSeq(totemGuid[1]);
-        data.WriteByteSeq(totemGuid[3]);
-        data << uint32(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
-        data.WriteByteSeq(totemGuid[7]);
-        data.WriteByteSeq(totemGuid[4]);
-        data.WriteByteSeq(totemGuid[0]);
         data << uint8(m_Properties->Slot - 1);
-        data.WriteByteSeq(totemGuid[6]);
-        data.WriteByteSeq(totemGuid[2]);
-        data.WriteByteSeq(totemGuid[5]);
+        data.appendPackGUID(GetGUID());
+        data << uint32(duration);
+        data << uint32(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
 
         m_owner->ToPlayer()->SendDirectMessage(&data);
 

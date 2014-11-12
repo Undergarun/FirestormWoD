@@ -4281,12 +4281,6 @@ void Spell::SendSpellCooldown()
     if (m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         return;
 
-    // Heroic Strike and Cleave share cooldowns, prevent cheat by using macro for bypass cooldown
-    if (m_spellInfo->Id == 78)
-        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(845), 0, this);
-    else if (m_spellInfo->Id == 845)
-        _player->AddSpellAndCategoryCooldowns(sSpellMgr->GetSpellInfo(78), 0, this);
-
     _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : 0, this);
 }
 

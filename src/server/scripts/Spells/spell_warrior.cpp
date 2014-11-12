@@ -678,17 +678,14 @@ class spell_warr_mortal_strike : public SpellScriptLoader
                 // Fix Apply Mortal strike buff on player only if he has the correct glyph
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
-                            _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
+                    if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
+                        _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
 
-                        if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
-                        {
-                            _player->AddComboPoints(target, 1);
-                            _player->StartReactiveTimer(REACTIVE_OVERPOWER);
-                            _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_OVERPOWER, true);
-                        }
+                    if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
+                    {
+                        _player->AddComboPoints(1);
+                        _player->StartReactiveTimer(REACTIVE_OVERPOWER);
+                        _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_OVERPOWER, true);
                     }
                 }
             }
@@ -1100,7 +1097,7 @@ class spell_warr_charge : public SpellScriptLoader
                 if (AuraEffectPtr bullRush = caster->GetAuraEffect(WARRIOR_SPELL_GLYPH_OF_BULL_RUSH, EFFECT_1))
                     bp += bullRush->GetAmount();
 
-                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, bp, POWER_RAGE);
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, (bp / caster->GetPowerCoeff(POWER_RAGE)), POWER_RAGE);
             }
         }
 

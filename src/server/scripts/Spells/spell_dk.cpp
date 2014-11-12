@@ -473,7 +473,7 @@ class spell_dk_conversion : public SpellScriptLoader
                     int32 runicPower = GetCaster()->GetPower(POWER_RUNIC_POWER);
 
                     if (runicPower > 50)
-                        GetCaster()->SetPower(POWER_RUNIC_POWER, GetCaster()->GetPower(POWER_RUNIC_POWER) -50);
+                        GetCaster()->ModifyPower(POWER_RUNIC_POWER, -5);
                     else if (runicPower > 0)
                     {
                         GetCaster()->SetPower(POWER_RUNIC_POWER, 0);

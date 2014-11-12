@@ -1197,10 +1197,10 @@ void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
 
     l_Response.appendPackGUID(l_CharacterGuid);
     l_Response << uint32(l_AccountData->Time);      /// unix time
-    l_Response << uint32(l_DestSize);               /// compressed length
+    l_Response << uint32(l_Size);                   /// decompressed length
     l_Response.WriteBits(l_Type, 3);
     l_Response.FlushBits();
-    l_Response << uint32(l_Size);                   /// decompressed length
+    l_Response << uint32(l_DestSize);               /// compressed length
     l_Response.append(l_CompressedData);            /// compressed data
 
     SendPacket(&l_Response);
@@ -1226,8 +1226,6 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& p_RecvData)
 
     uint8   l_Type      = ACTION_BUTTON_TYPE(l_PackedData);
     uint32  l_ActionID  = ACTION_BUTTON_ACTION(l_PackedData);
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", l_Button, l_ActionID, l_Type);
 
     if (!l_PackedData)
     {
