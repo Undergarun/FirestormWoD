@@ -69,6 +69,60 @@ public:
     }
 };
 
+// OLDWorld Trigger (DO NOT DELETE) - 15384
+class npc_world_invisible_trigger : public CreatureScript
+{
+    public:
+        npc_world_invisible_trigger() : CreatureScript("npc_world_invisible_trigger") { }
+
+        struct npc_world_invisible_triggerAI : public ScriptedAI
+        {
+            npc_world_invisible_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            uint32 m_CheckPlayerTimer;
+
+            void Reset()
+            {
+                if (me->GetMapId() == 1190)
+                    m_CheckPlayerTimer = 1000;
+                else
+                    m_CheckPlayerTimer = 0;
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (m_CheckPlayerTimer)
+                {
+                    if (m_CheckPlayerTimer <= p_Diff)
+                    {
+                        m_CheckPlayerTimer = 1000;
+
+                        std::list<Player*> l_PlayerList;
+                        me->GetPlayerListInGrid(l_PlayerList, 15.0f);
+
+                        for (Player* l_Player : l_PlayerList)
+                        {
+                            if (l_Player->getLevel() < 90)
+                                continue;
+
+                            if (l_Player->GetTeamId() == TEAM_ALLIANCE)
+                                l_Player->TeleportTo(1116, 1585.22f, 104.39f, 65.76f, l_Player->GetOrientation());
+                            else if (l_Player->GetTeamId() == TEAM_HORDE)
+                                l_Player->TeleportTo(1116, 5859.56f, 4477.74f, 117.71f, l_Player->GetOrientation());
+                        }
+                    }
+                    else
+                        m_CheckPlayerTimer -= p_Diff;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_world_invisible_triggerAI(p_Creature);
+        }
+};
+
 // Dark Portal phasing
 class PlayerScript_DarkPortal_Phasing : public PlayerScript
 {
@@ -86,7 +140,7 @@ class PlayerScript_DarkPortal_Phasing : public PlayerScript
         {
             if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
                 p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
-            else if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
+            else if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE && p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
                 p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
         }
 };
@@ -94,6 +148,7 @@ class PlayerScript_DarkPortal_Phasing : public PlayerScript
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
+    new npc_world_invisible_trigger();
 
     /// Player script
     new PlayerScript_DarkPortal_Phasing();
