@@ -1319,7 +1319,24 @@ enum Stagger
 
 struct SpellProcEventEntry;                                 // used only privately
 
-float const g_BaseEnemyParryChance[4] =
+#define STATS_CHANCE_SIZE 4
+float const g_BaseMissChancePhysical[STATS_CHANCE_SIZE] =
+{
+    -4.5f,
+    -3.0f,
+    -1.5f,
+    0.0f
+};
+
+float const g_BaseMissChanceSpell[STATS_CHANCE_SIZE] =
+{
+    -9.0f,
+    -6.0f,
+    -3.0f,
+    0.0f
+};
+
+float const g_BaseEnemyParryChance[STATS_CHANCE_SIZE] =
 {
     -1.5f,
     0.0f,
@@ -1327,7 +1344,7 @@ float const g_BaseEnemyParryChance[4] =
     3.0f
 };
 
-float const g_BaseEnemyDodgeChance[4] =
+float const g_BaseEnemyDodgeChance[STATS_CHANCE_SIZE] =
 {
     -4.5f,
     -3.0f,
@@ -1613,15 +1630,17 @@ class Unit : public WorldObject
         float CalculateDamageDealtFactor(Player* player, Creature* target);
         float CalculateDamageTakenFactor(Player* player, Creature* target);
 
-        float MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const;
+        float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
+        float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
-        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
+        SpellMissInfo MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
 
         float GetUnitDodgeChance(Unit const* p_Attacker) const;
         float GetUnitParryChance(Unit const* p_Attacker) const;
         float GetUnitBlockChance(Unit const* p_Attacker) const;
-        float GetUnitMissChance(WeaponAttackType attType) const;
+        float GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType attType) const;
+        float GetUnitMissChanceSpell(Unit const* p_Attacker) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
         bool CanUseAttackType(uint8 attacktype) const

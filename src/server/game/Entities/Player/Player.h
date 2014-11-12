@@ -1967,6 +1967,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         uint32 GetRoleForGroup(uint32 specializationId = 0);
         Stats GetPrimaryStat() const;
+        bool IsActiveSpecTankSpec() const;
 
         bool ResetTalents(bool no_cost = false);
         uint32 GetNextResetTalentsCost() const;

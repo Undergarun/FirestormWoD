@@ -5954,6 +5954,17 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
     return ROLE_DAMAGE;
 }
 
+bool Player::IsActiveSpecTankSpec() const
+{
+    if (GetSpecializationId(GetActiveSpec()) == SPEC_PALADIN_PROTECTION ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_WARRIOR_PROTECTION ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_GUARDIAN ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_DK_BLOOD ||
+        GetSpecializationId(GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+        return true;
+    return false;
+}
+
 Mail* Player::GetMail(uint32 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
