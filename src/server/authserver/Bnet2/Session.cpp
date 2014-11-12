@@ -602,11 +602,16 @@ namespace BNet2 {
             l_Buffer.WriteBits(realmCounter, 32);                          ///< index
 
             l_Buffer.FlushBits();
-            l_Buffer.Write<uint8_t>(0x43);
-            l_Buffer.Write<uint8_t>(0x02);
+
 
             l_Packet.AppendByteArray(l_Buffer.GetData(), l_Buffer.GetSize());
             realmCounter++;
+        }
+
+        /// SMSG_LIST_COMPLETE
+        {
+            l_Packet.Write<uint8_t>(0x43);
+            l_Packet.Write<uint8_t>(0x02);
         }
 
         Send(&l_Packet);
