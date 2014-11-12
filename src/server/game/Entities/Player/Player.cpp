@@ -9377,11 +9377,14 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         }
     }
 
+    uint32 l_OldZone  = m_zoneUpdateId;
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
 
     // zone changed, so area changed as well, update it
     UpdateArea(newArea);
+
+    sScriptMgr->OnPlayerUpdateZone(this, newZone, l_OldZone, newArea);
 
     AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
     if (!zone)
@@ -9400,8 +9403,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             }
         }
     }
-
-    sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital

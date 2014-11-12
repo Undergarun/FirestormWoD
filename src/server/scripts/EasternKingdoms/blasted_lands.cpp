@@ -69,7 +69,32 @@ public:
     }
 };
 
+// Dark Portal phasing
+class PlayerScript_DarkPortal_Phasing : public PlayerScript
+{
+    public:
+        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing") { }
+
+        enum eMaps
+        {
+            BLASTED_LANDS_DRAENOR_PHASE = 1190,
+            EASTERN_KINGDOM_MAP_ID      = 0,
+            BLASTER_LANDS_ZONE_ID       = 4
+        };
+
+        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+        {
+            if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
+                p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
+            else if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
+                p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+        }
+};
+
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
+
+    /// Player script
+    new PlayerScript_DarkPortal_Phasing();
 }
