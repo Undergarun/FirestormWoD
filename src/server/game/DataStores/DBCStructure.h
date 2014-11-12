@@ -2204,13 +2204,15 @@ struct SpellDurationEntry
     int32   Duration[3];                                    // 1-3      m_Duration + m_DurationPerLevel + m_MaxDuration
 };
 
+#define MAX_ENCHANTMENT_SPELLS 3
+
 struct SpellItemEnchantmentEntry
 {
     uint32  ID;                                             // 0        m_ID
     //uint32    charges;                                    // 1        m_charges
-    uint32  type[3];                                        // 2-4      m_effect[3]
-    uint32  amount[3];                                      // 5-7      m_effectPointsMin[3]
-    uint32  spellid[3];                                     // 8-10     m_effectArg[3]
+    uint32  type[MAX_ENCHANTMENT_SPELLS];                   // 2-4      m_effect[3]
+    uint32  amount[MAX_ENCHANTMENT_SPELLS];                 // 5-7      m_effectPointsMin[3]
+    uint32  spellid[MAX_ENCHANTMENT_SPELLS];                // 8-10     m_effectArg[3]
     char*   description;                                    // 11       m_name_lang
     uint32  aura_id;                                        // 12       m_itemVisual
     uint32  slot;                                           // 13       m_flags
