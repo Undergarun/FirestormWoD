@@ -1950,7 +1950,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (armor < 0.0f)
         armor = 0.0f;
 
-    int scalingLevel = getLevel() > GT_MAX_LEVEL ? GT_MAX_LEVEL - 1 : getLevel() - 1;
+    int scalingLevel = std::max(getLevel() > GT_MAX_LEVEL ? GT_MAX_LEVEL - 1 : getLevel() - 1, 1);
     float tmpvalue = armor / (armor + sgtArmorMitigationByLvlStore.LookupEntry(scalingLevel)->ratio);
 
     if (tmpvalue < 0.0f)
