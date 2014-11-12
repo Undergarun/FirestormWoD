@@ -17,6 +17,8 @@ namespace BNet2 {
         BATTLENET2_SESSION_STATE_PROOF_VERIFICATION         = 3,
     };
 
+    static std::map<uint16, std::string> g_VersionStrByBuild;
+
     /// Battle net 2 session
     class Session : public RealmSocket::Session
     {

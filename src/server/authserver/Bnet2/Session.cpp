@@ -101,11 +101,8 @@ namespace BNet2 {
 
                 delete[] l_Buffer;
 
-                uint32_t l_Opcode = l_Packet.GetOpcode();
+                uint32_t l_Opcode  = l_Packet.GetOpcode();
                 uint32_t l_Channel = l_Packet.GetChannel();
-
-                printf("Receive Opcode %u on channel %u\n", l_Opcode, l_Channel);
-
                 uint32_t l_I;
 
                 for (l_I = 0; l_I < AUTH_TOTAL_COMMANDS; ++l_I)
@@ -273,7 +270,6 @@ namespace BNet2 {
                 }
             }
 
-            l_Result.WriteBits(false, 1);
             l_Result.WriteString("", 8, false);         ///< First Name
             l_Result.WriteString("", 8, false);         ///< Last Name
             l_Result.WriteBits(m_AccountID, 32);
@@ -283,7 +279,7 @@ namespace BNet2 {
             l_Result.WriteString(m_AccountName, 5, false, -1);
             l_Result.WriteBits(0, 64);
             l_Result.WriteBits(0, 32);
-            l_Result.WriteBits(0, 8);
+            l_Result.WriteBits(false, 1);
         }
 
         Send(&l_Result);
@@ -554,59 +550,59 @@ namespace BNet2 {
         ACE_INET_Addr l_ClientAddress;
         GetSocket().peer().get_remote_addr(l_ClientAddress);
 
-        uint32_t realmCounter = 0;
-        for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
+        uint32_t l_RealmCounter = 0;
+        for (RealmList::RealmMap::const_iterator l_It = sRealmList->begin(); l_It != sRealmList->end(); ++l_It)
         {
-            const Realm &realm = i->second;
-            uint8 lock = (realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
+            const Realm & l_Realm = l_It->second;
+            uint8 l_LockStatus = (l_Realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
-            uint32 flag = realm.flag;
-            std::string name = i->first;
-            bool l_Version = false;
+            uint32      l_Flags     = l_Realm.flag;
+            std::string l_Name      = l_It->first;
+            bool        l_Version   = false;
 
             BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
 
             l_Buffer.WriteBits(true, 1);
-            l_Buffer.WriteBits(i->second.timezone, 32);                    ///< Timezone
-            l_Buffer.WriteBits<float>(i->second.populationLevel, 32);      ///< Population
-            l_Buffer.WriteBits(lock, 8);                                   ///< Lock
-            l_Buffer.WriteBits(0, 19);                                     ///< Unk
-            l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
-            l_Buffer.WriteString(name, 10, false);                         ///< name
-            l_Buffer.WriteBits(l_Version, 1);                               ///< Version ? send id/port
+            l_Buffer.WriteBits(l_It->second.timezone, 32);                      ///< Timezone
+            l_Buffer.WriteBits<float>(l_It->second.populationLevel, 32);        ///< Population
+            l_Buffer.WriteBits(l_LockStatus, 8);                                ///< Lock
+            l_Buffer.WriteBits(0, 19);                                          ///< Unk
+            l_Buffer.WriteBits(0x80000000 + l_Realm.icon, 32);                  ///< type (maybe icon ?)
+            l_Buffer.WriteString(l_Name, 10, false);                            ///< name
+            l_Buffer.WriteBits(l_Version, 1);                                   ///< Version ? send id/port
 
             // Version block
             if (l_Version)
             {
-                std::string l_Version = "6.0.3.19116";
+                std::string l_Version = g_VersionStrByBuild[l_It->second.gamebuild];
                 l_Buffer.WriteString(l_Version, 5);
 
                 ACE_INET_Addr l_Address;
-                l_Address.string_to_addr(realm.address.c_str());
+                l_Address.string_to_addr(l_Realm.address.c_str());
 
-                uint8_t port[2];
-                *(uint16_t*)port = l_Address.get_port_number();
-                std::reverse(port, port + sizeof(port));
+                uint8_t l_Port[2];
+                *(uint16_t*)l_Port = l_Address.get_port_number();
+                std::reverse(l_Port, l_Port + sizeof(l_Port));
 
                 uint32_t l_IpAddress = l_Address.get_ip_address();
                 EndianConvertReverse(l_IpAddress);
 
                 l_Buffer.Write(l_IpAddress);
-                l_Buffer.AppendByteArray(port, sizeof(port));
+                l_Buffer.AppendByteArray(l_Port, sizeof(l_Port));
             }
 
-            l_Buffer.WriteBits(i->second.flag, 8);                         ///< Flags
+            l_Buffer.WriteBits(l_It->second.flag, 8);                      ///< Flags
             l_Buffer.WriteBits(0, 8);                                      ///< Region
             l_Buffer.WriteBits(0, 12);                                     ///< unk
-            l_Buffer.WriteBits(0, 8);                                      ///< Battlegroup
-            l_Buffer.WriteBits(realmCounter, 32);                          ///< index
+            l_Buffer.WriteBits(0, 8);                                      ///< Battle group
+            l_Buffer.WriteBits(l_RealmCounter, 32);                        ///< Index
 
             l_Buffer.FlushBits();
             l_Buffer.Write<uint8_t>(0x43);
             l_Buffer.Write<uint8_t>(0x02);
 
             l_Packet.AppendByteArray(l_Buffer.GetData(), l_Buffer.GetSize());
-            realmCounter++;
+            l_RealmCounter++;
         }
 
         Send(&l_Packet);
@@ -624,6 +620,7 @@ namespace BNet2 {
             p_Dest[l_I / 2] = strtol(l_Buffer, NULL, 16);
         }
     }
+
     BigNumber MakeBigNumber(const std::string & p_Str)
     {
         uint8_t * l_Buffer = new uint8_t[(p_Str.size() / 2) + 1];
@@ -641,8 +638,6 @@ namespace BNet2 {
 
     bool Session::WoW_Handle_MultiLogonRequest(BNet2::Packet * p_Packet)
     {
-        printf("WoW_Handle_MultiLogonRequest\n");
-
         //@TODO: Reverse it ...
 
         return true;
@@ -651,98 +646,94 @@ namespace BNet2 {
     /// Realm connection client request
     bool Session::WoW_Handle_JoinRequest(BNet2::Packet * p_Packet)
     {
-        printf("WoW_Handle_JoinRequest\n");
-
         /// - Read packet data
-        uint8_t clientSalt[4];
-        *(uint32_t*)clientSalt = p_Packet->ReadBits<uint32_t>(32);			///< ClientSeed
-        uint32_t    l_Unknow = p_Packet->ReadBits<uint32_t>(20);			///< Unknow
-        uint8_t     l_Region = p_Packet->ReadBits<uint8_t>(8);			    ///< Region
-        uint16_t    l_Unknow2 = p_Packet->ReadBits<uint16_t>(12);			///< Unknow
-        uint8_t     l_Battlegroup = p_Packet->ReadBits<uint8_t>(8);		    ///< Battlegroup
-        uint32_t    l_Index = p_Packet->ReadBits<uint32_t>(32);			    ///< Index
+        uint8_t l_ClientSalt[4];
+        *(uint32_t*)l_ClientSalt    = p_Packet->ReadBits<uint32_t>(32);         ///< ClientSeed
+        uint32_t    l_Unknow        = p_Packet->ReadBits<uint32_t>(20);         ///< Unknown
+        uint8_t     l_Region        = p_Packet->ReadBits<uint8_t>(8);           ///< Region
+        uint16_t    l_Unknow2       = p_Packet->ReadBits<uint16_t>(12);         ///< Unknown
+        uint8_t     l_Battlegroup   = p_Packet->ReadBits<uint8_t>(8);           ///< Battle group
+        uint32_t    l_Index         = p_Packet->ReadBits<uint32_t>(32);         ///< Index
 
-        uint8_t serverSalt[4];
-        *(int32_t*)serverSalt = rand();
+        uint8_t l_ServerSalt[4];
+        *(int32_t*)l_ServerSalt = rand();
 
-        uint8_t sessionKey[0x28];
-        memset(sessionKey, 0, sizeof(sessionKey));
+        uint8_t l_SessionKey[0x28];
+        memset(l_SessionKey, 0, sizeof(l_SessionKey));
 
         HmacHash l_Hmac(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64));
         l_Hmac.UpdateData((const uint8_t*)"WoW", 4);
-        l_Hmac.UpdateData(clientSalt, sizeof(clientSalt));
-        l_Hmac.UpdateData(serverSalt, sizeof(serverSalt));
+        l_Hmac.UpdateData(l_ClientSalt, sizeof(l_ClientSalt));
+        l_Hmac.UpdateData(l_ServerSalt, sizeof(l_ServerSalt));
         l_Hmac.Finalize();
 
-        memcpy(sessionKey, l_Hmac.GetDigest(), l_Hmac.GetLength());
+        memcpy(l_SessionKey, l_Hmac.GetDigest(), l_Hmac.GetLength());
 
         HmacHash l_Hmac2(64, (uint8_t*)GetSRP()->SessionKey.AsByteArray(64));
         l_Hmac2.UpdateData((const uint8_t*)"WoW", 4);
-        l_Hmac2.UpdateData(serverSalt, sizeof(serverSalt));
-        l_Hmac2.UpdateData(clientSalt, sizeof(clientSalt));
+        l_Hmac2.UpdateData(l_ServerSalt, sizeof(l_ServerSalt));
+        l_Hmac2.UpdateData(l_ClientSalt, sizeof(l_ClientSalt));
         l_Hmac2.Finalize();
 
-        ASSERT(l_Hmac.GetLength() + l_Hmac2.GetLength() == sizeof(sessionKey));
-        memcpy(sessionKey + l_Hmac.GetLength(), l_Hmac2.GetDigest(), l_Hmac2.GetLength());
+        ASSERT(l_Hmac.GetLength() + l_Hmac2.GetLength() == sizeof(l_SessionKey));
+        memcpy(l_SessionKey + l_Hmac.GetLength(), l_Hmac2.GetDigest(), l_Hmac2.GetLength());
 
-        char sSessionKey[sizeof(sessionKey)* 3];
-        for (uint32_t i = 0; i < sizeof(sessionKey); ++i)
+        char sSessionKey[sizeof(l_SessionKey)* 3];
+        for (uint32_t l_It = 0; l_It < sizeof(l_SessionKey); ++l_It)
         {
-            sprintf(sSessionKey + i * 2, "%02X", sessionKey[i]);
+            sprintf(sSessionKey + l_It * 2, "%02X", l_SessionKey[l_It]);
         }
 
         sSessionKey[sizeof(sSessionKey)-1] = 0;
 
         BigNumber l_K = MakeBigNumber(sSessionKey);
 
-        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, l_K.AsHexStr());
-        stmt->setString(1, GetSocket().getRemoteAddress().c_str());
-        stmt->setUInt32(2, GetLocaleByName(m_Locale));
+        PreparedStatement * l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+        l_Stmt->setString(0, l_K.AsHexStr());
+        l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
+        l_Stmt->setUInt32(2, GetLocaleByName(m_Locale));
 
         switch (GetClientPlatform())
         {
-        case BATTLENET2_PLATFORM_WIN:
-            stmt->setString(3, "Win");
-            break;
-        case BATTLENET2_PLATFORM_WIN64:
-            stmt->setString(3, "Wn64");
-            break;
-        case BATTLENET2_PLATFORM_MAC64:
-            stmt->setString(3, "Mc64");
-            break;
+            case BATTLENET2_PLATFORM_WIN:
+                l_Stmt->setString(3, "Win");
+                break;
+            case BATTLENET2_PLATFORM_WIN64:
+                l_Stmt->setString(3, "Wn64");
+                break;
+            case BATTLENET2_PLATFORM_MAC64:
+                l_Stmt->setString(3, "Mc64");
+                break;
 
-        default:
-            stmt->setString(3, "unk");
-            break;
+            default:
+                l_Stmt->setString(3, "unk");
+                break;
         }
 
-        stmt->setString(4, m_AccountName);
+        l_Stmt->setString(4, m_AccountName);
 
-        LoginDatabase.Query(stmt);
+        LoginDatabase.Query(l_Stmt);
 
-        Realm const* l_RealmRequested = nullptr;
-        uint32_t     l_RealmIdx = 0;
-        uint32_t     l_RealmCounter = 0;
+        Realm const* l_RealmRequested   = nullptr;
+        uint32_t     l_RealmIdx         = 0;
+        uint32_t     l_RealmCounter     = 0;
 
-        for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
+        for (RealmList::RealmMap::const_iterator l_It = sRealmList->begin(); l_It != sRealmList->end(); ++l_It)
         {
             if (l_Index == l_RealmIdx)
             {
-                l_RealmCounter = 1;
-                l_RealmRequested = &i->second;
+                l_RealmCounter      = 1;
+                l_RealmRequested    = &l_It->second;
                 break;
             }
 
             l_RealmIdx++;
         }
 
-        printf("SMSG_JOIN_RESPONSE\n");
-
         BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
 
-        l_Buffer.WriteBits(l_RealmRequested == nullptr, 1);			///< Response code
-        l_Buffer.WriteBits(*(uint32_t*)serverSalt, 32);
+        l_Buffer.WriteBits(l_RealmRequested == nullptr, 1);     ///< Response code
+        l_Buffer.WriteBits(*(uint32_t*)l_ServerSalt, 32);
         l_Buffer.WriteBits(l_RealmCounter, 5);
         l_Buffer.FlushBits();
 
@@ -751,15 +742,15 @@ namespace BNet2 {
             ACE_INET_Addr l_Address;
             l_Address.string_to_addr(l_RealmRequested->address.c_str());
 
-            uint8_t port[2];
-            *(uint16_t*)port = l_Address.get_port_number();
-            std::reverse(port, port + sizeof(port));
+            uint8_t l_Port[2];
+            *(uint16_t*)l_Port = l_Address.get_port_number();
+            std::reverse(l_Port, l_Port + sizeof(l_Port));
 
             uint32_t l_IpAddress = l_Address.get_ip_address();
             EndianConvertReverse(l_IpAddress);
 
             l_Buffer.Write(l_IpAddress);
-            l_Buffer.AppendByteArray(port, sizeof(port));
+            l_Buffer.AppendByteArray(l_Port, sizeof(l_Port));
         }
 
         l_Buffer.FlushBits();
