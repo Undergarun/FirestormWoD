@@ -551,7 +551,6 @@ namespace BNet2 {
         ACE_INET_Addr l_ClientAddress;
         GetSocket().peer().get_remote_addr(l_ClientAddress);
 
-        uint32_t l_RealmCounter = 0;
         for (RealmList::RealmMap::const_iterator l_It = sRealmList->begin(); l_It != sRealmList->end(); ++l_It)
         {
             const Realm & l_Realm = l_It->second;
@@ -596,13 +595,12 @@ namespace BNet2 {
             l_Buffer.WriteBits(0, 8);                                      ///< Region
             l_Buffer.WriteBits(0, 12);                                     ///< unk
             l_Buffer.WriteBits(0, 8);                                      ///< Battle group
-            l_Buffer.WriteBits(l_RealmCounter, 32);                        ///< Index
+            l_Buffer.WriteBits(l_It->second.m_ID, 32);                     ///< Index
 
             l_Buffer.FlushBits();
 
 
             l_Packet.AppendByteArray(l_Buffer.GetData(), l_Buffer.GetSize());
-            l_RealmCounter++;
         }
 
         /// SMSG_LIST_COMPLETE
@@ -721,19 +719,16 @@ namespace BNet2 {
         LoginDatabase.Query(l_Stmt);
 
         Realm const* l_RealmRequested   = nullptr;
-        uint32_t     l_RealmIdx         = 0;
         uint32_t     l_RealmCounter     = 0;
 
         for (RealmList::RealmMap::const_iterator l_It = sRealmList->begin(); l_It != sRealmList->end(); ++l_It)
         {
-            if (l_Index == l_RealmIdx)
+            if (l_Index == l_It->second.m_ID)
             {
                 l_RealmCounter      = 1;
                 l_RealmRequested    = &l_It->second;
                 break;
             }
-
-            l_RealmIdx++;
         }
 
         BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
