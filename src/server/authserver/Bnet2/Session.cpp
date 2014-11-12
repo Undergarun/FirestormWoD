@@ -36,7 +36,7 @@ namespace BNet2 {
 
     };
 
-    #define AUTH_TOTAL_COMMANDS 5
+    #define AUTH_TOTAL_COMMANDS 6
 
     //////////////////////////////////////////////////////////////////////////
 
