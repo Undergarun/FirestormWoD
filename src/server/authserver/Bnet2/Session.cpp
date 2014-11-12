@@ -30,6 +30,7 @@ namespace BNet2 {
         { OPCODE_ID(CMSG_INFORMATION_REQUEST),    OPCODE_CHANNEL(CMSG_INFORMATION_REQUEST),    &Session::None_Handle_InformationRequest    },
         { OPCODE_ID(CMSG_PROOF_RESPONSE),         OPCODE_CHANNEL(CMSG_PROOF_RESPONSE),         &Session::None_Handle_ProofResponse         },
         { OPCODE_ID(CMSG_PING),                   OPCODE_CHANNEL(CMSG_PING),                   &Session::Creep_Handle_Ping                 },
+        { OPCODE_ID(CMSG_DISCONNECT),             OPCODE_CHANNEL(CMSG_DISCONNECT),             &Session::Creep_Handle_Disconnect           },
         { OPCODE_ID(CMSG_REALM_UPDATE),           OPCODE_CHANNEL(CMSG_REALM_UPDATE),           &Session::WoW_Handle_RealmUpdate            },
         { OPCODE_ID(CMSG_JOIN_REQUEST),           OPCODE_CHANNEL(CMSG_JOIN_REQUEST),           &Session::WoW_Handle_JoinRequest            },
         { OPCODE_ID(CMSG_MULTI_LOGON_REQUEST_V2), OPCODE_CHANNEL(CMSG_MULTI_LOGON_REQUEST_V2), &Session::WoW_Handle_MultiLogonRequest      },
@@ -532,7 +533,33 @@ namespace BNet2 {
     /// Disconnect notify
     bool Session::Creep_Handle_Disconnect(BNet2::Packet * p_Packet)
     {
-        return false;
+        // Clear session key
+        PreparedStatement * l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+        l_Stmt->setString(0, "");
+        l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
+        l_Stmt->setUInt32(2, GetLocaleByName(m_Locale));
+
+        switch (GetClientPlatform())
+        {
+            case BATTLENET2_PLATFORM_WIN:
+                l_Stmt->setString(3, "Win");
+                break;
+            case BATTLENET2_PLATFORM_WIN64:
+                l_Stmt->setString(3, "Wn64");
+                break;
+            case BATTLENET2_PLATFORM_MAC64:
+                l_Stmt->setString(3, "Mc64");
+                break;
+            default:
+                l_Stmt->setString(3, "unk");
+                break;
+        }
+
+        l_Stmt->setString(4, m_AccountName);
+
+        LoginDatabase.Query(l_Stmt);
+
+        return true;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -555,6 +582,8 @@ namespace BNet2 {
         {
             const Realm & l_Realm = l_It->second;
             uint8 l_LockStatus = (l_Realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
+            if (l_LockStatus)
+                continue;
 
             uint32      l_Flags     = l_Realm.flag;
             std::string l_Name      = l_It->first;
@@ -731,14 +760,15 @@ namespace BNet2 {
             }
         }
 
-        BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
+        uint8 l_LockStatus = (l_RealmRequested->allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
-        l_Buffer.WriteBits(l_RealmRequested == nullptr, 1);     ///< Response code
-        l_Buffer.WriteBits(*(uint32_t*)l_ServerSalt, 32);
-        l_Buffer.WriteBits(l_RealmCounter, 5);
+        BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);
+        l_Buffer.WriteBits(l_LockStatus, 1);                        ///< Response code
+        l_Buffer.WriteBits(*(uint32_t*)l_ServerSalt, 32);           ///< ServerSalt
+        l_Buffer.WriteBits(l_LockStatus ? 0 : l_RealmCounter, 5);   ///< RealmCounter
         l_Buffer.FlushBits();
 
-        if (l_RealmRequested != nullptr)
+        if (l_RealmRequested != nullptr && !l_LockStatus)
         {
             ACE_INET_Addr l_Address;
             l_Address.string_to_addr(l_RealmRequested->address.c_str());
@@ -750,8 +780,8 @@ namespace BNet2 {
             uint32_t l_IpAddress = l_Address.get_ip_address();
             EndianConvertReverse(l_IpAddress);
 
-            l_Buffer.Write(l_IpAddress);
-            l_Buffer.AppendByteArray(l_Port, sizeof(l_Port));
+            l_Buffer.Write(l_IpAddress);                            ///< IP
+            l_Buffer.AppendByteArray(l_Port, sizeof(l_Port));       ///< Port
         }
 
         l_Buffer.FlushBits();
