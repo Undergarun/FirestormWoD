@@ -746,7 +746,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_lootSpecId = 0;
     m_BonusRollFails = 0;
 
-    m_comboTarget = 0;
     m_comboPoints = 0;
 
     m_regenTimer = 0;
@@ -9615,15 +9614,8 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     }
 
     // cleanup combo points
-    if (GetComboTarget() == m_Duel->opponent->GetGUID())
-        ClearComboPoints();
-    else if (GetComboTarget() == m_Duel->opponent->GetPetGUID())
-        ClearComboPoints();
-
-    if (m_Duel->opponent->GetComboTarget() == GetGUID())
-        m_Duel->opponent->ClearComboPoints();
-    else if (m_Duel->opponent->GetComboTarget() == GetPetGUID())
-        m_Duel->opponent->ClearComboPoints();
+    ClearComboPoints();
+    m_Duel->opponent->ClearComboPoints();
 
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
@@ -25401,31 +25393,10 @@ Player* Player::GetSelectedPlayer() const
 
 void Player::SendComboPoints()
 {
-    Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
-
-    if (combotarget)
-    {
-        ObjectGuid guid = combotarget->GetGUID();
-        WorldPacket data(SMSG_UPDATE_COMBO_POINTS);
-
-        uint8 bitsOrder[8] = { 6, 2, 5, 4, 7, 0, 1, 3 };
-        data.WriteBitInOrder(guid, bitsOrder);
-
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
-        data << uint8(m_comboPoints);
-        data.WriteByteSeq(guid[6]);
-
-        GetSession()->SendPacket(&data);
-    }
+    SetPower(POWER_COMBO_POINT, m_comboPoints);
 }
 
-void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
+void Player::AddComboPoints(int8 count, Spell* spell)
 {
     if (!count)
         return;
@@ -25435,23 +25406,7 @@ void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
-    if (target->GetGUID() == m_comboTarget)
-        *comboPoints += count;
-    else
-    {
-        if (m_comboTarget)
-            if (Unit* target2 = ObjectAccessor::GetUnit(*this, m_comboTarget))
-                target2->RemoveComboPointHolder(GetGUIDLow());
-
-        // Spells will always add value to m_comboPoints eventualy, so it must be cleared first
-        if (spell)
-            m_comboPoints = 0;
-
-        m_comboTarget = target->GetGUID();
-        *comboPoints = count;
-
-        target->AddComboPointHolder(GetGUIDLow());
-    }
+    *comboPoints += count;
 
     if (*comboPoints > 5)
         *comboPoints = 5;
@@ -25476,20 +25431,13 @@ void Player::GainSpellComboPoints(int8 count)
 
 void Player::ClearComboPoints()
 {
-    if (!m_comboTarget)
-        return;
-
     // without combopoints lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
     m_comboPoints = 0;
+    SetPower(POWER_COMBO_POINT, m_comboPoints);
 
     SendComboPoints();
-
-    if (Unit* target = ObjectAccessor::GetUnit(*this, m_comboTarget))
-        target->RemoveComboPointHolder(GetGUIDLow());
-
-    m_comboTarget = 0;
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)
@@ -28707,7 +28655,7 @@ void Player::ActivateSpec(uint8 spec)
     if (Pet* pet = GetPet())
         RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, true, pet->m_Stampeded);
 
-    ClearComboPointHolders();
+    ClearComboPoints();
     ClearAllReactives();
     UnsummonAllTotems();
     RemoveAllControlled();

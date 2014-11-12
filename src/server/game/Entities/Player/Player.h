@@ -1863,9 +1863,8 @@ class Player : public Unit, public GridObject<Player>
         void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
-        uint64 GetComboTarget() const { return m_comboTarget; }
 
-        void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
+        void AddComboPoints(int8 count, Spell* spell = NULL);
         void GainSpellComboPoints(int8 count);
         void ClearComboPoints();
         void SendComboPoints();
@@ -3302,7 +3301,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_ExtraFlags;
         uint64 m_curSelection;
 
-        uint64 m_comboTarget;
         int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;
