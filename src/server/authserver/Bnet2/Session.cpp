@@ -560,7 +560,7 @@ namespace BNet2 {
 
             uint32 flag = realm.flag;
             std::string name = i->first;
-
+            bool l_Version = false;
 
             BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
 
@@ -571,11 +571,12 @@ namespace BNet2 {
             l_Buffer.WriteBits(0, 19);                                     ///< Unk
             l_Buffer.WriteBits(0x80000000 + realm.icon, 32);               ///< type (maybe icon ?)
             l_Buffer.WriteString(name, 10, false);                         ///< name
-            l_Buffer.WriteBits(true, 1);                                   ///< Version ? send id/port
+            l_Buffer.WriteBits(l_Version, 1);                              ///< Version ? send id/port
 
             // Version block
+            if (l_Version)
             {
-                std::string l_Version = "";
+                std::string l_Version = "6.0.3.19116";
                 l_Buffer.WriteString(l_Version, 5);
 
                 ACE_INET_Addr l_Address;
