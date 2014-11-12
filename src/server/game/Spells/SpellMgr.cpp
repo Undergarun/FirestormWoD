@@ -3035,7 +3035,7 @@ void SpellMgr::LoadSpellClassInfo()
 
             if (l_SkillLine->skillId != SkillClass[l_ClassID])
             {
-                if ((l_SkillLine->classmask & 1 << l_ClassID) == 0)
+                if ((l_SkillLine->classmask & 1 << (l_ClassID - 1)) == 0)
                     continue;
             }
 
