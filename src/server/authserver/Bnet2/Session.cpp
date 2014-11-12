@@ -99,8 +99,6 @@ namespace BNet2 {
             {
                 Packet l_Packet((char*)l_Buffer, l_Size);
 
-                delete[] l_Buffer;
-
                 uint32_t l_Opcode  = l_Packet.GetOpcode();
                 uint32_t l_Channel = l_Packet.GetChannel();
                 uint32_t l_I;
@@ -133,6 +131,8 @@ namespace BNet2 {
                 }
 
                 m_CurrentPacket = NULL;
+
+				delete[] l_Buffer;
             }
             catch (...)
             {
