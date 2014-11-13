@@ -81,24 +81,18 @@ void WorldSession::SendTabardVendorActivate(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBankerActivateOpcode(WorldPacket& p_RecvData)
 {
-    ObjectGuid guid;
+    uint64 l_Guid = 0;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    uint8 bitsOrder[8] = { 0, 2, 1, 6, 7, 3, 4, 5 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    p_RecvData.readPackGUID(l_Guid);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 4, 0, 3, 2, 1, 5, 6 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!unit)
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_Guid, UNIT_NPC_FLAG_BANKER);
+    if (!l_Unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_Guid)));
         return;
     }
 
@@ -106,7 +100,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendShowBank(guid);
+    SendShowBank(l_Guid);
 }
 
 void WorldSession::SendShowBank(uint64 guid)
