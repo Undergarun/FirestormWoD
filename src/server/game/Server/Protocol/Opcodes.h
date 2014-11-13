@@ -820,6 +820,7 @@ enum Opcodes
     CMSG_LEARN_TALENTS                          = 0x0BB6,   ///< 6.0.3 19116
     CMSG_AUTOEQUIP_ITEM                         = 0x0F35,   ///< 6.0.3 19116
     CMSG_SWAP_INV_ITEM                          = 0x0F17,   ///< 6.0.3 19116
+    CMSG_SWAP_ITEM                              = 0x0736,   ///< 6.0.3 19116
     CMSG_AUTOSTORE_BAG_ITEM                     = 0x0F18,   ///< 6.0.3 19116
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 
     CMSG_STAND_STATE_CHANGE                     = 0x0ABD,   ///< 6.0.3 19116
@@ -1526,7 +1527,6 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x0000,
     CMSG_SUMMON_RESPONSE                              = 0x0000,
     CMSG_SUSPEND_TOKEN                                = 0x0000,
-    CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
     CMSG_TEXT_EMOTE                                   = 0x0000,

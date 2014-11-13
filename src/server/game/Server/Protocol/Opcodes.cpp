@@ -871,6 +871,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_LEARN_TALENTS,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleLearnTalents               );
     DEFINE_OPCODE_HANDLER(CMSG_AUTOEQUIP_ITEM,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAutoEquipItemOpcode        );
     DEFINE_OPCODE_HANDLER(CMSG_SWAP_INV_ITEM,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSwapInvItemOpcode          );
+    DEFINE_OPCODE_HANDLER(CMSG_SWAP_ITEM,                                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSwapItem                   );
     DEFINE_OPCODE_HANDLER(CMSG_AUTOSTORE_BAG_ITEM,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAutoStoreBagItemOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PET_INFO,                                STATUS_UNHANDLED,   PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestPetInfoOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_SAVE_CUF_PROFILES,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSaveCUFProfiles            );
@@ -1495,7 +1496,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_SUMMON_BATTLEPET_COMPANION,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSummonBattlePet           );
     //DEFINE_OPCODE_HANDLER(CMSG_SUMMON_RESPONSE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSummonResponseOpcode      );
     //DEFINE_OPCODE_HANDLER(CMSG_SUSPEND_TOKEN,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_SWAP_ITEM,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSwapItem                  );
     //DEFINE_OPCODE_HANDLER(CMSG_SYNC_DANCE,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_TELEPORT_TO_UNIT,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_TEXT_EMOTE,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTextEmoteOpcode           );
