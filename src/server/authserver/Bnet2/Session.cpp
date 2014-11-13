@@ -255,6 +255,11 @@ namespace BNet2 {
         {
             bool l_HaveOptData = true;
 
+            char l_Bufffer[31];
+            sprintf(l_Bufffer, "%u", m_AccountID);
+
+            std::string l_AccountName = l_Bufffer;
+
             l_Result.WriteBits(0, 3);
             l_Result.WriteBits(0x80005000, 32);         ///< Ping request, ~10 secs
             l_Result.WriteBits(l_HaveOptData, 1);
@@ -278,7 +283,7 @@ namespace BNet2 {
             l_Result.WriteBits(0, 8);
             l_Result.WriteBits(0, 64);
             l_Result.WriteBits(0, 8);
-            l_Result.WriteString(m_AccountName, 5, false, -1);
+            l_Result.WriteString(l_AccountName, 5, false, -1);
             l_Result.WriteBits(0, 64);
             l_Result.WriteBits(0, 32);
             l_Result.WriteBits(false, 1);
