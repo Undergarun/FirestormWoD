@@ -408,8 +408,8 @@ void WorldSession::HandleMailTakeItem(WorldPacket& p_Packet)
     uint32 l_ItemID;
 
     p_Packet.readPackGUID(l_Mailbox);
-    p_Packet >> l_ItemID;
     p_Packet >> l_MailID;
+    p_Packet >> l_ItemID;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_Mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -506,8 +506,8 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& p_Packet)
     uint32 l_MailID;
 
     p_Packet.readPackGUID(l_MailBox);
-    p_Packet >> l_Money;
     p_Packet >> l_MailID;
+    p_Packet >> l_Money;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(l_MailBox, GAMEOBJECT_TYPE_MAILBOX))
         return;
