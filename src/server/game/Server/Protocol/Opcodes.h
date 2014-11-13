@@ -834,6 +834,7 @@ enum Opcodes
     CMSG_SAVE_EQUIPMENT_SET                     = 0x1B54,   ///< 6.0.3 19116
     CMSG_USE_EQUIPMENT_SET                      = 0x0756,   ///< 6.0.3 19116
     CMSG_DELETE_EQUIPMENT_SET                   = 0x03C3,   ///< 6.0.3 19116
+    CMSG_WHO                                    = 0x1322,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1547,7 +1548,6 @@ enum Opcodes
     CMSG_WARDEN_DATA                                  = 0x0000,
     CMSG_WARGAME_ACCEPT                               = 0x0000,
     CMSG_WARGAME_START                                = 0x0000,
-    CMSG_WHO                                          = 0x0000,
     CMSG_WHOIS                                        = 0x0000,
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0000,
     CMSG_WORLD_TELEPORT                               = 0x0000,

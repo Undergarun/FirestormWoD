@@ -886,6 +886,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_SAVE_EQUIPMENT_SET,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleEquipmentSetSave           );
     DEFINE_OPCODE_HANDLER(CMSG_USE_EQUIPMENT_SET,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleEquipmentSetUse            );
     DEFINE_OPCODE_HANDLER(CMSG_DELETE_EQUIPMENT_SET,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleEquipmentSetDelete         );
+    DEFINE_OPCODE_HANDLER(CMSG_WHO,                                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleWhoOpcode                  );
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1517,7 +1518,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_WARDEN_DATA,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWardenDataOpcode          ); // STATUS_AUTHED
     //DEFINE_OPCODE_HANDLER(CMSG_WARGAME_ACCEPT,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_WARGAME_START,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_WHO,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWhoOpcode                 );
     //DEFINE_OPCODE_HANDLER(CMSG_WHOIS,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWhoisOpcode               );
     //DEFINE_OPCODE_HANDLER(CMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate   );
     //DEFINE_OPCODE_HANDLER(CMSG_WORLD_TELEPORT,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWorldTeleportOpcode       );
