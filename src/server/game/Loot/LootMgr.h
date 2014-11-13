@@ -29,7 +29,6 @@
 
 #include <map>
 #include <vector>
-#include <list>
 
 enum RollType
 {
@@ -203,7 +202,7 @@ class LootTemplate;
 typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
 typedef std::map<uint32, QuestItemList*> QuestItemMap;
-typedef std::list<LootStoreItem*> LootStoreItemList;
+typedef std::vector<LootStoreItem> LootStoreItemList;
 typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
@@ -247,18 +246,14 @@ class LootStore
 class LootTemplate
 {
     class LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
-    typedef std::vector<LootGroup*> LootGroups;
+    typedef std::vector<LootGroup> LootGroups;
 
     public:
-        LootTemplate() { }
-        ~LootTemplate();
-
         // Adds an entry to the group (at loading stage)
-        void AddEntry(LootStoreItem* item);
+        void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(std::list<Condition*>  conditions);
-        void CopyConditions(LootItem* li) const;
         void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList) const;
 
         // True if template includes at least 1 quest drop entry
@@ -275,10 +270,6 @@ class LootTemplate
     private:
         LootStoreItemList Entries;                          // not grouped only
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
-
-        // Objects of this class must never be copied, we are storing pointers in container
-        LootTemplate(LootTemplate const&);
-        LootTemplate& operator=(LootTemplate const&);
 };
 
 //=====================================================
