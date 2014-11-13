@@ -1335,20 +1335,20 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
     */
 }
 
-void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
+void WorldSession::HandleSetActionBarToggles(WorldPacket& p_Packet)
 {
-    uint8 actionBar;
+    uint8 l_ActionBar;
 
-    recvData >> actionBar;
+    p_Packet >> l_ActionBar;
 
-    if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
+    if (!m_Player)                                        // ignore until not logged (check needed because STATUS_AUTHED)
     {
-        if (actionBar != 0)
-            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(actionBar));
+        if (l_ActionBar != 0)
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(l_ActionBar));
         return;
     }
 
-    GetPlayer()->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, actionBar);
+    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, l_ActionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)

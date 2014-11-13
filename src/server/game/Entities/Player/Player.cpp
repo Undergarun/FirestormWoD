@@ -4154,15 +4154,16 @@ void Player::GiveLevel(uint8 level)
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     // Refer-A-Friend
-    if (GetSession()->GetRecruiterId())
-        if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
-            if (level % 2 == 0)
-            {
-                ++m_grantableLevels;
-
-                if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
-                    SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
-            }
+/// Commented due to action bar fix, need more research
+//     if (GetSession()->GetRecruiterId())
+//         if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+//             if (level % 2 == 0)
+//             {
+//                 ++m_grantableLevels;
+// 
+//                 if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
+//                     SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
+//             }
 
     if (level == 85)
     {
@@ -19213,18 +19214,20 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
 
 bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
 {
-    ////                                                     0     1        2     3     4        5      6    7      8     9           10              11
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
-     // 12          13          14          15   16           17        18        19         20         21          22           23                 24
-    //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
-    // 25                 26          27       28       29       30       31         32           33               34     35      36         37              38               39
-    //"resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, "
-    //    40           41          42              43           44           45
-    //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
-    // 46      47      48      49      50      51      52           53         54             55               56                 57              58
-    //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, "
-    // 59           60              61               62                 63              64                              65            66             67                68                  69
-    //"knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet  FROM characters WHERE guid = '%u'", guid);
+    /// 0             1               2               3                  4                         5                         6                7                  8                    9
+    /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes, 
+    /// 10            11              12              13                 14                        15                        16               17                 18                   19
+    /// playerBytes2, playerFlags,    position_x,     position_y,        position_z,               map,                      orientation,     taximask,          cinematic,           totaltime,
+    /// 20            21              22              23                 24                        25                        26               27                 28                   29
+    /// leveltime,    rest_bonus,     logout_time,    is_logout_resting, resettalents_cost,        resettalents_time,        talentTree,      trans_x,           trans_y,             trans_z,
+    /// 30            31              32              33                 34                        35                        36               37                 38                   39
+    /// trans_o,      transguid,      extra_flags,    stable_slots,      at_login,                 zone,                     online,          death_expire_time, taxi_path,           DungeonDifficulty,
+    /// 40            41              42              43                 44                        45                        46               47                 48                   49
+    /// totalKills,   todayKills,     yesterdayKills, chosenTitle,       watchedFaction,           drunk,                    health,          power1,            power2,              power3,
+    /// 50            51              52              53                 54                        55                        56               57                 58                   59
+    /// power4,       power5,         instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
+    /// 60            61              62              63                 64                        65                        66               67                 68                   69
+    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
 
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
     if (!result)
@@ -19318,8 +19321,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetGuidValue(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-
-    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, fields[60].GetUInt8());
+    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, fields[60].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
     m_petSlotUsed = fields[62].GetUInt32();
@@ -19963,8 +19965,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
 
-    if (m_grantableLevels > 0)
-        SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
+    /// Commented due to action bar fix, need more research
+    ///if (m_grantableLevels > 0)
+    ///    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES));
 
@@ -21592,7 +21595,7 @@ void Player::SaveToDB(bool create /*=false*/)
             ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
         stmt->setString(index++, ss.str());
 
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
+        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1));
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
@@ -21725,7 +21728,7 @@ void Player::SaveToDB(bool create /*=false*/)
             ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
+        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1));
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
