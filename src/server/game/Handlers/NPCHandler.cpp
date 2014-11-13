@@ -85,16 +85,11 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& p_RecvData)
 {
     uint64 l_Guid = 0;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
-
     p_RecvData.readPackGUID(l_Guid);
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_Guid, UNIT_NPC_FLAG_BANKER);
     if (!l_Unit)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_Guid)));
         return;
-    }
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
