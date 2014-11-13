@@ -4693,8 +4693,8 @@ void Player::SendMailResult(uint32 p_MailID, MailResponseType p_MailAction, Mail
     l_Data << uint32(p_MailAction);
     l_Data << uint32(p_MailError);
     l_Data << uint32(p_EquipError);
-    l_Data << uint32(p_ItemCount);
     l_Data << uint32(p_ItemGuid);
+    l_Data << uint32(p_ItemCount);
 
     GetSession()->SendPacket(&l_Data);
 }
