@@ -633,7 +633,6 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
             l_MailsBuffer.WriteBit(false);
             l_MailsBuffer.WriteBit(false);
             l_MailsBuffer.FlushBits();
-
         }
 
         l_MailsBuffer << uint64((*itr)->COD);                               // COD
