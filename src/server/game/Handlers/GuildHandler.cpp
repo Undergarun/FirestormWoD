@@ -194,10 +194,10 @@ void WorldSession::HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket)
     if (l_Position > 0)
     {
         for (size_t l_I = 0; l_I < l_NewMasterName.size(); l_I++)
-            if (l_I <= l_Position)
+            if (l_I < l_Position)
                 l_NewMasterRealName[l_I] = l_NewMasterName[l_I];
-
-        if (normalizePlayerName(l_NewMasterName))
+            l_NewMasterRealName.resize(l_Position);
+        if (normalizePlayerName(l_NewMasterRealName))
             if (Guild * l_Guild = _GetPlayerGuild(this, true))
                 l_Guild->HandleSetLeader(this, l_NewMasterRealName);
     }
