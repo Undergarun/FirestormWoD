@@ -816,6 +816,7 @@ enum Opcodes
     CMSG_LEARN_TALENTS                          = 0x0BB6,   ///< 6.0.3 19116
     CMSG_AUTOEQUIP_ITEM                         = 0x0F35,   ///< 6.0.3 19116
     CMSG_SWAP_INV_ITEM                          = 0x0F17,   ///< 6.0.3 19116
+    CMSG_AUTOSTORE_BAG_ITEM                     = 0x0F18,   ///< 6.0.3 19116
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 
     CMSG_STAND_STATE_CHANGE                     = 0x0ABD,   ///< 6.0.3 19116
     CMSG_BINDER_ACTIVATE                        = 0x02F3,   ///< 6.0.3 19116
@@ -1332,7 +1333,6 @@ enum Opcodes
     CMSG_AUCTION_SELL_ITEM                            = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
-    CMSG_AUTOSTORE_BAG_ITEM                           = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
     CMSG_BEGIN_TRADE                                  = 0x0000,
     CMSG_BLACK_MARKET_HELLO                           = 0x0000,
