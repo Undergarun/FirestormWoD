@@ -1127,7 +1127,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     LoginDatabase.EscapeString(l_EscapedAccountName);
 
     //                                                    0       1          2       3    4  5      6          7       8         9      10    11
-    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, UPPER(username) FROM account  WHERE id = %s", l_EscapedAccountName.c_str());
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username FROM account  WHERE id = %s", l_EscapedAccountName.c_str());
 
     /// Stop if the account is not found
     if (!l_Result)
