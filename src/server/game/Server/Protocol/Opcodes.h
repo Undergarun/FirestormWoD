@@ -941,7 +941,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Quest
     //////////////////////////////////////////////////////////////////////////
-    CMSG_QUESTGIVER_HELLO                       = 0x0000,   ///< 
+    CMSG_QUESTGIVER_HELLO                       = 0x058E,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_STATUS_QUERY                = 0x01E2,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0131,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_QUERY_QUEST                 = 0x1924,   ///< 6.0.3 19116
