@@ -1052,71 +1052,69 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
     SendPacket(&l_Response);
 }
 
-void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& p_RecvData)
 {
-    uint8 srcbag, srcslot, dstbag;
+    uint8 l_UnkInvCount, l_SrcBag, l_SrcSlot, l_DestBag;
 
-    recvData >> dstbag >> srcbag >> srcslot;
+    p_RecvData >> l_UnkInvCount >> l_SrcBag >> l_DestBag >> l_SrcSlot;
 
-    uint8 unkCounter = recvData.ReadBits(2);
-
-    for (uint8 i = 0; i < unkCounter; i++)
+    for (uint8 i = 0; i < l_UnkInvCount; i++)
     {
-        recvData.ReadBit();
-        recvData.ReadBit();
+        p_RecvData.ReadBit();
+        p_RecvData.ReadBit();
     }
 
-    recvData.FlushBits();
+    p_RecvData.FlushBits();
 
-    for (uint8 i = 0; i < unkCounter; i++)
+    for (uint8 i = 0; i < l_UnkInvCount; i++)
     {
-        recvData.read_skip<uint8>();
-        recvData.read_skip<uint8>();
+        p_RecvData.read_skip<uint8>();
+        p_RecvData.read_skip<uint8>();
     }
 
-    Item* pItem = m_Player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Item* l_Item = m_Player->GetItemByPos(l_SrcBag, l_SrcSlot);
+    if (!l_Item)
         return;
 
-    if (!m_Player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
+    if (!m_Player->IsValidPos(l_DestBag, NULL_SLOT, false))      // can be autostore pos
     {
         m_Player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
-    uint16 src = pItem->GetPos();
+    uint16 l_Src = l_Item->GetPos();
 
     // check unequip potability for equipped items and bank bags
-    if (m_Player->IsEquipmentPos (src) || m_Player->IsBagPos (src))
+    if (m_Player->IsEquipmentPos (l_Src) || m_Player->IsBagPos (l_Src))
     {
-        InventoryResult msg = m_Player->CanUnequipItem(src, !m_Player->IsBagPos (src));
-        if (msg != EQUIP_ERR_OK)
+        InventoryResult l_Result = m_Player->CanUnequipItem(l_Src, !m_Player->IsBagPos (l_Src));
+        if (l_Result != EQUIP_ERR_OK)
         {
-            m_Player->SendEquipError(msg, pItem, NULL);
+            m_Player->SendEquipError(l_Result, l_Item, NULL);
             return;
         }
     }
 
-    ItemPosCountVec dest;
-    InventoryResult msg = m_Player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
-    if (msg != EQUIP_ERR_OK)
+    ItemPosCountVec l_Dest;
+    InventoryResult l_Result = m_Player->CanStoreItem(l_DestBag, NULL_SLOT, l_Dest, l_Item, false);
+    if (l_Result != EQUIP_ERR_OK)
     {
-        m_Player->SendEquipError(msg, pItem, NULL);
+        m_Player->SendEquipError(l_Result, l_Item, NULL);
         return;
     }
 
     // no-op: placed in same slot
-    if (dest.size() == 1 && dest[0].pos == src)
+    if (l_Dest.size() == 1 && l_Dest[0].pos == l_Src)
     {
         // just remove grey item state
-        m_Player->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, pItem, NULL);
+        m_Player->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, l_Item, NULL);
         return;
     }
 
-    sLog->outAshran("HandleAutoStoreBagItemOpcode[%u] %u %u %u", m_Player->GetGUIDLow(), dstbag, srcbag, srcslot);
+    sLog->outAshran("HandleAutoStoreBagItemOpcode[%u] %u %u %u", m_Player->GetGUIDLow(), l_DestBag, l_SrcBag, l_SrcSlot);
 
-    m_Player->RemoveItem(srcbag, srcslot, true);
-    m_Player->StoreItem(dest, pItem, true);
+    m_Player->RemoveItem(l_SrcBag, l_SrcSlot, true);
+    m_Player->StoreItem(l_Dest, l_Item, true);
 }
 
 void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& p_RecvData)

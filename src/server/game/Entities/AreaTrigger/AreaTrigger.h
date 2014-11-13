@@ -64,6 +64,11 @@ enum eAreaTriggerTypes
 
 struct AreaTriggerTemplate
 {
+    AreaTriggerTemplate()
+    {
+        memset(this, 0, sizeof(AreaTriggerTemplate));
+    }
+
     uint32 m_SpellID;
     uint32 m_EffIndex;
     uint32 m_Entry;
