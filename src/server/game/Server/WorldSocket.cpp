@@ -1122,11 +1122,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     }
 
     /// Get the account information from the auth database
+    std::string l_AccountIDStr = l_AccountName;
     std::string l_EscapedAccountName = l_AccountName; // Duplicate, else will screw the SHA hash verification below
     LoginDatabase.EscapeString(l_EscapedAccountName);
 
-    //                                                 0       1          2       3       4  5      6          7       8         9      10
-    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os FROM account  WHERE username = '%s'", l_EscapedAccountName.c_str());
+    //                                                    0       1          2       3    4  5      6          7       8         9      10    11
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username FROM account  WHERE id = %s", l_EscapedAccountName.c_str());
 
     /// Stop if the account is not found
     if (!l_Result)
@@ -1137,6 +1138,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     }
 
     Field * l_Fields = l_Result->Fetch();
+
+    l_AccountName = l_Fields[11].GetString();
+    l_EscapedAccountName = l_AccountName;
+    LoginDatabase.EscapeString(l_EscapedAccountName);
 
     uint32 l_AccountExpansion   = l_Fields[6].GetUInt8();
     uint32 l_ServerExpansion    = sWorld->getIntConfig(CONFIG_EXPANSION);
@@ -1233,7 +1238,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     uint32 l_ServerSeed = m_Seed;
 
     SHA1Hash l_ServerAuthChallenge;
-    l_ServerAuthChallenge.UpdateData(l_AccountName);
+    l_ServerAuthChallenge.UpdateData(l_AccountIDStr);
     l_ServerAuthChallenge.UpdateData((uint8*)&l_ChallengeT, 4);
     l_ServerAuthChallenge.UpdateData((uint8*)&l_ClientSeed, 4);
     l_ServerAuthChallenge.UpdateData((uint8*)&l_ServerSeed, 4);
