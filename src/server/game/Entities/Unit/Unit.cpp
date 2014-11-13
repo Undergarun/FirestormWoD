@@ -22524,8 +22524,6 @@ float Unit::CalculateDamageDealtFactor(Player* player, Creature* target)
 
     uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
     int32 levelDiff = player->getLevel() - target->getLevel();
-    if (levelDiff < 0)
-        levelDiff = -levelDiff;
 
     float damageDealtFactor = 1.0f;
 
@@ -22566,8 +22564,6 @@ float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
 
     uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
     int32 levelDiff = player->getLevel() - target->getLevel();
-    if (levelDiff < 0)
-        levelDiff = -levelDiff;
 
     float damageTakenFactor = 1.0f;
 
