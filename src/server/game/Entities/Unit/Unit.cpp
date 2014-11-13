@@ -16564,7 +16564,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_HEALTH:
             return 0;
         case POWER_COMBO_POINT:
-            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_ROGUE ? 5 : 0);
+            return (GetTypeId() == TYPEID_PLAYER && (ToPlayer()->getClass() == CLASS_ROGUE || ToPlayer()->getClass() == CLASS_DRUID) ? 5 : 0);
         case POWER_CHI:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK ? 4 : 0);
         default:
