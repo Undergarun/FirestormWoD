@@ -2004,199 +2004,137 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetSave(WorldPacket& p_RecvData)
 {
-    ObjectGuid setGuid;
-    uint32 index;
-    EquipmentSet eqSet;
-    uint8 iconNameLen, setNameLen;
+    uint64 l_SetGuid = 0;
+    uint32 l_SetID;
+    EquipmentSet l_EquipmentSet;
+    uint8 l_IconNameLen, l_SetNameLen;
 
-    recvData >> index;
+    p_RecvData >> l_SetGuid;
+    p_RecvData >> l_SetID;
+    uint32 l_Unk = p_RecvData.read<uint32>();
 
-    if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
+    std::vector<uint64> l_ItemsGuids(EQUIPMENT_SLOT_END, 0);
+    for (uint32 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
+        p_RecvData.readPackGUID(l_ItemsGuids[l_Iter]);
+
+    l_SetNameLen = p_RecvData.ReadBits(8);
+    l_IconNameLen = 2 * p_RecvData.ReadBits(8);
+    if (p_RecvData.ReadBit())
+        ++l_IconNameLen;
+
+    p_RecvData.FlushBits();
+
+    std::string l_Name, l_IconName;
+    l_Name = p_RecvData.ReadString(l_SetNameLen);
+    l_IconName = p_RecvData.ReadString(l_IconNameLen);
+
+    if (l_SetID >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
         return;
 
-    setGuid[7] = recvData.ReadBit();
-
-    ObjectGuid* itemGuid;
-    itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint32 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
     {
-        uint8 bitsOrder[8] = { 4, 6, 0, 1, 3, 5, 2, 7 };
-        recvData.ReadBitInOrder(itemGuid[i], bitsOrder);
-    }
-
-    setGuid[4] = recvData.ReadBit();
-    setGuid[1] = recvData.ReadBit();
-    setGuid[5] = recvData.ReadBit();
-    setGuid[0] = recvData.ReadBit();
-    setGuid[3] = recvData.ReadBit();
-    setGuid[2] = recvData.ReadBit();
-
-    iconNameLen = 2 * recvData.ReadBits(8);
-    bool pair = recvData.ReadBit();
-
-    if (pair)
-        iconNameLen++;
-
-    setNameLen = recvData.ReadBits(8);
-    setGuid[6] = recvData.ReadBit();
-    recvData.FlushBits();
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        uint8 bytesOrder[8] = { 6, 1, 4, 0, 3, 5, 7, 2 };
-        recvData.ReadBytesSeq(itemGuid[i], bytesOrder);
-
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid[i] == 1)
+        if (l_ItemsGuids[l_Iter] == 1)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
-            eqSet.IgnoreMask |= 1 << i;
+            l_EquipmentSet.IgnoreMask |= 1 << l_Iter;
             continue;
         }
 
-        Item* item = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item && itemGuid[i])                               // cheating check 1
+        Item* l_Item = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Iter);
+        if (!l_Item && l_ItemsGuids[l_Iter])                               // cheating check 1
             return;
 
-        if (item && item->GetGUID() != itemGuid[i])             // cheating check 2
+        if (l_Item && l_Item->GetGUID() != l_ItemsGuids[l_Iter])             // cheating check 2
             return;
 
-        eqSet.Items[i] = GUID_LOPART(itemGuid[i]);
+        l_EquipmentSet.Items[l_Iter] = GUID_LOPART(l_ItemsGuids[l_Iter]);
     }
 
-    recvData.ReadByteSeq(setGuid[4]);
-    recvData.ReadByteSeq(setGuid[3]);
+    l_EquipmentSet.Guid      = l_SetGuid;
+    l_EquipmentSet.Name      = l_Name;
+    l_EquipmentSet.IconName  = l_IconName;
+    l_EquipmentSet.state     = EQUIPMENT_SET_NEW;
 
-    std::string name, iconName;
-
-    iconName = recvData.ReadString(iconNameLen);
-    name = recvData.ReadString(setNameLen);
-
-    recvData.ReadByteSeq(setGuid[5]);
-    recvData.ReadByteSeq(setGuid[0]);
-    recvData.ReadByteSeq(setGuid[1]);
-    recvData.ReadByteSeq(setGuid[7]);
-    recvData.ReadByteSeq(setGuid[6]);
-    recvData.ReadByteSeq(setGuid[2]);
-
-    eqSet.Guid      = setGuid;
-    eqSet.Name      = name;
-    eqSet.IconName  = iconName;
-    eqSet.state     = EQUIPMENT_SET_NEW;
-
-    m_Player->SetEquipmentSet(index, eqSet);
-
-    delete[] itemGuid;
-    itemGuid = 0;
+    m_Player->SetEquipmentSet(l_SetID, l_EquipmentSet);
 }
 
-void WorldSession::HandleEquipmentSetDelete(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetDelete(WorldPacket& p_RecvData)
 {
-    ObjectGuid setGuid;
-
-    uint8 bitsOrder[8] = { 4, 1, 7, 0, 5, 6, 3, 2 };
-    recvData.ReadBitInOrder(setGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 5, 1, 3, 4, 2, 0, 7, 6 };
-    recvData.ReadBytesSeq(setGuid, bytesOrder);
-
-    m_Player->DeleteEquipmentSet(setGuid);
+    uint64 l_SetGuid = p_RecvData.read<uint64>();
+    m_Player->DeleteEquipmentSet(l_SetGuid);
 }
 
-void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetUse(WorldPacket& p_RecvData)
 {
-    uint8* srcbag = new uint8[EQUIPMENT_SLOT_END];;
-    uint8* srcslot = new uint8[EQUIPMENT_SLOT_END];
+    uint8 l_ItemCount = p_RecvData.ReadBits(2);
 
-    ObjectGuid* itemGuid = new ObjectGuid[EQUIPMENT_SLOT_END];
-
-    EquipmentSlots startSlot = m_Player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
-
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        recvData >> srcslot[i] >> srcbag[i];
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    std::vector<uint8> l_ItemBags(l_ItemCount, 0);
+    std::vector<uint8> l_ItemSlots(l_ItemCount, 0);
+    for (uint8 l_Iter = 0; l_Iter < l_ItemCount; ++l_Iter)
     {
-        uint8 bitsOrder[8] = { 2, 5, 0, 1, 3, 6, 4, 7 };
-        recvData.ReadBitInOrder(itemGuid[i], bitsOrder);
+        p_RecvData >> l_ItemBags[l_Iter];
+        p_RecvData >> l_ItemSlots[l_Iter];
     }
 
-    uint8 unkCounter = recvData.ReadBits(2);
-
-    for (uint8 i = 0; i < unkCounter; i++)
+    std::vector<uint64> l_ItemGuids(EQUIPMENT_SLOT_END, 0);
+    std::vector<uint8>  l_ItemBag(EQUIPMENT_SLOT_END, 0);
+    std::vector<uint8>  l_ItemSlot(EQUIPMENT_SLOT_END, 0);
+    for (uint8 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
     {
-        recvData.ReadBit();
-        recvData.ReadBit();
+        p_RecvData.readPackGUID(l_ItemGuids[l_Iter]);
+        p_RecvData >> l_ItemSlot[l_Iter];
+        p_RecvData >> l_ItemBag[l_Iter];
     }
 
-    recvData.FlushBits();
+    EquipmentSlots l_StartSlot = m_Player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint32 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
     {
-        if (i == 17)
+        if (l_Iter == EQUIPMENT_SLOT_RANGED)
             continue;
 
-        uint8 bytesOrder[8] = { 4, 1, 6, 5, 3, 2, 0, 7 };
-        recvData.ReadBytesSeq(itemGuid[i], bytesOrder);
-
-        if (i < uint32(startSlot))
+        if (l_Iter < uint32(l_StartSlot))
             continue;
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid[i] == 1)
+        if (l_ItemGuids[l_Iter] == 1)
             continue;
 
-        Item* item = m_Player->GetItemByGuid(itemGuid[i]);
+        Item* l_Item = m_Player->GetItemByGuid(l_ItemGuids[l_Iter]);
 
-        uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
+        uint16 l_DestPos = l_Iter | (INVENTORY_SLOT_BAG_0 << 8);
 
-        if (!item)
+        if (!l_Item)
         {
-            Item* uItem = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-            if (!uItem)
+            Item* l_OtherItem = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Iter);
+            if (!l_OtherItem)
                 continue;
 
-            ItemPosCountVec sDest;
-            InventoryResult msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
-            if (msg == EQUIP_ERR_OK)
+            ItemPosCountVec l_Dest;
+            InventoryResult l_Result = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, l_Dest, l_OtherItem, false);
+            if (l_Result == EQUIP_ERR_OK)
             {
-                m_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                m_Player->StoreItem(sDest, uItem, true);
+                m_Player->RemoveItem(INVENTORY_SLOT_BAG_0, l_Iter, true);
+                m_Player->StoreItem(l_Dest, l_OtherItem, true);
             }
             else
-                m_Player->SendEquipError(msg, uItem, NULL);
+                m_Player->SendEquipError(l_Result, l_OtherItem, NULL);
 
             continue;
         }
 
-        if (item->GetPos() == dstpos)
+        if (l_Item->GetPos() == l_DestPos)
             continue;
 
-        m_Player->SwapItem(item->GetPos(), dstpos);
+        m_Player->SwapItem(l_Item->GetPos(), l_DestPos);
     }
 
-    for (uint8 i = 0; i < unkCounter; i++)
-    {
-        recvData.read_skip<uint8>();
-        recvData.read_skip<uint8>();
-    }
-
-    WorldPacket data(SMSG_DUMP_OBJECTS_DATA);
-    data << uint8(0);   // 4 - equipment swap failed - inventory is full
-    SendPacket(&data);
-
-    delete[] srcbag;
-    srcbag = 0;
-    delete[] srcslot;
-    srcslot = 0;
-    delete[] itemGuid;
-    itemGuid = 0;
+    WorldPacket l_Data(SMSG_USE_EQUIPMENT_SET_RESULT);
+    l_Data << uint8(0);   // 4 - equipment swap failed - inventory is full
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)

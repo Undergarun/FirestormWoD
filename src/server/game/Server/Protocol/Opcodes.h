@@ -124,6 +124,7 @@ enum Opcodes
         SMSG_TRIGGER_CINEMATIC                      = 0x032F,   ///< 6.0.3 19116
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
+        SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0128,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -830,6 +831,9 @@ enum Opcodes
     CMSG_OPEN_ITEM                              = 0x08AD,   ///< 6.0.3 19116
     CMSG_SET_TITLE                              = 0x0BC6,   ///< 6.0.3 19116
     CMSG_PLAYED_TIME                            = 0x1BB2,   ///< 6.0.3 19116
+    CMSG_SAVE_EQUIPMENT_SET                     = 0x1B54,   ///< 6.0.3 19116
+    CMSG_USE_EQUIPMENT_SET                      = 0x0756,   ///< 6.0.3 19116
+    CMSG_DELETE_EQUIPMENT_SET                   = 0x03C3,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1402,9 +1406,6 @@ enum Opcodes
     CMSG_DISMISS_CRITTER                              = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
-    CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
-    CMSG_EQUIPMENT_SET_USE                            = 0x0000,
-    CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
     CMSG_GAMESPEED_SET                                = 0x0000,
@@ -1709,7 +1710,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x0000,
     SMSG_DROP_NEW_CONNECTION                          = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
-    SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x0000,
     SMSG_ECHO_PARTY_SQUELCH                           = 0x0000,
     SMSG_ENABLE_BARBER_SHOP                           = 0x0000,
