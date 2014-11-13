@@ -373,7 +373,7 @@ void GameObject::Update(uint32 diff)
 
     if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
     {
-        if (m_goValue->Transport.AnimationInfo != nullptr)
+        /*if (m_goValue->Transport.AnimationInfo != nullptr)
         {
             /// Update PathProgress at every tick, and send update to client every 20 sec (blizz value, find in retail sniff 6.0.x)
             if (GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
@@ -399,7 +399,7 @@ void GameObject::Update(uint32 diff)
 
                         GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                     }
-                }*/
+                }*
 
                 if (!m_goValue->Transport.StopFrames->empty())
                 {
@@ -415,7 +415,7 @@ void GameObject::Update(uint32 diff)
                     }
                 }
             }
-        }
+        }*/
     }
 
     switch (m_lootState)
