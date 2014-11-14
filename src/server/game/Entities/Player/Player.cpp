@@ -3319,7 +3319,7 @@ void Player::Regenerate(Powers power)
             if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += -25 * RageDecreaseRate / meleeHaste;                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
+                addvalue += (-25 * RageDecreaseRate / meleeHaste / GetPowerCoeff(power));                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
             }
 
             break;
@@ -4154,15 +4154,16 @@ void Player::GiveLevel(uint8 level)
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     // Refer-A-Friend
-    if (GetSession()->GetRecruiterId())
-        if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
-            if (level % 2 == 0)
-            {
-                ++m_grantableLevels;
-
-                if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
-                    SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
-            }
+/// Commented due to action bar fix, need more research
+//     if (GetSession()->GetRecruiterId())
+//         if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+//             if (level % 2 == 0)
+//             {
+//                 ++m_grantableLevels;
+// 
+//                 if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
+//                     SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
+//             }
 
     if (level == 85)
     {
@@ -4701,9 +4702,10 @@ void Player::SendMailResult(uint32 p_MailID, MailResponseType p_MailAction, Mail
 void Player::SendNewMail()
 {
     // deliver undelivered mail
-    WorldPacket data(SMSG_RECEIVED_MAIL, 4);
-    data << (uint32) 0;
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_RECEIVED_MAIL, 4);
+    l_Data << (uint32)0;
+
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::UpdateNextMailTimeAndUnreads()
@@ -8947,11 +8949,9 @@ void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
 
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
 {
-    if (!count)
-        return;
-
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    ASSERT(currency);
+    if (!currency || !count)
+        return;
 
     if (!ignoreMultipliers)
         count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
@@ -11821,7 +11821,6 @@ void Player::SetBindPoint(uint64 p_Guid)
 
 void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 {
-    ObjectGuid Guid = guid;
     uint32 cost = 0;
 
     if (!specialization)
@@ -11831,21 +11830,9 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 
     WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
 
-    uint8 bitOrder[8] = { 4, 0, 7, 5, 3, 1, 2, 6 };
-    data.WriteBitInOrder(Guid, bitOrder);
-
-    data.WriteByteSeq(Guid[6]);
-    data.WriteByteSeq(Guid[4]);
-    data.WriteByteSeq(Guid[5]);
-
-    data << uint32(cost);
     data << uint8(specialization); // 0 : talent 1 : specialization
-
-    data.WriteByteSeq(Guid[7]);
-    data.WriteByteSeq(Guid[1]);
-    data.WriteByteSeq(Guid[3]);
-    data.WriteByteSeq(Guid[0]);
-    data.WriteByteSeq(Guid[2]);
+    data << uint32(cost);
+    data.appendPackGUID(guid);
 
     GetSession()->SendPacket(&data);
 }
@@ -12214,6 +12201,11 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 if (pItem != skipItem && pItem->GetEntry() == item)
                     count += pItem->GetCount();
+                
+        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
+            if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (pItem != skipItem && pItem->GetEntry() == item)
+                    count += pItem->GetCount();
 
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
             if (Bag* pBag = GetBagByPos(i))
@@ -12573,6 +12565,16 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
     if (inBankAlso)
     {
         for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; i++)
+        {
+            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                tempcount += pItem->GetCount();
+                if (tempcount >= count)
+                    return true;
+            }
+        }
+        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
         {
             Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
@@ -14113,7 +14115,6 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: StoreItem bag = %u, slot = %u, item = %u, count = %u, guid = %u", bag, slot, pItem->GetEntry(), count, pItem->GetGUIDLow());
 
     Item* pItem2 = GetItemByPos(bag, slot);
-
     if (!pItem2)
     {
         if (clone)
@@ -14783,6 +14784,33 @@ void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequ
 
     // in bank
     for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; i++)
+    {
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                if (pItem->GetCount() + remcount <= count)
+                {
+                    remcount += pItem->GetCount();
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+                    if (remcount >= count)
+                        return;
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                    pItem->SetCount(pItem->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        pItem->SendUpdateToPlayer(this);
+                    pItem->SetState(ITEM_CHANGED, this);
+                    return;
+                }
+            }
+        }
+    }
+
+    // in regeant bank
+    for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
     {
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
@@ -19174,18 +19202,20 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
 
 bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
 {
-    ////                                                     0     1        2     3     4        5      6    7      8     9           10              11
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
-     // 12          13          14          15   16           17        18        19         20         21          22           23                 24
-    //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
-    // 25                 26          27       28       29       30       31         32           33               34     35      36         37              38               39
-    //"resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, "
-    //    40           41          42              43           44           45
-    //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
-    // 46      47      48      49      50      51      52           53         54             55               56                 57              58
-    //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, "
-    // 59           60              61               62                 63              64                              65            66             67                68                  69
-    //"knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet  FROM characters WHERE guid = '%u'", guid);
+    /// 0             1               2               3                  4                         5                         6                7                  8                    9
+    /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes, 
+    /// 10            11              12              13                 14                        15                        16               17                 18                   19
+    /// playerBytes2, playerFlags,    position_x,     position_y,        position_z,               map,                      orientation,     taximask,          cinematic,           totaltime,
+    /// 20            21              22              23                 24                        25                        26               27                 28                   29
+    /// leveltime,    rest_bonus,     logout_time,    is_logout_resting, resettalents_cost,        resettalents_time,        talentTree,      trans_x,           trans_y,             trans_z,
+    /// 30            31              32              33                 34                        35                        36               37                 38                   39
+    /// trans_o,      transguid,      extra_flags,    stable_slots,      at_login,                 zone,                     online,          death_expire_time, taxi_path,           DungeonDifficulty,
+    /// 40            41              42              43                 44                        45                        46               47                 48                   49
+    /// totalKills,   todayKills,     yesterdayKills, chosenTitle,       watchedFaction,           drunk,                    health,          power1,            power2,              power3,
+    /// 50            51              52              53                 54                        55                        56               57                 58                   59
+    /// power4,       power5,         instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
+    /// 60            61              62              63                 64                        65                        66               67                 68                   69
+    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
 
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
     if (!result)
@@ -19279,8 +19309,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetGuidValue(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-
-    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2, fields[60].GetUInt8());
+    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, fields[60].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
     m_petSlotUsed = fields[62].GetUInt32();
@@ -19924,8 +19953,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
 
-    if (m_grantableLevels > 0)
-        SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
+    /// Commented due to action bar fix, need more research
+    ///if (m_grantableLevels > 0)
+    ///    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES));
 
@@ -20228,6 +20258,13 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     {
                         ItemPosCountVec dest;
                         err = CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
+                        if (err == EQUIP_ERR_OK)
+                            item = BankItem(dest, item, true);
+                    }
+                    else if (IsReagentBankPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        ItemPosCountVec dest;
+                        err = CanReagentBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
                         if (err == EQUIP_ERR_OK)
                             item = BankItem(dest, item, true);
                     }
@@ -21546,7 +21583,7 @@ void Player::SaveToDB(bool create /*=false*/)
             ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
         stmt->setString(index++, ss.str());
 
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
+        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1));
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);
@@ -21679,7 +21716,7 @@ void Player::SaveToDB(bool create /*=false*/)
             ss << GetUInt32Value(PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 2));
+        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1));
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_petSlotUsed);
         stmt->setUInt32(index++, m_grantableLevels);

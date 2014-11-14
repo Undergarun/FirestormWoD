@@ -432,7 +432,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
 
     WorldPacket l_Data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + l_JoinSlots.size() * 4 + 1 + p_RoleCheck->roles.size() * (8 + 1 + 4 + 1));
 
-    l_Data << uint8(GetPlayer()->GetGroup()->GetPartyIndex());                              ///< Party index
+    l_Data << uint8(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetPartyIndex() : 0); ///< Party index
     l_Data << uint8(p_RoleCheck->state);                                                    ///< Role check status
     l_Data << uint32(l_JoinSlots.size());                                                   ///< Join Slots count
     l_Data.appendPackGUID(l_BGqueueID);                                                     ///< BG Queue ID
@@ -454,7 +454,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
         uint8 l_Roles = p_RoleCheck->roles.find(guid)->second;
         Player* l_CurrentPlayer = ObjectAccessor::FindPlayer(guid);
 
-        l_Data.appendPackGUID(l_CurrentPlayer->GetGUID());                                  ///< Guid
+        l_Data.appendPackGUID(l_CurrentPlayer ? l_CurrentPlayer->GetGUID() : 0);            ///< Guid
         l_Data << uint32(l_Roles);                                                          ///< Roles Desired
         l_Data << uint8(l_CurrentPlayer ? l_CurrentPlayer->getLevel() : 0);                 ///< Level
         l_Data.WriteBit(l_Roles > 0);                                                       ///< Role Check Complete
@@ -468,7 +468,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
             l_Roles = l_It->second;
             l_CurrentPlayer = ObjectAccessor::FindPlayer(l_It->first);
 
-            l_Data.appendPackGUID(l_CurrentPlayer->GetGUID());                              ///< Guid
+            l_Data.appendPackGUID(l_CurrentPlayer ? l_CurrentPlayer->GetGUID() : 0);        ///< Guid
             l_Data << uint32(l_Roles);                                                      ///< Roles Desired
             l_Data << uint8(l_CurrentPlayer ? l_CurrentPlayer->getLevel() : 0);             ///< Level
             l_Data.WriteBit(l_Roles > 0);                                                   ///< Role Check Complete

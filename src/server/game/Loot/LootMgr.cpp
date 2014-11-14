@@ -78,8 +78,12 @@ class LootTemplate::LootGroup                               // A set of loot def
 //Remove all data and free all memory
 void LootStore::Clear()
 {
-    for (LootTemplateMap::const_iterator itr=m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
-        delete itr->second;
+    for (LootTemplateMap::const_iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
+    {
+        if (itr->second)
+            delete itr->second;
+    }
+
     m_LootTemplates.clear();
 }
 

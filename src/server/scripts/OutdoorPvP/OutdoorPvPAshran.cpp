@@ -125,7 +125,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 for (uint8 l_Count = 0; l_Count < EMBERFALL_TOWER_CREATURES_COUNT; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_EmberfallTowerSpawns[p_Faction][l_Count]);
+                    AddCreature(l_Count, g_EmberfallTowerSpawns[p_Faction == CONTROL_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE][l_Count]);
                 }
 
                 // Spawn fires
@@ -162,14 +162,21 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 }
 
                 // Spawn horde or alliance guards
+                uint8 l_CreatureMaxIndex = EMBERFALL_TOWER_SPAWNS_IDS + VOLRATHS_ADVANCE_CREATURES_COUNT;
+                for (uint8 l_Count = EMBERFALL_TOWER_SPAWNS_IDS; l_Count < l_CreatureMaxIndex; ++l_Count)
+                {
+                    DelCreature(l_Count);
+                    AddCreature(l_Count, g_TrembladesVanguardSpawns[p_Faction == CONTROL_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - EMBERFALL_TOWER_SPAWNS_IDS]);
+                }
 
                 // Spawn fires
-                for (uint8 l_Index = EMBERFALL_TOWER_SPAWNS_IDS; l_Index < VOLRATHS_ADVANCE_SPAWNS_IDS; ++l_Index)
+                uint8 l_FireIndex = EMBERFALL_TOWER_SPAWNS_IDS + VOLRATHS_ADVANCE_CREATURES_COUNT;
+                for (uint8 l_Index = l_FireIndex; l_Index < VOLRATHS_ADVANCE_SPAWNS_IDS; ++l_Index)
                 {
                     DelObject(l_Index);
 
                     if (p_Faction == CONTROL_ALLIANCE)
-                        AddObject(l_Index, g_TrembladesVanguardFires[l_Index - EMBERFALL_TOWER_SPAWNS_IDS]);
+                        AddObject(l_Index, g_TrembladesVanguardFires[l_Index - l_FireIndex]);
                 }
             }
 
@@ -200,12 +207,19 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 }
 
                 // Spawn horde or alliance guards
+                uint8 l_CreatureMaxIndex = VOLRATHS_ADVANCE_SPAWNS_IDS + THE_CROSSROADS_CREATURES_COUNT;
+                for (uint8 l_Count = VOLRATHS_ADVANCE_SPAWNS_IDS; l_Count < l_CreatureMaxIndex; ++l_Count)
+                {
+                    DelCreature(l_Count);
+                    AddCreature(l_Count, g_TrembladesVanguardSpawns[p_Faction == CONTROL_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - VOLRATHS_ADVANCE_SPAWNS_IDS]);
+                }
 
                 // Spawn flags
-                for (uint8 l_Count = VOLRATHS_ADVANCE_SPAWNS_IDS; l_Count < THE_CROSSROADS_SPAWNS_IDS; ++l_Count)
+                uint8 l_FlagIndex = VOLRATHS_ADVANCE_SPAWNS_IDS + THE_CROSSROADS_CREATURES_COUNT;
+                for (uint8 l_Count = l_FlagIndex; l_Count < THE_CROSSROADS_SPAWNS_IDS; ++l_Count)
                 {
                     DelObject(l_Count);
-                    AddObject(l_Count, g_CrossroadsBanners[p_Faction][l_Count - VOLRATHS_ADVANCE_SPAWNS_IDS]);
+                    AddObject(l_Count, g_CrossroadsBanners[p_Faction == CONTROL_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - l_FlagIndex]);
                 }
             }
 
@@ -233,14 +247,21 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 }
 
                 // Spawn horde or alliance guards
+                uint8 l_CreatureMaxIndex = THE_CROSSROADS_SPAWNS_IDS + TREMBLADES_VANGUARD_CREATURES_COUNT;
+                for (uint8 l_Count = THE_CROSSROADS_SPAWNS_IDS; l_Count < l_CreatureMaxIndex; ++l_Count)
+                {
+                    DelCreature(l_Count);
+                    AddCreature(l_Count, g_TrembladesVanguardSpawns[p_Faction == CONTROL_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - THE_CROSSROADS_SPAWNS_IDS]);
+                }
 
+                uint8 l_FireIndex = THE_CROSSROADS_SPAWNS_IDS + TREMBLADES_VANGUARD_CREATURES_COUNT;
                 // Spawn fires
-                for (uint8 l_Index = THE_CROSSROADS_SPAWNS_IDS; l_Index < TREMBLADES_VANGUARD_SPAWNS_IDS; ++l_Index)
+                for (uint8 l_Index = l_FireIndex; l_Index < ARCHMAGE_OVERWATCH_SPAWNS_IDS; ++l_Index)
                 {
                     DelObject(l_Index);
 
                     if (p_Faction == CONTROL_HORDE)
-                        AddObject(l_Index, g_TrembladesVanguardFires[l_Index - THE_CROSSROADS_SPAWNS_IDS]);
+                        AddObject(l_Index, g_TrembladesVanguardFires[l_Index - l_FireIndex]);
                 }
             }
 
@@ -250,8 +271,17 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
         {
             if (p_Faction == CONTROL_NEUTRAL)
             {
+                // Despawn horde or alliance guards
+                uint8 l_CreatureMaxIndex = TREMBLADES_VANGUARD_SPAWNS_IDS + ARCHMAGE_OVERWATCH_CREATURES_COUNT;
+                for (uint8 l_Count = TREMBLADES_VANGUARD_SPAWNS_IDS; l_Count < l_CreatureMaxIndex; ++l_Count)
+                    DelCreature(l_Count);
+
                 // Spawn fighting guards
-                // Stormshield Footman VS Warspear Grunt
+                for (uint8 l_Index = ARCHMAGE_OVERWATCH_SPAWNS_IDS; l_Index < TOTAL_NEUTRAL_SPAWNS_IDS; ++l_Index)
+                {
+                    DelCreature(l_Index);
+                    AddCreature(l_Index, g_ArchmageOverwatchNeutral[l_Index - ARCHMAGE_OVERWATCH_SPAWNS_IDS]);
+                }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
                     l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
@@ -267,15 +297,26 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                     ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == CONTROL_ALLIANCE ? BATTLE_TYPE_TREMBLADES_VANGUARD : WORLD_STATE_GRAND_MARSHAL_TREMBLADE_BATTLE);
                 }
 
-                // Spawn horde or alliance guards
+                // Despawn fighting guards
+                for (uint8 l_Index = ARCHMAGE_OVERWATCH_SPAWNS_IDS; l_Index < TOTAL_NEUTRAL_SPAWNS_IDS; ++l_Index)
+                    DelCreature(l_Index);
 
+                // Spawn horde or alliance guards
+                uint8 l_CreatureMaxIndex = TREMBLADES_VANGUARD_SPAWNS_IDS + ARCHMAGE_OVERWATCH_CREATURES_COUNT;
+                for (uint8 l_Count = TREMBLADES_VANGUARD_SPAWNS_IDS; l_Count < l_CreatureMaxIndex; ++l_Count)
+                {
+                    DelCreature(l_Count);
+                    AddCreature(l_Count, g_ArchmageOverwatchSpawns[p_Faction == CONTROL_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - TREMBLADES_VANGUARD_SPAWNS_IDS]);
+                }
+
+                uint8 l_FireIndex = TREMBLADES_VANGUARD_SPAWNS_IDS + ARCHMAGE_OVERWATCH_CREATURES_COUNT;
                 // Spawn fires
-                for (uint8 l_Index = TREMBLADES_VANGUARD_SPAWNS_IDS; l_Index < ARCHMAGE_OVERWATCH_SPAWNS_IDS; ++l_Index)
+                for (uint8 l_Index = l_FireIndex; l_Index < ARCHMAGE_OVERWATCH_SPAWNS_IDS; ++l_Index)
                 {
                     DelObject(l_Index);
 
                     if (p_Faction == CONTROL_HORDE)
-                        AddObject(l_Index, g_TrembladesVanguardFires[l_Index - TREMBLADES_VANGUARD_SPAWNS_IDS]);
+                        AddObject(l_Index, g_ArchmageOverwatchFires[l_Index - l_FireIndex]);
                 }
             }
 
@@ -775,7 +816,6 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(WORLD_STATE_ENNEMIES_SLAIN_HORDE_MAX) << uint32(m_EnnemiesKilledMax[TEAM_HORDE]);
 
     p_Data << uint32(WORLD_STATE_ACTIVE_STAGE) << uint32(-1);
-    p_Data << uint32(WORLD_STATE_CONTROL_THE_FLAG) << uint32(WORLD_STATE_DISABLED);
 
     // Laps event
     p_Data << uint32(WORLD_STATE_ENABLE_LAPS_EVENT) << uint32(WORLD_STATE_DISABLED);
@@ -797,14 +837,24 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(WORLD_STATE_RISEN_SPIRITS_CAPTURED_HORDE) << uint32(WORLD_STATE_DISABLED);
     p_Data << uint32(WORLD_STATE_RISEN_SPIRITS_CAPTURE_ENABLED) << uint32(WORLD_STATE_DISABLED);
 
-    // Battle timers
-    p_Data << uint32(WORLD_STATE_NEXT_BATTLE_TIMESTAMP) << uint32(time(NULL) + (m_NextBattleTimer / IN_MILLISECONDS));
-    p_Data << uint32(WORLD_STATE_NEXT_BATTLE_ENABLED) << uint32(WORLD_STATE_ENABLED);
-
     // Faction bosses
-    p_Data << uint32(WORLD_STATE_TIME_REMAINING_FOR_BOSS) << uint32(time(NULL));
-    p_Data << uint32(WORLD_STATE_SLAY_VOLRATH) << uint32(WORLD_STATE_DISABLED);
-    p_Data << uint32(WORLD_STATE_SLAY_TREMBLADE) << uint32(WORLD_STATE_DISABLED);
+    if (m_CurrentBattleState == WORLD_STATE_GRAND_MARSHAL_TREMBLADE_BATTLE)
+    {
+        p_Data << uint32(WORLD_STATE_TIME_REMAINING_FOR_BOSS) << uint32(time(NULL) + (m_MaxBattleTime / IN_MILLISECONDS));
+        p_Data << uint32(WORLD_STATE_SLAY_VOLRATH) << uint32(WORLD_STATE_DISABLED);
+        p_Data << uint32(WORLD_STATE_SLAY_TREMBLADE) << uint32(WORLD_STATE_ENABLED);
+    }
+    else if (m_CurrentBattleState == WORLD_STATE_HIGH_WARLORD_VOLRATH)
+    {
+        p_Data << uint32(WORLD_STATE_TIME_REMAINING_FOR_BOSS) << uint32(time(NULL) + (m_MaxBattleTime / IN_MILLISECONDS));
+        p_Data << uint32(WORLD_STATE_SLAY_VOLRATH) << uint32(WORLD_STATE_ENABLED);
+        p_Data << uint32(WORLD_STATE_SLAY_TREMBLADE) << uint32(WORLD_STATE_DISABLED);
+    }
+    else
+    {
+        p_Data << uint32(WORLD_STATE_SLAY_VOLRATH) << uint32(WORLD_STATE_DISABLED);
+        p_Data << uint32(WORLD_STATE_SLAY_TREMBLADE) << uint32(WORLD_STATE_DISABLED);
+    }
 
     // Horde boss
     p_Data << uint32(WORLD_STATE_WARSPEAR_OUTPOST_STATUS) << uint32(CONTROL_HORDE);
@@ -813,7 +863,21 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
     for (uint32 l_BattleIndex : g_MiddleBattlesEntries)
     {
         if (m_CurrentBattleState == l_BattleIndex)
+        {
             p_Data << uint32(m_CurrentBattleState) << uint32(WORLD_STATE_ENABLED);
+
+            if (m_NextBattleTimer)
+            {
+                p_Data << uint32(WORLD_STATE_NEXT_BATTLE_ENABLED) << uint32(WORLD_STATE_ENABLED);
+                p_Data << uint32(WORLD_STATE_NEXT_BATTLE_TIMESTAMP) << uint32(time(NULL) + (m_NextBattleTimer / IN_MILLISECONDS));
+                p_Data << uint32(WORLD_STATE_CONTROL_THE_FLAG) << uint32(WORLD_STATE_DISABLED);
+            }
+            else
+            {
+                p_Data << uint32(WORLD_STATE_NEXT_BATTLE_ENABLED) << uint32(WORLD_STATE_DISABLED);
+                p_Data << uint32(WORLD_STATE_CONTROL_THE_FLAG) << uint32(WORLD_STATE_ENABLED);
+            }
+        }
         else
             p_Data << uint32(l_BattleIndex) << uint32(WORLD_STATE_DISABLED);
     }

@@ -5142,7 +5142,7 @@ void Spell::SendSpellGo()
     for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
     {
         Powers l_Power = Powers((*l_Itr));
-        l_Data << int32(m_caster->GetPower(l_Power));
+        l_Data << int32(m_caster->GetPower(l_Power) * m_caster->GetPowerCoeff(l_Power));
         l_Data << int8(l_Power);
     }
 

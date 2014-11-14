@@ -630,8 +630,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     Item* l_Item = nullptr;
     if (uint64 itemGUID = GetBase()->GetCastItemGUID())
     {
-        if (Player* l_PlayerCaster = caster->ToPlayer())
-            l_Item = l_PlayerCaster->GetItemByGuid(itemGUID);
+        if (caster)
+        {
+            if (Player* l_PlayerCaster = caster->ToPlayer())
+                l_Item = l_PlayerCaster->GetItemByGuid(itemGUID);
+        }
     }
 
     // default amount calculation

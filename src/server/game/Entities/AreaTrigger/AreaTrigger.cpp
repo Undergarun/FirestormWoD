@@ -89,6 +89,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo cons
     }
 
     AreaTriggerTemplate l_MainTemplate = GetMainTemplate();
+    if (l_MainTemplate.m_SpellID == 0 && l_MainTemplate.m_Entry == 0)
+        return false;
 
     SetEntry(l_MainTemplate.m_Entry);
     SetDuration(spell->GetDuration());

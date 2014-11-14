@@ -123,6 +123,8 @@ enum Opcodes
         SMSG_SET_PHASE_SHIFT                        = 0x00D1,   ///< 6.0.3 19116
         SMSG_TRIGGER_CINEMATIC                      = 0x032F,   ///< 6.0.3 19116
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
+        SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
+        SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0128,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -316,7 +318,10 @@ enum Opcodes
         SMSG_AUCTION_HELLO_RESPONSE                             = 0x011F, ///< 6.0.3 19116
 
         /// Mail
-        SMSG_SEND_MAIL_RESULT                                   = 0x0000,
+        SMSG_SEND_MAIL_RESULT                                   = 0x0302, ///< 6.0.3 19116
+        SMSG_MAIL_LIST_RESULT                                   = 0x0B3F, ///< 6.0.3 19116
+        SMSG_RECEIVED_MAIL                                      = 0x1F0D, ///< 6.0.3 19116
+        SMSG_MAIL_QUERY_NEXT_TIME_RESULT                        = 0x153D, ///< 6.0.3 19116
 
         /// Trainers
         SMSG_TRAINER_LIST                                       = 0x0BA9, ///< 6.0.3 19116
@@ -816,6 +821,8 @@ enum Opcodes
     CMSG_LEARN_TALENTS                          = 0x0BB6,   ///< 6.0.3 19116
     CMSG_AUTOEQUIP_ITEM                         = 0x0F35,   ///< 6.0.3 19116
     CMSG_SWAP_INV_ITEM                          = 0x0F17,   ///< 6.0.3 19116
+    CMSG_SWAP_ITEM                              = 0x0736,   ///< 6.0.3 19116
+    CMSG_AUTOSTORE_BAG_ITEM                     = 0x0F18,   ///< 6.0.3 19116
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 
     CMSG_STAND_STATE_CHANGE                     = 0x0ABD,   ///< 6.0.3 19116
     CMSG_BINDER_ACTIVATE                        = 0x02F3,   ///< 6.0.3 19116
@@ -824,6 +831,10 @@ enum Opcodes
     CMSG_OPEN_ITEM                              = 0x08AD,   ///< 6.0.3 19116
     CMSG_SET_TITLE                              = 0x0BC6,   ///< 6.0.3 19116
     CMSG_PLAYED_TIME                            = 0x1BB2,   ///< 6.0.3 19116
+    CMSG_SAVE_EQUIPMENT_SET                     = 0x1B54,   ///< 6.0.3 19116
+    CMSG_USE_EQUIPMENT_SET                      = 0x0756,   ///< 6.0.3 19116
+    CMSG_DELETE_EQUIPMENT_SET                   = 0x03C3,   ///< 6.0.3 19116
+    CMSG_WHO                                    = 0x1322,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -919,6 +930,7 @@ enum Opcodes
     CMSG_REQUEST_CEMETERY_LIST                  = 0x10A2,   ///< 6.0.3 19116
     CMSG_TOTEM_DESTROYED                        = 0x000D,   ///< 6.0.3 19116
     CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
+    CMSG_CONFIRM_RESPEC_WIPE                    = 0x14B4,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -940,7 +952,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Quest
     //////////////////////////////////////////////////////////////////////////
-    CMSG_QUESTGIVER_HELLO                       = 0x0000,   ///< 
+    CMSG_QUESTGIVER_HELLO                       = 0x058E,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_STATUS_QUERY                = 0x01E2,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0131,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_QUERY_QUEST                 = 0x1924,   ///< 6.0.3 19116
@@ -1186,7 +1198,7 @@ enum Opcodes
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x0000,   ///< 
     CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0000,   ///< 
     CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x0000,   ///< 
-    CMSG_GUILD_QUERY_NEWS                          = 0x0000,   ///< 
+    CMSG_GUILD_QUERY_NEWS                          = 0x0676,   ///< 6.0.3 19116
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000,   ///<  (unused)
     CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x0000,   ///<  (unused)
     CMSG_QUERY_GUILD_RECIPES                       = 0x0000,   ///< 
@@ -1266,6 +1278,19 @@ enum Opcodes
     CMSG_TRANSMOGRIFY_ITEMS                        = 0x0A85,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
+    /// Mail
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_GET_MAIL_LIST                             = 0x0BD3,    ///< 6.0.3 19116
+    CMSG_MAIL_CREATE_TEXT_ITEM                     = 0x13D1,    ///< 6.0.3 19116
+    CMSG_MAIL_DELETE                               = 0x068C,    ///< 6.0.3 19116
+    CMSG_MAIL_MARK_AS_READ                         = 0x02D1,    ///< 6.0.3 19116
+    CMSG_MAIL_RETURN_TO_SENDER                     = 0x1B84,    ///< 6.0.3 19116
+    CMSG_MAIL_TAKE_ITEM                            = 0x0030,    ///< 6.0.3 19116
+    CMSG_MAIL_TAKE_MONEY                           = 0x0806,    ///< 6.0.3 19116
+    CMSG_SEND_MAIL                                 = 0x0910,    ///< 6.0.3 19116
+    CMSG_QUERY_NEXT_MAIL_TIME                      = 0x0B31,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1305,7 +1330,6 @@ enum Opcodes
     MSG_MOVE_UPDATE_TELEPORT = 0x0000,
     MSG_MOVE_WATER_WALK = 0x0000,
     MSG_NOTIFY_PARTY_SQUELCH = 0x0000,
-    MSG_QUERY_NEXT_MAIL_TIME = 0x0000,
 
 
     // CMSG
@@ -1332,7 +1356,6 @@ enum Opcodes
     CMSG_AUCTION_SELL_ITEM                            = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
-    CMSG_AUTOSTORE_BAG_ITEM                           = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
     CMSG_BEGIN_TRADE                                  = 0x0000,
     CMSG_BLACK_MARKET_HELLO                           = 0x0000,
@@ -1377,7 +1400,6 @@ enum Opcodes
     CMSG_COMMENTATOR_START_WARGAME                    = 0x0000,
     CMSG_COMPLAIN                                     = 0x0000,
     CMSG_COMPLETE_MOVIE                               = 0x0000,
-    CMSG_CONFIRM_RESPEC_WIPE                          = 0x0000,
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
@@ -1385,15 +1407,11 @@ enum Opcodes
     CMSG_DISMISS_CRITTER                              = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
-    CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
-    CMSG_EQUIPMENT_SET_USE                            = 0x0000,
-    CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
     CMSG_GAMESPEED_SET                                = 0x0000,
     CMSG_GAMETIME_SET                                 = 0x0000,
     CMSG_GETDEATHBINDZONE                             = 0x0000,
-    CMSG_GET_MAIL_LIST                                = 0x0000,
     CMSG_GET_MIRRORIMAGE_DATA                         = 0x0000,
     CMSG_GHOST                                        = 0x0000,
     CMSG_GMRESPONSE_RESOLVE                           = 0x0000,
@@ -1429,12 +1447,6 @@ enum Opcodes
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
     CMSG_LOOT_METHOD                                  = 0x0000,
     CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0x0000,
-    CMSG_MAIL_CREATE_TEXT_ITEM                        = 0x0000,
-    CMSG_MAIL_DELETE                                  = 0x0000,
-    CMSG_MAIL_MARK_AS_READ                            = 0x0000,
-    CMSG_MAIL_RETURN_TO_SENDER                        = 0x0000,
-    CMSG_MAIL_TAKE_ITEM                               = 0x0000,
-    CMSG_MAIL_TAKE_MONEY                              = 0x0000,
     CMSG_MANEUVER_START                               = 0x0000,
     CMSG_MEETINGSTONE_INFO                            = 0x0000,
     CMSG_MINIGAME_MOVE                                = 0x0000,
@@ -1481,8 +1493,7 @@ enum Opcodes
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
     CMSG_SELECT_FACTION                               = 0x0000,
-    CMSG_SELF_RES                                     = 0x0000,
-    CMSG_SEND_MAIL                                    = 0x0000,
+    CMSG_SELF_RES                                     = 0x0000,    
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                 = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID         = 0x0000,
     CMSG_SERVERTIME                                   = 0x0000,
@@ -1518,7 +1529,6 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x0000,
     CMSG_SUMMON_RESPONSE                              = 0x0000,
     CMSG_SUSPEND_TOKEN                                = 0x0000,
-    CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
     CMSG_TEXT_EMOTE                                   = 0x0000,
@@ -1538,7 +1548,6 @@ enum Opcodes
     CMSG_WARDEN_DATA                                  = 0x0000,
     CMSG_WARGAME_ACCEPT                               = 0x0000,
     CMSG_WARGAME_START                                = 0x0000,
-    CMSG_WHO                                          = 0x0000,
     CMSG_WHOIS                                        = 0x0000,
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0000,
     CMSG_WORLD_TELEPORT                               = 0x0000,
@@ -1701,7 +1710,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x0000,
     SMSG_DROP_NEW_CONNECTION                          = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
-    SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x0000,
     SMSG_ECHO_PARTY_SQUELCH                           = 0x0000,
     SMSG_ENABLE_BARBER_SHOP                           = 0x0000,
@@ -1807,7 +1815,6 @@ enum Opcodes
     SMSG_LOOT_ROLL_WON                                = 0x0000,
     SMSG_LOOT_START_ROLL                              = 0x0000,
     SMSG_LOOT_UPDATED                                 = 0x0000,
-    SMSG_MAIL_LIST_RESULT                             = 0x0000,
     SMSG_MAP_OBJ_EVENTS                               = 0x0000,
     SMSG_MEETINGSTONE_COMPLETE                        = 0x0000,
     SMSG_MEETINGSTONE_IN_PROGRESS                     = 0x0000,
@@ -1895,7 +1902,6 @@ enum Opcodes
     SMSG_READ_ITEM_OK                                 = 0x0000,
     SMSG_REALM_SPLIT                                  = 0x0000,
     SMSG_REAL_GROUP_UPDATE                            = 0x0000,
-    SMSG_RECEIVED_MAIL                                = 0x0000,
     SMSG_REDIRECT_CLIENT                              = 0x0000,
     SMSG_REFER_A_FRIEND_EXPIRED                       = 0x0000,
     SMSG_REFER_A_FRIEND_FAILURE                       = 0x0000,
@@ -1910,7 +1916,6 @@ enum Opcodes
     SMSG_RESET_RANGED_COMBAT_TIMER                    = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                        = 0x0000,
     SMSG_RESET_DAILY_QUEST                            = 0x0000,
-    SMSG_RESPEC_WIPE_CONFIRM                          = 0x0000,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x0000,
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,

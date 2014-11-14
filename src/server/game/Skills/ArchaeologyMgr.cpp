@@ -650,20 +650,23 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
     _researchSites.clear();
 
     /// Loading current zones
-    do
+    if (p_ResultSites)
     {
-        Field* l_Fields2 = p_ResultProjects->Fetch();
-
-        uint32 l_MapID = l_Fields2[0].GetUInt32();
-        Tokenizer l_Tokens(l_Fields2[1].GetCString(), ' ', RESEARCH_SITES_PER_MAP);
-
-        if (l_Tokens.size() == RESEARCH_SITES_PER_MAP)
+        do
         {
-            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
-                _researchSites[l_MapID].insert(uint32(atoi(l_Tokens[l_I])));
+            Field* l_Fields2 = p_ResultSites->Fetch();
+
+            uint32 l_MapID = l_Fields2[0].GetUInt32();
+            Tokenizer l_Tokens(l_Fields2[1].GetCString(), ' ', RESEARCH_SITES_PER_MAP);
+
+            if (l_Tokens.size() == RESEARCH_SITES_PER_MAP)
+            {
+                for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+                    _researchSites[l_MapID].insert(uint32(atoi(l_Tokens[l_I])));
+            }
         }
+        while (p_ResultProjects->NextRow());
     }
-    while (p_ResultProjects->NextRow());
 
     ValidateSites();
 

@@ -16564,7 +16564,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_HEALTH:
             return 0;
         case POWER_COMBO_POINT:
-            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_ROGUE ? 5 : 0);
+            return (GetTypeId() == TYPEID_PLAYER && (ToPlayer()->getClass() == CLASS_ROGUE || ToPlayer()->getClass() == CLASS_DRUID) ? 5 : 0);
         case POWER_CHI:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK ? 4 : 0);
         default:
@@ -22524,8 +22524,6 @@ float Unit::CalculateDamageDealtFactor(Player* player, Creature* target)
 
     uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
     int32 levelDiff = player->getLevel() - target->getLevel();
-    if (levelDiff < 0)
-        levelDiff = -levelDiff;
 
     float damageDealtFactor = 1.0f;
 
@@ -22566,8 +22564,6 @@ float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
 
     uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
     int32 levelDiff = player->getLevel() - target->getLevel();
-    if (levelDiff < 0)
-        levelDiff = -levelDiff;
 
     float damageTakenFactor = 1.0f;
 

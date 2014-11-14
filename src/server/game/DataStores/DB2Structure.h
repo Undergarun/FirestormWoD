@@ -217,17 +217,15 @@ struct SceneScriptPackageEntry
     const char* Name;
 };
 
-#define MAX_SPELL_REAGENTS 7
+#define MAX_SPELL_REAGENTS 8
 
-// SpellReagents.db2
-// @author Selenium: 5.4 valid
 struct SpellReagentsEntry
 {
     //uint32    Id;                                         // 0        m_ID
-    int32     Reagent[MAX_SPELL_REAGENTS];                  // 1-9      m_reagent
-    uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 10-18    m_reagentCount
-    uint32    CurrencyID;                                   // 19       m_CurrencyID
-    uint32    CurrencyCount;                                // 20       m_CurrencyCount
+    int32     Reagent[MAX_SPELL_REAGENTS];                  // 1-8      m_reagent
+    uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 9-16     m_reagentCount
+    uint32    CurrencyID;                                   // 17       m_CurrencyID
+    uint32    CurrencyCount;                                // 18       m_CurrencyCount
 };
 
 struct SpellReagent
@@ -241,6 +239,7 @@ struct SpellReagent
         reagents[4] = NULL;
         reagents[5] = NULL;
         reagents[6] = NULL;
+        reagents[7] = NULL;
     }
     SpellReagentsEntry const* reagents[MAX_SPELL_REAGENTS];
 };
