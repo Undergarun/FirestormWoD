@@ -430,13 +430,15 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
             if (l_HasFallData)
             {
+                bool l_HasFallDirection = true;                             ///< l_Unit->m_movementInfo.hasFallDirection
+
                 *p_Data << uint32(l_Unit->m_movementInfo.fallTime);         ///< Fall time
                 *p_Data << float(l_Unit->m_movementInfo.JumpVelocity);      ///< Horizontal speed
 
-                p_Data->WriteBit(l_Unit->m_movementInfo.hasFallDirection);  ///< Has fall direction
+                p_Data->WriteBit(l_HasFallDirection);                       ///< Has fall direction
                 p_Data->FlushBits();
 
-                if (l_Unit->m_movementInfo.hasFallDirection)
+                if (l_HasFallDirection)
                 {
                     *p_Data << float(l_Unit->m_movementInfo.j_cosAngle);    ///< Cos angle
                     *p_Data << float(l_Unit->m_movementInfo.j_sinAngle);    ///< Sin angle
