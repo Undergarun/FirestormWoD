@@ -1197,7 +1197,7 @@ class spell_sunbeam : public SpellScriptLoader
                         if (Pet* pet = GetTarget()->ToPlayer()->GetPet())
                             pet->AddAura(SPELL_SUNBEAM_PROTECTION, pet);
 
-                        float scale = l_Caster->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                        float scale = l_Caster->GetFloatValue(OBJECT_FIELD_SCALE);
                         if (scale > 0.2f)
                             l_Caster->SetObjectScale(scale - 0.2f);
                     }
