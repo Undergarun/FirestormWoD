@@ -1192,6 +1192,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                             break;
                     }
 
+                    if (loot.slot >= linkedLoot->items.size())
+                        sLog->outAshran("LootMgr: Creature entry %u slot %u, items size : %u", loot.slot, c->GetEntry(), linkedLoot->items.size());
                     if (!linkedLoot->items[loot.slot].currency && !linkedLoot->items[loot.slot].is_looted && !linkedLoot->items[loot.slot].freeforall &&
                         linkedLoot->items[loot.slot].conditions.empty() && linkedLoot->items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
