@@ -432,7 +432,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
 
     WorldPacket l_Data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + l_JoinSlots.size() * 4 + 1 + p_RoleCheck->roles.size() * (8 + 1 + 4 + 1));
 
-    l_Data << uint8(GetPlayer()->GetGroup()->GetPartyIndex());                              ///< Party index
+    l_Data << uint8(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetPartyIndex() : 0);///< Party index
     l_Data << uint8(p_RoleCheck->state);                                                    ///< Role check status
     l_Data << uint32(l_JoinSlots.size());                                                   ///< Join Slots count
     l_Data.appendPackGUID(l_BGqueueID);                                                     ///< BG Queue ID
