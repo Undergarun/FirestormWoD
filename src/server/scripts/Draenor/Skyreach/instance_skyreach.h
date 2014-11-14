@@ -21,7 +21,7 @@ enum class RandomSpells
     CONJURE_SUN_ORB_DNT                 = 178618,
     WIELD_CHAKRAMS                      = 173168,
     WIELD_CHAKRAMS_2                    = 170378,
-    ENERGIZE_GLOWY_ORBS_COVER_DNT       = 178324,
+    ENERGIZE_GLOWY_ORBS_COVER_DNT       = 178324, // Visual to do when closed to sun orbs.
     ENERGIZE_GLOWY_ORBS_DNT_1           = 178321,
     ENERGIZE_GLOWY_ORBS_DNT_2           = 178330,
     EJECT_ALL_PASSENGERS                = 50630,
