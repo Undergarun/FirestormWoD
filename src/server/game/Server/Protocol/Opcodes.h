@@ -316,6 +316,15 @@ enum Opcodes
 
         /// Auction House
         SMSG_AUCTION_HELLO_RESPONSE                             = 0x011F, ///< 6.0.3 19116
+        SMSG_AUCTION_BIDDER_LIST_RESULT                         = 0x01E9, ///< 6.0.3 19116
+        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x0D90, ///< 6.0.3 19116
+        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x172E, ///< 6.0.3 19116
+        SMSG_AUCTION_COMMAND_RESULT                             = 0x0B2D, ///< 6.0.3 19116
+        SMSG_AUCTION_CLOSED_NOTIFICATION                        = 0x058E, ///< 6.0.3 19116
+        SMSG_AUCTION_LIST_PENDING_SALES                         = 0x0332, ///< 6.0.3 19116
+        SMSG_AUCTION_LIST_RESULT                                = 0x0BA4, ///< 6.0.3 19116
+        SMSG_AUCTION_OWNER_LIST_RESULT                          = 0x0B42, ///< 6.0.3 19116
+        SMSG_AUCTION_OWNER_BID_NOTIFICATION                     = 0x0026, ///< 6.0.3 19116
 
         /// Mail
         SMSG_SEND_MAIL_RESULT                                   = 0x0302, ///< 6.0.3 19116
@@ -848,6 +857,17 @@ enum Opcodes
     CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0557,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
+    /// Auction House
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_AUCTION_LIST_BIDDER_ITEMS              = 0x050E,   ///< 6.0.3 19116
+    CMSG_AUCTION_LIST_ITEMS                     = 0x0B53,   ///< 6.0.3 19116
+    CMSG_AUCTION_LIST_OWNER_ITEMS               = 0x03E2,   ///< 6.0.3 19116
+    CMSG_AUCTION_LIST_PENDING_SALES             = 0x11E2,   ///< 6.0.3 19116
+    CMSG_AUCTION_PLACE_BID                      = 0x0B11,   ///< 6.0.3 19116
+    CMSG_AUCTION_REMOVE_ITEM                    = 0x1BEB,   ///< 6.0.3 19116
+    CMSG_AUCTION_SELL_ITEM                      = 0x0027,   ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
     /// Loot
     //////////////////////////////////////////////////////////////////////////
     CMSG_LOOT                                   = 0x01B1,   ///< 6.0.3 19116
@@ -1347,13 +1367,6 @@ enum Opcodes
     CMSG_ARENA_TEAM_QUERY                             = 0x0000,
     CMSG_ARENA_TEAM_REMOVE                            = 0x0000,
     CMSG_ARENA_TEAM_ROSTER                            = 0x0000,
-    CMSG_AUCTION_LIST_BIDDER_ITEMS                    = 0x0000,
-    CMSG_AUCTION_LIST_ITEMS                           = 0x0000,
-    CMSG_AUCTION_LIST_OWNER_ITEMS                     = 0x0000,
-    CMSG_AUCTION_LIST_PENDING_SALES                   = 0x0000,
-    CMSG_AUCTION_PLACE_BID                            = 0x0000,
-    CMSG_AUCTION_REMOVE_ITEM                          = 0x0000,
-    CMSG_AUCTION_SELL_ITEM                            = 0x0000,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
@@ -1586,16 +1599,6 @@ enum Opcodes
     SMSG_ARENA_TEAM_QUERY_RESPONSE                    = 0x0000,
     SMSG_ARENA_TEAM_ROSTER                            = 0x0000,
     SMSG_ARENA_TEAM_STATS                             = 0x0000,
-    SMSG_AUCTION_BIDDER_LIST_RESULT                   = 0x0000,
-    SMSG_AUCTION_BIDDER_NOTIFICATION                  = 0x0000,
-    SMSG_AUCTION_BUYOUT_NOTIFICATION                  = 0x0000,
-    SMSG_AUCTION_COMMAND_RESULT                       = 0x0000,
-    SMSG_AUCTION_CLOSED_NOTIFICATION                  = 0x0000,
-    SMSG_AUCTION_LIST_PENDING_SALES                   = 0x0000,
-    SMSG_AUCTION_LIST_RESULT                          = 0x0000,
-    SMSG_AUCTION_OWNER_LIST_RESULT                    = 0x0000,
-    SMSG_AUCTION_OWNER_BID_NOTIFICATION               = 0x0000,
-    SMSG_AUCTION_REMOVED_NOTIFICATION                 = 0x0000,
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0x0000,
     SMSG_BARBER_SHOP_RESULT                           = 0x0000,
     SMSG_BATTLEFIELD_LIST                             = 0x0000,
