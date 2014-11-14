@@ -22742,14 +22742,14 @@ void Player::ResetInstances(uint8 method, bool isRaid)
     }
 }
 
-void Player::SendResetInstanceSuccess(uint32 MapId)
+void Player::SendResetInstanceSuccess(uint32 p_MapID)
 {
     WorldPacket data(SMSG_INSTANCE_RESET, 4);
-    data << uint32(MapId);
+    data << uint32(p_MapID);
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
+void Player::SendResetInstanceFailed(uint32 p_Reason, uint32 p_MapID)
 {
     /*reasons for instance reset failure:
     // 0: There are players inside the instance.
@@ -22757,8 +22757,8 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
     // 2>: There are players in your party attempting to zone into an instance.
     */
     WorldPacket data(SMSG_INSTANCE_RESET_FAILED);
-    data << uint32(MapId);
-    data.WriteBits(reason, 2);
+    data << uint32(p_MapID);
+    data.WriteBits(p_Reason, 2);
     GetSession()->SendPacket(&data);
 }
 

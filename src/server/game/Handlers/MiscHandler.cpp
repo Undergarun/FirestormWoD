@@ -1914,14 +1914,12 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     m_Player->m_timeSyncClient = clientTicks;
 }
 
-void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*p_RecvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
-
-    if (Group* group = m_Player->GetGroup())
+    if (Group* l_Group = m_Player->GetGroup())
     {
-        if (group->IsLeader(m_Player->GetGUID()))
-            group->ResetInstances(INSTANCE_RESET_ALL, false, m_Player);
+        if (l_Group->IsLeader(m_Player->GetGUID()))
+            l_Group->ResetInstances(INSTANCE_RESET_ALL, false, m_Player);
     }
     else
         m_Player->ResetInstances(INSTANCE_RESET_ALL, false);
