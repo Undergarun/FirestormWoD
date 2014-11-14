@@ -138,10 +138,16 @@ class PlayerScript_DarkPortal_Phasing : public PlayerScript
 
         void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
         {
-            if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
-                p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
-            else if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE && p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
-                p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+            if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
+            {
+                if (p_NewZoneID != p_OldZoneID && (p_NewZoneID == BLASTER_LANDS_ZONE_ID || p_OldZoneID == BLASTER_LANDS_ZONE_ID))
+                {
+                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID)
+                        p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
+                    else
+                        p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+                }
+            }
         }
 };
 
