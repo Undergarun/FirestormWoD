@@ -1583,10 +1583,13 @@ class spell_sha_molten_earth_periodic : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                int l_Count = irand(1, 2);
+                if (GetOwner() && GetOwner()->ToUnit() && GetCaster())
+                {
+                    int l_Count = irand(1, 2);
 
-                for (int l_I = 0; l_I < l_Count; l_I++)
-                    GetCaster()->CastSpell(GetOwner()->ToUnit(), SPELL_SHA_MOLTEN_EARTH_DAMAGE, true);
+                    for (int l_I = 0; l_I < l_Count; l_I++)
+                        GetCaster()->CastSpell(GetOwner()->ToUnit(), SPELL_SHA_MOLTEN_EARTH_DAMAGE, true);
+                }
             }
 
             void Register()
