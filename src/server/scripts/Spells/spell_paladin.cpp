@@ -30,6 +30,7 @@ enum PaladinSpells
 {
     PALADIN_SPELL_JUDGMENT                      = 20271,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
+    PALADIN_SPELL_TEMPLARS_VERDICT              = 85256,
     PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED = 87173,
@@ -1238,6 +1239,8 @@ class spell_pal_judgment : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (caster->HasSpell(PALADIN_SPELL_TEMPLARS_VERDICT))
+                            caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + 1);
                         if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
                         {
                             int32 power = 1;
