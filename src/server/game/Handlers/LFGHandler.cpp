@@ -454,7 +454,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
         uint8 l_Roles = p_RoleCheck->roles.find(guid)->second;
         Player* l_CurrentPlayer = ObjectAccessor::FindPlayer(guid);
 
-        l_Data.appendPackGUID(l_CurrentPlayer->GetGUID());                                  ///< Guid
+        l_Data.appendPackGUID(l_CurrentPlayer ? l_CurrentPlayer->GetGUID() : 0);            ///< Guid
         l_Data << uint32(l_Roles);                                                          ///< Roles Desired
         l_Data << uint8(l_CurrentPlayer ? l_CurrentPlayer->getLevel() : 0);                 ///< Level
         l_Data.WriteBit(l_Roles > 0);                                                       ///< Role Check Complete
@@ -468,7 +468,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
             l_Roles = l_It->second;
             l_CurrentPlayer = ObjectAccessor::FindPlayer(l_It->first);
 
-            l_Data.appendPackGUID(l_CurrentPlayer->GetGUID());                              ///< Guid
+            l_Data.appendPackGUID(l_CurrentPlayer ? l_CurrentPlayer->GetGUID() : 0);        ///< Guid
             l_Data << uint32(l_Roles);                                                      ///< Roles Desired
             l_Data << uint8(l_CurrentPlayer ? l_CurrentPlayer->getLevel() : 0);             ///< Level
             l_Data.WriteBit(l_Roles > 0);                                                   ///< Role Check Complete

@@ -176,102 +176,99 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
+void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_WHO Message");
-
     time_t now = time(NULL);
     if (now - timeLastWhoCommand < 5)
         return;
-    else timeLastWhoCommand = now;
+    else
+        timeLastWhoCommand = now;
 
     uint32 l_MatchCount = 0;
 
-    uint32 l_LevelMin, l_LevelMax, l_RaceMask, l_ClassMask, zones_count, str_count;
-    uint32 zoneids[10];                                     // 10 is client limit
+    uint32 l_LevelMin, l_LevelMax, l_ZonesCount, l_StringCount;
+    int32 l_RaceMask, l_ClassMask;
+    uint32 l_ZoneIDs[10];                                   // 10 is client limit
 
-    bool unk1, unk2, bit725, bit740;
-    uint8 playerLen = 0, guildLen = 0;
-    uint8 unkLen2, unkLen3;
-    std::string player_name, guild_name;
+    bool l_Unk1, l_Unk2, l_Bit725, l_Bit740;
+    uint8 l_PlayerLen = 0, l_GuildLen = 0;
+    uint8 l_UnkLen2, l_UnkLen3;
+    std::string l_PlayerName, l_GuildName;
 
-    recvData >> l_ClassMask;                                  // class mask
-    recvData >> l_LevelMax;                                  // minimal player level, default 100 (MAX_LEVEL)
-    recvData >> l_LevelMin;                                  // maximal player level, default 0
-    recvData >> l_RaceMask;                                   // race mask
-
-    guildLen = recvData.ReadBits(7);
-    playerLen = recvData.ReadBits(6);
-    str_count = recvData.ReadBits(3);
-
-    if (str_count > 4)                                      // can't be received from real client or broken packet
+    l_ZonesCount = p_RecvData.ReadBits(4);                  // zones count, client limit = 10 (2.0.10)
+    if (l_ZonesCount > 10)                                  // can't be received from real client or broken packet
         return;
 
-    unk1 = recvData.ReadBit();
-    unk2 = recvData.ReadBit();
-    zones_count = recvData.ReadBits(4);                     // zones count, client limit = 10 (2.0.10)
+    p_RecvData.FlushBits();
 
-    if (zones_count > 10)                                   // can't be received from real client or broken packet
+    p_RecvData >> l_LevelMin;                               // maximal player level, default 0
+    p_RecvData >> l_LevelMax;                               // minimal player level, default 123 (MAX_LEVEL)
+    p_RecvData >> l_RaceMask;                               // race mask, default -1
+    p_RecvData >> l_ClassMask;                              // class mask, default -1
+
+    l_PlayerLen = p_RecvData.ReadBits(6);
+    l_UnkLen2 = p_RecvData.ReadBits(8) << 1;
+    l_UnkLen2 += p_RecvData.ReadBit();
+    l_GuildLen = p_RecvData.ReadBits(7);
+    l_UnkLen3 = p_RecvData.ReadBits(8) << 1;
+    l_UnkLen3 += p_RecvData.ReadBit();
+
+    l_StringCount = p_RecvData.ReadBits(3);
+    if (l_StringCount > 4)                                  // can't be received from real client or broken packet
         return;
 
-    unkLen2 = recvData.ReadBits(8) << 1;
-    unkLen2 += recvData.ReadBit();
-    unkLen3 = recvData.ReadBits(8) << 1;
-    unkLen3 += recvData.ReadBit();
-    bit725 = recvData.ReadBit();
+    l_Unk1 = p_RecvData.ReadBit();
+    l_Unk2 = p_RecvData.ReadBit();
+    l_Bit725 = p_RecvData.ReadBit();
+    l_Bit740 = p_RecvData.ReadBit();
 
-    uint8* unkLens = new uint8[str_count];
-    std::string* unkStrings = new std::string[str_count];
+    p_RecvData.FlushBits();
 
-    for (uint8 i = 0; i < str_count; i++)
-        unkLens[i] = recvData.ReadBits(7);
+    if (l_PlayerLen > 0)
+        l_PlayerName = p_RecvData.ReadString(l_PlayerLen);  // player name, case sensitive...
 
-    bit740 = recvData.ReadBit();
-    recvData.FlushBits();
+    if (l_UnkLen2 > 0)
+        std::string l_UnkStr2 = p_RecvData.ReadString(l_UnkLen2);
 
-    if (playerLen > 0)
-        player_name = recvData.ReadString(playerLen);       // player name, case sensitive...
+    if (l_GuildLen > 0)
+        l_GuildName = p_RecvData.ReadString(l_GuildLen);    // guild name, case sensitive ...
 
-    std::wstring str[4];                                    // 4 is client limit
-    for (uint32 i = 0; i < str_count; ++i)
+    if (l_UnkLen3 > 0)
+        std::string l_UnkStr3 = p_RecvData.ReadString(l_UnkLen3);
+
+    std::vector<uint8> l_UnkLens(l_StringCount, 0);
+    std::wstring l_UnkStrings[4];                           // 4 is client limit
+    for (uint8 l_Iter = 0; l_Iter < l_StringCount; ++l_Iter)
     {
-        std::string temp = recvData.ReadString(unkLens[i]); // user entered string, it used as universal search pattern(guild+player name)?
-        if (!Utf8toWStr(temp, str[i]))
-            continue;
+        l_UnkLens[l_Iter] = p_RecvData.ReadBits(7);
+        p_RecvData.FlushBits();
 
-        wstrToLower(str[i]);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "String %u: %s", i, temp.c_str());
+        if (l_UnkLens[l_Iter] > 0)
+        {
+            std::string l_Temp = p_RecvData.ReadString(l_UnkLens[l_Iter]); // user entered string, it used as universal search pattern(guild+player name)?
+            if (!Utf8toWStr(l_Temp, l_UnkStrings[l_Iter]))
+                continue;
+
+            wstrToLower(l_UnkStrings[l_Iter]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "String %u: %s", l_Iter, l_Temp.c_str());
+        }
     }
 
-    if (guildLen > 0)
-        guild_name = recvData.ReadString(guildLen); // guild name, case sensitive ...
-
-    for (uint32 i = 0; i < zones_count; ++i)
+    if (l_Bit740)
     {
-        uint32 temp;
-        recvData >> temp;                                   // zone id, 0 if zone is unknown...
-        zoneids[i] = temp;
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Zone %u: %u", i, zoneids[i]);
+        uint32 l_Unks[3];
+        p_RecvData >> l_Unks[0] >> l_Unks[1] >> l_Unks[2];
     }
 
-    if (unkLen3 > 0)
-        std::string unkString = recvData.ReadString(unkLen3);
+    for (uint8 l_Iter = 0; l_Iter < l_ZonesCount; ++l_Iter)
+        p_RecvData >> l_ZoneIDs[l_Iter];
 
-    if (unkLen2 > 0)
-        std::string unkString = recvData.ReadString(unkLen2);
-
-    if (bit740)
-    {
-        uint32 unk1, unk2, unk3;
-        recvData >> unk1 >> unk2 >> unk3;
-    }
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", l_LevelMin, l_LevelMax, player_name.c_str(), guild_name.c_str(), l_RaceMask, l_ClassMask, zones_count, str_count);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", l_LevelMin, l_LevelMax, l_PlayerName.c_str(), l_GuildName.c_str(), l_RaceMask, l_ClassMask, l_ZonesCount, l_StringCount);
 
     std::wstring l_WQueryerPlayerName;
     std::wstring l_WQueryerPlayerGuildName;
 
-    if (!(Utf8toWStr(player_name, l_WQueryerPlayerName) && Utf8toWStr(guild_name, l_WQueryerPlayerGuildName)))
+    if (!(Utf8toWStr(l_PlayerName, l_WQueryerPlayerName) && Utf8toWStr(l_GuildName, l_WQueryerPlayerGuildName)))
         return;
 
     wstrToLower(l_WQueryerPlayerName);
@@ -334,9 +331,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         bool l_ZoneShow = true;
-        for (uint32 i = 0; i < zones_count; ++i)
+        for (uint32 i = 0; i < l_ZonesCount; ++i)
         {
-            if (zoneids[i] == l_AreaID)
+            if (l_ZoneIDs[i] == l_AreaID)
             {
                 l_ZoneShow = true;
                 break;
@@ -375,13 +372,13 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             aname = areaEntry->AreaNameLang[GetSessionDbcLocale()];
 
         bool s_show = true;
-        for (uint32 i = 0; i < str_count; ++i)
+        for (uint32 i = 0; i < l_StringCount; ++i)
         {
-            if (!str[i].empty())
+            if (!l_UnkStrings[i].empty())
             {
-                if (l_WGuildName.find(str[i]) != std::wstring::npos ||
-                    l_WPlayerName.find(str[i]) != std::wstring::npos ||
-                    Utf8FitTo(aname, str[i]))
+                if (l_WGuildName.find(l_UnkStrings[i]) != std::wstring::npos ||
+                    l_WPlayerName.find(l_UnkStrings[i]) != std::wstring::npos ||
+                    Utf8FitTo(aname, l_UnkStrings[i]))
                 {
                     s_show = true;
                     break;
@@ -456,9 +453,6 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     l_Data.append(l_Buffer);
 
     SendPacket(&l_Data);
-
-    delete[] unkLens;
-    delete[] unkStrings;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Send SMSG_WHO Message");
 }

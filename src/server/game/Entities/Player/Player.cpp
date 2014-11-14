@@ -11821,7 +11821,6 @@ void Player::SetBindPoint(uint64 p_Guid)
 
 void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 {
-    ObjectGuid Guid = guid;
     uint32 cost = 0;
 
     if (!specialization)
@@ -11831,21 +11830,9 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 
     WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
 
-    uint8 bitOrder[8] = { 4, 0, 7, 5, 3, 1, 2, 6 };
-    data.WriteBitInOrder(Guid, bitOrder);
-
-    data.WriteByteSeq(Guid[6]);
-    data.WriteByteSeq(Guid[4]);
-    data.WriteByteSeq(Guid[5]);
-
-    data << uint32(cost);
     data << uint8(specialization); // 0 : talent 1 : specialization
-
-    data.WriteByteSeq(Guid[7]);
-    data.WriteByteSeq(Guid[1]);
-    data.WriteByteSeq(Guid[3]);
-    data.WriteByteSeq(Guid[0]);
-    data.WriteByteSeq(Guid[2]);
+    data << uint32(cost);
+    data.appendPackGUID(guid);
 
     GetSession()->SendPacket(&data);
 }

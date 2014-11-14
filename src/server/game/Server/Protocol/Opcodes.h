@@ -123,6 +123,8 @@ enum Opcodes
         SMSG_SET_PHASE_SHIFT                        = 0x00D1,   ///< 6.0.3 19116
         SMSG_TRIGGER_CINEMATIC                      = 0x032F,   ///< 6.0.3 19116
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
+        SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
+        SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0128,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -819,6 +821,7 @@ enum Opcodes
     CMSG_LEARN_TALENTS                          = 0x0BB6,   ///< 6.0.3 19116
     CMSG_AUTOEQUIP_ITEM                         = 0x0F35,   ///< 6.0.3 19116
     CMSG_SWAP_INV_ITEM                          = 0x0F17,   ///< 6.0.3 19116
+    CMSG_SWAP_ITEM                              = 0x0736,   ///< 6.0.3 19116
     CMSG_AUTOSTORE_BAG_ITEM                     = 0x0F18,   ///< 6.0.3 19116
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///< 
     CMSG_STAND_STATE_CHANGE                     = 0x0ABD,   ///< 6.0.3 19116
@@ -828,6 +831,10 @@ enum Opcodes
     CMSG_OPEN_ITEM                              = 0x08AD,   ///< 6.0.3 19116
     CMSG_SET_TITLE                              = 0x0BC6,   ///< 6.0.3 19116
     CMSG_PLAYED_TIME                            = 0x1BB2,   ///< 6.0.3 19116
+    CMSG_SAVE_EQUIPMENT_SET                     = 0x1B54,   ///< 6.0.3 19116
+    CMSG_USE_EQUIPMENT_SET                      = 0x0756,   ///< 6.0.3 19116
+    CMSG_DELETE_EQUIPMENT_SET                   = 0x03C3,   ///< 6.0.3 19116
+    CMSG_WHO                                    = 0x1322,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -923,6 +930,7 @@ enum Opcodes
     CMSG_REQUEST_CEMETERY_LIST                  = 0x10A2,   ///< 6.0.3 19116
     CMSG_TOTEM_DESTROYED                        = 0x000D,   ///< 6.0.3 19116
     CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
+    CMSG_CONFIRM_RESPEC_WIPE                    = 0x14B4,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1392,7 +1400,6 @@ enum Opcodes
     CMSG_COMMENTATOR_START_WARGAME                    = 0x0000,
     CMSG_COMPLAIN                                     = 0x0000,
     CMSG_COMPLETE_MOVIE                               = 0x0000,
-    CMSG_CONFIRM_RESPEC_WIPE                          = 0x0000,
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
@@ -1400,9 +1407,6 @@ enum Opcodes
     CMSG_DISMISS_CRITTER                              = 0x0000,
     CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
-    CMSG_EQUIPMENT_SET_SAVE                           = 0x0000,
-    CMSG_EQUIPMENT_SET_USE                            = 0x0000,
-    CMSG_EQUIPMENT_SET_DELETE                         = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
     CMSG_GAMESPEED_SET                                = 0x0000,
@@ -1525,7 +1529,6 @@ enum Opcodes
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x0000,
     CMSG_SUMMON_RESPONSE                              = 0x0000,
     CMSG_SUSPEND_TOKEN                                = 0x0000,
-    CMSG_SWAP_ITEM                                    = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
     CMSG_TEXT_EMOTE                                   = 0x0000,
@@ -1545,7 +1548,6 @@ enum Opcodes
     CMSG_WARDEN_DATA                                  = 0x0000,
     CMSG_WARGAME_ACCEPT                               = 0x0000,
     CMSG_WARGAME_START                                = 0x0000,
-    CMSG_WHO                                          = 0x0000,
     CMSG_WHOIS                                        = 0x0000,
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0000,
     CMSG_WORLD_TELEPORT                               = 0x0000,
@@ -1708,7 +1710,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0x0000,
     SMSG_DROP_NEW_CONNECTION                          = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0x0000,
-    SMSG_DUMP_OBJECTS_DATA                            = 0x0000,
     SMSG_DYNAMIC_DROP_ROLL_RESULT                     = 0x0000,
     SMSG_ECHO_PARTY_SQUELCH                           = 0x0000,
     SMSG_ENABLE_BARBER_SHOP                           = 0x0000,
@@ -1915,7 +1916,6 @@ enum Opcodes
     SMSG_RESET_RANGED_COMBAT_TIMER                    = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                        = 0x0000,
     SMSG_RESET_DAILY_QUEST                            = 0x0000,
-    SMSG_RESPEC_WIPE_CONFIRM                          = 0x0000,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x0000,
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
