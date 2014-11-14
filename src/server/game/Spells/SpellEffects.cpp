@@ -7958,6 +7958,8 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
         case 719:  // Anima Ring
             m_caster->GetPosition(&l_Dest);
             break;
+        case 1880: // Spinning Blade
+        case 1873: // Spinning Blade
         case 1315: // Chi Burst
         case 1316: // Chi Burst
             m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
