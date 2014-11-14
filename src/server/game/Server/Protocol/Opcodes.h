@@ -123,6 +123,7 @@ enum Opcodes
         SMSG_SET_PHASE_SHIFT                        = 0x00D1,   ///< 6.0.3 19116
         SMSG_TRIGGER_CINEMATIC                      = 0x032F,   ///< 6.0.3 19116
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
+        SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -923,6 +924,7 @@ enum Opcodes
     CMSG_REQUEST_CEMETERY_LIST                  = 0x10A2,   ///< 6.0.3 19116
     CMSG_TOTEM_DESTROYED                        = 0x000D,   ///< 6.0.3 19116
     CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
+    CMSG_CONFIRM_RESPEC_WIPE                    = 0x14B4,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1392,7 +1394,6 @@ enum Opcodes
     CMSG_COMMENTATOR_START_WARGAME                    = 0x0000,
     CMSG_COMPLAIN                                     = 0x0000,
     CMSG_COMPLETE_MOVIE                               = 0x0000,
-    CMSG_CONFIRM_RESPEC_WIPE                          = 0x0000,
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
@@ -1915,7 +1916,6 @@ enum Opcodes
     SMSG_RESET_RANGED_COMBAT_TIMER                    = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                        = 0x0000,
     SMSG_RESET_DAILY_QUEST                            = 0x0000,
-    SMSG_RESPEC_WIPE_CONFIRM                          = 0x0000,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x0000,
     SMSG_RESURRECT_REQUEST                            = 0x0000,
     SMSG_RESUME_TOKEN                                 = 0x0000,
