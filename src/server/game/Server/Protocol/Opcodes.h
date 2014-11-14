@@ -308,6 +308,8 @@ enum Opcodes
         SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x13A1, ///< 6.0.3 19116
         SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x19EA, ///< 6.0.3 19116
         SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x15BD, ///< 6.0.3 19116
+        SMSG_INSTANCE_RESET                                     = 0x0B16, ///< 6.0.3 19116
+        SMSG_INSTANCE_RESET_FAILED                              = 0x1189, ///< 6.0.3 19116
 
         /// Scenarios
         SMSG_SCENARIO_POI                                       = 0x0343, ///< 6.0.3 19116
@@ -1272,6 +1274,7 @@ enum Opcodes
     CMSG_LFG_TELEPORT                              = 0x0316,    ///< 6.0.3 19116
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< 6.0.2 19027 (unused)
+    CMSG_RESET_INSTANCES                           = 0x0389,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
@@ -1502,7 +1505,6 @@ enum Opcodes
     CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x8000 + 1,
     CMSG_RESET_CHALLENGE_MODE                         = 0x0000,
     CMSG_RESET_FACTION_CHEAT                          = 0x0000,
-    CMSG_RESET_INSTANCES                              = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
     CMSG_SELECT_FACTION                               = 0x0000,
@@ -1789,8 +1791,6 @@ enum Opcodes
     SMSG_INSPECT_TALENT                               = 0x0000,
     SMSG_INSTANCE_DIFFICULTY                          = 0x0000,
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0x0000,
-    SMSG_INSTANCE_RESET                               = 0x0000,
-    SMSG_INSTANCE_RESET_FAILED                        = 0x0000,
     SMSG_INSTANCE_SAVE_CREATED                        = 0x0000,
     SMSG_INVALIDATE_DANCE                             = 0x0000,
     SMSG_INVALIDATE_PLAYER                            = 0x0000,
