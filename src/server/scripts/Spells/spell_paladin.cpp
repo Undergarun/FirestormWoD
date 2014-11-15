@@ -103,35 +103,6 @@ enum PaladinSpells
     PALADIN_SPELL_WEAKENED_BLOWS                = 115798
 };
 
-// Crusader Strike - 35395
-class spell_pal_crusader_strike : public SpellScriptLoader
-{
-    public:
-        spell_pal_crusader_strike() : SpellScriptLoader("spell_pal_crusader_strike") { }
-
-        class spell_pal_crusader_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_crusader_strike_SpellScript);
-
-            void HandleDamage(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, PALADIN_SPELL_WEAKENED_BLOWS, true);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_crusader_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_crusader_strike_SpellScript();
-        }
-};
-
 // Glyph of devotion aura - 146955
 class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
 {
@@ -1624,7 +1595,6 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
-    new spell_pal_crusader_strike();
     new spell_pal_glyph_of_devotian_aura();
     new spell_pal_glyph_of_devotian_trigger_aura();
     new spell_pal_exorcism_energize();
