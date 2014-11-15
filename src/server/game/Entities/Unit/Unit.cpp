@@ -7509,8 +7509,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
             // King of the Jungle
             else if (dummySpell->SpellIconID == 2850)
             {
-                // Effect 0 - mod damage while having Enrage
-                if (effIndex == 0)
+                // Effect 0 - mod damage while having Enrage  TODO crashfix
+                /*if (effIndex == 0)
                 {
                     if (procSpell && !(procSpell->SpellFamilyFlags[0] & 0x00080000) || procSpell->SpellIconID != 961)
                         return false;
@@ -7518,9 +7518,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     basepoints0 = triggerAmount;
                     target = this;
                     break;
-                }
+                }*/
                 // Effect 1 - Tiger's Fury restore energy
-                else if (effIndex == 1)
+                if (effIndex == 1)
                 {
                     if (procSpell && !(procSpell->SpellFamilyFlags[2] & 0x00000800) || procSpell->SpellIconID != 1181)
                         return false;
