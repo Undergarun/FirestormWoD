@@ -7512,7 +7512,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Effect 0 - mod damage while having Enrage
                 if (effIndex == 0)
                 {
-                    if (!(procSpell->SpellFamilyFlags[0] & 0x00080000) || procSpell->SpellIconID != 961)
+                    if (procSpell && !(procSpell->SpellFamilyFlags[0] & 0x00080000) || procSpell->SpellIconID != 961)
                         return false;
                     triggered_spell_id = 51185;
                     basepoints0 = triggerAmount;
@@ -7522,7 +7522,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Effect 1 - Tiger's Fury restore energy
                 else if (effIndex == 1)
                 {
-                    if (!(procSpell->SpellFamilyFlags[2] & 0x00000800) || procSpell->SpellIconID != 1181)
+                    if (procSpell && !(procSpell->SpellFamilyFlags[2] & 0x00000800) || procSpell->SpellIconID != 1181)
                         return false;
                     triggered_spell_id = 51178;
                     basepoints0 = triggerAmount;
@@ -16399,7 +16399,7 @@ int32 Unit::GetMaxPower(Powers power) const
 
 int32 Unit::GetPowerCoeff(Powers p_PowerType) const
 {
-    switch (p_PowerType) 
+    switch (p_PowerType)
     {
     case POWER_MANA:
     case POWER_ECLIPSE:
@@ -16647,7 +16647,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    
+
     if (ToPlayer())
         ToPlayer()->ClearComboPoints();
 
