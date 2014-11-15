@@ -7506,30 +7506,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 basepoints0 = CalculatePct(int32(damage), triggerAmount);
                 break;
             }
-            // King of the Jungle
-            else if (dummySpell->SpellIconID == 2850)
-            {
-                // Effect 0 - mod damage while having Enrage
-                if (effIndex == 0)
-                {
-                    if (!(procSpell->SpellFamilyFlags[0] & 0x00080000) || procSpell->SpellIconID != 961)
-                        return false;
-                    triggered_spell_id = 51185;
-                    basepoints0 = triggerAmount;
-                    target = this;
-                    break;
-                }
-                // Effect 1 - Tiger's Fury restore energy
-                else if (effIndex == 1)
-                {
-                    if (!(procSpell->SpellFamilyFlags[2] & 0x00000800) || procSpell->SpellIconID != 1181)
-                        return false;
-                    triggered_spell_id = 51178;
-                    basepoints0 = triggerAmount;
-                    target = this;
-                    break;
-                }
-            }
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -16399,7 +16375,7 @@ int32 Unit::GetMaxPower(Powers power) const
 
 int32 Unit::GetPowerCoeff(Powers p_PowerType) const
 {
-    switch (p_PowerType) 
+    switch (p_PowerType)
     {
     case POWER_MANA:
     case POWER_ECLIPSE:
@@ -16647,7 +16623,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    
+
     if (ToPlayer())
         ToPlayer()->ClearComboPoints();
 
