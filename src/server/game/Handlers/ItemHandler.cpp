@@ -616,6 +616,13 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
         if (l_PlayerItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
             return; // Therefore, no feedback to client
 
+        // pervent sell item with expiration
+        if (l_PlayerItem->GetUInt32Value(ITEM_FIELD_EXPIRATION))
+        {
+            m_Player->SendSellError(SELL_ERR_ONLY_EMPTY_BAG, l_Creature, l_ItemGUID);
+            return;
+        }
+
         // special case at auto sell (sell all)
         if (l_Amount == 0)
             l_Amount = l_PlayerItem->GetCount();
