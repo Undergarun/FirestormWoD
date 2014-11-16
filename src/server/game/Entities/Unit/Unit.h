@@ -131,7 +131,7 @@ enum SpellModOp
     SPELLMOD_EFFECT5                    = 33
 };
 
-#define MAX_SPELLMOD 36
+#define MAX_SPELLMOD 38
 
 enum SpellValueMod
 {
