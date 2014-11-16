@@ -1892,14 +1892,18 @@ unsigned int ExtractBitMaskBitCount(unsigned int p_Value)
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 {
-    // STRUCTURE IS WRONG
-    return;
-
     uint64 l_NpcGUID;
     uint32 l_ItemCount = 0;
 
-    p_Packet.readPackGUID(l_NpcGUID);
     p_Packet >> l_ItemCount;
+    p_Packet.readPackGUID(l_NpcGUID);
+
+    if (l_ItemCount < EQUIPMENT_SLOT_START || l_ItemCount >= EQUIPMENT_SLOT_END)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", m_Player->GetGUIDLow(), m_Player->GetName(), l_ItemCount);
+        p_Packet.rfinish();
+        return;
+    }
 
     std::vector<uint64> l_SrcItemGUIDs(l_ItemCount, uint64(0));
     std::vector<uint64> l_SrcVoidItemGUIDs(l_ItemCount, uint64(0));
@@ -1948,13 +1952,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (l_HasSrcVoidItemGUID)
             p_Packet.readPackGUID(l_SrcVoidItemGUIDs[l_I]);         ///< Source Void Item GUID
-    }
-
-    if (l_ItemCount < EQUIPMENT_SLOT_START || l_ItemCount >= EQUIPMENT_SLOT_END)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", m_Player->GetGUIDLow(), m_Player->GetName(), l_ItemCount);
-        p_Packet.rfinish();
-        return;
     }
 
     // Validate
