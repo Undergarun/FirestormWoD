@@ -1895,7 +1895,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
     // STRUCTURE IS WRONG
     return;
 
+    uint64 l_NpcGUID;
     uint32 l_ItemCount = 0;
+
+    p_Packet.readPackGUID(l_NpcGUID);
     p_Packet >> l_ItemCount;
 
     std::vector<uint64> l_SrcItemGUIDs(l_ItemCount, uint64(0));
