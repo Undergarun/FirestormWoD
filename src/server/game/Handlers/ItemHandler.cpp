@@ -589,8 +589,6 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 
     if (l_PlayerItem)
     {
-        sLog->outAshran("HandleSellItemOpcode[%u] %u %u", GetPlayer()->GetGUIDLow(), l_PlayerItem->GetEntry(), l_Amount);
-
         // prevent sell not owner item
         if (m_Player->GetGUID() != l_PlayerItem->GetOwnerGUID())
         {
@@ -643,7 +641,6 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 
                     if (!pNewItem)
                     {
-                        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", l_PlayerItem->GetEntry(), l_Amount);
                         m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
                         return;
                     }
