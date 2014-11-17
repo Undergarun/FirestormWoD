@@ -5987,7 +5987,7 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
         }
 
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
         {
             if (m_items[i] == NULL)
                 continue;
@@ -6013,7 +6013,7 @@ void Player::DestroyForPlayer(Player* target, bool onDeath) const
 
     if (target == this)
     {
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
         {
             if (m_items[i] == NULL)
                 continue;
@@ -10378,7 +10378,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // special learning case
     if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
     {
-        uint32 learn_spell_id = proto->Spells[0].SpellId;
+        uint32 learn_spell_id    = proto->Spells[0].SpellId;
         uint32 learning_spell_id = proto->Spells[1].SpellId;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
@@ -10439,7 +10439,8 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
             continue;
-        for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+
+        for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                 continue;
@@ -12261,6 +12262,11 @@ Item* Player::GetItemByGuid(uint64 guid) const
             if (pItem->GetGUID() == guid)
                 return pItem;
 
+    for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
+
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
         if (Bag* pBag = GetBagByPos(i))
             for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
@@ -12292,7 +12298,7 @@ bool Player::RemoveItemByDelete(Item* item)
         }
     }
 
-    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+    for (int i = BANK_SLOT_ITEM_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
     {
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
@@ -12352,7 +12358,7 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    if (bag == INVENTORY_SLOT_BAG_0 && (slot < BANK_SLOT_BAG_END || (slot >= REAGENT_BANK_SLOT_BAG_START && slot < REAGENT_BANK_SLOT_BAG_END)))
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot < REAGENT_BANK_SLOT_BAG_END))
         return m_items[slot];
     else if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
@@ -15357,6 +15363,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
             msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, false);
         else if (IsBankPos(dst))
             msg = CanBankItem(dstbag, dstslot, sDest, pSrcItem, false);
+        else if (IsReagentBankPos(dst))
+            msg = CanReagentBankItem(dstbag, dstslot, sDest, pSrcItem, false);
         else if (IsEquipmentPos(dst))
             msg = CanEquipItem(dstslot, eDest, pSrcItem, false);
         else
@@ -15373,6 +15381,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 if (IsInventoryPos(dst))
                     StoreItem(sDest, pSrcItem, true);
                 else if (IsBankPos(dst))
+                    BankItem(sDest, pSrcItem, true);
+                else if (IsReagentBankPos(dst))
                     BankItem(sDest, pSrcItem, true);
                 else if (IsEquipmentPos(dst))
                 {
@@ -15408,6 +15418,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
         msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, true);
     else if (IsBankPos(dst))
         msg = CanBankItem(dstbag, dstslot, sDest, pSrcItem, true);
+    else if (IsReagentBankPos(dst))
+        msg = CanReagentBankItem(dstbag, dstslot, sDest, pSrcItem, true);
     else if (IsEquipmentPos(dst))
     {
         msg = CanEquipItem(dstslot, eDest, pSrcItem, true);
@@ -15428,6 +15440,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
         msg = CanStoreItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsBankPos(src))
         msg = CanBankItem(srcbag, srcslot, sDest2, pDstItem, true);
+    else if (IsReagentBankPos(src))
+        msg = CanReagentBankItem(dstbag, dstslot, sDest, pSrcItem, true);
     else if (IsEquipmentPos(src))
     {
         msg = CanEquipItem(srcslot, eDest2, pDstItem, true);
@@ -15525,6 +15539,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
         StoreItem(sDest, pSrcItem, true);
     else if (IsBankPos(dst))
         BankItem(sDest, pSrcItem, true);
+    else if (IsReagentBankPos(dst))
+        BankItem(sDest, pSrcItem, true);
     else if (IsEquipmentPos(dst))
         EquipItem(eDest, pSrcItem, true);
 
@@ -15532,6 +15548,8 @@ void Player::SwapItem(uint16 src, uint16 dst)
     if (IsInventoryPos(src))
         StoreItem(sDest2, pDstItem, true);
     else if (IsBankPos(src))
+        BankItem(sDest2, pDstItem, true);
+    else if (IsReagentBankPos(src))
         BankItem(sDest2, pDstItem, true);
     else if (IsEquipmentPos(src))
         EquipItem(eDest2, pDstItem, true);

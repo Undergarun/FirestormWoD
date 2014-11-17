@@ -2969,6 +2969,6 @@ struct TaxiPathBySourceAndDestination
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
-#define TaxiMaskSize 162
+#define TaxiMaskSize 198
 typedef uint8 TaxiMask[TaxiMaskSize];
 #endif

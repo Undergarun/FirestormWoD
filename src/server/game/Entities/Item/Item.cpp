@@ -920,7 +920,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
     if (!GetEnchantmentId(slot))
         return;
 
-    for (uint8 x = 0; x < MAX_ITEM_ENCHANTMENT_EFFECTS; ++x)
+    for (uint8 x = 0; x < MAX_ENCHANTMENT_SPELLS; ++x)
         SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + x, 0);
     SetState(ITEM_CHANGED, GetOwner());
 }
@@ -1601,12 +1601,22 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             return 0;
 
         for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
+        {
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
-                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
+            {
+                for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
+                {
                     if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    {
                         for (int k = 0; k < 5; ++k)
+                        {
                             if (randomSuffix->enchant_id[k] == enchant->ID)
                                 return int32((randomSuffix->prefix[k] * GetItemSuffixFactor()) / 10000);
+                        }
+                    }
+                }
+            }
+        }
     }
     else
     {
@@ -1615,12 +1625,22 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             return 0;
 
         for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
+        {
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
-                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
+            {
+                for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
+                {
                     if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
-                        for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
+                    {
+                        for (int k = 0; k < MAX_ENCHANTMENT_SPELLS; ++k)
+                        {
                             if (randomProp->enchant_id[k] == enchant->ID)
                                 return int32(enchant->amount[k]);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return 0;

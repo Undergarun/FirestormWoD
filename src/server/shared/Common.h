@@ -66,6 +66,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <cmath>
 #include <math.h>
 #include <errno.h>
 #include <signal.h>
