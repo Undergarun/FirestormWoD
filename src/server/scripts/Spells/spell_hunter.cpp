@@ -44,6 +44,7 @@ enum HunterSpells
     HUNTER_SPELL_SERPENT_STING                      = 118253,
     HUNTER_SPELL_SERPENT_SPREAD                     = 87935,
     HUNTER_SPELL_CHIMERA_SHOT_HEAL                  = 53353,
+    HUNTER_SPELL_CHIMERA_SHOT                       = 171454,
     HUNTER_SPELL_RAPID_FIRE                         = 3045,
     HUNTER_SPELL_STEADY_SHOT_ENERGIZE               = 77443,
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
@@ -1822,19 +1823,9 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        constAuraEffectPtr serpentSting = target->GetAuraEffect(HUNTER_SPELL_SERPENT_STING, EFFECT_0, _player->GetGUID());
-
-                        if (serpentSting)
-                            serpentSting->GetBase()->RefreshDuration();
-
-                        _player->CastSpell(_player, HUNTER_SPELL_CHIMERA_SHOT_HEAL, true);
-                        _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
-                    }
-                }
+                if (Unit* caster = GetCaster())
+                  if (Unit* target = GetHitUnit())
+                    caster->CastSpell(target, HUNTER_SPELL_CHIMERA_SHOT, true);
             }
 
             void Register()

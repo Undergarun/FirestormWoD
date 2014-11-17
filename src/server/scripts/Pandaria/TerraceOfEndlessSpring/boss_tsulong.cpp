@@ -1192,12 +1192,15 @@ class spell_sunbeam : public SpellScriptLoader
             {
                 if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (Pet* pet = GetTarget()->ToPlayer()->GetPet())
-                        pet->AddAura(SPELL_SUNBEAM_PROTECTION, pet);
+                    if (Unit* l_Caster = GetCaster())
+                    {
+                        if (Pet* pet = GetTarget()->ToPlayer()->GetPet())
+                            pet->AddAura(SPELL_SUNBEAM_PROTECTION, pet);
 
-                    float scale = GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE);
-                    if (scale > 0.2f)
-                        GetCaster()->SetObjectScale(scale - 0.2f);
+                        float scale = l_Caster->GetFloatValue(OBJECT_FIELD_SCALE);
+                        if (scale > 0.2f)
+                            l_Caster->SetObjectScale(scale - 0.2f);
+                    }
                 }
 
                 GetTarget()->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS_DEBUFF);

@@ -495,10 +495,7 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
                             uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (procSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
                             {
-                                float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.85f;
-
-                                int32 bp = int32(GetHitDamage() * value / 100);
-
+                                int32 bp = int32(GetHitDamage() * 0.18f);
                                 caster->CastCustomSpell(target, MASTERY_SPELL_HAND_OF_LIGHT, &bp, NULL, NULL, true);
                             }
                         }

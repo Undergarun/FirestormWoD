@@ -181,32 +181,20 @@ void WorldSession::HandleGuildSetGuildMasterOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_GUILD_MASTER");
 
-    std::string l_NewMasterName     = "";
-    std::string l_NewMasterRealName = "";
     uint32 l_NewMasterNameLenght = 0;
+    std::string l_NewMasterName  = "";
 
     l_NewMasterNameLenght = recvPacket.ReadBits(9);
-
     l_NewMasterName = recvPacket.ReadString(l_NewMasterNameLenght);
-    l_NewMasterRealName.resize(l_NewMasterName.size());
 
+    // Extract real player name from PlayerName-Ysondre-EU
     size_t l_Position = l_NewMasterName.find('-');
-    if (l_Position > 0)
-    {
-        for (size_t l_I = 0; l_I < l_NewMasterName.size(); l_I++)
-            if (l_I < l_Position)
-                l_NewMasterRealName[l_I] = l_NewMasterName[l_I];
-            l_NewMasterRealName.resize(l_Position);
-        if (normalizePlayerName(l_NewMasterRealName))
-            if (Guild * l_Guild = _GetPlayerGuild(this, true))
-                l_Guild->HandleSetLeader(this, l_NewMasterRealName);
-    }
-    else
-    {
-        if (normalizePlayerName(l_NewMasterName))
-            if (Guild * l_Guild = _GetPlayerGuild(this, true))
-                l_Guild->HandleSetLeader(this, l_NewMasterName);
-    }
+    if (l_Position != std::string::npos)
+        l_NewMasterName = l_NewMasterName.substr(0, l_Position);
+
+    if (normalizePlayerName(l_NewMasterName))
+        if (Guild * l_Guild = _GetPlayerGuild(this, true))
+            l_Guild->HandleSetLeader(this, l_NewMasterName);
 }
 
 void WorldSession::HandleGuildUpdateMOTDTextOpcode(WorldPacket& p_Packet)

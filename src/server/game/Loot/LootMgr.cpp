@@ -1079,7 +1079,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     bool l_IsAELooting = false;
 
     // Process radius loot
-    for (uint32 slot = l_Loot.items.size() + l_Loot.quest_items.size(); slot <= l_Loot.maxLinkedSlot; slot++)
+    /*for (uint32 slot = l_Loot.items.size() + l_Loot.quest_items.size(); slot <= l_Loot.maxLinkedSlot; slot++)
     {
         if (!l_Loot.isLinkedLoot(slot))
             continue;
@@ -1192,6 +1192,9 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                             break;
                     }
 
+                    if (loot.slot >= linkedLoot->items.size())
+                        sLog->outAshran("LootMgr: Creature entry %u slot %u, items size : %u", loot.slot, c->GetEntry(), linkedLoot->items.size());
+
                     if (!linkedLoot->items[loot.slot].currency && !linkedLoot->items[loot.slot].is_looted && !linkedLoot->items[loot.slot].freeforall &&
                         linkedLoot->items[loot.slot].conditions.empty() && linkedLoot->items[loot.slot].AllowedForPlayer(lv.viewer))
                     {
@@ -1224,7 +1227,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     break;
             }
         }
-    }
+    }*/
 
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
     QuestItemMap const& lootPlayerQuestItems = l_Loot.GetPlayerQuestItems();

@@ -118,19 +118,22 @@ namespace JadeCore
             switch (content)
             {
                 case CONTENT_1_60:
-                    nBaseExp = 45;
+                    nBaseExp = 35;
                     break;
                 case CONTENT_61_70:
-                    nBaseExp = 235;
+                    nBaseExp = 35;
                     break;
                 case CONTENT_71_80:
-                    nBaseExp = 580;
+                    nBaseExp = 35;
                     break;
                 case CONTENT_81_85:
-                    nBaseExp = 1878;
+                    nBaseExp = 35;
                     break;
                 case CONTENT_86_90:
-                    nBaseExp = 7512;
+                    nBaseExp = 35;
+                    break;
+                case CONTENT_91_100:
+                    nBaseExp = 40;
                     break;
                 default:
                     sLog->outError(LOG_FILTER_GENERAL, "BaseGain: Unsupported content level %u", content);

@@ -106,9 +106,9 @@ class npc_world_invisible_trigger : public CreatureScript
                                 continue;
 
                             if (l_Player->GetTeamId() == TEAM_ALLIANCE)
-                                l_Player->TeleportTo(1116, 1585.22f, 104.39f, 65.76f, l_Player->GetOrientation());
+								l_Player->TeleportTo(1116, 465.76f, -94.35f, 92.83f, l_Player->GetOrientation());
                             else if (l_Player->GetTeamId() == TEAM_HORDE)
-                                l_Player->TeleportTo(1116, 5859.56f, 4477.74f, 117.71f, l_Player->GetOrientation());
+								l_Player->TeleportTo(1116, 7433.54f, 4519.52f, 166.66f, l_Player->GetOrientation());
                         }
                     }
                     else
@@ -127,7 +127,12 @@ class npc_world_invisible_trigger : public CreatureScript
 class PlayerScript_DarkPortal_Phasing : public PlayerScript
 {
     public:
-        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing") { }
+        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing")
+        {
+            m_AlreadyInSwitchMapState = false;
+        }
+
+        bool m_AlreadyInSwitchMapState;
 
         enum eMaps
         {
@@ -138,10 +143,23 @@ class PlayerScript_DarkPortal_Phasing : public PlayerScript
 
         void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
         {
-            if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
-                p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
-            else if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE && p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_NewZoneID != p_OldZoneID)
-                p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+            if (m_AlreadyInSwitchMapState)
+                return;
+
+            if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
+            {
+                if (p_NewZoneID != p_OldZoneID && (p_NewZoneID == BLASTER_LANDS_ZONE_ID || p_OldZoneID == BLASTER_LANDS_ZONE_ID))
+                {
+                    m_AlreadyInSwitchMapState = true;
+
+                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID)
+                        p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
+                    else
+                        p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+
+                    m_AlreadyInSwitchMapState = false;
+                }
+            }
         }
 };
 

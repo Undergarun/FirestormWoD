@@ -249,7 +249,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
         }
 
         Item * l_Item = m_Player->StoreNewItem(l_Destination, l_VoidStorageItem->ItemEntry, true, l_VoidStorageItem->ItemRandomPropertyId);
-        l_Item->SetGuidValue(ITEM_FIELD_CREATOR, uint64(l_VoidStorageItem->CreatorGuid));
+        l_Item->SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(l_VoidStorageItem->CreatorGuid, 0, HIGHGUID_PLAYER));
         l_Item->SetBinding(true);
         m_Player->SendNewItem(l_Item, 1, false, false, false);
 

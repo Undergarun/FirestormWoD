@@ -144,7 +144,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
         if (bidder)
         {
-            bidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, bidder_guid, 0, 0, auction->itemEntry);
+            bidder->GetSession()->SendAuctionBidderNotification(auction, bidder_guid, 0);
             // FIXME: for offline player need also
             bidder->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS, 1);
         }
@@ -229,7 +229,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
     if (oldBidder || oldBidder_accId)
     {
         if (oldBidder && newBidder)
-            oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, newBidder->GetGUID(), newPrice, auction->GetAuctionOutBid(), auction->itemEntry);
+            oldBidder->GetSession()->SendAuctionBidderNotification(auction, newBidder->GetGUID(), newPrice);
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_OUTBIDDED), AuctionEntry::BuildAuctionMailBody(auction->owner, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .AddMoney(auction->bid)
@@ -246,9 +246,6 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQ
     uint32 bidder_accId = 0;
     if (!bidder)
         bidder_accId = sObjectMgr->GetPlayerAccountIdByGUID(bidder_guid);
-
-    if (bidder)
-        bidder->GetSession()->SendAuctionRemovedNotification(auction->Id, auction->itemEntry, item->GetItemRandomPropertyId());
 
     // bidder exist
     if (bidder || bidder_accId)
@@ -613,38 +610,50 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 }
 
 //this function inserts to WorldPacket auction's data
-bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
+bool AuctionEntry::BuildAuctionInfo(WorldPacket& p_Data) const
 {
-    Item* item = sAuctionMgr->GetAItem(itemGUIDLow);
-    if (!item)
+    Item* l_Item = sAuctionMgr->GetAItem(itemGUIDLow);
+    if (!l_Item)
     {
         sLog->outError(LOG_FILTER_GENERAL, "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: %u", Id, itemGUIDLow);
         return false;
     }
-    data << uint32(Id);
-    data << uint32(item->GetEntry());
 
-    for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_0; ++i) // PROP_ENCHANTMENT_SLOT_0 = 8
+    // Item_Struct
     {
-        data << uint32(item->GetEnchantmentId(EnchantmentSlot(i)));
-        data << uint32(item->GetEnchantmentDuration(EnchantmentSlot(i)));
-        data << uint32(item->GetEnchantmentCharges(EnchantmentSlot(i)));
+        p_Data << uint32(l_Item->GetEntry());
+        p_Data << uint32(l_Item->GetItemSuffixFactor());
+        p_Data << int32(l_Item->GetItemRandomPropertyId());
+        p_Data.WriteBit(false); // HasModifications
+        p_Data.WriteBit(false); // HasBonuses
     }
 
-    data << uint32(0);
-    data << int32(item->GetItemRandomPropertyId());                 // Random item property id
-    data << uint32(item->GetItemSuffixFactor());                    // SuffixFactor
-    data << uint32(item->GetCount());                               // item->count
-    data << uint32(item->GetSpellCharges());                        // item->charge FFFFFFF
-    data << uint32(0);                                              // Unk
-    data << uint64(MAKE_NEW_GUID(owner, 0, HIGHGUID_PLAYER));       // Auction->owner
-    data << uint64(startbid);                                       // Auction->startbid (not sure if useful)
-    data << uint64(bid ? GetAuctionOutBid() : 0);
-    // Minimal outbid
-    data << uint64(buyout);                                         // Auction->buyout
-    data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
-    data << uint64(MAKE_NEW_GUID(bidder, 0, HIGHGUID_PLAYER));      // auction->bidder current
-    data << uint64(bid);                                            // current bid
+    p_Data << uint32(l_Item->GetCount());
+    p_Data << uint32(l_Item->GetSpellCharges());
+    p_Data << uint32(PROP_ENCHANTMENT_SLOT_0);
+    p_Data << uint32(0);    // Flags
+    p_Data << uint32(Id);
+    p_Data.appendPackGUID(MAKE_NEW_GUID(owner, 0, HIGHGUID_PLAYER));
+    p_Data << uint64(startbid);
+    p_Data << uint64(bid ? GetAuctionOutBid() : 0);
+    p_Data << uint64(buyout);
+    p_Data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);
+    p_Data << uint8(0); // Delete reason
+
+    for (uint8 l_Iter = 0; l_Iter < PROP_ENCHANTMENT_SLOT_0; ++l_Iter)
+    {
+        p_Data << uint32(l_Item->GetEnchantmentId(EnchantmentSlot(l_Iter)));
+        p_Data << uint32(l_Item->GetEnchantmentDuration(EnchantmentSlot(l_Iter)));
+        p_Data << uint32(l_Item->GetEnchantmentCharges(EnchantmentSlot(l_Iter)));
+        p_Data << uint8(l_Iter);
+    }
+
+    p_Data.WriteBit(true);  // !CensorServerSideInfo
+    p_Data.WriteBit(false); // !CensorBidInfo
+    p_Data.FlushBits();
+    p_Data.appendPackGUID(MAKE_NEW_GUID(bidder, 0, HIGHGUID_PLAYER));
+    p_Data << uint64(bid);
+
     return true;
 }
 

@@ -1014,6 +1014,34 @@ class spell_pri_holy_word_sanctuary : public SpellScriptLoader
         }
 };
 
+// Power Word: Shield - 17
+class spell_pri_power_word_shield : public SpellScriptLoader
+{
+public:
+    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                amount = ((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_power_word_shield_AuraScript();
+    }
+};
+
 // Called by Smite - 585
 // Chakra : Chastise - 81209
 class spell_pri_chakra_chastise : public SpellScriptLoader
@@ -2164,6 +2192,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_power_word_solace();
     new spell_pri_shadowfiend();
     new spell_pri_surge_of_light();
+    new spell_pri_power_word_shield();
     new spell_pri_body_and_soul();
     new spell_pri_prayer_of_mending_divine_insight();
     new spell_pri_divine_insight_holy();
