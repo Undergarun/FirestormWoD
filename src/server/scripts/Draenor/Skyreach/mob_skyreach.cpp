@@ -13,14 +13,14 @@ public:
 
     enum class SpinningBladeSpells : uint32
     {
-        SPINNING_BLADE_2 = 153123,  // Launched after 1s of SPINNING_BLADE
+        SPINNING_BLADE_DMG = 153123,
         SPINNING_BLADE_3 = 153586,
         SPINNING_BLADE_4 = 153535,
-        SPINNING_BLADE_5 = 153536,
+        SPINNING_BLADE_5 = 153536,  // AreaTriggerMoveSplines ok.
         SPINNING_BLADE_6 = 153537,
         SPINNING_BLADE_7 = 153538,
         SPINNING_BLADE_8 = 153588,
-        SPINNING_BLADE_9 = 153583,  // 2:41:02
+        SPINNING_BLADE_9 = 153583,
         SPINNING_BLADE_10 = 153585,
     };
 
@@ -33,7 +33,7 @@ public:
             if (GetCaster() && GetHitUnit())
             {
                 // Spinning Blade AreaTrigger
-                GetCaster()->CastSpell(GetHitUnit(), uint32(SpinningBladeSpells::SPINNING_BLADE_9), true);
+                GetCaster()->CastSpell(GetHitUnit(), uint32(SpinningBladeSpells::SPINNING_BLADE_5), true);
             }
         }
 
