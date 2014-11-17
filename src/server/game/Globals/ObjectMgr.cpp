@@ -3015,6 +3015,76 @@ void ObjectMgr::LoadVehicleAccessories()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadAreaTriggerMoveTemplates()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_AreaTriggerMoveTemplate.clear();                           // needed for reload case
+
+    uint32 l_Count = 0;
+
+    //                                                      0                1          2
+    QueryResult l_Result = WorldDatabase.Query("SELECT `move_curve_id`, `path_size`, `duration` FROM `areatrigger_move_template`");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Move Template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint8 l_Index = 0;
+
+        AreaTriggerMoveTemplate l_Template;
+        l_Template.m_move_id = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_path_size = l_Fields[l_Index++].GetUInt32();
+        l_Template.m_duration = l_Fields[l_Index++].GetUInt32();
+
+        m_AreaTriggerMoveTemplate.insert(std::make_pair(l_Template.m_move_id, l_Template));
+
+        ++l_Count;
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger Move Template in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadAreaTriggerMoveSplines()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_AreaTriggerMoveSplines.clear();                           // needed for reload case
+
+    uint32 l_Count = 0;
+
+    //                                                      0                1          2        3        4
+    QueryResult l_Result = WorldDatabase.Query("SELECT `move_curve_id`, `path_id`, `path_x`, `path_y`, `path_z` FROM `areatrigger_move_splines`");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Move Splines in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint8 l_Index = 0;
+
+        AreaTriggerMoveSplines l_MoveSplines;
+        l_MoveSplines.m_move_id = l_Fields[l_Index++].GetUInt32();
+        l_MoveSplines.m_path_id = l_Fields[l_Index++].GetUInt32();
+        l_MoveSplines.m_path_x = l_Fields[l_Index++].GetFloat();
+        l_MoveSplines.m_path_y = l_Fields[l_Index++].GetFloat();
+        l_MoveSplines.m_path_z = l_Fields[l_Index++].GetFloat();
+
+        m_AreaTriggerMoveSplines.insert(std::make_pair(std::make_pair(l_MoveSplines.m_move_id, l_MoveSplines.m_path_id), l_MoveSplines));
+
+        ++l_Count;
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger Move Splines in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 l_OldMSTime = getMSTime();

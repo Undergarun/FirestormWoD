@@ -557,8 +557,14 @@ void AreaTrigger::Update(uint32 p_Time)
         m_UpdateTimer.Reset();
 
         // Calculate new position
-        if (m_Trajectory)
+        if (GetMainTemplate().m_MoveCurveID != 0)
+        {
+            UpdatePositionWithPathId(m_CreatedTime, this);
+        }
+        else if (m_Trajectory)
+        {
             GetPositionAtTime(m_CreatedTime, this);
+        }
     }
 }
 
@@ -673,23 +679,77 @@ void AreaTrigger::SendMovementUpdate()
     // endX
 }
 
+void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
+{
+    AreaTriggerTemplate l_template = GetMainTemplate();
+
+    if (l_template.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
+    {
+        AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_template.m_MoveCurveID);
+        if (l_MoveTemplate.m_path_size == 0)
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Template (entry %u) not in DB.", l_template.m_MoveCurveID);
+            return; // ERROR.
+        }
+
+        int32 l_LocalDuration = l_MoveTemplate.m_duration / l_MoveTemplate.m_path_size;
+        float l_Progress = float(p_Time % l_LocalDuration) / l_LocalDuration;
+        uint32 l_PathId = float(p_Time) / l_LocalDuration;
+
+        // We want to interpolate so that to get true position on server side.
+        AreaTriggerMoveSplines l_spline0 = sObjectMgr->GetAreaTriggerMoveSplines(l_template.m_MoveCurveID, l_PathId);
+        AreaTriggerMoveSplines l_spline1 = sObjectMgr->GetAreaTriggerMoveSplines(l_template.m_MoveCurveID, l_PathId + 1);
+
+        if (l_spline0.m_move_id == 0 || l_spline1.m_move_id == 0)
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Splines (entry %u) not in DB.", l_template.m_MoveCurveID);
+            return; // ERROR.
+        }
+
+        p_OutPos->m_positionX = m_Source.m_positionX + l_spline0.m_path_x + l_Progress * (l_spline1.m_path_x - l_spline0.m_path_x);
+        p_OutPos->m_positionY = m_Source.m_positionY + l_spline0.m_path_y + l_Progress * (l_spline1.m_path_y - l_spline0.m_path_y);
+        p_OutPos->m_positionZ = m_Source.m_positionZ + l_spline0.m_path_z + l_Progress * (l_spline1.m_path_z - l_spline0.m_path_z);
+        p_OutPos->m_orientation = m_Source.m_orientation;
+    }
+}
+
+void AreaTrigger::GetPositionFromPathId(uint32 p_PathId, Position* p_OutPos) const
+{
+    AreaTriggerTemplate l_template = GetMainTemplate();
+
+    if (l_template.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
+    {
+        AreaTriggerMoveSplines l_spline = sObjectMgr->GetAreaTriggerMoveSplines(l_template.m_MoveCurveID, p_PathId);
+
+        if (l_spline.m_move_id == 0)
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Splines (entry %u) not in DB.", l_template.m_MoveCurveID);
+            return; // ERROR.
+        }
+
+        p_OutPos->m_positionX = m_Source.m_positionX + l_spline.m_path_x;
+        p_OutPos->m_positionY = m_Source.m_positionY + l_spline.m_path_y;
+        p_OutPos->m_positionZ = m_Source.m_positionZ + l_spline.m_path_z;
+        p_OutPos->m_orientation = m_Source.m_orientation;
+    }
+}
+
 void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
 {
     switch (m_Trajectory)
     {
-        case AREATRIGGER_INTERPOLATION_LINEAR:
-        {
-            int32 l_Duration = GetDuration();
-            float l_Progress = float(p_Time % l_Duration) / l_Duration;
-
-            p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
-            p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
-            p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
-            p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
-            break;
-        }
-        default:
-            *p_OutPos = m_Source;
-            break;
+    case AREATRIGGER_INTERPOLATION_LINEAR:
+    {
+        int32 l_Duration = GetDuration();
+        float l_Progress = float(p_Time % l_Duration) / l_Duration;
+        p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
+        p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
+        p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
+        p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
+        break;
+    }
+    default:
+        *p_OutPos = m_Source;
+        break;
     }
 }

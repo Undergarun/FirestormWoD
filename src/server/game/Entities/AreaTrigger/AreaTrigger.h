@@ -121,6 +121,36 @@ struct AreaTriggerTemplate
     };
 };
 
+struct AreaTriggerMoveTemplate
+{
+    AreaTriggerMoveTemplate()
+    {
+        memset(this, 0, sizeof(AreaTriggerMoveTemplate));
+    }
+
+    // Maybe we can get those information an other way because duration is in the spellInfos and path_size is the number of MoveSplines in DB.
+    uint32 m_move_id;
+    uint32 m_path_size;
+    uint32 m_duration;
+};
+
+struct AreaTriggerMoveSplines
+{
+    AreaTriggerMoveSplines()
+    {
+        memset(this, 0, sizeof(AreaTriggerMoveSplines));
+    }
+
+    uint32 m_move_id;
+    uint32 m_path_id;
+    float m_path_x;
+    float m_path_y;
+    float m_path_z;
+};
+
+typedef std::map<uint32, AreaTriggerMoveTemplate> AreaTriggerMoveTemplateContainer;
+typedef std::map<std::pair<uint32, uint32>, AreaTriggerMoveSplines> AreaTriggerMoveSplinesContainer;
+
 typedef std::list<AreaTriggerTemplate> AreaTriggerTemplateList;
 typedef std::map<uint32, AreaTriggerTemplateList> AreaTriggerTemplateContainer;
 
@@ -160,6 +190,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SendMovementUpdate();
 
         void GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const;
+        void GetPositionFromPathId(uint32 p_MoveCurveId, Position* p_OutPos) const;
+        void UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos);
 
         void SetSource(Position p_Source) { m_Source = p_Source; }
         void SetDestination(Position p_Dest) { m_Destination = p_Dest; }
@@ -176,6 +208,5 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreatriggerInterpolation m_Trajectory;
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
-
 };
 #endif

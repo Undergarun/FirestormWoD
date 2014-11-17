@@ -645,11 +645,12 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     {
         AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
 
+        // We need to find the true conditions for FollowTerrain and HasAreaTriggerSpline.
         bool l_AbsoluteOrientation      = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
         bool l_DynamicShape             = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_DYNAMIC_SHAPE;
         bool l_Attached                 = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_ATTACHED;
         bool l_FaceMovementDir          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
-        bool l_FollowsTerrain           = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE;
+        bool l_FollowsTerrain           = l_MainTemplate.m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE);
         bool l_HasTargetRollPitchYaw    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
         bool l_HasScaleCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;;
         bool l_HasMorphCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
@@ -659,7 +660,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         bool l_HasAreaTriggerBox        = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
         bool l_HasAreaTriggerPolygon    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
         bool l_HasAreaTriggerCylinder   = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
-        bool l_HasAreaTriggerSpline     = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0;
+        bool l_HasAreaTriggerSpline     = l_MainTemplate.m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0);
 
         uint32 l_ElapsedMS = l_AreaTrigger->GetCreatedTime();
 
@@ -766,18 +767,37 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
             uint32 l_TimeToTarget = l_AreaTrigger->GetEntry() == 1316 ? 393 : 392;
 
-            *p_Data << uint32(l_TimeToTarget);                                          ///< Time To Target
-            *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
-            *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
 
-            for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
+            AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate.m_MoveCurveID);
+            if (l_MoveTemplate.m_path_size != 0)
             {
-                Position l_Pos;
-                l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
+                *p_Data << uint32(l_AreaTrigger->GetDuration());                                          ///< Time To Target
+                *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
+                *p_Data << uint32(l_MoveTemplate.m_path_size);                             ///< Path node count
+                for (uint32 l_I = 0; l_I < l_MoveTemplate.m_path_size; l_I++)
+                {
+                    Position l_Pos;
+                    l_AreaTrigger->GetPositionFromPathId(l_I, &l_Pos);
 
-                *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
-                *p_Data << float(l_Pos.m_positionZ);                                    ///< Node position Z
-                *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Y
+                    *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
+                    *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Y
+                    *p_Data << float(l_Pos.m_positionZ);                                    ///< Node position Z
+                }
+            }
+            else
+            {
+                *p_Data << uint32(l_TimeToTarget);                                          ///< Time To Target
+                *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
+                *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
+                for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
+                {
+                    Position l_Pos;
+                    l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
+
+                    *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
+                    *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Y
+                    *p_Data << float(l_Pos.m_positionZ);                                    ///< Node position Z
+                }
             }
         }
     }
