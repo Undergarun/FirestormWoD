@@ -29,6 +29,7 @@
 #include "Vehicle.h"
 #include "MapReference.h"
 #include "Player.h"
+#include "CellImpl.h"
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false)
