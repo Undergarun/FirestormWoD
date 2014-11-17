@@ -7626,7 +7626,7 @@ SpellCastResult Spell::CheckItems()
                 SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(m_spellInfo->Effects[i].MiscValue);
                 // do not allow adding usable enchantments to items that have use effect already
                 if (pEnchant && isItemUsable)
-                    for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+                    for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
                         if (pEnchant->type[s] == ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                             return SPELL_FAILED_ON_USE_ENCHANT;
 
