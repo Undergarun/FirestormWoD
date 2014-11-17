@@ -19,6 +19,7 @@ else()
 endif()
 
 if( WITH_COREDEBUG )
-  add_definitions(-ggdb3)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3")
+#  add_definitions(-ggdb3)
   message(STATUS "GCC: Debug-flags set (-ggdb3)")
 endif()
