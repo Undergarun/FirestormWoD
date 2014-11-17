@@ -30,6 +30,7 @@ enum PaladinSpells
 {
     PALADIN_SPELL_JUDGMENT                      = 20271,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
+    PALADIN_SPELL_TEMPLARS_VERDICT              = 85256,
     PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED = 87173,
@@ -100,35 +101,6 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT      = 54931,
     PALADIN_SPELL_BURDEN_OF_GUILD               = 110300,
     PALADIN_SPELL_WEAKENED_BLOWS                = 115798
-};
-
-// Crusader Strike - 35395
-class spell_pal_crusader_strike : public SpellScriptLoader
-{
-    public:
-        spell_pal_crusader_strike() : SpellScriptLoader("spell_pal_crusader_strike") { }
-
-        class spell_pal_crusader_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_crusader_strike_SpellScript);
-
-            void HandleDamage(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, PALADIN_SPELL_WEAKENED_BLOWS, true);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_crusader_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_crusader_strike_SpellScript();
-        }
 };
 
 // Glyph of devotion aura - 146955
@@ -1238,6 +1210,8 @@ class spell_pal_judgment : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
+                        if (caster->HasSpell(PALADIN_SPELL_TEMPLARS_VERDICT))
+                            caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + 1);
                         if (caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
                         {
                             int32 power = 1;
@@ -1621,7 +1595,6 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
 void AddSC_paladin_spell_scripts()
 {
-    new spell_pal_crusader_strike();
     new spell_pal_glyph_of_devotian_aura();
     new spell_pal_glyph_of_devotian_trigger_aura();
     new spell_pal_exorcism_energize();

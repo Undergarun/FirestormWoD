@@ -589,8 +589,6 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 
     if (l_PlayerItem)
     {
-        sLog->outAshran("HandleSellItemOpcode[%u] %u %u", GetPlayer()->GetGUIDLow(), l_PlayerItem->GetEntry(), l_Amount);
-
         // prevent sell not owner item
         if (m_Player->GetGUID() != l_PlayerItem->GetOwnerGUID())
         {
@@ -618,6 +616,13 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
         if (l_PlayerItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
             return; // Therefore, no feedback to client
 
+        // pervent sell item with expiration
+        if (l_PlayerItem->GetUInt32Value(ITEM_FIELD_EXPIRATION))
+        {
+            m_Player->SendSellError(SELL_ERR_ONLY_EMPTY_BAG, l_Creature, l_ItemGUID);
+            return;
+        }
+
         // special case at auto sell (sell all)
         if (l_Amount == 0)
             l_Amount = l_PlayerItem->GetCount();
@@ -643,7 +648,6 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 
                     if (!pNewItem)
                     {
-                        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", l_PlayerItem->GetEntry(), l_Amount);
                         m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
                         return;
                     }
@@ -1888,11 +1892,18 @@ unsigned int ExtractBitMaskBitCount(unsigned int p_Value)
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 {
-    uint64 l_NpcGUID = 0;
+    uint64 l_NpcGUID;
     uint32 l_ItemCount = 0;
 
-    p_Packet.readPackGUID(l_NpcGUID);
     p_Packet >> l_ItemCount;
+    p_Packet.readPackGUID(l_NpcGUID);
+
+    if (l_ItemCount < EQUIPMENT_SLOT_START || l_ItemCount >= EQUIPMENT_SLOT_END)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", m_Player->GetGUIDLow(), m_Player->GetName(), l_ItemCount);
+        p_Packet.rfinish();
+        return;
+    }
 
     std::vector<uint64> l_SrcItemGUIDs(l_ItemCount, uint64(0));
     std::vector<uint64> l_SrcVoidItemGUIDs(l_ItemCount, uint64(0));
@@ -1941,13 +1952,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (l_HasSrcVoidItemGUID)
             p_Packet.readPackGUID(l_SrcVoidItemGUIDs[l_I]);         ///< Source Void Item GUID
-    }
-
-    if (l_ItemCount < EQUIPMENT_SLOT_START || l_ItemCount >= EQUIPMENT_SLOT_END)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", m_Player->GetGUIDLow(), m_Player->GetName(), l_ItemCount);
-        p_Packet.rfinish();
-        return;
     }
 
     // Validate

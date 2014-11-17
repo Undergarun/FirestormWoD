@@ -748,7 +748,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
     else
         l_BodyItem->SetText(l_Mail->body);
 
-    l_BodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, l_Mail->sender);
+    l_BodyItem->SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER));
     l_BodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
     ItemPosCountVec l_Destinatiopn;
