@@ -99,7 +99,7 @@ add_library(shared STATIC
   ${shared_STAT_SRCS}
   ${shared_STAT_PCH_SRC}
 )
-set_property(TARGET shared PROPERTY FOLDER "server")
+#set_property(TARGET shared PROPERTY FOLDER "server")
 
 target_link_libraries(shared
   ${ACE_LIBRARY}
