@@ -177,80 +177,10 @@ void AreaTrigger::Update(uint32 p_Time)
     Unit* l_Caster = GetCaster();
     float l_Radius = 0.0f;
 
+    sScriptMgr->OnUpdateAreaTriggerEntity(this);
     // Custom MoP Script
     switch (l_SpellInfo->Id)
     {
-        case 13810: // Ice Trap
-        {
-            std::list<Unit*> targetList;
-            l_Radius = 10.0f;
-
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(l_Radius, searcher);
-
-            for (auto itr : targetList)
-                itr->CastSpell(itr, 135299, true);
-
-            // Glyph of Black Ice
-            if (l_Caster->GetDistance(this) <= l_Radius && l_Caster->HasAura(109263) && !l_Caster->HasAura(83559))
-                l_Caster->CastSpell(l_Caster, 83559, true);
-            else
-                l_Caster->RemoveAura(83559);
-
-            break;
-        }
-        case 62618: // Power Word: Barrier
-        {
-            std::list<Unit*> targetList;
-            l_Radius = 6.0f;
-
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(l_Radius, searcher);
-
-            for (auto itr : targetList)
-                itr->CastSpell(itr, 81782, true);
-
-            break;
-        }
-        case 102793:// Ursol's Vortex
-        {
-            std::list<Unit*> targetList;
-            l_Radius = 8.0f;
-
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(l_Radius, searcher);
-
-            if (!targetList.empty())
-                for (auto itr : targetList)
-                    if (!itr->HasAura(127797))
-                        l_Caster->CastSpell(itr, 127797, true);
-
-            break;
-        }
-        case 115460:// Healing Sphere
-        {
-            std::list<Unit*> targetList;
-            l_Radius = 1.0f;
-
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targetList, u_check);
-            VisitNearbyObject(l_Radius, searcher);
-
-            if (!targetList.empty())
-            {
-                for (auto itr : targetList)
-                {
-                    l_Caster->CastSpell(itr, 115464, true); // Healing Sphere heal
-                    SetDuration(0);
-                    return;
-                }
-            }
-
-            break;
-        }
         case 115817:// Cancel Barrier
         {
             std::list<Unit*> targetList;
@@ -576,6 +506,7 @@ void AreaTrigger::Remove(uint32 p_time)
         if (!m_spellInfo)
             return;
 
+        sScriptMgr->OnRemoveAreaTriggerEntity(this);
         switch (m_spellInfo->Id)
         {
             case 115460: // zen sphere

@@ -3095,8 +3095,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
     //                                                      0           1          2        3        4          5         6            7               8                   9
     QueryResult l_Result = WorldDatabase.Query("SELECT `spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`,"
-    //                                                         10            11        12      13       14       15       16        17      18
-                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7` FROM `areatrigger_template`");
+    //                                                         10            11        12      13       14       15       16        17      18          19
+                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName` FROM `areatrigger_template`");
     if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
@@ -3140,13 +3140,18 @@ void ObjectMgr::LoadAreaTriggerTemplates()
                 l_Template.m_BoxDatas.m_Extent[1]       = l_Fields[l_Index++].GetFloat();
                 l_Template.m_BoxDatas.m_ExtentTarget[2] = l_Fields[l_Index++].GetFloat();
                 l_Template.m_BoxDatas.m_Extent[0]       = l_Fields[l_Index++].GetFloat();
+                l_Index++;
+                l_Index++;
                 break;
             case AREATRIGGER_TYPE_SPHERE:
             case AREATRIGGER_TYPE_CYLINDER:
             case AREATRIGGER_TYPE_SPLINE:
             default:
+                l_Index += 8;
                 break;
         }
+
+        l_Template.m_ScriptId = sObjectMgr->GetScriptId(l_Fields[l_Index++].GetCString());
 
         m_AreaTriggerTemplates[l_Template.m_SpellID].push_back(l_Template);
 
@@ -8863,7 +8868,9 @@ void ObjectMgr::LoadScriptNames()
       "UNION "
       "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
       "UNION "
-      "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
+      "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''"
+      "UNION "
+      "SELECT DISTINCT(ScriptName) FROM areatrigger_template WHERE ScriptName <> ''");
 
     if (!result)
     {

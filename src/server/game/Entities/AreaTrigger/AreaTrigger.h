@@ -81,6 +81,8 @@ struct AreaTriggerTemplate
     uint32 m_MorphCurveID;
     uint32 m_FacingCurveID;
 
+    uint32 m_ScriptId;
+
     union
     {
         // AREATRIGGER_TYPE_POLYGON

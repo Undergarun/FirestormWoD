@@ -31,6 +31,7 @@
 #include "GossipDef.h"
 #include "CreatureAIImpl.h"
 #include "SpellAuraEffects.h"
+#include "AreaTriggerScript.h"
 
 namespace
 {
@@ -312,6 +313,7 @@ void ScriptMgr::Unload()
     SCR_CLEAR(PlayerScript);
     SCR_CLEAR(GuildScript);
     SCR_CLEAR(GroupScript);
+    SCR_CLEAR(MS::AreaTriggerEntityScript);
 
     #undef SCR_CLEAR
 
@@ -1022,6 +1024,22 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     return tmpscript->OnTrigger(player, trigger);
 }
 
+void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    l_tmpscript->OnUpdate(p_AreaTrigger);
+}
+
+void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    l_tmpscript->OnUpdate(p_AreaTrigger);
+}
+
 Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
 {
     // TODO: Implement script-side battlegrounds.
@@ -1610,6 +1628,15 @@ GroupScript::GroupScript(const char* name)
     ScriptRegistry<GroupScript>::AddScript(this);
 }
 
+namespace MS
+{
+    AreaTriggerEntityScript::AreaTriggerEntityScript(char const* p_Name)
+        : ScriptObject(p_Name)
+    {
+        ScriptRegistry<MS::AreaTriggerEntityScript>::AddScript(this);
+    }
+}
+
 // Instantiate static members of ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
 template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
@@ -1639,6 +1666,7 @@ template class ScriptRegistry<AchievementCriteriaScript>;
 template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
+template class ScriptRegistry<MS::AreaTriggerEntityScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET
