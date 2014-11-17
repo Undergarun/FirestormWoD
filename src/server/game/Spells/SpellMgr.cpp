@@ -3337,7 +3337,7 @@ void SpellMgr::LoadSpellCustomAttr()
                         {
                             uint32 enchantId = spellInfo->Effects[j].MiscValue;
                             SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
-                            for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+                            for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
                             {
                                 if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                                     continue;
@@ -3359,7 +3359,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     {
                         uint32 enchantId = spellInfo->Effects[j].MiscValue;
                         SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
-                        for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+                        for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
                         {
                             SpellInfo* procInfo = (SpellInfo*)GetSpellInfo(enchant->spellid[s]);
                             if (!procInfo)

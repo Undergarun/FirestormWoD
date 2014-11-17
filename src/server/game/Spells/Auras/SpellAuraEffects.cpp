@@ -650,12 +650,12 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(l_Item->GetItemRandomPropertyId()));
                 if (item_rand_suffix)
                 {
-                    for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
+                    for (int k = 0; k < MAX_ENCHANTMENT_SPELLS; k++)
                     {
                         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
                         if (pEnchant)
                         {
-                            for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
+                            for (int t = 0; t < MAX_ENCHANTMENT_SPELLS; t++)
                             {
                                 if (pEnchant->spellid[t] == m_spellInfo->Id)
                                 {

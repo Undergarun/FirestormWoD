@@ -10378,7 +10378,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // special learning case
     if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
     {
-        uint32 learn_spell_id = proto->Spells[0].SpellId;
+        uint32 learn_spell_id    = proto->Spells[0].SpellId;
         uint32 learning_spell_id = proto->Spells[1].SpellId;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
@@ -10439,7 +10439,8 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
             continue;
-        for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+
+        for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                 continue;
