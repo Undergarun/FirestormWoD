@@ -1,6 +1,75 @@
 #include "instance_skyreach.h"
+#include <forward_list>
 
+class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
+{
+    enum class SpinningBladeSpells : uint32
+    {
+        SPINNING_BLADE_DMG = 153123,
+    };
 
+    std::forward_list<uint64> m_targets;
+
+public:
+    AreaTrigger_spinning_blade()
+        : MS::AreaTriggerEntityScript("at_spinning_blade"),
+        m_targets ()
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        // If We are on the last tick.
+        if (p_AreaTrigger->GetDuration() < 100)
+        {
+            for (auto l_Guid : m_targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(SpinningBladeSpells::SPINNING_BLADE_DMG)))
+                {
+                    l_Target->RemoveAura(uint32(SpinningBladeSpells::SPINNING_BLADE_DMG));
+                }
+            }
+
+            return;
+        }
+
+        std::list<Unit*> l_TargetList;
+        float l_Radius = 6.0f;
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+        std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+        for (auto l_Guid : m_targets)
+        {
+            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+            if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+            {
+                if (l_Target->HasAura(uint32(SpinningBladeSpells::SPINNING_BLADE_DMG)))
+                {
+                    l_ToRemove.emplace_front(l_Guid);
+                    l_Target->RemoveAura(uint32(SpinningBladeSpells::SPINNING_BLADE_DMG));
+                }
+            }
+        }
+
+        for (auto l_Guid : l_ToRemove)
+        {
+            m_targets.remove(l_Guid);
+        }
+
+        for (Unit* l_Unit : l_TargetList)
+        {
+            if (l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                continue;
+
+            p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(SpinningBladeSpells::SPINNING_BLADE_DMG), true);
+            m_targets.emplace_front(l_Unit->GetGUID());
+        }
+    }
+};
 
 // Spinning Blade - 153544
 class spell_SpinningBlade : public SpellScriptLoader
@@ -39,7 +108,7 @@ public:
 
         void Register()
         {
-            OnEffectLaunchTarget += SpellEffectFn(spell_SpinningBlade_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_SpinningBlade_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -450,6 +519,7 @@ public:
 void AddSC_mob_instance_skyreach()
 {
     // Spells.
+    new AreaTrigger_spinning_blade();
     new spell_SpinningBlade();
 
     // Mobs.

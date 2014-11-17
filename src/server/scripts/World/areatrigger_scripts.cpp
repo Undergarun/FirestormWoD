@@ -1218,19 +1218,6 @@ public:
     }
 };
 
-class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
-{
-public:
-    AreaTrigger_spinning_blade()
-        : MS::AreaTriggerEntityScript("at_spinning_blade")
-    {
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-    }
-};
-
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_zen_sphere_2();
@@ -1249,7 +1236,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_amethyst_pool();
     new AreaTrigger_rune_of_power();
     new AreaTrigger_cancel_barrier();
-    new AreaTrigger_spinning_blade();
     new AreaTrigger_healing_sphere();
     new AreaTrigger_ursol_vortex();
     new AreaTrigger_power_word_barrier();

@@ -3,6 +3,7 @@
 
 # include "ScriptMgr.h"
 # include "ScriptedCreature.h"
+# include "AreaTriggerScript.h"
 
 enum class RandomSpells
 {
