@@ -707,6 +707,7 @@ class WorldSession
         void HandleDuelResponseOpcode(WorldPacket& recvPacket);
 
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);
+        void HandleBusyTradeOpcode(WorldPacket& p_RecvData);
         void HandleBeginTradeOpcode(WorldPacket& recvPacket);
         void HandleCancelTradeOpcode(WorldPacket& recvPacket);
         void HandleClearTradeItemOpcode(WorldPacket& recvPacket);

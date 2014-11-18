@@ -2451,6 +2451,7 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
     SendPacket(&data);
 }
 
+// DEPRECATED ?
 void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
 {
     uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };

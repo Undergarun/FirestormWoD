@@ -4728,40 +4728,39 @@ enum PetSlot
 
 enum TradeStatus
 {
-    // 0 - unk
-    TRADE_STATUS_WRONG_FACTION  = 1,
-    TRADE_STATUS_NOT_ELIGIBLE   = 2,
-    // 3 - nonexistent
-    TRADE_STATUS_TRADE_CANCELED = 4,
-    // 5 - nonexistent
-    TRADE_STATUS_TARGET_DEAD    = 6,
-    TRADE_STATUS_TRIAL_ACCOUNT  = 7,
-    TRADE_STATUS_CURRENCY       = 8,
-    TRADE_STATUS_YOU_STUNNED    = 9,
-    // 10 - unk
-    TRADE_STATUS_TRADE_COMPLETE = 11,
-    // 12 - nonexistent
-    TRADE_STATUS_OPEN_WINDOW    = 13,
-    TRADE_STATUS_NO_TARGET      = 14,
-    // 15 - nonexistent
+    TRADE_STATUS_WRONG_REALM            = 0,
+    TRADE_STATUS_NOT_ON_TAPLIST         = 1,
+    TRADE_STATUS_YOU_STUNNED            = 2,
+    // 3 - unk
+    TRADE_STATUS_BEGIN_TRADE            = 4,
+    TRADE_STATUS_BUSY_2                 = 5,
+    TRADE_STATUS_PETITION               = 7,
+    TRADE_STATUS_NO_TARGET              = 8,
+    TRADE_STATUS_WRONG_FACTION          = 9,
+    TRADE_STATUS_FAILED                 = 10,
+    TRADE_STATUS_TRADE_COMPLETE         = 11,
+    TRADE_STATUS_TARGET_DEAD            = 12,
+    TRADE_STATUS_PROPOSED               = 13,
+    TRADE_STATUS_BACK_TO_TRADE          = 14,
+    TRADE_STATUS_TARGET_STUNNED         = 15,
     // 16 - unk
-    TRADE_STATUS_BACK_TO_TRADE  = 17,
-    // 18 - nonexistent
-    // 19 - nonexistent
-    TRADE_STATUS_YOU_LOGOUT     = 20,
-    TRADE_STATUS_TARGET_TO_FAR  = 21,
-    TRADE_STATUS_TRADE_ACCEPT   = 22,
-    TRADE_STATUS_YOU_DEAD       = 23,
-    TRADE_STATUS_TARGET_STUNNED = 24,
-    // 25 - unk
-    TRADE_STATUS_IGNORE_YOU     = 26,
-    TRADE_STATUS_TARGET_LOGOUT  = 27,
-    TRADE_STATUS_BUSY_2         = 28,
-    TRADE_STATUS_BEGIN_TRADE    = 29,
+    TRADE_STATUS_YOU_DEAD               = 17,
+    TRADE_STATUS_TARGET_LOGOUT          = 18,
+    TRADE_STATUS_IGNORE_YOU             = 19,
+    TRADE_STATUS_BUSY                   = 20,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 21,
+    TRADE_STATUS_TRIAL_ACCOUNT          = 22,
+    TRADE_STATUS_TARGET_TO_FAR          = 23,
+    // 24 - unk
+    TRADE_STATUS_TRADE_ACCEPT           = 25,
+    TRADE_STATUS_NOT_ENOUGH_CURRENCY    = 26,
+    TRADE_STATUS_TRADE_CANCELED         = 27,
+    TRADE_STATUS_NOT_ELIGIBLE           = 28,
+    // 29 - unk
     // 30 - unk
-    TRADE_STATUS_ONLY_CONJURED  = 31
-    // TRADE_STATUS_CLOSE_WINDOW    = ??,
-    // TRADE_STATUS_BUSY            = ??,
+    TRADE_STATUS_OPEN_WINDOW            = 31,
+    TRADE_STATUS_YOU_LOGOUT             = 32,
+    TRADE_STATUS_STATE_CHANGED          = 33,
 };
 
 enum XPColorChar
