@@ -2,7 +2,6 @@ UPDATE areatrigger_template SET ScriptName='at_ice_trap' WHERE spell_id=13810;
 UPDATE areatrigger_template SET ScriptName='at_power_word_barrier' WHERE spell_id=62618;
 UPDATE areatrigger_template SET ScriptName='at_ursol_vortex' WHERE spell_id=102793;
 UPDATE areatrigger_template SET ScriptName='at_healing_sphere' WHERE spell_id=115460;
-UPDATE areatrigger_template SET ScriptName='at_spinning_blade' WHERE spell_id=153536;
 UPDATE areatrigger_template SET ScriptName='at_cancel_barrier' WHERE spell_id=115817;
 UPDATE areatrigger_template SET ScriptName='at_rune_of_power' WHERE spell_id=116011;
 UPDATE areatrigger_template SET ScriptName='at_amethyst_pool' WHERE spell_id=116235;
@@ -20,3 +19,6 @@ UPDATE areatrigger_template SET ScriptName='at_vileblood_serum' WHERE spell_id=1
 UPDATE areatrigger_template SET ScriptName='at_noxious_spit' WHERE spell_id=161827;
 UPDATE areatrigger_template SET ScriptName='at_zen_sphere_1' WHERE spell_id=115460;
 UPDATE areatrigger_template SET ScriptName='at_zen_sphere_2' WHERE spell_id=119031;
+
+UPDATE areatrigger_template SET ScriptName='at_solar_zone' WHERE spell_id=160935;
+UPDATE areatrigger_template SET ScriptName='at_spinning_blade' WHERE spell_id=153536;

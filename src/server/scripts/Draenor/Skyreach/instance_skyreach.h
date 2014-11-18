@@ -3,7 +3,6 @@
 
 # include "ScriptMgr.h"
 # include "ScriptedCreature.h"
-# include "AreaTriggerScript.h"
 
 enum class RandomSpells
 {
@@ -40,6 +39,27 @@ enum class RandomSpells
 
 namespace InstanceSkyreach
 {
+    Unit* SelectNearestFriendExcluededMe(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
+    {
+        std::list<Unit*> l_TargetList;
+        float l_Radius = 30.0f;
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_Me, p_Me, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+        p_Me->VisitNearbyObject(l_Radius, l_Searcher);
+
+        for (Unit* l_Unit : l_TargetList)
+        {
+            if (l_Unit && (p_Me->IsWithinLOSInMap(l_Unit) || !p_CheckLoS) &&
+                p_Me->IsWithinDistInMap(l_Unit, p_Range) && l_Unit->isAlive() && l_Unit->GetGUID() != p_Me->GetGUID())
+            {
+                return l_Unit;
+            }
+        }
+
+        return nullptr;
+    }
+
     Player* SelectRandomPlayerExcludedTank(Creature* p_me, float p_range = 0.0f, bool p_checkLoS = true)
     {
         Map* map = p_me->GetMap();

@@ -14,6 +14,7 @@ set(scripts_STAT_SRCS
   Draenor/tanaan_jungle.h
   Draenor/Skyreach/instance_skyreach.h
   Draenor/Skyreach/mob_skyreach.cpp
+  Draenor/Skyreach/spell_skyreach.cpp
 )
 
 message("  -> Prepared: Draenor")
