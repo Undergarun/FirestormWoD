@@ -499,6 +499,13 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
+                // Prevent inifinite loop
+                if (eventInfo.GetDamageInfo()->GetSpellInfo() &&
+                    (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == GetSpellInfo()->Id ||
+                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS ||
+                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE))
+                    return;
+
                 Player* _player = GetCaster()->ToPlayer();
                 if (!_player)
                     return;
