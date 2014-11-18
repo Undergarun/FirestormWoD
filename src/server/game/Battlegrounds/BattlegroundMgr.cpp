@@ -375,7 +375,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
 
     if (l_HasRatings)
     {
-        for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; --l_I)
+        for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
         {
             int32 l_RatingChange = p_BG->GetArenaTeamRatingChangeByIndex(l_I);
             uint32 l_Prematch = l_RatingChange < 0 ? -l_RatingChange : 0;
@@ -383,7 +383,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
             *p_Data << uint32(l_Prematch);                      ///< Rating Lost
         }
 
-        for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; --l_I)
+        for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
         {
             int32 l_RatingChange = p_BG->GetArenaTeamRatingChangeByIndex(l_I);
             uint32 l_Postmatch = l_RatingChange > 0 ? l_RatingChange : 0;
@@ -391,7 +391,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
             *p_Data << uint32(l_Postmatch);                    ///< Rating Lost
         }
 
-        for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; --l_I)
+        for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
         {
             uint32 l_PrematchMMR = p_BG->GetArenaMatchmakerRatingByIndex(l_I);
 

@@ -130,6 +130,9 @@ enum Opcodes
         SMSG_TRADE_UPDATED                          = 0x0B43,   ///< 6.0.3 19116
         SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI  = 0x053D,   ///< 6.0.3 19116
         SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT   = 0x0D0D,   ///< 6.0.3 19116 (unused)
+        SMSG_INSPECT_TALENT                         = 0x052E,   ///< 6.0.3 19116
+        SMSG_INSPECT_HONOR_STATS                    = 0x02D3,   ///< 6.0.3 19116
+        SMSG_INSPECT_RATED_BG_STATS                 = 0x050A,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -970,6 +973,9 @@ enum Opcodes
     CMSG_INITIATE_TRADE                         = 0x19BB,   ///< 6.0.3 19116
     CMSG_UNACCEPT_TRADE                         = 0x13BA,   ///< 6.0.3 19116
     CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x0B5A,   ///< 6.0.3 19116
+    CMSG_INSPECT                                = 0x01EC,   ///< 6.0.3 19116
+    CMSG_INSPECT_HONOR_STATS                    = 0x09FD,   ///< 6.0.3 19116
+    CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1464,8 +1470,6 @@ enum Opcodes
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                         = 0x0000,
-    CMSG_INSPECT                                      = 0x0000,
-    CMSG_INSPECT_HONOR_STATS                          = 0x0000,
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x0000,
     CMSG_ITEM_REFUND                                  = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
@@ -1506,7 +1510,6 @@ enum Opcodes
     CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x0000,
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
-    CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                        = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                       = 0x0000,
@@ -1791,10 +1794,7 @@ enum Opcodes
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x0000,
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x0000,
     SMSG_INSPECT                                      = 0x0000,
-    SMSG_INSPECT_RATED_BG_STATS                       = 0x0000,
-    SMSG_INSPECT_HONOR_STATS                          = 0x0000,
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x0000,
-    SMSG_INSPECT_TALENT                               = 0x0000,
     SMSG_INSTANCE_DIFFICULTY                          = 0x0000,
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0x0000,
     SMSG_INSTANCE_SAVE_CREATED                        = 0x0000,
