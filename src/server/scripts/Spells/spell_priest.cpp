@@ -708,9 +708,9 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             void HandleOnCast()
             {
                 if (Unit* caster = GetCaster())
-                if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                if (surgeOfLight->GetStackAmount() > 1)
-                    surgeOfLight->ModStackAmount(-1);
+                    if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                        if (surgeOfLight->GetStackAmount() > 1)
+                            surgeOfLight->ModStackAmount(-1);
             }
 
             void Register()
@@ -2172,6 +2172,35 @@ class spell_pri_levitate : public SpellScriptLoader
         }
 };
 
+// Flash heal - 2061
+class spell_pri_flash_heal : public SpellScriptLoader
+{
+public:
+    spell_pri_flash_heal() : SpellScriptLoader("spell_pri_flash_heal") { }
+
+    class spell_pri_flash_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_flash_heal_SpellScript);
+
+        void HandleBeforeCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (AuraPtr surgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                    surgeOfLight->ModStackAmount(-1);
+        }
+
+        void Register()
+        {
+            BeforeCast += SpellCastFn(spell_pri_flash_heal_SpellScript::HandleBeforeCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_flash_heal_SpellScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_confession();
@@ -2218,6 +2247,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_renew();
     new spell_pri_evangelism();
     new spell_pri_levitate();
+    new spell_pri_flash_heal();
 
     // Player Script
     new PlayerScript_Shadow_Orb();
