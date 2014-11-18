@@ -125,6 +125,8 @@ enum Opcodes
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
         SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0128,   ///< 6.0.3 19116
+        SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI  = 0x053D,   ///< 6.0.3 19116
+        SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT   = 0x0D0D,   ///< 6.0.3 19116 (unused)
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -953,6 +955,8 @@ enum Opcodes
     CMSG_TOTEM_DESTROYED                        = 0x000D,   ///< 6.0.3 19116
     CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x14B4,   ///< 6.0.3 19116
+    CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x0B5A,   ///< 6.0.3 19116
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1507,7 +1511,6 @@ enum Opcodes
     CMSG_RESET_FACTION_CHEAT                          = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
-    CMSG_SELECT_FACTION                               = 0x0000,
     CMSG_SELF_RES                                     = 0x0000,    
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                 = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID         = 0x0000,
@@ -1841,7 +1844,6 @@ enum Opcodes
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
     SMSG_NEW_WORLD_ABORT                              = 0x0000,
-    SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x0000,
     SMSG_NOTIFICATION                                 = 0x0000,
     SMSG_NOTIFY_DANCE                                 = 0x0000,
     SMSG_NPC_WONT_TALK                                = 0x0000,
@@ -1952,7 +1954,6 @@ enum Opcodes
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
-    SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI        = 0x0000,
     SMSG_SHOW_RATINGS                                 = 0x0000,
     SMSG_SHOW_ZONES_CHEAT_RESULT                      = 0x0000,
     SMSG_SOCKET_GEMS                                  = 0x0000,
