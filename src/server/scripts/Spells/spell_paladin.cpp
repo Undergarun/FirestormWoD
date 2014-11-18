@@ -1223,9 +1223,9 @@ class spell_pal_judgment : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster->HasSpell(PALADIN_SPELL_TEMPLARS_VERDICT) || l_Caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
-                            l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + 1);
+                            l_Caster->ModifyPower(POWER_HOLY_POWER, 1);
                         if (l_Caster->HasAura(PALADIN_SPELL_HOLY_AVENGER))
-                            l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + 3);
+                            l_Caster->ModifyPower(POWER_HOLY_POWER, 3);
                         if (l_Caster->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
                             l_Caster->CastSpell(l_Caster, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
                         if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT))

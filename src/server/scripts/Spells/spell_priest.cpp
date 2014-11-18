@@ -629,12 +629,11 @@ class spell_pri_power_word_solace : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100)), POWER_MANA);
-                        _player->CastSpell(_player, PRIEST_ATONEMENT_AURA, true);
-                    }
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->ModifyPower(POWER_MANA, (l_Player->GetMaxPower(POWER_MANA) / 100) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100));
+                    l_Player->CastSpell(l_Player, PRIEST_ATONEMENT_AURA, true);
+                }
             }
 
             void Register()
