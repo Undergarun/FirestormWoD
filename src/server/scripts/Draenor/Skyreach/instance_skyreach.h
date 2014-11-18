@@ -64,11 +64,11 @@ namespace InstanceSkyreach
     {
         Map* map = p_me->GetMap();
         if (!map->IsDungeon())
-            return NULL;
+            return nullptr;
 
         Map::PlayerList const &PlayerList = map->GetPlayers();
         if (PlayerList.isEmpty())
-            return NULL;
+            return nullptr;
 
         std::list<Player*> temp;
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -84,18 +84,41 @@ namespace InstanceSkyreach
             advance(j, rand() % temp.size());
             return (*j);
         }
-        return NULL;
+        return nullptr;
+    }
+
+
+    Player* SelectFarEnoughPlayerIncludedTank(Creature* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+    {
+        Map* map = p_me->GetMap();
+        if (!map->IsDungeon())
+            return nullptr;
+
+        Map::PlayerList const &PlayerList = map->GetPlayers();
+        if (PlayerList.isEmpty())
+            return nullptr;
+
+        std::list<Player*> temp;
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
+            if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS)
+                && !p_me->IsWithinDistInMap(i->getSource(), p_range)
+                && i->getSource()->isAlive())
+                return i->getSource();
+        }
+
+        return nullptr;
     }
 
     Player* SelectRandomPlayerIncludedTank(Creature* p_me, float p_range = 0.0f, bool p_checkLoS = true)
     {
         Map* map = p_me->GetMap();
         if (!map->IsDungeon())
-            return NULL;
+            return nullptr;
 
         Map::PlayerList const &PlayerList = map->GetPlayers();
         if (PlayerList.isEmpty())
-            return NULL;
+            return nullptr;
 
         std::list<Player*> temp;
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -112,7 +135,7 @@ namespace InstanceSkyreach
             advance(j, rand() % temp.size());
             return (*j);
         }
-        return NULL;
+        return nullptr;
     }
 }
 

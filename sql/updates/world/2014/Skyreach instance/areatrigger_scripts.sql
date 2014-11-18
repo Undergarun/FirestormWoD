@@ -21,4 +21,15 @@ UPDATE areatrigger_template SET ScriptName='at_zen_sphere_1' WHERE spell_id=1154
 UPDATE areatrigger_template SET ScriptName='at_zen_sphere_2' WHERE spell_id=119031;
 
 UPDATE areatrigger_template SET ScriptName='at_solar_zone' WHERE spell_id=160935;
-UPDATE areatrigger_template SET ScriptName='at_spinning_blade' WHERE spell_id=153536;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153535;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153536;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153537;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153538;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153583;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153584;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153585;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153587;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153586;
+update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153588;
+update areatrigger_template set ScriptName='at_storm_zone' where spell_id=156840;
+update areatrigger_template set ScriptName='at_dervish' where spell_id=153905;

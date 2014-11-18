@@ -1,5 +1,93 @@
 #include "instance_skyreach.h"
 
+/*
+ TODO: There seems to have other spells to cast here. For example:
+    - Magma explosion supreme
+    - Sun trinckets
+    - Air trinckets
+    - Cyclone trinckets ?
+    - Piercing Rush
+    - Be sure Skyreach Overlord do have the Torn feathers also.
+    - Do visual stuff when no one is attacking.
+    - Need to see if the timers are good enough.
+*/
+
+class mob_SkyReachOverlord : public CreatureScript
+{
+public:
+    // Entry: 75975
+    mob_SkyReachOverlord()
+        : CreatureScript("mob_SkyreachOverlord")
+    {
+    }
+
+    enum class Spells : uint32
+    {
+        TORN_FEATHERS = 153178,
+        BEAT_LOW_BORN_DNT = 178635, // Visual when not attacking.
+    };
+
+    enum class Events : uint32
+    {
+        TORN_FEATHERS = 1,
+        BEAT_LOW_BORN_DNT = 2
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_SkyReachOverlordAI(creature);
+    }
+
+    struct mob_SkyReachOverlordAI : public ScriptedAI
+    {
+        mob_SkyReachOverlordAI(Creature* creature) : ScriptedAI(creature),
+        m_instance(creature->GetInstanceScript()),
+        m_events()
+        {
+        }
+
+        void Reset()
+        {
+            m_events.Reset();
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), urand(1000, 3000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            m_events.Update(diff);
+
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case uint32(Events::TORN_FEATHERS):
+                    m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), 125000);
+                    me->CastSpell(me, uint32(Spells::TORN_FEATHERS));
+                    break;
+                default:
+                    break;
+                }
+
+                // If we cast something, we don't want to execute the other events.
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+        InstanceScript* m_instance;
+        EventMap m_events;
+    };
+};
+
 class mob_SolarFamiliar : public CreatureScript
 {
 public:
@@ -9,10 +97,16 @@ public:
     {
     }
 
-    enum class SolarFamiliarSpells : uint32
+    enum class Spells : uint32
     {
         EMPOWER = 159290,   // 2:40:45 - 2:40:52
-        FLASH_BANG = 152953, // Something like every 10 seconds.
+        FLASH_BANG = 152953, // Something like every 10 seconds and when it dies.
+    };
+
+    enum class Events : uint32
+    {
+        EMPOWER = 1,
+        FLASH_BANG = 2
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -26,6 +120,53 @@ public:
         m_instance(creature->GetInstanceScript()),
         m_events()
         {
+        }
+
+        void Reset()
+        {
+            m_events.Reset();
+        }
+
+        void JustDied(Unit* /*p_Killer*/)
+        {
+            // When Familiar dies, Flash Bang occures once again.
+            me->CastSpell(me, uint32(Spells::FLASH_BANG));
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));
+            m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            m_events.Update(diff);
+
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case uint32(Events::FLASH_BANG):
+                    m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
+                    me->CastSpell(me, uint32(Spells::FLASH_BANG));
+                    break;
+                case uint32(Events::EMPOWER):
+                    m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));
+                    if (Unit* l_Unit = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 30.0f))
+                        me->CastSpell(l_Unit, uint32(Spells::EMPOWER));
+                    break;
+                default:
+                    break;
+                }
+
+                // If we cast something, we don't want to execute the other events.
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
         }
 
         InstanceScript* m_instance;
@@ -42,7 +183,7 @@ public:
     {
     }
 
-    enum class SoaringChrakramMasterSpells : uint32
+    enum class Spells : uint32
     {
         THROW_CHAKRAM_YELLOW = 169689,  // 2:40:57 - 2:40:58 2:41:00 - 2:41:06
         THROW_CHAKRAM_WHITE = 169690,   // 2:40:48 - 2:40:52 - 2:40:56 - 2:40:57
@@ -50,7 +191,13 @@ public:
         THROW_CHAKRAM_DNT = 178612,
         SPINNING_BLADE = 153544,    // 2:40:16 - 2:40:35
         BLADE_DANCE = 153581,       // 2:40:56 - 2:41:17 - FIXME: NOT WORKING
-        WIELD_CHAKRAMS = 170378,
+    };
+
+    enum class Events : uint32
+    {
+        THROW_CHAKRAM = 1,
+        SPINNING_BLADE = 2,
+        BLADE_DANCE = 3,
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -64,6 +211,65 @@ public:
         m_instance(creature->GetInstanceScript()),
         m_events()
         {
+        }
+
+        void Reset()
+        {
+            m_events.Reset();
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
+            m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
+            m_events.ScheduleEvent(uint32(Events::BLADE_DANCE), urand(17000, 25000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            m_events.Update(diff);
+
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case uint32(Events::THROW_CHAKRAM):
+                    m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
+
+                    if (urand(0, 1) == 0)
+                    {
+                        if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_YELLOW));
+                    }
+                    else
+                    {
+                        if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_WHITE));
+                    }
+                    me->CastSpell(me->getVictim(), uint32(Spells::THROW_CHAKRAM_2)); // Always launched with the two others.
+                    break;
+                case uint32(Events::SPINNING_BLADE):
+                    m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
+                    if (Player* l_plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 45.0f))
+                        me->CastSpell(l_plr, uint32(Spells::SPINNING_BLADE));
+                    break;
+                case uint32(Events::BLADE_DANCE):
+                    m_events.ScheduleEvent(uint32(Events::BLADE_DANCE), urand(17000, 25000));
+                    me->CastSpell(me->getVictim(), uint32(Spells::BLADE_DANCE));
+                    break;
+                default:
+                    break;
+                }
+
+                // If we cast something, we don't want to execute the other events.
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
         }
 
         InstanceScript* m_instance;
@@ -80,12 +286,19 @@ public:
     {
     }
 
-    enum class HeraldOfSunriseSpells
+    enum class Spells : uint32
     {
         SOLAR_ZONE = 163330,    // 2:40:57 - 2:41:11
         MAGMA_EXPLOSION_SUPREME = 152864, // -FIXME: NOT WORKING
         SOLAR_HEAL = 152893,    // 2:41:08
         FLASH_HEAL = 152894,
+    };
+
+    enum class Events : uint32
+    {
+        SOLAR_ZONE = 1,
+        SOLAR_HEAL = 2,
+        FLASH_HEAL = 3
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -99,6 +312,55 @@ public:
         m_instance(creature->GetInstanceScript()),
         m_events()
         {
+        }
+
+        void Reset()
+        {
+            m_events.Reset();
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
+            m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
+            m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            m_events.Update(diff);
+
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case uint32(Events::SOLAR_ZONE):
+                    m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
+                    if (Unit* l_Unit = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 30.0f))
+                        me->CastSpell(l_Unit, uint32(Spells::SOLAR_ZONE));
+                    break;
+                case uint32(Events::SOLAR_HEAL):
+                    m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
+                    if (Unit* l_Unit = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 30.0f))
+                        me->CastSpell(l_Unit, uint32(Spells::SOLAR_HEAL));
+                    break;
+                case uint32(Events::FLASH_HEAL):
+                    m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
+                    me->CastSpell(me, uint32(Spells::FLASH_HEAL));
+                    break;
+                default:
+                    break;
+                }
+
+                // If we cast something, we don't want to execute the other events.
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
         }
 
         InstanceScript* m_instance;
@@ -117,12 +379,14 @@ public:
 
     enum class Spells : uint32
     {
-        TWISTER_DNT = 178617,
-        STORM = 156515,             // FIXME NOT WORKING
-        STORM_VISUAL = 156840,
-        STORM_DMG = 156841,
-        DERVISH = 153905,           // FIXME NOT WORKING
-        DERVISH_DMG = 153907,
+        STORM = 156515,
+        DERVISH = 153905,
+    };
+
+    enum class Events : uint32
+    {
+        STORM = 1,
+        DERVISH = 2
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -136,6 +400,48 @@ public:
         m_instance(creature->GetInstanceScript()),
         m_events()
         {
+        }
+
+        void Reset()
+        {
+            m_events.Reset();
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
+            m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            m_events.Update(diff);
+
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case uint32(Events::STORM):
+                    m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
+                    me->CastSpell(me, uint32(Spells::STORM));
+                    break;
+                case uint32(Events::DERVISH):
+                    m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
+                    me->CastSpell(me, uint32(Spells::DERVISH));
+                    break;
+                default:
+                    break;
+                }
+
+                // If we cast something, we don't want to execute the other events.
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
         }
 
         InstanceScript* m_instance;
@@ -152,12 +458,17 @@ public:
     {
     }
 
-    enum class BloodedBladefeatherSpells
+    enum class Spells : uint32
     {
-        PIERCING_RUSH_1 = 165731,   // 2:40:28 - 2:40:55 - FIXME: NOT WORKING
+        PIERCING_RUSH = 165731,   // 2:40:28 - 2:40:55 - FIXME: VISUAL NOT WORKING
         PIERCING_RUSH_2 = 165733,   // 2:40:28 - 2:40:55
-        PIERCING_RUSH_3 = 165732,   // 
+        PIERCING_RUSH_3 = 165732,
         DESPAWN_AREA_TRIGGERS = 138175,
+    };
+
+    enum class Events : uint32
+    {
+        PIERCING_RUSH = 1
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -171,6 +482,43 @@ public:
         m_instance(creature->GetInstanceScript()),
         m_events()
         {
+        }
+
+        void Reset()
+        {
+            m_events.Reset();
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            m_events.Update(diff);
+
+            while (uint32 eventId = m_events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case uint32(Events::PIERCING_RUSH):
+                    m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
+                    me->CastSpell(me->getVictim(), uint32(Spells::PIERCING_RUSH_2));
+                    break;
+                default:
+                    break;
+                }
+
+                // If we cast something, we don't want to execute the other events.
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+
+            DoMeleeAttackIfReady();
         }
 
         InstanceScript* m_instance;
@@ -191,7 +539,7 @@ public:
     {
         MAGMA_EXPLOSION_SUPREME = 152864, // FIXME: NOT WORKING, Didn't see it in the sniffs.
         SOLAR_SHOWER = 160274,          // Around 10 seconds.
-        FLASH_HEAL = 152894,            // Around 2 seconds.
+        FLASH_HEAL = 152894,            // Around 6 seconds.
         CONJURE_SUN_ORB_DNT = 178618, // Visual to do when closed to sun orbs.
     };
 
@@ -222,7 +570,7 @@ public:
         void EnterCombat(Unit* who)
         {
             m_events.ScheduleEvent(uint32(Events::SOLAR_SHOWER), urand(8000, 13000));
-            m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(1500, 2300));
+            m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -241,7 +589,7 @@ public:
                     me->CastSpell(me, uint32(Spells::SOLAR_SHOWER));
                     break;
                 case uint32(Events::FLASH_HEAL):
-                    m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(1500, 2300));
+                    m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
                     me->CastSpell(me, uint32(Spells::FLASH_HEAL));
                     break;
                 default:
@@ -324,9 +672,15 @@ public:
                     m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
 
                     if (urand(0, 1) == 0)
-                        me->CastSpell(me->getVictim(), uint32(Spells::THROW_CHAKRAM_YELLOW));
+                    {
+                        if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_YELLOW));
+                    }
                     else
-                        me->CastSpell(me->getVictim(), uint32(Spells::THROW_CHAKRAM_WHITE));
+                    {
+                        if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_WHITE));
+                    }
                     me->CastSpell(me->getVictim(), uint32(Spells::THROW_CHAKRAM_2)); // Always launched with the two others.
                     break;
                 case uint32(Events::SPINNING_BLADE):
@@ -440,4 +794,10 @@ void AddSC_mob_instance_skyreach()
     new mob_BlindingSolarFlare();
     new mob_DivingChakramSpinner();
     new mob_InitiateOfTheRisingSun();
+    new mob_WhirlingDervish();
+    new mob_BloodedBladeFeather();
+    new mob_HeraldOfSunrise();
+    new mob_SoaringChrakramMaster();
+    new mob_SolarFamiliar();
+    new mob_SkyReachOverlord();
 }
