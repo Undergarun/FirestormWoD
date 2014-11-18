@@ -269,8 +269,13 @@ void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
             return; // ERROR.
         }
 
-        p_OutPos->m_positionX = m_Source.m_positionX + l_spline0.m_path_x + l_Progress * (l_spline1.m_path_x - l_spline0.m_path_x);
-        p_OutPos->m_positionY = m_Source.m_positionY + l_spline0.m_path_y + l_Progress * (l_spline1.m_path_y - l_spline0.m_path_y);
+        float l_Cos = cos(m_Source.m_orientation - M_PI / 2);
+        float l_Sin = sin(m_Source.m_orientation - M_PI / 2);
+        float l_X = l_spline0.m_path_x + l_Progress * (l_spline1.m_path_x - l_spline0.m_path_x);
+        float l_Y = l_spline0.m_path_y + l_Progress * (l_spline1.m_path_y - l_spline0.m_path_y);
+
+        p_OutPos->m_positionX = m_Source.m_positionX + l_X * l_Cos - l_Y * l_Sin;
+        p_OutPos->m_positionY = m_Source.m_positionY + l_X * l_Sin + l_Y * l_Cos;
         p_OutPos->m_positionZ = m_Source.m_positionZ + l_spline0.m_path_z + l_Progress * (l_spline1.m_path_z - l_spline0.m_path_z);
         p_OutPos->m_orientation = m_Source.m_orientation;
     }
@@ -290,8 +295,11 @@ void AreaTrigger::GetPositionFromPathId(uint32 p_PathId, Position* p_OutPos) con
             return; // ERROR.
         }
 
-        p_OutPos->m_positionX = m_Source.m_positionX + l_spline.m_path_x;
-        p_OutPos->m_positionY = m_Source.m_positionY + l_spline.m_path_y;
+        float l_Cos = cos(m_Source.m_orientation - M_PI / 2);
+        float l_Sin = sin(m_Source.m_orientation - M_PI / 2);
+
+        p_OutPos->m_positionX = m_Source.m_positionX + l_spline.m_path_x * l_Cos - l_spline.m_path_y * l_Sin;
+        p_OutPos->m_positionY = m_Source.m_positionY + l_spline.m_path_x * l_Sin + l_spline.m_path_y * l_Cos;
         p_OutPos->m_positionZ = m_Source.m_positionZ + l_spline.m_path_z;
         p_OutPos->m_orientation = m_Source.m_orientation;
     }
