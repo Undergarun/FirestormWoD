@@ -100,7 +100,16 @@ enum PaladinSpells
     PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
     PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT      = 54931,
     PALADIN_SPELL_BURDEN_OF_GUILD               = 110300,
-    PALADIN_SPELL_WEAKENED_BLOWS                = 115798
+    PALADIN_SPELL_WEAKENED_BLOWS                = 115798,
+    PALADIN_SPELL_SEAL_OF_JUSTICE               = 20164,
+    PALADIN_SPELL_SEAL_OF_INSIHT                = 20165,
+    PALADIN_SPELL_SEAL_OF_RIGHTEOUSNESS         = 20154,
+    PALADIN_SPELL_SEAL_OF_TRUTH                 = 31804,
+    PALADIN_SPELL_EMPOWERED_SEALS               = 152263,
+    PALADIN_SPELL_TURALYONS_JUSTICE             = 156987,
+    PALADIN_SPELL_UTHERS_INSIGHT                = 156988,
+    PALADIN_SPELL_LIADRINS_RIGHTEOUSNESS        = 156989,
+    PALADIN_SPELL_MARAADS_TRUTH                 = 156990
 };
 
 // Glyph of devotion aura - 146955
@@ -1209,18 +1218,30 @@ class spell_pal_judgment : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->HasSpell(PALADIN_SPELL_TEMPLARS_VERDICT) || caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
-                            caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + 1);
-                        if (caster->HasAura(PALADIN_SPELL_HOLY_AVENGER))
-                            caster->SetPower(POWER_HOLY_POWER, caster->GetPower(POWER_HOLY_POWER) + 3);
-                        if (caster->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
-                            caster->CastSpell(caster, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
-                        if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT))
-                            caster->CastSpell(target, PALADIN_SPELL_BURDEN_OF_GUILD, true);
+                        if (l_Caster->HasSpell(PALADIN_SPELL_TEMPLARS_VERDICT) || l_Caster->HasAura(PALADIN_SPELL_JUDGMENTS_OF_THE_WISE))
+                            l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + 1);
+                        if (l_Caster->HasAura(PALADIN_SPELL_HOLY_AVENGER))
+                            l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + 3);
+                        if (l_Caster->HasAura(PALADIN_SPELL_LONG_ARM_OF_THE_LAW))
+                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED, true);
+                        if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT))
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_BURDEN_OF_GUILD, true);
+
+                        if (l_Caster->HasAura(PALADIN_SPELL_EMPOWERED_SEALS))
+                        {
+                            if (l_Caster->HasAura(PALADIN_SPELL_SEAL_OF_JUSTICE))
+                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_TURALYONS_JUSTICE, true);
+                            else if (l_Caster->HasAura(PALADIN_SPELL_SEAL_OF_INSIHT))
+                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_UTHERS_INSIGHT, true);
+                            else if (l_Caster->HasAura(PALADIN_SPELL_SEAL_OF_RIGHTEOUSNESS))
+                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_LIADRINS_RIGHTEOUSNESS, true);
+                            else if (l_Caster->HasAura(PALADIN_SPELL_SEAL_OF_TRUTH))
+                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_MARAADS_TRUTH, true);
+                        }
                     }
                 }
             }
