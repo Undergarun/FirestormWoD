@@ -341,7 +341,7 @@ void TradeData::SetItem(TradeSlots slot, Item* item)
     Update();
 
     // need remove possible trader spell applied to changed item
-    if (slot == TRADE_SLOT_NONTRADED)
+    if (slot == TRADE_SLOT_TRADED_COUNT)
         GetTraderData()->SetSpell(0);
 
     // need remove possible player spell applied (possible move reagent)
@@ -793,6 +793,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_teleport_options = 0;
 
     m_trade = NULL;
+    m_ClientStateIndex = 0;
 
     m_cinematic = 0;
 

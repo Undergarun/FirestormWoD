@@ -744,10 +744,10 @@ typedef std::vector<ItemPosCount> ItemPosCountVec;
 
 enum TradeSlots
 {
-    TRADE_SLOT_COUNT            = 7,
     TRADE_SLOT_TRADED_COUNT     = 6,
-    TRADE_SLOT_NONTRADED        = 6,
-    TRADE_SLOT_INVALID          = -1,
+    TRADE_SLOT_COUNT            = 7,
+    TRADE_SLOT_NONTRADED        = 10,
+    TRADE_SLOT_INVALID          = -1
 };
 
 enum TransferAbortReason
@@ -1145,7 +1145,10 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem(0) { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
+            m_money(0), m_spell(0), m_spellCastItem(0)
+        {
+            memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64));
+        }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -1617,6 +1620,9 @@ class Player : public Unit, public GridObject<Player>
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
+        uint32 GetClientStateIndex() const { return m_ClientStateIndex; }
+        void IncreaseClientStateIndex() { ++m_ClientStateIndex; }
+        void InitializeClientStateIndex() { m_ClientStateIndex = 1; }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateSoulboundTradeItems();
@@ -3359,6 +3365,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_cinematic;
 
         TradeData* m_trade;
+        uint32 m_ClientStateIndex;
 
         bool   m_DailyQuestChanged;
         bool   m_WeeklyQuestChanged;

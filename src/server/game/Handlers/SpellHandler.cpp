@@ -489,6 +489,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     l_HasDestinationTarget  = p_RecvPacket.ReadBit();
     l_HasUnkFloat           = p_RecvPacket.ReadBit();
     l_NameLenght            = p_RecvPacket.ReadBits(7);
+    p_RecvPacket.FlushBits();
     p_RecvPacket.readPackGUID(l_TargetGUID);
     p_RecvPacket.readPackGUID(l_TargetItemGUID);
 
@@ -561,8 +562,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         delete[] l_SpellWeightID;
         delete[] l_SpellWeightQuantity;
     }
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got cast spell packet, castCount: %u, spellId: %u, targetFlags: %u, data length = %u", l_CastCount, l_SpellID, l_TargetFlags, (uint32)p_RecvPacket.size());
 
     // ignore for remote control state (for player case)
     Unit* mover = m_Player->m_mover;

@@ -167,7 +167,7 @@ void SpellCastTargets::Write(ByteBuffer& data)
 
     if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
-        if (m_itemTarget)// 5.0.5 GetWoWGUID
+        if (m_itemTarget)
             data.appendPackGUID(m_itemTarget->GetGUID());
         else
             data << uint64(0);
@@ -419,29 +419,36 @@ void SpellCastTargets::RemoveDst()
     m_targetMask &= ~(TARGET_FLAG_DEST_LOCATION);
 }
 
-void SpellCastTargets::Update(Unit* caster)
+void SpellCastTargets::Update(Unit* p_Caster)
 {
-    m_objectTarget = m_objectTargetGUID ? ((m_objectTargetGUID == caster->GetGUID()) ? caster : ObjectAccessor::GetWorldObject(*caster, m_objectTargetGUID)) : NULL;
+    m_objectTarget = m_objectTargetGUID ? ((m_objectTargetGUID == p_Caster->GetGUID()) ? p_Caster : ObjectAccessor::GetWorldObject(*p_Caster, m_objectTargetGUID)) : NULL;
 
     m_itemTarget = nullptr;
-    if (caster->GetTypeId() == TYPEID_PLAYER)
+    if (p_Caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Player* player = caster->ToPlayer();
+        Player* l_Player = p_Caster->ToPlayer();
         if (m_targetMask & TARGET_FLAG_ITEM)
-            m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
+            m_itemTarget = l_Player->GetItemByGuid(m_itemTargetGUID);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
-            if (m_itemTargetGUID == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevents hacking slots
-                if (TradeData* pTrade = player->GetTradeData())
-                    m_itemTarget = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);
+        {
+            if (m_itemTargetGUID == TRADE_SLOT_NONTRADED && l_Player->GetTradeData()) // Here it is not guid but slot. Also prevents hacking slots
+            {
+                if (Player* l_Trader = l_Player->GetTradeData()->GetTrader())
+                {
+                    if (TradeData* l_HisTrade = l_Trader->GetTradeData())
+                        m_itemTarget = l_HisTrade->GetItem(TRADE_SLOT_TRADED_COUNT);
+                }
+            }
+        }
 
         if (m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
     }
 
-    // update positions by transport move
+    // Update positions by transport move
     if (HasSrc() && m_src._transportGUID)
     {
-        if (WorldObject* transport = ObjectAccessor::GetWorldObject(*caster, m_src._transportGUID))
+        if (WorldObject* transport = ObjectAccessor::GetWorldObject(*p_Caster, m_src._transportGUID))
         {
             m_src._position.Relocate(transport);
             m_src._position.RelocateOffset(m_src._transportOffset);
@@ -450,7 +457,7 @@ void SpellCastTargets::Update(Unit* caster)
 
     if (HasDst() && m_dst._transportGUID)
     {
-        if (WorldObject* transport = ObjectAccessor::GetWorldObject(*caster, m_dst._transportGUID))
+        if (WorldObject* transport = ObjectAccessor::GetWorldObject(*p_Caster, m_dst._transportGUID))
         {
             m_dst._position.Relocate(transport);
             m_dst._position.RelocateOffset(m_dst._transportOffset);
@@ -6973,18 +6980,20 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (m_caster->GetTypeId() != TYPEID_PLAYER)
             return SPELL_FAILED_NOT_TRADING;
 
-        TradeData* my_trade = m_caster->ToPlayer()->GetTradeData();
-
-        if (!my_trade)
+        TradeData* l_MyTrade = m_caster->ToPlayer()->GetTradeData();
+        if (!l_MyTrade)
             return SPELL_FAILED_NOT_TRADING;
 
-        TradeSlots slot = TradeSlots(m_targets.GetItemTargetGUID());
-        if (slot != TRADE_SLOT_NONTRADED)
+        // Slot: TRADE_SLOT_NONTRADED is only for non tradable items, enchantment case, open lock ...
+        TradeSlots l_Slot = TradeSlots(m_targets.GetItemTargetGUID());
+        if (l_Slot != TRADE_SLOT_NONTRADED)
             return SPELL_FAILED_BAD_TARGETS;
 
         if (!IsTriggered())
-            if (my_trade->GetSpell())
+        {
+            if (l_MyTrade->GetSpell())
                 return SPELL_FAILED_ITEM_ALREADY_ENCHANTED;
+        }
     }
 
     // check if caster has at least 1 combo point for spells that require combo points

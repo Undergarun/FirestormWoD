@@ -125,6 +125,14 @@ enum Opcodes
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
         SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0128,   ///< 6.0.3 19116
+        SMSG_TRADE_INFO                             = 0x0000,   ///< 6.0.3 19116
+        SMSG_TRADE_STATUS                           = 0x093D,   ///< 6.0.3 19116
+        SMSG_TRADE_UPDATED                          = 0x0B43,   ///< 6.0.3 19116
+        SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI  = 0x053D,   ///< 6.0.3 19116
+        SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT   = 0x0D0D,   ///< 6.0.3 19116 (unused)
+        SMSG_INSPECT_TALENT                         = 0x052E,   ///< 6.0.3 19116
+        SMSG_INSPECT_HONOR_STATS                    = 0x02D3,   ///< 6.0.3 19116
+        SMSG_INSPECT_RATED_BG_STATS                 = 0x050A,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -951,8 +959,23 @@ enum Opcodes
     CMSG_COMPLETE_CINEMATIC                     = 0x1B51,   ///< 6.0.3 19116
     CMSG_REQUEST_CEMETERY_LIST                  = 0x10A2,   ///< 6.0.3 19116
     CMSG_TOTEM_DESTROYED                        = 0x000D,   ///< 6.0.3 19116
-    CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x14B4,   ///< 6.0.3 19116
+    CMSG_CANCEL_TRADE                           = 0x1159,   ///< 6.0.3 19116
+    CMSG_SET_TRADE_CURRENCY                     = 0x0000,
+    CMSG_SET_TRADE_GOLD                         = 0x064C,   ///< 6.0.3 19116
+    CMSG_SET_TRADE_ITEM                         = 0x14A2,   ///< 6.0.3 19116
+    CMSG_TRADE_INFO                             = 0x0000,
+    CMSG_CLEAR_TRADE_ITEM                       = 0x1149,   ///< 6.0.3 19116
+    CMSG_ACCEPT_TRADE                           = 0x01E5,   ///< 6.0.3 19116
+    CMSG_BUSY_TRADE                             = 0x00D5,   ///< 6.0.3 19116
+    CMSG_BEGIN_TRADE                            = 0x06CC,   ///< 6.0.3 19116
+    CMSG_IGNORE_TRADE                           = 0x1419,   ///< 6.0.3 19116
+    CMSG_INITIATE_TRADE                         = 0x19BB,   ///< 6.0.3 19116
+    CMSG_UNACCEPT_TRADE                         = 0x13BA,   ///< 6.0.3 19116
+    CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x0B5A,   ///< 6.0.3 19116
+    CMSG_INSPECT                                = 0x01EC,   ///< 6.0.3 19116
+    CMSG_INSPECT_HONOR_STATS                    = 0x09FD,   ///< 6.0.3 19116
+    CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1357,7 +1380,6 @@ enum Opcodes
 
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,
-    CMSG_ACCEPT_TRADE                                 = 0x0000,
     CMSG_ADD_VOICE_IGNORE                             = 0x0000,
     CMSG_ALTER_APPEARANCE                             = 0x0000,
     CMSG_ARENA_TEAM_ACCEPT                            = 0x0000,
@@ -1373,7 +1395,6 @@ enum Opcodes
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
-    CMSG_BEGIN_TRADE                                  = 0x0000,
     CMSG_BLACK_MARKET_HELLO                           = 0x0000,
     CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x0000,
     CMSG_BLACK_MARKET_PLACE_BID                       = 0x0000,
@@ -1404,7 +1425,6 @@ enum Opcodes
     CMSG_CHAT_FILTERED                                = 0x0000,
     CMSG_CHAT_IGNORED                                 = 0x0000,
     CMSG_CLEAR_RAID_MARKER                            = 0x0000,
-    CMSG_CLEAR_TRADE_ITEM                             = 0x0000,
     CMSG_COMMENTATOR_ENABLE                           = 0x0000,
     CMSG_COMMENTATOR_ENTER_INSTANCE                   = 0x0000,
     CMSG_COMMENTATOR_EXIT_INSTANCE                    = 0x0000,
@@ -1450,10 +1470,6 @@ enum Opcodes
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0x0000,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                         = 0x0000,
-    CMSG_IGNORE_TRADE                                 = 0x0000,
-    CMSG_INITIATE_TRADE                               = 0x0000,
-    CMSG_INSPECT                                      = 0x0000,
-    CMSG_INSPECT_HONOR_STATS                          = 0x0000,
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x0000,
     CMSG_ITEM_REFUND                                  = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
@@ -1494,7 +1510,6 @@ enum Opcodes
     CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x0000,
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
-    CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                        = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                       = 0x0000,
@@ -1507,7 +1522,6 @@ enum Opcodes
     CMSG_RESET_FACTION_CHEAT                          = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
     CMSG_SAVE_PLAYER                                  = 0x0000,
-    CMSG_SELECT_FACTION                               = 0x0000,
     CMSG_SELF_RES                                     = 0x0000,    
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                 = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID         = 0x0000,
@@ -1528,9 +1542,6 @@ enum Opcodes
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
     CMSG_SET_SKILL_CHEAT                              = 0x0000,
-    CMSG_SET_TRADE_CURRENCY                           = 0x0000,
-    CMSG_SET_TRADE_GOLD                               = 0x0000,
-    CMSG_SET_TRADE_ITEM                               = 0x0000,
     CMSG_SET_VEHICLE_REC_ID_ACK                       = 0x0000,
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x0000,
     CMSG_SOCKET_GEMS                                  = 0x0000,
@@ -1550,8 +1561,6 @@ enum Opcodes
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
     CMSG_TIME_SYNC_RESP                               = 0x0000,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
-    CMSG_TRADE_INFO                                   = 0x0000,
-    CMSG_UNACCEPT_TRADE                               = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x0000,
@@ -1785,10 +1794,7 @@ enum Opcodes
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x0000,
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x0000,
     SMSG_INSPECT                                      = 0x0000,
-    SMSG_INSPECT_RATED_BG_STATS                       = 0x0000,
-    SMSG_INSPECT_HONOR_STATS                          = 0x0000,
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x0000,
-    SMSG_INSPECT_TALENT                               = 0x0000,
     SMSG_INSTANCE_DIFFICULTY                          = 0x0000,
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0x0000,
     SMSG_INSTANCE_SAVE_CREATED                        = 0x0000,
@@ -1841,7 +1847,6 @@ enum Opcodes
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
     SMSG_NEW_WORLD_ABORT                              = 0x0000,
-    SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT         = 0x0000,
     SMSG_NOTIFICATION                                 = 0x0000,
     SMSG_NOTIFY_DANCE                                 = 0x0000,
     SMSG_NPC_WONT_TALK                                = 0x0000,
@@ -1952,7 +1957,6 @@ enum Opcodes
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
-    SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI        = 0x0000,
     SMSG_SHOW_RATINGS                                 = 0x0000,
     SMSG_SHOW_ZONES_CHEAT_RESULT                      = 0x0000,
     SMSG_SOCKET_GEMS                                  = 0x0000,
@@ -1978,9 +1982,6 @@ enum Opcodes
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,
     SMSG_TOGGLE_XP_GAIN                               = 0x0000,
-    SMSG_TRADE_INFO                                   = 0x0000,
-    SMSG_TRADE_STATUS                                 = 0x0000,
-    SMSG_TRADE_UPDATED                                = 0x0000,
     SMSG_TRIGGER_MOVIE                                = 0x0000,
     SMSG_UI_TIME                                      = 0x0000,
     SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x0000,
