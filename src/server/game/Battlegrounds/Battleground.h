@@ -546,8 +546,22 @@ class Battleground
         }
 
         // used for rated arena battles
-        int32 GetArenaTeamRatingChangeByIndex(uint32 index) const   { return m_ArenaTeamRatingChanges[index]; }
-        uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const  { return m_ArenaTeamMMR[index]; }
+        int32 GetArenaTeamRatingChangeByIndex(uint32 index) const
+        {
+            if (index >= BG_TEAMS_COUNT)
+                return 0;
+
+            return m_ArenaTeamRatingChanges[index];
+        }
+
+        uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const
+        {
+            if (index >= BG_TEAMS_COUNT)
+                return 0;
+
+            return m_ArenaTeamMMR[index];
+        }
+
         void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
         void SetArenaTeamRatingChangeForTeam(uint32 Team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)] = RatingChange; }
 
