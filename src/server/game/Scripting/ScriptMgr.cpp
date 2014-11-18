@@ -1784,6 +1784,14 @@ void ScriptMgr::OnPlayerDelete(uint64 p_GUID)
     FOREACH_SCRIPT(PlayerScript)->OnDelete(p_GUID);
 }
 
+/// Called when a update() of a player is done
+/// @p_Player : Player instance
+/// @p_Diff : diff time
+void ScriptMgr::OnPlayerUpdate(Player* p_Player, uint32 p_Diff)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdate(p_Player, p_Diff);
+}
+
 /// Called when a player is bound to an instance
 /// @p_Player     : Player instance
 /// @p_Difficulty : Instance Difficulty ID
@@ -1808,7 +1816,7 @@ void ScriptMgr::OnPlayerUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
 }
 
 /// Called when player rewards some quest
@@ -1818,6 +1826,7 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestReward(p_Player, p_Quest);
 }
+
 /// Called when a player validates some quest objective
 /// @p_Player      : Player instance
 /// @p_QuestID     : Quest ID
@@ -1841,6 +1850,20 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
 void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
 {
     FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
+}
+
+/// Called when a player enter in combat
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerEnterInCombat(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEnterInCombat(p_Player);
+}
+
+/// Called when a player leave combat status
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLeaveCombat(p_Player);
 }
 
 //////////////////////////////////////////////////////////////////////////

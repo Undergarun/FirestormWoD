@@ -14037,6 +14037,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
             if (!player->IsInPvPCombat() && PvP)
                 player->SetInPvPCombat(true);
         }
+
+        sScriptMgr->OnPlayerEnterInCombat(player);
     }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
@@ -14071,6 +14073,7 @@ void Unit::ClearInCombat()
     else
     {
         ToPlayer()->UpdatePotionCooldown();
+        sScriptMgr->OnPlayerLeaveCombat(ToPlayer());
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
@@ -21784,37 +21787,10 @@ bool Unit::IsSplineFinished() const
     return movespline->Finalized();
 }
 
-void Unit::SetEclipsePower(int32 p_Power, bool p_Send)
+void Unit::SetEclipsePower(uint32 p_Power, bool p_Send)
 {
     if (p_Power > 100)
         p_Power = 100;
-
-    if (p_Power < -100)
-        p_Power = -100;
-
-    if (p_Power > 0)
-    {
-        if (HasAura(48518))
-            RemoveAurasDueToSpell(48518); ///< Eclipse (Lunar)
-        if (HasAura(107095))
-            RemoveAurasDueToSpell(107095);///< Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
-    }
-
-    if (p_Power == 0)
-    {
-        if (HasAura(48517))
-            RemoveAurasDueToSpell(48517); ///< Eclipse (Solar)
-        if (HasAura(48518))
-            RemoveAurasDueToSpell(48518); ///< Eclipse (Lunar)
-        if (HasAura(107095))
-            RemoveAurasDueToSpell(107095);///< Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
-    }
-
-    if (p_Power < 0)
-    {
-        if (HasAura(48517))
-            RemoveAurasDueToSpell(48517); ///< Eclipse (Solar)
-    }
 
     m_EclipsePower = p_Power;
 

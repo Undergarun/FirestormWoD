@@ -395,6 +395,14 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_GUID);
         }
 
+        /// Called when a update() of a player is done
+        /// @p_Player : Player instance
+        /// @p_Diff : diff time
+        virtual void OnUpdate(Player * p_Player, uint32 p_Diff)
+        {
+            UNUSED(p_Player);
+        }
+
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
         /// @p_Difficulty : Instance Difficulty ID
@@ -423,7 +431,7 @@ class PlayerScript : public ScriptObjectImpl<false>
 
         /// Called when a player updates his movement
         /// @p_Player : Player instance
-        virtual void OnPlayerUpdateMovement(Player * p_Player)
+        virtual void OnUpdateMovement(Player * p_Player)
         {
             UNUSED(p_Player);
         }
@@ -463,6 +471,21 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
             UNUSED(p_Item);
+
+        }
+
+        /// Called when a player enter in combat
+        /// @p_Player : Player instance
+        virtual void OnEnterInCombat(Player * p_Player)
+        {
+            UNUSED(p_Player);
+        }
+
+        /// Called when a player leave combat status
+        /// @p_Player : Player instance
+        virtual void OnLeaveCombat(Player * p_Player)
+        {
+            UNUSED(p_Player);
         }
 
 };

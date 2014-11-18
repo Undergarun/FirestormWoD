@@ -706,7 +706,9 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_speakTime = 0;
     m_speakCount = 0;
 
-    m_lastEclipseState = ECLIPSE_NONE;
+    m_EclipseCycleActive = false;
+    m_EclipseTimer.SetInterval(ECLIPSE_FULL_CYCLE_DURATION * IN_MILLISECONDS);
+    m_LastEclipseState = ECLIPSE_NONE;
 
     m_bgRoles = 0;
 
@@ -2334,6 +2336,8 @@ void Player::Update(uint32 p_time)
 
         m_GarrisonUpdateTimer.Reset();
     }
+
+    sScriptMgr->OnPlayerUpdate(this, p_time);
 
     m_CriticalOperationLock.acquire();
 
