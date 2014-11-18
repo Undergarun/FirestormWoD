@@ -1369,6 +1369,11 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZ
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, p_OldZoneID, newArea);
 }
 
+void ScriptMgr::OnPlayerUpdateMovement(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
+}
+
 // Guild
 void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
 {

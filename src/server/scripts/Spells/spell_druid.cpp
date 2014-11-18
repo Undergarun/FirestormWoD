@@ -2291,40 +2291,6 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
-// 40121 - Swift Flight Form (Passive)
-class spell_dru_swift_flight_passive : public SpellScriptLoader
-{
-    public:
-        spell_dru_swift_flight_passive() : SpellScriptLoader("spell_dru_swift_flight_passive") { }
-
-        class spell_dru_swift_flight_passive_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript);
-
-            bool Load()
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (Player* caster = GetCaster()->ToPlayer())
-                    if (caster->GetSkillValue(SKILL_RIDING) >= 375)
-                        amount = 310;
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_swift_flight_passive_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_swift_flight_passive_AuraScript();
-        }
-};
-
 enum StarfallSpells
 {
     //SPELL_DRUID_MOONFIRE              = 8921,
@@ -2536,6 +2502,128 @@ class spell_dru_swiftmend : public SpellScriptLoader
         }
 };
 
+enum DruidFormsSpells
+{
+    SPELL_DRUID_TRAVEL_FORM       = 783,
+    SPELL_DRUID_AQUATIC_FORM      = 1066,
+    SPELL_DRUID_FLIGHT_FORM       = 33943,
+    SPELL_DRUID_SWIFT_FLIGHT_FORM = 40120,
+    SPELL_DRUID_MASTER_FLYING     = 90265,
+    SPELL_DRUID_GLYPH_OF_THE_STAG = 114338,
+    SPELL_DRUID_STAG_FORM         = 165961
+};
+
+// Travel form - 783
+class spell_dru_travel_form : public SpellScriptLoader
+{
+public:
+    spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+
+    class spell_dru_travel_form_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_travel_form_AuraScript);
+
+        void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            // Todo: do like spell_dru_travel_form_playerscript
+        }
+
+        void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_travel_form_AuraScript();
+    }
+};
+
+class spell_dru_travel_form_playerscript : public PlayerScript
+{
+    public:
+        spell_dru_travel_form_playerscript() : PlayerScript("spell_dru_travel_form_playerscript") {}
+
+        void OnPlayerUpdateMovement(Player* p_Player)
+        {
+            if (!p_Player || p_Player->getClass() != CLASS_DRUID)
+                return;
+
+            if (p_Player->HasAura(SPELL_DRUID_TRAVEL_FORM))
+            {
+                AreaTableEntry const* l_Area = GetAreaEntryByAreaID(p_Player->GetAreaId());
+
+                if (p_Player->IsInWater() && !p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM))
+                {
+                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_AQUATIC_FORM, true);
+                }
+                else if (p_Player->getLevel() >= 70 && l_Area && !(l_Area->Flags & AREA_FLAG_NO_FLY_ZONE) &&
+                         !p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) &&
+                         !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
+                {
+                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_SWIFT_FLIGHT_FORM, true);
+                }
+                else if (p_Player->getLevel() >= 58 && l_Area && !(l_Area->Flags & AREA_FLAG_NO_FLY_ZONE) &&
+                         !p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) &&
+                         !p_Player->HasAura(SPELL_DRUID_FLIGHT_FORM) && !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
+                {
+                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_FLIGHT_FORM, true);
+                }
+                else if (!p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) && !p_Player->HasAura(SPELL_DRUID_STAG_FORM))
+                {
+                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_STAG_FORM, true);
+                }
+            }
+        }
+};
+
+// 40121 - Swift Flight Form (Passive)
+class spell_dru_swift_flight_passive : public SpellScriptLoader
+{
+public:
+    spell_dru_swift_flight_passive() : SpellScriptLoader("spell_dru_swift_flight_passive") { }
+
+    class spell_dru_swift_flight_passive_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript);
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Player* player = GetCaster()->ToPlayer())
+                if (player->HasAura(SPELL_DRUID_MASTER_FLYING))
+                    amount = 310; // 310% instead of 280% by default
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_swift_flight_passive_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_swift_flight_passive_AuraScript();
+    }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -2577,9 +2665,11 @@ void AddSC_druid_spell_scripts()
     new spell_dru_activate_cat_form();
     new spell_dru_eclipse();
     new spell_dru_t10_restoration_4p_bonus();
-    new spell_dru_swift_flight_passive();
     new spell_dru_starfall_dummy();
     new spell_dru_savage_roar();
     new spell_dru_survival_instincts();
     new spell_dru_swiftmend();
+    new spell_dru_travel_form();
+    new spell_dru_travel_form_playerscript();
+    new spell_dru_swift_flight_passive();
 }
