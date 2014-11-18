@@ -2201,8 +2201,37 @@ public:
     }
 };
 
+// Clarity of will - 152118
+class spell_pri_clarity_of_will : public SpellScriptLoader
+{
+public:
+    spell_pri_clarity_of_will() : SpellScriptLoader("spell_pri_clarity_of_will") { }
+
+    class spell_pri_clarity_of_will_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_clarity_of_will_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                amount = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6 * 1.1;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_clarity_of_will_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_clarity_of_will();
     new spell_pri_confession();
     new spell_pri_glyph_of_confession();
     new spell_pri_shadow_word_death();
