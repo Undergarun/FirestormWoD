@@ -78,7 +78,7 @@ namespace ClientPatcher
                             patternSignature = Patterns.Mac.x64.Signature;
                             fileName         = patcher.Binary + " Patched";
                             
-                            modulePath       = "/Users/Shared/Blizzard/Battle.net/Cache/";
+                            modulePath       = "";
                             moduleFile       = "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth";
                             modulePatch      = Patches.Mac.x64.Password;
                             modulePattern    = Patterns.Mac.x64.Password;
