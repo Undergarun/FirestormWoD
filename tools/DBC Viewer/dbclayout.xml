@@ -3426,4 +3426,22 @@
     <field type="float" name="Facing" />
     <field type="string" name="AreaNameLang" />
   </WorldSafeLocs>
+  <Curve build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </Curve>
+  <CurvePoint build="0">
+    <index>
+      <primary>PointID</primary>
+    </index>
+    <field type="int" name="PointID" />
+    <field type="int" name="CurveID" />
+    <field type="int" name="field2" />
+    <field type="float" name="X" />
+    <field type="float" name="Y" />
+  </CurvePoint>
 </DBFilesClient>

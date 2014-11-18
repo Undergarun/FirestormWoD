@@ -1122,7 +1122,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     }
 
     std::string l_AccountIDStr = l_AccountName;
-    uint32      l_AccountID    = 0;
 
     try
     {
