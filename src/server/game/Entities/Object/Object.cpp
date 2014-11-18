@@ -651,7 +651,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         bool l_FaceMovementDir          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
         bool l_FollowsTerrain           = l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE;
         bool l_HasTargetRollPitchYaw    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
-        bool l_HasScaleCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;;
+        bool l_HasScaleCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;
         bool l_HasMorphCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
         bool l_HasFacingCurveID         = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_FACING_CURVE;
         bool l_HasMoveCurveID           = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE;
@@ -753,20 +753,19 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasAreaTriggerCylinder)
         {
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_Extent[0]);               ///< Extents X
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_Extent[1]);               ///< Extents Y
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_Extent[2]);               ///< Extents Z
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_ExtentTarget[0]);         ///< Extents Target X
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_ExtentTarget[1]);         ///< Extents Target Y
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.m_ExtentTarget[2]);         ///< Extents Target Z
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.Radius);                    ///< Extents X
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.RadiusTarget);              ///< Extents Y
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.Height);                    ///< Extents X
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.HeightTarget);              ///< Extents Y
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.Unk1);                      ///< Extents X
+            *p_Data << float(l_MainTemplate.m_CylinderDatas.Unk2);                      ///< Extents Y
         }
 
         if (l_HasAreaTriggerSpline)
         {
             uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
-            uint32 l_TimeToTarget = l_AreaTrigger->GetEntry() == 1316 ? 393 : 392;
 
-            *p_Data << uint32(l_TimeToTarget);                                          ///< Time To Target
+            *p_Data << uint32(l_MainTemplate.m_SplineDatas.TimeToTarget);               ///< Time To Target
             *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
             *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
 
@@ -776,8 +775,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
 
                 *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
-                *p_Data << float(l_Pos.m_positionZ);                                    ///< Node position Z
                 *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Y
+                *p_Data << float(l_Pos.m_positionZ);                                    ///< Node position Z
             }
         }
     }

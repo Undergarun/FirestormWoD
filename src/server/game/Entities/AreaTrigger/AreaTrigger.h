@@ -83,6 +83,12 @@ struct AreaTriggerTemplate
 
     union
     {
+        // Not use for specific field access (only for output with loop by all filed), also this determinate max union size
+        struct
+        {
+            float m_Data[MAX_AREATRIGGER_DATA];
+        } m_Raw;
+
         // AREATRIGGER_TYPE_POLYGON
         struct
         {
@@ -101,22 +107,25 @@ struct AreaTriggerTemplate
             float m_ExtentTarget[3];
         } m_BoxDatas;
 
-        // Not use for specific field access (only for output with loop by all filed), also this determinate max union size
-        struct
-        {
-            float m_Data[MAX_AREATRIGGER_DATA];
-        } m_Raw;
-
         // AREATRIGGER_TYPE_SPHERE
 
         // AREATRIGGER_TYPE_CYLINDER
         struct
         {
-            float m_Extent[3];
-            float m_ExtentTarget[3];
+            float Radius;
+            float RadiusTarget;
+            float Height;
+            float HeightTarget;
+            float Unk1;
+            float Unk2;
         } m_CylinderDatas;
 
         // AREATRIGGER_TYPE_SPLINE
+        struct
+        {
+            uint32 TimeToTarget;
+        } m_SplineDatas;
+
         // Implemented in WoD
     };
 };
