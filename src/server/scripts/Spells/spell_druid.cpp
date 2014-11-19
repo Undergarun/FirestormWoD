@@ -415,7 +415,7 @@ class spell_dru_thrash_bear : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // Each tick grant 1 point of rage
-                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) + 1);
+                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) + 1 * caster->GetPowerCoeff(POWER_RAGE));
                 }
             }
 

@@ -998,7 +998,7 @@ class boss_spirit_kings : public CreatureScript
 
                 if (AuraPtr aura = me->GetAura(SPELL_COWARDICE))
                 {
-                    int32 percentage = me->GetPower(POWER_RAGE);
+                    int32 percentage = me->GetPower(POWER_RAGE) / me->GetPowerCoeff(POWER_RAGE);
                     int32 bp = int32(CalculatePct(damage, percentage));
 
                     bp /= 5;
@@ -1606,19 +1606,19 @@ class spell_crazed_cowardice : public SpellScriptLoader
                 {
                     if (AuraPtr aura = GetAura())
                     {
-                        caster->EnergizeBySpell(caster, aura->GetId(), 10, POWER_RAGE);
+                        caster->EnergizeBySpell(caster, aura->GetId(), 10 * caster->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
 
                         if (aura->GetEffect(1))
                         {
                             if (aura->GetId() == SPELL_CRAZED)
-                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE));
+                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / (caster->GetPowerCoeff(POWER_RAGE) / 2));
                             else
-                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE));
+                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / caster->GetPowerCoeff(POWER_RAGE));
 
                             aura->SetNeedClientUpdateForTargets();
                         }
 
-                        if (caster->GetPower(POWER_RAGE) >= 100)
+                        if (caster->GetPower(POWER_RAGE) >= 100 * caster->GetPowerCoeff(POWER_RAGE))
                         {
                             caster->SetPower(POWER_RAGE, 0);
                             caster->CastSpell(caster, aura->GetId() == SPELL_CRAZED ? SPELL_COWARDICE : SPELL_CRAZED, true);
@@ -1714,7 +1714,7 @@ class spell_crazy_thought : public SpellScriptLoader
                     {
                         if (cowardice->GetEffect(1))
                         {
-                            cowardice->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE));
+                            cowardice->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / caster->GetPowerCoeff(POWER_RAGE));
                             cowardice->SetNeedClientUpdateForTargets();
                         }
                     }
@@ -1722,7 +1722,7 @@ class spell_crazy_thought : public SpellScriptLoader
                     {
                         if (crazed->GetEffect(1))
                         {
-                            crazed->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE));
+                            crazed->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / (caster->GetPowerCoeff(POWER_RAGE) / 2));
                             crazed->SetNeedClientUpdateForTargets();
                         }
                     }

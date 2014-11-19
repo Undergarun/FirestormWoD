@@ -363,6 +363,12 @@ enum Opcodes
         SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///< 6.0.3 19116
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///< 6.0.3 19116
         SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///< 6.0.3 19116
+
+        /// Threat
+        SMSG_THREAT_CLEAR                                       = 0x030F, ///< 6.0.3 19116
+        SMSG_THREAT_REMOVE                                      = 0x0F3D, ///< 6.0.3 19116
+        SMSG_THREAT_UPDATE                                      = 0x03A9, ///< 6.0.3 19116
+        SMSG_HIGHEST_THREAT_UPDATE                              = 0x059A, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1807,7 +1813,6 @@ enum Opcodes
     SMSG_GROUP_DESTROYED                              = 0x0000,
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x0000,
     SMSG_HEALTH_UPDATE                                = 0x0000,
-    SMSG_HIGHEST_THREAT_UPDATE                        = 0x0000,
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x0000,
     SMSG_INSPECT                                      = 0x0000,
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x0000,
@@ -1987,9 +1992,6 @@ enum Opcodes
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x0000,
     SMSG_TEST_DROP_RATE_RESULT                        = 0x0000,
     SMSG_TEXT_EMOTE                                   = 0x0000,
-    SMSG_THREAT_CLEAR                                 = 0x0000,
-    SMSG_THREAT_REMOVE                                = 0x0000,
-    SMSG_THREAT_UPDATE                                = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,

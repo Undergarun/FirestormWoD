@@ -1303,7 +1303,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     return;
 
                 // Don't forget power cost
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
+                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1 * GetCaster()->GetPowerCoeff(POWER_BURNING_EMBERS);
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
             }
 
@@ -2276,9 +2276,37 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         }
 };
 
+// Saving Grace - 152116
+class spell_pri_saving_grace : public SpellScriptLoader
+{
+public:
+    spell_pri_saving_grace() : SpellScriptLoader("spell_pri_saving_grace") { }
+
+    class spell_pri_saving_grace_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_saving_grace_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(caster, 155274, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_saving_grace_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_saving_grace_SpellScript;
+    }
+};
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
     new spell_pri_confession();

@@ -1097,7 +1097,7 @@ class spell_warr_charge : public SpellScriptLoader
                 if (AuraEffectPtr bullRush = caster->GetAuraEffect(WARRIOR_SPELL_GLYPH_OF_BULL_RUSH, EFFECT_1))
                     bp += bullRush->GetAmount();
 
-                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, (bp / caster->GetPowerCoeff(POWER_RAGE)), POWER_RAGE);
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, bp, POWER_RAGE);
             }
         }
 
