@@ -2009,7 +2009,7 @@ enum ActivateCatFormSpells
     SPELL_DRUID_CAT_FORM = 768
 };
 
-// Prowl - 102547, Displacer Beast - 102280 and Dash - 1850
+// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
 class spell_dru_activate_cat_form : public SpellScriptLoader
 {
     public:
