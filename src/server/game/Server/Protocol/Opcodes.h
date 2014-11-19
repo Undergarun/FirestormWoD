@@ -533,6 +533,7 @@ enum Opcodes
         SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING              = 0x1192,   ///< 6.0.3 19116
         SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY   = 0x08CE,   ///< 6.0.3 19116
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x00C5,   ///< 6.0.3 19116
+        SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x008D,   ///< 6.0.3 19116
 
         /// Creature
         SMSG_MONSTER_MOVE                           = 0x0994,   ///< 6.0.3 19116
@@ -1843,7 +1844,6 @@ enum Opcodes
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                 = 0x0000,
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x0000,
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x0000,
-    SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x0000,
     SMSG_MOVE_SET_COMPOUND_STATE                      = 0x0000,
     SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
@@ -1979,7 +1979,6 @@ enum Opcodes
     SMSG_THREAT_REMOVE                                = 0x0000,
     SMSG_THREAT_UPDATE                                = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
-    SMSG_TIME_SYNC_REQUEST                            = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,
     SMSG_TOGGLE_XP_GAIN                               = 0x0000,

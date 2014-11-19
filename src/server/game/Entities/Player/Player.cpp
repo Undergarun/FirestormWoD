@@ -29557,41 +29557,30 @@ void Player::SendMovementSetFeatherFall(bool p_Apply)
     SendDirectMessage(&l_Data);
 }
 
-void Player::SendMovementSetCollisionHeight(float height)
+void Player::SendMovementSetCollisionHeight(float p_Height)
 {
-    CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
+    CreatureDisplayInfoEntry const* l_MountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
+    if (!l_MountDisplayInfo)
+    {
+        WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);
+        l_Data << float(p_Height);
+        l_Data << float(1.0f);
+        l_Data << uint32(sWorld->GetGameTime());
+        l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
+        SendDirectMessage(&l_Data);
+        return;
+    }
 
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-
-    data.WriteBits(3, 2);                   // Unk, 3 on retail sniff
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(!mountDisplayInfo);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-
-    data.WriteByteSeq(guid[7]);
-
-    if (mountDisplayInfo)
-        data << uint32(mountDisplayInfo->Displayid);
-
-    data.WriteByteSeq(guid[1]);
-    data << float(height);
-    data << uint32(sWorld->GetGameTime());  // Packet counter
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data << float(mountDisplayInfo ? mountDisplayInfo->scale : 1.0f);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-
-    SendDirectMessage(&data);
+    WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(l_MountDisplayInfo->Displayid);
+    l_Data << float(p_Height);
+    l_Data << float(l_MountDisplayInfo->scale);
+    l_Data << uint32(sWorld->GetGameTime());
+    l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
+    SendDirectMessage(&l_Data);
 }
 
 void Player::SetMover(Unit* target)
