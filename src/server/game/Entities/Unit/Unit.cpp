@@ -14119,24 +14119,17 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             {
                 GetVehicleKit()->Reset();
 
-                // Send others that we now have a vehicle
-                ObjectGuid guid = GetGUID();
-                WorldPacket l_Data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
-                uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
-                l_Data.WriteBitInOrder(guid, bitOrder);
-                l_Data.WriteByteSeq(guid[4]);
-                l_Data.WriteByteSeq(guid[3]);
-                l_Data.WriteByteSeq(guid[1]);
+                WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
+                l_Data.appendPackGUID(GetGUID());
+                l_Data << uint32(0);
                 l_Data << uint32(VehicleId);
-                l_Data.WriteByteSeq(guid[6]);
-                l_Data.WriteByteSeq(guid[7]);
-                l_Data.WriteByteSeq(guid[5]);
-                l_Data.WriteByteSeq(guid[2]);
-                l_Data.WriteByteSeq(guid[0]);
-                SendMessageToSet(&l_Data, true);
+                ToPlayer()->GetSession()->SendPacket(&l_Data);
 
-                l_Data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-                player->GetSession()->SendPacket(&l_Data);
+                // Send others that we now have a vehicle
+                l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
+                l_Data.appendPackGUID(GetGUID());
+                l_Data << uint32(VehicleId);
+                SendMessageToSet(&l_Data, true);
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -14177,43 +14170,28 @@ void Unit::Dismount()
         thisPlayer->RemoveAurasDueToSpell(143314);
     }
 
-    ObjectGuid guid = GetGUID();
-
-    WorldPacket data(SMSG_DISMOUNT);
-
-    uint8 bitsOrder[8] = { 6, 4, 3, 5, 1, 7, 0, 2 };
-    data.WriteBitInOrder(guid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 1, 7, 5, 4, 6, 2, 0, 3 };
-    data.WriteBytesSeq(guid, bytesOrder);
-
-    SendMessageToSet(&data, true);
-
-    // dismount as a vehicle
+    uint64 l_Guid = GetGUID();
+    // Dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
-        // Send other players that we are no longer a vehicle
-        ObjectGuid guid = GetGUID();
-        data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8+4);
-        uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
-        data.WriteBitInOrder(guid, bitOrder);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[1]);
-        data << uint32(0);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[0]);
-        ToPlayer()->SendMessageToSet(&data, true);
         // Remove vehicle from player
         RemoveVehicleKit(true);
+
+        WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 8 + 4);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
+
+        l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint32(0);
+        ToPlayer()->SendMessageToSet(&l_Data, true);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);
 
-    // only resummon old pet if the player is already added to a map
+    // only re summon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
     // (it could probably happen when logging in after a previous crash)
     if (Player* player = ToPlayer())

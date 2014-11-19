@@ -23,25 +23,33 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 
-void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
+void WorldSession::HandleDismissControlledVehicle(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
-
-    uint64 vehicleGUID = m_Player->GetCharmGUID();
-
-    if (!vehicleGUID)                                       // something wrong here...
+    if (!m_Player->GetCharmGUID())
     {
-        recvData.rfinish();                                // prevent warnings spam
+        p_RecvData.rfinish();
         return;
     }
+
+    uint64 l_VehicleGuid = 0;
+    p_RecvData.readPackGUID(l_VehicleGuid);
+
+    if (l_VehicleGuid != m_Player->GetCharmGUID())
+    {
+        p_RecvData.rfinish();
+        return;
+    }
+
+    p_RecvData.read_skip<uint32>();
 
     // Too lazy to parse all data, just read pos and forge pkt
     MovementInfo mi;
     mi.guid = m_Player->GetGUID();
     mi.flags2 = MOVEMENTFLAG2_INTERPOLATED_PITCHING;
-    mi.pos.m_positionX = recvData.read<float>();
-    mi.pos.m_positionZ = recvData.read<float>();
-    mi.pos.m_positionY = recvData.read<float>();
+    mi.pos.m_positionX = p_RecvData.read<float>();
+    mi.pos.m_positionZ = p_RecvData.read<float>();
+    mi.pos.m_positionY = p_RecvData.read<float>();
+    mi.pos.m_orientation = p_RecvData.read<float>();
     mi.time = getMSTime();
 
     WorldPacket data(SMSG_MOVE_UPDATE);
@@ -52,156 +60,84 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
     m_Player->ExitVehicle();
 
-    // prevent warnings spam
-    recvData.rfinish();
+    p_RecvData.rfinish();
 }
 
-void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
+void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
-
-    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
-    if (!vehicle_base)
+    Unit* l_VehicleBase = GetPlayer()->GetVehicleBase();
+    if (!l_VehicleBase)
     {
-        recvData.rfinish();                                // prevent warnings spam
+        p_RecvData.rfinish();
         return;
     }
 
-    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
-    if (!seat->CanSwitchFromSeat())
+    VehicleSeatEntry const* l_VehicleSeat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    if (!l_VehicleSeat->CanSwitchFromSeat())
     {
-        recvData.rfinish();                                // prevent warnings spam
+        p_RecvData.rfinish();
         sLog->outError(LOG_FILTER_NETWORKIO, "HandleChangeSeatsOnControlledVehicle, Opcode: %u, Player %u tried to switch seats but current seatflags %u don't permit that.",
-            recvData.GetOpcode(), GetPlayer()->GetGUIDLow(), seat->m_flags);
+            p_RecvData.GetOpcode(), GetPlayer()->GetGUIDLow(), l_VehicleSeat->m_flags);
         return;
     }
 
-    switch (recvData.GetOpcode())
-    {/*
-        case CMSG_REQUEST_VEHICLE_PREV_SEAT:
-            GetPlayer()->ChangeSeat(-1, false);
-            break;
+    switch (p_RecvData.GetOpcode())
+    {
         case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
-            GetPlayer()->ChangeSeat(-1, true);
+        {
+            m_Player->ChangeSeat(-1);
+            SendCancelVehicleRideAura();
             break;
-            */
+        }
+        case CMSG_REQUEST_VEHICLE_PREV_SEAT:
+        {
+            m_Player->ChangeSeat(-1, false);
+            SendCancelVehicleRideAura();
+            break;
+        }
         case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
         {
-            float x, y, z;
-            int8 seatId;
-            ObjectGuid playerGUID;
-            ObjectGuid accessoryGUID;
-            ObjectGuid transportGUID;
-            bool time2 = false;
-            bool time3 = false;
-            recvData >> seatId >> y >> x >> z;
+            HandleMovementOpcodes(p_RecvData);
+            int8 l_Seat;
+            uint64 l_AccessoryGuid = 0;
 
-            recvData.ReadBit();
-            playerGUID[1] = recvData.ReadBit();
-            playerGUID[7] = recvData.ReadBit();
-            playerGUID[5] = recvData.ReadBit();
-            recvData.ReadBit();
-            accessoryGUID[6] = recvData.ReadBit();
-            accessoryGUID[2] = recvData.ReadBit();
-            bool hasUnkFloat = !recvData.ReadBit();
-            accessoryGUID[4] = recvData.ReadBit();
-            bool hastransport = recvData.ReadBit();
-            bool hasUnk = !recvData.ReadBit();
-            accessoryGUID[1] = recvData.ReadBit();
-            playerGUID[2] = recvData.ReadBit();
-            playerGUID[0] = recvData.ReadBit();
-            accessoryGUID[0] = recvData.ReadBit();
-            accessoryGUID[7] = recvData.ReadBit();
-            playerGUID[4] = recvData.ReadBit();
-            playerGUID[3] = recvData.ReadBit();
-            accessoryGUID[5] = recvData.ReadBit();
-            bool hasUnkFloat2 = recvData.ReadBit();
-            accessoryGUID[3] = recvData.ReadBit();
-            recvData.ReadBit();
-            playerGUID[6] = recvData.ReadBit();
-            bool unk = recvData.ReadBit();
-            bool hasUnk2 = !recvData.ReadBit();
-            bool hasUnk3 = !recvData.ReadBit();
-            bool hasUnk4 = !recvData.ReadBit();
-            bool hasUnkFloat3 = !recvData.ReadBit();
-            uint32 unkcounter = recvData.ReadBits(23);
-            if (unk)
-                recvData.ReadBit();
-            if (hastransport)
+            p_RecvData.readPackGUID(l_AccessoryGuid);
+            p_RecvData >> l_Seat;
+
+            if (!l_AccessoryGuid)
+                GetPlayer()->ChangeSeat(-1, l_Seat > 0); // prev/next
+            else if (Unit* l_VehicleUnit = Unit::GetUnit(*GetPlayer(), l_AccessoryGuid))
             {
-                transportGUID[6] = recvData.ReadBit();
-                transportGUID[1] = recvData.ReadBit();
-                transportGUID[3] = recvData.ReadBit();
-                transportGUID[4] = recvData.ReadBit();
-                transportGUID[2] = recvData.ReadBit();
-                transportGUID[5] = recvData.ReadBit();
-                transportGUID[0] = recvData.ReadBit();
-                time2 = recvData.ReadBit();
-                transportGUID[7] = recvData.ReadBit();
-                time3 = recvData.ReadBit();
+                if (Vehicle* l_Vehicle = l_VehicleUnit->GetVehicleKit())
+                {
+                    if (l_Vehicle->HasEmptySeat(l_Seat))
+                        l_VehicleUnit->HandleSpellClick(GetPlayer(), l_Seat);
+                }
             }
 
-            if (hasUnk)
-                recvData.ReadBits(13); // extra mov flags
-
-            if (hasUnk3)
-                recvData.ReadBits(30); // mov flags
-
-            recvData.FlushBits();
-            recvData.ReadByteSeq(playerGUID[7]);
-            recvData.ReadByteSeq(accessoryGUID[4]);
-            recvData.ReadByteSeq(playerGUID[4]);
-            recvData.ReadByteSeq(playerGUID[1]);
-            recvData.ReadByteSeq(accessoryGUID[7]);
-            recvData.ReadByteSeq(accessoryGUID[0]);
-            for (uint32 i = 0; i < unkcounter; i++)
-                recvData.read<uint32>();
-            recvData.ReadByteSeq(playerGUID[0]);
-            recvData.ReadByteSeq(accessoryGUID[6]);
-            recvData.ReadByteSeq(playerGUID[3]);
-            recvData.ReadByteSeq(accessoryGUID[5]);
-            recvData.ReadByteSeq(playerGUID[2]);
-            recvData.ReadByteSeq(accessoryGUID[3]);
-            recvData.ReadByteSeq(accessoryGUID[2]);
-            recvData.ReadByteSeq(playerGUID[6]);
-            recvData.ReadByteSeq(accessoryGUID[1]);
-
-            /*recvData >> seatId;
-            recvData >> y;
-            recvData >> x;
-
-            uint64 accessory;        // accessory vehicle guid
-            recvData >> accessory;*/
-
-            if (!accessoryGUID)
-                GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), accessoryGUID))
-            {
-                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
-                    if (vehicle->HasEmptySeat(seatId))
-                        vehUnit->HandleSpellClick(GetPlayer(), seatId);
-            }
+            SendCancelVehicleRideAura();
             break;
         }
         case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
         {
-            ObjectGuid guid;
+            uint64 l_Guid = 0;
 
-            int8 seatId;
-            recvData >> seatId;
+            int8 l_SeatID;
+            p_RecvData.readPackGUID(l_Guid);
+            p_RecvData >> l_SeatID;
 
-            uint8 bitOrder[8] = {2, 7, 4, 3, 0, 5, 1, 6};
-            recvData.ReadBitInOrder(guid, bitOrder);
+            if (l_VehicleBase->GetGUID() == l_Guid)
+                GetPlayer()->ChangeSeat(l_SeatID);
+            else if (Unit* l_VehicleUnit = Unit::GetUnit(*GetPlayer(), l_Guid))
+            {
+                if (Vehicle* l_Vehicle = l_VehicleUnit->GetVehicleKit())
+                {
+                    if (l_Vehicle->HasEmptySeat(l_SeatID))
+                        l_VehicleUnit->HandleSpellClick(GetPlayer(), l_SeatID);
+                }
+            }
 
-            uint8 byteOrder[8] = {5, 6, 4, 0, 1, 2, 7, 3};
-            recvData.ReadBytesSeq(guid, byteOrder);
-
-            if (vehicle_base->GetGUID() == guid)
-                GetPlayer()->ChangeSeat(seatId);
-            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), guid))
-                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
-                    if (vehicle->HasEmptySeat(seatId))
-                        vehUnit->HandleSpellClick(GetPlayer(), seatId);
+            SendCancelVehicleRideAura();
             break;
         }
         default:
@@ -209,109 +145,104 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
+void WorldSession::HandleEnterPlayerVehicle(WorldPacket& p_RecvData)
 {
-    // Read guid
-    ObjectGuid guid;
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
 
-    uint8 bitOrder[8] = {0, 5, 1, 4, 2, 7, 3, 6};
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    uint8 byteOrder[8] = {0, 6, 2, 1, 4, 7, 3, 5};
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* l_Player = ObjectAccessor::FindPlayer(l_Guid))
     {
-        if (!player->GetVehicleKit() || m_Player->GetVehicleKit())
+        if (!l_Player->GetVehicleKit() || m_Player->GetVehicleKit())
             return;
-        if (!player->IsInRaidWith(m_Player))
+        if (!l_Player->IsInRaidWith(m_Player))
             return;
-        if (!player->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
+        if (!l_Player->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
             return;
 
-        m_Player->EnterVehicle(player);
+        m_Player->EnterVehicle(l_Player);
+        SendCancelVehicleRideAura();
     }
 }
 
-void WorldSession::HandleEjectPassenger(WorldPacket& data)
+void WorldSession::HandleEjectPassenger(WorldPacket& p_RecvData)
 {
     Vehicle* vehicle = m_Player->GetVehicleKit();
     if (!vehicle)
     {
-        data.rfinish();                                     // prevent warnings spam
+        p_RecvData.rfinish();
         sLog->outError(LOG_FILTER_NETWORKIO, "HandleEjectPassenger: Player %u is not in a vehicle!", GetPlayer()->GetGUIDLow());
         return;
     }
 
-    ObjectGuid guid;
-    uint8 bitOrder[8] = {3, 2, 4, 7, 5, 1, 6, 0};
-    data.ReadBitInOrder(guid, bitOrder);
-    uint8 byteOrder[8] = {5, 2, 3, 6, 0, 7, 4, 1};
-    data.ReadBytesSeq(guid, byteOrder);
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
 
-    if (IS_PLAYER_GUID(guid))
+    if (IS_PLAYER_GUID(l_Guid))
     {
-        Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player)
+        Player* l_Player = ObjectAccessor::FindPlayer(l_Guid);
+        if (!l_Player)
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(l_Guid));
             return;
         }
 
-        if (!player->IsOnVehicle(vehicle->GetBase()))
+        if (!l_Player->IsOnVehicle(vehicle->GetBase()))
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject player %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject player %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(l_Guid));
             return;
         }
 
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(player);
-        ASSERT(seat);
-        if (seat->IsEjectable())
-            player->ExitVehicle();
+        VehicleSeatEntry const* l_VehicleSeat = vehicle->GetSeatForPassenger(l_Player);
+        ASSERT(l_VehicleSeat);
+        if (l_VehicleSeat->IsEjectable())
+            l_Player->ExitVehicle();
         else
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(l_Guid));
     }
 
-    else if (IS_CREATURE_GUID(guid))
+    else if (IS_CREATURE_GUID(l_Guid))
     {
-        Unit* unit = ObjectAccessor::GetUnit(*m_Player, guid);
-        if (!unit) // creatures can be ejected too from player mounts
+        Unit* l_Unit = ObjectAccessor::GetUnit(*m_Player, l_Guid);
+        if (!l_Unit) // creatures can be ejected too from player mounts
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(l_Guid));
             return;
         }
 
-        if (!unit->IsOnVehicle(vehicle->GetBase()))
+        if (!l_Unit->IsOnVehicle(vehicle->GetBase()))
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject unit %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to eject unit %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(l_Guid));
             return;
         }
 
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(unit);
-        ASSERT(seat);
-        if (seat->IsEjectable())
+        VehicleSeatEntry const* l_VehicleSeat = vehicle->GetSeatForPassenger(l_Unit);
+        ASSERT(l_VehicleSeat);
+        if (l_VehicleSeat->IsEjectable())
         {
             ASSERT(GetPlayer() == vehicle->GetBase());
-            unit->ExitVehicle();
+            l_Unit->ExitVehicle();
         }
         else
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u attempted to eject creature GUID %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+            sLog->outError(LOG_FILTER_NETWORKIO, "Player %u attempted to eject creature GUID %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(l_Guid));
     }
 }
 
-void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestVehicleExit(WorldPacket& /*p_RecvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
-
-    if (Vehicle* vehicle = GetPlayer()->GetVehicle())
+    if (Vehicle* l_Vehicle = GetPlayer()->GetVehicle())
     {
-        if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
+        if (VehicleSeatEntry const* l_VehicleSeat = l_Vehicle->GetSeatForPassenger(GetPlayer()))
         {
-            if (seat->CanEnterOrExit())
+            if (l_VehicleSeat->CanEnterOrExit())
                 GetPlayer()->ExitVehicle();
             else
-                sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
-                GetPlayer()->GetGUIDLow(), seat->m_ID, seat->m_flags);
+                sLog->outError(LOG_FILTER_NETWORKIO, "Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.", GetPlayer()->GetGUIDLow(), l_VehicleSeat->m_ID, l_VehicleSeat->m_flags);
         }
     }
+}
+
+void WorldSession::SendCancelVehicleRideAura()
+{
+    WorldPacket l_Data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+    SendPacket(&l_Data);
 }

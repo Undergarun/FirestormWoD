@@ -598,6 +598,7 @@ class WorldSession
         void HandleRequestVehicleExit(WorldPacket& recvData);
         void HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData);
         void HandleMoveTimeSkippedOpcode(WorldPacket& recvData);
+        void SendCancelVehicleRideAura();
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 

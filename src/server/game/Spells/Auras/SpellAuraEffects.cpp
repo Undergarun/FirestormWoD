@@ -6841,20 +6841,9 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid guid = target->GetGUID();
-
-    WorldPacket l_Data(SMSG_PLAYER_VEHICLE_DATA, target->GetPackGUID().size()+4);
-    uint8 bitOrder[8] = {6, 3, 0, 1, 5, 7, 4, 2};
-    l_Data.WriteBitInOrder(guid, bitOrder);
-    l_Data.WriteByteSeq(guid[4]);
-    l_Data.WriteByteSeq(guid[3]);
-    l_Data.WriteByteSeq(guid[1]);
+    WorldPacket l_Data(SMSG_SET_VEHICLE_REC_ID, target->GetPackGUID().size()+4);
+    l_Data.appendPackGUID(target->GetGUID());
     l_Data << uint32(apply ? vehicleId : 0);
-    l_Data.WriteByteSeq(guid[6]);
-    l_Data.WriteByteSeq(guid[7]);
-    l_Data.WriteByteSeq(guid[5]);
-    l_Data.WriteByteSeq(guid[2]);
-    l_Data.WriteByteSeq(guid[0]);
     target->SendMessageToSet(&l_Data, true);
 
     if (apply)
