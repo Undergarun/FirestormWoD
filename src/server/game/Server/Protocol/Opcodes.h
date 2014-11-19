@@ -133,6 +133,7 @@ enum Opcodes
         SMSG_INSPECT_TALENT                         = 0x052E,   ///< 6.0.3 19116
         SMSG_INSPECT_HONOR_STATS                    = 0x02D3,   ///< 6.0.3 19116
         SMSG_INSPECT_RATED_BG_STATS                 = 0x050A,   ///< 6.0.3 19116
+        SMSG_TIME_SYNC_REQUEST                      = 0x03B1,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
