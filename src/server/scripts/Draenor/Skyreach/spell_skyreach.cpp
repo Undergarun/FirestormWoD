@@ -3,6 +3,31 @@
 
 namespace MS
 {
+    class AreaTrigger_WindWall : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            SPINNING_BLADE_DMG = 153123,
+        };
+
+        std::forward_list<uint64> m_targets;
+
+    public:
+        AreaTrigger_WindWall()
+            : MS::AreaTriggerEntityScript("at_WindWall"), m_targets()
+        {
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::cout << p_AreaTrigger->GetPositionX() << " " << p_AreaTrigger->GetPositionY() << " " << p_AreaTrigger->GetOrientation() << std::endl;
+        }
+    };
+
     class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
     {
         enum class Spells : uint32
@@ -467,4 +492,5 @@ void AddSC_spell_instance_skyreach()
     new MS::AreaTrigger_storm_zone();
     new MS::AreaTrigger_dervish();
     new MS::spell_BladeDance();
+    new MS::AreaTrigger_WindWall();
 }

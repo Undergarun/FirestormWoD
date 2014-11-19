@@ -1,0 +1,1 @@
+INSERT INTO creature_text VALUES ('86238', '0', '0', 'I will slice the flesh from your bones!', '14', '7', '100', '0', '0', '0', 'Ranjit combat start')

@@ -31,6 +31,10 @@ namespace MS
         OVERSEER_2 = 154368,
         EJECT_PASSENGER_1 = 60603,
         JUMP_TO_JUMP_POINT = 163828,
+        // Skyreach Taln mobs.
+        FIXATED = 152838,
+        // Skyreach raven whisperer
+        EXCITE = 153923,
     };
 
     namespace InstanceSkyreach

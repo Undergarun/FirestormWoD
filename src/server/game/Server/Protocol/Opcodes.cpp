@@ -118,6 +118,8 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_WORLD_SERVER_INFO,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_INITIAL_SETUP,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PONG,                                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_UITIME,                                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
 
         /// Query
         DEFINE_OPCODE_HANDLER(SMSG_DB_REPLY,                                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1033,6 +1035,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_INSPECT_RATED_BG_STATS,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleInspectRatedBGStatsOpcode  );
     DEFINE_OPCODE_HANDLER(CMSG_TIME_SYNC_RESP,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleTimeSyncResp               );
     DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SKILL,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleUnlearnSkillOpcode         );
+    DEFINE_OPCODE_HANDLER(CMSG_EMOTE,                                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleEmoteOpcode                );
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1408,6 +1411,12 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_NEXT_MAIL_TIME,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQueryNextMailTime          );
 
     //////////////////////////////////////////////////////////////////////////
+    /// Time
+    //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_UITIME_REQUEST,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleWorldStateUITimerUpdate    );
+
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1461,7 +1470,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_DANCE_QUERY,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_DEL_VOICE_IGNORE,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CRITTER,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter            );
-    //DEFINE_OPCODE_HANDLER(CMSG_EMOTE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEmoteOpcode               );
     //DEFINE_OPCODE_HANDLER(CMSG_GET_MIRRORIMAGE_DATA,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMirrorImageDataRequest    );
     //DEFINE_OPCODE_HANDLER(CMSG_GMRESPONSE_RESOLVE,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGMResponseResolve         );
     //DEFINE_OPCODE_HANDLER(CMSG_GMSURVEY_SUBMIT,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGMSurveySubmit            );
@@ -1553,7 +1561,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_WARGAME_ACCEPT,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_WARGAME_START,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_WHOIS,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWhoisOpcode               );
-    //DEFINE_OPCODE_HANDLER(CMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleWorldStateUITimerUpdate   );
     //DEFINE_OPCODE_HANDLER(CMSG_WORLD_TELEPORT,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWorldTeleportOpcode       );
     //DEFINE_OPCODE_HANDLER(CMSG_WRAP_ITEM,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItemOpcode            );
     //DEFINE_OPCODE_HANDLER(CMSG_ZONEUPDATE,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleZoneUpdateOpcode          );
@@ -1831,7 +1838,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_WARGAME_REQUEST_SENT,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_WEEKLY_LAST_RESET,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_WHOIS,                                   STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_WORLD_STATE_UI_TIMER_UPDATE,             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_XP_GAIN_ABORTED,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
 
     // These opcodes are not in WPP
