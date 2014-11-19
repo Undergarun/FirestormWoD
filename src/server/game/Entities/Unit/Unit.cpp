@@ -21466,180 +21466,58 @@ void Unit::SendThreatListUpdate()
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
+        uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket data(SMSG_THREAT_UPDATE);
+        WorldPacket l_Data(SMSG_THREAT_UPDATE);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << l_Count;
 
-        data.WriteBits(count, 21);
-
-        std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
-        for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        std::list<HostileReference*>& l_ThreatList = getThreatManager().getThreatList();
+        for (std::list<HostileReference*>::const_iterator l_Iter = l_ThreatList.begin(); l_Iter != l_ThreatList.end(); ++l_Iter)
         {
-            ObjectGuid unitGuid = (*itr)->getUnitGuid();
-
-            uint8 bitsOrder[8] = { 7, 4, 3, 2, 6, 1, 0, 5 };
-            data.WriteBitInOrder(unitGuid, bitsOrder);
+            l_Data.appendPackGUID((*l_Iter)->getUnitGuid());
+            l_Data << uint32((*l_Iter)->getThreat());
         }
 
-        ObjectGuid thisGuid = GetGUID();
-        uint8 bitsOrder[8] = { 2, 7, 4, 0, 1, 6, 3, 5 };
-        data.WriteBitInOrder(thisGuid, bitsOrder);
-
-        for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
-        {
-            ObjectGuid unitGuid = (*itr)->getUnitGuid();
-
-            data.WriteByteSeq(unitGuid[2]);
-            data.WriteByteSeq(unitGuid[5]);
-            data.WriteByteSeq(unitGuid[6]);
-            data.WriteByteSeq(unitGuid[0]);
-            data.WriteByteSeq(unitGuid[1]);
-            data.WriteByteSeq(unitGuid[4]);
-
-            data << uint32((*itr)->getThreat());
-
-            data.WriteByteSeq(unitGuid[7]);
-            data.WriteByteSeq(unitGuid[3]);
-        }
-
-        uint8 bytesOrder[8] = { 1, 0, 6, 3, 2, 7, 5, 4 };
-        data.WriteBytesSeq(thisGuid, bytesOrder);
-
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&l_Data, false);
     }
 }
 
-void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
+void Unit::SendChangeCurrentVictimOpcode(HostileReference* p_HostileReference)
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
+        uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE);
-        ObjectGuid thisGuid = GetGUID();
-        ObjectGuid hostileGuid = pHostileReference->getUnitGuid();
+        WorldPacket l_Data(SMSG_HIGHEST_THREAT_UPDATE);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data.appendPackGUID(p_HostileReference->getUnitGuid());
+        l_Data << l_Count;
 
-        data.WriteBit(hostileGuid[5]);
-        data.WriteBit(thisGuid[0]);
-        data.WriteBit(hostileGuid[4]);
-        data.WriteBit(thisGuid[5]);
-        data.WriteBit(thisGuid[3]);
-        data.WriteBit(hostileGuid[1]);
-        data.WriteBit(thisGuid[1]);
-        data.WriteBit(hostileGuid[7]);
-        data.WriteBit(thisGuid[6]);
-        data.WriteBit(hostileGuid[2]);
-        data.WriteBit(hostileGuid[0]);
-        data.WriteBit(hostileGuid[6]);
-        data.WriteBit(thisGuid[7]);
-        data.WriteBits(count, 21);
-
-        std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
-        for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
+        std::list<HostileReference*>& l_ThreatList = getThreatManager().getThreatList();
+        for (std::list<HostileReference*>::const_iterator l_Iter = l_ThreatList.begin(); l_Iter != l_ThreatList.end(); ++l_Iter)
         {
-            ObjectGuid iterGuid = (*itr)->getUnitGuid();
-
-            uint8 bitsOrder[8] = { 5, 0, 6, 2, 7, 3, 4, 1 };
-            data.WriteBitInOrder(iterGuid, bitsOrder);
+            l_Data.appendPackGUID((*l_Iter)->getUnitGuid());
+            l_Data << uint32((*l_Iter)->getThreat());
         }
 
-        data.WriteBit(thisGuid[4]);
-        data.WriteBit(thisGuid[2]);
-        data.WriteBit(hostileGuid[3]);
-
-        data.WriteByteSeq(thisGuid[5]);
-        data.WriteByteSeq(thisGuid[3]);
-        data.WriteByteSeq(thisGuid[4]);
-        data.WriteByteSeq(thisGuid[7]);
-        data.WriteByteSeq(hostileGuid[0]);
-        data.WriteByteSeq(hostileGuid[4]);
-
-        for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
-        {
-            ObjectGuid iterGuid = (*itr)->getUnitGuid();
-
-            data.WriteByteSeq(iterGuid[6]);
-            data.WriteByteSeq(iterGuid[3]);
-            data.WriteByteSeq(iterGuid[2]);
-            data.WriteByteSeq(iterGuid[0]);
-            data.WriteByteSeq(iterGuid[5]);
-            data << uint32((*itr)->getThreat());
-            data.WriteByteSeq(iterGuid[1]);
-            data.WriteByteSeq(iterGuid[7]);
-            data.WriteByteSeq(iterGuid[4]);
-        }
-
-        data.WriteByteSeq(hostileGuid[5]);
-        data.WriteByteSeq(hostileGuid[1]);
-        data.WriteByteSeq(hostileGuid[7]);
-        data.WriteByteSeq(hostileGuid[2]);
-        data.WriteByteSeq(hostileGuid[6]);
-        data.WriteByteSeq(thisGuid[0]);
-        data.WriteByteSeq(thisGuid[2]);
-        data.WriteByteSeq(hostileGuid[3]);
-        data.WriteByteSeq(thisGuid[6]);
-        data.WriteByteSeq(thisGuid[1]);
-
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&l_Data, false);
     }
 }
 
 void Unit::SendClearThreatListOpcode()
 {
-    WorldPacket data(SMSG_THREAT_CLEAR, 8);
-
-    ObjectGuid guid = GetGUID();
-
-    uint8 bitsOrder[8] = { 3, 2, 7, 0, 4, 6, 1, 5 };
-    data.WriteBitInOrder(guid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 0, 5, 2, 6, 7, 4, 1, 3 };
-    data.WriteBytesSeq(guid, bytesOrder);
-
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_THREAT_CLEAR, 8);
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
-void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
+void Unit::SendRemoveFromThreatListOpcode(HostileReference* p_HostileReference)
 {
-    WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    ObjectGuid thisGuid = GetGUID();
-    ObjectGuid hostileGuid = pHostileReference->getUnitGuid();
-
-    data.WriteBit(thisGuid[6]);
-    data.WriteBit(thisGuid[2]);
-    data.WriteBit(hostileGuid[5]);
-    data.WriteBit(hostileGuid[6]);
-    data.WriteBit(hostileGuid[7]);
-    data.WriteBit(hostileGuid[4]);
-    data.WriteBit(hostileGuid[3]);
-    data.WriteBit(hostileGuid[2]);
-    data.WriteBit(hostileGuid[1]);
-    data.WriteBit(thisGuid[1]);
-    data.WriteBit(thisGuid[5]);
-    data.WriteBit(thisGuid[7]);
-    data.WriteBit(thisGuid[4]);
-    data.WriteBit(thisGuid[3]);
-    data.WriteBit(hostileGuid[0]);
-    data.WriteBit(thisGuid[0]);
-
-    data.WriteByteSeq(hostileGuid[6]);
-    data.WriteByteSeq(hostileGuid[1]);
-    data.WriteByteSeq(hostileGuid[4]);
-    data.WriteByteSeq(hostileGuid[2]);
-    data.WriteByteSeq(thisGuid[5]);
-    data.WriteByteSeq(thisGuid[0]);
-    data.WriteByteSeq(thisGuid[2]);
-    data.WriteByteSeq(hostileGuid[3]);
-    data.WriteByteSeq(hostileGuid[0]);
-    data.WriteByteSeq(thisGuid[3]);
-    data.WriteByteSeq(thisGuid[7]);
-    data.WriteByteSeq(thisGuid[1]);
-    data.WriteByteSeq(hostileGuid[7]);
-    data.WriteByteSeq(thisGuid[4]);
-    data.WriteByteSeq(thisGuid[6]);
-    data.WriteByteSeq(hostileGuid[5]);
-
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_THREAT_REMOVE, 8 + 8);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data.appendPackGUID(p_HostileReference->getUnitGuid());
+    SendMessageToSet(&l_Data, false);
 }
 
 // baseRage means damage taken when attacker = false
