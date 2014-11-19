@@ -1960,14 +1960,11 @@ void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& p_Packet)
         l_Guild->GetAchievementMgr().SendAchievementInfo(m_Player, l_AchievementID);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
+void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*p_RecvData*/)
 {
-    // empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
-
-    WorldPacket data(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4);
-    data << uint32(time(NULL));
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_UITIME, 4);
+    l_Data << uint32(time(NULL));         ///< Time
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)

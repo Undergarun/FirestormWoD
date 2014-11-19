@@ -67,6 +67,7 @@ enum Opcodes
         SMSG_WORLD_SERVER_INFO                      = 0x11AC,   ///< 6.0.3 19116
         SMSG_INITIAL_SETUP                          = 0x0B07,   ///< 6.0.3 19116
         SMSG_PONG                                   = 0x17CA,   ///< 6.0.3 19116
+        SMSG_UITIME                                 = 0x0B83,   ///< 6.0.3 19116
 
         /// Query
         SMSG_DB_REPLY                               = 0x1939,   ///< 6.0.3 19116
@@ -984,6 +985,7 @@ enum Opcodes
     CMSG_INSPECT_HONOR_STATS                    = 0x09FD,   ///< 6.0.3 19116
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
     CMSG_TIME_SYNC_RESP                         = 0x0003,   ///< 6.0.3 19116
+    CMSG_EMOTE                                  = 0x0A27,   ///< 6.0.3 19166
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1359,6 +1361,12 @@ enum Opcodes
     CMSG_QUERY_NEXT_MAIL_TIME                      = 0x0B31,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
+    /// Time
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_UITIME_REQUEST                            = 0x0302,    ///< 6.0.3 19116
+
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1461,7 +1469,6 @@ enum Opcodes
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
     CMSG_DISMISS_CRITTER                              = 0x0000,
-    CMSG_EMOTE                                        = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
     CMSG_GAMESPEED_SET                                = 0x0000,
@@ -1584,7 +1591,6 @@ enum Opcodes
     CMSG_WARGAME_ACCEPT                               = 0x0000,
     CMSG_WARGAME_START                                = 0x0000,
     CMSG_WHOIS                                        = 0x0000,
-    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0000,
     CMSG_WORLD_TELEPORT                               = 0x0000,
     CMSG_WRAP_ITEM                                    = 0x0000,
     CMSG_ZONEUPDATE                                   = 0x0000,
@@ -2004,7 +2010,6 @@ enum Opcodes
     SMSG_WARGAME_REQUEST_SENT                         = 0x0000,
     SMSG_WEEKLY_LAST_RESET                            = 0x0000,
     SMSG_WHOIS                                        = 0x0000,
-    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0000,
     SMSG_XP_GAIN_ABORTED                              = 0x0000,
 };
 
