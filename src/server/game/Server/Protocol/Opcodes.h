@@ -76,6 +76,7 @@ enum Opcodes
         SMSG_NAME_QUERY_RESPONSE                    = 0x0828,   ///< 6.0.3 19116
         SMSG_REALM_QUERY_RESPONSE                   = 0x011D,   ///< 6.0.3 19116
         SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x128A,   ///< 6.0.3 19116
+        SMSG_QUERY_TIME_RESPONSE                    = 0x1DB0,   ///< 6.0.3 19116
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x1D1F,   ///< 6.0.3 19116
@@ -1914,7 +1915,6 @@ enum Opcodes
     SMSG_PVP_CREDIT                                   = 0x0000,
     SMSG_QUERY_OBJECT_POSITION                        = 0x0000,
     SMSG_QUERY_OBJECT_ROTATION                        = 0x0000,
-    SMSG_QUERY_TIME_RESPONSE                          = 0x0000,
     SMSG_QUERY_BATTLEPET_NAME_RESPONSE                = 0x0000,
     SMSG_QUERY_NPC_TEXT_RESPONSE                      = 0x0000,
     SMSG_RAID_GROUP_ONLY                              = 0x0000,
