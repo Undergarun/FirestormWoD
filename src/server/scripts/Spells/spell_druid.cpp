@@ -2691,6 +2691,77 @@ public:
     }
 };
 
+enum LeaderofthePackSpells
+{
+    SPELL_DRUID_LEADER_OF_THE_PACK_CRITICAL = 24932,
+    SPELL_DRUID_LEADER_OF_THE_PACK_HEAL     = 68285
+};
+
+// 17007 - Lead of the Pack
+class spell_dru_leader_of_the_pack : public SpellScriptLoader
+{
+public:
+    spell_dru_leader_of_the_pack() : SpellScriptLoader("spell_dru_leader_of_the_pack") { }
+
+    class spell_dru_leader_of_the_pack_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_leader_of_the_pack_AuraScript);
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                target->CastSpell(target, SPELL_DRUID_LEADER_OF_THE_PACK_CRITICAL, true);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_dru_leader_of_the_pack_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_leader_of_the_pack_AuraScript();
+    }
+};
+
+// 24932 - Lead of the Pack (Critical)
+class spell_dru_leader_of_the_pack_critical : public SpellScriptLoader
+{
+public:
+    spell_dru_leader_of_the_pack_critical() : SpellScriptLoader("spell_dru_leader_of_the_pack_critical") { }
+
+    class spell_dru_leader_of_the_pack_critical_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_leader_of_the_pack_critical_AuraScript);
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                target->CastSpell(target, SPELL_DRUID_LEADER_OF_THE_PACK_HEAL, true);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_dru_leader_of_the_pack_critical_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_leader_of_the_pack_critical_AuraScript();
+    }
+};
 
 void AddSC_druid_spell_scripts()
 {
@@ -2740,4 +2811,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form();
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
+    new spell_dru_leader_of_the_pack();
+    new spell_dru_leader_of_the_pack_critical();
 }

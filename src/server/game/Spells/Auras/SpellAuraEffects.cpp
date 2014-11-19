@@ -2095,6 +2095,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_STAG:
             spellId = 5419;
+            if (target->HasAura(114338) && !target->HasAura(131113)) // Glyph of the Stag, Glyph of the Cheetah
+                spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
@@ -2139,20 +2141,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_SHADOW:
             spellId = 49868;
-
-            if (apply)
-            {
-                if (target->HasAura(107906)) // Glyph of Shadow
-                    spellId2 = 107904;
-                else
-                    spellId2 = 107903;
-            }
+            if (target->HasAura(107906)) // Glyph of Shadow
+                spellId2 = 107904;
             else
-            {
-                target->RemoveAura(107904);
-                target->RemoveAura(107903);
-            }
-
+                spellId2 = 107903;
             break;
         case FORM_GHOSTWOLF:
             spellId = 67116;
@@ -2233,26 +2225,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
                     }
-                }
-            }
-
-            // Leader of the Pack
-            if (plrTarget->HasSpell(17007))
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1<<(GetMiscValue()-1)))
-                    target->CastSpell(target, 24932, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
-            }
-
-            switch (GetMiscValue())
-            {
-                case FORM_CAT:
-                {
-                    // Savage Roar
-                    if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0, 0x10000000, 0))
-                        target->CastSpell(target, 62071, true);
-
-                    break;
                 }
             }
         }
