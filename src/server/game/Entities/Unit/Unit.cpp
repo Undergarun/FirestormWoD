@@ -20755,7 +20755,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 
             return 21244;
         }
-        case FORM_TRAVEL:
+        case FORM_STAG:
         {
             if (HasAura(131113)) // Druid Form Gepard - Glyph
                 return 1043;

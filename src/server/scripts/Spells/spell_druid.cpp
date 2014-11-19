@@ -2508,9 +2508,14 @@ enum DruidFormsSpells
     SPELL_DRUID_AQUATIC_FORM      = 1066,
     SPELL_DRUID_FLIGHT_FORM       = 33943,
     SPELL_DRUID_SWIFT_FLIGHT_FORM = 40120,
-    SPELL_DRUID_MASTER_FLYING     = 90265,
     SPELL_DRUID_GLYPH_OF_THE_STAG = 114338,
-    SPELL_DRUID_STAG_FORM         = 165961
+    SPELL_DRUID_STAG_FORM         = 165961,
+
+    ///< Extra spells
+    SPELL_COLD_WEATHER_FLYING      = 54197,
+    SPELL_MASTER_FLYING            = 90265,
+    SPELL_FLIGHT_MASTERS_LICENSE   = 90267,
+    SPELL_WISDOM_OF_THE_FOUR_WINDS = 115913
 };
 
 // Travel form - 783
@@ -2519,13 +2524,36 @@ class spell_dru_travel_form : public SpellScriptLoader
 public:
     spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
 
+    class spell_dru_travel_form_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_travel_form_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                    if (!l_Caster->GetMap()->IsOutdoors(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ()))
+                        return SPELL_FAILED_ONLY_OUTDOORS;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
+        }
+    };
+
     class spell_dru_travel_form_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_dru_travel_form_AuraScript);
 
         void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            // Todo: do like spell_dru_travel_form_playerscript
+            //Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
+            if (Unit* l_Target = GetTarget())
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    sScriptMgr->OnPlayerUpdateMovement(l_Target->ToPlayer());
         }
 
         void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2541,6 +2569,11 @@ public:
         }
     };
 
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_travel_form_SpellScript();
+    }
+
     AuraScript* GetAuraScript() const
     {
         return new spell_dru_travel_form_AuraScript();
@@ -2552,39 +2585,74 @@ class spell_dru_travel_form_playerscript : public PlayerScript
     public:
         spell_dru_travel_form_playerscript() : PlayerScript("spell_dru_travel_form_playerscript") {}
 
+        bool CheckIfCanFlyInLoc(Player* p_Player)
+        {
+            bool l_CanFly = false;
+
+            ///< First check by map...
+            uint32 l_Map = GetVirtualMapForMapAndZone(p_Player->GetMapId(), p_Player->GetZoneId());
+            switch (l_Map)
+            {
+                case 530: ///< Outland
+                    l_CanFly = true;
+                    break;
+                case 571: ///< Northrend
+                {
+                    if (p_Player->HasSpell(SPELL_COLD_WEATHER_FLYING))
+                        l_CanFly = true;
+                    break;
+                }
+                case 0:   ///< Eastern Kingdoms
+                case 1:   ///< Kalimdor
+                case 646: ///< Deepholm
+                {
+                    if (p_Player->HasSpell(SPELL_FLIGHT_MASTERS_LICENSE))
+                        l_CanFly = true;
+                    break;
+                }
+                case 870: ///< Pandaria
+                {
+                    if (p_Player->HasSpell(SPELL_WISDOM_OF_THE_FOUR_WINDS))
+                        l_CanFly = true;
+                    break;
+                }
+            }
+
+            ///< ...and then by area
+            AreaTableEntry const* l_Area = GetAreaEntryByAreaID(p_Player->GetAreaId());
+            if (!l_Area || l_Area->Flags & AREA_FLAG_NO_FLY_ZONE)
+                l_CanFly = false;
+
+            return l_CanFly;
+        }
+
         void OnPlayerUpdateMovement(Player* p_Player)
         {
-            if (!p_Player || p_Player->getClass() != CLASS_DRUID)
+            if (!p_Player || p_Player->getClass() != CLASS_DRUID || !p_Player->HasAura(SPELL_DRUID_TRAVEL_FORM))
                 return;
 
-            if (p_Player->HasAura(SPELL_DRUID_TRAVEL_FORM))
+            if (p_Player->IsInWater() && p_Player->GetShapeshiftForm() != FORM_AQUA)
             {
-                AreaTableEntry const* l_Area = GetAreaEntryByAreaID(p_Player->GetAreaId());
-
-                if (p_Player->IsInWater() && !p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM))
-                {
-                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_AQUATIC_FORM, true);
-                }
-                else if (p_Player->getLevel() >= 70 && l_Area && !(l_Area->Flags & AREA_FLAG_NO_FLY_ZONE) &&
-                         !p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) &&
-                         !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
-                {
-                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_SWIFT_FLIGHT_FORM, true);
-                }
-                else if (p_Player->getLevel() >= 58 && l_Area && !(l_Area->Flags & AREA_FLAG_NO_FLY_ZONE) &&
-                         !p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) &&
-                         !p_Player->HasAura(SPELL_DRUID_FLIGHT_FORM) && !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
-                {
-                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_FLIGHT_FORM, true);
-                }
-                else if (!p_Player->HasAura(SPELL_DRUID_AQUATIC_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) && !p_Player->HasAura(SPELL_DRUID_SWIFT_FLIGHT_FORM) && !p_Player->HasAura(SPELL_DRUID_STAG_FORM))
-                {
-                    p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_STAG_FORM, true);
-                }
+                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                p_Player->CastSpell(p_Player, SPELL_DRUID_AQUATIC_FORM, true);
+            }
+            else if (!p_Player->IsInWater() && p_Player->getLevel() >= 71 && CheckIfCanFlyInLoc(p_Player) &&
+                     p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
+            {
+                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                p_Player->CastSpell(p_Player, SPELL_DRUID_SWIFT_FLIGHT_FORM, true);
+            }
+            else if (!p_Player->IsInWater() && p_Player->getLevel() >= 60 && CheckIfCanFlyInLoc(p_Player) &&
+                     p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && p_Player->GetShapeshiftForm() != FORM_FLIGHT &&
+                     !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
+            {
+                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                p_Player->CastSpell(p_Player, SPELL_DRUID_FLIGHT_FORM, true);
+            }
+            else if (!p_Player->IsInWater() && !p_Player->IsFlying() && p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && p_Player->GetShapeshiftForm() != FORM_FLIGHT && p_Player->GetShapeshiftForm() != FORM_STAG)
+            {
+                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                p_Player->CastSpell(p_Player, SPELL_DRUID_STAG_FORM, true);
             }
         }
 };
@@ -2606,8 +2674,8 @@ public:
 
         void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
-            if (Player* player = GetCaster()->ToPlayer())
-                if (player->HasAura(SPELL_DRUID_MASTER_FLYING))
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MASTER_FLYING))
                     amount = 310; // 310% instead of 280% by default
         }
 

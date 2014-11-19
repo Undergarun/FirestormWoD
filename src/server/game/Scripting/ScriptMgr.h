@@ -751,7 +751,7 @@ class PlayerScript : public ScriptObject
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*p_OldZoneID*/, uint32 /*newArea*/) { }
 
-        // Called when a player updates his movement flags
+        // Called when a player updates his movement
         virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
 };
 
