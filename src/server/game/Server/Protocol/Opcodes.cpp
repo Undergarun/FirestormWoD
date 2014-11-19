@@ -1093,8 +1093,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Account data
     //////////////////////////////////////////////////////////////////////////
-    DEFINE_OPCODE_HANDLER(CMSG_READY_FOR_ACCOUNT_DATA_TIMES,                    STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleReadyForAccountDataTimes   );
-    DEFINE_OPCODE_HANDLER(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,          STATUS_UNHANDLED,   PROCESS_THREADUNSAFE,   &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,          STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleUndeleteCharacter          );
 
     //////////////////////////////////////////////////////////////////////////
     /// Chat

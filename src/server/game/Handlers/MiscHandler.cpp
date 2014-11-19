@@ -1967,11 +1967,9 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*p_RecvData*/)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
+/// - Blizzard have merge CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS & CMSG_READY_FOR_ACCOUNT_DATA_TIMES (see history of CharacterSelect_OnShow function in "GlueXML/CharacterSelect.lua" of WoW UI Source)
+void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
 {
-    // empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");
-
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 

@@ -839,7 +839,7 @@ enum Opcodes
     CMSG_CREATE_CHARACTER                       = 0x070D,   ///< 6.0.3 19116
     CMSG_CHAR_DELETE                            = 0x030E,   ///< 6.0.3 19116
     CMSG_REORDER_CHARACTERS                     = 0x0DAA,   ///< 6.0.3 19116
-    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x0000,   ///< 
+    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x19A9,   ///< 6.0.3 19116
     CMSG_PLAYER_LOGIN                           = 0x0B1D,   ///< 6.0.3 19116
     CMSG_VIOLENCE_LEVEL                         = 0x098D,   ///< 6.0.3 19116
     CMSG_LOAD_SCREEN                            = 0x0B08,   ///< 6.0.3 19116
