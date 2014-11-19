@@ -6,3 +6,6 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_leader_of_the_p
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 ('17007', 'spell_dru_leader_of_the_pack'),
 ('24932', 'spell_dru_leader_of_the_pack_critical');
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_glyph_of_the_stag';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('114338', 'spell_dru_glyph_of_the_stag');

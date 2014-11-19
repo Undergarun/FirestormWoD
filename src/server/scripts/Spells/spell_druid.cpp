@@ -2691,6 +2691,66 @@ public:
     }
 };
 
+// 114338 - Glyph of the Stag
+class spell_dru_glyph_of_the_stag : public SpellScriptLoader
+{
+public:
+    spell_dru_glyph_of_the_stag() : SpellScriptLoader("spell_dru_glyph_of_the_stag") { }
+
+    class spell_dru_glyph_of_the_stag_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_glyph_of_the_stag_AuraScript);
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetTarget();
+            if (!l_Target)
+                return;
+
+            Player* l_Player = l_Target->ToPlayer();
+            if (!l_Player)
+                return;
+
+            if (l_Player->getLevel() >= 71 && !l_Player->HasSpell(SPELL_DRUID_SWIFT_FLIGHT_FORM))
+                l_Player->learnSpell(SPELL_DRUID_SWIFT_FLIGHT_FORM, false);
+            else if (l_Player->getLevel() >= 60 && !l_Player->HasSpell(SPELL_DRUID_FLIGHT_FORM))
+                l_Player->learnSpell(SPELL_DRUID_FLIGHT_FORM, false);
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetTarget();
+            if (!l_Target)
+                return;
+
+            Player* l_Player = l_Target->ToPlayer();
+            if (!l_Player)
+                return;
+
+            if (l_Player->getLevel() >= 71 && l_Player->HasSpell(SPELL_DRUID_SWIFT_FLIGHT_FORM))
+                l_Player->removeSpell(SPELL_DRUID_SWIFT_FLIGHT_FORM, false, false);
+            else if (l_Player->getLevel() >= 60 && l_Player->HasSpell(SPELL_DRUID_FLIGHT_FORM))
+                l_Player->removeSpell(SPELL_DRUID_FLIGHT_FORM, false, false);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_the_stag_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_the_stag_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_glyph_of_the_stag_AuraScript();
+    }
+};
+
 enum LeaderofthePackSpells
 {
     SPELL_DRUID_LEADER_OF_THE_PACK_CRITICAL = 24932,
@@ -2811,6 +2871,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form();
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
+    new spell_dru_glyph_of_the_stag();
     new spell_dru_leader_of_the_pack();
     new spell_dru_leader_of_the_pack_critical();
 }
