@@ -2770,7 +2770,7 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
             powerCost += CalculatePct(powerCost, (*i)->GetAmount());
         }
 
-        m_powerCost[POWER_TO_INDEX(PowerType)] += (powerCost / caster->GetPowerCoeff(PowerType));
+        m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
 }
 

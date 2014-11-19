@@ -1303,7 +1303,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     return;
 
                 // Don't forget power cost
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
+                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1 * GetCaster()->GetPowerCoeff(POWER_BURNING_EMBERS);
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
             }
 

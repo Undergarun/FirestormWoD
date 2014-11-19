@@ -16330,7 +16330,7 @@ int32 Unit::GetPower(Powers p_Power) const
     if (l_PowerIndex == MAX_POWERS)
         return 0;
 
-    return m_powers[l_PowerIndex] / GetPowerCoeff(p_Power);
+    return m_powers[l_PowerIndex];
 }
 
 int32 Unit::GetMaxPower(Powers power) const
@@ -16367,8 +16367,6 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
 
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
-    p_PowerValue *= GetPowerCoeff(p_PowerType);
-
     uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
 
     if (l_PowerIndex == MAX_POWERS)
@@ -21546,7 +21544,7 @@ void Unit::RewardRage(float baseRage, bool attacker)
         }
     }
 
-    ModifyPower(POWER_RAGE, uint32(addRage));
+    ModifyPower(POWER_RAGE, uint32(addRage * GetPowerCoeff(POWER_RAGE)));
 }
 
 void Unit::StopAttackFaction(uint32 faction_id)
