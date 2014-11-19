@@ -133,6 +133,7 @@ enum Opcodes
         SMSG_INSPECT_TALENT                         = 0x052E,   ///< 6.0.3 19116
         SMSG_INSPECT_HONOR_STATS                    = 0x02D3,   ///< 6.0.3 19116
         SMSG_INSPECT_RATED_BG_STATS                 = 0x050A,   ///< 6.0.3 19116
+        SMSG_FLIGHT_SPLINE_SYNC                     = 0x08A5,   ///< 6.0.3 19116 (unused)
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -1732,7 +1733,6 @@ enum Opcodes
     SMSG_FAILED_PLAYER_CONDITION                      = 0x0000,
     SMSG_FISH_ESCAPED                                 = 0x0000,
     SMSG_FISH_NOT_HOOKED                              = 0x0000,
-    SMSG_FLIGHT_SPLINE_SYNC                           = 0x0000,
     SMSG_FLOOD_DETECTED                               = 0x0000,
     SMSG_FORCE_ANIM                                   = 0x0000,
     SMSG_FORCE_OBJECT_RELINK                          = 0x0000,
