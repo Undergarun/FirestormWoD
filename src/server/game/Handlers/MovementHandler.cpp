@@ -401,6 +401,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         l_PlayerMover->SetInWater(!l_PlayerMover->IsInWater() || l_PlayerMover->GetBaseMap()->IsUnderWater(l_MovementInfo.pos.GetPositionX(), l_MovementInfo.pos.GetPositionY(), l_MovementInfo.pos.GetPositionZ()));
     }
 
+    sScriptMgr->OnPlayerUpdateMovement(l_PlayerMover);
+
     // Hack Fix, clean emotes when moving
     if (l_PlayerMover && l_PlayerMover->GetLastPlayedEmote())
         l_PlayerMover->HandleEmoteCommand(0);
