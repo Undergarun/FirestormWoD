@@ -191,7 +191,7 @@ namespace MS
             THROW_CHAKRAM_2 = 169687,       // Launched with the two previous ones.
             THROW_CHAKRAM_DNT = 178612,
             SPINNING_BLADE = 153544,    // 2:40:16 - 2:40:35
-            BLADE_DANCE = 153581,       // 2:40:56 - 2:41:17 - FIXME: NOT WORKING
+            BLADE_DANCE = 153581,       // 2:40:56 - 2:41:17
         };
 
         enum class Events : uint32
@@ -461,9 +461,7 @@ namespace MS
 
         enum class Spells : uint32
         {
-            PIERCING_RUSH = 165731,   // 2:40:28 - 2:40:55 - FIXME: VISUAL NOT WORKING
-            PIERCING_RUSH_2 = 165733,   // 2:40:28 - 2:40:55
-            PIERCING_RUSH_3 = 165732,
+            PIERCING_RUSH = 165731,
             DESPAWN_AREA_TRIGGERS = 138175,
         };
 
@@ -508,7 +506,7 @@ namespace MS
                     {
                     case uint32(Events::PIERCING_RUSH):
                         m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
-                        me->CastSpell(me->getVictim(), uint32(Spells::PIERCING_RUSH_2));
+                        me->CastSpell(me->getVictim(), uint32(Spells::PIERCING_RUSH));
                         break;
                     default:
                         break;
