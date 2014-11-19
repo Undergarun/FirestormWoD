@@ -1726,24 +1726,15 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& p_Packet)
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, l_Title);
 }
 
-void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
+void WorldSession::HandleTimeSyncResp(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESP");
+    uint32 l_Counter, l_ClientTicks;
+    p_RecvData >> l_Counter >> l_ClientTicks;
 
-    uint32 counter, clientTicks;
-    recvData >> counter >> clientTicks;
-
-    if (counter != m_Player->m_timeSyncCounter - 1)
+    if (l_Counter != m_Player->m_timeSyncCounter - 1)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", m_Player->GetName());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Time sync received: counter %u, client ticks %u, time since last sync %u", counter, clientTicks, clientTicks - m_Player->m_timeSyncClient);
-
-    uint32 ourTicks = clientTicks + (getMSTime() - m_Player->m_timeSyncServer);
-
-    // diff should be small
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - clientTicks, GetLatency());
-
-    m_Player->m_timeSyncClient = clientTicks;
+    m_Player->m_timeSyncClient = l_ClientTicks;
 }
 
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*p_RecvData*/)
@@ -1904,9 +1895,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_MOUNT_AURA");
-
-    //If player is not mounted, so go out :)
+    // If player is not mounted, so go out :)
     if (!m_Player->IsMounted())                              // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_CHAR_NON_MOUNTED);
@@ -1921,6 +1910,10 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
 
     m_Player->Dismount();
     m_Player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+    WorldPacket l_Data(SMSG_DISMOUNT);
+    l_Data.appendPackGUID(m_Player->GetGUID());
+    m_Player->SendMessageToSet(&l_Data, true);
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)

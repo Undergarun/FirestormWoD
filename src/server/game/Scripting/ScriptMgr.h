@@ -495,6 +495,9 @@ class AreaTriggerScript : public ScriptObject
 
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
+
+        // Called on each update of AreaTriggers.
+        virtual void OnUpdate(AreaTrigger* p_AreaTrigger) {}
 };
 
 class BattlegroundScript : public ScriptObject
@@ -937,6 +940,11 @@ class ScriptMgr
         void OnGameObjectStateChanged(GameObject* go, uint32 state);
         void OnGameObjectUpdate(GameObject* go, uint32 diff);
         GameObjectAI* GetGameObjectAI(GameObject* go);
+
+    public:
+        /* AreaTriggerEntityScript */
+        void OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
+        void OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
 
     public: /* AreaTriggerScript */
 

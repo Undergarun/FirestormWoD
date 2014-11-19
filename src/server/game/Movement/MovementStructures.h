@@ -201,7 +201,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_FEATHER_FALL_ACK
         || opcode == CMSG_MOVE_WATER_WALK_ACK
         || opcode == CMSG_MOVE_HOVER_ACK
-        || opcode == CMSG_MOVE_SPLINE_DONE)
+        || opcode == CMSG_MOVE_SPLINE_DONE
+        || opcode == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
         return MovementGlobalSequence;
 
     if (opcode == SMSG_MOVE_UPDATE

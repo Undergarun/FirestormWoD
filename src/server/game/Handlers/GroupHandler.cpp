@@ -280,33 +280,34 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     std::list<uint32> l_LfgSlots; 
 
     // tell the player that they were invited but it failed as they were already in a group
-    WorldPacket data(SMSG_PARTY_INVITE, 45);
-    data.WriteBit(l_CanAccept);
-    data.WriteBit(l_MightCRZYou);
-    data.WriteBit(l_IsXRealm);
-    data.WriteBit(l_MustBeBNetFriend);
-    data.WriteBit(l_AllowMultipleRoles);
-    data.WriteBits(l_NameLenght, 6);
-    data.FlushBits();
-    data.appendPackGUID(l_InviterGuid);
-    data.appendPackGUID(l_InviterBNetAccountID);
-    data << uint16(l_Unk);
-    data << uint32(l_InviterCfgRealmID);
-    data.WriteBit(l_IsLocal);
-    data.WriteBits(l_RealmNameActualSize, 8);
-    data.WriteBits(l_NormalizedRealmNameSize, 8);
-    data.FlushBits();
-    data.WriteString(l_InviterRealmName);
-    data.WriteString(l_NormalizeRealmName);
-    data << uint32(l_LfgCompletedMask);
-    data << uint32(l_LfgSlots.size());
-    data << uint32(l_ProposedRoles);    ///< from CMSG_PARTY_INVITE
-    data.WriteString(l_InviterName);
+    WorldPacket l_Data(SMSG_PARTY_INVITE, 45);
+    l_Data.WriteBit(l_CanAccept);
+    l_Data.WriteBit(l_MightCRZYou);
+    l_Data.WriteBit(l_IsXRealm);
+    l_Data.WriteBit(l_MustBeBNetFriend);
+    l_Data.WriteBit(l_AllowMultipleRoles);
+    l_Data.WriteBits(l_NameLenght, 6);
+    l_Data.FlushBits();
+    l_Data.appendPackGUID(l_InviterGuid);
+    l_Data.appendPackGUID(l_InviterBNetAccountID);
+    l_Data << uint16(l_Unk);
+    l_Data << uint32(l_InviterCfgRealmID);
+    l_Data.WriteBit(l_IsLocal);
+    l_Data.WriteBit(false);   // UnkBit
+    l_Data.WriteBits(l_RealmNameActualSize, 8);
+    l_Data.WriteBits(l_NormalizedRealmNameSize, 8);
+    l_Data.FlushBits();
+    l_Data.WriteString(l_InviterRealmName);
+    l_Data.WriteString(l_NormalizeRealmName);
+    l_Data << uint32(l_LfgCompletedMask);
+    l_Data << uint32(l_LfgSlots.size());
+    l_Data << uint32(l_ProposedRoles);    ///< from CMSG_PARTY_INVITE
+    l_Data.WriteString(l_InviterName);
 
     for (auto l_LfgSlot : l_LfgSlots)
-        data << uint32(l_LfgSlot);
+        l_Data << uint32(l_LfgSlot);
 
-    l_Player->GetSession()->SendPacket(&data);
+    l_Player->GetSession()->SendPacket(&l_Data);
 
     SendPartyResult(PARTY_CMD_INVITE, l_TargetName, ERR_PARTY_RESULT_OK);
 }

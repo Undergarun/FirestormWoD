@@ -5018,6 +5018,9 @@ void Spell::SendSpellGo()
     uint64 l_TargetGUID     = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetGUID() : 0;
     uint64 l_TargetItemGUID = itemTarget ? itemTarget->GetGUID() : 0;
 
+    // Unknown
+    bool l_HasUnk1 = false;
+
     // Forge the packet !
     WorldPacket l_Data(SMSG_SPELL_GO);
     l_Data.appendPackGUID(l_CasterGuid1);
@@ -5032,7 +5035,7 @@ void Spell::SendSpellGo()
     l_Data.WriteBits(m_targets.GetTargetMask(), 21);
     l_Data.WriteBit(m_targets.HasSrc());
     l_Data.WriteBit(m_targets.HasDst());
-    l_Data.WriteBit(false);
+    l_Data.WriteBit(l_HasUnk1);
     l_Data.WriteBits(0, 7);                   ///< Src target name
     l_Data.FlushBits();
 
@@ -5057,9 +5060,9 @@ void Spell::SendSpellGo()
         }
 
         l_Data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
+        l_Data << float(l_X);
         l_Data << float(l_Y);
         l_Data << float(l_Z);
-        l_Data << float(l_X);
     }
 
     if (m_targets.HasDst())
@@ -5080,10 +5083,13 @@ void Spell::SendSpellGo()
         }
 
         l_Data.appendPackGUID(m_targets.GetDst()->_transportGUID);
+        l_Data << float(l_X);
         l_Data << float(l_Y);
         l_Data << float(l_Z);
-        l_Data << float(l_X);
     }
+
+    if (l_HasUnk1)
+        l_Data << float(0);
 
     l_Data << uint32(l_UsablePowers.size());        ///< Remaining power count
 
@@ -5163,6 +5169,7 @@ void Spell::SendSpellGo()
     }
 
     l_Data.WriteBits(0, 18);                                      ///< Cast flag ex
+
     l_Data.WriteBit(l_HasRuneData);                               ///< HasRuneData
     l_Data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     l_Data.FlushBits();

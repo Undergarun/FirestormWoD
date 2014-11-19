@@ -1018,6 +1018,8 @@ class ObjectMgr
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
         void LoadAreaTriggerTemplates();
+        void LoadAreaTriggerMoveSplines();
+        void LoadAreaTriggerMoveTemplates();
 
         void LoadGossipText();
 
@@ -1396,6 +1398,24 @@ class ObjectMgr
             return AreaTriggerTemplateList();
         }
 
+        AreaTriggerMoveTemplate GetAreaTriggerMoveTemplate(uint32 p_move_curve_id)
+        {
+            auto l_itr = m_AreaTriggerMoveTemplate.find(p_move_curve_id);
+            if (l_itr != m_AreaTriggerMoveTemplate.end())
+                return l_itr->second;
+
+            return AreaTriggerMoveTemplate();
+        }
+
+        AreaTriggerMoveSplines GetAreaTriggerMoveSplines(uint32 p_move_curve_id, uint32 p_path_id)
+        {
+            auto l_itr = m_AreaTriggerMoveSplines.find(std::make_pair(p_move_curve_id, p_path_id));
+            if (l_itr != m_AreaTriggerMoveSplines.end())
+                return l_itr->second;
+
+            return AreaTriggerMoveSplines();
+        }
+
         CharacterTemplates const& GetCharacterTemplates() const { return m_CharacterTemplatesStore; }
         CharacterTemplate const* GetCharacterTemplate(uint32 p_ID) const;
     private:
@@ -1478,6 +1498,8 @@ class ObjectMgr
         std::map<uint64, uint64> _lootViewGUID;
 
         AreaTriggerTemplateContainer m_AreaTriggerTemplates;
+        AreaTriggerMoveSplinesContainer m_AreaTriggerMoveSplines;
+        AreaTriggerMoveTemplateContainer m_AreaTriggerMoveTemplate;
 
         ResearchZoneMap _researchZoneMap;
         ResearchLootVector _researchLoot;

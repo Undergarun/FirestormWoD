@@ -134,6 +134,8 @@ enum Opcodes
         SMSG_INSPECT_TALENT                         = 0x052E,   ///< 6.0.3 19116
         SMSG_INSPECT_HONOR_STATS                    = 0x02D3,   ///< 6.0.3 19116
         SMSG_INSPECT_RATED_BG_STATS                 = 0x050A,   ///< 6.0.3 19116
+        SMSG_TIME_SYNC_REQUEST                      = 0x03B1,   ///< 6.0.3 19116
+        SMSG_FLIGHT_SPLINE_SYNC                     = 0x08A5,   ///< 6.0.3 19116 (unused)
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -533,6 +535,8 @@ enum Opcodes
         SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING              = 0x1192,   ///< 6.0.3 19116
         SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY   = 0x08CE,   ///< 6.0.3 19116
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x00C5,   ///< 6.0.3 19116
+        SMSG_MOVE_SET_VEHICLE_REC_ID                        = 0x09DD,   ///< 6.0.3 19116
+        SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x008D,   ///< 6.0.3 19116
 
         /// Creature
         SMSG_MONSTER_MOVE                           = 0x0994,   ///< 6.0.3 19116
@@ -594,9 +598,12 @@ enum Opcodes
         SMSG_FEIGN_DEATH_RESISTED                   = 0x1B43,   ///< 6.0.3 19116
         SMSG_NOTIFY_DEST_LOC_SPELL_CAST             = 0x01F1,   ///< 6.0.3 19116 (unused)
         SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA   = 0x053F,   ///< 6.0.3 19116
+        SMSG_SET_VEHICLE_REC_ID                     = 0x1BA1,   ///< 6.0.3 19116
         SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x1173,   ///< 6.0.3 19116 (unused)
         SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x0171,   ///< 6.0.3 19116
         SMSG_COOLDOWN_EVENT                         = 0x05B0,   ///< 6.0.3 19116
+        SMSG_DISMOUNT                               = 0x0B89,   ///< 6.0.3 19116
+        SMSG_DISMOUNTRESULT                         = 0x000F,   ///< 6.0.3 19116 (unused)
 
         /// Spell Book / Bar
         SMSG_UPDATE_WEEKLY_SPELL_USAGE              = 0x1829,   ///< 6.0.3 19116 (unused)
@@ -977,6 +984,21 @@ enum Opcodes
     CMSG_INSPECT                                = 0x01EC,   ///< 6.0.3 19116
     CMSG_INSPECT_HONOR_STATS                    = 0x09FD,   ///< 6.0.3 19116
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
+    CMSG_TIME_SYNC_RESP                         = 0x0003,   ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Vehicles
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_MOVE_SET_VEHICLE_REC_ID_ACK            = 0x0000,   ///< 6.0.3 19116
+    CMSG_PLAYER_VEHICLE_ENTER                   = 0x11BC,   ///< 6.0.3 19116
+    CMSG_REQUEST_VEHICLE_EXIT                   = 0x09CE,   ///< 6.0.3 19116
+    CMSG_REQUEST_VEHICLE_NEXT_SEAT              = 0x1672,   ///< 6.0.3 19116
+    CMSG_REQUEST_VEHICLE_PREV_SEAT              = 0x0527,   ///< 6.0.3 19116
+    CMSG_REQUEST_VEHICLE_SWITCH_SEAT            = 0x0AED,   ///< 6.0.3 19116
+    CMSG_SET_VEHICLE_REC_ID_ACK                 = 0x0000,   ///< 6.0.3 19116
+    CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE     = 0x0581,   ///< 6.0.3 19116
+    CMSG_EJECT_PASSENGER                        = 0x1029,   ///< 6.0.3 19116
+    CMSG_DISMISS_CONTROLLED_VEHICLE             = 0x020A,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
@@ -1425,7 +1447,6 @@ enum Opcodes
     CMSG_CALENDAR_UPDATE_EVENT                        = 0x0000,
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x0000,
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0x0000,
-    CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0x0000,
     CMSG_CHAR_CUSTOMIZE                               = 0x0000,
     CMSG_CHAR_FACTION_OR_RACE_CHANGE                  = 0x0000,
     CMSG_CHAR_RENAME                                  = 0x0000,
@@ -1446,9 +1467,7 @@ enum Opcodes
     CMSG_CONNECT_TO_FAILED                            = 0x0000,
     CMSG_DANCE_QUERY                                  = 0x0000,
     CMSG_DEL_VOICE_IGNORE                             = 0x0000,
-    CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x0000,
     CMSG_DISMISS_CRITTER                              = 0x0000,
-    CMSG_EJECT_PASSENGER                              = 0x0000,
     CMSG_EMOTE                                        = 0x0000,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0000,
     CMSG_FORCE_MOVE_UNROOT_ACK                        = 0x0000,
@@ -1493,13 +1512,11 @@ enum Opcodes
     CMSG_MOVE_ENABLE_SWIM_TO_FLY_TRANS_ACK            = 0x0000,
     CMSG_MOVE_NOT_ACTIVE_MOVER                        = 0x0000,
     CMSG_MOVE_SET_RELATIVE_POSITION                   = 0x0000,
-    CMSG_MOVE_SET_VEHICLE_REC_ID_ACK                  = 0x0000,
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x0000,
     CMSG_NEW_SPELL_SLOT                               = 0x0000,
     CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
     CMSG_PLAYER_LOGOUT                                = 0x0000,
-    CMSG_PLAYER_VEHICLE_ENTER                         = 0x0000,
     CMSG_PLAY_DANCE                                   = 0x0000,
     CMSG_PVP_LOG_DATA                                 = 0x0000,
     CMSG_QUERY_BATTLEFIELD_STATE                      = 0x0000,
@@ -1521,10 +1538,6 @@ enum Opcodes
     CMSG_REQUEST_RATED_BG_INFO                        = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                       = 0x0000,
     CMSG_REQUEST_RESEARCH_HISTORY                     = 0x0000,
-    CMSG_REQUEST_VEHICLE_EXIT                         = 0x0000,
-    CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x0000,
-    CMSG_REQUEST_VEHICLE_PREV_SEAT                    = 0x0000,
-    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x8000 + 1,
     CMSG_RESET_CHALLENGE_MODE                         = 0x0000,
     CMSG_RESET_FACTION_CHEAT                          = 0x0000,
     CMSG_RESURRECT_RESPONSE                           = 0x0000,
@@ -1549,7 +1562,6 @@ enum Opcodes
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
     CMSG_SET_SKILL_CHEAT                              = 0x0000,
-    CMSG_SET_VEHICLE_REC_ID_ACK                       = 0x0000,
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x0000,
     CMSG_SOCKET_GEMS                                  = 0x0000,
     CMSG_SPLIT_ITEM                                   = 0x0000,
@@ -1566,7 +1578,6 @@ enum Opcodes
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
     CMSG_TEXT_EMOTE                                   = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
-    CMSG_TIME_SYNC_RESP                               = 0x0000,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
     CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
@@ -1722,8 +1733,6 @@ enum Opcodes
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x0000,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x0000,
     SMSG_DISENCHANT_CREDIT                            = 0x0000,
-    SMSG_DISMOUNT                                     = 0x0000,
-    SMSG_DISMOUNTRESULT                               = 0x0000,
     SMSG_DISPLAY_GAME_ERROR                           = 0x0000,
     SMSG_DISPLAY_PROMOTION                            = 0x0000,
     SMSG_DISPLAY_PLAYER_CHOICE                        = 0x0000,
@@ -1738,7 +1747,6 @@ enum Opcodes
     SMSG_FAILED_PLAYER_CONDITION                      = 0x0000,
     SMSG_FISH_ESCAPED                                 = 0x0000,
     SMSG_FISH_NOT_HOOKED                              = 0x0000,
-    SMSG_FLIGHT_SPLINE_SYNC                           = 0x0000,
     SMSG_FLOOD_DETECTED                               = 0x0000,
     SMSG_FORCE_ANIM                                   = 0x0000,
     SMSG_FORCE_OBJECT_RELINK                          = 0x0000,
@@ -1848,9 +1856,7 @@ enum Opcodes
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                 = 0x0000,
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x0000,
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x0000,
-    SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x0000,
     SMSG_MOVE_SET_COMPOUND_STATE                      = 0x0000,
-    SMSG_MOVE_SET_VEHICLE_REC_ID                      = 0x0000,
     SMSG_MULTIPLE_PACKETS                             = 0x0000,
     SMSG_NEW_WORLD_ABORT                              = 0x0000,
     SMSG_NOTIFICATION                                 = 0x0000,
@@ -1887,7 +1893,6 @@ enum Opcodes
     SMSG_PLAYER_SAVE_GUILD_EMBLEM                     = 0x0000,
     SMSG_PLAYER_TABAR_VENDOR_SHOW                     = 0x0000,
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0x0000,
-    SMSG_PLAYER_VEHICLE_DATA                          = 0x0000,
     SMSG_PLAY_DANCE                                   = 0x0000,
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                       = 0x0000,
     SMSG_PLAY_ORPHAN_SPELL_VISUAL                     = 0x0000,
@@ -1984,7 +1989,6 @@ enum Opcodes
     SMSG_THREAT_REMOVE                                = 0x0000,
     SMSG_THREAT_UPDATE                                = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
-    SMSG_TIME_SYNC_REQUEST                            = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,
     SMSG_TOGGLE_XP_GAIN                               = 0x0000,

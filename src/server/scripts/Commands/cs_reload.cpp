@@ -159,6 +159,7 @@ public:
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
             { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
             { "areatrigger_template",         SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerTemplateCommand,        "", NULL },
+            { "areatrigger_move",     SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerMoveCommand,     "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -172,6 +173,13 @@ public:
     static bool HandleReloadAreatriggerTemplateCommand(ChatHandler* /*p_Handler*/, const char* /*p_Args*/)
     {
         sObjectMgr->LoadAreaTriggerTemplates();
+        return true;
+    }
+
+    static bool HandleReloadAreatriggerMoveCommand(ChatHandler* /*p_Handler*/, const char* /*p_Args*/)
+    {
+        sObjectMgr->LoadAreaTriggerMoveTemplates();
+        sObjectMgr->LoadAreaTriggerMoveSplines();
         return true;
     }
 
