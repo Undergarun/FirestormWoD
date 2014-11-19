@@ -117,7 +117,8 @@ enum PriestSpells
     PRIEST_INNER_FOCUS                              = 89485,
     PRIEST_SHADOW_ORB_AURA                          = 77487,
     PRIEST_SHADOW_ORB_DUMMY                         = 127850,
-    PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985
+    PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985,
+    PRIEST_NPC_VOID_TENDRILS                        = 65282
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -629,12 +630,11 @@ class spell_pri_power_word_solace : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100)), POWER_MANA);
-                        _player->CastSpell(_player, PRIEST_ATONEMENT_AURA, true);
-                    }
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->ModifyPower(POWER_MANA, (l_Player->GetMaxPower(POWER_MANA) / 100) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100));
+                    l_Player->CastSpell(l_Player, PRIEST_ATONEMENT_AURA, true);
+                }
             }
 
             void Register()
@@ -709,9 +709,9 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             void HandleOnCast()
             {
                 if (Unit* caster = GetCaster())
-                if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                if (surgeOfLight->GetStackAmount() > 1)
-                    surgeOfLight->ModStackAmount(-1);
+                    if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                        if (surgeOfLight->GetStackAmount() > 1)
+                            surgeOfLight->ModStackAmount(-1);
             }
 
             void Register()
@@ -2173,8 +2173,114 @@ class spell_pri_levitate : public SpellScriptLoader
         }
 };
 
+// Flash heal - 2061
+class spell_pri_flash_heal : public SpellScriptLoader
+{
+public:
+    spell_pri_flash_heal() : SpellScriptLoader("spell_pri_flash_heal") { }
+
+    class spell_pri_flash_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_flash_heal_SpellScript);
+
+        void HandleBeforeCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (AuraPtr surgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                    surgeOfLight->ModStackAmount(-1);
+        }
+
+        void Register()
+        {
+            BeforeCast += SpellCastFn(spell_pri_flash_heal_SpellScript::HandleBeforeCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_flash_heal_SpellScript();
+    }
+};
+
+// Clarity of will - 152118
+class spell_pri_clarity_of_will : public SpellScriptLoader
+{
+public:
+    spell_pri_clarity_of_will() : SpellScriptLoader("spell_pri_clarity_of_will") { }
+
+    class spell_pri_clarity_of_will_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_clarity_of_will_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                amount = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6 * 1.1;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_clarity_of_will_AuraScript();
+    }
+};
+
+// Void Tendrils - 108920
+class spell_pri_void_tendrils : public SpellScriptLoader
+{
+    public:
+        spell_pri_void_tendrils() : SpellScriptLoader("spell_pri_void_tendrils") { }
+
+        class spell_pri_void_tendrils_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_void_tendrils_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        _player->CastSpell(target, PRIEST_SPELL_VOID_TENDRILS_SUMMON, true);
+
+                        if (Creature* voidTendrils = target->FindNearestCreature(PRIEST_NPC_VOID_TENDRILS, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile))
+                            if (voidTendrils->AI())
+                                voidTendrils->AI()->SetGUID(target->GetGUID());
+
+                        if (AuraPtr voidTendrils = target->GetAura(GetSpellInfo()->Id, _player->GetGUID()))
+                        {
+                            if (target->GetTypeId() == TYPEID_PLAYER)
+                                voidTendrils->SetMaxDuration(8000);
+                            else
+                                voidTendrils->SetMaxDuration(20000);
+                            voidTendrils->SetDuration(voidTendrils->GetMaxDuration());
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_void_tendrils_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_void_tendrils_SpellScript();
+        }
+};
+
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_void_tendrils();
+    new spell_pri_clarity_of_will();
     new spell_pri_confession();
     new spell_pri_glyph_of_confession();
     new spell_pri_shadow_word_death();
@@ -2219,6 +2325,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_renew();
     new spell_pri_evangelism();
     new spell_pri_levitate();
+    new spell_pri_flash_heal();
 
     // Player Script
     new PlayerScript_Shadow_Orb();

@@ -14,7 +14,9 @@ const uint8_t bnet_logon_data[]         = ".ashran.com";
 const uint8_t bnet_agent_data[]         = "noagt.exe";
 const uint8_t bnet_versions_data[]      = "http://%s-cdn.ashran.com/%s/versions";
 const uint8_t bnet_cdns_data[]          = "http://%s-cdn.ashran.com/%s/cdns";
-const uint8_t jam_dispatch_check_data[] = { 0xEB, 0x1D };                           ///< jmp to bypass socket check
+const uint8_t jam_dispatch_check_data_win32[] = { 0xEB, 0x1D };                           ///< jmp to bypass socket check
+const uint8_t jam_dispatch_check_data_mac64[] = { 0xEB, 0x0D };                           ///< jmp to bypass socket check
+const uint8_t client_packets_check_data_mac64[] = { 0xB9, 0x00 };                         ///< jmp to bypass socket check
 
 #ifndef _countof
 #define _countof(V) (sizeof(V) / sizeof(V[0]))
@@ -47,26 +49,29 @@ enum ClientType
 /// 19027
 const struct RewriteItem Win32Patchs[] = 
 {
-    { 0x00A392C8, sizeof(config_data),               config_data                 },                  ///< Change default configuration file
-    { 0x00A5D85C, sizeof(build_date_data),           build_date_data             },                  ///< Change build date
-    { 0x00AFD3C4, sizeof(bnet_portal_data),          bnet_portal_data            },                  ///< Change bnet portal
-    { 0x00B9DBE0, sizeof(bnet_logon_data),           bnet_logon_data             },                  ///< Change bnet logon
-    { 0x00A69234, sizeof(bnet_agent_data),           bnet_agent_data             },                  ///< Change bnet agent
-    { 0x00A38560, sizeof(bnet_versions_data),        bnet_versions_data          },                  ///< Change bnet versions data
-    { 0x00A3858C, sizeof(bnet_cdns_data),            bnet_cdns_data              },                  ///< Change bnet cdns data
-    { 0x002496D7, sizeof(jam_dispatch_check_data),   jam_dispatch_check_data     },                  ///< Bypass jam dispatch socket check
+    { 0x00A392C8, sizeof(config_data),                     config_data                       },                  ///< Change default configuration file
+    { 0x00A5D85C, sizeof(build_date_data),                 build_date_data                   },                  ///< Change build date
+    { 0x00AFD3C4, sizeof(bnet_portal_data),                bnet_portal_data                  },                  ///< Change bnet portal
+    { 0x00B9DBE0, sizeof(bnet_logon_data),                 bnet_logon_data                   },                  ///< Change bnet logon
+    { 0x00A69234, sizeof(bnet_agent_data),                 bnet_agent_data                   },                  ///< Change bnet agent
+    { 0x00A38560, sizeof(bnet_versions_data),              bnet_versions_data                },                  ///< Change bnet versions data
+    { 0x00A3858C, sizeof(bnet_cdns_data),                  bnet_cdns_data                    },                  ///< Change bnet cdns data
+    { 0x002496D7, sizeof(jam_dispatch_check_data_win32),   jam_dispatch_check_data_win32     },                  ///< Bypass jam dispatch socket check
 };
 
 const struct RewriteItem Mac64Patchs[] = 
 {
-    { 0x0000000, sizeof(config_data),               config_data                 },                  ///< Change default configuration file
-    { 0x0000000, sizeof(build_date_data),           build_date_data             },                  ///< Change build date
-    { 0x0000000, sizeof(bnet_portal_data),          bnet_portal_data            },                  ///< Change bnet portal
-    { 0x0000000, sizeof(bnet_agent_data),           bnet_agent_data             },                  ///< Change bnet agent
-    { 0x0000000, sizeof(bnet_logon_data),           bnet_logon_data             },                  ///< Change bnet logon
-    { 0x0000000, sizeof(bnet_versions_data),        bnet_versions_data          },                  ///< Change bnet versions data
-    { 0x0000000, sizeof(bnet_cdns_data),            bnet_cdns_data              },                  ///< Change bnet cdns data
-    { 0x0248430, sizeof(jam_dispatch_check_data),   jam_dispatch_check_data     },                  ///< Bypass jam dispatch socket check
+    { 0x13761DA, sizeof(config_data),                      config_data                       },                  ///< Change default configuration file
+    { 0x133D195, sizeof(build_date_data),                  build_date_data                   },                  ///< Change build date
+    { 0x13616B6, sizeof(bnet_portal_data),                 bnet_portal_data                  },                  ///< Change bnet portal
+    { 0x136090C, sizeof(bnet_agent_data),                  bnet_agent_data                   },                  ///< Change bnet agent
+    { 0x14927D0, sizeof(bnet_logon_data),                  bnet_logon_data                   },                  ///< Change bnet logon
+    { 0x1374AD1, sizeof(bnet_versions_data),               bnet_versions_data                },                  ///< Change bnet versions data
+    { 0x1374AFD, sizeof(bnet_cdns_data),                   bnet_cdns_data                    },                  ///< Change bnet cdns data
+    { 0x0FEEDAA, sizeof(jam_dispatch_check_data_mac64),    jam_dispatch_check_data_mac64     },                  ///< Bypass jam dispatch socket check
+    { 0x05F8277, sizeof(client_packets_check_data_mac64), client_packets_check_data_mac64 },                  ///< Bypass jam dispatch socket check
+    { 0x05F8471, sizeof(client_packets_check_data_mac64),  client_packets_check_data_mac64   },                  ///< Bypass jam dispatch socket check
+    { 0x05F8492, sizeof(client_packets_check_data_mac64),  client_packets_check_data_mac64   },                  ///< Bypass jam dispatch socket check
 };
 
 const struct SystemItem gSystems[] = {

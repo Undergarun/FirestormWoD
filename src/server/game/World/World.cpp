@@ -1904,6 +1904,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger templates...");
     sObjectMgr->LoadAreaTriggerTemplates();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger move splines...");
+    sObjectMgr->LoadAreaTriggerMoveSplines();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger move templates...");
+    sObjectMgr->LoadAreaTriggerMoveTemplates();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);

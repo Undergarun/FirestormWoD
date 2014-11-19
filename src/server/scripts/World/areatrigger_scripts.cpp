@@ -36,7 +36,9 @@ at_area_52_entrance
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "Object.h"
 #include "ScriptedCreature.h"
+#include "AreaTriggerScript.h"
 
 /*######
 ## at_coilfang_waterfall
@@ -610,8 +612,635 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
         }
 };
 
+class AreaTrigger_ice_trap : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_ice_trap()
+        : MS::AreaTriggerEntityScript("at_ice_trap")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 10.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+            itr->CastSpell(itr, 135299, true);
+
+        // Glyph of Black Ice
+        if (l_Caster->GetDistance(p_AreaTrigger) <= l_Radius && l_Caster->HasAura(109263) && !l_Caster->HasAura(83559))
+            l_Caster->CastSpell(l_Caster, 83559, true);
+        else
+            l_Caster->RemoveAura(83559);
+    }
+};
+
+class AreaTrigger_power_word_barrier : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_power_word_barrier()
+        : MS::AreaTriggerEntityScript("at_power_word_barrier")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 6.0f;
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+            itr->CastSpell(itr, 81782, true);
+    }
+};
+
+class AreaTrigger_ursol_vortex : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_ursol_vortex()
+        : MS::AreaTriggerEntityScript("at_ursol_vortex")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 8.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        for (auto itr : targetList)
+        if (!itr->HasAura(127797))
+            l_Caster->CastSpell(itr, 127797, true);
+    }
+};
+
+class AreaTrigger_healing_sphere : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_healing_sphere()
+        : MS::AreaTriggerEntityScript("at_healing_sphere")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 1.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                l_Caster->CastSpell(itr, 115464, true); // Healing Sphere heal
+                p_AreaTrigger->SetDuration(0);
+                return;
+            }
+        }
+    }
+};
+
+class AreaTrigger_cancel_barrier : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_cancel_barrier()
+        : MS::AreaTriggerEntityScript("at_cancel_barrier")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 6.0f;
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        for (auto itr : targetList)
+            itr->CastSpell(itr, 115856, true);
+    }
+};
+
+class AreaTrigger_rune_of_power : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_rune_of_power()
+        : MS::AreaTriggerEntityScript("at_rune_of_power")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 5.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        if (l_Caster->IsWithinDistInMap(p_AreaTrigger, 5.0f))
+        {
+            if (!l_Caster->HasAura(116014))
+                l_Caster->CastSpell(l_Caster, 116014, true);
+            else if (AuraPtr runeOfPower = l_Caster->GetAura(116014))
+                runeOfPower->RefreshDuration();
+
+            if (l_Caster->ToPlayer())
+                l_Caster->ToPlayer()->UpdateManaRegen();
+        }
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger)
+    {
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+        if (l_Caster && l_Caster->HasAura(116014))
+            l_Caster->RemoveAura(116014);
+    }
+};
+
+class AreaTrigger_amethyst_pool : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_amethyst_pool()
+        : MS::AreaTriggerEntityScript("at_amethyst_pool")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 5.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                // Amethyst Pool - Periodic Damage
+                if (itr->GetDistance(p_AreaTrigger) > 3.5f && itr->HasAura(130774))
+                    itr->RemoveAura(130774);
+                else if (itr->GetDistance(p_AreaTrigger) <= 3.5f && !itr->HasAura(130774))
+                    l_Caster->CastSpell(itr, 130774, true);
+            }
+        }
+    }
+};
+
+class AreaTrigger_cancelling_noise_area_trigger : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_cancelling_noise_area_trigger()
+        : MS::AreaTriggerEntityScript("at_cancelling_noise_area_trigger")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 10.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                // Periodic absorption for Imperial Vizier Zor'lok's Force and Verve and Sonic Rings
+                if (itr->GetDistance(p_AreaTrigger) > 2.0f && itr->HasAura(122706))
+                    itr->RemoveAura(122706);
+                else if (itr->GetDistance(p_AreaTrigger) <= 2.0f && !itr->HasAura(122706))
+                    l_Caster->AddAura(122706, itr);
+            }
+        }
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger)
+    {
+        std::list<Player*> playerList;
+        p_AreaTrigger->GetPlayerListInGrid(playerList, 200.0f);
+
+        for (auto player : playerList)
+        if (player->HasAura(122706))
+            player->RemoveAura(122706);
+    }
+};
+
+class AreaTrigger_get_away : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_get_away()
+        : MS::AreaTriggerEntityScript("at_get_away")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Player*> playerList;
+        p_AreaTrigger->GetPlayerListInGrid(playerList, 60.0f);
+
+        Position pos;
+        p_AreaTrigger->GetPosition(&pos);
+
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        for (auto player : playerList)
+        {
+            if (player->IsWithinDist(l_Caster, 40.0f, false))
+            {
+                if (player->isAlive() && !player->hasForcedMovement)
+                    player->SendApplyMovementForce(true, pos, -3.0f);
+                else if (!player->isAlive() && player->hasForcedMovement)
+                    player->SendApplyMovementForce(false, pos);
+            }
+            else if (player->hasForcedMovement)
+                player->SendApplyMovementForce(false, pos);
+        }
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger)
+    {
+        std::list<Player*> playerList;
+        p_AreaTrigger->GetPlayerListInGrid(playerList, 100.0f);
+
+        Position pos;
+        p_AreaTrigger->GetPosition(&pos);
+
+        for (auto player : playerList)
+            player->SendApplyMovementForce(false, pos);
+    }
+};
+
+class AreaTrigger_draw_power : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_draw_power()
+        : MS::AreaTriggerEntityScript("at_draw_power")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 30.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+        {
+            if (itr->IsInAxe(l_Caster, p_AreaTrigger, 2.0f))
+            {
+                if (!itr->HasAura(116663))
+                    l_Caster->AddAura(116663, itr);
+            }
+            else
+                itr->RemoveAurasDueToSpell(116663);
+        }
+    }
+};
+
+class AreaTrigger_healing_sphere_2 : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_healing_sphere_2()
+        : MS::AreaTriggerEntityScript("at_healing_sphere_2")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 1.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                if (itr->GetGUID() == l_Caster->GetGUID())
+                {
+                    l_Caster->CastSpell(itr, 125355, true); // Heal for 15% of life
+                    p_AreaTrigger->SetDuration(0);
+                    return;
+                }
+            }
+        }
+    }
+};
+
+class AreaTrigger_gift_of_the_serpent : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_gift_of_the_serpent()
+        : MS::AreaTriggerEntityScript("at_gift_of_the_serpent")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 1.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                l_Caster->CastSpell(itr, 124041, true); // Gift of the Serpent heal
+                p_AreaTrigger->SetDuration(0);
+                return;
+            }
+        }
+    }
+};
+
+class AreaTrigger_chi_sphere_afterlife : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_chi_sphere_afterlife()
+        : MS::AreaTriggerEntityScript("at_chi_sphere_afterlife")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 1.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                if (itr->GetGUID() == l_Caster->GetGUID())
+                {
+                    l_Caster->CastSpell(itr, 121283, true); // Restore 1 Chi
+                    p_AreaTrigger->SetDuration(0);
+                    return;
+                }
+            }
+        }
+    }
+};
+
+class AreaTrigger_angelic_feather : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_angelic_feather()
+        : MS::AreaTriggerEntityScript("at_angelic_feather")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 1.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        if (!targetList.empty())
+        {
+            for (auto itr : targetList)
+            {
+                l_Caster->CastSpell(itr, 121557, true); // Angelic Feather increase speed
+                p_AreaTrigger->SetDuration(0);
+                return;
+            }
+        }
+    }
+};
+
+class AreaTrigger_gift_of_the_ox : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_gift_of_the_ox()
+        : MS::AreaTriggerEntityScript("at_gift_of_the_ox")
+    {
+        }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 1.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+        {
+            if (itr->GetGUID() != l_Caster->GetGUID())
+                continue;
+
+            l_Caster->CastSpell(itr, 124507, true); // Gift of the Ox - Heal
+            p_AreaTrigger->SetDuration(0);
+            return;
+        }
+    }
+};
+
+class AreaTrigger_down_draft : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_down_draft()
+        : MS::AreaTriggerEntityScript("at_down_draft")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Player*> playerList;
+        p_AreaTrigger->GetPlayerListInGrid(playerList, 40.0f);
+
+        Position pos;
+        p_AreaTrigger->GetPosition(&pos);
+
+        for (auto player : playerList)
+        {
+            if (player->IsWithinDist(p_AreaTrigger->GetCaster(), 30.0f, false))
+            {
+                if (player->isAlive() && !player->hasForcedMovement)
+                    player->SendApplyMovementForce(true, pos, -12.0f);
+                else if (!player->isAlive() && player->hasForcedMovement)
+                    player->SendApplyMovementForce(false, pos);
+            }
+            else if (player->hasForcedMovement)
+                player->SendApplyMovementForce(false, pos);
+        }
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    {
+        std::list<Player*> playerList;
+        p_AreaTrigger->GetPlayerListInGrid(playerList, 100.0f);
+
+        Position pos;
+        p_AreaTrigger->GetPosition(&pos);
+
+        for (auto player : playerList)
+            player->SendApplyMovementForce(false, pos);
+    }
+};
+
+class AreaTrigger_zen_sphere_1 : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_zen_sphere_1()
+        : MS::AreaTriggerEntityScript("at_zen_sphere_1")
+    {
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    {
+        if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
+            return;
+
+        if (!p_AreaTrigger->GetCaster())
+            return;
+
+        p_AreaTrigger->GetCaster()->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), 135914, true);
+    }
+};
+
+class AreaTrigger_zen_sphere_2 : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_zen_sphere_2()
+        : MS::AreaTriggerEntityScript("at_zen_sphere_2")
+    {
+        }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    {
+        if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
+            return;
+
+        if (!p_AreaTrigger->GetCaster())
+            return;
+
+        p_AreaTrigger->GetCaster()->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), 135920, true);
+    }
+};
+
+class AreaTrigger_vileblood_serum : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_vileblood_serum()
+        : MS::AreaTriggerEntityScript("at_vileblood_serum")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> l_TargetList;
+        float l_Radius = 2.0f;
+
+        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+        for (Unit* l_Unit : l_TargetList)
+        {
+            if (l_Unit->GetDistance(p_AreaTrigger) <= l_Radius)
+                l_Unit->CastSpell(l_Unit, 161288, true);
+        }
+    }
+};
+
+class AreaTrigger_noxious_spit : public MS::AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_noxious_spit()
+        : MS::AreaTriggerEntityScript("at_noxious_spit")
+    {
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> l_TargetList;
+        float l_Radius = 2.0f;
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+        for (Unit* l_Unit : l_TargetList)
+        {
+            if (l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                continue;
+
+            p_AreaTrigger->GetCaster()->CastSpell(l_Unit, 136962, true);
+            p_AreaTrigger->SetDuration(0);
+            return;
+        }
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
+    new AreaTrigger_zen_sphere_2();
+    new AreaTrigger_zen_sphere_1();
+    new AreaTrigger_noxious_spit();
+    new AreaTrigger_vileblood_serum();
+    new AreaTrigger_down_draft();
+    new AreaTrigger_gift_of_the_ox();
+    new AreaTrigger_angelic_feather();
+    new AreaTrigger_chi_sphere_afterlife();
+    new AreaTrigger_gift_of_the_serpent();
+    new AreaTrigger_healing_sphere_2();
+    new AreaTrigger_draw_power();
+    new AreaTrigger_get_away();
+    new AreaTrigger_cancelling_noise_area_trigger();
+    new AreaTrigger_amethyst_pool();
+    new AreaTrigger_rune_of_power();
+    new AreaTrigger_cancel_barrier();
+    new AreaTrigger_healing_sphere();
+    new AreaTrigger_ursol_vortex();
+    new AreaTrigger_power_word_barrier();
+    new AreaTrigger_ice_trap();
+
     new AreaTrigger_at_coilfang_waterfall();
     new AreaTrigger_at_legion_teleporter();
     new AreaTrigger_at_stormwright_shelf();

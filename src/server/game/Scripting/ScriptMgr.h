@@ -495,6 +495,9 @@ class AreaTriggerScript : public ScriptObject
 
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
+
+        // Called on each update of AreaTriggers.
+        virtual void OnUpdate(AreaTrigger* p_AreaTrigger) {}
 };
 
 class BattlegroundScript : public ScriptObject
@@ -747,6 +750,9 @@ class PlayerScript : public ScriptObject
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*p_OldZoneID*/, uint32 /*newArea*/) { }
+
+        // Called when a player updates his movement flags
+        virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -935,6 +941,11 @@ class ScriptMgr
         void OnGameObjectUpdate(GameObject* go, uint32 diff);
         GameObjectAI* GetGameObjectAI(GameObject* go);
 
+    public:
+        /* AreaTriggerEntityScript */
+        void OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
+        void OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
+
     public: /* AreaTriggerScript */
 
         bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger);
@@ -1022,6 +1033,7 @@ class ScriptMgr
         void OnPlayerDelete(uint64 guid);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZoneID, uint32 newArea);
+        void OnPlayerUpdateMovement(Player* p_Player);
 
     public: /* GuildScript */
 

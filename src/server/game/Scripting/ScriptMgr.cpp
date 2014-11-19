@@ -31,6 +31,7 @@
 #include "GossipDef.h"
 #include "CreatureAIImpl.h"
 #include "SpellAuraEffects.h"
+#include "AreaTriggerScript.h"
 
 namespace
 {
@@ -312,6 +313,7 @@ void ScriptMgr::Unload()
     SCR_CLEAR(PlayerScript);
     SCR_CLEAR(GuildScript);
     SCR_CLEAR(GroupScript);
+    SCR_CLEAR(MS::AreaTriggerEntityScript);
 
     #undef SCR_CLEAR
 
@@ -1022,6 +1024,22 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     return tmpscript->OnTrigger(player, trigger);
 }
 
+void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+{
+    ASSERT(p_AreaTrigger);
+
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    l_tmpscript->OnUpdate(p_AreaTrigger, p_Time);
+}
+
+void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+{
+    ASSERT(p_AreaTrigger);
+
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    l_tmpscript->OnRemove(p_AreaTrigger, p_Time);
+}
+
 Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
 {
     // TODO: Implement script-side battlegrounds.
@@ -1369,6 +1387,11 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZ
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, p_OldZoneID, newArea);
 }
 
+void ScriptMgr::OnPlayerUpdateMovement(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
+}
+
 // Guild
 void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
 {
@@ -1610,6 +1633,15 @@ GroupScript::GroupScript(const char* name)
     ScriptRegistry<GroupScript>::AddScript(this);
 }
 
+namespace MS
+{
+    AreaTriggerEntityScript::AreaTriggerEntityScript(char const* p_Name)
+        : ScriptObject(p_Name)
+    {
+        ScriptRegistry<MS::AreaTriggerEntityScript>::AddScript(this);
+    }
+}
+
 // Instantiate static members of ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
 template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
@@ -1639,6 +1671,7 @@ template class ScriptRegistry<AchievementCriteriaScript>;
 template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
+template class ScriptRegistry<MS::AreaTriggerEntityScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET

@@ -15922,17 +15922,17 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
     return spellInfo->GetMinRange(!IsHostileTo(target));
 }
 
-Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
+Unit* Unit::GetUnit(WorldObject const& object, uint64 guid)
 {
     return ObjectAccessor::GetUnit(object, guid);
 }
 
-Player* Unit::GetPlayer(WorldObject& object, uint64 guid)
+Player* Unit::GetPlayer(WorldObject const& object, uint64 guid)
 {
     return ObjectAccessor::GetPlayer(object, guid);
 }
 
-Creature* Unit::GetCreature(WorldObject& object, uint64 guid)
+Creature* Unit::GetCreature(WorldObject const& object, uint64 guid)
 {
     return object.GetMap()->GetCreature(guid);
 }
@@ -17074,7 +17074,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                     if (procExtra & PROC_EX_CRITICAL_HIT)
                         crit = true;
-
 
                     uint32 doneProcFlag = procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC);
                     uint32 takenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
