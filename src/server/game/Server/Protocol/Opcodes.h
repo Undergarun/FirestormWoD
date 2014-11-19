@@ -961,7 +961,7 @@ enum Opcodes
     CMSG_CLOSE_INTERACTION                      = 0x1B19,   ///< 6.0.3 19116
     CMSG_ITEM_REFUND_INFO                       = 0x0924,   ///< 6.0.3 19116
     CMSG_FAR_SIGHT                              = 0x1CBA,   ///< 6.0.3 19116
-    CMSG_MOUNTSPECIAL_ANIM                      = 0x1901,   ///< 6.0.3 19116
+    CMSG_MOUNTSPECIAL_ANIM                      = 0x06DB,   ///< 6.0.3 19116
     CMSG_OPENING_CINEMATIC                      = 0x02D2,   ///< 6.0.3 19116
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x1B3A,   ///< 6.0.3 19116
     CMSG_COMPLETE_CINEMATIC                     = 0x1B51,   ///< 6.0.3 19116
@@ -986,7 +986,8 @@ enum Opcodes
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
     CMSG_TIME_SYNC_RESP                         = 0x0003,   ///< 6.0.3 19116
     CMSG_UNLEARN_SKILL                          = 0x0A26,   ///< 6.0.3 19116
-    CMSG_EMOTE                                  = 0x0A27,   ///< 6.0.3 19166
+    CMSG_EMOTE                                  = 0x0A27,   ///> 6.0.3 19116
+    CMSG_SEND_TEXT_EMOTE                        = 0x1901,   ///< 6.0.3 19116
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -1579,7 +1580,6 @@ enum Opcodes
     CMSG_SUSPEND_TOKEN                                = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
-    CMSG_TEXT_EMOTE                                   = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,

@@ -726,7 +726,7 @@ class PlayerScript : public ScriptObject
         // Both of the below are called on emote opcodes.
         virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
 
-        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
+        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*soundIndex*/, uint64 /*guid*/) { }
 
         // Called in Spell::Cast.
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
