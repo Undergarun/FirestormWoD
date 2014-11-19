@@ -196,7 +196,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreatriggerInterpolation GetTrajectory() const { return m_Trajectory; }
 
         AreaTriggerTemplateList GetTemplates() const { return m_Templates; }
-        AreaTriggerTemplate GetMainTemplate() const { return !m_Templates.empty() ? m_Templates.front() : AreaTriggerTemplate(); }
+        const AreaTriggerTemplate* GetMainTemplate() const { return !m_Templates.empty() ? &m_Templates.front() : nullptr; }
 
         void SendMovementUpdate();
 

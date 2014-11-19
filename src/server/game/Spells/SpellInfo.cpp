@@ -470,7 +470,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     {
         SpellScalingEntry const* l_SpellScaling = _spellInfo->GetSpellScaling();
 
-        if (p_Caster)
+        if (p_Caster && l_SpellScaling != nullptr)
         {
             int32 l_Level = p_Caster->getLevel();
             if (p_Target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET))
@@ -493,7 +493,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                 else
                 {
                     uint32 l_ItemLevel = l_Level;
-                    if (p_Item != nullptr)
+                    if (p_Item != nullptr && p_Item->GetTemplate() != nullptr)
                         l_ItemLevel = p_Item->GetTemplate()->ItemLevel;
 
                     RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_ItemLevel);

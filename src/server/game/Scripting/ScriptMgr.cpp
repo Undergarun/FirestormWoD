@@ -1028,7 +1028,7 @@ void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_T
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
     l_tmpscript->OnUpdate(p_AreaTrigger, p_Time);
 }
 
@@ -1036,7 +1036,7 @@ void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_T
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
     l_tmpscript->OnRemove(p_AreaTrigger, p_Time);
 }
 

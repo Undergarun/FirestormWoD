@@ -1390,12 +1390,12 @@ class ObjectMgr
 
         ACE_Thread_Mutex m_GuidLock;
 
-        AreaTriggerTemplateList GetAreaTriggerTemplatesForSpell(uint32 p_SpellID)
+        const AreaTriggerTemplateList* GetAreaTriggerTemplatesForSpell(uint32 p_SpellID)
         {
             if (m_AreaTriggerTemplates.find(p_SpellID) != m_AreaTriggerTemplates.end())
-                return m_AreaTriggerTemplates[p_SpellID];
+                return &m_AreaTriggerTemplates[p_SpellID];
 
-            return AreaTriggerTemplateList();
+            return nullptr;
         }
 
         AreaTriggerMoveTemplate GetAreaTriggerMoveTemplate(uint32 p_move_curve_id)
