@@ -1032,6 +1032,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_INSPECT_HONOR_STATS,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleInspectHonorStatsOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_INSPECT_RATED_BG_STATS,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleInspectRatedBGStatsOpcode  );
     DEFINE_OPCODE_HANDLER(CMSG_TIME_SYNC_RESP,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleTimeSyncResp               );
+    DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SKILL,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleUnlearnSkillOpcode         );
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1541,7 +1542,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_TEXT_EMOTE,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTextEmoteOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_TIME_ADJUSTMENT_RESPONSE,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_TIME_SYNC_RESP_FAILED,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SKILL,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUnlearnSkillOpcode        );
     //DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SPECIALIZATION,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_UNREGISTER_ALL_ADDON_PREFIXES,           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUnregisterAddonPrefixesOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   );

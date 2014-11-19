@@ -984,6 +984,7 @@ enum Opcodes
     CMSG_INSPECT_HONOR_STATS                    = 0x09FD,   ///< 6.0.3 19116
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
     CMSG_TIME_SYNC_RESP                         = 0x0003,   ///< 6.0.3 19116
+    CMSG_UNLEARN_SKILL                          = 0x0A26,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1572,7 +1573,6 @@ enum Opcodes
     CMSG_TEXT_EMOTE                                   = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
-    CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x0000,
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x0000,
