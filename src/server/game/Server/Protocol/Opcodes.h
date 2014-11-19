@@ -926,7 +926,7 @@ enum Opcodes
     CMSG_NPC_TEXT_QUERY                         = 0x0ECB,   ///< 6.0.3 19116
     CMSG_NAME_QUERY                             = 0x0B15,   ///< 6.0.3 19116
     CMSG_QUEST_QUERY                            = 0x09A6,   ///< 6.0.3 19116
-    CMSG_QUEST_POI_QUERY                        = 0x0BD9,   ///< 6.0.3 19116
+    CMSG_QUEST_POI_QUERY                        = 0x0B81,   ///< 6.0.3 19116
     CMSG_REALM_NAME_QUERY                       = 0x0000,   ///< 6.0.3 19116
     CMSG_GAMEOBJECT_QUERY                       = 0x03AE,   ///< 6.0.3 19116
     CMSG_PETITION_QUERY                         = 0x048B,   ///< 6.0.3 19116
@@ -1032,6 +1032,7 @@ enum Opcodes
     CMSG_QUEST_CONFIRM_ACCEPT                   = 0x058D,   ///< 6.0.3 19116
     CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0139,   ///< 6.0.3 19116
     CMSG_PUSHQUESTTOPARTY                       = 0x13E3,   ///< 6.0.3 19116
+    CMSG_QUERY_QUEST_COMPLETION_NPCS            = 0x0BD9,   ///< 6.0.3 19116 (unused)
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
