@@ -1884,8 +1884,8 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
         plr->SetLastPlayedEmote(anim_id);
 
     WorldPacket data(SMSG_EMOTE);
-    data.appendPackGUID(GetGUID());
-    data << uint32(anim_id);
+    data.appendPackGUID(GetGUID());     ///< Guid
+    data << uint32(anim_id);            ///< Emote
 
     SendMessageToSet(&data, true);
 }
