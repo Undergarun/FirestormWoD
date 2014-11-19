@@ -388,6 +388,9 @@ class Quest
         typedef std::vector<uint32> PrevChainQuests;
         PrevChainQuests prevChainQuests;
 
+        typedef std::vector<uint32> CompletionsNpcs;
+        CompletionsNpcs completionsNpcs;
+
         // cached data
     private:
         uint32 m_reqItemsCount;

@@ -7700,13 +7700,17 @@ void ObjectMgr::LoadCreatureQuestRelations()
 {
     LoadQuestRelationsHelper(_creatureQuestRelations, "creature_questrelation", true, false);
 
-    for (QuestRelations::iterator itr = _creatureQuestRelations.begin(); itr != _creatureQuestRelations.end(); ++itr)
+    for (QuestRelations::const_iterator l_Iterator = _creatureQuestRelations.begin(); l_Iterator != _creatureQuestRelations.end(); ++l_Iterator)
     {
-        CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
+        CreatureTemplate const* cInfo = GetCreatureTemplate(l_Iterator->first);
         if (!cInfo)
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` have data for not existed creature entry (%u) and existed quest %u", l_Iterator->first, l_Iterator->second);
         else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", l_Iterator->first, l_Iterator->second);
+
+        Quest* l_Quest = const_cast<Quest*>(GetQuestTemplate(l_Iterator->second));
+        if (l_Quest != nullptr)
+            l_Quest->completionsNpcs.push_back(l_Iterator->first);
     }
 }
 
