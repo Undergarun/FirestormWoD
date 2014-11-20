@@ -31,7 +31,7 @@ class Player;
 
 class ObjectMgr;
 
-#define MAX_QUEST_LOG_SIZE 25
+#define MAX_QUEST_LOG_SIZE 50           ///< Last update 6.0.3 19116, idk if blizzard has unlock to 50 quest on live servers, but somes quest packet client-side & updatefield are update to 50
 
 #define QUEST_OBJECTIVES_COUNT 4
 #define QUEST_ITEM_OBJECTIVES_COUNT 6
@@ -387,6 +387,9 @@ class Quest
         PrevQuests prevQuests;
         typedef std::vector<uint32> PrevChainQuests;
         PrevChainQuests prevChainQuests;
+
+        typedef std::vector<uint32> CompletionsNpcs;
+        CompletionsNpcs completionsNpcs;
 
         // cached data
     private:

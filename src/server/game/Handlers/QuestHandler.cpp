@@ -971,3 +971,38 @@ void WorldSession::HandleQueryQuestsCompleted(WorldPacket& /*recvData*/)
     }
 
 }
+
+void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
+{
+    uint32 l_QuestIDCount;
+    p_RecvData >> l_QuestIDCount;
+
+    if (l_QuestIDCount >= MAX_QUEST_LOG_SIZE || l_QuestIDCount == 0)
+        return;
+
+    std::vector<const Quest*> l_Quests;
+    for (uint32 l_Index = 0; l_Index < l_QuestIDCount; l_Index++)
+    {
+        int32 l_QuestID = p_RecvData.read<int32>();
+
+        const Quest* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID);
+        if (l_Quest == nullptr)
+            continue;
+
+        l_Quests.push_back(l_Quest);
+    }
+
+    WorldPacket l_Data(SMSG_QUEST_COMPLETION_NPCRESPONSE);
+    l_Data << uint32(l_Quests.size());                          ///< Quest size
+
+    for (const Quest* l_QuestItr : l_Quests)
+    {
+        l_Data << uint32(l_QuestItr->GetQuestId());             ///< QuestID
+        l_Data << uint32(l_QuestItr->completionsNpcs.size());   ///< Completions npcs size
+
+        for (const uint32 l_NpcItr : l_QuestItr->completionsNpcs)
+            l_Data << uint32(l_NpcItr);
+    }
+
+    SendPacket(&l_Data);
+}
