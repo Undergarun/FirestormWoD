@@ -60,7 +60,7 @@ namespace MS
             return nullptr;
         }
 
-        static Player* SelectRandomPlayerExcludedTank(Creature* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        static Player* SelectRandomPlayerExcludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())
@@ -88,7 +88,7 @@ namespace MS
         }
 
 
-        static Player* SelectFarEnoughPlayerIncludedTank(Creature* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        static Player* SelectFarEnoughPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())
@@ -110,7 +110,7 @@ namespace MS
             return nullptr;
         }
 
-        static Player* SelectRandomPlayerIncludedTank(Creature* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        static Player* SelectRandomPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())

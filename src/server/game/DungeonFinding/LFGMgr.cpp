@@ -2312,7 +2312,7 @@ void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateDat
         /// OK
         case LFG_UPDATETYPE_UPDATE_STATUS:
             l_NotifyUI  = true;
-            l_IsParty = true;
+            l_IsParty   = true;
             break;
 
         case LFG_UPDATETYPE_LEADER_UNK1:

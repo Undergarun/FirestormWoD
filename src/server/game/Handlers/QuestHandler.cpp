@@ -33,52 +33,49 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 
-void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & p_RecvData)
 {
-    uint64 guid;
+    uint64 l_QuestGiverGUID;
+    p_RecvData.readPackGUID(l_QuestGiverGUID);
 
-    recvData.readPackGUID(guid);
+    uint32 l_QuestStatus = DIALOG_STATUS_NONE;
+    uint32 l_DefStatus   = DIALOG_STATUS_NONE;
 
-    uint32 questStatus = DIALOG_STATUS_NONE;
-    uint32 defstatus = DIALOG_STATUS_NONE;
-
-    Object* questgiver = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
-    if (!questgiver)
+    Object* l_QuestGiver = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_QuestGiverGUID, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+    if (!l_QuestGiver)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for not found questgiver (Typeid: %u GUID: %u)", GuidHigh2TypeId(GUID_HIPART(guid)), GUID_LOPART(guid));
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for not found questgiver (Typeid: %u GUID: %u)", GuidHigh2TypeId(GUID_HIPART(l_QuestGiverGUID)), GUID_LOPART(l_QuestGiverGUID));
         return;
     }
 
-    switch (questgiver->GetTypeId())
+    switch (l_QuestGiver->GetTypeId())
     {
         case TYPEID_UNIT:
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for npc, guid = %u", uint32(GUID_LOPART(guid)));
-            Creature* cr_questgiver=questgiver->ToCreature();
-            if (!cr_questgiver->IsHostileTo(m_Player))       // do not show quest status to enemies
+            Creature* l_CreatureQuestGiver = l_QuestGiver->ToCreature();
+            if (!l_CreatureQuestGiver->IsHostileTo(m_Player))       // do not show quest status to enemies
             {
-                questStatus = sScriptMgr->GetDialogStatus(m_Player, cr_questgiver);
-                if (questStatus > 6)
-                    questStatus = getDialogStatus(m_Player, cr_questgiver, defstatus);
+                l_QuestStatus = sScriptMgr->GetDialogStatus(m_Player, l_CreatureQuestGiver);
+                if (l_QuestStatus > 6)
+                    l_QuestStatus = getDialogStatus(m_Player, l_CreatureQuestGiver, l_DefStatus);
             }
             break;
         }
         case TYPEID_GAMEOBJECT:
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for GameObject guid = %u", uint32(GUID_LOPART(guid)));
-            GameObject* go_questgiver=(GameObject*)questgiver;
-            questStatus = sScriptMgr->GetDialogStatus(m_Player, go_questgiver);
-            if (questStatus > 6)
-                questStatus = getDialogStatus(m_Player, go_questgiver, defstatus);
+            GameObject* GameObjectQuestGiver=(GameObject*)l_QuestGiver;
+            l_QuestStatus = sScriptMgr->GetDialogStatus(m_Player, GameObjectQuestGiver);
+            if (l_QuestStatus > 6)
+                l_QuestStatus = getDialogStatus(m_Player, GameObjectQuestGiver, l_DefStatus);
             break;
         }
         default:
-            sLog->outError(LOG_FILTER_NETWORKIO, "QuestGiver called for unexpected type %u", questgiver->GetTypeId());
+            sLog->outError(LOG_FILTER_NETWORKIO, "QuestGiver called for unexpected type %u", l_QuestGiver->GetTypeId());
             break;
     }
 
     //inform client about status of quest
-    m_Player->PlayerTalkClass->SendQuestGiverStatus(questStatus, guid);
+    m_Player->PlayerTalkClass->SendQuestGiverStatus(l_QuestStatus, l_QuestGiverGUID);
 }
 
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
@@ -760,25 +757,27 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
+void WorldSession::HandleQuestPushResult(WorldPacket& p_RecvPacket)
 {
-    uint64 guid;
-    uint8 msg;
-    recvPacket >> guid >> msg;
+    uint64 l_TargetGUID;
+    int32  l_QuestID;
+    uint8  l_Result;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_QUEST_PUSH_RESULT");
+    p_RecvPacket.readPackGUID(l_TargetGUID);
+    p_RecvPacket >> l_QuestID;
+    p_RecvPacket >> l_Result;
 
     if (m_Player->GetDivider() != 0)
     {
-        Player* player = ObjectAccessor::FindPlayer(m_Player->GetDivider());
-        if (player)
+        Player* l_Player = ObjectAccessor::FindPlayer(m_Player->GetDivider());
+        if (l_Player)
         {
-            WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8 + 1));
+            WorldPacket l_Data(SMSG_QUEST_PUSH_RESULT, (8 + 1));
 
-            data.appendPackGUID(player->GetGUID());
-            data << uint8(msg);
+            l_Data.appendPackGUID(l_Player->GetGUID());
+            l_Data << uint8(l_Result);
 
-            player->GetSession()->SendPacket(&data);
+            l_Player->GetSession()->SendPacket(&l_Data);
             m_Player->SetDivider(0);
         }
     }

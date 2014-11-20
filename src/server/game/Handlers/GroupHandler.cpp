@@ -214,7 +214,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     if (group)
     {
         // not have permissions for invite
-        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()) && !(group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         {
             SendPartyResult(PARTY_CMD_INVITE, "", ERR_NOT_LEADER);
             return;
@@ -722,7 +722,7 @@ void WorldSession::HandleUpdateRaidTargetOpcode(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_Target);
     p_RecvData >> l_PartyIndex;
 
-    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
     l_Group->SetTargetIcon(l_Symbol, m_Player->GetGUID(), l_Target, l_PartyIndex);
@@ -789,7 +789,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
         return;
 
     uint64 senderGuid = GetPlayer()->GetGUID();
-    if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+    if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
     if (!group->HasFreeSlotSubGroup(groupNr))
@@ -848,21 +848,22 @@ void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
     recvData >> unk2;
 }
 
-void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket& recvData)
+void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_EVERYONE_IS_ASSISTANT");
+    Group * l_Group = GetPlayer()->GetGroup();
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
+    if (!l_Group)
         return;
 
-    if (!group->IsLeader(GetPlayer()->GetGUID()))
+    if (!l_Group->IsLeader(GetPlayer()->GetGUID()))
         return;
-    recvData.read_skip<uint8>();
-    bool apply = recvData.ReadBit();
-    recvData.FlushBits();
 
-    group->ChangeFlagEveryoneAssistant(apply);
+    p_Packet.read_skip<uint8>();        ///< Party Index
+
+    bool l_Apply = p_Packet.ReadBit();
+    p_Packet.FlushBits();
+
+    l_Group->ChangeFlagEveryoneAssistant(l_Apply);
 }
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
@@ -909,7 +910,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
         return;
 
     uint64 senderGuid = GetPlayer()->GetGUID();
-    if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+    if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
     uint8 assignment, unk;
@@ -960,7 +961,7 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
     if (!l_Group)
         return;
 
-    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+    if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
     ObjectGuid groupGUID = l_Group->GetGUID();

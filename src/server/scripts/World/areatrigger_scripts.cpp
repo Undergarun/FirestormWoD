@@ -620,6 +620,11 @@ public:
     {
     }
 
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_ice_trap();
+    }
+
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Unit*> targetList;
@@ -649,6 +654,11 @@ public:
     {
     }
 
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_power_word_barrier();
+    }
+
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Unit*> targetList;
@@ -669,6 +679,11 @@ public:
     AreaTrigger_ursol_vortex()
         : MS::AreaTriggerEntityScript("at_ursol_vortex")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_ursol_vortex();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -694,6 +709,11 @@ public:
     AreaTrigger_healing_sphere()
         : MS::AreaTriggerEntityScript("at_healing_sphere")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_healing_sphere();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -724,7 +744,12 @@ public:
     AreaTrigger_cancel_barrier()
         : MS::AreaTriggerEntityScript("at_cancel_barrier")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_cancel_barrier();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -747,7 +772,12 @@ public:
     AreaTrigger_rune_of_power()
         : MS::AreaTriggerEntityScript("at_rune_of_power")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_rune_of_power();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -781,7 +811,12 @@ public:
     AreaTrigger_amethyst_pool()
         : MS::AreaTriggerEntityScript("at_amethyst_pool")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_amethyst_pool();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -813,6 +848,11 @@ public:
     AreaTrigger_cancelling_noise_area_trigger()
         : MS::AreaTriggerEntityScript("at_cancelling_noise_area_trigger")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_cancelling_noise_area_trigger();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -855,6 +895,11 @@ public:
     AreaTrigger_get_away()
         : MS::AreaTriggerEntityScript("at_get_away")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_get_away();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -902,6 +947,11 @@ public:
     {
     }
 
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_draw_power();
+    }
+
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Unit*> targetList;
@@ -931,6 +981,11 @@ public:
     AreaTrigger_healing_sphere_2()
         : MS::AreaTriggerEntityScript("at_healing_sphere_2")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_healing_sphere_2();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -964,7 +1019,12 @@ public:
     AreaTrigger_gift_of_the_serpent()
         : MS::AreaTriggerEntityScript("at_gift_of_the_serpent")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_gift_of_the_serpent();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -994,7 +1054,12 @@ public:
     AreaTrigger_chi_sphere_afterlife()
         : MS::AreaTriggerEntityScript("at_chi_sphere_afterlife")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_chi_sphere_afterlife();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -1027,7 +1092,12 @@ public:
     AreaTrigger_angelic_feather()
         : MS::AreaTriggerEntityScript("at_angelic_feather")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_angelic_feather();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -1057,7 +1127,12 @@ public:
     AreaTrigger_gift_of_the_ox()
         : MS::AreaTriggerEntityScript("at_gift_of_the_ox")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_gift_of_the_ox();
+    }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -1087,6 +1162,11 @@ public:
     AreaTrigger_down_draft()
         : MS::AreaTriggerEntityScript("at_down_draft")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_down_draft();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -1132,6 +1212,11 @@ public:
     {
     }
 
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_zen_sphere_1();
+    }
+
     void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
     {
         if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
@@ -1150,7 +1235,12 @@ public:
     AreaTrigger_zen_sphere_2()
         : MS::AreaTriggerEntityScript("at_zen_sphere_2")
     {
-        }
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_zen_sphere_2();
+    }
 
     void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
     {
@@ -1170,6 +1260,11 @@ public:
     AreaTrigger_vileblood_serum()
         : MS::AreaTriggerEntityScript("at_vileblood_serum")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_vileblood_serum();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -1195,6 +1290,11 @@ public:
     AreaTrigger_noxious_spit()
         : MS::AreaTriggerEntityScript("at_noxious_spit")
     {
+    }
+
+    MS::AreaTriggerEntityScript* GetAI()
+    {
+        return new AreaTrigger_noxious_spit();
     }
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)

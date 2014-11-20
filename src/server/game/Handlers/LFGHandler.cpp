@@ -403,6 +403,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 
     uint64 guid = GetPlayer()->GetGUID();
     LfgUpdateData updateData = sLFGMgr->GetLfgStatus(guid);
+
     sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
 }
 

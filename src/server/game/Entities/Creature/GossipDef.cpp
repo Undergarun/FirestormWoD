@@ -378,14 +378,13 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
 }
 
-void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, uint64 npcGUID) const
+void PlayerMenu::SendQuestGiverStatus(uint32 p_StatusFlags, uint64 p_QuestGiverGUID) const
 {
     WorldPacket data(SMSG_QUEST_GIVER_STATUS);
-    data.appendPackGUID(npcGUID);
-    data << uint32(questStatus);
+    data.appendPackGUID(p_QuestGiverGUID);
+    data << uint32(p_StatusFlags);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", GUID_LOPART(npcGUID), questStatus);
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, bool activateAccept) const

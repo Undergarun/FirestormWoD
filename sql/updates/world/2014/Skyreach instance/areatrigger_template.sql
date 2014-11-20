@@ -46,3 +46,4 @@ update areatrigger_template set ScriptName='at_storm_zone' where spell_id=156840
 update areatrigger_template set ScriptName='at_dervish' where spell_id=153905;
 
 update areatrigger_template set ScriptName='at_WindWall' where spell_id=153314;
+update areatrigger_template set ScriptName='at_WindWall' where spell_id=153311;

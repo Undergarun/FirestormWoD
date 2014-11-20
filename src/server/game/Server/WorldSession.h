@@ -544,6 +544,7 @@ class WorldSession
         void HandleGMSurveySubmit(WorldPacket& recvPacket);
         void HandleReportLag(WorldPacket& recvPacket);
         void HandleGMResponseResolve(WorldPacket& recvPacket);
+        void SendTicketStatusUpdate(uint8 p_Response);
 
         void HandleTogglePvP(WorldPacket& recvPacket);
 
