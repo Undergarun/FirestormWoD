@@ -76,6 +76,7 @@ enum Opcodes
         SMSG_NAME_QUERY_RESPONSE                    = 0x0828,   ///< 6.0.3 19116
         SMSG_REALM_QUERY_RESPONSE                   = 0x011D,   ///< 6.0.3 19116
         SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x128A,   ///< 6.0.3 19116
+        SMSG_QUERY_TIME_RESPONSE                    = 0x1DB0,   ///< 6.0.3 19116
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x1D1F,   ///< 6.0.3 19116
@@ -369,6 +370,16 @@ enum Opcodes
         SMSG_THREAT_REMOVE                                      = 0x0F3D, ///< 6.0.3 19116
         SMSG_THREAT_UPDATE                                      = 0x03A9, ///< 6.0.3 19116
         SMSG_HIGHEST_THREAT_UPDATE                              = 0x059A, ///< 6.0.3 19116
+
+        /// Tickets
+        SMSG_GM_TICKET_GET_TICKET_RESPONSE                      = 0x0389, ///< 6.0.3 19116
+        SMSG_GM_TICKET_RESPONSE                                 = 0x03EA, ///< 6.0.3 19116
+        SMSG_GM_TICKET_RESPONSE_ERROR                           = 0x070D, ///< 6.0.3 19116
+        SMSG_GM_TICKET_RESOLVE_RESPONSE                         = 0x091F, ///< 6.0.3 19116
+        SMSG_GM_TICKET_SYSTEM_STATUS                            = 0x1229, ///< 6.0.3 19116
+        SMSG_GM_TICKET_UPDATE                                   = 0x13EB, ///< 6.0.3 19116
+        SMSG_GM_TICKET_STATUS_UPDATE                            = 0x1D2E, ///< 6.0.3 19116
+        SMSG_GM_TICKET_CASE_STATUS                              = 0x1D8D, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1376,6 +1387,20 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_UITIME_REQUEST                            = 0x0302,    ///< 6.0.3 19116
 
+    //////////////////////////////////////////////////////////////////////////
+    /// GameMasters
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_GMRESPONSE_RESOLVE                         = 0x0B20,    ///< 6.0.3 19116
+    CMSG_GMSURVEY_SUBMIT                            = 0x0000,    ///< 6.0.3 19116
+    CMSG_GMTICKET_CREATE                            = 0x0935,    ///< 6.0.3 19116
+    CMSG_GMTICKET_DELETETICKET                      = 0x0F2E,    ///< 6.0.3 19116
+    CMSG_GMTICKET_GETTICKET                         = 0x0B28,    ///< 6.0.3 19116
+    CMSG_GMTICKET_GETWEBTICKET                      = 0x0000,    ///< 6.0.3 19116
+    CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0B0E,    ///< 6.0.3 19116
+    CMSG_GMTICKET_UPDATETEXT                        = 0x0323,    ///< 6.0.3 19116
+    CMSG_GM_REPORT_LAG                              = 0x0000,    ///< 6.0.3 19116
+    CMSG_REPORT_BUG                                 = 0x0B0D,    ///< 6.0.3 19116
+    CMSG_REPORT_SUGGESTION                          = 0x0D0A,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1487,18 +1512,6 @@ enum Opcodes
     CMSG_GETDEATHBINDZONE                             = 0x0000,
     CMSG_GET_MIRRORIMAGE_DATA                         = 0x0000,
     CMSG_GHOST                                        = 0x0000,
-    CMSG_GMRESPONSE_RESOLVE                           = 0x0000,
-    CMSG_GMSURVEY_SUBMIT                              = 0x0000,
-    CMSG_GMTICKET_CREATE                              = 0x0000,
-    CMSG_GMTICKET_DELETETICKET                        = 0x0000,
-    CMSG_GMTICKET_GETTICKET                           = 0x0000,
-    CMSG_GMTICKET_GETWEBTICKET                        = 0x0000,
-    CMSG_GMTICKET_SYSTEMSTATUS                        = 0x0000,
-    CMSG_GMTICKET_UPDATETEXT                          = 0x0000,
-    CMSG_GM_INVIS                                     = 0x0000,
-    CMSG_GM_NUKE                                      = 0x0000,
-    CMSG_GM_REPORT_LAG                                = 0x0000,
-    CMSG_GM_SET_SECURITY_GROUP                        = 0x0000,
     CMSG_GRANT_LEVEL                                  = 0x0000,
     CMSG_GROUP_ASSISTANT_LEADER                       = 0x0000,
     CMSG_GROUP_ASSIGNMENT                             = 0x0000,
@@ -1539,9 +1552,7 @@ enum Opcodes
     CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x0000,
-    CMSG_REPORT_BUG                                   = 0x0000,
     CMSG_REPORT_PVP_AFK                               = 0x0000,
-    CMSG_REPORT_SUGGESTION                            = 0x0000,
     CMSG_REQUEST_BATTLEPET_JOURNAL                    = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0x0000,
     CMSG_REQUEST_GM_TICKET                            = 0x0000,
@@ -1793,8 +1804,6 @@ enum Opcodes
     SMSG_GM_PLAYER_INFO                               = 0x0000,
     SMSG_GM_PHASE_DUMP                                = 0x0000,
     SMSG_GM_RESPONSE_DB_ERROR                         = 0x0000,
-    SMSG_GM_RESPONSE_RECEIVED                         = 0x0000,
-    SMSG_GM_RESPONSE_STATUS_UPDATE                    = 0x0000,
     SMSG_GM_RESURRECT_FAILURE                         = 0x0000,
     SMSG_GM_RESURRECT_SUCESS                          = 0x0000,
     SMSG_GM_REQUEST_PLAYER_INFO                       = 0x0000,
@@ -1802,11 +1811,6 @@ enum Opcodes
     SMSG_GM_SILENCE                                   = 0x0000,
     SMSG_GM_SHOW_COMPLAINTS                           = 0x0000,
     SMSG_GM_SUMMON                                    = 0x0000,
-    SMSG_GM_TICKET_GET_TICKET_RESPONSE                = 0x0000,
-    SMSG_GM_TICKET_RESPONSE_ERROR                     = 0x0000,
-    SMSG_GM_TICKET_RESOLVE_EVAL                       = 0x0000,
-    SMSG_GM_TICKET_SYSTEM_STATUS                      = 0x0000,
-    SMSG_GM_TICKET_STATUS_UPDATE                      = 0x0000,
     SMSG_GM_UNSQUELCH                                 = 0x0000,
     SMSG_GOD_MODE                                     = 0x0000,
     SMSG_GROUP_ACTION_THROTTLED                       = 0x0000,
@@ -1915,7 +1919,6 @@ enum Opcodes
     SMSG_PVP_CREDIT                                   = 0x0000,
     SMSG_QUERY_OBJECT_POSITION                        = 0x0000,
     SMSG_QUERY_OBJECT_ROTATION                        = 0x0000,
-    SMSG_QUERY_TIME_RESPONSE                          = 0x0000,
     SMSG_QUERY_BATTLEPET_NAME_RESPONSE                = 0x0000,
     SMSG_QUERY_NPC_TEXT_RESPONSE                      = 0x0000,
     SMSG_RAID_GROUP_ONLY                              = 0x0000,
