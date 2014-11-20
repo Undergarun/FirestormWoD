@@ -442,6 +442,8 @@ enum Opcodes
         SMSG_GUILD_MOVED                            = 0x1838,   ///< 6.0.3 19116 (unused)
         SMSG_GUILD_NEWS                             = 0x1027,   ///< 6.0.3 19116
         SMSG_GUILD_NEWS_DELETED                     = 0x1007,   ///< 6.0.3 19116 (unused)
+        SMSG_PLAYER_TABAR_VENDOR_SHOW               = 0x1389,   ///< 6.0.3 19116
+        SMSG_PLAYER_SAVE_GUILD_EMBLEM               = 0x1037,   ///< 6.0.3 19116
 
         /// Event system
         SMSG_GUILD_EVENT_NEW_LEADER                 = 0x1005,   ///< 6.0.3 19116
@@ -1260,7 +1262,7 @@ enum Opcodes
     CMSG_GUILD_LEAVE                               = 0x0476,   ///< 6.0.3 19116
     CMSG_GUILD_DELETE                              = 0x1427,   ///< 6.0.3 19116
     CMSG_GUILD_UPDATE_MOTD_TEXT                    = 0x0C2F,   ///< 6.0.3 19116
-    CMSG_GUILD_UPDATE_INFO_TEXT                    = 0x01AE,   ///< 6.0.3 19116
+    CMSG_GUILD_UPDATE_INFO_TEXT                    = 0x0C75,   ///< 6.0.3 19116
     CMSG_GUILD_GET_RANKS                           = 0x0C37,   ///< 6.0.3 19116
     CMSG_GUILD_ADD_RANK                            = 0x1630,   ///< 6.0.3 19116
     CMSG_GUILD_DELETE_RANK                         = 0x0C28,   ///< 6.0.3 19116
@@ -1282,29 +1284,29 @@ enum Opcodes
     CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x0C40,   ///< 6.0.3 19116 (unused)
     CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x0C7E,   ///< 6.0.3 19116
     CMSG_GUILD_SET_MEMBER_NOTE                     = 0x1C27,   ///< 6.0.3 19116
-    CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x0000,   ///< 
+    CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x166E,   ///< 6.0.3 19116
     CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x0000,   ///< 
-    CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x0000,   ///< 
+    CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x028D,   ///< 6.0.3 19116
     CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x0000,   ///< 
     CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x0000,   ///<  (unused)
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x0000,   ///< 
-    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0000,   ///< 
+    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0E37,   ///< 6.0.3 19116
     CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x0000,   ///< 
     CMSG_GUILD_QUERY_NEWS                          = 0x0676,   ///< 6.0.3 19116
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000,   ///<  (unused)
     CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x0000,   ///<  (unused)
     CMSG_QUERY_GUILD_RECIPES                       = 0x0000,   ///< 
-    CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x0000,   ///< 
+    CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x00F6,   ///< 6.0.3 19116
 
     /// Guild finding
-    CMSG_LF_GUILD_ADD_RECRUIT                      = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_BROWSE                           = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_GET_RECRUITS                     = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_POST_REQUEST                     = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x0000,   ///< 6.0.2 19027
-    CMSG_LF_GUILD_SET_GUILD_POST                   = 0x0000,   ///< 6.0.2 19027
+    CMSG_LF_GUILD_ADD_RECRUIT                      = 0x1223,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_BROWSE                           = 0x0BA3,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x066D,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x043F,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_GET_RECRUITS                     = 0x0430,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_POST_REQUEST                     = 0x0000,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x0680,   ///< 6.0.3 19116
+    CMSG_LF_GUILD_SET_GUILD_POST                   = 0x0B3D,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
@@ -1902,8 +1904,6 @@ enum Opcodes
     SMSG_PLAYER_NOT_FOUND_FAILURE                     = 0x0000,
     SMSG_PLAYER_SKINNED                               = 0x0000,
     SMSG_PLAYER_TABAR_VENDOR_ACTIVATE                 = 0x0000,
-    SMSG_PLAYER_SAVE_GUILD_EMBLEM                     = 0x0000,
-    SMSG_PLAYER_TABAR_VENDOR_SHOW                     = 0x0000,
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0x0000,
     SMSG_PLAY_DANCE                                   = 0x0000,
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                       = 0x0000,

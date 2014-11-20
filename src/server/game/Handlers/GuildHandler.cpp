@@ -287,52 +287,38 @@ void WorldSession::HandleGuildDeleteRankOpcode(WorldPacket& p_Packet)
         l_Guild->HandleRemoveRank(this, l_RankOrder);
 }
 
-void WorldSession::HandleGuildUpdateInfoTextOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildUpdateInfoTextOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_UPDATE_INFO_TEXT");
+    uint32 l_Length = p_Packet.ReadBits(11);
+    p_Packet.FlushBits();
+    std::string l_Info = p_Packet.ReadString(l_Length);
 
-    uint32 length = recvPacket.ReadBits(12);
-
-    recvPacket.FlushBits();
-
-    std::string info = recvPacket.ReadString(length / 2);
-
-    if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleSetInfo(this, info);
+    if (Guild* l_Guild = _GetPlayerGuild(this, true))
+        l_Guild->HandleSetInfo(this, l_Info);
 }
 
-void WorldSession::HandlePlayerSaveGuildEmblemOpcode(WorldPacket & p_Packet)
+void WorldSession::HandlePlayerSaveGuildEmblemOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PLAYER_SAVE_GUILD_EMBLEM");
-
-    uint64 l_Vendor = 0;
+    ///< WTF ?
+    uint64 l_PlayerGuid = 0;
+    p_Packet.readPackGUID(l_PlayerGuid);
 
     EmblemInfo l_EmblemInfo;
     l_EmblemInfo.ReadPacket(p_Packet);
-
-    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_Vendor, UNIT_NPC_FLAG_TABARDDESIGNER);
-
-    if (!l_Unit)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePlayerSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_Vendor)));
-        return;
-    }
 
     /// Remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->HandleSetEmblem(this, l_EmblemInfo);
+    if (Guild* l_Guid = _GetPlayerGuild(this))
+        l_Guid->HandleSetEmblem(this, l_EmblemInfo);
     else
         /// "You are not part of a guild!";
         Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD);
 }
 
-void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
+void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /*p_Packet*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_EVENT_LOG_QUERY)");
-
     if (Guild * l_Guild = _GetPlayerGuild(this))
         l_Guild->SendEventLog(this);
 }
@@ -660,11 +646,9 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
 
 void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
 {
-    uint32 l_CurrentVersion = 0;
+    uint32 l_CurrentVersion = p_Packet.read<uint32>();
 
-    p_Packet >> l_CurrentVersion;
-
-    if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
+    if (Guild* l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
     {
         std::vector<GuildReward> const& l_Rewards = sGuildMgr->GetGuildRewards();
 
@@ -673,17 +657,17 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
         l_Data << uint32(time(NULL));
         l_Data << uint32(l_Rewards.size());
 
-        for (uint32 i = 0; i < l_Rewards.size(); i++)
+        for (uint32 l_Iter = 0; l_Iter < l_Rewards.size(); l_Iter++)
         {
-            l_Data << uint32(l_Rewards[i].Entry);
-            l_Data << uint32(l_Rewards[i].AchievementId > 0 ? 1 : 0);
-            l_Data << uint32(l_Rewards[i].Racemask);
+            l_Data << uint32(l_Rewards[l_Iter].Entry);
+            l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);
+            l_Data << uint32(l_Rewards[l_Iter].Racemask);
             l_Data << uint32(0);
-            l_Data << uint32(l_Rewards[i].Standing);
-            l_Data << uint64(l_Rewards[i].Price);
+            l_Data << uint32(l_Rewards[l_Iter].Standing);
+            l_Data << uint64(l_Rewards[l_Iter].Price);
 
-            if (l_Rewards[i].AchievementId)
-                l_Data << uint32(l_Rewards[i].AchievementId);
+            if (l_Rewards[l_Iter].AchievementId)
+                l_Data << uint32(l_Rewards[l_Iter].AchievementId);
         }
 
         l_Data.FlushBits();
@@ -740,11 +724,9 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& recvPacket)
+void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& /*p_RecvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_CHALLENGE_UPDATE_REQUEST");
-
-    const GuildChallengeRewardData & l_Reward = sObjectMgr->GetGuildChallengeRewardData();
+    const GuildChallengeRewardData& l_Reward = sObjectMgr->GetGuildChallengeRewardData();
 
     WorldPacket l_Data(SMSG_GUILD_CHALLENGE_UPDATED, 5*6*4);
 
