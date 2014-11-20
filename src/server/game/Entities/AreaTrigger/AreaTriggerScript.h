@@ -12,6 +12,10 @@ namespace MS
     public:
         bool IsDatabaseBound() const { return true; }
 
+        virtual AreaTriggerEntityScript* GetAI() = 0;
+
+        virtual ~AreaTriggerEntityScript() {}
+
         // Proc when AreaTrigger is created.
         virtual void OnCreate(AreaTrigger* p_AreaTrigger) { }
 

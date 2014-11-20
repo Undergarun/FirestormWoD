@@ -29,6 +29,10 @@ namespace MS
         {
         }
 
+        MS::AreaTriggerEntityScript* GetAI()
+        {
+            return new AreaTrigger_WindWall();
+        }
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
         }
@@ -127,7 +131,12 @@ namespace MS
         AreaTrigger_spinning_blade()
             : MS::AreaTriggerEntityScript("at_spinning_blade"), m_targets()
         {
-            }
+        }
+
+        MS::AreaTriggerEntityScript* GetAI()
+        {
+            return new AreaTrigger_spinning_blade();
+        }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
@@ -201,7 +210,12 @@ namespace MS
             : MS::AreaTriggerEntityScript("at_solar_zone"),
             m_Targets()
         {
-            }
+        }
+
+        MS::AreaTriggerEntityScript* GetAI()
+        {
+            return new AreaTrigger_solar_zone();
+        }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
@@ -291,7 +305,12 @@ namespace MS
             : MS::AreaTriggerEntityScript("at_storm_zone"),
             m_Targets()
         {
-            }
+        }
+
+        MS::AreaTriggerEntityScript* GetAI()
+        {
+            return new AreaTrigger_storm_zone();
+        }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
@@ -367,7 +386,12 @@ namespace MS
             : MS::AreaTriggerEntityScript("at_dervish"),
             m_Targets()
         {
-            }
+        }
+
+        MS::AreaTriggerEntityScript* GetAI()
+        {
+            return new AreaTrigger_dervish();
+        }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {

@@ -29,7 +29,12 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), m_Duration(0), m_Caster(NULL), m_VisualRadius(0.0f)
+AreaTrigger::AreaTrigger()
+    : WorldObject(false),
+    m_Duration(0),
+    m_Caster(NULL),
+    m_VisualRadius(0.0f),
+    m_Script(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -45,6 +50,8 @@ AreaTrigger::AreaTrigger() : WorldObject(false), m_Duration(0), m_Caster(NULL), 
 
 AreaTrigger::~AreaTrigger()
 {
+    if (m_Script)
+        delete m_Script;
 }
 
 void AreaTrigger::AddToWorld()
