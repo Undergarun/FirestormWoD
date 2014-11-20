@@ -113,6 +113,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo cons
     if (!GetMap()->AddToMap(this))
         return false;
 
+    sScriptMgr->OnCreateAreaTriggerEntity(this);
+
     return true;
 }
 
@@ -149,6 +151,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
 
     if (!GetMap()->AddToMap(this))
         return false;
+
+    sScriptMgr->OnCreateAreaTriggerEntity(this);
 
     return true;
 }

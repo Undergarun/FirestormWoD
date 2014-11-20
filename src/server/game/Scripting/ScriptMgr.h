@@ -943,6 +943,7 @@ class ScriptMgr
 
     public:
         /* AreaTriggerEntityScript */
+        void OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger);
         void OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
         void OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
 

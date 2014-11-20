@@ -1024,6 +1024,15 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     return tmpscript->OnTrigger(player, trigger);
 }
 
+void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    l_tmpscript->OnCreate(p_AreaTrigger);
+}
+
+
 void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
 {
     ASSERT(p_AreaTrigger);
