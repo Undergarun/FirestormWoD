@@ -13,7 +13,7 @@ if(PLATFORM EQUAL 64)
   message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
 
   #Enable extended object support for debug compiles on X64 (not required on X86)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj /Z7")
   message(STATUS "MSVC: Enabled extended object-support for debug-compiles")
 else()
   # mark 32 bit executables large address aware so they can use > 2GB address space

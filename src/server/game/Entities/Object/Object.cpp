@@ -643,24 +643,24 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_AREATRIGGER)
     {
-        AreaTriggerTemplate l_MainTemplate = l_AreaTrigger->GetMainTemplate();
+        const AreaTriggerTemplate* l_MainTemplate = l_AreaTrigger->GetMainTemplate();
 
         // We need to find the true conditions for FollowTerrain and HasAreaTriggerSpline.
-        bool l_AbsoluteOrientation      = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
-        bool l_DynamicShape             = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_DYNAMIC_SHAPE;
-        bool l_Attached                 = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_ATTACHED;
-        bool l_FaceMovementDir          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
-        bool l_FollowsTerrain           = l_MainTemplate.m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE);
-        bool l_HasTargetRollPitchYaw    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
-        bool l_HasScaleCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;
-        bool l_HasMorphCurveID          = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
-        bool l_HasFacingCurveID         = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_FACING_CURVE;
-        bool l_HasMoveCurveID           = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE;
-        bool l_HasAreaTriggerSphere     = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
-        bool l_HasAreaTriggerBox        = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
-        bool l_HasAreaTriggerPolygon    = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
-        bool l_HasAreaTriggerCylinder   = l_MainTemplate.m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
-        bool l_HasAreaTriggerSpline     = l_MainTemplate.m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0);
+        bool l_AbsoluteOrientation      = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
+        bool l_DynamicShape             = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_DYNAMIC_SHAPE;
+        bool l_Attached                 = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_ATTACHED;
+        bool l_FaceMovementDir          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
+        bool l_FollowsTerrain           = l_MainTemplate->m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE);
+        bool l_HasTargetRollPitchYaw    = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
+        bool l_HasScaleCurveID          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;
+        bool l_HasMorphCurveID          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
+        bool l_HasFacingCurveID         = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_FACING_CURVE;
+        bool l_HasMoveCurveID           = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE;
+        bool l_HasAreaTriggerSphere     = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+        bool l_HasAreaTriggerBox        = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
+        bool l_HasAreaTriggerPolygon    = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
+        bool l_HasAreaTriggerCylinder   = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
+        bool l_HasAreaTriggerSpline     = l_MainTemplate->m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0);
 
         uint32 l_ElapsedMS = l_AreaTrigger->GetCreatedTime();
 
@@ -694,46 +694,46 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         }
 
         if (l_HasScaleCurveID)
-            *p_Data << uint32(l_MainTemplate.m_ScaleCurveID);                           ///< Scale Curve ID
+            *p_Data << uint32(l_MainTemplate->m_ScaleCurveID);                           ///< Scale Curve ID
 
         if (l_HasMorphCurveID)
-            *p_Data << uint32(l_MainTemplate.m_MorphCurveID);                           ///< Morph Curve ID
+            *p_Data << uint32(l_MainTemplate->m_MorphCurveID);                           ///< Morph Curve ID
 
         if (l_HasFacingCurveID)
-            *p_Data << uint32(l_MainTemplate.m_FacingCurveID);                          ///< Facing Curve ID
+            *p_Data << uint32(l_MainTemplate->m_FacingCurveID);                          ///< Facing Curve ID
 
         if (l_HasMoveCurveID)
-            *p_Data << uint32(l_MainTemplate.m_MoveCurveID);                            ///< Move Curve ID
+            *p_Data << uint32(l_MainTemplate->m_MoveCurveID);                            ///< Move Curve ID
 
         if (l_HasAreaTriggerSphere)
         {
-            *p_Data << float(l_MainTemplate.m_ScaleX);                                  ///< Radius
-            *p_Data << float(l_MainTemplate.m_ScaleY);                                  ///< Radius Target
+            *p_Data << float(l_MainTemplate->m_ScaleX);                                  ///< Radius
+            *p_Data << float(l_MainTemplate->m_ScaleY);                                  ///< Radius Target
         }
         
         if (l_HasAreaTriggerBox)
         {
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[0]);                    ///< Extents X
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[1]);                    ///< Extents Y
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_Extent[2]);                    ///< Extents Z
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[0]);              ///< Extents Target X
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[1]);              ///< Extents Target Y
-            *p_Data << float(l_MainTemplate.m_BoxDatas.m_ExtentTarget[2]);              ///< Extents Target Z
+            *p_Data << float(l_MainTemplate->m_BoxDatas.m_Extent[0]);                    ///< Extents X
+            *p_Data << float(l_MainTemplate->m_BoxDatas.m_Extent[1]);                    ///< Extents Y
+            *p_Data << float(l_MainTemplate->m_BoxDatas.m_Extent[2]);                    ///< Extents Z
+            *p_Data << float(l_MainTemplate->m_BoxDatas.m_ExtentTarget[0]);              ///< Extents Target X
+            *p_Data << float(l_MainTemplate->m_BoxDatas.m_ExtentTarget[1]);              ///< Extents Target Y
+            *p_Data << float(l_MainTemplate->m_BoxDatas.m_ExtentTarget[2]);              ///< Extents Target Z
         }
 
         if (l_HasAreaTriggerPolygon)
         {
-            AreaTriggerTemplateList l_Templates = l_AreaTrigger->GetTemplates();
+            const AreaTriggerTemplateList& l_Templates = l_AreaTrigger->GetTemplates();
 
-            uint32 l_VerticesCount          = l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesCount;
-            uint32 l_VerticesTargetCount    = l_AreaTrigger->GetMainTemplate().m_PolygonDatas.m_VerticesTargetCount;
+            uint32 l_VerticesCount          = l_AreaTrigger->GetMainTemplate()->m_PolygonDatas.m_VerticesCount;
+            uint32 l_VerticesTargetCount    = l_AreaTrigger->GetMainTemplate()->m_PolygonDatas.m_VerticesTargetCount;
 
             *p_Data << uint32(l_VerticesCount);                                         ///< Vertices Count
             *p_Data << uint32(l_VerticesTargetCount);                                   ///< Vertices Target Count
-            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_Height);                   ///< Height
-            *p_Data << float(l_MainTemplate.m_PolygonDatas.m_HeightTarget);             ///< Height Target
+            *p_Data << float(l_MainTemplate->m_PolygonDatas.m_Height);                   ///< Height
+            *p_Data << float(l_MainTemplate->m_PolygonDatas.m_HeightTarget);             ///< Height Target
 
-            if (l_MainTemplate.m_PolygonDatas.m_VerticesCount > 0)
+            if (l_MainTemplate->m_PolygonDatas.m_VerticesCount > 0)
             {
                 for (AreaTriggerTemplate l_Template : l_Templates)
                 {
@@ -742,7 +742,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 }
             }
 
-            if (l_MainTemplate.m_PolygonDatas.m_VerticesTargetCount > 0)
+            if (l_MainTemplate->m_PolygonDatas.m_VerticesTargetCount > 0)
             {
                 for (AreaTriggerTemplate l_Template : l_Templates)
                 {
@@ -754,19 +754,19 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasAreaTriggerCylinder)
         {
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.Radius);                    ///< Extents X
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.RadiusTarget);              ///< Extents Y
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.Height);                    ///< Extents X
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.HeightTarget);              ///< Extents Y
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.Unk1);                      ///< Extents X
-            *p_Data << float(l_MainTemplate.m_CylinderDatas.Unk2);                      ///< Extents Y
+            *p_Data << float(l_MainTemplate->m_CylinderDatas.Radius);                    ///< Extents X
+            *p_Data << float(l_MainTemplate->m_CylinderDatas.RadiusTarget);              ///< Extents Y
+            *p_Data << float(l_MainTemplate->m_CylinderDatas.Height);                    ///< Extents X
+            *p_Data << float(l_MainTemplate->m_CylinderDatas.HeightTarget);              ///< Extents Y
+            *p_Data << float(l_MainTemplate->m_CylinderDatas.Unk1);                      ///< Extents X
+            *p_Data << float(l_MainTemplate->m_CylinderDatas.Unk2);                      ///< Extents Y
         }
 
         if (l_HasAreaTriggerSpline)
         {
             uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
 
-            AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate.m_MoveCurveID);
+            AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
             if (l_MoveTemplate.m_path_size != 0)
             {
                 *p_Data << uint32(l_AreaTrigger->GetDuration());                                          ///< Time To Target
@@ -784,7 +784,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << uint32(l_MainTemplate.m_SplineDatas.TimeToTarget);               ///< Time To Target
+                *p_Data << uint32(l_MainTemplate->m_SplineDatas.TimeToTarget);               ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)

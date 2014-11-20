@@ -363,6 +363,12 @@ enum Opcodes
         SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///< 6.0.3 19116
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///< 6.0.3 19116
         SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///< 6.0.3 19116
+
+        /// Threat
+        SMSG_THREAT_CLEAR                                       = 0x030F, ///< 6.0.3 19116
+        SMSG_THREAT_REMOVE                                      = 0x0F3D, ///< 6.0.3 19116
+        SMSG_THREAT_UPDATE                                      = 0x03A9, ///< 6.0.3 19116
+        SMSG_HIGHEST_THREAT_UPDATE                              = 0x059A, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -681,7 +687,7 @@ enum Opcodes
         SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x17E1,   ///< 6.0.3 19116
         SMSG_QUEST_FORCE_REMOVED                    = 0x1D13,   ///< 6.0.3 19116
         SMSG_QUEST_CONFIRM_ACCEPT                   = 0x15B2,   ///< 6.0.3 19116
-        SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0000,
+        SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x1591,   ///< 6.0.3 19116
 
         /// Quest giver
         SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x17C6,   ///< 6.0.3 19116
@@ -833,7 +839,7 @@ enum Opcodes
     CMSG_CREATE_CHARACTER                       = 0x070D,   ///< 6.0.3 19116
     CMSG_CHAR_DELETE                            = 0x030E,   ///< 6.0.3 19116
     CMSG_REORDER_CHARACTERS                     = 0x0DAA,   ///< 6.0.3 19116
-    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x0000,   ///< 
+    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x19A9,   ///< 6.0.3 19116
     CMSG_PLAYER_LOGIN                           = 0x0B1D,   ///< 6.0.3 19116
     CMSG_VIOLENCE_LEVEL                         = 0x098D,   ///< 6.0.3 19116
     CMSG_LOAD_SCREEN                            = 0x0B08,   ///< 6.0.3 19116
@@ -926,7 +932,7 @@ enum Opcodes
     CMSG_NPC_TEXT_QUERY                         = 0x0ECB,   ///< 6.0.3 19116
     CMSG_NAME_QUERY                             = 0x0B15,   ///< 6.0.3 19116
     CMSG_QUEST_QUERY                            = 0x09A6,   ///< 6.0.3 19116
-    CMSG_QUEST_POI_QUERY                        = 0x0BD9,   ///< 6.0.3 19116
+    CMSG_QUEST_POI_QUERY                        = 0x0B81,   ///< 6.0.3 19116
     CMSG_REALM_NAME_QUERY                       = 0x0000,   ///< 6.0.3 19116
     CMSG_GAMEOBJECT_QUERY                       = 0x03AE,   ///< 6.0.3 19116
     CMSG_PETITION_QUERY                         = 0x048B,   ///< 6.0.3 19116
@@ -961,7 +967,7 @@ enum Opcodes
     CMSG_CLOSE_INTERACTION                      = 0x1B19,   ///< 6.0.3 19116
     CMSG_ITEM_REFUND_INFO                       = 0x0924,   ///< 6.0.3 19116
     CMSG_FAR_SIGHT                              = 0x1CBA,   ///< 6.0.3 19116
-    CMSG_MOUNTSPECIAL_ANIM                      = 0x1901,   ///< 6.0.3 19116
+    CMSG_MOUNTSPECIAL_ANIM                      = 0x06DB,   ///< 6.0.3 19116
     CMSG_OPENING_CINEMATIC                      = 0x02D2,   ///< 6.0.3 19116
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x1B3A,   ///< 6.0.3 19116
     CMSG_COMPLETE_CINEMATIC                     = 0x1B51,   ///< 6.0.3 19116
@@ -985,7 +991,10 @@ enum Opcodes
     CMSG_INSPECT_HONOR_STATS                    = 0x09FD,   ///< 6.0.3 19116
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0382,   ///< 6.0.3 19116
     CMSG_TIME_SYNC_RESP                         = 0x0003,   ///< 6.0.3 19116
-    CMSG_EMOTE                                  = 0x0A27,   ///< 6.0.3 19166
+    CMSG_UNLEARN_SKILL                          = 0x0A26,   ///< 6.0.3 19116
+    CMSG_EMOTE                                  = 0x0A27,   ///> 6.0.3 19116
+    CMSG_SEND_TEXT_EMOTE                        = 0x1901,   ///< 6.0.3 19116
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1032,6 +1041,7 @@ enum Opcodes
     CMSG_QUEST_CONFIRM_ACCEPT                   = 0x058D,   ///< 6.0.3 19116
     CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0139,   ///< 6.0.3 19116
     CMSG_PUSHQUESTTOPARTY                       = 0x13E3,   ///< 6.0.3 19116
+    CMSG_QUERY_QUEST_COMPLETION_NPCS            = 0x0BD9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
@@ -1576,10 +1586,8 @@ enum Opcodes
     CMSG_SUSPEND_TOKEN                                = 0x0000,
     CMSG_SYNC_DANCE                                   = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x0000,
-    CMSG_TEXT_EMOTE                                   = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x0000,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x0000,
-    CMSG_UNLEARN_SKILL                                = 0x0000,
     CMSG_UNLEARN_SPECIALIZATION                       = 0x0000,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                = 0x0000,
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x0000,
@@ -1805,7 +1813,6 @@ enum Opcodes
     SMSG_GROUP_DESTROYED                              = 0x0000,
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0x0000,
     SMSG_HEALTH_UPDATE                                = 0x0000,
-    SMSG_HIGHEST_THREAT_UPDATE                        = 0x0000,
     SMSG_IMMIGRANT_HOST_SEARCH_LOG                    = 0x0000,
     SMSG_INSPECT                                      = 0x0000,
     SMSG_INSPECT_RESULTS_UPDATE                       = 0x0000,
@@ -1985,9 +1992,6 @@ enum Opcodes
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x0000,
     SMSG_TEST_DROP_RATE_RESULT                        = 0x0000,
     SMSG_TEXT_EMOTE                                   = 0x0000,
-    SMSG_THREAT_CLEAR                                 = 0x0000,
-    SMSG_THREAT_REMOVE                                = 0x0000,
-    SMSG_THREAT_UPDATE                                = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,

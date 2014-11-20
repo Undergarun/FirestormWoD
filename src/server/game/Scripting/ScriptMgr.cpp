@@ -1037,7 +1037,7 @@ void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_T
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
     l_tmpscript->OnUpdate(p_AreaTrigger, p_Time);
 }
 
@@ -1045,7 +1045,7 @@ void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_T
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
     l_tmpscript->OnRemove(p_AreaTrigger, p_Time);
 }
 
@@ -1351,9 +1351,9 @@ void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
     FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
 }
 
-void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
+void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 soundIndex, uint64 guid)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
+    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, soundIndex, guid);
 }
 
 void ScriptMgr::OnPlayerSpellLearned(Player* p_Player, uint32 p_SpellId)

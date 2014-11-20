@@ -81,18 +81,26 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo cons
 
     WorldObject::_Create(guidlow, HIGHGUID_AREATRIGGER, caster->GetPhaseMask());
 
-    AreaTriggerTemplateList l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(spell->Id);
-    for (AreaTriggerTemplate l_Template : l_Templates)
-    {
-        if (l_Template.m_EffIndex == p_EffIndex)
-            m_Templates.push_back(l_Template);
-    }
-
-    AreaTriggerTemplate l_MainTemplate = GetMainTemplate();
-    if (l_MainTemplate.m_SpellID == 0 && l_MainTemplate.m_Entry == 0)
+    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(spell->Id);
+    if (l_Templates == nullptr)
         return false;
 
-    SetEntry(l_MainTemplate.m_Entry);
+    for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
+    {
+        const AreaTriggerTemplate l_AreaTriggerTemplate = *l_Itr;
+        if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
+            m_Templates.push_back(l_AreaTriggerTemplate);
+    }
+
+    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+
+    if (l_MainTemplate == nullptr)
+        return false;
+
+    if (l_MainTemplate->m_SpellID == 0 && l_MainTemplate->m_Entry == 0)
+        return false;
+
+    SetEntry(l_MainTemplate->m_Entry);
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
@@ -190,7 +198,7 @@ void AreaTrigger::Update(uint32 p_Time)
         m_UpdateTimer.Reset();
 
         // Calculate new position
-        if (GetMainTemplate().m_MoveCurveID != 0)
+        if (GetMainTemplate()->m_MoveCurveID != 0)
         {
             UpdatePositionWithPathId(m_CreatedTime, this);
         }
@@ -248,14 +256,14 @@ void AreaTrigger::SendMovementUpdate()
 
 void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 {
-    AreaTriggerTemplate l_template = GetMainTemplate();
+    const AreaTriggerTemplate* l_template = GetMainTemplate();
 
-    if (l_template.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
+    if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
-        AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_template.m_MoveCurveID);
+        AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_template->m_MoveCurveID);
         if (l_MoveTemplate.m_path_size == 0)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Template (entry %u) not in DB.", l_template.m_MoveCurveID);
+            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Template (entry %u) not in DB.", l_template->m_MoveCurveID);
             return; // ERROR.
         }
 
@@ -264,12 +272,12 @@ void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
         uint32 l_PathId = float(p_Time) / l_LocalDuration;
 
         // We want to interpolate so that to get true position on server side.
-        AreaTriggerMoveSplines l_spline0 = sObjectMgr->GetAreaTriggerMoveSplines(l_template.m_MoveCurveID, l_PathId);
-        AreaTriggerMoveSplines l_spline1 = sObjectMgr->GetAreaTriggerMoveSplines(l_template.m_MoveCurveID, l_PathId + 1);
+        AreaTriggerMoveSplines l_spline0 = sObjectMgr->GetAreaTriggerMoveSplines(l_template->m_MoveCurveID, l_PathId);
+        AreaTriggerMoveSplines l_spline1 = sObjectMgr->GetAreaTriggerMoveSplines(l_template->m_MoveCurveID, l_PathId + 1);
 
         if (l_spline0.m_move_id == 0 || l_spline1.m_move_id == 0)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Splines (entry %u) not in DB.", l_template.m_MoveCurveID);
+            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Splines (entry %u) not in DB.", l_template->m_MoveCurveID);
             return; // ERROR.
         }
 
@@ -287,15 +295,15 @@ void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 
 void AreaTrigger::GetPositionFromPathId(uint32 p_PathId, Position* p_OutPos) const
 {
-    AreaTriggerTemplate l_template = GetMainTemplate();
+    const AreaTriggerTemplate* l_template = GetMainTemplate();
 
-    if (l_template.m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
+    if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
-        AreaTriggerMoveSplines l_spline = sObjectMgr->GetAreaTriggerMoveSplines(l_template.m_MoveCurveID, p_PathId);
+        AreaTriggerMoveSplines l_spline = sObjectMgr->GetAreaTriggerMoveSplines(l_template->m_MoveCurveID, p_PathId);
 
         if (l_spline.m_move_id == 0)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Splines (entry %u) not in DB.", l_template.m_MoveCurveID);
+            sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger Move Splines (entry %u) not in DB.", l_template->m_MoveCurveID);
             return; // ERROR.
         }
 

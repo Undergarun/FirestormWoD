@@ -118,7 +118,8 @@ enum PriestSpells
     PRIEST_SHADOW_ORB_AURA                          = 77487,
     PRIEST_SHADOW_ORB_DUMMY                         = 127850,
     PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985,
-    PRIEST_NPC_VOID_TENDRILS                        = 65282
+    PRIEST_NPC_VOID_TENDRILS                        = 65282,
+    PRIEST_SPELL_SAVING_GRACE                       = 155274
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -632,7 +633,7 @@ class spell_pri_power_word_solace : public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    l_Player->ModifyPower(POWER_MANA, (l_Player->GetMaxPower(POWER_MANA) / 100) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100));
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, int32(l_Player->GetMaxPower(POWER_MANA) / 100) * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100), POWER_MANA);
                     l_Player->CastSpell(l_Player, PRIEST_ATONEMENT_AURA, true);
                 }
             }
@@ -1303,7 +1304,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     return;
 
                 // Don't forget power cost
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1;
+                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1 * GetCaster()->GetPowerCoeff(POWER_BURNING_EMBERS);
                 GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
             }
 
@@ -2214,8 +2215,9 @@ public:
 
         void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                amount = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6 * 1.1;
+            if (Unit* l_Caster = GetCaster())
+                if (Player* l_Player = l_Caster->ToPlayer())
+                    amount = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6 * 1.1;
         }
 
         void Register()
@@ -2276,9 +2278,37 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         }
 };
 
+// Saving Grace - 152116
+class spell_pri_saving_grace : public SpellScriptLoader
+{
+public:
+    spell_pri_saving_grace() : SpellScriptLoader("spell_pri_saving_grace") { }
+
+    class spell_pri_saving_grace_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_saving_grace_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(caster, PRIEST_SPELL_SAVING_GRACE, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_saving_grace_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_saving_grace_SpellScript;
+    }
+};
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
     new spell_pri_confession();

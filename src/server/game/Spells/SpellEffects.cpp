@@ -2862,7 +2862,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     if (unitTarget->GetMaxPower(power) == 0)
         return;
 
-    m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, (damage / m_caster->GetPowerCoeff(power)), power);
+    m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
 
     // Mad Alchemist's Potion
     if (m_spellInfo->Id == 45051)
