@@ -882,7 +882,11 @@ public:
         }
 
         Creature* vashj = Unit::GetCreature(*player, instance->GetData64(DATA_LADYVASHJ));
-        if (vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
+        if (!vashj)
+            return false;
+
+        boss_lady_vashj::boss_lady_vashjAI* vashjAI = CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI());
+        if (vashjAI && vashjAI->Phase == 2)
         {
             if (GameObject* gObj = targets.GetGOTarget())
             {
@@ -917,7 +921,7 @@ public:
                 }
 
                 // get and remove channel
-                if (Unit* channel = Unit::GetCreature(*vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
+                if (Unit* channel = Unit::GetCreature(*vashj, vashjAI->ShieldGeneratorChannel[channelIdentifier]))
                     channel->setDeathState(JUST_DIED); // call Unsummon()
 
                 instance->SetData(identifier, 1);
@@ -925,6 +929,7 @@ public:
                 // remove this item
                 player->DestroyItemCount(31088, 1, true);
                 return true;
+
             }
             else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT)
                 return false;
