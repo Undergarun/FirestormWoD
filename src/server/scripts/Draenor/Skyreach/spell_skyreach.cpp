@@ -65,8 +65,16 @@ namespace MS
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            static const float k_RotSpeed[2] = { 0.015f, 0.022f };
-            static const int32 k_Start[2] = { 55000, 37000 };
+            static const float k_RotSpeed[2] =
+            {
+                0.015f,
+                0.022f
+            };
+            static const int32 k_Start[2] =
+            {
+                55000,
+                37000
+            };
             static const float k_dist = 10.0f;
 
             // Update targets.
