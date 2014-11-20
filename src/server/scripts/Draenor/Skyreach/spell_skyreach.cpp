@@ -14,18 +14,18 @@ namespace MS
             WINDWALL_AT_2 = 153314,
         };
 
-        Unit* m_sum;
         float m_angle;
         std::forward_list<uint64> m_targets;
         uint32 m_Last;
+        uint32 m_IsSpellAt2;
 
     public:
         AreaTrigger_WindWall()
             : MS::AreaTriggerEntityScript("at_WindWall"),
             m_targets(),
-            m_sum(nullptr),
             m_angle(0),
-            m_Last(60000)
+            m_Last(60000),
+            m_IsSpellAt2(0)
         {
         }
 
@@ -33,37 +33,95 @@ namespace MS
         {
             return new AreaTrigger_WindWall();
         }
+
+        bool IsInWind(Unit const* p_Unit, AreaTrigger const* p_Area) const
+        {
+            static const float k_eps = M_PI / 18; // 10 degrees.
+
+            return std::abs(p_Area->GetAngle(p_Unit) - std::abs(m_angle)) < k_eps || std::abs(p_Area->GetAngle(p_Unit) - std::abs(m_angle) - M_PI) < k_eps;
+        }
+
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::WINDWALL_DMG)))
+                    {
+                        l_Target->RemoveAura(uint32(Spells::WINDWALL_DMG));
+                    }
+                }
+            }
         }
 
         void OnCreate(AreaTrigger* p_AreaTrigger)
         {
             m_angle = p_AreaTrigger->GetOrientation();
+            m_IsSpellAt2 = p_AreaTrigger->GetSpellId() == uint32(Spells::WINDWALL_AT_2);
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            static const float k_RotSpeed = 0.021f;
+            static const float k_RotSpeed[2] = { 0.015f, 0.022f };
+            static const int32 k_Start[2] = { 55000, 37000 };
             static const float k_dist = 10.0f;
-            if (!m_sum)
+
+            // Update targets.
+            std::list<Unit*> l_TargetList;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), k_dist);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(k_dist, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_targets)
             {
-                m_angle = p_AreaTrigger->GetOrientation();
-                m_sum = p_AreaTrigger->SummonCreature(76097, p_AreaTrigger->GetPositionX() + k_dist * cos(m_angle), p_AreaTrigger->GetPositionY() + k_dist * sin(m_angle), p_AreaTrigger->GetPositionZ());
-                if (!m_sum)
-                    return;
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && (l_Target->GetExactDist2d(p_AreaTrigger) > k_dist || !IsInWind(l_Target, p_AreaTrigger)))
+                {
+                    if (l_Target->HasAura(uint32(Spells::WINDWALL_DMG)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::WINDWALL_DMG));
+                    }
+                }
             }
-            if (p_AreaTrigger->GetDuration() > 37000 || (m_Last - p_AreaTrigger->GetDuration() < 100))
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit
+                    || l_Unit->GetExactDist2d(p_AreaTrigger) > k_dist
+                    || l_Unit->HasAura(uint32(Spells::WINDWALL_DMG))
+                    || !IsInWind(l_Unit, p_AreaTrigger))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::WINDWALL_DMG), true);
+                m_targets.emplace_front(l_Unit->GetGUID());
+            }
+
+            // Update rotation.
+            if (p_AreaTrigger->GetDuration() > k_Start[m_IsSpellAt2] || (m_Last - p_AreaTrigger->GetDuration() < 100))
                 return;
 
-            if (p_AreaTrigger->GetSpellId() == uint32(Spells::WINDWALL_AT_2))
-                m_angle += k_RotSpeed;
+            if (m_IsSpellAt2)
+                m_angle += k_RotSpeed[m_IsSpellAt2];
             else
-                m_angle -= k_RotSpeed;
-            m_sum->GetMotionMaster()->MovePoint(0,
-                p_AreaTrigger->GetPositionX() + k_dist * cos(m_angle),
-                p_AreaTrigger->GetPositionY() + k_dist * sin(m_angle),
-                p_AreaTrigger->GetPositionZ());
+                m_angle -= k_RotSpeed[m_IsSpellAt2];
+
+            // We are staying in [0, 2pi]
+            if (m_angle > 2 * M_PI)
+                m_angle -= 2 * M_PI;
+            if (m_angle < 0)
+                m_angle += 2 * M_PI;
+
             m_Last = p_AreaTrigger->GetDuration();
         }
     };
