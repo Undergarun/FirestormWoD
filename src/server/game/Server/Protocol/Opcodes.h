@@ -1031,7 +1031,7 @@ enum Opcodes
     /// Quest
     //////////////////////////////////////////////////////////////////////////
     CMSG_QUESTGIVER_HELLO                       = 0x058E,   ///< 6.0.3 19116
-    CMSG_QUESTGIVER_STATUS_QUERY                = 0x01E2,   ///< 6.0.3 19116
+    CMSG_QUEST_GIVER_STATUS_QUERY               = 0x01E2,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0131,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_QUERY_QUEST                 = 0x1924,   ///< 6.0.3 19116
     CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x1E8A,   ///< 6.0.3 19116
@@ -1040,7 +1040,8 @@ enum Opcodes
     CMSG_QUESTGIVER_REQUEST_REWARD              = 0x022E,   ///< 6.0.3 19116
     CMSG_QUEST_CONFIRM_ACCEPT                   = 0x058D,   ///< 6.0.3 19116
     CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0139,   ///< 6.0.3 19116
-    CMSG_PUSHQUESTTOPARTY                       = 0x13E3,   ///< 6.0.3 19116
+    CMSG_PUSH_QUEST_TO_PARTY                    = 0x13E3,   ///< 6.0.3 19116
+    CMSG_QUEST_PUSH_RESULT                      = 0x03D2,   ///< 6.0.3 19116
     CMSG_QUERY_QUEST_COMPLETION_NPCS            = 0x0BD9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
