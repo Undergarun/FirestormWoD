@@ -51,21 +51,15 @@ void Guild::SendCommandResult(WorldSession* p_Session, GuildCommandType p_Comman
     l_Data << uint32(p_Command);
     l_Data.WriteBits(p_Param.size(), 8);
     l_Data.FlushBits();
-
     l_Data.WriteString(p_Param);
-
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_COMMAND_RESULT)");
 }
 
-void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode)
+void Guild::SendSaveEmblemResult(WorldSession* p_Session, GuildEmblemError p_Error)
 {
     WorldPacket data(SMSG_PLAYER_SAVE_GUILD_EMBLEM, 4);
-    data << uint32(errCode);
-    session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_PLAYER_SAVE_GUILD_EMBLEM)");
+    data << uint32(p_Error);
+    p_Session->SendPacket(&data);
 }
 
 // LogHolder
