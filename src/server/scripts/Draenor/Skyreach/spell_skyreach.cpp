@@ -1,20 +1,31 @@
 #include "AreaTriggerScript.h"
 #include <forward_list>
+#include "instance_skyreach.h"
 
 namespace MS
 {
+    // AreaTriggers for spells: 153311, 153314
     class AreaTrigger_WindWall : public MS::AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
-            SPINNING_BLADE_DMG = 153123,
+            WINDWALL_DMG = 153759,
+            WINDWALL_AT_1 = 153311,
+            WINDWALL_AT_2 = 153314,
         };
 
+        Unit* m_sum;
+        float m_angle;
         std::forward_list<uint64> m_targets;
+        uint32 m_Last;
 
     public:
         AreaTrigger_WindWall()
-            : MS::AreaTriggerEntityScript("at_WindWall"), m_targets()
+            : MS::AreaTriggerEntityScript("at_WindWall"),
+            m_targets(),
+            m_sum(nullptr),
+            m_angle(0),
+            m_Last(60000)
         {
         }
 
@@ -22,12 +33,87 @@ namespace MS
         {
         }
 
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            m_angle = p_AreaTrigger->GetOrientation();
+        }
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            std::cout << p_AreaTrigger->GetPositionX() << " " << p_AreaTrigger->GetPositionY() << " " << p_AreaTrigger->GetOrientation() << std::endl;
+            static const float k_RotSpeed = 0.021f;
+            static const float k_dist = 10.0f;
+            if (!m_sum)
+            {
+                m_angle = p_AreaTrigger->GetOrientation();
+                m_sum = p_AreaTrigger->SummonCreature(76097, p_AreaTrigger->GetPositionX() + k_dist * cos(m_angle), p_AreaTrigger->GetPositionY() + k_dist * sin(m_angle), p_AreaTrigger->GetPositionZ());
+                if (!m_sum)
+                    return;
+            }
+            if (p_AreaTrigger->GetDuration() > 37000 || (m_Last - p_AreaTrigger->GetDuration() < 100))
+                return;
+
+            if (p_AreaTrigger->GetSpellId() == uint32(Spells::WINDWALL_AT_2))
+                m_angle += k_RotSpeed;
+            else
+                m_angle -= k_RotSpeed;
+            m_sum->GetMotionMaster()->MovePoint(0,
+                p_AreaTrigger->GetPositionX() + k_dist * cos(m_angle),
+                p_AreaTrigger->GetPositionY() + k_dist * sin(m_angle),
+                p_AreaTrigger->GetPositionZ());
+            m_Last = p_AreaTrigger->GetDuration();
         }
     };
 
+    // Windwall - 153315
+    class spell_Windwall : public SpellScriptLoader
+    {
+    public:
+        spell_Windwall()
+            : SpellScriptLoader("spell_Windwall")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            // Clock and counter clock windwalls.
+            WINDWALL_1 = 153593,
+            WINDWALL_2= 153594,
+        };
+
+        class spell_Windwall_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_Windwall_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetCaster())
+                {
+                    Unit* l_Target = nullptr;
+                    if (l_Target = InstanceSkyreach::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
+                    {
+                        // Spinning Blade AreaTrigger
+                        uint32 l_Random = urand(0, 1);
+                        if (l_Random == 0)
+                            GetCaster()->CastSpell(l_Target, uint32(Spells::WINDWALL_1));
+                        else
+                            GetCaster()->CastSpell(l_Target, uint32(Spells::WINDWALL_2));
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_Windwall_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_Windwall_SpellScript();
+        }
+    };
+
+    // AreaTriggers for spells: 153535, 153536, 153537, 153538, 153583, 153584, 153585,153586, 153587, 153588
     class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
     {
         enum class Spells : uint32
@@ -98,6 +184,7 @@ namespace MS
         }
     };
 
+    // AreaTriggers for spells: 160935
     class AreaTrigger_solar_zone : public MS::AreaTriggerEntityScript
     {
         enum class SolarHealSpells : uint32
@@ -186,6 +273,7 @@ namespace MS
         }
     };
 
+    // AreaTriggers for spells: 156840
     class AreaTrigger_storm_zone : public MS::AreaTriggerEntityScript
     {
         enum class Spells : uint32
@@ -263,6 +351,7 @@ namespace MS
         }
     };
 
+    // AreaTriggers for spells: 153905
     class AreaTrigger_dervish : public MS::AreaTriggerEntityScript
     {
         enum class Spells : uint32
@@ -492,5 +581,8 @@ void AddSC_spell_instance_skyreach()
     new MS::AreaTrigger_storm_zone();
     new MS::AreaTrigger_dervish();
     new MS::spell_BladeDance();
+
+    // Boss Ranjit.
     new MS::AreaTrigger_WindWall();
+    new MS::spell_Windwall();
 }

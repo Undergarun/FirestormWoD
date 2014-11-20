@@ -1028,7 +1028,7 @@ void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate().m_ScriptId, l_tmpscript);
+    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
     l_tmpscript->OnCreate(p_AreaTrigger);
 }
 
