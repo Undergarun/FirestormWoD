@@ -478,7 +478,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         {
             Group * l_Group = GetPlayer()->GetGroup();
 
-            if (!l_Group || !l_Group->isRaidGroup() || !(l_Group->IsLeader(GetPlayer()->GetGUID()) || l_Group->IsAssistant(GetPlayer()->GetGUID()) || l_Group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT) || l_Group->isBGGroup())
+            if (!l_Group || !l_Group->isRaidGroup() || !(l_Group->IsLeader(GetPlayer()->GetGUID()) || l_Group->IsAssistant(GetPlayer()->GetGUID()) || l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT) || l_Group->isBGGroup())
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), l_Type, l_Language, l_Text, l_Group);

@@ -82,16 +82,24 @@ enum GroupMemberAssignment
     GROUP_ASSIGN_MAINASSIST = 1,
 };
 
-enum GroupType
+enum PartyFlags
 {
-    GROUPTYPE_NORMAL = 0x00,
-    GROUPTYPE_BG     = 0x01,
-    GROUPTYPE_RAID   = 0x02,
-    GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
-    GROUPTYPE_UNK1   = 0x04,
-    GROUPTYPE_LFG    = 0x08,
-    GROUPTYPE_EVERYONE_IS_ASSISTANT = 0x40,
+    PARTY_FLAG_NORMAL                   = 0x00,
+    PARTY_FLAG_BG                       = 0x01,
+    PARTY_FLAG_RAID                     = 0x02,
+    PARTY_FLAG_BGRAID                   = PARTY_FLAG_BG | PARTY_FLAG_RAID,       // mask
+    PARTY_FLAG_UNK1                     = 0x04,
+    PARTY_FLAG_LFG                      = 0x08,
+    PARTY_FLAG_EVERYONE_IS_ASSISTANT    = 0x40,
+
+    PARTY_FLAG_MASK_INSTANCE            = PARTY_FLAG_BG | PARTY_FLAG_RAID | PARTY_FLAG_LFG,
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
+};
+
+enum PartyIndex
+{
+    PARTY_INDEX_NORMAL      = 0,
+    PARTY_INDEX_INSTANCE    = 1,
 };
 
 enum GroupUpdateFlags
@@ -314,11 +322,6 @@ class Group
         uint32 getGroupMemberRole(uint64 guid);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
-        uint8 GetPartyIndex() const
-        {
-            return isLFGGroup() ? 1 : 0;
-        }
-
         Difficulty GetDifficulty(bool isRaid) const;
         Difficulty GetDungeonDifficulty() const;
         Difficulty GetRaidDifficulty() const;
@@ -395,7 +398,9 @@ class Group
 
         void SetReadyCheckCount(uint8 count) { m_readyCheckCount = count; }
         uint8 GetReadyCheckCount() { return m_readyCheckCount; }
-        uint8 GetGroupType() const { return m_groupType; }
+        uint8 GetPartyFlags() const;
+        uint8 GetPartyIndex() const;
+        uint8 GetPartyType()  const;
 
     protected:
         bool _setMembersGroup(uint64 guid, uint8 group);
@@ -415,7 +420,7 @@ class Group
         InvitesList         m_invitees;
         uint64              m_leaderGuid;
         std::string         m_leaderName;
-        GroupType           m_groupType;
+        PartyFlags           m_PartyFlags;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Difficulty          m_LegacyRaidDifficuty;

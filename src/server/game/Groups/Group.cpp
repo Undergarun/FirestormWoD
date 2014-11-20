@@ -57,7 +57,7 @@ Loot* Roll::getLoot()
     return getTarget();
 }
 
-Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
+Group::Group() : m_leaderGuid(0), m_leaderName(""), m_PartyFlags(PARTY_FLAG_NORMAL),
 m_dungeonDifficulty(REGULAR_5_DIFFICULTY), m_raidDifficulty(NORMAL_DIFFICULTY), m_LegacyRaidDifficuty(LEGACY_MAN10_DIFFICULTY),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
     m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false)
@@ -109,9 +109,9 @@ bool Group::Create(Player* leader)
 
     leader->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
-    m_groupType  = (isBGGroup() || isBFGroup()) ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
+    m_PartyFlags  = (isBGGroup() || isBFGroup()) ? PARTY_FLAG_BGRAID : PARTY_FLAG_NORMAL;
 
-    if (m_groupType & GROUPTYPE_RAID)
+    if (m_PartyFlags & PARTY_FLAG_RAID)
         _initRaidSubGroupsCounter();
 
     m_lootMethod = GROUP_LOOT;
@@ -149,7 +149,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt32(index++, uint32(m_targetIcons[5]));
         stmt->setUInt32(index++, uint32(m_targetIcons[6]));
         stmt->setUInt32(index++, uint32(m_targetIcons[7]));
-        stmt->setUInt8(index++, uint8(m_groupType));
+        stmt->setUInt8(index++, uint8(m_PartyFlags));
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
         stmt->setUInt32(index++, uint8(m_LegacyRaidDifficuty));
@@ -165,6 +165,21 @@ bool Group::Create(Player* leader)
         return false;
 
     return true;
+}
+
+uint8 Group::GetPartyFlags() const
+{
+    return m_PartyFlags;
+}
+uint8 Group::GetPartyIndex() const
+{
+    return PARTY_INDEX_NORMAL;
+    /// Need more work
+    /// return (m_PartyFlags & PARTY_FLAG_MASK_INSTANCE) != 0 ? PARTY_INDEX_INSTANCE : PARTY_INDEX_NORMAL;
+}
+uint8 Group::GetPartyType() const
+{
+    return 0;
 }
 
 void Group::LoadGroupFromDB(Field* fields)
@@ -183,8 +198,8 @@ void Group::LoadGroupFromDB(Field* fields)
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = fields[4+i].GetUInt32();
 
-    m_groupType  = GroupType(fields[12].GetUInt8());
-    if (m_groupType & GROUPTYPE_RAID)
+    m_PartyFlags  = PartyFlags(fields[12].GetUInt8());
+    if (m_PartyFlags & PARTY_FLAG_RAID)
         _initRaidSubGroupsCounter();
 
     uint32 diff = fields[13].GetUInt8();
@@ -199,7 +214,7 @@ void Group::LoadGroupFromDB(Field* fields)
     else
         m_raidDifficulty = Difficulty(r_diff);
 
-    if (m_groupType & GROUPTYPE_LFG)
+    if (m_PartyFlags & PARTY_FLAG_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
 
     uint32 l_LegacyRaidDiff = fields[18].GetUInt8();
@@ -243,22 +258,22 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
 void Group::ChangeFlagEveryoneAssistant(bool apply)
 {
     if (apply)
-        m_groupType = GroupType(m_groupType | GROUPTYPE_EVERYONE_IS_ASSISTANT);
+        m_PartyFlags = PartyFlags(m_PartyFlags | PARTY_FLAG_EVERYONE_IS_ASSISTANT);
     else
-        m_groupType = GroupType(m_groupType &~ GROUPTYPE_EVERYONE_IS_ASSISTANT);
+        m_PartyFlags = PartyFlags(m_PartyFlags &~ PARTY_FLAG_EVERYONE_IS_ASSISTANT);
 
     this->SendUpdate();
 }
 
 void Group::ConvertToLFG()
 {
-    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_UNK1);
+    m_PartyFlags = PartyFlags(m_PartyFlags | PARTY_FLAG_LFG | PARTY_FLAG_UNK1);
     m_lootMethod = NEED_BEFORE_GREED;
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt8(0, uint8(m_PartyFlags));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -269,7 +284,7 @@ void Group::ConvertToLFG()
 
 void Group::ConvertToRaid()
 {
-    m_groupType = GroupType(m_groupType | GROUPTYPE_RAID);
+    m_PartyFlags = PartyFlags(m_PartyFlags | PARTY_FLAG_RAID);
 
     _initRaidSubGroupsCounter();
 
@@ -277,7 +292,7 @@ void Group::ConvertToRaid()
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt8(0, uint8(m_PartyFlags));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -296,7 +311,7 @@ void Group::ConvertToGroup()
     if (m_memberSlots.size() > 5)
         return; // What message error should we send?
 
-    m_groupType = GroupType(GROUPTYPE_NORMAL);
+    m_PartyFlags = PartyFlags(PARTY_FLAG_NORMAL);
 
     if (m_subGroupsCounts)
     {
@@ -308,7 +323,7 @@ void Group::ConvertToGroup()
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt8(0, uint8(m_PartyFlags));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -615,10 +630,34 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
                 l_Player->GetSession()->SendPacket(&l_Data);
             }
 
-            /// Do we really need to send this opcode?
-            SendUpdateToPlayer(l_Player->GetGUID());
+            uint64 l_GroupGUID = GetGUID();
+            uint64 l_LeaderGUID = GetLeaderGUID();
+
+            uint32 l_MemberCount = 0;
+
+            bool l_HasJamCliPartyLFGInfo = isLFGGroup();
+
+            l_Data.Initialize(SMSG_PARTY_UPDATE);
+            l_Data << uint8(GetPartyFlags());
+            l_Data << uint8(GetPartyIndex());
+            l_Data << uint8(GetPartyType());
+            l_Data << int32(-1);
+            l_Data.appendPackGUID(l_GroupGUID);
+            l_Data << uint32(m_UpdateCount++);
+            l_Data.appendPackGUID(l_LeaderGUID);
+            l_Data << uint32(l_MemberCount);
+
+            l_Data.WriteBit(false);
+            l_Data.WriteBit(false);
+            l_Data.WriteBit(false);
+            l_Data.FlushBits();
+
+            l_Player->GetSession()->SendPacket(&l_Data);
 
             _homebindIfInstance(l_Player);
+
+            /// Fix ghost group leader flag
+            l_Player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
         }
 
         /// Remove player from group in DB
@@ -838,9 +877,9 @@ void Group::Disband(bool hideDestroy /* = false */)
             bool l_HasJamCliPartyLFGInfo = isLFGGroup();
 
             l_Data.Initialize(SMSG_PARTY_UPDATE);
-            l_Data << uint8(l_HasJamCliPartyLFGInfo ? 4 : 0); /// PartyFlags
+            l_Data << uint8(GetPartyFlags());
             l_Data << uint8(GetPartyIndex());
-            l_Data << uint8(GetGroupType());
+            l_Data << uint8(GetPartyType());
             l_Data << int32(-1);
             l_Data.appendPackGUID(l_GroupGUID);
             l_Data << uint32(m_UpdateCount++);
@@ -2105,9 +2144,9 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     WorldPacket l_Data(SMSG_PARTY_UPDATE);
 
-    l_Data << uint8(l_HasJamCliPartyLFGInfo ? 4 : 0); /// PartyFlags
+    l_Data << uint8(GetPartyFlags());
     l_Data << uint8(GetPartyIndex());
-     l_Data << uint8(GetGroupType());
+    l_Data << uint8(GetPartyType());
     l_Data << int32(l_MyPosition);
     l_Data.appendPackGUID(l_GroupGUID);
     l_Data << uint32(m_UpdateCount++);
@@ -2221,7 +2260,7 @@ void Group::BroadcastReadyCheck(WorldPacket* packet)
     {
         Player* player = itr->getSource();
         if (player && player->GetSession())
-            if (IsLeader(player->GetGUID()) || IsAssistant(player->GetGUID()) || m_groupType & GROUPTYPE_EVERYONE_IS_ASSISTANT)
+            if (IsLeader(player->GetGUID()) || IsAssistant(player->GetGUID()) || m_PartyFlags & PARTY_FLAG_EVERYONE_IS_ASSISTANT)
                 player->GetSession()->SendPacket(packet);
     }
 }
@@ -2849,12 +2888,12 @@ bool Group::IsFull() const
 
 bool Group::isLFGGroup() const
 {
-    return m_groupType & GROUPTYPE_LFG;
+    return m_PartyFlags & PARTY_FLAG_LFG;
 }
 
 bool Group::isRaidGroup() const
 {
-    return m_groupType & GROUPTYPE_RAID;
+    return m_PartyFlags & PARTY_FLAG_RAID;
 }
 
 bool Group::isBGGroup() const

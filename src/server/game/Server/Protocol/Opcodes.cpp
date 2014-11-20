@@ -1233,7 +1233,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_DO_READY_CHECK,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRaidLeaderReadyCheck       );
     DEFINE_OPCODE_HANDLER(CMSG_READY_CHECK_RESPONSE,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRaidConfirmReadyCheck      );
     DEFINE_OPCODE_HANDLER(CMSG_INITIATE_ROLE_POLL,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRolePollBegin              );
-    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RAID_INFO,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestRaidInfoOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RAID_INFO,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestRaidInfoOpcode      );
+    DEFINE_OPCODE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,                       STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGroupEveryoneIsAssistantOpcode);
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -1548,7 +1549,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID,    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_ALLOW_LOW_LEVEL_RAID2,               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_CURRENCY_FLAGS,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChangeCurrencyFlags       );
-    //DEFINE_OPCODE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,               STATUS_LOGGEDIN,  PROCESS_INPLACE,       &WorldSession::HandleGroupEveryoneIsAssistantOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_SET_FACTION_ATWAR,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionAtWar           );
     //DEFINE_OPCODE_HANDLER(CMSG_UNSET_FACTION_ATWAR,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUnSetFactionAtWar         );
     //DEFINE_OPCODE_HANDLER(CMSG_SET_LOOT_SPECIALIZATION,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetLootSpecialization     );

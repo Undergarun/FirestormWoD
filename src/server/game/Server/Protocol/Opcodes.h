@@ -1188,6 +1188,7 @@ enum Opcodes
     CMSG_READY_CHECK_RESPONSE                   = 0x071A,   ///< 6.0.3 19116
     CMSG_INITIATE_ROLE_POLL                     = 0x1BA2,   ///< 6.0.3 19116
     CMSG_REQUEST_RAID_INFO                      = 0x0104,   ///< 6.0.3 19116
+    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0F3D,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -1572,7 +1573,6 @@ enum Opcodes
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                    = 0x0000,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                    = 0x0000,
     CMSG_SET_CURRENCY_FLAGS                           = 0x0000,
-    CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0x0000,
     CMSG_SET_FACTION_ATWAR                            = 0x0000,
     CMSG_UNSET_FACTION_ATWAR                          = 0x0000,
     CMSG_SET_FACTION_CHEAT                            = 0x0000,
