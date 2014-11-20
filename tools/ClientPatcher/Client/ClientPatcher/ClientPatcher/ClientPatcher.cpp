@@ -42,8 +42,8 @@ enum ClientType
     CLIENT_TYPE_MAC32   = 0xFEEDFACE,
     CLIENT_TYPE_MAC64   = 0xFEEDFACF
 };
-#define BETA
-//#define LIVE
+//#define BETA
+#define LIVE
 
 /// - 19116 beta
 #ifdef BETA
