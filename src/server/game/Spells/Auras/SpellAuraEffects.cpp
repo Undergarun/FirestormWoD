@@ -2092,25 +2092,20 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 48629;
             spellId3 = 106840;
             spellId4 = 113636;
-            target->RemoveAura(115034);
             break;
-        case FORM_TRAVEL:
+        case FORM_STAG:
             spellId = 5419;
-            target->RemoveAura(115034);
-
-            if (target->HasAura(114338) && !target->HasAura(131113) && apply)
+            if (target->HasAura(114338) && !target->HasAura(131113)) // Glyph of the Stag, Glyph of the Cheetah
                 spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
-            target->RemoveAura(115034);
             break;
         case FORM_BEAR:
             spellId = 1178;
             spellId2 = 21178;
             spellId3 = 106829;
             spellId4 = 106899;
-            target->RemoveAura(115034);
             break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
@@ -2124,17 +2119,14 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_MOONKIN:
             spellId = 24905;
             spellId2 = 24907;
-            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT:
             spellId = 33948;
             spellId2 = 34764;
-            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT_EPIC:
             spellId  = 40122;
             spellId2 = 40121;
-            target->RemoveAura(115034);
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
@@ -2149,20 +2141,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_SHADOW:
             spellId = 49868;
-
-            if (apply)
-            {
-                if (target->HasAura(107906)) // Glyph of Shadow
-                    spellId2 = 107904;
-                else
-                    spellId2 = 107903;
-            }
+            if (target->HasAura(107906)) // Glyph of Shadow
+                spellId2 = 107904;
             else
-            {
-                target->RemoveAura(107904);
-                target->RemoveAura(107903);
-            }
-
+                spellId2 = 107903;
             break;
         case FORM_GHOSTWOLF:
             spellId = 67116;
@@ -2243,26 +2225,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
                     }
-                }
-            }
-
-            // Leader of the Pack
-            if (plrTarget->HasSpell(17007))
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1<<(GetMiscValue()-1)))
-                    target->CastSpell(target, 24932, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
-            }
-
-            switch (GetMiscValue())
-            {
-                case FORM_CAT:
-                {
-                    // Savage Roar
-                    if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0, 0x10000000, 0))
-                        target->CastSpell(target, 62071, true);
-
-                    break;
                 }
             }
         }
@@ -2659,7 +2621,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             PowerType = POWER_RAGE;
             break;
         case FORM_TREE:                                     // 0x02
-        case FORM_TRAVEL:                                   // 0x03
+        case FORM_STAG:                                     // 0x03
         case FORM_AQUA:                                     // 0x04
         case FORM_AMBIENT:                                  // 0x06
         case FORM_STEVES_GHOUL:                             // 0x09
@@ -2698,7 +2660,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         {
             case FORM_CAT:
             case FORM_TREE:
-            case FORM_TRAVEL:
+            case FORM_STAG:
             case FORM_AQUA:
             case FORM_BEAR:
             case FORM_FLIGHT_EPIC:
@@ -4187,10 +4149,10 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
     Unit* target = aurApp->GetTarget();
 
     //! Update ability to fly
-    if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
+    if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED || GetAuraType() == SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
+        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAura(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             target->SetCanFly(apply);
 
