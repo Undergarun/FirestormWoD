@@ -163,11 +163,7 @@ public:
         if (Player* submitter = ticket->GetPlayer())
         {
             if (submitter->IsInWorld())
-            {
-                WorldPacket data(SMSG_GM_RESPONSE_STATUS_UPDATE, 4);
-                data << uint8(GMTICKET_RESPONSE_TICKET_DELETED);
-                submitter->GetSession()->SendPacket(&data);
-            }
+                submitter->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
         }
         return true;
     }
@@ -270,12 +266,7 @@ public:
         if (Player* player = ticket->GetPlayer())
         {
             if (player->IsInWorld())
-            {
-                // Force abandon ticket
-                WorldPacket data(SMSG_GM_RESPONSE_STATUS_UPDATE, 4);
-                data << uint8(GMTICKET_RESPONSE_TICKET_DELETED);
-                player->GetSession()->SendPacket(&data);
-            }
+                player->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
         }
 
         sTicketMgr->RemoveTicket(ticket->GetId());
