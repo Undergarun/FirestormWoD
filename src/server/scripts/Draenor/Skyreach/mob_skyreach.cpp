@@ -720,6 +720,11 @@ namespace MS
             SOLAR_DETONATION = 160288,    // 2:40:59 - 2:41:12
         };
 
+        enum class Texts : int32
+        {
+            SOLAR_DETONATION = 14061,
+        };
+
         enum class Events : uint32
         {
             SOLAR_WRATH = 1,
@@ -768,7 +773,10 @@ namespace MS
                     case uint32(Events::SOLAR_DETONATION):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
                         if (Player* l_plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 45.0f))
+                        {
                             me->CastSpell(l_plr, uint32(Spells::SOLAR_DETONATION));
+                            l_plr->MonsterWhisper(int32(Texts::SOLAR_DETONATION), l_plr->GetGUID(), true);
+                        }
                         break;
                     default:
                         break;

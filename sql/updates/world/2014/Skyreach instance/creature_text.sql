@@ -7,3 +7,5 @@ INSERT INTO script_texts VALUES ('86238', '-1603205', 'Your doom is coming!', ''
 INSERT INTO script_texts VALUES ('86238', '-1603206', 'We will feed you corpse to the Kaliri!', '', '', '', '', '', '', '', '', '', '', '43889', '1', '0', '0', 'Ranjit kill 1');
 INSERT INTO script_texts VALUES ('86238', '-1603207', 'Move faster ground dweller!', '', '', '', '', '', '', '', '', '', '', '43889', '1', '0', '0', 'Ranjit kill 2');
 INSERT INTO script_texts VALUES ('86238', '-1603208', 'As long as we rule the sky, none should oppose us!', '', '', '', '', '', '', '', '', '', '', '43893', '1', '0', '0', 'Ranjit victory');
+
+INSERT INTO trinity_string VALUES ('14061', '|TInterface\Icons\inv_elemental_crystal_fire.blp:20|tYou have been targeted with |cFFFF0000|Hspell:160282|h[Solar Detonation]|h|r! Move away from your allies!', '', '', '', '', '', '', '', '', '', '');
