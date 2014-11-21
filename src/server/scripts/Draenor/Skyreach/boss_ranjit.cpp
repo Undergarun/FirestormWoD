@@ -65,8 +65,8 @@ namespace MS
             m_events(),
             m_countWindwalls(0)
             {
-                m_TriggerFourWinds[0] = nullptr;
-                m_TriggerFourWinds[1] = nullptr;
+                m_TriggerFourWinds[0] = 0;
+                m_TriggerFourWinds[1] = 0;
             }
 
             void Reset()
@@ -78,11 +78,11 @@ namespace MS
 
                 if (!m_TriggerFourWinds[0])
                 {
-                    m_TriggerFourWinds[0] = me->SummonCreature(76119, 1165.871f, 1727.601f, 186);
+                    m_TriggerFourWinds[0] = me->SummonCreature(76119, 1165.871f, 1727.601f, 186)->GetGUID();
                 }
                 if (!m_TriggerFourWinds[1])
                 {
-                    m_TriggerFourWinds[1] = me->SummonCreature(76119, 1165.871f, 1727.601f, 189.4522f);
+                    m_TriggerFourWinds[1] = me->SummonCreature(76119, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
                 }
             }
 
@@ -172,7 +172,7 @@ namespace MS
             InstanceScript* m_instance;
             EventMap m_events;
             uint32 m_countWindwalls;
-            TempSummon* m_TriggerFourWinds[2];
+            uint64 m_TriggerFourWinds[2];
             bool m_HasCombatStarted;
         };
     };
