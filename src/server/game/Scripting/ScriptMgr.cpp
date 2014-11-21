@@ -1029,7 +1029,7 @@ void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
     ASSERT(p_AreaTrigger);
 
     // On creation, we look for instanciating a new script, localy to the AreaTrigger.
-    if (!p_AreaTrigger->GetScript())
+    if (!p_AreaTrigger->GetScript() && ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId))
         p_AreaTrigger->SetScript(ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId)->GetAI());
 
     // This checks is usefull if you run out of memory.

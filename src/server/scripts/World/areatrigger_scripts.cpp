@@ -620,7 +620,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_ice_trap();
     }
@@ -654,7 +654,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_power_word_barrier();
     }
@@ -681,7 +681,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_ursol_vortex();
     }
@@ -711,7 +711,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_healing_sphere();
     }
@@ -746,7 +746,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_cancel_barrier();
     }
@@ -774,7 +774,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_rune_of_power();
     }
@@ -813,7 +813,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_amethyst_pool();
     }
@@ -850,7 +850,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_cancelling_noise_area_trigger();
     }
@@ -897,7 +897,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_get_away();
     }
@@ -947,7 +947,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_draw_power();
     }
@@ -983,7 +983,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_healing_sphere_2();
     }
@@ -1021,7 +1021,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_gift_of_the_serpent();
     }
@@ -1056,7 +1056,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_chi_sphere_afterlife();
     }
@@ -1094,7 +1094,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_angelic_feather();
     }
@@ -1129,7 +1129,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_gift_of_the_ox();
     }
@@ -1164,7 +1164,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_down_draft();
     }
@@ -1212,7 +1212,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_zen_sphere_1();
     }
@@ -1237,7 +1237,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_zen_sphere_2();
     }
@@ -1262,7 +1262,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_vileblood_serum();
     }
@@ -1292,7 +1292,7 @@ public:
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI()
+    MS::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_noxious_spit();
     }

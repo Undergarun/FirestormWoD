@@ -4137,11 +4137,31 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 156634: // Four winds (Skyreach)
+            case 156636: // Four winds (Skyreach)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 166623: // Four winds (Skyreach)
+            case 166664: // Four winds (Skyreach)
+            {
+                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                 SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
+                 if (!durationIndex)
+                     return;
+                 spellInfo->DurationEntry = durationIndex;
+            }
+            break;
+            case 153759: // WindWalls (Skyreach)
+            case 153139: // Four winds (Skyreach)
             case 158441: // Solar Zone (Skyreach)
             case 153907: // Dervish (Skyreach)
             case 156841: // Storm (Skyreach)
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF1;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
                 break;
             // Custom MoP Script
             // FENG

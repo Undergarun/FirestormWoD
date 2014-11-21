@@ -12,7 +12,7 @@ namespace MS
     public:
         bool IsDatabaseBound() const { return true; }
 
-        virtual AreaTriggerEntityScript* GetAI() = 0;
+        virtual AreaTriggerEntityScript* GetAI() const = 0;
 
         virtual ~AreaTriggerEntityScript() {}
 
