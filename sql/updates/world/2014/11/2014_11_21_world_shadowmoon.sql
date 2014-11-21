@@ -12850,7 +12850,6 @@ VALUES
 REPLACE INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`)
 VALUES
     (1500, 0, 0, 0, 0, 0, NULL),
-    (6491, 0, 0, 65536, 1, 0, '10848'),
     (14881, 0, 0, 0, 1, 0, NULL),
     (19349, 0, 0, 0, 2, 0, '34343'),
     (20848, 0, 0, 0, 2, 0, NULL),
