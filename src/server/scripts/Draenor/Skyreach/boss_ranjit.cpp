@@ -95,8 +95,10 @@ namespace MS
             {
                 DoScriptText(int32(Texts::JUST_DIED), me);
 
-                // Open the door.
+                // Open the doors.
                 if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234310, 40.0f))
+                    l_Go->UseDoorOrButton();
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234311, 40.0f))
                     l_Go->UseDoorOrButton();
             }
 
@@ -116,6 +118,10 @@ namespace MS
                 m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), 1000);
 
                 DoScriptText(int32(Texts::COMBAT_START), me);
+
+                // Shut the door.
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234311, 40.0f))
+                    l_Go->UseDoorOrButton();
             }
 
             void UpdateAI(const uint32 diff)

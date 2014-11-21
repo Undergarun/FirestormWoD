@@ -52,6 +52,7 @@ namespace MS
 
             return nullptr;
         }
+
         static std::list<Unit*> SelectNearestCreatureListWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<Unit*> l_TargetList;

@@ -8,6 +8,10 @@ update creature_template set ScriptName='mob_SoaringChrakramMaster' where entry=
 update creature_template set ScriptName='mob_SolarFamiliar' where entry=76097;
 update creature_template set ScriptName='mob_SkyreachOverlord' where entry=75975;
 update creature_template set ScriptName='boss_Ranjit' where entry=75964;
+update creature_template set ScriptName='mob_AdeptOfTheDawn' where entry=79467;
+update creature_template set ScriptName='mob_WindFamiliar' where entry=76102;
+update creature_template set ScriptName='mob_DrivingGaleCaller' where entry=78932;
+update creature_template set ScriptName='mob_AdornedBladetalon' where entry=79303;
 
 INSERT INTO spell_script_names VALUES ('153544', 'spell_SpinningBlade');
 INSERT INTO spell_script_names VALUES ('156515', 'spell_Storm');
