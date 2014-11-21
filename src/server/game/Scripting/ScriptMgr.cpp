@@ -130,7 +130,7 @@ class ScriptRegistry
             if (it != ScriptPointerList.end())
                 return it->second;
 
-            return NULL;
+            return nullptr;
         }
 
     private:
@@ -1029,8 +1029,14 @@ void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
     ASSERT(p_AreaTrigger);
 
     // On creation, we look for instanciating a new script, localy to the AreaTrigger.
-    if (!p_AreaTrigger->GetScript() && ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId))
-        p_AreaTrigger->SetScript(ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId)->GetAI());
+    if (!p_AreaTrigger->GetScript())
+    {
+        MS::AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
+        if (l_AreaTriggerScript == nullptr)
+            return;
+
+        p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
+    }
 
     // This checks is usefull if you run out of memory.
     if (!p_AreaTrigger->GetScript())

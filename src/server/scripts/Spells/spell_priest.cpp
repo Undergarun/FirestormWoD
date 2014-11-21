@@ -1018,29 +1018,32 @@ class spell_pri_holy_word_sanctuary : public SpellScriptLoader
 // Power Word: Shield - 17
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
-public:
-    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+    public:
+        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
-    class spell_pri_power_word_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                amount = ((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
-        }
+            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
-        void Register()
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            return new spell_pri_power_word_shield_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_power_word_shield_AuraScript();
-    }
 };
 
 // Called by Smite - 585
@@ -2306,8 +2309,38 @@ public:
     }
 };
 
+//Power word : Barrier - 62618
+class spell_pri_power_word_barrier : public SpellScriptLoader
+{
+public:
+    spell_pri_power_word_barrier() : SpellScriptLoader("spell_pri_power_word_barrier") { }
+
+    class spell_pri_power_word_barrier_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_power_word_barrier_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(62618))
+                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_power_word_barrier_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_power_word_barrier_SpellScript;
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_power_word_barrier();
     new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();

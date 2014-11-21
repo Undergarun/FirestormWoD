@@ -250,7 +250,7 @@ namespace AccountMgr
 
     bool normalizeString(std::string& utf8String)
     {
-        wchar_t buffer[MAX_ACCOUNT_STR+1];
+        wchar_t buffer[MAX_ACCOUNT_STR + 1];
 
         size_t maxLength = MAX_ACCOUNT_STR;
         if (!Utf8toWStr(utf8String, buffer, maxLength))

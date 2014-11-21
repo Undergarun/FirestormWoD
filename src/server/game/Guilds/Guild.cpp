@@ -51,21 +51,15 @@ void Guild::SendCommandResult(WorldSession* p_Session, GuildCommandType p_Comman
     l_Data << uint32(p_Command);
     l_Data.WriteBits(p_Param.size(), 8);
     l_Data.FlushBits();
-
     l_Data.WriteString(p_Param);
-
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_COMMAND_RESULT)");
 }
 
-void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode)
+void Guild::SendSaveEmblemResult(WorldSession* p_Session, GuildEmblemError p_Error)
 {
     WorldPacket data(SMSG_PLAYER_SAVE_GUILD_EMBLEM, 4);
-    data << uint32(errCode);
-    session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_PLAYER_SAVE_GUILD_EMBLEM)");
+    data << uint32(p_Error);
+    p_Session->SendPacket(&data);
 }
 
 // LogHolder
@@ -370,9 +364,9 @@ bool Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[16].GetUInt8();
-    uint32 itemGuid = fields[17].GetUInt32();
-    uint32 itemEntry = fields[18].GetUInt32();
+    uint8 slotId = fields[15].GetUInt8();
+    uint32 itemGuid = fields[16].GetUInt32();
+    uint32 itemEntry = fields[17].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid slot for item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
@@ -2472,11 +2466,11 @@ bool Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[15].GetUInt8();
+    uint8 tabId = fields[14].GetUInt8();
     if (tabId >= GetPurchasedTabsSize())
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
-            fields[17].GetUInt32(), fields[18].GetUInt32());
+            fields[16].GetUInt32(), fields[17].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);

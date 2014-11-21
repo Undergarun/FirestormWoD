@@ -3449,6 +3449,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
+            case 45470:
+                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
+                break;
             // Lava Surge
             case 77756:
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;

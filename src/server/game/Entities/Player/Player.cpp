@@ -25736,6 +25736,12 @@ void Player::SendInitialPacketsAfterAddToMap()
         m_Garrison = l_Garrison;
     else
         delete l_Garrison;
+
+    /// Fix ghost group leader flag
+    RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+
+    WorldPacket l_NullPacket;
+    GetSession()->HandleLfgGetStatus(l_NullPacket);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -26933,7 +26939,7 @@ PartyResult Player::CanUninviteFromGroup() const
     }
     else
     {
-        if (!grp->IsLeader(GetGUID()) && !grp->IsAssistant(GetGUID()) && !(grp->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
+        if (!grp->IsLeader(GetGUID()) && !grp->IsAssistant(GetGUID()) && !(grp->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
             return ERR_NOT_LEADER;
 
         if (InBattleground())

@@ -67,18 +67,11 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
     SendTabardVendorActivate(guid);
 }
 
-void WorldSession::SendTabardVendorActivate(uint64 guid)
+void WorldSession::SendTabardVendorActivate(uint64 p_Guid)
 {
-    ObjectGuid playerGuid = guid;
-    WorldPacket data(SMSG_PLAYER_TABAR_VENDOR_SHOW);
-
-    uint8 bitsOrder[8] = { 7, 0, 3, 6, 4, 1, 5, 2 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 6, 2, 5, 7, 1, 0, 4, 3 };
-    data.WriteBytesSeq(playerGuid, bytesOrder);
-
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_PLAYER_TABAR_VENDOR_SHOW);
+    l_Data.appendPackGUID(p_Guid);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleBankerActivateOpcode(WorldPacket& p_RecvData)
