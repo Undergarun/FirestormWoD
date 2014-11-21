@@ -39,6 +39,19 @@ namespace MS
 
     namespace InstanceSkyreach
     {
+        static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        {
+            std::list<GameObject*> l_TargetList;
+
+            JadeCore::NearestGameObjectEntryInObjectRangeCheck l_Check(*p_Me, p_Entry, p_Range);
+            JadeCore::GameObjectListSearcher<JadeCore::NearestGameObjectEntryInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+            p_Me->VisitNearbyObject(p_Range, l_Searcher);
+
+            for (GameObject* l_Gob : l_TargetList)
+                return l_Gob;
+
+            return nullptr;
+        }
         static std::list<Unit*> SelectNearestCreatureListWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<Unit*> l_TargetList;

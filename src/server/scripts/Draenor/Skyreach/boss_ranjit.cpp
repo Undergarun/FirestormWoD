@@ -71,8 +71,13 @@ namespace MS
 
             void Reset()
             {
-                m_HasCombatStarted = false;
                 m_events.Reset();
+
+                if (m_HasCombatStarted)
+                {
+                    DoScriptText(int32(Texts::VICTORY), me);
+                    m_HasCombatStarted = false;
+                }
 
                 m_countWindwalls = 0;
 
@@ -89,6 +94,10 @@ namespace MS
             void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(int32(Texts::JUST_DIED), me);
+
+                // Open the door.
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234310, 40.0f))
+                    l_Go->UseDoorOrButton();
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -111,17 +120,7 @@ namespace MS
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
-                {
-                    if (m_HasCombatStarted)
-                    {
-                        DoScriptText(int32(Texts::VICTORY), me);
-                        m_HasCombatStarted = false;
-                    }
-                    return;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 m_events.Update(diff);
