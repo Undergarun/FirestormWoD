@@ -4149,7 +4149,7 @@ void SpellMgr::LoadSpellCustomAttr()
                  spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
                  SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
                  if (!durationIndex)
-                     return;
+                     break;
                  spellInfo->DurationEntry = durationIndex;
             }
             break;

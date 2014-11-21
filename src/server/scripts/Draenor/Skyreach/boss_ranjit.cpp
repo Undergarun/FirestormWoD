@@ -79,12 +79,10 @@ namespace MS
                 if (!m_TriggerFourWinds[0])
                 {
                     m_TriggerFourWinds[0] = me->SummonCreature(76119, 1165.871f, 1727.601f, 186);
-                    //m_TriggerFourWinds[0]->SetVisible(false);
                 }
                 if (!m_TriggerFourWinds[1])
                 {
                     m_TriggerFourWinds[1] = me->SummonCreature(76119, 1165.871f, 1727.601f, 189.4522f);
-                    //m_TriggerFourWinds[0]->SetVisible(false);
                 }
             }
 
