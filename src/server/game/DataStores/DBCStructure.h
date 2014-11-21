@@ -641,8 +641,8 @@ struct AreaTableEntry
     uint32  ContinentID;                                    // 1        m_ContinentID
     uint32  ParentAreaID;                                   // 2        m_ParentAreaID          If 0 then it's zone, else it's zone id of this area
     uint32  AreaBit;                                        // 3        m_AreaBit               Main index
-    uint32  Flags;                                          // 4        m_Flags                 -> need uint64  @issue : #283
-    //uint32    m_Flags2;                                   // 5        m_Flags2                -> need uint64  @issue : #283
+    uint32  Flags;                                          // 4        m_Flags
+    //uint32    m_Flags2;                                   // 5        m_Flags2
     //uint32    m_SoundProviderPref;                        // 6        m_SoundProviderPref
     //uint32    m_SoundProviderPrefUnderwater;              // 7        m_SoundProviderPrefUnderwater
     //uint32    m_AmbienceID;                               // 8        m_AmbienceID

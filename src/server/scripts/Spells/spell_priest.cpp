@@ -2309,8 +2309,38 @@ public:
     }
 };
 
+//Power word : Barrier - 62618
+class spell_pri_power_word_barrier : public SpellScriptLoader
+{
+public:
+    spell_pri_power_word_barrier() : SpellScriptLoader("spell_pri_power_word_barrier") { }
+
+    class spell_pri_power_word_barrier_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_power_word_barrier_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(62618))
+                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_power_word_barrier_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_power_word_barrier_SpellScript;
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_power_word_barrier();
     new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
