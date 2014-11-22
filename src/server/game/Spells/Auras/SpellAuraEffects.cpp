@@ -7966,11 +7966,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     // ignore negative values (can be result apply spellmods to aura damage
     int32 damage = std::max(GetAmount(), 0);
 
-    // Fix Second Wind only in AURA_STATE_HEALTHLESS_35_PERCENT
-    if (m_spellInfo->Id == 16491)
-        if (caster->GetHealthPct() > 35.0f)
-            return;
-
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
     {
         // Taken mods
