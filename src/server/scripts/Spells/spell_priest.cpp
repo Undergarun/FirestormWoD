@@ -1709,7 +1709,7 @@ class spell_pri_cascade_first : public SpellScriptLoader
         }
 };
 
-// Halo (shadow) - 120696 and Halo - 120692 : Heal
+// Halo - 120692 : Heal
 class spell_pri_halo_heal : public SpellScriptLoader
 {
     public:
@@ -1753,7 +1753,7 @@ enum Halo_Spell
     PRIEST_SPELL_HALO_DAMAGE = 120696
 };
 
-// Halo (shadow) - 120517 and Halo - 120644 : Damage
+// Halo (shadow) - 120517
 class spell_pri_halo_damage : public SpellScriptLoader
 {
     public:
