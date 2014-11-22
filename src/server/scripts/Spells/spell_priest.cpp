@@ -2338,8 +2338,41 @@ public:
     }
 };
 
+// Archangel - 81700
+class spell_pri_archangel : public SpellScriptLoader
+{
+public:
+    spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
+
+    class spell_pri_archangel_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_archangel_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (AuraPtr l_Aura = l_Caster->GetAura(PRIEST_EVANGELISM_STACK))
+            {
+                amount = l_Aura->GetStackAmount() * GetSpellInfo()->Effects[0].BasePoints;
+                l_Aura->SetStackAmount(0);
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_archangel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_archangel_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_archangel();
     new spell_pri_power_word_barrier();
     new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
