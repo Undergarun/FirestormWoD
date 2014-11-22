@@ -1292,6 +1292,34 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
         }
 };
 
+// Shield Barrier - 112048
+class spell_warl_shield_barrier : public SpellScriptLoader
+{
+    public:
+        spell_warl_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
+
+        class spell_warl_shield_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_shield_barrier_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    amount = l_Caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.125;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_shield_barrier_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1325,4 +1353,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_spell_reflection();
     new spell_warr_intervene();
     new spell_warr_glyph_of_gag_order();
+    new spell_warl_shield_barrier();
 }
