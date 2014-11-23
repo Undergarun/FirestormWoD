@@ -1390,10 +1390,18 @@ class ObjectMgr
 
         ACE_Thread_Mutex m_GuidLock;
 
+        const AreaTriggerTemplateList* GetAreaTriggerTemplatesForEntry(uint32 p_Entry)
+        {
+            if (m_AreaTriggerTemplates.find(p_Entry) != m_AreaTriggerTemplates.end())
+                return &m_AreaTriggerTemplates[p_Entry];
+
+            return nullptr;
+        }
+
         const AreaTriggerTemplateList* GetAreaTriggerTemplatesForSpell(uint32 p_SpellID)
         {
-            if (m_AreaTriggerTemplates.find(p_SpellID) != m_AreaTriggerTemplates.end())
-                return &m_AreaTriggerTemplates[p_SpellID];
+            if (m_AreaTriggerTemplatesSpell.find(p_SpellID) != m_AreaTriggerTemplatesSpell.end())
+                return &m_AreaTriggerTemplatesSpell[p_SpellID];
 
             return nullptr;
         }
@@ -1498,6 +1506,7 @@ class ObjectMgr
         std::map<uint64, uint64> _lootViewGUID;
 
         AreaTriggerTemplateContainer m_AreaTriggerTemplates;
+        AreaTriggerTemplateContainer m_AreaTriggerTemplatesSpell;
         AreaTriggerMoveSplinesContainer m_AreaTriggerMoveSplines;
         AreaTriggerMoveTemplateContainer m_AreaTriggerMoveTemplate;
 

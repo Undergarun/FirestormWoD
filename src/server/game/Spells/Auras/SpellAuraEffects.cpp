@@ -451,7 +451,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //392 SPELL_AURA_392
     &AuraEffect::HandleNoImmediateEffect,                         //393 SPELL_AURA_DEFLECT_FRONT_SPELLS
     &AuraEffect::HandleNoImmediateEffect,                         //394 SPELL_AURA_TRIGGER_BONUS_LOOT (NYI)
-    &AuraEffect::HandleNULL,                                      //395 SPELL_AURA_395
+    &AuraEffect::HandleAreaTrigger,                               //395 SPELL_AURA_AREATRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_396
     &AuraEffect::HandleNULL,                                      //397 SPELL_AURA_397
     &AuraEffect::HandleNULL,                                      //398 SPELL_AURA_398
@@ -8766,4 +8766,26 @@ void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8
     // Enter in Arena reset the same way cooldowns that enter in duel
     if (p_Apply)
         l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+}
+
+void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (!l_Target)
+        return;
+
+    // AreaTrigger is removed at the end of his own duration
+    if (!p_Apply)
+        return;
+
+    uint32 l_MiscValue = GetMiscValue();
+    Position l_Position;
+    l_Target->GetPosition(&l_Position);
+
+    AreaTrigger* l_AreaTrigger = new AreaTrigger;
+    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, 0, l_Position, l_Position))
+        delete l_AreaTrigger;
 }

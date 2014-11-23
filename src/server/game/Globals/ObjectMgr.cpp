@@ -3089,7 +3089,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 l_OldMSTime = getMSTime();
 
-    m_AreaTriggerTemplates.clear();                           // needed for reload case
+    m_AreaTriggerTemplates.clear();                                // needed for reload case
+    m_AreaTriggerTemplatesSpell.clear();                           // needed for reload case
 
     uint32 l_Count = 0;
 
@@ -3153,7 +3154,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
         l_Template.m_ScriptId = sObjectMgr->GetScriptId(l_Fields[l_Index++].GetCString());
 
-        m_AreaTriggerTemplates[l_Template.m_SpellID].push_back(l_Template);
+        m_AreaTriggerTemplates[l_Template.m_Entry].push_back(l_Template);
+        m_AreaTriggerTemplatesSpell[l_Template.m_SpellID].push_back(l_Template);
 
         ++l_Count;
     }
