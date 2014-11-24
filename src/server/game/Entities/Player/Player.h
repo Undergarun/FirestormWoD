@@ -3700,7 +3700,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                 totalmul = CalculatePct(totalmul, 100 + value);
         }
 
-        if (removestacks && !m_isMoltenCored)
+        if (removestacks && !m_isMoltenCored && spell)
             DropModCharge(mod, spell);
     }
 
