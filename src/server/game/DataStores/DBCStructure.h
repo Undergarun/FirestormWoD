@@ -1994,13 +1994,13 @@ struct SpellEffectScalingEntry
 
 struct SpellAuraOptionsEntry
 {
-    uint32  Id;                                             // 0        m_ID
+    uint32    Id;                                           // 0        m_ID
     uint32    m_SpellID;                                    // 1        m_SpellID
     uint32    m_DifficultyID;                               // 2        m_DifficultyID
-    uint32    StackAmount;                                  // 1        m_cumulativeAura
-    uint32    procChance;                                   // 2        m_procChance
-    uint32    procCharges;                                  // 3        m_procCharges
-    uint32    procFlags;                                    // 4        m_procTypeMask
+    uint32    StackAmount;                                  // 3        m_cumulativeAura
+    uint32    procChance;                                   // 4        m_procChance
+    uint32    procCharges;                                  // 5        m_procCharges
+    uint32    procFlags;                                    // 6        m_procTypeMask
     uint32    InternalCooldown;                             // 7       m_internalCooldown
     uint32    ProcsPerMinuteEntry;                          // 8       m_procsPerMinuteEntry
 };
