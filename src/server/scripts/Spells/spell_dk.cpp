@@ -52,7 +52,6 @@ enum DeathKnightSpells
     DK_SPELL_SOUL_REAPER_DAMAGE                 = 114867,
     DK_SPELL_REMORSELESS_WINTER_STUN            = 115001,
     DK_SPELL_REMORSELESS_WINTER                 = 115000,
-    DK_SPELL_CONVERSION                         = 119975,
     DK_SPELL_SCENT_OF_BLOOD                     = 49509,
     DK_SPELL_SCENT_OF_BLOOD_AURA                = 50421,
     DK_SPELL_CHAINS_OF_ICE                      = 45524,
@@ -452,47 +451,6 @@ class spell_dk_howling_blast : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_howling_blast_SpellScript();
-        }
-};
-
-// Conversion - 119975
-class spell_dk_conversion : public SpellScriptLoader
-{
-    public:
-        spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
-
-        class spell_dk_conversion_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_conversion_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (GetCaster())
-                {
-                    // Drain 5 runic power to regen 3% of max health per second
-                    int32 runicPower = GetCaster()->GetPower(POWER_RUNIC_POWER);
-
-                    if (runicPower > 50)
-                        GetCaster()->ModifyPower(POWER_RUNIC_POWER, -5 * GetCaster()->GetPowerCoeff(POWER_RUNIC_POWER));
-                    else if (runicPower > 0)
-                    {
-                        GetCaster()->SetPower(POWER_RUNIC_POWER, 0);
-                        GetCaster()->RemoveAura(DK_SPELL_CONVERSION);
-                    }
-                    else if (runicPower == 0)
-                        GetCaster()->RemoveAura(DK_SPELL_CONVERSION);
-                 }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_conversion_AuraScript();
         }
 };
 
@@ -1860,7 +1818,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_festering_strike();
     new spell_dk_death_strike_heal();
     new spell_dk_howling_blast();
-    new spell_dk_conversion();
     new spell_dk_remorseless_winter();
     new spell_dk_soul_reaper();
     new spell_dk_pillar_of_frost();
