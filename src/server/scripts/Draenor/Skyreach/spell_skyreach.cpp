@@ -4,6 +4,121 @@
 
 namespace MS
 {
+    // AreaTriggers for spells: 159221
+    class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            SOLAR_STORM_DMG = 159226,
+        };
+
+        std::forward_list<uint64> m_Targets;
+
+    public:
+        AreaTrigger_SolarStorm()
+            : MS::AreaTriggerEntityScript("at_SolarStorm"),
+            m_Targets()
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_SolarStorm();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_Targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                        l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
+                }
+            }
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 4.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                {
+                    if (l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_Targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit || l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius || l_Unit->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::SOLAR_STORM_DMG), true);
+                m_Targets.emplace_front(l_Unit->GetGUID());
+            }
+        }
+    };
+
+    // Solar storm - 159215
+    class spell_SolarStorm : public SpellScriptLoader
+    {
+    public:
+        spell_SolarStorm()
+            : SpellScriptLoader("spell_SolarStorm")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            SOLAR_STORM = 159215, // FIXME.
+            SOLAR_STORM_1 = 159216,
+            SOLAR_STORM_2 = 159218,
+            SOLAR_STORM_3 = 159221,
+            SOLAR_STORM_4 = 159226,
+        };
+
+        class spell_SolarStorm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_SolarStorm_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitUnit() && GetCaster())
+                    GetCaster()->CastSpell(GetHitUnit(), uint32(Spells::SOLAR_STORM_1), true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_SolarStorm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_SolarStorm_SpellScript();
+        }
+    };
+
     // AreaTriggers for spells: 156634, 156636
     class AreaTrigger_FourWinds : public MS::AreaTriggerEntityScript
     {
@@ -895,6 +1010,8 @@ void AddSC_spell_instance_skyreach()
     new MS::AreaTrigger_storm_zone();
     new MS::AreaTrigger_dervish();
     new MS::spell_BladeDance();
+    new MS::spell_SolarStorm();
+    new MS::AreaTrigger_SolarStorm();
 
     // Boss Ranjit.
     new MS::AreaTrigger_WindWall();

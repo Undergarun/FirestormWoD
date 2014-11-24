@@ -53,7 +53,7 @@ namespace MS
             LENS_FLARE = 5
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        ScriptedAI* GetAI(Creature* creature) const
         {
             return new boss_RanjitAI(creature);
         }
@@ -73,12 +73,6 @@ namespace MS
             {
                 m_events.Reset();
 
-                if (m_HasCombatStarted)
-                {
-                    DoScriptText(int32(Texts::VICTORY), me);
-                    m_HasCombatStarted = false;
-                }
-
                 m_countWindwalls = 0;
 
                 if (!m_TriggerFourWinds[0])
@@ -89,6 +83,16 @@ namespace MS
                 {
                     m_TriggerFourWinds[1] = me->SummonCreature(76119, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
                 }
+            }
+
+            void EnterEvadeMode()
+            {
+                // If the boss wins.
+                events.Reset();
+
+                DoScriptText(int32(Texts::VICTORY), me);
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234311, 40.0f))
+                    l_Go->UseDoorOrButton();
             }
 
             void JustDied(Unit* /*killer*/)
@@ -112,7 +116,6 @@ namespace MS
 
             void EnterCombat(Unit* who)
             {
-                m_HasCombatStarted = true;
                 m_events.ScheduleEvent(uint32(Events::WINDWALL), 8000);
                 m_events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), 5000);
                 m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), 1000);
@@ -178,7 +181,6 @@ namespace MS
             EventMap m_events;
             uint32 m_countWindwalls;
             uint64 m_TriggerFourWinds[2];
-            bool m_HasCombatStarted;
         };
     };
 }

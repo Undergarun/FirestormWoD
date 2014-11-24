@@ -806,6 +806,7 @@ void AddSC_tanaan_jungle();
 void AddSC_mob_instance_skyreach();
 void AddSC_spell_instance_skyreach();
 void AddSC_boss_ranjit();
+void AddSC_boss_Araknath();
 
 // battlegrounds
 void AddSC_BattlegroundDGScripts();
@@ -1655,6 +1656,7 @@ void AddDraenorScripts()
     AddSC_mob_instance_skyreach();
     AddSC_spell_instance_skyreach();
     AddSC_boss_ranjit();
+    AddSC_boss_Araknath();
 #endif
 }
 

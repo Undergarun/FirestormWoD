@@ -52,3 +52,5 @@ update areatrigger_template set ScriptName='at_WindWall' where spell_id=153314;
 update areatrigger_template set ScriptName='at_WindWall' where spell_id=153311;
 update areatrigger_template set ScriptName='at_FourWinds' where spell_id=156634;
 update areatrigger_template set ScriptName='at_FourWinds' where spell_id=156636;
+
+update areatrigger_template set ScriptName='at_SolarStorm' where spell_id=159221;
