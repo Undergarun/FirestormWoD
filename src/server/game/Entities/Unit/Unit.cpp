@@ -8392,7 +8392,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             else
                                 newCooldownDelay -= 2000;
 
-                            ToPlayer()->AddSpellCooldown(16166, 0, newCooldownDelay));
+                            ToPlayer()->AddSpellCooldown(16166, 0, newCooldownDelay);
                             ToPlayer()->ReduceSpellCooldown(16166, 2000);
                             return true;
                         }
