@@ -1834,7 +1834,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
                             caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
                             if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, time(NULL) + 30);
+                                caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, 30 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -1869,7 +1869,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                 {
                     if (caster->HasAura(WARLOCK_NIGHTFALL))
                         if (roll_chance_i(aurEff->GetBaseAmount() / 1000))
-                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1);
+                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * caster->GetPowerCoeff(POWER_SOUL_SHARDS));
 
                     if (AuraPtr glyphSiphonOfLife = caster->GetAura(WARLOCK_GLYPH_OF_SIPHON_LIFE, caster->GetGUID()))
                         caster->HealBySpell(caster, glyphSiphonOfLife->GetSpellInfo(), caster->CountPctFromMaxHealth(glyphSiphonOfLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000), false);
@@ -1904,7 +1904,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1);
+                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * caster->GetPowerCoeff(POWER_SOUL_SHARDS));
                 }
             }
 
@@ -2163,7 +2163,7 @@ class spell_warl_shadowburn : public SpellScriptLoader
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                     if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2); // Give 2 Burning Embers
+                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * caster->GetPowerCoeff(POWER_BURNING_EMBERS)); // Give 2 Burning Embers
                     else if (removeMode == AURA_REMOVE_BY_EXPIRE)
                         caster->CastSpell(caster, WARLOCK_SHADOWBURN_ENERGIZE, true);
                 }
@@ -2200,9 +2200,9 @@ class spell_warl_burning_embers : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (GetSpell()->IsCritForTarget(target))
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2);
+                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
                         else
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 1);
+                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 1 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
                     }
                 }
             }
@@ -2377,7 +2377,7 @@ class spell_warl_fear : public SpellScriptLoader
                         if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
                         {
                             _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, time(NULL) + 5);
+                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5 * IN_MILLISECONDS);
                         }
                         else
                             _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);

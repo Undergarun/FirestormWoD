@@ -5,7 +5,7 @@ namespace MS
     class boss_Ranjit : public CreatureScript
     {
     public:
-        // Entry: 76205
+        // Entry: 86238
         boss_Ranjit()
             : CreatureScript("boss_Ranjit")
         {
@@ -14,28 +14,34 @@ namespace MS
         enum class Spells : uint32
         {
             // Windwall.
-            WINDWALL = 153315,      // 2:43:38 - 2-43-52
-            WINDWALL_2 = 153311,
-            WINDWALL_3 = 153314,
-            WINDWALL_4 = 153593,
-            WINDWALL_5 = 153594,
-            WINDWALL_6 = 153759,
-            // Four winds.
+            WINDWALL = 153315,      // 2:43:38 - 2-43-52. Random target. Every 14s.
+            WINDWALL_AT_1 = 153311,
+            WINDWALL_AT_2 = 153314,
+            WINDWALL_MISSLE_1 = 153593,
+            WINDWALL_MISSILE_2 = 153594,
+            WINDWALL_DMG = 153759,
+            // Four winds. Arrived after 2 or 3 instances of WindWall.
             FOUR_WINDS = 156793,
-            FOUR_WINDS_2 = 153139,
-            FOUR_WINDS_3 = 156634,
-            FOUR_WINDS_4 = 156636,
-            FOUR_WINDS_5 = 166623,
-            FOUR_WINDS_6 = 166664,
+            FOUR_WINDS_DMG = 153139,
+            FOUR_WINDS_AT_1 = 156634,
+            FOUR_WINDS_AT_2 = 156636,
+            FOUR_WINDS_VISUAL_1 = 166623,
+            FOUR_WINDS_VISUAL_2 = 166664,
             // Fan of blades.
-            FAN_OF_BLADES = 153757, // 2:43:34 - 2:43:50
+            FAN_OF_BLADES = 153757, // 2:43:34 - 2:43:50, every 16s.
             // Piercing rush.
-            PIERCING_RUSH = 165731, // 2:43:29 - 2:43:44
+            PIERCING_RUSH = 165731, // 2:43:29 - 2:43:44, every 15s.
         };
 
-        enum class Texts : uint32
+        enum class Texts : int32
         {
-            COMBAT_START = 0,
+            COMBAT_START = -1603202,
+            JUST_DIED = -1603203,
+            FOUR_WINDS_1 = -1603204,
+            FOUR_WINDS_2 = -1603205,
+            KILL_PLAYER_1 = -1603206,
+            KILL_PLAYER_2 = -1603207,
+            VICTORY = -1603208
         };
 
         enum class Events : uint32
@@ -47,7 +53,7 @@ namespace MS
             LENS_FLARE = 5
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        ScriptedAI* GetAI(Creature* creature) const
         {
             return new boss_RanjitAI(creature);
         }
@@ -56,18 +62,69 @@ namespace MS
         {
             boss_RanjitAI(Creature* creature) : ScriptedAI(creature),
             m_instance(creature->GetInstanceScript()),
-            m_events()
+            m_events(),
+            m_countWindwalls(0)
             {
+                m_TriggerFourWinds[0] = 0;
+                m_TriggerFourWinds[1] = 0;
             }
 
             void Reset()
             {
                 m_events.Reset();
+
+                m_countWindwalls = 0;
+
+                if (!m_TriggerFourWinds[0])
+                {
+                    m_TriggerFourWinds[0] = me->SummonCreature(76119, 1165.871f, 1727.601f, 186)->GetGUID();
+                }
+                if (!m_TriggerFourWinds[1])
+                {
+                    m_TriggerFourWinds[1] = me->SummonCreature(76119, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
+                }
+            }
+
+            void EnterEvadeMode()
+            {
+                // If the boss wins.
+                events.Reset();
+
+                DoScriptText(int32(Texts::VICTORY), me);
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234311, 40.0f))
+                    l_Go->UseDoorOrButton();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                DoScriptText(int32(Texts::JUST_DIED), me);
+
+                // Open the doors.
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234310, 40.0f))
+                    l_Go->UseDoorOrButton();
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234311, 40.0f))
+                    l_Go->UseDoorOrButton();
+            }
+
+            void KilledUnit(Unit* /*victim*/)
+            {
+                if (urand(0, 1))
+                    DoScriptText(int32(Texts::KILL_PLAYER_1), me);
+                else
+                    DoScriptText(int32(Texts::KILL_PLAYER_2), me);
             }
 
             void EnterCombat(Unit* who)
             {
-                m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
+                m_events.ScheduleEvent(uint32(Events::WINDWALL), 8000);
+                m_events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), 5000);
+                m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), 1000);
+
+                DoScriptText(int32(Texts::COMBAT_START), me);
+
+                // Shut the door.
+                if (GameObject* l_Go = InstanceSkyreach::SelectNearestGameObjectWithEntry(me, 234311, 40.0f))
+                    l_Go->UseDoorOrButton();
             }
 
             void UpdateAI(const uint32 diff)
@@ -81,9 +138,32 @@ namespace MS
                 {
                     switch (eventId)
                     {
+                    case uint32(Events::FOUR_WINDS):
+                        me->CastSpell(me->getVictim(), uint32(Spells::FOUR_WINDS));
+
+                        m_countWindwalls = 0;
+                        if (urand(0, 1))
+                            DoScriptText(int32(Texts::FOUR_WINDS_1), me);
+                        else
+                            DoScriptText(int32(Texts::FOUR_WINDS_2), me);
+                        break;
+                    case uint32(Events::WINDWALL):
+                        m_events.ScheduleEvent(uint32(Events::WINDWALL), urand(13000, 14000));
+
+                        if (Unit* l_Unit = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 40.0f))
+                            me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
+
+                        if (m_countWindwalls++ == 2)
+                            m_events.ScheduleEvent(uint32(Events::FOUR_WINDS), urand(2000, 3000));
+                        break;
+                    case uint32(Events::FAN_OF_BLADES):
+                        m_events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), urand(15000, 17000));
+                        me->CastSpell(me, uint32(Spells::FAN_OF_BLADES));
+                        break;
                     case uint32(Events::PIERCING_RUSH):
-                        m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
-                        me->CastSpell(me->getVictim(), uint32(Spells::PIERCING_RUSH));
+                        m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(13000, 16000));
+                        if (Unit* l_Unit = InstanceSkyreach::SelectRandomPlayerExcludedTank(me, 40.0f))
+                            me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
                         break;
                     default:
                         break;
@@ -99,11 +179,13 @@ namespace MS
 
             InstanceScript* m_instance;
             EventMap m_events;
+            uint32 m_countWindwalls;
+            uint64 m_TriggerFourWinds[2];
         };
     };
 }
 
 void AddSC_boss_ranjit()
 {
-
+    new MS::boss_Ranjit();
 }

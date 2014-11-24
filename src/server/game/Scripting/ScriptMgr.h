@@ -726,7 +726,7 @@ class PlayerScript : public ScriptObject
         // Both of the below are called on emote opcodes.
         virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
 
-        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
+        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*soundIndex*/, uint64 /*guid*/) { }
 
         // Called in Spell::Cast.
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
@@ -751,7 +751,7 @@ class PlayerScript : public ScriptObject
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*p_OldZoneID*/, uint32 /*newArea*/) { }
 
-        // Called when a player updates his movement flags
+        // Called when a player updates his movement
         virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
 };
 
@@ -943,6 +943,7 @@ class ScriptMgr
 
     public:
         /* AreaTriggerEntityScript */
+        void OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger);
         void OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
         void OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
 

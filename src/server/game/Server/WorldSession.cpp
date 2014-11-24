@@ -1117,16 +1117,16 @@ void WorldSession::SendFeatureSystemStatus()
 
     if (l_EuropaTicketSystemEnabled)
     {
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.WriteBit(false);                                     ///< Unk bit
-        l_Data.WriteBit(false);                                     ///< Unk bit
+        l_Data.WriteBit(true);                                     ///< Unk bit
+        l_Data.WriteBit(true);                                     ///< Unk bit
+        l_Data.WriteBit(true);                                     ///< Unk bit
+        l_Data.WriteBit(true);                                     ///< Unk bit
         l_Data.FlushBits();
 
-        l_Data << uint32(0);                                        ///< Max Tries
-        l_Data << uint32(60);                                       ///< Per Milliseconds
-        l_Data << uint32(10);                                       ///< Try Count
-        l_Data << uint32(1);                                        ///< Last Reset Time Before Now
+        l_Data << uint32(10);                                       ///< Max Tries
+        l_Data << uint32(60000);                                    ///< Per Milliseconds
+        l_Data << uint32(1);                                        ///< Try Count
+        l_Data << uint32(0);                                        ///< Last Reset Time Before Now
     }
 
     if (l_PlayTimeAlert)

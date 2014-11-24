@@ -130,7 +130,7 @@ class ScriptRegistry
             if (it != ScriptPointerList.end())
                 return it->second;
 
-            return NULL;
+            return nullptr;
         }
 
     private:
@@ -1024,20 +1024,46 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     return tmpscript->OnTrigger(player, trigger);
 }
 
+void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    // On creation, we look for instanciating a new script, localy to the AreaTrigger.
+    if (!p_AreaTrigger->GetScript())
+    {
+        MS::AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
+        if (l_AreaTriggerScript == nullptr)
+            return;
+
+        p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
+    }
+
+    // This checks is usefull if you run out of memory.
+    if (!p_AreaTrigger->GetScript())
+        return;
+
+    p_AreaTrigger->GetScript()->OnCreate(p_AreaTrigger);
+}
+
+
 void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
-    l_tmpscript->OnUpdate(p_AreaTrigger, p_Time);
+    if (!p_AreaTrigger->GetScript())
+        return;
+
+    p_AreaTrigger->GetScript()->OnUpdate(p_AreaTrigger, p_Time);
 }
 
 void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
 {
     ASSERT(p_AreaTrigger);
 
-    GET_SCRIPT(MS::AreaTriggerEntityScript, p_AreaTrigger->GetMainTemplate()->m_ScriptId, l_tmpscript);
-    l_tmpscript->OnRemove(p_AreaTrigger, p_Time);
+    if (!p_AreaTrigger->GetScript())
+        return;
+
+    p_AreaTrigger->GetScript()->OnRemove(p_AreaTrigger, p_Time);
 }
 
 Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
@@ -1342,9 +1368,9 @@ void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
     FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
 }
 
-void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
+void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 soundIndex, uint64 guid)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
+    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, soundIndex, guid);
 }
 
 void ScriptMgr::OnPlayerSpellLearned(Player* p_Player, uint32 p_SpellId)

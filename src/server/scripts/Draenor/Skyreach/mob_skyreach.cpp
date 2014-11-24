@@ -3,16 +3,252 @@
 /*
  TODO: There seems to have other spells to cast here. For example:
     - Magma explosion supreme
-    - Sun trinckets
+    - Sun trinckets <- Need modelid and spell to cast. It's healing normaly.
     - Air trinckets
     - Cyclone trinckets ?
-    - Piercing Rush
-    - Be sure Skyreach Overlord do have the Torn feathers also.
     - Do visual stuff when no one is attacking.
     - Need to see if the timers are good enough.
 */
 namespace MS
 {
+    class mob_AdornedBladetalon : public CreatureScript
+    {
+    public:
+        // Entry: 79303
+        mob_AdornedBladetalon()
+            : CreatureScript("mob_AdornedBladetalon")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            SLASH = 158083,
+            PIERCING_RUSH = 138175,
+        };
+
+        enum class Events : uint32
+        {
+            SLASH = 1, // Every 2 to 5 seconds.
+            PIERCING_RUSH = 2, // Every 2 to 5 seconds.
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_AdornedBladetalonAI(creature);
+        }
+
+        struct mob_AdornedBladetalonAI : public ScriptedAI
+        {
+            mob_AdornedBladetalonAI(Creature* creature) : ScriptedAI(creature),
+            m_instance(creature->GetInstanceScript()),
+            m_events()
+            {
+            }
+
+            void Reset()
+            {
+                m_events.Reset();
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                m_events.ScheduleEvent(uint32(Events::SLASH), urand(0, 4000));
+                m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 7000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_events.Update(diff);
+
+                while (uint32 eventId = m_events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case uint32(Events::SLASH):
+                        m_events.ScheduleEvent(uint32(Events::SLASH), urand(2500, 5000));
+                        me->CastSpell(me->getVictim(), uint32(Spells::SLASH));
+                        break;
+                    case uint32(Events::PIERCING_RUSH):
+                        m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(2500, 5000));
+
+                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 20.0f))
+                            me->CastSpell(l_Plr, uint32(Spells::PIERCING_RUSH));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    // If we cast something, we don't want to execute the other events.
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            InstanceScript* m_instance;
+            EventMap m_events;
+        };
+    };
+
+    class mob_DrivingGaleCaller : public CreatureScript
+    {
+    public:
+        // Entry: 78932
+        mob_DrivingGaleCaller()
+            : CreatureScript("mob_DrivingGaleCaller")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            DERVISH = 153905,
+        };
+
+        enum class Events : uint32
+        {
+            DERVISH = 1, // 20 seconds duration so heavy respawn.
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_DrivingGaleCallerAI(creature);
+        }
+
+        struct mob_DrivingGaleCallerAI : public ScriptedAI
+        {
+            mob_DrivingGaleCallerAI(Creature* creature) : ScriptedAI(creature),
+            m_instance(creature->GetInstanceScript()),
+            m_events()
+            {
+            }
+
+            void Reset()
+            {
+                m_events.Reset();
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_events.Update(diff);
+
+                while (uint32 eventId = m_events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case uint32(Events::DERVISH):
+                        m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
+                        me->CastSpell(me->getVictim(), uint32(Spells::DERVISH));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    // If we cast something, we don't want to execute the other events.
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            InstanceScript* m_instance;
+            EventMap m_events;
+        };
+    };
+
+    class mob_AdeptOfTheDawn : public CreatureScript
+    {
+    public:
+        // Entry: 79467
+        mob_AdeptOfTheDawn()
+            : CreatureScript("mob_AdeptOfTheDawn")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            CRAFT_SUN_TRINCKET = 153521,
+            FLASH_HEAL = 152894,
+        };
+
+        enum class Events : uint32
+        {
+            CRAFT_SUN_TRINCKET = 1, // 20 seconds duration so heavy respawn.
+            FLASH_HEAL = 2          // Every 2 to 5 seconds.
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_AdeptOfTheDawnAI(creature);
+        }
+
+        struct mob_AdeptOfTheDawnAI : public ScriptedAI
+        {
+            mob_AdeptOfTheDawnAI(Creature* creature) : ScriptedAI(creature),
+            m_instance(creature->GetInstanceScript()),
+            m_events()
+            {
+            }
+
+            void Reset()
+            {
+                m_events.Reset();
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                m_events.ScheduleEvent(uint32(Events::CRAFT_SUN_TRINCKET), urand(3000, 5000));
+                m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_events.Update(diff);
+
+                while (uint32 eventId = m_events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case uint32(Events::CRAFT_SUN_TRINCKET):
+                        m_events.ScheduleEvent(uint32(Events::CRAFT_SUN_TRINCKET), urand(20000, 25000));
+                        me->CastSpell(me, uint32(Spells::CRAFT_SUN_TRINCKET));
+                        break;
+                    case uint32(Events::FLASH_HEAL):
+                        m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(2500, 4500));
+                        me->CastSpell(me, uint32(Spells::FLASH_HEAL));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    // If we cast something, we don't want to execute the other events.
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            InstanceScript* m_instance;
+            EventMap m_events;
+        };
+    };
+
     class mob_SkyReachOverlord : public CreatureScript
     {
     public:
@@ -82,6 +318,96 @@ namespace MS
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            InstanceScript* m_instance;
+            EventMap m_events;
+        };
+    };
+
+    class mob_WindFamiliar : public CreatureScript
+    {
+    public:
+        // Entry: 76102
+        mob_WindFamiliar()
+            : CreatureScript("mob_WindFamiliar")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            SERENE = 153716,
+            WIND_BURST = 157352,
+        };
+
+        enum class Events : uint32
+        {
+            WIND_BURST = 1,
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_WindFamiliarAI(creature);
+        }
+
+        struct mob_WindFamiliarAI : public ScriptedAI
+        {
+            mob_WindFamiliarAI(Creature* creature) : ScriptedAI(creature),
+            m_instance(creature->GetInstanceScript()),
+            m_events()
+            {
+            }
+
+            void Reset()
+            {
+                m_events.Reset();
+            }
+
+            void JustDied(Unit* /*p_Killer*/)
+            {
+                // When dying, Serene aura release all the nearby friends from crowd-control.
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 10.0f;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_TargetList, l_Check);
+                me->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit)
+                        l_Unit->RemoveCharmAuras();
+                }
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_events.Update(diff);
+
+                while (uint32 eventId = m_events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case uint32(Events::WIND_BURST):
+                        m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
+                        me->CastSpell(me->getVictim(), uint32(Spells::WIND_BURST));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    // If we cast something, we don't want to execute the other events.
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+                }
             }
 
             InstanceScript* m_instance;
@@ -720,6 +1046,11 @@ namespace MS
             SOLAR_DETONATION = 160288,    // 2:40:59 - 2:41:12
         };
 
+        enum class Texts : int32
+        {
+            SOLAR_DETONATION = 14061,
+        };
+
         enum class Events : uint32
         {
             SOLAR_WRATH = 1,
@@ -768,7 +1099,10 @@ namespace MS
                     case uint32(Events::SOLAR_DETONATION):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
                         if (Player* l_plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 45.0f))
+                        {
                             me->CastSpell(l_plr, uint32(Spells::SOLAR_DETONATION));
+                            l_plr->MonsterWhisper(int32(Texts::SOLAR_DETONATION), l_plr->GetGUID(), true);
+                        }
                         break;
                     default:
                         break;
@@ -800,4 +1134,8 @@ void AddSC_mob_instance_skyreach()
     new MS::mob_SoaringChrakramMaster();
     new MS::mob_SolarFamiliar();
     new MS::mob_SkyReachOverlord();
+    new MS::mob_AdeptOfTheDawn();
+    new MS::mob_WindFamiliar();
+    new MS::mob_DrivingGaleCaller();
+    new MS::mob_AdornedBladetalon();
 }

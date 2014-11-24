@@ -827,46 +827,42 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& p_RecvData)
     m_Player->GetSocial()->SetFriendNote(GUID_LOPART(l_Guid), l_Notes);
 }
 
-void WorldSession::HandleReportBugOpcode(WorldPacket& recvData)
+void WorldSession::HandleReportBugOpcode(WorldPacket& p_RecvData)
 {
-    float posX, posY, posZ, orientation;
-    uint32 contentlen, mapId;
-    std::string content;
+    float l_PosX, l_PosY, l_PosZ, l_Orientation;
+    uint32 l_ContentLen, l_MapID;
+    std::string l_Content;
 
-    recvData >> posX >> posY >> orientation >> posZ;
-    recvData >> mapId;
+    p_RecvData >> l_MapID;
+    p_RecvData >> l_PosX >> l_PosY >> l_PosZ >> l_Orientation;
 
-    contentlen = recvData.ReadBits(10);
-    recvData.FlushBits();
-    content = recvData.ReadString(contentlen);
+    l_ContentLen = p_RecvData.ReadBits(10);
+    p_RecvData.FlushBits();
+    l_Content = p_RecvData.ReadString(l_ContentLen);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-    stmt->setString(0, "Bug");
-    stmt->setString(1, content);
-    CharacterDatabase.Execute(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    l_Statement->setString(0, "Bug");
+    l_Statement->setString(1, l_Content);
+    CharacterDatabase.Execute(l_Statement);
 }
 
-void WorldSession::HandleReportSuggestionOpcode(WorldPacket& recvData)
+void WorldSession::HandleReportSuggestionOpcode(WorldPacket& p_RecvData)
 {
-    float posX, posY, posZ, orientation;
-    uint32 contentlen, mapId;
-    std::string content;
+    float l_PosX, l_PosY, l_PosZ, l_Orientation;
+    uint32 l_ContentLen, l_MapID;
+    std::string l_Content;
 
-    recvData >> mapId;
-    recvData >> posZ >> orientation >> posY >> posX;
+    p_RecvData >> l_MapID;
+    p_RecvData >> l_PosX >> l_PosY >> l_PosZ >> l_Orientation;
 
-    contentlen = recvData.ReadBits(10);
-    recvData.FlushBits();
-    content = recvData.ReadString(contentlen);
+    l_ContentLen = p_RecvData.ReadBits(10);
+    p_RecvData.FlushBits();
+    l_Content = p_RecvData.ReadString(l_ContentLen);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-    stmt->setString(0, "Suggestion");
-    stmt->setString(1, content);
-    CharacterDatabase.Execute(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    l_Statement->setString(0, "Suggestion");
+    l_Statement->setString(1, l_Content);
+    CharacterDatabase.Execute(l_Statement);
 }
 
 void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
@@ -1967,11 +1963,9 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*p_RecvData*/)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
+/// - Blizzard have merge CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS & CMSG_READY_FOR_ACCOUNT_DATA_TIMES (see history of CharacterSelect_OnShow function in "GlueXML/CharacterSelect.lua" of WoW UI Source)
+void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
 {
-    // empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");
-
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 

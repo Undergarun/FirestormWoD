@@ -206,7 +206,7 @@ enum ShapeshiftForm
     FORM_NONE               = 0x00,
     FORM_CAT                = 0x01,
     FORM_TREE               = 0x02,
-    FORM_TRAVEL             = 0x03,
+    FORM_STAG               = 0x03,
     FORM_AQUA               = 0x04,
     FORM_BEAR               = 0x05,
     FORM_AMBIENT            = 0x06,

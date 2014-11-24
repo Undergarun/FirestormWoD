@@ -303,7 +303,7 @@ class spell_sha_water_ascendant : public SpellScriptLoader
                         if (bp > 0)
                             _player->CastCustomSpell((*alliesList.begin()), SPELL_SHA_RESTORATIVE_MISTS, &bp, NULL, NULL, true);   // Restorative Mists
 
-                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, time(NULL) + 1);               // This prevent from multiple procs
+                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 1 * IN_MILLISECONDS);               // This prevent from multiple procs
                     }
                 }
             }
@@ -1386,7 +1386,7 @@ class spell_sha_windfury : public SpellScriptLoader
                     {
                         if (!victim->IsFriendlyTo(caster))
                         {
-                            caster->AddSpellCooldown(GetSpellInfo()->Id, 0, time(NULL) + 5);
+                            caster->AddSpellCooldown(GetSpellInfo()->Id, 0, 5 * IN_MILLISECONDS);
 
                             int count = 3; // Blame blizz
 

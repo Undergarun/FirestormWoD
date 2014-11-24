@@ -316,7 +316,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket & p_Packet)
                 if (l_Quest)
                 {
                     l_Data << uint32(0); ///< Mask
-                    l_Data << uint32(l_Quest->GetRewOrReqMoney());
+                    l_Data << uint32(l_Quest->GetRewMoney());
                     l_Data << uint32(l_Quest->XPValue(GetPlayer()));
                     l_Data << uint32(l_Quest->GetRewItemsCount());
                     l_Data << uint32(l_Quest->GetRewCurrencyCount());
@@ -403,6 +403,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 
     uint64 guid = GetPlayer()->GetGUID();
     LfgUpdateData updateData = sLFGMgr->GetLfgStatus(guid);
+
     sLFGMgr->SendUpdateStatus(GetPlayer(), updateData);
 }
 
@@ -555,7 +556,7 @@ void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntr
     WorldPacket l_Data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + l_ItemCount * (4 + 4 + 4));
     l_Data << uint32(rdungeonEntry);                            ///< Queue Slot
     l_Data << uint32(sdungeonEntry);                            ///< Actual Slot
-    l_Data << uint32(p_Quest->GetRewOrReqMoney());              ///< Reward money
+    l_Data << uint32(p_Quest->GetRewMoney());              ///< Reward money
     l_Data << uint32(p_Quest->XPValue(GetPlayer()));            ///< Added XP
     l_Data << uint32(l_ItemCount);                              ///< Reward count
 

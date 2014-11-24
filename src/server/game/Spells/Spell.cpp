@@ -1629,7 +1629,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                         break;
 
                     m_caster->CastSpell(m_caster, 129881, true);
-                    m_caster->ToPlayer()->AddSpellCooldown(129881, 0, time(NULL) + 3);
+                    m_caster->ToPlayer()->AddSpellCooldown(129881, 0, 3 * IN_MILLISECONDS);
                     if (m_caster->HasAura(139598))
                         m_caster->AddAura(139597, m_caster);
                     break;
@@ -2957,7 +2957,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                         if (!plrCaster->HasSpellCooldown(98440))
                         {
                             plrCaster->CastSpell(plrCaster, 98440, true); // Restore 25 energy
-                            plrCaster->AddSpellCooldown(98440, 0, time(NULL) + 1); // Prevent double cast
+                            plrCaster->AddSpellCooldown(98440, 0, 1 * IN_MILLISECONDS); // Prevent double cast
                         }
                     }
                 }
@@ -5155,7 +5155,7 @@ void Spell::SendSpellGo()
     for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
     {
         Powers l_Power = Powers((*l_Itr));
-        l_Data << int32(m_caster->GetPower(l_Power) * m_caster->GetPowerCoeff(l_Power));
+        l_Data << int32(m_caster->GetPower(l_Power));
         l_Data << int8(l_Power);
     }
 

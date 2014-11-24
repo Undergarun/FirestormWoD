@@ -17,13 +17,18 @@
  */
 
 #ifndef TRINITYCORE_AREATRIGGER_H
-#define TRINITYCORE_AREATRIGGER_H
-
-#include "Object.h"
-#include "Timer.h"
+# define TRINITYCORE_AREATRIGGER_H
+  
+# include "Object.h"
+# include "Timer.h"
 
 class Unit;
 class SpellInfo;
+
+namespace MS
+{
+    class AreaTriggerEntityScript;
+}
 
 enum AreatriggerInterpolation
 {
@@ -174,7 +179,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest);
+        bool CreateAreaTriggerFromSpell(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest);
         bool CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map);
 
         void Update(uint32 p_time);
@@ -198,6 +203,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreaTriggerTemplateList GetTemplates() const { return m_Templates; }
         const AreaTriggerTemplate* GetMainTemplate() const { return !m_Templates.empty() ? &m_Templates.front() : nullptr; }
 
+        MS::AreaTriggerEntityScript* GetScript() const { return m_Script; }
+        void SetScript(MS::AreaTriggerEntityScript* p_Script) { m_Script = p_Script; }
+
         void SendMovementUpdate();
 
         void GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const;
@@ -214,10 +222,12 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         Unit* m_Caster;
         float m_VisualRadius;
         uint32 m_CreatedTime;
+        uint32 m_Flags;
         Position m_Source;
         Position m_Destination;
         AreatriggerInterpolation m_Trajectory;
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
+        MS::AreaTriggerEntityScript* m_Script;
 };
 #endif

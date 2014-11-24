@@ -451,7 +451,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //392 SPELL_AURA_392
     &AuraEffect::HandleNoImmediateEffect,                         //393 SPELL_AURA_DEFLECT_FRONT_SPELLS
     &AuraEffect::HandleNoImmediateEffect,                         //394 SPELL_AURA_TRIGGER_BONUS_LOOT (NYI)
-    &AuraEffect::HandleNULL,                                      //395 SPELL_AURA_395
+    &AuraEffect::HandleAreaTrigger,                               //395 SPELL_AURA_AREATRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_396
     &AuraEffect::HandleNULL,                                      //397 SPELL_AURA_397
     &AuraEffect::HandleNULL,                                      //398 SPELL_AURA_398
@@ -2092,25 +2092,20 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 48629;
             spellId3 = 106840;
             spellId4 = 113636;
-            target->RemoveAura(115034);
             break;
-        case FORM_TRAVEL:
+        case FORM_STAG:
             spellId = 5419;
-            target->RemoveAura(115034);
-
-            if (target->HasAura(114338) && !target->HasAura(131113) && apply)
+            if (target->HasAura(114338) && !target->HasAura(131113)) // Glyph of the Stag, Glyph of the Cheetah
                 spellId2 = 115034;
             break;
         case FORM_AQUA:
             spellId = 5421;
-            target->RemoveAura(115034);
             break;
         case FORM_BEAR:
             spellId = 1178;
             spellId2 = 21178;
             spellId3 = 106829;
             spellId4 = 106899;
-            target->RemoveAura(115034);
             break;
         case FORM_BATTLESTANCE:
             spellId = 21156;
@@ -2124,17 +2119,14 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_MOONKIN:
             spellId = 24905;
             spellId2 = 24907;
-            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT:
             spellId = 33948;
             spellId2 = 34764;
-            target->RemoveAura(115034);
             break;
         case FORM_FLIGHT_EPIC:
             spellId  = 40122;
             spellId2 = 40121;
-            target->RemoveAura(115034);
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
@@ -2149,20 +2141,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_SHADOW:
             spellId = 49868;
-
-            if (apply)
-            {
-                if (target->HasAura(107906)) // Glyph of Shadow
-                    spellId2 = 107904;
-                else
-                    spellId2 = 107903;
-            }
+            if (target->HasAura(107906)) // Glyph of Shadow
+                spellId2 = 107904;
             else
-            {
-                target->RemoveAura(107904);
-                target->RemoveAura(107903);
-            }
-
+                spellId2 = 107903;
             break;
         case FORM_GHOSTWOLF:
             spellId = 67116;
@@ -2243,26 +2225,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
                     }
-                }
-            }
-
-            // Leader of the Pack
-            if (plrTarget->HasSpell(17007))
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1<<(GetMiscValue()-1)))
-                    target->CastSpell(target, 24932, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
-            }
-
-            switch (GetMiscValue())
-            {
-                case FORM_CAT:
-                {
-                    // Savage Roar
-                    if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0, 0x10000000, 0))
-                        target->CastSpell(target, 62071, true);
-
-                    break;
                 }
             }
         }
@@ -2659,7 +2621,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             PowerType = POWER_RAGE;
             break;
         case FORM_TREE:                                     // 0x02
-        case FORM_TRAVEL:                                   // 0x03
+        case FORM_STAG:                                     // 0x03
         case FORM_AQUA:                                     // 0x04
         case FORM_AMBIENT:                                  // 0x06
         case FORM_STEVES_GHOUL:                             // 0x09
@@ -2698,7 +2660,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         {
             case FORM_CAT:
             case FORM_TREE:
-            case FORM_TRAVEL:
+            case FORM_STAG:
             case FORM_AQUA:
             case FORM_BEAR:
             case FORM_FLIGHT_EPIC:
@@ -3889,7 +3851,7 @@ void AuraEffect::HandleModFear(AuraApplication const* aurApp, uint8 mode, bool a
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_FLEEING);
@@ -3938,7 +3900,7 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_STUNNED);
@@ -3984,7 +3946,7 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bo
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_ROOT);
@@ -4187,10 +4149,10 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
     Unit* target = aurApp->GetTarget();
 
     //! Update ability to fly
-    if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
+    if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED || GetAuraType() == SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
+        if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAura(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             target->SetCanFly(apply);
 
@@ -8004,11 +7966,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     // ignore negative values (can be result apply spellmods to aura damage
     int32 damage = std::max(GetAmount(), 0);
 
-    // Fix Second Wind only in AURA_STATE_HEALTHLESS_35_PERCENT
-    if (m_spellInfo->Id == 16491)
-        if (caster->GetHealthPct() > 35.0f)
-            return;
-
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
     {
         // Taken mods
@@ -8809,4 +8766,26 @@ void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8
     // Enter in Arena reset the same way cooldowns that enter in duel
     if (p_Apply)
         l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+}
+
+void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (!l_Target)
+        return;
+
+    // AreaTrigger is removed at the end of his own duration
+    if (!p_Apply)
+        return;
+
+    uint32 l_MiscValue = GetMiscValue();
+    Position l_Position;
+    l_Target->GetPosition(&l_Position);
+
+    AreaTrigger* l_AreaTrigger = new AreaTrigger;
+    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, 0, l_Position, l_Position))
+        delete l_AreaTrigger;
 }

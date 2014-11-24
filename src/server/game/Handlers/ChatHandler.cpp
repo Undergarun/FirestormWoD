@@ -478,7 +478,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         {
             Group * l_Group = GetPlayer()->GetGroup();
 
-            if (!l_Group || !l_Group->isRaidGroup() || !(l_Group->IsLeader(GetPlayer()->GetGUID()) || l_Group->IsAssistant(GetPlayer()->GetGUID()) || l_Group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT) || l_Group->isBGGroup())
+            if (!l_Group || !l_Group->isRaidGroup() || !(l_Group->IsLeader(GetPlayer()->GetGUID()) || l_Group->IsAssistant(GetPlayer()->GetGUID()) || l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT) || l_Group->isBGGroup())
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), l_Type, l_Language, l_Text, l_Group);
@@ -729,6 +729,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
     }
 }
 
+/// - Client send it only for clear emote
 void WorldSession::HandleEmoteOpcode(WorldPacket & p_RecvData)
 {
     if (!GetPlayer()->isAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
@@ -744,11 +745,8 @@ void WorldSession::HandleEmoteOpcode(WorldPacket & p_RecvData)
 
     GetPlayer()->UpdateSpeakTime();
 
-    uint32 l_Emote;
-    p_RecvData >> l_Emote;
-
-    sScriptMgr->OnPlayerEmote(GetPlayer(), l_Emote);
-    GetPlayer()->HandleEmoteCommand(l_Emote);
+    sScriptMgr->OnPlayerEmote(GetPlayer(), 0);
+    GetPlayer()->HandleEmoteCommand(0);
 }
 
 namespace JadeCore
@@ -810,7 +808,7 @@ namespace JadeCore
     };
 }                                                           // namespace JadeCore
 
-void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
+void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
 {
     if (!GetPlayer()->isAlive())
         return;
@@ -824,23 +822,17 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
 
     GetPlayer()->UpdateSpeakTime();
 
-    uint32 text_emote, emoteNum;
-    ObjectGuid guid;
+    uint64 l_Target;
+    int32  l_Emote;
+    int32  l_SoundIndex;
 
-    recvData >> emoteNum;
-    recvData >> text_emote;
+    p_RecvData.readPackGUID(l_Target);
+    p_RecvData >> l_Emote;
+    p_RecvData >> l_SoundIndex;
 
-    uint8 bitsOrder[8] = { 4, 2, 5, 6, 0, 3, 7, 1 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
+    sScriptMgr->OnPlayerTextEmote(GetPlayer(), l_Emote, l_SoundIndex, l_Target);
 
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 1, 5, 2, 3, 0, 6, 7 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
-
-    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(text_emote);
+    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(l_Emote);
     if (!em)
         return;
 
@@ -861,24 +853,24 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
              break;
     }
 
-    Unit* unit = ObjectAccessor::GetUnit(*m_Player, guid);
+    Unit* unit = ObjectAccessor::GetUnit(*m_Player, l_Target);
 
     CellCoord p = JadeCore::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
 
     Cell cell(p);
     cell.SetNoCreate();
 
-    JadeCore::EmoteChatBuilder emote_builder(*GetPlayer(), emote_anim, text_emote, unit);
+    JadeCore::EmoteChatBuilder emote_builder(*GetPlayer(), emote_anim, l_Emote, unit);
     JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder > emote_do(emote_builder);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
     TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
     cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 
-    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, 0, unit);
+    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, l_Emote, 0, 0, unit);
 
     //Send scripted event call
     if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
-        ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), text_emote);
+        ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), l_Emote);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
