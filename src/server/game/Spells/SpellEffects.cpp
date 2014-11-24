@@ -642,7 +642,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                       if (m_caster->HasAura(114237) && m_caster->GetTypeId() == TYPEID_PLAYER)
                                       {
                                           m_caster->CastSpell(unitTarget, 114238, true);
-                                          m_caster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, time(NULL) + 15);
+                                          m_caster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 15 * IN_MILLISECONDS);
                                       }
 
                                       break;
@@ -1282,7 +1282,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                                 if (Pet* pet = m_caster->ToPlayer()->GetPet())
                                                 {
                                                     pet->CastSpell(unitTarget, 119899, true);
-                                                    m_caster->ToPlayer()->AddSpellCooldown(119905, 0, time(NULL) + 30);
+                                                    m_caster->ToPlayer()->AddSpellCooldown(119905, 0, 30 * IN_MILLISECONDS);
                                                 }
 
                                                 break;
@@ -1294,7 +1294,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                                 if (Pet* pet = m_caster->ToPlayer()->GetPet())
                                                 {
                                                     pet->CastSpell(unitTarget, damage, true);
-                                                    m_caster->ToPlayer()->AddSpellCooldown(119907, 0, time(NULL) + 60);
+                                                    m_caster->ToPlayer()->AddSpellCooldown(119907, 0, 60 * IN_MILLISECONDS);
                                                 }
                                                 break;
                                 }
@@ -1305,7 +1305,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                                 if (Pet* pet = m_caster->ToPlayer()->GetPet())
                                                 {
                                                     pet->CastSpell(unitTarget, damage, true);
-                                                    m_caster->ToPlayer()->AddSpellCooldown(119910, 0, time(NULL) + 24);
+                                                    m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24 * IN_MILLISECONDS);
                                                 }
                                                 break;
                                 }
@@ -1319,7 +1319,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                                 if (Pet* pet = m_caster->ToPlayer()->GetPet())
                                                 {
                                                     pet->CastSpell(unitTarget, damage, true);
-                                                    m_caster->ToPlayer()->AddSpellCooldown(119911, 0, time(NULL) + 24);
+                                                    m_caster->ToPlayer()->AddSpellCooldown(119911, 0, 24 * IN_MILLISECONDS);
                                                 }
                                                 break;
                                 }
@@ -1342,7 +1342,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                                 if (Pet* pet = m_caster->ToPlayer()->GetPet())
                                                 {
                                                     pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                                    m_caster->ToPlayer()->AddSpellCooldown(119913, 0, time(NULL) + 25);
+                                                    m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25 * IN_MILLISECONDS);
                                                 }
 
                                                 break;
@@ -3263,7 +3263,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     {
     case 124927:// Call Dog
         if (m_originalCaster->ToPlayer())
-            m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, time(NULL) + 60);
+            m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60 * IN_MILLISECONDS);
         break;
     case 123040:// Mindbender
         // Glyph of the Sha

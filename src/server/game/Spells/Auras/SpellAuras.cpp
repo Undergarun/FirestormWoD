@@ -2541,21 +2541,6 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     return true;
 }
 
-bool Aura::IsProcOnCooldown() const
-{
-    /*if (m_procCooldown)
-    {
-        if (m_procCooldown > time(NULL))
-            return true;
-    }*/
-    return false;
-}
-
-void Aura::AddProcCooldown(uint32 /*msec*/)
-{
-    //m_procCooldown = time(NULL) + msec;
-}
-
 void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
     bool prepare = CallScriptPrepareProcHandlers(aurApp, eventInfo);
@@ -2568,13 +2553,6 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
         --m_procCharges;
         SetNeedClientUpdateForTargets();
     }
-
-    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
-
-    ASSERT(procEntry);
-
-    // cooldowns should be added to the whole aura (see 51698 area aura)
-    AddProcCooldown(procEntry->cooldown);
 }
 
 bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const
@@ -2586,10 +2564,6 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
 
     // check if we have charges to proc with
     if (IsUsingCharges() && !GetCharges())
-        return false;
-
-    // check proc cooldown
-    if (IsProcOnCooldown())
         return false;
 
     // TODO:
