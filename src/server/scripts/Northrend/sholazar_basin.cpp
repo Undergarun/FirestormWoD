@@ -559,35 +559,14 @@ public:
             if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            for (uint8 i=0; i<3; i++)
-            {
-                switch (i)
-                {
-                   case 0:
-                       if (NPC_HEMET != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 1:
-                       if (NPC_HADRIUS != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 2:
-                       if (NPC_TAMARA != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                }
+            const Quest * quest = sObjectMgr->GetQuestTemplate(QUEST_ENTRY);
 
-                if (itr->second.CreatureOrGOCount[i] != 0)
-                    continue;
+            if (!quest->GetQuestObjectiveXObjectId(me->GetEntry()))
+                return;
 
-                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
-                caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
-                sayStep = 0;
-                break;
-            }
+            caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
+            caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
+            sayStep = 1;
         }
     };
 

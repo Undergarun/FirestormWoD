@@ -637,25 +637,38 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
                 data << uint32(POI->size()); // POI count
                 data << uint32(POI->size()); // POI count
 
-                for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
+                const Quest * l_Quest = sObjectMgr->GetQuestTemplate(questId);
+
+                for (QuestPOIVector::const_iterator l_It = POI->begin(); l_It != POI->end(); ++l_It)
                 {
-                    data << uint32(itr->Id);
-                    data << int32(itr->ObjectiveIndex);
+                    const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
+
+                    uint32 l_QuestObjectiveID   = 0;
+                    uint32 l_QuestObjectID      = 0;
+
+                    if (l_Objective)
+                    {
+                        l_QuestObjectiveID = l_Objective->ID;
+                        l_QuestObjectID = l_Objective->ObjectID;
+                    }
+
+                    data << uint32(l_It->Id);
+                    data << int32(l_It->ObjectiveIndex);
+                    data << uint32(l_QuestObjectiveID);
+                    data << uint32(l_QuestObjectID);
+                    data << uint32(l_It->MapId);
+                    data << uint32(l_It->AreaId);
                     data << uint32(0);
                     data << uint32(0);
-                    data << uint32(itr->MapId);
-                    data << uint32(itr->AreaId);
+                    data << uint32(l_It->Unk4);
                     data << uint32(0);
                     data << uint32(0);
-                    data << uint32(itr->Unk4);
-                    data << uint32(0);
-                    data << uint32(0);
-                    data << uint32(itr->points.size());
+                    data << uint32(l_It->points.size());
                     data << uint32(0);
 
-                    data << uint32(itr->points.size());
+                    data << uint32(l_It->points.size());
 
-                    for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
+                    for (std::vector<QuestPOIPoint>::const_iterator itr2 = l_It->points.begin(); itr2 != l_It->points.end(); ++itr2)
                     {
                         data << int32(itr2->x); // POI point x
                         data << int32(itr2->y); // POI point y

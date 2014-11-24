@@ -204,7 +204,6 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                 }
             }
 
-
             if (m_Player->CanCompleteQuest(questId))
                 m_Player->CompleteQuest(questId);
 
@@ -219,11 +218,15 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                 {
                     sScriptMgr->OnQuestAccept(m_Player, ((Item*)object), quest);
 
+                    if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
+                        break;
+
                     // destroy not required for quest finish quest starting item
                     bool destroyItem = true;
-                    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+                    for (QuestObjective l_Objective : quest->QuestObjectives)
                     {
-                        if ((quest->RequiredItemId[i] == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0))
+                        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM &&
+                            (l_Objective.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0))
                         {
                             destroyItem = false;
                             break;
@@ -249,88 +252,66 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
             if (quest->IsAutoComplete())
             {
-                // Add quest items for quests that require items
-                for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
+                for (QuestObjective l_Objective : quest->QuestObjectives)
                 {
-                    uint32 id = quest->RequiredItemId[x];
-                    uint32 count = quest->RequiredItemCount[x];
-                    if (!id || !count)
-                        continue;
-
-                    uint32 curItemCount = m_Player->GetItemCount(id, true);
-
-                    ItemPosCountVec dest;
-                    uint8 msg = m_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count-curItemCount);
-                    if (msg == EQUIP_ERR_OK)
+                    if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
                     {
-                        Item* item = m_Player->StoreNewItem(dest, id, true);
-                        m_Player->SendNewItem(item, count-curItemCount, true, false);
+                        uint32 id       = l_Objective.ObjectID;
+                        uint32 count    = l_Objective.Amount;
+
+                        if (!id || !count)
+                            continue;
+
+                        uint32 curItemCount = m_Player->GetItemCount(id, true);
+
+                        ItemPosCountVec dest;
+                        uint8 msg = m_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count - curItemCount);
+                        if (msg == EQUIP_ERR_OK)
+                        {
+                            Item* item = m_Player->StoreNewItem(dest, id, true);
+                            m_Player->SendNewItem(item, count - curItemCount, true, false);
+                        }
                     }
-                }
-
-                // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
-                for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-                {
-                    int32 creature = quest->RequiredNpcOrGo[i];
-                    uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
-
-                    if (uint32 spell_id = quest->RequiredSpellCast[i])
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC)
                     {
-                        for (uint16 z = 0; z < creaturecount; ++z)
-                            if (creature > 0)
-                                m_Player->CastedCreatureOrGOForQuest(creature, true, spell_id);
-                            else
-                                m_Player->CastedCreatureOrGOForQuest(creature, false, spell_id);
-                    }
-                    else if (creature > 0)
-                    {
+                        int32 creature          = l_Objective.ObjectID;
+                        uint32 creaturecount    = l_Objective.Amount;
+
                         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
+                        {
                             for (uint16 z = 0; z < creaturecount; ++z)
                                 m_Player->KilledMonster(cInfo, 0);
+                        }
                     }
-                    else if (creature < 0)
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
                     {
-                        for (uint16 z = 0; z < creaturecount; ++z)
-                            m_Player->CastedCreatureOrGO(creature, 0, 0);
+                        for (uint16 z = 0; z < l_Objective.Amount; ++z)
+                            m_Player->CastedCreatureOrGO(l_Objective.ObjectID, 0, 0);
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL)
+                    {
+                        /// @TODO
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY)
+                    {
+                        if (!l_Objective.ObjectID || !l_Objective.Amount)
+                            continue;
+
+                        m_Player->ModifyCurrency(l_Objective.ObjectID, l_Objective.Amount);
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2)
+                    {
+                        if (m_Player->GetReputationMgr().GetReputation(l_Objective.ObjectID) < l_Objective.Amount)
+                        {
+                            if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(l_Objective.ObjectID))
+                                m_Player->GetReputationMgr().SetReputation(factionEntry, l_Objective.Amount);
+                        }
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
+                    {
+                        m_Player->ModifyMoney(l_Objective.Amount);
                     }
                 }
-
-                // If the quest requires currency to complete
-                for (uint8 y = 0; y < QUEST_REQUIRED_CURRENCY_COUNT; y++)
-                {
-                    uint32 currency = quest->RequiredCurrencyId[y];
-                    uint32 currencyCount = quest->RequiredCurrencyCount[y];
-
-                    if (!currency || !currencyCount)
-                        continue;
-
-                    m_Player->ModifyCurrency(currency, currencyCount);
-                }
-
-                // If the quest requires reputation to complete
-                if (uint32 repFaction = quest->GetRepObjectiveFaction())
-                {
-                    uint32 repValue = quest->GetRepObjectiveValue();
-                    uint32 curRep = m_Player->GetReputationMgr().GetReputation(repFaction);
-                    if (curRep < repValue)
-                        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                            m_Player->GetReputationMgr().SetReputation(factionEntry, repValue);
-                }
-
-                // If the quest requires a SECOND reputation to complete
-                if (uint32 repFaction = quest->GetRepObjectiveFaction2())
-                {
-                    uint32 repValue2 = quest->GetRepObjectiveValue2();
-                    uint32 curRep = m_Player->GetReputationMgr().GetReputation(repFaction);
-                    if (curRep < repValue2)
-                        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                            m_Player->GetReputationMgr().SetReputation(factionEntry, repValue2);
-                }
-
-                // If the quest requires money
-                int32 ReqOrRewMoney = quest->GetRewOrReqMoney();
-                if (ReqOrRewMoney < 0)
-                    m_Player->ModifyMoney(-ReqOrRewMoney);
 
                 m_Player->CompleteQuest(quest->GetQuestId());
             }
@@ -686,7 +667,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         }
         else
         {
-            if (quest->GetReqItemsCount())                  // some items required
+            if (quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))                  // some items required
                 m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
             else                                            // no items required
                 m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID, !autoCompleteMode);

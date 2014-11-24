@@ -148,8 +148,8 @@ public:
 
     static bool HandleQuestComplete(ChatHandler* handler, const char* args)
     {
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
+        Player* l_Player = handler->getSelectedPlayer();
+        if (!l_Player)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
@@ -167,96 +167,75 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+        if (!quest || l_Player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        // Add quest items for quests that require items
-        for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
+        for (QuestObjective l_Objective : quest->QuestObjectives)
         {
-            uint32 id = quest->RequiredItemId[x];
-            uint32 count = quest->RequiredItemCount[x];
-            if (!id || !count)
-                continue;
-
-            uint32 curItemCount = player->GetItemCount(id, true);
-
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count-curItemCount);
-            if (msg == EQUIP_ERR_OK)
+            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
             {
-                Item* item = player->StoreNewItem(dest, id, true);
-                player->SendNewItem(item, count-curItemCount, true, false);
+                uint32 id = l_Objective.ObjectID;
+                uint32 count = l_Objective.Amount;
+
+                if (!id || !count)
+                    continue;
+
+                uint32 curItemCount = l_Player->GetItemCount(id, true);
+
+                ItemPosCountVec dest;
+                uint8 msg = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = l_Player->StoreNewItem(dest, id, true);
+                    l_Player->SendNewItem(item, count - curItemCount, true, false);
+                }
             }
-        }
-
-        for (uint8 y = 0; y < QUEST_REQUIRED_CURRENCY_COUNT; y++)
-        {
-            uint32 currency = quest->RequiredCurrencyId[y];
-            uint32 currencyCount = quest->RequiredCurrencyCount[y];
-
-            if (!currency || !currencyCount)
-                continue;
-
-            player->ModifyCurrency(currency, currencyCount);
-        }
-
-        // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        {
-            int32 creature = quest->RequiredNpcOrGo[i];
-            uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
-
-            if (uint32 spell_id = quest->RequiredSpellCast[i])
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC)
             {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    if (creature > 0)
-                        player->CastedCreatureOrGOForQuest(creature, true, spell_id);
-                    else
-                        player->CastedCreatureOrGOForQuest(creature, false, spell_id);
-            }
-            else if (creature > 0)
-            {
+                int32 creature = l_Objective.ObjectID;
+                uint32 creaturecount = l_Objective.Amount;
+
                 if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
+                {
                     for (uint16 z = 0; z < creaturecount; ++z)
-                        player->KilledMonster(cInfo, 0);
+                        l_Player->KilledMonster(cInfo, 0);
+                }
             }
-            else if (creature < 0)
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
             {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, 0);
+                for (uint16 z = 0; z < l_Objective.Amount; ++z)
+                    l_Player->CastedCreatureOrGO(l_Objective.ObjectID, 0, 0);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL)
+            {
+                /// @TODO
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY)
+            {
+                if (!l_Objective.ObjectID || !l_Objective.Amount)
+                    continue;
+
+                l_Player->ModifyCurrency(l_Objective.ObjectID, l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2)
+            {
+                if (l_Player->GetReputationMgr().GetReputation(l_Objective.ObjectID) < l_Objective.Amount)
+                {
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(l_Objective.ObjectID))
+                        l_Player->GetReputationMgr().SetReputation(factionEntry, l_Objective.Amount);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
+            {
+                l_Player->ModifyMoney(l_Objective.Amount);
             }
         }
 
-        // If the quest requires reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction())
-        {
-            uint32 repValue = quest->GetRepObjectiveValue();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue);
-        }
-
-        // If the quest requires a SECOND reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction2())
-        {
-            uint32 repValue2 = quest->GetRepObjectiveValue2();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue2)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue2);
-        }
-
-        // If the quest requires money
-        int32 ReqOrRewMoney = quest->GetRewOrReqMoney();
-        if (ReqOrRewMoney < 0)
-            player->ModifyMoney(-ReqOrRewMoney);
-
-        player->CompleteQuest(entry);
+        l_Player->CompleteQuest(entry);
         return true;
     }
 

@@ -1655,6 +1655,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
     DisableMgr::CheckQuestDisables();                           // must be after loading quests
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objectives...");
+    sObjectMgr->LoadQuestObjectives();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
+    sObjectMgr->LoadQuestObjectiveLocales();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
 
