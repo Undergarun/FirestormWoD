@@ -39,6 +39,86 @@ namespace MS
 
     namespace InstanceSkyreach
     {
+        static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        {
+            std::list<GameObject*> l_TargetList;
+
+            JadeCore::NearestGameObjectEntryInObjectRangeCheck l_Check(*p_Me, p_Entry, p_Range);
+            JadeCore::GameObjectListSearcher<JadeCore::NearestGameObjectEntryInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+            p_Me->VisitNearbyObject(p_Range, l_Searcher);
+
+            for (GameObject* l_Gob : l_TargetList)
+                return l_Gob;
+
+            return nullptr;
+        }
+
+        static Creature* SelectNearestCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = p_Range;
+
+            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_Me, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::list<Unit*> l_Results;
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetTypeId() == TYPEID_UNIT && l_Unit->GetEntry() == p_Entry)
+                    return static_cast<Creature*>(l_Unit);
+            }
+
+            return nullptr;
+        }
+
+        static Unit* SelectRandomCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = p_Range;
+
+            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_Me, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::list<Unit*> l_Results;
+            uint32 l_Size = 0;
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetEntry() == p_Entry)
+                {
+                    l_Results.emplace_back(l_Unit);
+                    l_Size++;
+                }
+            }
+
+            auto l_RandUnit = l_Results.begin();
+            std::advance(l_RandUnit, urand(0, l_Size - 1));
+
+            return *l_RandUnit;
+        }
+
+        static std::list<Unit*> SelectNearestCreatureListWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = p_Range;
+
+            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_Me, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::list<Unit*> l_Results;
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetEntry() == p_Entry)
+                    l_Results.emplace_back(l_Unit);
+            }
+
+            return l_Results;
+        }
+
         static Unit* SelectNearestFriendExcluededMe(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
         {
             std::list<Unit*> l_TargetList;

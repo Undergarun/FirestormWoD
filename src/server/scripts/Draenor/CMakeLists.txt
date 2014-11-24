@@ -16,6 +16,7 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/mob_skyreach.cpp
   Draenor/Skyreach/spell_skyreach.cpp
   Draenor/Skyreach/boss_ranjit.cpp
+  Draenor/Skyreach/boss_araknath.cpp
 )
 
 message("  -> Prepared: Draenor")

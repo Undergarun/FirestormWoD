@@ -28,6 +28,7 @@
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "AreaTriggerScript.h"
 
 AreaTrigger::AreaTrigger()
     : WorldObject(false),
@@ -43,6 +44,7 @@ AreaTrigger::AreaTrigger()
 
     m_valuesCount = AREATRIGGER_END;
     m_CreatedTime = 0;
+    m_Flags = 0;
 
     m_Trajectory = AREATRIGGER_INTERPOLATION_NONE;
     m_Templates.clear();
@@ -76,52 +78,68 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest)
+bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, SpellInfo const* p_SpellInfo, uint32 p_EffIndex, Position const& pos, Position const& p_Dest)
 {
-    SetMap(caster->GetMap());
+    SetMap(p_Caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", p_SpellInfo->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_AREATRIGGER, caster->GetPhaseMask());
+    WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_Caster->GetPhaseMask());
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(spell->Id);
-    if (l_Templates == nullptr)
-        return false;
-
-    for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
+    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
+    if (l_Templates != nullptr)
     {
-        const AreaTriggerTemplate l_AreaTriggerTemplate = *l_Itr;
-        if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
-            m_Templates.push_back(l_AreaTriggerTemplate);
+        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
+        {
+            const AreaTriggerTemplate l_AreaTriggerTemplate = *l_Itr;
+            if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
+                m_Templates.push_back(l_AreaTriggerTemplate);
+        }
+    }
+    else
+    {
+        // Create default template
+        AreaTriggerTemplate l_DefaultAreaTriggerTemplate;
+        l_DefaultAreaTriggerTemplate.m_Entry = p_SpellInfo->Id;
+        l_DefaultAreaTriggerTemplate.m_Flags |= AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+        l_DefaultAreaTriggerTemplate.m_ScaleX = 1;
+        l_DefaultAreaTriggerTemplate.m_ScaleY = 1;
+
+        m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
     const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
-
     if (l_MainTemplate == nullptr)
         return false;
 
-    if (l_MainTemplate->m_SpellID == 0 && l_MainTemplate->m_Entry == 0)
-        return false;
+    m_Flags = l_MainTemplate->m_Flags;
+
+    if (p_Caster->GetVehicleKit() && m_Flags & AREATRIGGER_FLAG_ATTACHED)
+    {
+        m_updateFlag |= UPDATEFLAG_HAS_SERVER_TIME;
+        m_movementInfo.t_guid = p_Caster->GetGUID();
+        m_movementInfo.t_seat = 0;
+    }
 
     SetEntry(l_MainTemplate->m_Entry);
-    SetDuration(spell->GetDuration());
+    SetDuration(p_SpellInfo->GetDuration());
     SetObjectScale(1);
 
-    SetGuidValue(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
-    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
-    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
+    SetGuidValue(AREATRIGGER_FIELD_CASTER, p_Caster->GetGUID());
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, p_SpellInfo->Id);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, p_SpellInfo->SpellVisual[0]);
 
     SetSource(pos);
     SetDestination(p_Dest);
     SetTrajectory(pos != p_Dest ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
-    if (spell->GetDuration() != -1)
-        SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
+    if (p_SpellInfo->GetDuration() != -1)
+        SetUInt32Value(AREATRIGGER_FIELD_DURATION, p_SpellInfo->GetDuration());
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
 
@@ -135,12 +153,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo cons
 
 bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map)
 {
-    return false;
-
     ASSERT(p_Map != nullptr);
 
     SetMap(p_Map);
     Relocate(p_Pos);
+
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (entry %u) not created. Invalid coordinates (X: %f Y: %f)", p_Entry, GetPositionX(), GetPositionY());
@@ -149,12 +166,34 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_PhaseMask);
 
+    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
+    if (l_Templates != nullptr)
+    {
+        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
+            m_Templates.push_back(*l_Itr);
+    }
+    else
+    {
+        // Create default template
+        AreaTriggerTemplate l_DefaultAreaTriggerTemplate;
+        l_DefaultAreaTriggerTemplate.m_Entry = p_Entry;
+        l_DefaultAreaTriggerTemplate.m_Flags |= AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+        l_DefaultAreaTriggerTemplate.m_ScaleX = 1;
+        l_DefaultAreaTriggerTemplate.m_ScaleY = 1;
+
+        m_Templates.push_back(l_DefaultAreaTriggerTemplate);
+    }
+
+    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    if (l_MainTemplate == nullptr)
+        return false;
+
+    m_Flags = l_MainTemplate->m_Flags;
+
     SetEntry(p_Entry);
     SetDuration(p_Duration);
     SetObjectScale(1);
 
-    SetGuidValue(AREATRIGGER_FIELD_CASTER, 0);
-    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, 0);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, p_SpellVisualID);
 
     SetSource(p_Pos);

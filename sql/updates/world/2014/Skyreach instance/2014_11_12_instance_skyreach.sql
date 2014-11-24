@@ -760,5 +760,14 @@ UPDATE creature_template SET unit_class = 1 WHERE unit_class = 0;
 UPDATE gameobject SET spawntimesecs = 120 WHERE spawntimesecs = 0 AND map = 1116;
 UPDATE creature SET spawndist = 7.76 WHERE movementtype = 1 AND spawndist = 0;
 UPDATE creature SET movementtype= 1 WHERE  spawndist != 0;
-UPDATE creature SET movementtype= 0 WHERE  spawndist = 0;UPDATE creature, creature_equip_template SET creature.equipment_id = creature_equip_template.id WHERE creature.id = creature_equip_template.entry;
+UPDATE creature SET movementtype= 0 WHERE  spawndist = 0;
+UPDATE creature, creature_equip_template SET creature.equipment_id = creature_equip_template.id WHERE creature.id = creature_equip_template.entry;
+update creature_template set exp='5' where entry in (select c.id from creature c where c.map=1209);
+
 UPDATE creature_classlevelstats SET basehp5 = '52250' , basemana = '24394' WHERE LEVEL = '98' AND class = '8'; 
+
+update creature set spawnMask=6 where map=1209;
+update gameobject set spawnMask=6 where map=1209;
+
+update creature_template set unit_flags=33554432|unit_flags where entry=76142;
+update creature_template_addon set auras='' where entry=76142;

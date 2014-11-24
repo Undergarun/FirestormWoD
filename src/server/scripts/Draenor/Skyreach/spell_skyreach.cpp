@@ -4,6 +4,338 @@
 
 namespace MS
 {
+    // AreaTriggers for spells: 159221
+    class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            SOLAR_STORM_DMG = 159226,
+        };
+
+        std::forward_list<uint64> m_Targets;
+
+    public:
+        AreaTrigger_SolarStorm()
+            : MS::AreaTriggerEntityScript("at_SolarStorm"),
+            m_Targets()
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_SolarStorm();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_Targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                        l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
+                }
+            }
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 4.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                {
+                    if (l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_Targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit || l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius || l_Unit->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::SOLAR_STORM_DMG), true);
+                m_Targets.emplace_front(l_Unit->GetGUID());
+            }
+        }
+    };
+
+    // Solar storm - 159215
+    class spell_SolarStorm : public SpellScriptLoader
+    {
+    public:
+        spell_SolarStorm()
+            : SpellScriptLoader("spell_SolarStorm")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            SOLAR_STORM = 159215, // FIXME.
+            SOLAR_STORM_1 = 159216,
+            SOLAR_STORM_2 = 159218,
+            SOLAR_STORM_3 = 159221,
+            SOLAR_STORM_4 = 159226,
+        };
+
+        class spell_SolarStorm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_SolarStorm_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitUnit() && GetCaster())
+                    GetCaster()->CastSpell(GetHitUnit(), uint32(Spells::SOLAR_STORM_1), true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_SolarStorm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_SolarStorm_SpellScript();
+        }
+    };
+
+    // AreaTriggers for spells: 156634, 156636
+    class AreaTrigger_FourWinds : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            // Four winds. Arrived after 2 or 3 instances of WindWall.
+            FOUR_WINDS = 156793,
+            FOUR_WINDS_DMG = 153139,
+            FOUR_WINDS_AT_1 = 156634,
+            FOUR_WINDS_AT_2 = 156636,
+            FOUR_WINDS_VISUAL_1 = 166623,
+            FOUR_WINDS_VISUAL_2 = 166664
+        };
+
+        float m_angle;
+        std::forward_list<uint64> m_targets;
+        uint32 m_Last;
+        uint32 m_IsSpellAt2;
+
+    public:
+        AreaTrigger_FourWinds()
+            : MS::AreaTriggerEntityScript("at_FourWinds"),
+            m_targets(),
+            m_angle(0),
+            m_Last(60000),
+            m_IsSpellAt2(0)
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_FourWinds();
+        }
+
+        bool IsInWind(Unit const* p_Unit, AreaTrigger const* p_Area) const
+        {
+            static const float k_Radius = 3.0f;
+
+            float l_x1 = p_Area->GetPositionX() + cos(m_angle);
+            float l_x2 = p_Area->GetPositionX() + cos(m_angle - M_PI);
+            float l_y1 = p_Area->GetPositionY() + sin(m_angle);
+            float l_y2 = p_Area->GetPositionY() + sin(m_angle - M_PI);
+
+            float l_dx = l_x2 - l_x1;
+            float l_dy = l_y2 - l_y1;
+
+            bool l_b1 = std::abs(l_dy * p_Unit->GetPositionX() - l_dx * p_Unit->GetPositionY() - l_x1 * l_y2 + l_x2 * l_y1) / std::sqrt(l_dx * l_dx + l_dy * l_dy) < k_Radius;
+
+            l_x1 = p_Area->GetPositionX() + cos(m_angle + M_PI / 2);
+            l_x2 = p_Area->GetPositionX() + cos(m_angle - M_PI / 2);
+            l_y1 = p_Area->GetPositionY() + sin(m_angle + M_PI / 2);
+            l_y2 = p_Area->GetPositionY() + sin(m_angle - M_PI / 2);
+
+            l_dx = l_x2 - l_x1;
+            l_dy = l_y2 - l_y1;
+
+            bool l_b2 = std::abs(l_dy * p_Unit->GetPositionX() - l_dx * p_Unit->GetPositionY() - l_x1 * l_y2 + l_x2 * l_y1) / std::sqrt(l_dx * l_dx + l_dy * l_dy) < k_Radius;
+
+            return l_b1 || l_b2;
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::FOUR_WINDS_DMG)))
+                    {
+                        l_Target->RemoveAura(uint32(Spells::FOUR_WINDS_DMG));
+                    }
+                }
+            }
+        }
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            m_IsSpellAt2 = p_AreaTrigger->GetSpellId() == uint32(Spells::FOUR_WINDS_AT_2);
+            m_angle = (m_IsSpellAt2 ? M_PI / + 72 : M_PI / 7) + (m_IsSpellAt2 ? M_PI / 36 : -M_PI / 72); // Magic values ! Taken from tests IG.
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            static const float k_RotSpeed[2] =
+            {
+                0.014f,
+                0.014f
+            };
+            static const float k_dist = 25.0f;
+
+            // Update targets.
+            std::list<Unit*> l_TargetList;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), k_dist);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(k_dist, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && (l_Target->GetExactDist2d(p_AreaTrigger) > k_dist || !IsInWind(l_Target, p_AreaTrigger)))
+                {
+                    if (l_Target->HasAura(uint32(Spells::FOUR_WINDS_DMG)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::FOUR_WINDS_DMG));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit
+                    || l_Unit->GetExactDist2d(p_AreaTrigger) > k_dist
+                    || l_Unit->HasAura(uint32(Spells::FOUR_WINDS_DMG))
+                    || !IsInWind(l_Unit, p_AreaTrigger))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::FOUR_WINDS_DMG), true);
+                m_targets.emplace_front(l_Unit->GetGUID());
+            }
+
+            // Update rotation.
+            if ((m_Last - p_AreaTrigger->GetDuration() < 100))
+                return;
+
+            if (m_IsSpellAt2)
+                m_angle -= k_RotSpeed[m_IsSpellAt2];
+            else
+                m_angle += k_RotSpeed[m_IsSpellAt2];
+
+            // We are staying in [0, 2pi]
+            if (m_angle > 2 * M_PI)
+                m_angle -= 2 * M_PI;
+            if (m_angle < 0)
+                m_angle += 2 * M_PI;
+
+            m_Last = p_AreaTrigger->GetDuration();
+        }
+    };
+
+    // Four wind - 156793
+    class spell_FourWind : public SpellScriptLoader
+    {
+    public:
+        spell_FourWind()
+            : SpellScriptLoader("spell_FourWind")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            // Four winds. Arrived after 2 or 3 instances of WindWall.
+            FOUR_WINDS = 156793,
+            FOUR_WINDS_DMG = 153139,
+            FOUR_WINDS_AT_1 = 156634,
+            FOUR_WINDS_AT_2 = 156636,
+            FOUR_WINDS_VISUAL_1 = 166623,
+            FOUR_WINDS_VISUAL_2 = 166664
+        };
+
+        class spell_FourWind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_FourWind_SpellScript);
+
+            void HandleTriggerMissible(SpellEffIndex /*effIndex*/)
+            {
+                static const uint32 k_spells1[2] = 
+                {
+                    uint32(Spells::FOUR_WINDS_AT_1),
+                    uint32(Spells::FOUR_WINDS_VISUAL_1)
+                };
+                static const uint32 k_spells2[2] =
+                {
+                    uint32(Spells::FOUR_WINDS_AT_2),
+                    uint32(Spells::FOUR_WINDS_VISUAL_2)
+                };
+                if (GetCaster())
+                {
+                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), 76119, 40.0f);
+                    if (l_Target.empty())
+                        return;
+
+                    uint32 l_Random = urand(0, 1);
+                    uint32 i = 0;
+                    for (Unit* l_Trigger : l_Target)
+                    {
+                        l_Trigger->SetOrientation(0);
+                        if (l_Random == 0)
+                            l_Trigger->CastSpell(l_Trigger, k_spells1[i], true);
+                        else
+                            l_Trigger->CastSpell(l_Trigger, k_spells2[i], true);
+                        ++i;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_FourWind_SpellScript::HandleTriggerMissible, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_FourWind_SpellScript();
+        }
+    };
+
     // AreaTriggers for spells: 153311, 153314
     class AreaTrigger_WindWall : public MS::AreaTriggerEntityScript
     {
@@ -29,16 +361,24 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI()
+        MS::AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_WindWall();
         }
 
         bool IsInWind(Unit const* p_Unit, AreaTrigger const* p_Area) const
         {
-            static const float k_eps = M_PI / 18; // 10 degrees.
+            static const float k_Radius = 2.0f;
 
-            return std::abs(p_Area->GetAngle(p_Unit) - std::abs(m_angle)) < k_eps || std::abs(p_Area->GetAngle(p_Unit) - std::abs(m_angle) - M_PI) < k_eps;
+            float l_x1 = p_Area->GetPositionX() + cos(m_angle);
+            float l_x2 = p_Area->GetPositionX() + cos(m_angle - M_PI);
+            float l_y1 = p_Area->GetPositionY() + sin(m_angle);
+            float l_y2 = p_Area->GetPositionY() + sin(m_angle - M_PI);
+
+            float l_dx = l_x2 - l_x1;
+            float l_dy = l_y2 - l_y1;
+
+            return std::abs(l_dy * p_Unit->GetPositionX() - l_dx * p_Unit->GetPositionY() - l_x1 * l_y2 + l_x2 * l_y1) / std::sqrt(l_dx * l_dx + l_dy * l_dy) < k_Radius;
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -65,8 +405,16 @@ namespace MS
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            static const float k_RotSpeed[2] = { 0.015f, 0.022f };
-            static const int32 k_Start[2] = { 55000, 37000 };
+            static const float k_RotSpeed[2] =
+            {
+                0.015f,
+                0.022f
+            };
+            static const int32 k_Start[2] =
+            {
+                55000,
+                37000
+            };
             static const float k_dist = 10.0f;
 
             // Update targets.
@@ -153,7 +501,6 @@ namespace MS
                     Unit* l_Target = nullptr;
                     if (l_Target = InstanceSkyreach::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
                     {
-                        // Spinning Blade AreaTrigger
                         uint32 l_Random = urand(0, 1);
                         if (l_Random == 0)
                             GetCaster()->CastSpell(l_Target, uint32(Spells::WINDWALL_1));
@@ -191,7 +538,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI()
+        MS::AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_spinning_blade();
         }
@@ -270,7 +617,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI()
+        MS::AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_solar_zone();
         }
@@ -365,7 +712,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI()
+        MS::AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_storm_zone();
         }
@@ -446,7 +793,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI()
+        MS::AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_dervish();
         }
@@ -663,8 +1010,12 @@ void AddSC_spell_instance_skyreach()
     new MS::AreaTrigger_storm_zone();
     new MS::AreaTrigger_dervish();
     new MS::spell_BladeDance();
+    new MS::spell_SolarStorm();
+    new MS::AreaTrigger_SolarStorm();
 
     // Boss Ranjit.
     new MS::AreaTrigger_WindWall();
     new MS::spell_Windwall();
+    new MS::spell_FourWind();
+    new MS::AreaTrigger_FourWinds();
 }
