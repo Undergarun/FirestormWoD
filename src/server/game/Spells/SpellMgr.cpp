@@ -4751,9 +4751,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 114942:// Healing Tide
                 spellInfo->MaxAffectedTargets = 5;
                 break;
-            case 108283:// Echo of the Elements
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
             case 62099: // Shamanism
                 spellInfo->Effects[0].SpellClassMask[2] |= 0x8000;
                 break;

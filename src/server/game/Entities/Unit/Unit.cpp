@@ -8279,8 +8279,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 108283:// Echo of the Elements
-                    return false;
                 case 324:   // Lightning Shield
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
@@ -18055,7 +18053,7 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist, uint32 p_ExludeAuraID /*= 0*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/) const
 {
     std::list<Unit*> targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -18063,8 +18061,9 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist, uint32 p_ExludeAuraID 
     VisitNearbyObject(dist, searcher);
 
     // remove current target
-    if (getVictim())
-        targets.remove(getVictim());
+    if (!p_ExcludeVictim)
+        if (getVictim())
+            targets.remove(getVictim());
 
     if (exclude)
         targets.remove(exclude);

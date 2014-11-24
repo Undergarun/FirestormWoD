@@ -114,6 +114,8 @@ enum ShamanSpells
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL   = 159101,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT = 159103,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION = 159105,
+    SPELL_SHA_LAVA_LASH_SPREAD              = 105792,
+    SPELL_SHA_LIQUID_MAGMA_DAMAGE           = 177601
 };
 
 // Totemic Projection - 108287
@@ -386,7 +388,19 @@ class spell_sha_glyph_of_lakestrider : public SpellScriptLoader
         }
 };
 
-// Call of the Elements - 108285
+uint32 g_resetTotemCdSpells[] =
+{
+    108269, // Capacitor Totem
+    2484,   // Earthbind Totem
+    8177,   // Grounding Totem
+    5394,   // Healing Stream Totem
+    8143,   // Tremor Totem
+    108270, // Stone Bulwark Totem
+    51485,  // Earthgrab Totem
+    108273  // Windwalk Totem
+};
+
+// 108285 - Call of the Elements
 class spell_sha_call_of_the_elements : public SpellScriptLoader
 {
     public:
@@ -396,31 +410,20 @@ class spell_sha_call_of_the_elements : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_call_of_the_elements_SpellScript);
 
-            void HandleOnHit()
+            void OnSpellHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // immediately finishes the cooldown on totems with less than 3min cooldown
-                    const SpellCooldowns& cm = _player->GetSpellCooldownMap();
-                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                    {
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                        if (!spellInfo)
-                            continue;
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                        if ((spellInfo->Id == 51485 || spellInfo->Id == 108273 || spellInfo->Id == 108270
-                            || spellInfo->Id == 108269 || spellInfo->Id == 8143 || spellInfo->Id == 8177
-                            || spellInfo->Id == 5394 || spellInfo->Id == 2484) && spellInfo->GetRecoveryTime() > 0)
-                            _player->RemoveSpellCooldown((itr++)->first, true);
-                        else
-                            ++itr;
-                    }
-                }
+                if (!l_Player)
+                    return;
+
+                for (int l_I = 0; l_I < sizeof(g_resetTotemCdSpells) / sizeof(uint32); l_I++)
+                    l_Player->RemoveSpellCooldown(g_resetTotemCdSpells[l_I], true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_sha_call_of_the_elements_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_sha_call_of_the_elements_SpellScript::OnSpellHit);
             }
         };
 
@@ -592,24 +595,27 @@ class spell_sha_stone_bulwark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_stone_bulwark_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* owner = caster->GetOwner())
+                    if (Unit* l_Owner = l_Caster->GetOwner())
                     {
-                        float spellPower = spellPower = owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                        int32 amount = 0.875f * spellPower;
+                        float spellPower = spellPower = l_Owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                        int32 l_Amount = 0.875f * spellPower;
 
-                        if (AuraPtr aura = owner->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
-                            amount += aura->GetEffect(EFFECT_0)->GetAmount();
-                        else
-                            amount *= 4.f;
+                        if (AuraPtr aura = l_Owner->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                            l_Amount += aura->GetEffect(EFFECT_0)->GetAmount();
+                        else if (p_AurEff->GetTickNumber() == 1)
+                            l_Amount *= 4.f;
 
-                        if (AuraPtr aura = caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, owner))
-                            aura->GetEffect(EFFECT_0)->SetAmount(amount);
+                        if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Owner))
+                            aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
+
+                        PreventDefaultAction();
                     }
                 }
+
             }
 
             void Register()
@@ -1330,6 +1336,35 @@ class spell_sha_lava_lash_spread : public SpellScriptLoader
         }
 };
 
+// 60103 - Lava Lash
+class spell_sha_lava_lash : public SpellScriptLoader
+{
+    public:
+        spell_sha_lava_lash() : SpellScriptLoader("spell_sha_lava_lash") { }
+
+        class spell_sha_lava_lash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_lava_lash_SpellScript);
+
+            void HitTarget(SpellEffIndex)
+            {
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                        GetCaster()->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_lava_lash_SpellScript();
+        }
+};
+
 // 33757 - Windfury
 class spell_sha_windfury : public SpellScriptLoader
 {
@@ -1682,13 +1717,118 @@ class spell_sha_echo_of_elements : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_sha_echo_of_elements_AuraScript();
+        }
+};
+
+// 152255 Liquid Magma - a bit hacky, will do it properly later
+class spell_sha_liquid_magma : public SpellScriptLoader
+{
+    public:
+        spell_sha_liquid_magma() : SpellScriptLoader("spell_sha_liquid_magma") { }
+
+        class spell_sha_liquid_magma_AuraScript: public AuraScript
+        {
+            PrepareAuraScript(spell_sha_liquid_magma_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                // hardcoded in the tooltip - no DBC data here
+                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false);
+
+                if (l_Target)
+                    l_Caster->CastSpell(l_Target, GetSpellInfo()->Effects[p_AurEff->GetEffIndex()].TriggerSpell);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_liquid_magma_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+
+        };
+
+        class spell_sha_liquid_magma_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_liquid_magma_SpellScript);
+
+            SpellCastResult HandleCheckCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (Creature* l_Totem = l_Player->GetMap()->GetCreature(l_Player->m_SummonSlot[SUMMON_SLOT_TOTEM]))
+                        if (l_Totem && l_Totem->isTotem())
+                            return SPELL_CAST_OK;
+
+                if (GetCaster()->isTotem())
+                    return SPELL_CAST_OK;
+
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            void HandleApply(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* l_Player = GetHitUnit()->ToPlayer())
+                {
+                    if (Creature* l_Totem = l_Player->GetMap()->GetCreature(l_Player->m_SummonSlot[SUMMON_SLOT_TOTEM]))
+                    {
+                        if (l_Totem && l_Totem->isTotem())
+                        {
+                            l_Totem->AddAura(GetSpellInfo()->Id, l_Totem);
+                            PreventHitAura();
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_sha_liquid_magma_SpellScript::HandleCheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_liquid_magma_SpellScript::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_liquid_magma_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_liquid_magma_AuraScript();
+        }
+};
+
+// 157501 Liquid Magma
+class spell_sha_liquid_magma_visual : public SpellScriptLoader
+{
+    public:
+        spell_sha_liquid_magma_visual() : SpellScriptLoader("spell_sha_liquid_magma_visual") { }
+
+        class spell_sha_liquid_magma_visual_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_liquid_magma_visual_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_SHA_LIQUID_MAGMA_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_liquid_magma_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_liquid_magma_visual_SpellScript();
         }
 };
 
@@ -1729,4 +1869,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_molten_earth_periodic();
     new spell_sha_molten_earth_damage();
     new spell_sha_echo_of_elements();
+    new spell_sha_lava_lash();
+    new spell_sha_liquid_magma();
+    new spell_sha_liquid_magma_visual();
 }

@@ -1698,8 +1698,8 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ALTER_APPEARANCE");
 
-    uint32 Hair, Color, FacialHair, SkinColor;
-    recvData >> Color >> FacialHair >> SkinColor >> Hair;
+    uint32 Hair, Color, FacialHair, SkinColor, Face;
+    recvData >> Hair >> Color >> FacialHair >> SkinColor >> Face;
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
     if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != m_Player->getRace() || bs_hair->Sex != m_Player->getGender())

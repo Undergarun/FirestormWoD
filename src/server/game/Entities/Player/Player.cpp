@@ -4161,7 +4161,7 @@ void Player::GiveLevel(uint8 level)
 //             if (level % 2 == 0)
 //             {
 //                 ++m_grantableLevels;
-// 
+//
 //                 if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
 //                     SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
 //             }
@@ -12203,7 +12203,7 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 if (pItem != skipItem && pItem->GetEntry() == item)
                     count += pItem->GetCount();
-                
+
         for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 if (pItem != skipItem && pItem->GetEntry() == item)
@@ -19222,7 +19222,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
 bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
 {
     /// 0             1               2               3                  4                         5                         6                7                  8                    9
-    /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes, 
+    /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes,
     /// 10            11              12              13                 14                        15                        16               17                 18                   19
     /// playerBytes2, playerFlags,    position_x,     position_y,        position_z,               map,                      orientation,     taximask,          cinematic,           totaltime,
     /// 20            21              22              23                 24                        25                        26               27                 28                   29
@@ -27748,8 +27748,9 @@ uint32 Player::CalculateTalentsPoints() const
 {
     uint8 l_talentPoints = getLevel() / 15;
 
-    if ((getLevel() % 15) != 0 && getLevel() == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        l_talentPoints += 1;
+    // Should be a hardcoded value
+    if (getLevel() == 100)
+        ++l_talentPoints;
 
     return l_talentPoints;
 }
