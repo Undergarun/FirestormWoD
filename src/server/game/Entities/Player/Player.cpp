@@ -17118,7 +17118,6 @@ bool Player::CanCompleteQuest(uint32 p_QuestID)
                 }
                 else
                 {
-                    printf("Can complete generic %u < %u\n", GetQuestObjectiveCounter(l_Objective.ID), uint32(l_Objective.Amount));
                     if (GetQuestObjectiveCounter(l_Objective.ID) < uint32(l_Objective.Amount))
                         return false;
                 }
@@ -18456,7 +18455,6 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
 
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, real_entry);   // MUST BE CALLED FIRST
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, real_entry, addkillcount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
-    printf("Add Kill\n");
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -18474,11 +18472,9 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == real_entry)
                 {
-                    printf("Add Kill %u %u %u => %u\n", l_Objective.ID, l_Objective.ObjectID, l_Objective.Amount, real_entry);
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
                     {
-                        printf("Add kill send credit old %u add %u \n", m_questObjectiveStatus[l_Objective.ID], addkillcount);
                         m_questObjectiveStatus[l_Objective.ID] += addkillcount;
                         m_QuestStatusSave[questid] = true;
                         SendQuestUpdateAddCredit(qInfo, l_Objective, guid, currentCounter, addkillcount);
@@ -18870,7 +18866,6 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
     if (log_slot < MAX_QUEST_LOG_SIZE)
     {
         SetQuestSlotCounter(log_slot, p_Objective.Index, GetQuestSlotCounter(log_slot, p_Objective.Index) + p_AddCount);
-        printf("Set quest slot counter \n");
     }
 }
 
