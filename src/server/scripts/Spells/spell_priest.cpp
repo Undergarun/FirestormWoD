@@ -2416,10 +2416,10 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-                if (Unit *l_Targer = GetHitUnit())
-                if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
-                    if (l_Targer->HasAura(PRIEST_SHADOW_WORD_PAIN) == false && l_Targer->HasAura(PRIEST_VAMPIRIC_TOUCH) == false) // Shadow word: pain / Vampiric touch
-                        SetHitDamage(GetHitDamage() + ((GetHitDamage() / 100) * sSpellMgr->GetSpellInfo(PRIEST_SPELL_CLARITY_OF_POWER)->Effects[EFFECT_0].BasePoints));
+                if (Unit *l_Target = GetHitUnit())
+                    if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
+                        if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) // Shadow word: pain / Vampiric touch
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(PRIEST_SPELL_CLARITY_OF_POWER)->Effects[EFFECT_0].BasePoints));
         }
 
         void Register()
