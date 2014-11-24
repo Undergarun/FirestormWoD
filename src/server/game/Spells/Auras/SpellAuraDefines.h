@@ -453,7 +453,7 @@ enum AuraType
     SPELL_AURA_392                                          = 392,  // 5.0.5 unk aura
     SPELL_AURA_DEFLECT_FRONT_SPELLS                         = 393,  // SPELL_AURA_DEFLECT_FRONT_SPELLS
     SPELL_AURA_TRIGGER_BONUS_LOOT                           = 394,  // SPELL_AURA_TRIGGER_BONUS_LOOT
-    SPELL_AURA_395                                          = 395,  // 5.0.5 unk aura
+    SPELL_AURA_AREATRIGGER                                  = 395,  // SPELL_AURA_AREATRIGGER
     SPELL_AURA_396                                          = 396,  // 5.0.5 unk aura
     SPELL_AURA_397                                          = 397,  // 5.0.5 unk aura
     SPELL_AURA_398                                          = 398,  // 5.0.5 unk aura

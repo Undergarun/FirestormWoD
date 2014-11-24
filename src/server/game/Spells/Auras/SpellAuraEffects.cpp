@@ -451,7 +451,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //392 SPELL_AURA_392
     &AuraEffect::HandleNoImmediateEffect,                         //393 SPELL_AURA_DEFLECT_FRONT_SPELLS
     &AuraEffect::HandleNoImmediateEffect,                         //394 SPELL_AURA_TRIGGER_BONUS_LOOT (NYI)
-    &AuraEffect::HandleNULL,                                      //395 SPELL_AURA_395
+    &AuraEffect::HandleAreaTrigger,                               //395 SPELL_AURA_AREATRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_396
     &AuraEffect::HandleNULL,                                      //397 SPELL_AURA_397
     &AuraEffect::HandleNULL,                                      //398 SPELL_AURA_398
@@ -3851,7 +3851,7 @@ void AuraEffect::HandleModFear(AuraApplication const* aurApp, uint8 mode, bool a
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_FLEEING);
@@ -3900,7 +3900,7 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* aurApp, uint8 mode, bo
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_STUNNED);
@@ -3946,7 +3946,7 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bo
     if (target->HasAura(54943) && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(20165) && !target->ToPlayer()->HasSpellCooldown(54943))
     {
         target->CastSpell(target, 89023, true);
-        target->ToPlayer()->AddSpellCooldown(54943, 0, time(NULL) + 20);
+        target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
     target->SetControlled(apply, UNIT_STATE_ROOT);
@@ -7966,11 +7966,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     // ignore negative values (can be result apply spellmods to aura damage
     int32 damage = std::max(GetAmount(), 0);
 
-    // Fix Second Wind only in AURA_STATE_HEALTHLESS_35_PERCENT
-    if (m_spellInfo->Id == 16491)
-        if (caster->GetHealthPct() > 35.0f)
-            return;
-
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
     {
         // Taken mods
@@ -8771,4 +8766,26 @@ void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8
     // Enter in Arena reset the same way cooldowns that enter in duel
     if (p_Apply)
         l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
+}
+
+void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (!l_Target)
+        return;
+
+    // AreaTrigger is removed at the end of his own duration
+    if (!p_Apply)
+        return;
+
+    uint32 l_MiscValue = GetMiscValue();
+    Position l_Position;
+    l_Target->GetPosition(&l_Position);
+
+    AreaTrigger* l_AreaTrigger = new AreaTrigger;
+    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, 0, l_Position, l_Position))
+        delete l_AreaTrigger;
 }

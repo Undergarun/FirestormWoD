@@ -179,7 +179,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool CreateAreaTrigger(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest);
+        bool CreateAreaTriggerFromSpell(uint32 guidlow, Unit* caster, SpellInfo const* spell, uint32 p_EffIndex, Position const& pos, Position const& p_Dest);
         bool CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map);
 
         void Update(uint32 p_time);
@@ -222,6 +222,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         Unit* m_Caster;
         float m_VisualRadius;
         uint32 m_CreatedTime;
+        uint32 m_Flags;
         Position m_Source;
         Position m_Destination;
         AreatriggerInterpolation m_Trajectory;

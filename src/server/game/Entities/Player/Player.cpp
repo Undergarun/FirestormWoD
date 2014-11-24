@@ -5551,7 +5551,7 @@ void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
     else
         l_NewCooldown -= p_ModifyTime;
 
-    AddSpellCooldown(p_SpellID, 0, uint32(time(NULL) + l_NewCooldown / 1000));
+    AddSpellCooldown(p_SpellID, 0, l_NewCooldown);
 
     WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
     l_Data << uint32(p_SpellID);
@@ -24617,8 +24617,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     {
         // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
         // but not allow ignore until reset or re-login
-        catrecTime = catrec > 0 ? curTime + infinityCooldownDelay : 0;
-        recTime    = rec    > 0 ? curTime + infinityCooldownDelay : catrecTime;
+        catrecTime = catrec > 0 ? infinityCooldownDelay : 0;
+        recTime    = rec    > 0 ? infinityCooldownDelay : catrecTime;
     }
     else
     {

@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUES (112048,'spell_warl_shield_barrier');

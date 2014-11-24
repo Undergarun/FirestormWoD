@@ -83,7 +83,9 @@ enum PriestSpells
     PRIEST_SPELL_DIVINE_INSIGHT_HOLY                = 123267,
     PRIEST_PRAYER_OF_MENDING                        = 33076,
     PRIEST_PRAYER_OF_MENDING_HEAL                   = 33110,
+    PRIEST_POWER_WORD_BARRIER_AREA_TRIGGER          = 62618,
     PRIEST_PRAYER_OF_MENDING_RADIUS                 = 123262,
+    PRIEST_PRAYER_OF_MENDING_AURA                   = 44586,
     PRIEST_BODY_AND_SOUL_AURA                       = 64129,
     PRIEST_BODY_AND_SOUL_INCREASE_SPEED             = 65081,
     PRIEST_SURGE_OF_LIGHT_AURA                      = 109186,
@@ -1018,29 +1020,32 @@ class spell_pri_holy_word_sanctuary : public SpellScriptLoader
 // Power Word: Shield - 17
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
-public:
-    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+    public:
+        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
-    class spell_pri_power_word_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                amount = ((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
-        }
+            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
-        void Register()
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            return new spell_pri_power_word_shield_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_power_word_shield_AuraScript();
-    }
 };
 
 // Called by Smite - 585
@@ -1704,7 +1709,7 @@ class spell_pri_cascade_first : public SpellScriptLoader
         }
 };
 
-// Halo (shadow) - 120696 and Halo - 120692 : Heal
+// Halo - 120692 : Heal
 class spell_pri_halo_heal : public SpellScriptLoader
 {
     public:
@@ -1748,7 +1753,7 @@ enum Halo_Spell
     PRIEST_SPELL_HALO_DAMAGE = 120696
 };
 
-// Halo (shadow) - 120517 and Halo - 120644 : Damage
+// Halo (shadow) - 120517
 class spell_pri_halo_damage : public SpellScriptLoader
 {
     public:
@@ -2306,8 +2311,102 @@ public:
     }
 };
 
+//Power word : Barrier - 62618
+class spell_pri_power_word_barrier : public SpellScriptLoader
+{
+public:
+    spell_pri_power_word_barrier() : SpellScriptLoader("spell_pri_power_word_barrier") { }
+
+    class spell_pri_power_word_barrier_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_power_word_barrier_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(PRIEST_POWER_WORD_BARRIER_AREA_TRIGGER))
+                    l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_power_word_barrier_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_power_word_barrier_SpellScript();
+    }
+};
+
+// Archangel - 81700
+class spell_pri_archangel : public SpellScriptLoader
+{
+public:
+    spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
+
+    class spell_pri_archangel_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_archangel_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (AuraPtr l_Aura = l_Caster->GetAura(PRIEST_EVANGELISM_STACK))
+                {
+                    amount = l_Aura->GetStackAmount() * GetSpellInfo()->Effects[0].BasePoints;
+                    l_Caster->RemoveAura(l_Aura);
+                }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_archangel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_archangel_AuraScript();
+    }
+};
+
+// Prayer of Mending - 33076
+class spell_pri_prayer_of_mending : public SpellScriptLoader
+{
+public:
+    spell_pri_prayer_of_mending() : SpellScriptLoader("spell_pri_prayer_of_mending") {}
+
+    class spell_pri_prayer_of_mending_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_prayer_of_mending_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit *l_Targer = GetHitUnit())
+                    l_Caster->CastSpell(l_Targer, PRIEST_PRAYER_OF_MENDING_AURA, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_prayer_of_mending_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_prayer_of_mending_SpellScript();
+    }
+};
+
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_prayer_of_mending();
+    new spell_pri_archangel();
+    new spell_pri_power_word_barrier();
     new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
