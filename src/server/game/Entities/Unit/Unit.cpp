@@ -22193,71 +22193,75 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     data->append(fieldBuffer);
 }
 
-float Unit::CalculateDamageDealtFactor(Player* player, Creature* target)
+float Unit::CalculateDamageDealtFactor(Player* p_Player, Creature* p_Target)
 {
-    if (!player || !target)
+    if (!p_Player || !p_Target)
         return 1.0f;
 
-    uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
-    int32 levelDiff = player->getLevel() - target->getLevel();
+    uint8 l_TargetExpansion = p_Target->GetCreatureTemplate()->expansion;
+    int32 l_LevelDiff = p_Player->getLevel() - p_Target->getLevel();
 
-    float damageDealtFactor = 1.0f;
+    float l_DamageDealtFactor = 1.0f;
 
-    if (levelDiff && targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (l_LevelDiff && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
-        if (levelDiff < 5)
+        if (l_LevelDiff < 5)
         {
             // Ranges from 1.0625 to 1.25 vs. 1-4 LevelDiffs
-            damageDealtFactor = 1 + 0.0625f * levelDiff;
+            l_DamageDealtFactor = 1 + 0.0625f * l_LevelDiff;
         }
-        else if (levelDiff < 10)
+        else if (l_LevelDiff < 10)
         {
             // Ranges from 4.0 to 6.0 vs. 5-9 LevelDiffs
-            damageDealtFactor = 1.5f + 0.5f * levelDiff;
+            l_DamageDealtFactor = 1.5f + 0.5f * l_LevelDiff;
         }
         else
         {
             // Maximum factor of 16.5 vs. 10+ LevelDiffs
-            damageDealtFactor = 16.5f;
+            l_DamageDealtFactor = 16.5f;
         }
     }
 
-    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 0, 0};
+    uint16 l_IntendedItemLevelByExpansion[MAX_EXPANSION] = { 65, 115, 200, 346, 463, 609 };
+    uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = { 69, 79, 84, 89, 99, 109 };
 
-    if ((player->getLevel() <= GetMaxLevelForExpansion(targetExpansion) - 1) && player->GetAverageItemLevel() > IntendedItemLevelByExpansion[targetExpansion])
+    if (l_TargetExpansion > 0)
+    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevel() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
     {
-        float altDamageDealtFactor = 1 + 5 / 3 * 0.01f * (player->GetAverageItemLevel() - IntendedItemLevelByExpansion[targetExpansion]);
-        damageDealtFactor = std::max(damageDealtFactor, altDamageDealtFactor);
+        float l_AltDamageDealtFactor = 1 + 5 / 3 * 0.01f * (p_Player->GetAverageItemLevel() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+        l_DamageDealtFactor = std::max(l_DamageDealtFactor, l_AltDamageDealtFactor);
     }
 
-    return damageDealtFactor;
+    return l_DamageDealtFactor;
 }
 
-float Unit::CalculateDamageTakenFactor(Player* player, Creature* target)
+float Unit::CalculateDamageTakenFactor(Player* p_Player, Creature* p_Target)
 {
-    if (!player || !target)
+    if (!p_Player || !p_Target)
         return 1.0f;
 
-    uint8 targetExpansion = target->GetCreatureTemplate()->expansion;
-    int32 levelDiff = player->getLevel() - target->getLevel();
+    uint8 l_TargetExpansion = p_Target->GetCreatureTemplate()->expansion;
+    int32 l_LevelDiff = p_Player->getLevel() - p_Target->getLevel();
 
-    float damageTakenFactor = 1.0f;
+    float l_DamageTakenFactor = 1.0f;
 
-    if (levelDiff && targetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (l_LevelDiff && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
         // 10% DR per level diff, with a floor of 10%
-        damageTakenFactor = std::max(1.0f - 0.1f * levelDiff, 0.1f);
+        l_DamageTakenFactor = std::max(1.0f - 0.1f * l_LevelDiff, 0.1f);
     }
 
-    uint16 IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 0, 0};
+    uint16 l_IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 463, 609};
+    uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = {69, 79, 84, 89, 99, 109};
 
-    if ((player->getLevel() <= GetMaxLevelForExpansion(targetExpansion) - 1) && player->GetAverageItemLevel() > IntendedItemLevelByExpansion[targetExpansion])
+    if (l_TargetExpansion > 0)
+    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevel() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
     {
-        float altDamageTakenFactor = 1 - 0.01f * (player->GetAverageItemLevel() - IntendedItemLevelByExpansion[targetExpansion]);
-        damageTakenFactor = std::min(damageTakenFactor, altDamageTakenFactor);
+        float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevel() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+        l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
     }
 
-    return damageTakenFactor;
+    return l_DamageTakenFactor;
 }
 
 void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority /*= 0*/)
