@@ -460,6 +460,7 @@ typedef ACE_Based::LockedMap<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef ACE_Based::LockedMap<int32, TrinityStringLocale> TrinityStringLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
+typedef ACE_Based::LockedMap<uint32, QuestObjectiveLocale> QuestObjectiveLocaleContainer;
 
 typedef std::multimap<uint32, uint32> QuestRelations;
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
@@ -570,15 +571,26 @@ struct QuestPOI
 {
     uint32 Id;
     int32 ObjectiveIndex;
-    uint32 MapId;
-    uint32 AreaId;
-    uint32 Unk2;
-    uint32 Unk3;
-    uint32 Unk4;
-    std::vector<QuestPOIPoint> points;
+    uint32 MapID;
+    uint32 WorldMapAreaID;
+    uint32 Floor;
+    uint32 Priority;
+    uint32 Flags;
+    uint32 WorldEffectID;
+    uint32 PlayerConditionID;
+    uint32 Unk;
+    std::vector<QuestPOIPoint> Points;
 
-    QuestPOI() : Id(0), ObjectiveIndex(0), MapId(0), AreaId(0), Unk2(0), Unk3(0), Unk4(0) {}
-    QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 unk2, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), Unk2(unk2), Unk3(unk3), Unk4(unk4) {}
+    QuestPOI() 
+        : Id(0), ObjectiveIndex(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), Unk(0)
+    {
+
+    }
+    QuestPOI(uint32 id, int32 objIndex, uint32 p_MapID, uint32 p_WorldMapAreaID, uint32 p_Floor, uint32 p_Priority, uint32 p_Flags, uint32 p_WorldEffectID, uint32 p_PlayerConditionID, uint32 p_Unk)
+        : Id(id), ObjectiveIndex(objIndex), MapID(p_MapID), WorldMapAreaID(p_WorldMapAreaID), Floor(p_Floor), Priority(p_Priority), Flags(p_Flags), WorldEffectID(p_WorldEffectID), PlayerConditionID(p_PlayerConditionID), Unk(p_Unk)
+    {
+
+    }
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;
@@ -703,6 +715,7 @@ struct GarrisonPlotBuildingContent
 };
 
 typedef std::vector<HotfixInfo> HotfixData;
+typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
 typedef std::map<uint32, bool> UpdateSkipData;
 
@@ -924,6 +937,8 @@ class ObjectMgr
         }
 
         void LoadQuests();
+        void LoadQuestObjectives();
+        void LoadQuestObjectiveLocales();
         void LoadQuestDynamicRewards();
         void LoadQuestRelations()
         {
@@ -1211,6 +1226,7 @@ class ObjectMgr
             if (itr == _pointOfInterestLocaleStore.end()) return NULL;
             return &itr->second;
         }
+        QuestObjectiveLocale const* GetQuestObjectiveLocale(uint32 objectiveId) const;
 
         GameObjectData const* GetGOData(uint32 guid) const
         {
@@ -1390,10 +1406,18 @@ class ObjectMgr
 
         ACE_Thread_Mutex m_GuidLock;
 
+        const AreaTriggerTemplateList* GetAreaTriggerTemplatesForEntry(uint32 p_Entry)
+        {
+            if (m_AreaTriggerTemplates.find(p_Entry) != m_AreaTriggerTemplates.end())
+                return &m_AreaTriggerTemplates[p_Entry];
+
+            return nullptr;
+        }
+
         const AreaTriggerTemplateList* GetAreaTriggerTemplatesForSpell(uint32 p_SpellID)
         {
-            if (m_AreaTriggerTemplates.find(p_SpellID) != m_AreaTriggerTemplates.end())
-                return &m_AreaTriggerTemplates[p_SpellID];
+            if (m_AreaTriggerTemplatesSpell.find(p_SpellID) != m_AreaTriggerTemplatesSpell.end())
+                return &m_AreaTriggerTemplatesSpell[p_SpellID];
 
             return nullptr;
         }
@@ -1418,6 +1442,10 @@ class ObjectMgr
 
         CharacterTemplates const& GetCharacterTemplates() const { return m_CharacterTemplatesStore; }
         CharacterTemplate const* GetCharacterTemplate(uint32 p_ID) const;
+
+        bool QuestObjectiveExists(uint32 objectiveId) const;
+        uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1440,6 +1468,7 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
 
         QuestMap _questTemplates;
+        QuestObjectiveLookupMap m_questObjectiveLookup;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;
@@ -1498,6 +1527,7 @@ class ObjectMgr
         std::map<uint64, uint64> _lootViewGUID;
 
         AreaTriggerTemplateContainer m_AreaTriggerTemplates;
+        AreaTriggerTemplateContainer m_AreaTriggerTemplatesSpell;
         AreaTriggerMoveSplinesContainer m_AreaTriggerMoveSplines;
         AreaTriggerMoveTemplateContainer m_AreaTriggerMoveTemplate;
 
@@ -1562,6 +1592,7 @@ class ObjectMgr
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
         BattlePetTemplateContainer _battlePetTemplateStore;
+        QuestObjectiveLocaleContainer m_questObjectiveLocaleStore;
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;

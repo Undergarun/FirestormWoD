@@ -39,10 +39,6 @@ Quest::Quest(Field* questRecord)
     RequiredRaces           = questRecord[index++].GetInt32();
     RequiredSkillId         = questRecord[index++].GetUInt16();
     RequiredSkillPoints     = questRecord[index++].GetUInt16();
-    RequiredFactionId1      = questRecord[index++].GetUInt16();
-    RequiredFactionId2      = questRecord[index++].GetUInt16();
-    RequiredFactionValue1   = questRecord[index++].GetInt32();
-    RequiredFactionValue2   = questRecord[index++].GetInt32();
     RequiredMinRepFaction   = questRecord[index++].GetUInt16();
     RequiredMaxRepFaction   = questRecord[index++].GetUInt16();
     RequiredMinRepValue     = questRecord[index++].GetInt32();
@@ -52,7 +48,7 @@ Quest::Quest(Field* questRecord)
     ExclusiveGroup          = questRecord[index++].GetInt32();
     NextQuestIdChain        = questRecord[index++].GetUInt32();
     RewardXPId              = questRecord[index++].GetUInt8();
-    RewardOrRequiredMoney   = questRecord[index++].GetInt32();
+    RewardMoney             = questRecord[index++].GetInt32();
     RewardMoneyMaxLevel     = questRecord[index++].GetUInt32();
     RewardSpell             = questRecord[index++].GetUInt32();
     RewardSpellCast         = questRecord[index++].GetInt32();
@@ -61,13 +57,12 @@ Quest::Quest(Field* questRecord)
     RewardMailTemplateId    = questRecord[index++].GetUInt32();
     RewardMailDelay         = questRecord[index++].GetUInt32();
     SourceItemId            = questRecord[index++].GetUInt32();
-    SourceItemIdCount       = questRecord[index++].GetUInt8();
     SourceSpellid           = questRecord[index++].GetUInt32();
     Flags                   = questRecord[index++].GetUInt32();
+    Flags2                  = questRecord[index++].GetUInt32();
     SpecialFlags            = questRecord[index++].GetUInt8();
     MinimapTargetMark       = questRecord[index++].GetUInt32();
     RewardTitleId           = questRecord[index++].GetUInt8();
-    RequiredPlayerKills     = questRecord[index++].GetUInt8();
     RewardTalents           = questRecord[index++].GetUInt8();
     RewardArenaPoints       = questRecord[index++].GetUInt16();
     RewardSkillId           = questRecord[index++].GetUInt16();
@@ -109,43 +104,17 @@ Quest::Quest(Field* questRecord)
     OfferRewardText         = questRecord[index++].GetString();
     RequestItemsText        = questRecord[index++].GetString();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredNpcOrGo[i] = questRecord[index++].GetInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredNpcOrGoCount[i] = questRecord[index++].GetUInt16();
-
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         RequiredSourceItemId[i] = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         RequiredSourceItemCount[i] = questRecord[index++].GetUInt16();
 
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        RequiredItemId[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        RequiredItemCount[i] = questRecord[index++].GetUInt16();
-
-    RequiredSpell           = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i) // To be removed
-        RequiredSpellCast[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        ObjectiveText[i] = questRecord[index++].GetString();
-
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         RewardCurrencyId[i] = questRecord[index++].GetUInt16();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         RewardCurrencyCount[i] = questRecord[index++].GetUInt16();
-
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyId[i] = questRecord[index++].GetUInt16();
-
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyCount[i] = questRecord[index++].GetUInt16();
 
     QuestGiverTextWindow    = questRecord[index++].GetString();
     QuestGiverTargetName    = questRecord[index++].GetString();
@@ -177,20 +146,9 @@ Quest::Quest(Field* questRecord)
     if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
-    m_reqItemsCount = 0;
-    m_reqNpcOrGoCount = 0;
     m_rewItemsCount = 0;
     m_rewChoiceItemsCount = 0;
     m_rewCurrencyCount = 0;
-    m_reqCurrencyCount = 0;
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        if (RequiredItemId[i])
-            ++m_reqItemsCount;
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        if (RequiredNpcOrGo[i])
-            ++m_reqNpcOrGoCount;
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (RewardItemId[i])
@@ -204,10 +162,7 @@ Quest::Quest(Field* questRecord)
         if (RewardCurrencyId[i])
             ++m_rewCurrencyCount;
 
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        if (RequiredCurrencyId[i])
-            ++m_reqCurrencyCount;
-
+    memset(QuestObjecitveTypeCount, 0, sizeof(QuestObjecitveTypeCount));
 }
 
 uint32 Quest::XPValue(Player* player) const
@@ -241,87 +196,44 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewMoney() const
 {
-    if (RewardOrRequiredMoney <= 0)
-        return RewardOrRequiredMoney;
-
-    return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_DROP_MONEY));
+    return int32(RewardMoney * sWorld->getRate(RATE_DROP_MONEY));
 }
 
-void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
+QuestObjective const * Quest::GetQuestObjective(uint32 objectiveId) const
 {
-    data << uint32(GetRewChoiceItemsCount());
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-    {
-        data << uint32(RewardChoiceItemId[i]);
-        data << uint32(RewardChoiceItemCount[i]);
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
-    }
+    for (uint32 l_I = 0; l_I < QuestObjectives.size(); ++l_I)
+        if (QuestObjectives[l_I].ID == objectiveId)
+            return &QuestObjectives[l_I];
 
-    data << uint32(GetReqItemsCount());
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(RewardItemId[i]);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(RewardItemIdCount[i]);
-    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-    {
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
-    }
+    return nullptr;
+}
 
-    data << uint32(GetRewOrReqMoney());
+QuestObjective const * Quest::GetQuestObjectiveXIndex(uint8 index) const
+{
+    for (uint32 l_I = 0; l_I < QuestObjectives.size(); ++l_I)
+        if (QuestObjectives[l_I].Index == index)
+            return &QuestObjectives[l_I];
 
-    float QuestXpRate = 1;
-    if (player->GetPersonnalXpRate())
-        QuestXpRate = player->GetPersonnalXpRate();
-    else
-        QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
+    return nullptr;
+}
 
-    data << uint32(XPValue(player) * QuestXpRate);
+QuestObjective const * Quest::GetQuestObjectiveXObjectId(uint32 objectId) const
+{
+    for (uint32 l_I = 0; l_I < QuestObjectives.size(); ++l_I)
+        if (QuestObjectives[l_I].ObjectID == objectId)
+            return &QuestObjectives[l_I];
 
-    data << uint32(0);                                      // unk
-    data << uint32(GetBonusTalents());
-    data << uint32(GetRewardReputationMask());
+    return nullptr;
+}
 
-    /* Pre cata struct, some of these unks might be the missing values in cata:
-    // rewarded honor points. Multiply with 10 to satisfy client
-    data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
-    data << float(0.0f);                                    // unk, honor multiplier?
-    data << uint32(0x08);                                   // unused by client?
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // casted spell
-    data << uint32(0);                                      // unknown
-    data << uint32(quest->GetBonusTalents());               // bonus talents
-    data << uint32(quest->GetRewArenaPoints());             // arena points
-    data << uint32(0);
-    */
+uint8 Quest::GetQuestObjectiveCountType(uint8 type) const
+{
+    if (!type || type >= QUEST_OBJECTIVE_TYPE_END)
+        return 0;
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
-        data << uint32(RewardFactionId[i]);
-
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
-        data << int32(RewardFactionValueId[i]);
-
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(RewardFactionValueIdOverride[i]);
-
-    data << uint32(GetRewSpell());
-    data << uint32(GetRewSpellCast());
-
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        data << uint32(RewardCurrencyId[i]);
-
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        data << uint32(RewardCurrencyCount[i]);
-
-    data << uint32(GetRewardSkillId());
-    data << uint32(GetRewardSkillPoints());
+    return QuestObjecitveTypeCount[type];
 }
 
 bool Quest::IsAutoAccept() const

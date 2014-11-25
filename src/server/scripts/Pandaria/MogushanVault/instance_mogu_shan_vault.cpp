@@ -127,11 +127,13 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint64 janxiGuid;
             uint64 qinxiGuid;
 
+            std::list<uint32> m_AuraToClear;
+
             std::vector<uint64> stoneGuardGUIDs;
             std::vector<uint64> fengStatuesGUIDs;
             std::vector<uint64> spiritKingsGUIDs;
             std::vector<uint64> titanCirclesGuids;
-            std::list<uint32> achievementGuids;
+            std::list<uint32>   achievementGuids;
 
             void Initialize()
             {
@@ -181,6 +183,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 fengStatuesGUIDs.clear();
                 spiritKingsGUIDs.clear();
                 achievementGuids.clear();
+
+                m_AuraToClear.clear();
+                m_AuraToClear.push_back(116541); ///< SPELL_TILES_AURA_EFFECT from stone guard
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -346,6 +351,15 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case GOB_ANCIENT_CONTROL_CONSOLE:
                         ancientConsoleGuid = go->GetGUID();
                         break;
+                }
+            }
+
+            void OnPlayerLeave(Player* p_Player)
+            {
+                for (const uint32& l_AuraID : m_AuraToClear)
+                {
+                    if (p_Player->HasAura(l_AuraID))
+                        p_Player->RemoveAurasDueToSpell(l_AuraID);
                 }
             }
 
@@ -611,7 +625,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
                                 while (randomPos2 == randomPos)
                                     randomPos2 = urand(0, 2);
-                            
+
                                 instance->SummonCreature(NPC_EMPEROR_RAGE, woeRageSpawnPos[randomPos]);
                                 instance->SummonCreature(NPC_EMPEROR_RAGE, woeRageSpawnPos[randomPos2]);
 
@@ -639,7 +653,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                             case PHASE_WOE_COURAGE:
                             {
                                 instance->SummonCreature(NPC_EMPEROR_COURAGE, woeSpawnPos[urand(0, 7)]);
-                            
+
                                 nextWillOfEmperorPhase = PHASE_WOE_RAGE;
                                 willOfEmperirLastBigAddSpawned = PHASE_WOE_COURAGE;
                                 willOfEmperorTimer = 10000;

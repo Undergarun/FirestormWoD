@@ -412,30 +412,23 @@ class spell_warr_second_wind : public SpellScriptLoader
     public:
         spell_warr_second_wind() : SpellScriptLoader("spell_warr_second_wind") { }
 
-        class spell_warr_second_wind_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_second_wind_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_second_wind_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_second_wind_SpellScript();
-        }
-
         class spell_warr_second_wind_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warr_second_wind_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!(l_ProcInfo.GetHitMask() & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT)))
+                        return;
+
+                    if (l_Caster->GetHealthPct() <= 35.0f)
+                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
+                }
+            }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
@@ -447,6 +440,7 @@ class spell_warr_second_wind : public SpellScriptLoader
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_second_wind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectProc += AuraEffectProcFn(spell_warr_second_wind_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1292,6 +1286,34 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
         }
 };
 
+// Shield Barrier - 112048
+class spell_warr_shield_barrier : public SpellScriptLoader
+{
+    public:
+        spell_warr_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
+
+        class spell_warl_shield_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_shield_barrier_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    amount = l_Caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.125;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_shield_barrier_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1325,4 +1347,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_spell_reflection();
     new spell_warr_intervene();
     new spell_warr_glyph_of_gag_order();
+    new spell_warr_shield_barrier();
 }

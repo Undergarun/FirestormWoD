@@ -1162,24 +1162,24 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         cell.Visit(p, message, *GetOwner()->GetMap(), *GetOwner(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
     }
 
-    WorldPacket l_Data(SMSG_ACHIEVEMENT_EARNED);
 
-    ObjectGuid thisPlayerGuid = GetOwner()->GetGUID();
     ObjectGuid firstPlayerOnAccountGuid = GetOwner()->GetGUID();
 
     if (HasAccountAchieved(achievement->ID))
         firstPlayerOnAccountGuid = GetFirstAchievedCharacterOnAccount(achievement->ID);
 
+    WorldPacket l_Data(SMSG_ACHIEVEMENT_EARNED);
     l_Data.appendPackGUID(GetOwner()->GetGUID());
     l_Data.appendPackGUID(firstPlayerOnAccountGuid);
     l_Data << uint32(achievement->ID);
     l_Data << uint32(secsToTimeBitFields(time(NULL)));
     l_Data << uint32(g_RealmID);
     l_Data << uint32(g_RealmID);
-    l_Data.WriteBit(0);
+
+    l_Data.WriteBit(0); // DoNotShowAchievementBox
     l_Data.FlushBits();
 
-    GetOwner()->SendMessageToSetInRange(&l_Data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    SendPacket(&l_Data);
 }
 
 template<>
@@ -2224,7 +2224,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
 template<>
 void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
 {
-    if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
+    if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID)  || !(achievement->Flags & ACHIEVEMENT_FLAG_GUILD))
         return;
 
     /*if (achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS)
@@ -2612,6 +2612,13 @@ bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* p_Criteria, Achie
         (p_Achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && p_ReferencePlayer->GetTeam() != ALLIANCE)))
     {
         sLog->outTrace(LOG_FILTER_ACHIEVEMENTSYS, "CanUpdateCriteria: (Id: %u Type %s) Wrong faction",
+            p_Criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(p_Criteria->Type));
+        return false;
+    }
+
+    if (p_Achievement && ((!(p_Achievement->Flags & ACHIEVEMENT_FLAG_GUILD)) && IsGuild<T>()))
+    {
+        sLog->outTrace(LOG_FILTER_ACHIEVEMENTSYS, "CanUpdateCriteria: (Id: %u Type %s) Cannot update non-guild achcievement",
             p_Criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(p_Criteria->Type));
         return false;
     }

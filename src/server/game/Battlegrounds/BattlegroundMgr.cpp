@@ -193,10 +193,15 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* p_Data, Battleg
         {
             p_Data->Initialize(SMSG_BATTLEFIELD_STATUS_NONE);
 
-            p_Data->appendPackGUID(l_PlayerGuid);                                     ///< Requester Guid
-            *p_Data << uint32(p_QueueSlot);                                           ///< Instance ID
-            *p_Data << uint32(l_BG->isArena() ? l_BG->GetMaxPlayersPerTeam() : 1);    ///< Type
-            *p_Data << uint32(Time1);                                                 ///< Time
+            p_Data->appendPackGUID(l_PlayerGuid);                                           ///< Requester Guid
+            *p_Data << uint32(p_QueueSlot);                                                 ///< Instance ID
+
+            if (l_BG)
+                *p_Data << uint32(l_BG->isArena() ? l_BG->GetMaxPlayersPerTeam() : 1);      ///< Type
+            else
+                *p_Data << uint32(1);                                                       ///< Type
+
+            *p_Data << uint32(Time1);                                                       ///< Time
 
             break;
         }

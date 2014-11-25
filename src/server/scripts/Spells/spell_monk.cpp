@@ -1797,7 +1797,7 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
                         if (!_player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP))
                         {
                             _player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
-                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, time(NULL) + 8);
+                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -2830,7 +2830,7 @@ class spell_monk_spear_hand_strike : public SpellScriptLoader
                         if (target->isInFront(_player))
                         {
                             _player->CastSpell(target, SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE, true);
-                            _player->AddSpellCooldown(116705, 0, time(NULL) + 15);
+                            _player->AddSpellCooldown(116705, 0, 15 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -3145,28 +3145,30 @@ class spell_monk_keg_smash : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_keg_smash_SpellScript);
 
+            void OnCast()
+            {
+                if (Unit* l_caster = GetCaster())
+                {
+                        l_caster->CastSpell(l_caster, SPELL_MONK_KEG_SMASH_ENERGIZE, true);
+                }
+            }
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_caster = GetCaster())
                 {
-                    if (Player* _player = caster->ToPlayer())
-                    {
                         if (Unit* target = GetHitUnit())
                         {
-                            _player->CastSpell(target, SPELL_MONK_KEG_SMASH_VISUAL, true);
-                            _player->CastSpell(target, SPELL_MONK_WEAKENED_BLOWS, true);
-                            _player->CastSpell(_player, SPELL_MONK_KEG_SMASH_ENERGIZE, true);
-                            // Prevent to receive 2 CHI more than once time per cast
-                            _player->AddSpellCooldown(SPELL_MONK_KEG_SMASH_ENERGIZE, 0, time(NULL) + 1);
-                            _player->CastSpell(target, SPELL_MONK_DIZZYING_HAZE, true);
+                            l_caster->CastSpell(target, SPELL_MONK_KEG_SMASH_VISUAL, true);
+                            l_caster->CastSpell(target, SPELL_MONK_WEAKENED_BLOWS, true);
+                            l_caster->CastSpell(target, SPELL_MONK_DIZZYING_HAZE, true);
                         }
-                    }
                 }
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_monk_keg_smash_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_monk_keg_smash_SpellScript::OnCast);
             }
         };
 

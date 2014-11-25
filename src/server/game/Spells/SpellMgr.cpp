@@ -4141,6 +4141,26 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 154179: // Energize (Skyreach)
+            case 156634: // Four winds (Skyreach)
+            case 156636: // Four winds (Skyreach)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 166623: // Four winds (Skyreach)
+            case 166664: // Four winds (Skyreach)
+            {
+                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                 SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
+                 if (!durationIndex)
+                     break;
+                 spellInfo->DurationEntry = durationIndex;
+            }
+            break;
+            case 159226: // Solar storm (Skyreach)
+            case 153759: // WindWalls (Skyreach)
+            case 153139: // Four winds (Skyreach)
             case 158441: // Solar Zone (Skyreach)
             case 153907: // Dervish (Skyreach)
             case 156841: // Storm (Skyreach)
@@ -4754,9 +4774,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 114942:// Healing Tide
                 spellInfo->MaxAffectedTargets = 5;
-                break;
-            case 108283:// Echo of the Elements
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 62099: // Shamanism
                 spellInfo->Effects[0].SpellClassMask[2] |= 0x8000;

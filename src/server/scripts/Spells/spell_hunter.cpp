@@ -124,7 +124,8 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_HAWK_SUMMON          = 122487,
     HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
     HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
-    HUNTER_SPELL_FIREWORKS                          = 127933
+    HUNTER_SPELL_FIREWORKS                          = 127933,
+    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851
 };
 
 // Called by Explosive Shot - 53301
@@ -2357,8 +2358,37 @@ class spell_hun_tame_beast : public SpellScriptLoader
         }
 };
 
+//Kill shot - 53351
+class spell_hun_kill_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
+
+    class spell_hun_kill_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_kill_shot_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_hun_kill_shot_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_kill_shot_SpellScript;
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_kill_shot();
     new spell_hun_hunters_mark();
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();

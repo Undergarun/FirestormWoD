@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "ScriptPCH.h"
 #include "icecrown_citadel.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -966,7 +967,7 @@ class npc_muradin_gunship : public CreatureScript
                         {
                             events.ScheduleEvent(EVENT_RESPAWN_ROCKETEER, 60000);
                             RocketerDieCount = 0;
-                        }                            
+                        }
                         break;
                     case ACTION_AXES_RIFL_DIE:
                         ++RiflDieCount;
@@ -2172,7 +2173,7 @@ class npc_saurfang_gunship : public CreatureScript
                         {
                             events.ScheduleEvent(EVENT_RESPAWN_ROCKETEER, 60000);
                             RocketerDieCount = 0;
-                        }                            
+                        }
                         break;
                     case ACTION_AXES_RIFL_DIE:
                         ++AxesDieCount;

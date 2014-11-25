@@ -3444,4 +3444,14 @@
     <field type="float" name="X" />
     <field type="float" name="Y" />
   </CurvePoint>
+  <Toy build="19116">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="ItemId" />
+    <field type="int" name="disable?" />
+    <field type="string" name="Description" />
+    <field type="int" name="field4" />
+  </Toy>
 </DBFilesClient>

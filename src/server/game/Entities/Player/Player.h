@@ -586,6 +586,7 @@ enum AtLoginFlags
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
+typedef std::map<uint32, uint32> QuestObjectiveStatusMap;
 typedef std::set<uint32> RewardedQuestSet;
 
 //               quest,  keep
@@ -896,6 +897,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS    = 41,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1780,15 +1782,16 @@ class Player : public Unit, public GridObject<Player>
         void KilledMonsterCredit(uint32 entry, uint64 guid = 0);
         void KilledPlayerCredit();
         void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
-        void CastedCreatureOrGOForQuest(uint32 entry, bool isCreature, uint32 spell_id);
         void TalkedToCreature(uint32 entry, uint64 guid);
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
+        void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
         bool HasQuestForItem(uint32 itemid) const;
-        bool HasQuestForGO(int32 GOId) const;
+        bool HasQuestForGO(uint32 GOId) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
+        void QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type = 0u, uint64 guid = 0u);
 
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
@@ -1797,8 +1800,8 @@ class Player : public Unit, public GridObject<Player>
         void SendCanTakeQuestResponse(uint32 msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint32 msg);
-        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
-        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective & p_Objective, uint64 p_ObjGUID, uint16 p_OldCount, uint16 p_AddCount);
+        void SendQuestUpdateAddPlayer(Quest const* p_Quest, const QuestObjective & p_Objective, uint16 p_OldCount, uint16 p_AddCount);
 
         uint64 GetDivider() { return m_divider; }
         void SetDivider(uint64 guid) { m_divider = guid; }
@@ -3180,6 +3183,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePvP(uint32 diff);
         void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
 
+        uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3259,6 +3264,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadMail();
         void _LoadMailedItems(Mail* mail);
         void _LoadQuestStatus(PreparedQueryResult result);
+        void _LoadQuestObjectiveStatus(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
@@ -3290,6 +3296,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveVoidStorage(SQLTransaction& trans);
         void _SaveMail(SQLTransaction& trans);
         void _SaveQuestStatus(SQLTransaction& trans);
+        void _SaveQuestObjectiveStatus(SQLTransaction& trans);
         void _SaveDailyQuestStatus(SQLTransaction& trans);
         void _SaveWeeklyQuestStatus(SQLTransaction& trans);
         void _SaveMonthlyQuestStatus(SQLTransaction& trans);
@@ -3356,6 +3363,7 @@ class Player : public Unit, public GridObject<Player>
         int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;
+        QuestObjectiveStatusMap m_questObjectiveStatus;
         QuestStatusSaveMap m_QuestStatusSave;
 
         RewardedQuestSet m_RewardedQuests;
@@ -3738,7 +3746,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                 totalmul = CalculatePct(totalmul, 100 + value);
         }
 
-        if (removestacks && !m_isMoltenCored)
+        if (removestacks && !m_isMoltenCored && spell)
             DropModCharge(mod, spell);
     }
 

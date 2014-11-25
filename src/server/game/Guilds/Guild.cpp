@@ -364,9 +364,9 @@ bool Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[16].GetUInt8();
-    uint32 itemGuid = fields[17].GetUInt32();
-    uint32 itemEntry = fields[18].GetUInt32();
+    uint8 slotId = fields[15].GetUInt8();
+    uint32 itemGuid = fields[16].GetUInt32();
+    uint32 itemEntry = fields[17].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid slot for item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
@@ -2466,11 +2466,11 @@ bool Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[15].GetUInt8();
+    uint8 tabId = fields[14].GetUInt8();
     if (tabId >= GetPurchasedTabsSize())
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
-            fields[17].GetUInt32(), fields[18].GetUInt32());
+            fields[16].GetUInt32(), fields[17].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
@@ -2524,7 +2524,7 @@ bool Guild::Validate()
         // If no more members left, disband guild
         if (m_members.empty())
         {
-            Disband();
+            //Disband();
             return false;
         }
     }

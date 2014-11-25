@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -219,7 +220,7 @@ enum Npcs
 
 // Achievements
 #define ACHIEVEMENT_SET_UP_US_THE_BOMB          RAID_MODE(2989, 3237)
-// TODO: 
+// TODO:
 // Achiev 2989: Criterias 10543, 10544, 10545
 // Achiev 3237: Criterias 10546, 10547, 10548
 // Which criteria is reponsible for which step ?
@@ -229,7 +230,7 @@ enum BombIndices // Scripts are present, but criteria-id <-> script is missing
 {
     DATA_AVOIDED_PROXIMITY_MINES     = 30,
     DATA_AVOIDED_ROCKET_STRIKES,
-    DATA_AVOIDED_BOOM_BOT_EXPLOSION             
+    DATA_AVOIDED_BOOM_BOT_EXPLOSION
 };
 
 enum MimironChests
@@ -948,13 +949,13 @@ class boss_leviathan_mk : public CreatureScript
                     _phase = PHASE_IDLE;
                     _events.SetPhase(_phase);
                 }
-            }        
+            }
 
             void EnterCombat(Unit* /*who*/)
             {
                 if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_MIMIRON) : 0))
                     _gotMimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
-            
+
                 if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
@@ -1257,7 +1258,7 @@ class boss_vx_001 : public CreatureScript
                 _instance = me->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_ROCKET_STRIKE_DMG, true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            }            
+            }
 
             void Reset()
             {
@@ -1404,7 +1405,7 @@ class boss_vx_001 : public CreatureScript
                             if (spell->Id == SPELL_ROCKET_STRIKE)
                                 if (InstanceScript* instance = me->GetInstanceScript())
                                     if (Creature* mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
-                                        mimiron->AI()->DoAction(DATA_AVOIDED_ROCKET_STRIKES); 
+                                        mimiron->AI()->DoAction(DATA_AVOIDED_ROCKET_STRIKES);
                         break;
                     default:
                         break;
@@ -1733,7 +1734,7 @@ class boss_aerial_unit : public CreatureScript
 
                 if (_gotMimironHardMode)
                     DoCast(me, SPELL_EMERGENCY_MODE, true);
-                
+
                 _events.ScheduleEvent(EVENT_PLASMA_BALL, 1*IN_MILLISECONDS);
                 _events.ScheduleEvent(EVENT_SUMMON_JUNK_BOT, 10*IN_MILLISECONDS, 0, PHASE_AERIAL_SOLO__GLOBAL_3);
             }
@@ -1773,7 +1774,7 @@ class boss_aerial_unit : public CreatureScript
                         }
                         break;
                     case DO_AERIAL_ASSEMBLED:
-                        me->SetHealth( (me->GetMaxHealth() >> 1) );               // Once again, re-assemble and repairing share some stuff, so the fallthrough is intended!                        
+                        me->SetHealth( (me->GetMaxHealth() >> 1) );               // Once again, re-assemble and repairing share some stuff, so the fallthrough is intended!
                     case DO_AERIAL_SELF_REPAIR_END:
                         if (_gotMimironHardMode)
                             if (!me->HasAura(SPELL_EMERGENCY_MODE))
@@ -1887,7 +1888,7 @@ class boss_aerial_unit : public CreatureScript
                     switch (_phase)
                     {
                         case PHASE_AERIAL_SOLO__GLOBAL_3:
-                            me->SetHealth(me->GetMaxHealth()); 
+                            me->SetHealth(me->GetMaxHealth());
                             _events.CancelEvent(EVENT_SUMMON_JUNK_BOT);
                             if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_ACTIVATE_V0L7R0N);
@@ -2444,7 +2445,7 @@ void AddSC_boss_mimiron()
     new spell_rapid_burst();
     new spell_proximity_mines();
     new spell_frost_bomb();
-    
+
     new go_not_push_button();
 
     new achievement_firefighter("achievement_firefighter");     // Achiev 3180 / Criteria 10450

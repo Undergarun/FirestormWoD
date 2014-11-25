@@ -94,6 +94,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUEST_OBJECTIVE_STATUS);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS, l_Statement);
+
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DAILYQUESTSTATUS);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS, l_Statement);
@@ -1701,8 +1705,8 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ALTER_APPEARANCE");
 
-    uint32 Hair, Color, FacialHair, SkinColor;
-    recvData >> Color >> FacialHair >> SkinColor >> Hair;
+    uint32 Hair, Color, FacialHair, SkinColor, Face;
+    recvData >> Hair >> Color >> FacialHair >> SkinColor >> Face;
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
     if (!bs_hair || bs_hair->Type != 0 || bs_hair->Race != m_Player->getRace() || bs_hair->Sex != m_Player->getGender())
