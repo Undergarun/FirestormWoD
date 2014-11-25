@@ -139,7 +139,11 @@ enum Opcodes
         SMSG_FLIGHT_SPLINE_SYNC                     = 0x08A5,   ///< 6.0.3 19116 (unused)
         SMSG_BARBER_SHOP_RESULT                     = 0x150D,   ///< 6.0.3 19116
         SMSG_ENABLE_BARBER_SHOP                     = 0x13A2,   ///< 6.0.3 19116
-
+        SMSG_PAGE_TEXT_QUERY_RESPONSE               = 0x05A0,   ///< 6.0.3 19116
+        SMSG_PAGE_TEXT                              = 0x158D,   ///< 6.0.3 19116
+        SMSG_READ_ITEM_FAILED                       = 0x0BD4,   ///< 6.0.3 19116
+        SMSG_READ_ITEM_OK                           = 0x1BE1,   ///< 6.0.3 19116
+        SMSG_TEXT_EMOTE                             = 0x0383,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -955,6 +959,7 @@ enum Opcodes
     CMSG_GAMEOBJECT_QUERY                       = 0x03AE,   ///< 6.0.3 19116
     CMSG_PETITION_QUERY                         = 0x048B,   ///< 6.0.3 19116
     CMSG_QUERY_GUILD_INFO                       = 0x0930,   ///< 6.0.3 19116
+    CMSG_PAGE_TEXT_QUERY                        = 0x0BBB,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -1014,7 +1019,7 @@ enum Opcodes
     CMSG_SEND_TEXT_EMOTE                        = 0x1901,   ///< 6.0.3 19116
     CMSG_ALTER_APPEARANCE                       = 0x13E9,   ///< 6.0.3 19166
     CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19166
-
+    CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19166
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1548,7 +1553,6 @@ enum Opcodes
     CMSG_MOVE_SET_RELATIVE_POSITION                   = 0x0000,
     CMSG_MOVE_TOGGLE_COLLISION_ACK                    = 0x0000,
     CMSG_NEW_SPELL_SLOT                               = 0x0000,
-    CMSG_PAGE_TEXT_QUERY                              = 0x0000,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x0000,
     CMSG_PLAYER_LOGOUT                                = 0x0000,
     CMSG_PLAY_DANCE                                   = 0x0000,
@@ -1559,7 +1563,6 @@ enum Opcodes
     CMSG_QUERY_TIME                                   = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
-    CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x0000,
     CMSG_REPORT_PVP_AFK                               = 0x0000,
@@ -1784,7 +1787,6 @@ enum Opcodes
     SMSG_FORGE_MASTER_SET                             = 0x0000,
     SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x0000,
     SMSG_GAMEOBJECT_DESPAWN_ANIM                      = 0x0000,
-    SMSG_GAMEOBJECT_PAGETEXT                          = 0x0000,
     SMSG_GAMEOBJECT_PLAY_SPELL_VISUAL                 = 0x0000,
     SMSG_GAME_SPEED_SET                               = 0x0000,
     SMSG_GAME_TIME_SET                                = 0x0000,
@@ -1883,8 +1885,6 @@ enum Opcodes
     SMSG_OPEN_CONTAINER                               = 0x0000,
     SMSG_OPEN_LFG_DUNGEON_FINDER                      = 0x0000,
     SMSG_OVERRIDE_LIGHT                               = 0x0000,
-    SMSG_PAGE_TEXT_QUERY_RESPONSE                     = 0x0000,
-    SMSG_PAGE_TEXT                                    = 0x0000,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x0000,
     SMSG_PENDING_RAID_LOCK                            = 0x0000,
     SMSG_PET_BATTLE_CHAT_RESTRICTED                   = 0x0000,
@@ -1932,8 +1932,6 @@ enum Opcodes
     SMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     SMSG_RATED_BG_RATING                              = 0x0000,
     SMSG_RATED_BG_STATS                               = 0x0000,
-    SMSG_READ_ITEM_FAILED                             = 0x0000,
-    SMSG_READ_ITEM_OK                                 = 0x0000,
     SMSG_REALM_SPLIT                                  = 0x0000,
     SMSG_REAL_GROUP_UPDATE                            = 0x0000,
     SMSG_REDIRECT_CLIENT                              = 0x0000,
@@ -1998,7 +1996,6 @@ enum Opcodes
     SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x0000,
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x0000,
     SMSG_TEST_DROP_RATE_RESULT                        = 0x0000,
-    SMSG_TEXT_EMOTE                                   = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,

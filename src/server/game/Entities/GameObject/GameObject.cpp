@@ -1221,14 +1221,14 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
         SetGoState(GO_STATE_READY);
 }
 
-void GameObject::Use(Unit* user)
+void GameObject::Use(Unit* p_User)
 {
     // by default spell caster is user
-    Unit* spellCaster = user;
+    Unit* spellCaster = p_User;
     uint32 spellId = 0;
     bool triggered = false;
 
-    if (Player* playerUser = user->ToPlayer())
+    if (Player* playerUser = p_User->ToPlayer())
     {
         if (playerUser->GetEmoteState())
             playerUser->SetEmoteState(0);
@@ -1251,9 +1251,9 @@ void GameObject::Use(Unit* user)
 
     if (GetEntry() == 192819)
     {
-        if (Creature *c = user->FindNearestCreature(23472, 50.00f))
-            if (Player* plr = user->ToPlayer())
-                plr->TeleportTo(user->GetMapId(), c->GetPositionX(), c->GetPositionY(), c->GetPositionZ(), 3.14f);
+        if (Creature *c = p_User->FindNearestCreature(23472, 50.00f))
+            if (Player* plr = p_User->ToPlayer())
+                plr->TeleportTo(p_User->GetMapId(), c->GetPositionX(), c->GetPositionY(), c->GetPositionZ(), 3.14f);
         return;
     }
 
@@ -1262,9 +1262,9 @@ void GameObject::Use(Unit* user)
         case GAMEOBJECT_TYPE_DOOR:                          //0
         case GAMEOBJECT_TYPE_BUTTON:                        //1
             //doors/buttons never really despawn, only reset to default state/flags
-            UseDoorOrButton(0, false, user);
+            UseDoorOrButton(0, false, p_User);
 
-            if (Player* player = user->ToPlayer())
+            if (Player* player = p_User->ToPlayer())
                 if (Battleground* bg = player->GetBattleground())
                     bg->EventPlayerUsedGO(player, this);
 
@@ -1274,10 +1274,10 @@ void GameObject::Use(Unit* user)
 
         case GAMEOBJECT_TYPE_QUESTGIVER:                    //2
         {
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID, true);
             player->SendPreparedGossip(this);
@@ -1287,7 +1287,7 @@ void GameObject::Use(Unit* user)
             {
                 GameObjectTemplate const* goInfo = GetGOInfo();
                 if (goInfo->trap.spellId)
-                    CastSpell(user, goInfo->trap.spellId);
+                    CastSpell(p_User, goInfo->trap.spellId);
 
                 m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
 
@@ -1303,7 +1303,7 @@ void GameObject::Use(Unit* user)
             if (!info)
                 return;
 
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             if (ChairListSlots.empty())        // this is called once at first chair use to make list of available slots
@@ -1315,7 +1315,7 @@ void GameObject::Use(Unit* user)
                     ChairListSlots[0] = 0;     // error in DB, make one default slot
             }
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             // a chair may have n slots. we have to calculate their positions and teleport the player to the nearest one
 
@@ -1389,63 +1389,64 @@ void GameObject::Use(Unit* user)
         //big gun, its a spell/aura
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
-            GameObjectTemplate const* info = GetGOInfo();
+            const GameObjectTemplate * l_Info = GetGOInfo();
 
-            if (user->GetTypeId() == TYPEID_PLAYER)
+            if (p_User->GetTypeId() == TYPEID_PLAYER)
             {
-                Player* player = user->ToPlayer();
+                Player * l_Player = p_User->ToPlayer();
 
-                if (info->goober.pageId)                    // show page...
+                if (l_Info->goober.pageId)                    // show page...
                 {
-                    WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8);
-                    data << GetGUID();
-                    player->GetSession()->SendPacket(&data);
+                    WorldPacket l_Data(SMSG_PAGE_TEXT, 2 + 16);
+                    l_Data.appendPackGUID(GetGUID());               ///< Game Object GUID
+
+                    l_Player->GetSession()->SendPacket(&l_Data);
                 }
-                else if (info->goober.gossipID)
+                else if (l_Info->goober.gossipID)
                 {
-                    player->PrepareGossipMenu(this, info->goober.gossipID);
-                    player->SendPreparedGossip(this);
+                    l_Player->PrepareGossipMenu(this, l_Info->goober.gossipID);
+                    l_Player->SendPreparedGossip(this);
                 }
 
-                if (info->goober.eventId)
+                if (l_Info->goober.eventId)
                 {
-                    sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
-                    GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
-                    EventInform(info->goober.eventId);
+                    sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Goober ScriptStart id %u for GO entry %u (GUID %u).", l_Info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
+                    GetMap()->ScriptsStart(sEventScripts, l_Info->goober.eventId, l_Player, this);
+                    EventInform(l_Info->goober.eventId);
                 }
 
                 // possible quest objective for active quests
-                if (info->goober.questId && sObjectMgr->GetQuestTemplate(info->goober.questId))
+                if (l_Info->goober.questId && sObjectMgr->GetQuestTemplate(l_Info->goober.questId))
                 {
                     //Quest require to be active for GO using
-                    if (player->GetQuestStatus(info->goober.questId) != QUEST_STATUS_INCOMPLETE)
+                    if (l_Player->GetQuestStatus(l_Info->goober.questId) != QUEST_STATUS_INCOMPLETE)
                         break;
                 }
 
-                if (Battleground* bg = player->GetBattleground())
-                    bg->EventPlayerUsedGO(player, this);
+                if (Battleground* bg = l_Player->GetBattleground())
+                    bg->EventPlayerUsedGO(l_Player, this);
 
-                player->CastedCreatureOrGO(info->entry, GetGUID(), 0);
+                l_Player->CastedCreatureOrGO(l_Info->entry, GetGUID(), 0);
 
-                GetMap()->ScriptsStart(sGameObjectScripts, GetDBTableGUIDLow(), player, this);
+                GetMap()->ScriptsStart(sGameObjectScripts, GetDBTableGUIDLow(), l_Player, this);
             }
 
-            if (uint32 trapEntry = info->goober.linkedTrapId)
-                TriggeringLinkedGameObject(trapEntry, user);
+            if (uint32 trapEntry = l_Info->goober.linkedTrapId)
+                TriggeringLinkedGameObject(trapEntry, p_User);
 
             SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
-            SetLootState(GO_ACTIVATED, user);
+            SetLootState(GO_ACTIVATED, p_User);
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
-            if (info->goober.customAnim)
+            if (l_Info->goober.customAnim)
                 SendCustomAnim(GetGoAnimProgress());
             else
                 SetGoState(GO_STATE_ACTIVE);
 
-            m_cooldownTime = time(NULL) + info->GetAutoCloseTime();
+            m_cooldownTime = time(NULL) + l_Info->GetAutoCloseTime();
 
             // cast this spell later if provided
-            spellId = info->goober.spellId;
+            spellId = l_Info->goober.spellId;
             spellCaster = NULL;
             
             break;
@@ -1456,10 +1457,10 @@ void GameObject::Use(Unit* user)
             if (!info)
                 return;
 
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             if (info->camera.cinematicId)
                 player->SendCinematicStart(info->camera.cinematicId);
@@ -1472,7 +1473,7 @@ void GameObject::Use(Unit* user)
         //fishing bobber
         case GAMEOBJECT_TYPE_FISHINGNODE:                   //17
         {
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
             if (!player)
                 return;
 
@@ -1552,10 +1553,10 @@ void GameObject::Use(Unit* user)
 
         case GAMEOBJECT_TYPE_RITUAL:              //18
         {
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             Unit* owner = GetOwner();
 
@@ -1658,11 +1659,11 @@ void GameObject::Use(Unit* user)
                 if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (user->GetTypeId() != TYPEID_PLAYER || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
+                if (p_User->GetTypeId() != TYPEID_PLAYER || !p_User->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
                     return;
             }
 
-            user->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            p_User->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellcaster.spellId;
 
             AddUse();
@@ -1672,10 +1673,10 @@ void GameObject::Use(Unit* user)
         {
             GameObjectTemplate const* info = GetGOInfo();
 
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             Player* targetPlayer = ObjectAccessor::FindPlayer(player->GetSelection());
 
@@ -1701,10 +1702,10 @@ void GameObject::Use(Unit* user)
 
         case GAMEOBJECT_TYPE_FLAGSTAND:                     // 24
         {
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             if (player->CanUseBattlegroundObject())
             {
@@ -1733,10 +1734,10 @@ void GameObject::Use(Unit* user)
 
         case GAMEOBJECT_TYPE_FISHINGHOLE:                   // 25
         {
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
@@ -1745,10 +1746,10 @@ void GameObject::Use(Unit* user)
 
         case GAMEOBJECT_TYPE_FLAGDROP:                      // 26
         {
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             if (player->CanUseBattlegroundObject())
             {
@@ -1792,10 +1793,10 @@ void GameObject::Use(Unit* user)
             if (!info)
                 return;
 
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = user->ToPlayer();
+            Player* player = p_User->ToPlayer();
 
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
@@ -1809,17 +1810,17 @@ void GameObject::Use(Unit* user)
         case GAMEOBJECT_TYPE_NEW_FLAG:
         case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
         {
-            if (user->GetTypeId() == TYPEID_PLAYER)
+            if (p_User->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Battleground* bg = user->ToPlayer()->GetBattleground())
-                    bg->EventPlayerClickedOnFlag(user->ToPlayer(), this);
+                if (Battleground* bg = p_User->ToPlayer()->GetBattleground())
+                    bg->EventPlayerClickedOnFlag(p_User->ToPlayer(), this);
             }
             break;
         }
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 sLog->outError(LOG_FILTER_GENERAL, "GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",
-                    user->GetTypeId(), user->GetGUIDLow(), user->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
+                    p_User->GetTypeId(), p_User->GetGUIDLow(), p_User->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
             break;
     }
 
@@ -1829,7 +1830,7 @@ void GameObject::Use(Unit* user)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        if (user->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr->HandleCustomSpell(user->ToPlayer(), spellId, this))
+        if (p_User->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr->HandleCustomSpell(p_User->ToPlayer(), spellId, this))
             sLog->outError(LOG_FILTER_GENERAL, "WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u)", spellId, GetEntry(), GetGoType());
         else
             sLog->outDebug(LOG_FILTER_OUTDOORPVP, "WORLD: %u non-dbc spell was handled by OutdoorPvP", spellId);
@@ -1837,9 +1838,9 @@ void GameObject::Use(Unit* user)
     }
 
     if (spellCaster)
-        spellCaster->CastSpell(user, spellInfo, triggered);
+        spellCaster->CastSpell(p_User, spellInfo, triggered);
     else
-        CastSpell(user, spellId);
+        CastSpell(p_User, spellId);
 }
 
 void GameObject::CastSpell(Unit* target, uint32 spellId)

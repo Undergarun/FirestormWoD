@@ -1459,8 +1459,9 @@ class spell_sha_improoved_flame_shock : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (Player* player = GetCaster()->ToPlayer())
-                    player->RemoveSpellCooldown(SPELL_SHA_LAVA_LASH, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                        l_Player->RemoveSpellCooldown(SPELL_SHA_LAVA_LASH, true);
             }
 
             void Register()

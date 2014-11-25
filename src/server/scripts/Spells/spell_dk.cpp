@@ -78,7 +78,9 @@ enum DeathKnightSpells
     DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159,
     DK_SPELL_RUNIC_CORRUPTION_AURA              = 51462,
     DK_SPELL_RUNIC_CORRUPTION                   = 51460,
-    DK_SPELL_DEATH_PACT                         = 48743
+    DK_SPELL_DEATH_PACT                         = 48743,
+    DK_SPELL_ICY_TOUCH                          = 45477,
+    DK_SPELL_CHILBLAINS_TRIGGER                 = 50435
 };
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
@@ -1836,6 +1838,46 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
+// Chilblains - 50041
+class spell_dk_chilblains_aura : public SpellScriptLoader
+{
+    public:
+        spell_dk_chilblains_aura() : SpellScriptLoader("spell_dk_chilblains_aura") { }
+
+        class spell_dk_chilblains_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_chilblains_aura_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = p_EventInfo.GetProcTarget())
+                    {
+                        if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                            return;
+
+                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_FROST_FEVER || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_CHAINS_OF_ICE
+                            || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_ICY_TOUCH)
+                            l_Caster->CastSpell(l_Target, DK_SPELL_CHILBLAINS_TRIGGER, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_chilblains_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_chilblains_aura_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_and_decay();
@@ -1877,6 +1919,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_plaguebearer();
     new spell_dk_necrotic_plague_aura();
     new spell_dk_death_pact();
+    new spell_dk_chilblains_aura();
 
     /// Player script
     new PlayerScript_Blood_Tap();
