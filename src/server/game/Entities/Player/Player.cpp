@@ -28148,7 +28148,7 @@ void Player::SendTalentsInfoData(bool pet)
     {
         Pet* pPet = GetPet();
         WorldPacket data(SMSG_SET_PET_SPECIALIZATION);
-        data << uint16(pPet ? pPet->GetSpecializationId() : 0);
+        data << uint16(pPet ? pPet->GetSpecializationId() : 0);     ///< SpecId
         GetSession()->SendPacket(&data);
         return;
     }

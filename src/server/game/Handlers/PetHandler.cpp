@@ -910,46 +910,50 @@ void WorldSession::SendPetNameInvalid(uint32 p_Result, const std::string& p_NewN
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleLearnPetSpecialization(WorldPacket & recvData)
+void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
 {
-    uint32 index = recvData.read<uint32>();
-    // GUID : useless =P
-    recvData.rfinish();
+
+    uint64 l_PetGUID;
+    uint32 l_SpecGroupIndex;
+
+    p_RecvData.readPackGUID(l_PetGUID);
+    p_RecvData >> l_SpecGroupIndex;
 
     if (m_Player->isInCombat())
         return;
 
-    uint32 specializationId = 0;
-
-    switch(index)
+    uint32 l_PetSpecializationId = 0;
+    for (uint32 l_I = 0; l_I < sChrSpecializationsStore.GetNumRows(); l_I++)
     {
-        case 0:
-            specializationId = SPEC_PET_FEROCITY; // Férocité
-            break;
-        case 1:
-            specializationId = SPEC_PET_TENACITY; // Ténacité
-            break;
-        case 2:
-            specializationId = SPEC_PET_CUNNING; // Ruse
-            break;
-        default:
-            break;
+        ChrSpecializationsEntry const* l_ChrSpecialization = sChrSpecializationsStore.LookupEntry(l_I);
+        if (l_ChrSpecialization == nullptr)
+            continue;
+
+        // Pet specialization are the only one to have flags == 0 & classid == 0
+        if (l_ChrSpecialization->Flags != 0 || l_ChrSpecialization->ClassID != 0)
+            continue;
+
+        if (l_SpecGroupIndex != l_ChrSpecialization->PetTalentType)
+            continue;
+
+        l_PetSpecializationId = l_ChrSpecialization->ID;
+        break;
     }
 
-    if (!specializationId)
+    if (!l_PetSpecializationId)
         return;
 
-    Pet* pet = m_Player->GetPet();
-    if (!pet)
+    Pet* l_Pet = m_Player->GetPet();
+    if (!l_Pet)
         return;
 
-    if (pet->getPetType() != PetType::HUNTER_PET)
+    if (l_Pet->getPetType() != PetType::HUNTER_PET)
         return;
 
-    if (pet->GetSpecializationId())
-        pet->UnlearnSpecializationSpell();
+    if (l_Pet->GetSpecializationId())
+        l_Pet->UnlearnSpecializationSpell();
 
-    pet->SetSpecializationId(specializationId);
-    pet->LearnSpecializationSpell();
+    l_Pet->SetSpecializationId(l_PetSpecializationId);
+    l_Pet->LearnSpecializationSpell();
     m_Player->SendTalentsInfoData(true);
 }
