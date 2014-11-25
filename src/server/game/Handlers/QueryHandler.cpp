@@ -548,7 +548,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
             l_Data.WriteBits(l_Text.size(), 12);                    ///< Text
             l_Data.FlushBits();
 
-            l_Data.append(l_Text);                                  ///< Text
+            l_Data.WriteString(l_Text);                             ///< Text
         }
 
         if (l_PageText)
