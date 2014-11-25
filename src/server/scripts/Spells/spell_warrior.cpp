@@ -425,7 +425,7 @@ class spell_warr_second_wind : public SpellScriptLoader
                     if (!(l_ProcInfo.GetHitMask() & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT)))
                         return;
 
-                    if (l_Caster->GetHealthPct() <= 35)
+                    if (l_Caster->GetHealthPct() <= 35.0f)
                         l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
                 }
             }
@@ -1287,10 +1287,10 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
 };
 
 // Shield Barrier - 112048
-class spell_warl_shield_barrier : public SpellScriptLoader
+class spell_warr_shield_barrier : public SpellScriptLoader
 {
     public:
-        spell_warl_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
+        spell_warr_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
 
         class spell_warl_shield_barrier_AuraScript : public AuraScript
         {
@@ -1347,5 +1347,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_spell_reflection();
     new spell_warr_intervene();
     new spell_warr_glyph_of_gag_order();
-    new spell_warl_shield_barrier();
+    new spell_warr_shield_barrier();
 }
