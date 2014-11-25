@@ -1162,14 +1162,13 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         cell.Visit(p, message, *GetOwner()->GetMap(), *GetOwner(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
     }
 
-    WorldPacket l_Data(SMSG_ACHIEVEMENT_EARNED);
 
-    ObjectGuid thisPlayerGuid = GetOwner()->GetGUID();
     ObjectGuid firstPlayerOnAccountGuid = GetOwner()->GetGUID();
 
     if (HasAccountAchieved(achievement->ID))
         firstPlayerOnAccountGuid = GetFirstAchievedCharacterOnAccount(achievement->ID);
 
+    WorldPacket l_Data(SMSG_ACHIEVEMENT_EARNED);
     l_Data.appendPackGUID(GetOwner()->GetGUID());
     l_Data.appendPackGUID(firstPlayerOnAccountGuid);
     l_Data << uint32(achievement->ID);
@@ -1177,12 +1176,9 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     l_Data << uint32(g_RealmID);
     l_Data << uint32(g_RealmID);
 
-    size_t l_BitPos = l_Data.bitwpos();
-    l_Data.WriteBit(1); // DoNotShowAchievementBox
+    l_Data.WriteBit(0); // DoNotShowAchievementBox
     l_Data.FlushBits();
-    GetOwner()->SendMessageToSetInRange(&l_Data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), false);
 
-    l_Data.PutBits(l_BitPos, 0, 1);
     SendPacket(&l_Data);
 }
 
