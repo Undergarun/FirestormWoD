@@ -29090,7 +29090,7 @@ uint32 Player::GetAverageItemLevelTotal()
         }
     }
 
-    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
         if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (l_Item->IsEquipable())
             {
