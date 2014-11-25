@@ -106,9 +106,9 @@ class npc_world_invisible_trigger : public CreatureScript
                                 continue;
 
                             if (l_Player->GetTeamId() == TEAM_ALLIANCE)
-								l_Player->TeleportTo(1116, 465.76f, -94.35f, 92.83f, l_Player->GetOrientation());
+                                l_Player->TeleportTo(1116, 2265.054f, 508.778f, 15.465f, l_Player->GetOrientation());
                             else if (l_Player->GetTeamId() == TEAM_HORDE)
-								l_Player->TeleportTo(1116, 7433.54f, 4519.52f, 166.66f, l_Player->GetOrientation());
+                                l_Player->TeleportTo(1116, 5534.136f, 5017.660f, 12.676f, l_Player->GetOrientation());
                         }
                     }
                     else
