@@ -495,6 +495,7 @@ class mob_ember_of_alar : public CreatureScript
             {
                 if (damage >= me->GetHealth() && killer != me && !toDie)
                 {
+                    toDie = true;
                     damage = 0;
                     DoCast(me, SPELL_EMBER_BLAST, true);
                     me->SetDisplayId(11686);
@@ -510,7 +511,6 @@ class mob_ember_of_alar : public CreatureScript
                                 Alar->SetHealth(1);
                         }
                     }
-                    toDie = true;
                 }
             }
 
