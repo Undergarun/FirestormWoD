@@ -137,6 +137,7 @@ enum Opcodes
         SMSG_INSPECT_RATED_BG_STATS                 = 0x050A,   ///< 6.0.3 19116
         SMSG_TIME_SYNC_REQUEST                      = 0x03B1,   ///< 6.0.3 19116
         SMSG_FLIGHT_SPLINE_SYNC                     = 0x08A5,   ///< 6.0.3 19116 (unused)
+        SMSG_RESUME_TOKEN                           = 0x12A2,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -380,6 +381,9 @@ enum Opcodes
         SMSG_GM_TICKET_UPDATE                                   = 0x13EB, ///< 6.0.3 19116
         SMSG_GM_TICKET_STATUS_UPDATE                            = 0x1D2E, ///< 6.0.3 19116
         SMSG_GM_TICKET_CASE_STATUS                              = 0x1D8D, ///< 6.0.3 19116
+
+        /// Toybox
+        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0590, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1406,6 +1410,13 @@ enum Opcodes
     CMSG_REPORT_SUGGESTION                          = 0x0D0A,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
+    /// ToyBox
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_ADD_NEW_TOY_TO_BOX                         = 0x0632,    ///< 6.0.3 19116
+    CMSG_SET_FAVORITE_TOY                           = 0x0105,    ///< 6.0.3 19116
+    CMSG_USE_TOY                                    = 0x16E2,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1948,7 +1959,6 @@ enum Opcodes
     SMSG_RESET_DAILY_QUEST                            = 0x0000,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x0000,
     SMSG_RESURRECT_REQUEST                            = 0x0000,
-    SMSG_RESUME_TOKEN                                 = 0x0000,
     SMSG_RWHOIS                                       = 0x0000,
     SMSG_SCENE_OBJECT_EVENT                           = 0x0000,
     SMSG_SCENE_OBJECT_PET_BATTLE_FINISHED             = 0x0000,

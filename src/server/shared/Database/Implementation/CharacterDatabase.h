@@ -638,6 +638,13 @@ enum CharacterDatabaseStatements
     CHAR_UPD_LAST_BATTLEPET,
     CHAR_SEL_LAST_BATTLEPET,
 
+    //////////////////////////////////////////////////////////////////////////
+    /// ToyBox
+    CHAR_SEL_ACCOUNT_TOYS,
+    CHAR_INS_ACCOUNT_TOYS,
+    CHAR_UPD_TOY_FAVORITE,
+    //////////////////////////////////////////////////////////////////////////
+
     MAX_CHARACTERDATABASE_STATEMENTS,
 };
 

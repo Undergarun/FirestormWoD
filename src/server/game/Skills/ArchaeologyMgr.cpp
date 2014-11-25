@@ -142,8 +142,8 @@ uint32 ArchaeologyMgr::GetSurveyBotEntry(float &orientation)
     for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
     {
         //Replace by GetUInt16Value
-        uint32 site_now_1 = _player->GetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, i) & 0xFFFFF;
-        uint32 site_now_2 = _player->GetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, i) >> 20;
+        uint32 site_now_1 = _player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, i) & 0xFFFFF;
+        uint32 site_now_2 = _player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, i) >> 20;
 
         if (zoneid == site_now_1)
         {
@@ -268,17 +268,17 @@ void ArchaeologyMgr::ShowResearchSites()
         if (CanResearchWithLevel(id) == RS_RESULT_HIDE)
             id = 0;
 
-        _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, count, id);
+        _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, count, id);
 
         for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
         {
             if (_digSites[i].site_id == id)
             {
-                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, _digSites[i].count);
+                _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, count, _digSites[i].count);
                 break;
             }
             else
-                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, 0);
+                _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, count, 0);
         }
 
         ++count;
@@ -433,7 +433,6 @@ void ArchaeologyMgr::GenerateResearchSitesForMap(uint32 p_MapId, uint32 p_SitesC
     _archaeologyChanged = true;
     ShowResearchSites();
 }
-
 
 void ArchaeologyMgr::GenerateResearchProjects()
 {
@@ -681,6 +680,8 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
         }
     }
 
+    ShowResearchSites();
+
     /// Loading current projects
     _researchProjects.clear();
     if (l_Fields[1].GetCString())
@@ -692,6 +693,7 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
     }
 
     ValidateProjects();
+    ShowResearchProjects();
 
     if (!p_ResultProjects)
         return;

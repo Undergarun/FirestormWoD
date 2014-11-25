@@ -833,14 +833,14 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
 
-        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0)); }
+        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
         void SetGoState(GOState state);
 
-        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
-        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
+        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
 
-        uint8 GetGoHealth() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
-        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, health); }
+        uint8 GetGoHealth() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
+        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_BYTES_1, 3, health); }
 
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1); }
         void SetGoArtKit(uint8 artkit);
