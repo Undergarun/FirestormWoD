@@ -348,7 +348,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_PET_MODE,                                        STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PET_SLOT_UPDATED,                                STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PET_STABLE_LIST,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_SET_PET_SPECIALIZATION,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide;
+        DEFINE_OPCODE_HANDLER(SMSG_SET_PET_SPECIALIZATION,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
 
         /// Battle pet opcodes
