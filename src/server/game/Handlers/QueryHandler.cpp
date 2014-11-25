@@ -585,49 +585,49 @@ void WorldSession::HandleCorpseTransportQueryOpcode(WorldPacket & p_Packet)
     SendPacket(&data);
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
+void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
 {
     uint32 l_Count;
 
-    recvData >> l_Count;
+    p_Packet >> l_Count;
 
     if (l_Count >= MAX_QUEST_LOG_SIZE)
     {
-        recvData.rfinish();
+        p_Packet.rfinish();
         return;
     }
 
-    std::list<uint32> questList;
+    std::list<uint32> l_QuestList;
+
     for (uint32 i = 0; i < l_Count; ++i)
-        questList.push_back(recvData.read<uint32>());
+        l_QuestList.push_back(p_Packet.read<uint32>());
 
+    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*l_Count);
+    l_Data << uint32(l_Count); // count
+    l_Data << uint32(l_Count);
 
-    WorldPacket data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*l_Count);
-    data << uint32(l_Count); // count
-    data << uint32(l_Count);
-
-    for (auto itr : questList)
+    for (auto l_CurrentQuest : l_QuestList)
     {
-        uint32 questId = itr;
-        bool questOk = false;
-        uint16 questSlot = m_Player->FindQuestSlot(questId);
+        uint32 l_QuestID = l_CurrentQuest;
+        uint16 l_QuestSlot = m_Player->FindQuestSlot(l_QuestID);
+        bool l_QuestOK = false;
 
-        if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =m_Player->GetQuestSlotQuestId(questSlot) == questId;
+        if (l_QuestSlot != MAX_QUEST_LOG_SIZE)
+            l_QuestOK =m_Player->GetQuestSlotQuestId(l_QuestSlot) == l_QuestID;
 
-        if (questOk)
+        if (l_QuestOK)
         {
-            QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
+            QuestPOIVector const* l_POIs = sObjectMgr->GetQuestPOIVector(l_QuestID);
 
-            if (POI)
+            if (l_POIs)
             {
-                data << uint32(questId); // quest ID
-                data << uint32(POI->size()); // POI count
-                data << uint32(POI->size()); // POI count
+                l_Data << uint32(l_QuestID);          ///< Quest ID
+                l_Data << uint32(l_POIs->size());     ///< Num Blobs
+                l_Data << uint32(l_POIs->size());     ///< Num Blobs
 
-                const Quest * l_Quest = sObjectMgr->GetQuestTemplate(questId);
+                const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID);
 
-                for (QuestPOIVector::const_iterator l_It = POI->begin(); l_It != POI->end(); ++l_It)
+                for (QuestPOIVector::const_iterator l_It = l_POIs->begin(); l_It != l_POIs->end(); ++l_It)
                 {
                     const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
 
@@ -640,46 +640,44 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
                         l_QuestObjectID = l_Objective->ObjectID;
                     }
 
-                    data << uint32(l_It->Id);
-                    data << int32(l_It->ObjectiveIndex);
-                    data << uint32(l_QuestObjectiveID);
-                    data << uint32(l_QuestObjectID);
-                    data << uint32(l_It->MapId);
-                    data << uint32(l_It->AreaId);
-                    data << uint32(0);
-                    data << uint32(0);
-                    data << uint32(l_It->Unk4);
-                    data << uint32(0);
-                    data << uint32(0);
-                    data << uint32(l_It->points.size());
-                    data << uint32(0);
+                    l_Data << uint32(l_It->Id);                   ///< BlobIndex
+                    l_Data << int32(l_It->ObjectiveIndex);        ///< Objective Index
+                    l_Data << uint32(l_QuestObjectiveID);         ///< Quest Objective ID
+                    l_Data << uint32(l_QuestObjectID);            ///< Quest Object ID
+                    l_Data << uint32(l_It->MapID);                ///< Map ID
+                    l_Data << uint32(l_It->WorldMapAreaID);       ///< World Map Area ID
+                    l_Data << uint32(l_It->Floor);                ///< Floor
+                    l_Data << uint32(l_It->Priority);             ///< Priority
+                    l_Data << uint32(l_It->Flags);                ///< Flags
+                    l_Data << uint32(l_It->WorldEffectID);        ///< World Effect ID
+                    l_Data << uint32(l_It->PlayerConditionID);    ///< Player Condition ID
+                    l_Data << uint32(l_It->Points.size());        ///< Num Points
+                    l_Data << uint32(l_It->Unk);                  ///< Unk
 
-                    data << uint32(l_It->points.size());
+                    l_Data << uint32(l_It->Points.size());
 
-                    for (std::vector<QuestPOIPoint>::const_iterator itr2 = l_It->points.begin(); itr2 != l_It->points.end(); ++itr2)
+                    for (std::vector<QuestPOIPoint>::const_iterator l_PointIT = l_It->Points.begin(); l_PointIT != l_It->Points.end(); ++l_PointIT)
                     {
-                        data << int32(itr2->x); // POI point x
-                        data << int32(itr2->y); // POI point y
+                        l_Data << int32(l_PointIT->x);            ///< X
+                        l_Data << int32(l_PointIT->y);            ///< Y
                     }
 
-                    //data << uint32(itr->Unk3);
-                    //data << uint32(itr->Unk2);
                 }
             }
             else
             {
-                data << uint32(questId); // quest ID
-                data << uint32(0); // POI count
-                data << uint32(0); // POI count
+                l_Data << uint32(l_QuestID);  ///< Quest ID
+                l_Data << uint32(0);          ///< Num Blobs
+                l_Data << uint32(0);          ///< Num Blobs
             }
         }
         else
         {
-            data << uint32(questId); // quest ID
-            data << uint32(0); // POI count
-            data << uint32(0); // POI count
+            l_Data << uint32(l_QuestID);      ///< Quest ID
+            l_Data << uint32(0);              ///< Num Blobs
+            l_Data << uint32(0);              ///< Num Blobs
         }
     }
 
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
