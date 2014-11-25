@@ -52,6 +52,7 @@ enum DeathKnightSpells
     DK_SPELL_SOUL_REAPER_DAMAGE                 = 114867,
     DK_SPELL_REMORSELESS_WINTER_STUN            = 115001,
     DK_SPELL_REMORSELESS_WINTER                 = 115000,
+    DK_SPELL_CONVERSION_REGEN                   = 119980,
     DK_SPELL_SCENT_OF_BLOOD                     = 49509,
     DK_SPELL_SCENT_OF_BLOOD_AURA                = 50421,
     DK_SPELL_CHAINS_OF_ICE                      = 45524,
@@ -452,6 +453,34 @@ class spell_dk_howling_blast : public SpellScriptLoader
         {
             return new spell_dk_howling_blast_SpellScript();
         }
+};
+
+// Conversion - 119975
+class spell_dk_conversion : public SpellScriptLoader
+{
+public:
+    spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
+
+    class spell_dk_conversion_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_conversion_AuraScript);
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit* l_unit = GetCaster())
+                l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dk_conversion_AuraScript();
+    }
 };
 
 // Remorseless Winter - 115000
@@ -1818,6 +1847,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_festering_strike();
     new spell_dk_death_strike_heal();
     new spell_dk_howling_blast();
+    new spell_dk_conversion();
     new spell_dk_remorseless_winter();
     new spell_dk_soul_reaper();
     new spell_dk_pillar_of_frost();
