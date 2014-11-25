@@ -299,6 +299,8 @@ enum Opcodes
         SMSG_PET_ACTION_FEEDBACK                            = 0x0D9E,   ///< 6.0.3 19116
         SMSG_PET_ACTION_SOUND                               = 0x0D39,   ///< 6.0.3 19116
         SMSG_PET_ADDED                                      = 0x0327,   ///< 6.0.3 19116 (unused)
+        SMSG_SET_PET_SPECIALIZATION                         = 0x1989,   ///< 6.0.3 19116
+
 
         /// Pet Battle opcodes
         SMSG_PETBATTLE_FULL_JOURNAL                         = 0x0000,
@@ -1235,6 +1237,8 @@ enum Opcodes
     CMSG_PET_CAST_SPELL                         = 0x0286,   ///< 6.0.3 19116
     CMSG_PET_SET_ACTION                         = 0x020F,   ///< 6.0.3 19116
     CMSG_PET_STOP_ATTACK                        = 0x19E2,   ///< 6.0.3 19116
+    CMSG_LEARN_PET_SPECIALIZATION_GROUP         = 0x08D6,   ///< 6.0.3 19116
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Battlegrounds
@@ -1535,7 +1539,6 @@ enum Opcodes
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x0000,
     CMSG_ITEM_REFUND                                  = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
-    CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x0000,
     CMSG_LIST_STABLE_PETS                             = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
@@ -1972,7 +1975,6 @@ enum Opcodes
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                 = 0x0000,
     SMSG_SET_MELEE_ANIM_KIT                           = 0x0000,
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0x0000,
-    SMSG_SET_PET_SPECIALIZATION                       = 0x0000,
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0x0000,
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x0000,
     SMSG_SET_PROJECTILE_POSITION                      = 0x0000,
