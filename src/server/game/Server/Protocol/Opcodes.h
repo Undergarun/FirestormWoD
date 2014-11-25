@@ -141,6 +141,8 @@ enum Opcodes
         SMSG_ENABLE_BARBER_SHOP                     = 0x13A2,   ///< 6.0.3 19116
         SMSG_PAGE_TEXT_QUERY_RESPONSE               = 0x05A0,   ///< 6.0.3 19116
         SMSG_PAGE_TEXT                              = 0x158D,   ///< 6.0.3 19116
+        SMSG_READ_ITEM_FAILED                       = 0x0BD4,   ///< 6.0.3 19116
+        SMSG_READ_ITEM_OK                           = 0x1BE1,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -1014,6 +1016,7 @@ enum Opcodes
     CMSG_SEND_TEXT_EMOTE                        = 0x1901,   ///< 6.0.3 19116
     CMSG_ALTER_APPEARANCE                       = 0x13E9,   ///< 6.0.3 19166
     CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19166
+    CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19166
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1556,7 +1559,6 @@ enum Opcodes
     CMSG_QUERY_TIME                                   = 0x0000,
     CMSG_QUEST_NPC_QUERY                              = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
-    CMSG_READ_ITEM                                    = 0x0000,
     CMSG_REALM_SPLIT                                  = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x0000,
     CMSG_REPORT_PVP_AFK                               = 0x0000,
@@ -1926,8 +1928,6 @@ enum Opcodes
     SMSG_RANDOMIZE_CHAR_NAME                          = 0x0000,
     SMSG_RATED_BG_RATING                              = 0x0000,
     SMSG_RATED_BG_STATS                               = 0x0000,
-    SMSG_READ_ITEM_FAILED                             = 0x0000,
-    SMSG_READ_ITEM_OK                                 = 0x0000,
     SMSG_REALM_SPLIT                                  = 0x0000,
     SMSG_REAL_GROUP_UPDATE                            = 0x0000,
     SMSG_REDIRECT_CLIENT                              = 0x0000,
