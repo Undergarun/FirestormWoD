@@ -1394,14 +1394,14 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         return;
 
     // WoD: Apply factor on damages depending on creature level and expansion
-    if (this->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT)
-        damage *= CalculateDamageDealtFactor(this->ToPlayer(), victim->ToCreature());
-    else if (this->GetTypeId() == TYPEID_UNIT && victim->GetTypeId() == TYPEID_PLAYER)
-        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), this->ToCreature());
+    if (GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && !victim->isPet())
+        damage *= CalculateDamageDealtFactor(ToPlayer(), victim->ToCreature());
+    else if (GetTypeId() == TYPEID_UNIT && !isPet() && victim->GetTypeId() == TYPEID_PLAYER)
+        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), ToCreature());
 
     // Apply Versatility damage bonus done/taken
-    if (this->GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, this->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
+    if (GetTypeId() == TYPEID_PLAYER)
+        damage += CalculatePct(damage, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
     if (victim->GetTypeId() == TYPEID_PLAYER)
         damage -= CalculatePct(damage, victim->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) / 2);
 
@@ -1579,14 +1579,14 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
 
     // WoD: Apply factor on damages depending on creature level and expansion
-    if (this->GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT)
-        damage *= CalculateDamageDealtFactor(this->ToPlayer(), victim->ToCreature());
-    else if (this->GetTypeId() == TYPEID_UNIT && victim->GetTypeId() == TYPEID_PLAYER)
-        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), this->ToCreature());
+    if (GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && !victim->isPet())
+        damage *= CalculateDamageDealtFactor(ToPlayer(), victim->ToCreature());
+    else if (GetTypeId() == TYPEID_UNIT && ! isPet() && victim->GetTypeId() == TYPEID_PLAYER)
+        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), ToCreature());
 
     // Apply Versatility damage bonus done/taken
-    if (this->GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, this->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
+    if (GetTypeId() == TYPEID_PLAYER)
+        damage += CalculatePct(damage, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
     if (victim->GetTypeId() == TYPEID_PLAYER)
         damage -= CalculatePct(damage, victim->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) / 2);
 
