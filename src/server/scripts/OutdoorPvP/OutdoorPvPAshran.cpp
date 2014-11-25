@@ -60,7 +60,7 @@ void OPvPCapturePoint_Middle::ChangeState()
 
     GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
     if (l_Flag)
-        l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
+        l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, l_UpdateVal);
 
     UpdateTowerState();
 }
@@ -108,12 +108,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 // Stormshield Footman VS Warspear Grunt
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, FLAG_NEUTRAL);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
 
                 if (l_IsInitialized)
                 {
@@ -148,12 +148,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 // Stormshield Footman VS Warspear Grunt
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, FLAG_NEUTRAL);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
 
                 if (l_IsInitialized)
                 {
@@ -190,7 +190,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 // Stormshield Footman VS Warspear Grunt
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, FLAG_NEUTRAL);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
 
                 for (uint8 l_Count = VOLRATHS_ADVANCE_SPAWNS_IDS; l_Count < THE_CROSSROADS_SPAWNS_IDS; ++l_Count)
                     DelObject(l_Count);
@@ -198,7 +198,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
 
                 if (l_IsInitialized)
                 {
@@ -233,12 +233,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 // Stormshield Footman VS Warspear Grunt
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, FLAG_NEUTRAL);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
 
                 if (l_IsInitialized)
                 {
@@ -284,12 +284,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eAshranBattleType p_BattleID, u
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, FLAG_NEUTRAL);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == CONTROL_HORDE ? FLAG_HORDE : FLAG_ALLIANCE);
 
                 if (l_IsInitialized)
                 {
@@ -387,7 +387,7 @@ void OPvPCapturePoint_Graveyard::ChangeState()
 
     GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
     if (l_Flag)
-        l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
+        l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, l_UpdateVal);
 
     UpdateTowerState();
 }
@@ -717,7 +717,7 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
                 l_ControlPoint->UpdateTowerState();
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(l_ControlPoint->m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, FLAG_NEUTRAL);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, FLAG_NEUTRAL);
             }
         }
         // Bosses battle

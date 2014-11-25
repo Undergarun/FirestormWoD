@@ -1117,13 +1117,6 @@ class WorldSession
         void SendPetBattleFinalRound(PetBattle* p_Battle);
         void SendPetBattleFinished(PetBattle* battle);
 
-        //////////////////////////////////////////////////////////////////////////
-        /// ToyBox
-        //////////////////////////////////////////////////////////////////////////
-        void HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData);
-        void HandleSetFavoriteToyOpcode(WorldPacket& p_RecvData);
-        void HandleUseToyOpcode(WorldPacket& p_RecvData);
-
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();

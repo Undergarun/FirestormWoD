@@ -687,11 +687,4 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // Battle pets
     PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_LAST_BATTLEPET, "SELECT lastbattlepet FROM characters WHERE guid = ? AND lastbattlepet != 0", CONNECTION_ASYNC);
-
-    //////////////////////////////////////////////////////////////////////////
-    /// ToyBox
-    PREPARE_STATEMENT(CHAR_SEL_ACCOUNT_TOYS, "SELECT item_id, is_favorite FROM account_toys WHERE account_id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_ACCOUNT_TOYS, "INSERT INTO account_toys (account_id, item_id, is_favorite) VALUE (?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_UPD_TOY_FAVORITE, "UPDATE account_toys SET is_favorite = ? WHERE account_id = ? AND item_id = ?", CONNECTION_ASYNC);
-    //////////////////////////////////////////////////////////////////////////
 }

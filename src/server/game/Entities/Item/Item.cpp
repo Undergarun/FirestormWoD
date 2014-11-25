@@ -278,7 +278,7 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
-    _dynamicValuesCount = ITEM_DYNAMIC_END;
+    _dynamicTabCount = 32;
 }
 
 Item::~Item()
@@ -304,7 +304,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         return false;
 
     // For Item Upgrade
-    /*if (CanUpgrade())
+    if (CanUpgrade())
     {
         if (IsPvPItem())
         {
@@ -324,7 +324,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         }
 
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
-    }*/
+    }
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
     SetUInt32Value(ITEM_FIELD_MAX_DURABILITY, itemProto->MaxDurability);
@@ -403,8 +403,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetEnchantmentId(TRANSMOGRIFY_ENCHANTMENT_SLOT));
-            stmt->setUInt32(++index, 0/*GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)*/); // itemUpgrade Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)); // Transmogrification Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)); // itemUpgrade Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
@@ -501,8 +501,12 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     std::string enchants = fields[6].GetString();
     _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
 
+
     if (uint32 transmogId = fields[8].GetInt32())
-        SetEnchantment(TRANSMOGRIFY_ENCHANTMENT_SLOT, transmogId, 0, 0);
+    {
+        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, transmogId);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
+    }
 
     // uint32 upgradeId = fields[9].GetUInt32(); @TODO: Remove this DB field
 

@@ -896,8 +896,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY             = 40,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS    = 41,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
-    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
-    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 43,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1284,25 +1283,6 @@ struct PlayerTalentInfo
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
-
-struct PlayerToy
-{
-    PlayerToy()
-    {
-        memset(this, 0, sizeof (PlayerToy));
-    }
-
-    PlayerToy(uint32 p_Item, bool p_Favorite)
-    {
-        m_ItemID = p_Item;
-        m_IsFavorite = p_Favorite;
-    }
-
-    uint32 m_ItemID;
-    bool m_IsFavorite;
-};
-
-typedef std::map<uint32, PlayerToy> PlayerToys;
 
 enum BattlegroundTimerTypes
 {
@@ -3153,30 +3133,6 @@ class Player : public Unit, public GridObject<Player>
         /// Update battle pet combat team
         void UpdateBattlePetCombatTeam();
 
-        //////////////////////////////////////////////////////////////////////////
-        /// ToyBox
-        void _LoadToyBox(PreparedQueryResult p_Result);
-        void SendToyBox();
-        void AddNewToyToBox(uint32 p_ItemID);
-        void SetFavoriteToy(bool p_Apply, uint32 p_ItemID);
-
-        PlayerToy* GetToy(uint32 p_ItemID)
-        {
-            if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
-                return &m_PlayerToys[p_ItemID];
-
-            return nullptr;
-        }
-
-        bool HasToy(uint32 p_ItemID)
-        {
-            if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
-                return true;
-
-            return false;
-        }
-        //////////////////////////////////////////////////////////////////////////
-
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
 
@@ -3202,8 +3158,6 @@ class Player : public Unit, public GridObject<Player>
         std::vector<std::pair<uint32, uint32>> m_OldPetBattleSpellToMerge;
 
         PreparedQueryResultFuture _petBattleJournalCallback;
-
-        PlayerToys m_PlayerToys;
 
     private:
         // Gamemaster whisper whitelist

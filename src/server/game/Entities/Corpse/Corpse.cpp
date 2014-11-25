@@ -34,7 +34,6 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
     m_updateFlag = UPDATEFLAG_HAS_POSITION;
 
     m_valuesCount = CORPSE_END;
-    _dynamicValuesCount = CORPSE_DYNAMIC_END;
 
     m_time = time(NULL);
 

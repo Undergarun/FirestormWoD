@@ -540,7 +540,7 @@ bool Group::AddMember(Player* player)
 
         {
             // Broadcast new player group member fields to rest of the group
-            player->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+            player->SetFieldNotifyFlag(UF_FLAG_ALL_UNITS);
 
             UpdateData groupData(player->GetMapId());
             WorldPacket groupDataPacket;
@@ -555,9 +555,9 @@ bool Group::AddMember(Player* player)
                 {
                     if (player->HaveAtClient(member))   // must be on the same map, or shit will break
                     {
-                        member->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+                        member->SetFieldNotifyFlag(UF_FLAG_ALL_UNITS);
                         member->BuildValuesUpdateBlockForPlayer(&groupData, player);
-                        member->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+                        member->RemoveFieldNotifyFlag(UF_FLAG_ALL_UNITS);
                     }
 
                     if (member->HaveAtClient(player))
@@ -578,7 +578,7 @@ bool Group::AddMember(Player* player)
                 if (groupData.BuildPacket(&groupDataPacket))
                     player->SendDirectMessage(&groupDataPacket);
 
-                player->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+            player->RemoveFieldNotifyFlag(UF_FLAG_ALL_UNITS);
         }
 
         if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
