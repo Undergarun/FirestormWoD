@@ -505,70 +505,58 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
+    uint64 l_ItemGUID   = 0;
+    uint32 l_PageTextID = 0;
 
-    ObjectGuid objectGuid;
-    uint32 pageID;
-    recvData >> pageID;
+    p_Packet >> l_PageTextID;
+    p_Packet.readPackGUID(l_ItemGUID);
 
-    uint8 bitsOrder[8] = { 0, 7, 5, 2, 1, 3, 4, 6 };
-    recvData.ReadBitInOrder(objectGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 4, 6, 5, 2, 3, 0, 1 };
-    recvData.ReadBytesSeq(objectGuid, bytesOrder);
-
-    if (IS_UNIT_GUID(objectGuid))
+    if (IS_UNIT_GUID(l_ItemGUID))
     {
-        if (Unit* unit = Unit::GetUnit(*(GetPlayer()), objectGuid))
-            sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_PAGE_TEXT_QUERY. Unit Entry: %u", unit->GetEntry());
+        if (Unit * l_Unit = Unit::GetUnit(*(GetPlayer()), l_ItemGUID))
+            sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_PAGE_TEXT_QUERY. Unit Entry: %u", l_Unit->GetEntry());
     }
-    else if (IS_GAMEOBJECT_GUID(objectGuid))
+    else if (IS_GAMEOBJECT_GUID(l_ItemGUID))
     {
-        if (GameObject* go = GetPlayer()->GetMap()->GetGameObject(objectGuid))
-            sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_PAGE_TEXT_QUERY. Gameobject Entry: %u", go->GetEntry());
+        if (GameObject * l_GameObject = GetPlayer()->GetMap()->GetGameObject(l_ItemGUID))
+            sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_PAGE_TEXT_QUERY. Gameobject Entry: %u", l_GameObject->GetEntry());
     }
 
-    while (pageID)
+    while (l_PageTextID)
     {
-        PageText const* pageText = sObjectMgr->GetPageText(pageID);
+        const PageText * l_PageText = sObjectMgr->GetPageText(l_PageTextID);
 
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
+        WorldPacket l_Data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
+        l_Data << uint32(l_PageTextID);                             ///< Page Text ID
+        l_Data.WriteBit(l_PageText != NULL);                        ///< Allow
+        l_Data.FlushBits();
 
-        data.WriteBit(pageText != NULL);
-
-        if (pageText)
+        if (l_PageText)
         {
-            std::string Text = pageText->Text;
+            std::string l_Text = l_PageText->Text;
 
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
+                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(l_PageTextID))
+                    ObjectMgr::GetLocaleString(player->Text, loc_idx, l_Text);
 
-            data.WriteBits(Text.size(), 12);
+            l_Data << uint32(l_PageTextID);                         ///< ID
+            l_Data << uint32(l_PageText->NextPage);                 ///< Next Page ID
 
-            data.FlushBits();
-            if (Text.size())
-                data.append(Text.c_str(), Text.size());
+            l_Data.WriteBits(l_Text.size(), 12);                    ///< Text
+            l_Data.FlushBits();
 
-            data << uint32(pageID);
-            data << uint32(pageText->NextPage);
+            l_Data.append(l_Text);                                  ///< Text
         }
 
-        data << uint32(pageID);
-
-        if (pageText)
-            pageID = pageText->NextPage;
+        if (l_PageText)
+            l_PageTextID = l_PageText->NextPage;
         else
-            pageID = 0;
+            l_PageTextID = 0;
 
-        SendPacket(&data);
-
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
+        SendPacket(&l_Data);
     }
 }
 
