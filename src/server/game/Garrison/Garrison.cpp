@@ -595,7 +595,7 @@ bool Garrison::AddMission(uint32 p_MissionRecID)
     if (l_MissionEntry->RequiredLevel > m_Owner->getLevel())
         return false;
 
-    if (l_MissionEntry->RequiredItemLevel > m_Owner->GetAverageItemLevel())
+    if (l_MissionEntry->RequiredItemLevel > m_Owner->GetAverageItemLevelEquipped())
         return false;
 
     GarrisonMission l_Mission;

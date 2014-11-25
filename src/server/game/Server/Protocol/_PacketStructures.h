@@ -1261,7 +1261,7 @@ struct ClientRatedBattlefieldInfo
 ///< SMSG_AVERAGE_ITEM_LEVEL_INFORM
 struct ClientAverageItemLevelInform
 {
-    float AvgItemLevel;		///< Offset 0x0000 Type _MJVTBL_FLOAT
+    float AvgItemLevel;		///< Offset 0x0048 Type _MJVTBL_FLOAT
 };
 
 ///< SMSG_PET_ADDED

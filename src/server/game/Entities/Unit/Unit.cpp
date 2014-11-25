@@ -22227,9 +22227,9 @@ float Unit::CalculateDamageDealtFactor(Player* p_Player, Creature* p_Target)
     uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = { 69, 79, 84, 89, 99, 109 };
 
     if (l_TargetExpansion > 0)
-    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevel() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
+    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
     {
-        float l_AltDamageDealtFactor = 1 + 5 / 3 * 0.01f * (p_Player->GetAverageItemLevel() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+        float l_AltDamageDealtFactor = 1 + 5 / 3 * 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
         l_DamageDealtFactor = std::max(l_DamageDealtFactor, l_AltDamageDealtFactor);
     }
 
@@ -22256,9 +22256,9 @@ float Unit::CalculateDamageTakenFactor(Player* p_Player, Creature* p_Target)
     uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = {69, 79, 84, 89, 99, 109};
 
     if (l_TargetExpansion > 0)
-    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevel() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
+    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
     {
-        float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevel() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+        float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
         l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
     }
 
