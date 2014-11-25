@@ -1856,6 +1856,9 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
                 {
                     if (Unit* l_Target = p_EventInfo.GetProcTarget())
                     {
+                        if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                            return;
+
                         if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_FROST_FEVER || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_CHAINS_OF_ICE
                             || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_ICY_TOUCH)
                             l_Caster->CastSpell(l_Target, DK_SPELL_CHILBLAINS_TRIGGER, true);
