@@ -143,6 +143,7 @@ enum Opcodes
         SMSG_PAGE_TEXT                              = 0x158D,   ///< 6.0.3 19116
         SMSG_READ_ITEM_FAILED                       = 0x0BD4,   ///< 6.0.3 19116
         SMSG_READ_ITEM_OK                           = 0x1BE1,   ///< 6.0.3 19116
+        SMSG_TEXT_EMOTE                             = 0x0383,   ///< 6.0.3 19116
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
@@ -1993,7 +1994,6 @@ enum Opcodes
     SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x0000,
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x0000,
     SMSG_TEST_DROP_RATE_RESULT                        = 0x0000,
-    SMSG_TEXT_EMOTE                                   = 0x0000,
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
     SMSG_TITLE_EARNED                                 = 0x0000,
     SMSG_TITLE_LOST                                   = 0x0000,

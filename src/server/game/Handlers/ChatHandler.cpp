@@ -754,57 +754,29 @@ namespace JadeCore
     class EmoteChatBuilder
     {
         public:
-            EmoteChatBuilder(Player const& player, uint32 text_emote, uint32 emote_num, Unit const* target)
-                : i_player(player), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) {}
-
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            EmoteChatBuilder(const Player & p_Player, uint32 p_TextEmote, uint32 p_EmoteNum, const Unit * p_Target)
+                : m_Player(p_Player), m_TextEmote(p_TextEmote), m_EmoteNum(p_EmoteNum), m_Target(p_Target) 
             {
-                ObjectGuid playerGuid = i_player.GetGUID();
-                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : 0;
 
-                data.Initialize(SMSG_TEXT_EMOTE);
-                data.WriteBit(playerGuid[0]);
-                data.WriteBit(targetGuid[3]);
-                data.WriteBit(targetGuid[4]);
-                data.WriteBit(playerGuid[6]);
-                data.WriteBit(playerGuid[7]);
-                data.WriteBit(playerGuid[3]);
-                data.WriteBit(targetGuid[6]);
-                data.WriteBit(targetGuid[7]);
-                data.WriteBit(playerGuid[5]);
-                data.WriteBit(playerGuid[2]);
-                data.WriteBit(playerGuid[1]);
-                data.WriteBit(targetGuid[0]);
-                data.WriteBit(playerGuid[4]);
-                data.WriteBit(targetGuid[1]);
-                data.WriteBit(targetGuid[5]);
-                data.WriteBit(targetGuid[2]);
+            }
 
-                data.WriteByteSeq(playerGuid[4]);
-                data.WriteByteSeq(playerGuid[5]);
-                data.WriteByteSeq(playerGuid[1]);
-                data.WriteByteSeq(targetGuid[6]);
-                data << int32(i_text_emote);
-                data.WriteByteSeq(targetGuid[7]);
-                data.WriteByteSeq(targetGuid[1]);
-                data.WriteByteSeq(targetGuid[4]);
-                data << uint32(i_emote_num);
-                data.WriteByteSeq(targetGuid[0]);
-                data.WriteByteSeq(playerGuid[7]);
-                data.WriteByteSeq(playerGuid[3]);
-                data.WriteByteSeq(targetGuid[2]);
-                data.WriteByteSeq(playerGuid[6]);
-                data.WriteByteSeq(playerGuid[2]);
-                data.WriteByteSeq(targetGuid[5]);
-                data.WriteByteSeq(playerGuid[0]);
-                data.WriteByteSeq(targetGuid[3]);
+            void operator()(WorldPacket & p_Data, LocaleConstant p_LocalIndex)
+            {
+                uint64 l_TargetGUID = m_Target ? m_Target->GetGUID() : 0;
+
+                p_Data.Initialize(SMSG_TEXT_EMOTE);
+                p_Data.appendPackGUID(m_Player.GetGUID());
+                p_Data.appendPackGUID(m_Player.GetSession()->GetWoWAccountGUID());
+                p_Data << uint32(m_EmoteNum);
+                p_Data << int32(m_TextEmote);
+                p_Data.appendPackGUID(l_TargetGUID);
             }
 
         private:
-            Player const& i_player;
-            uint32        i_text_emote;
-            uint32        i_emote_num;
-            Unit const*   i_target;
+            Player const& m_Player;
+            uint32        m_TextEmote;
+            uint32        m_EmoteNum;
+            Unit const*   m_Target;
     };
 }                                                           // namespace JadeCore
 
@@ -832,13 +804,14 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), l_Emote, l_SoundIndex, l_Target);
 
-    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(l_Emote);
-    if (!em)
+    const EmotesTextEntry * l_EmoteTextEntry = sEmotesTextStore.LookupEntry(l_Emote);
+
+    if (!l_EmoteTextEntry)
         return;
 
-    uint32 emote_anim = em->textid;
+    uint32 l_EmoteAnim = l_EmoteTextEntry->textid;
 
-    switch (emote_anim)
+    switch (l_EmoteAnim)
     {
         case EMOTE_STATE_SLEEP:
         case EMOTE_STATE_SIT:
@@ -849,7 +822,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
             // Only allow text-emotes for "dead" entities (feign death included)
             if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
                 break;
-             GetPlayer()->HandleEmoteCommand(emote_anim);
+
+             GetPlayer()->HandleEmoteCommand(l_EmoteAnim);
              break;
     }
 
@@ -860,7 +834,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
     Cell cell(p);
     cell.SetNoCreate();
 
-    JadeCore::EmoteChatBuilder emote_builder(*GetPlayer(), emote_anim, l_Emote, unit);
+    JadeCore::EmoteChatBuilder emote_builder(*GetPlayer(), l_EmoteAnim, l_Emote, unit);
     JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder > emote_do(emote_builder);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder > > emote_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), emote_do);
     TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::EmoteChatBuilder> >, WorldTypeMapContainer> message(emote_worker);
