@@ -236,7 +236,7 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                 {
-                    if (l_Player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_PROTECTION)
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_PROTECTION)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
                 }
             }
