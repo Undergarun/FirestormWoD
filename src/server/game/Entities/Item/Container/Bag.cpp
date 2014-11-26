@@ -30,6 +30,7 @@ Bag::Bag(): Item()
     m_objectTypeId = TYPEID_CONTAINER;
 
     m_valuesCount = CONTAINER_END;
+    _dynamicValuesCount = 0;
 
     memset(m_bagslot, 0, sizeof(Item*) * MAX_BAG_SIZE);
 }

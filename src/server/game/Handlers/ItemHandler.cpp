@@ -2096,7 +2096,7 @@ void WorldSession::SendItemUpgradeResult(bool success)
 
 void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
+    /*sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
 
     ObjectGuid npcGuid;
     ObjectGuid itemGuid;
@@ -2209,7 +2209,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     //if (item->IsEquipped())
     //    player->ApplyItemUpgrade(item, true);
 
-    player->ModifyCurrency(itemUpEntry->currencyId, -int32(itemUpEntry->currencyCost), false, true, true);
+    player->ModifyCurrency(itemUpEntry->currencyId, -int32(itemUpEntry->currencyCost), false, true, true);*/
 }
 
 void WorldSession::HandleSetLootSpecialization(WorldPacket& p_RecvData)

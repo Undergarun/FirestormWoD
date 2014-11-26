@@ -723,7 +723,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_objectTypeId = TYPEID_PLAYER;
 
     m_valuesCount = PLAYER_END;
-    _dynamicTabCount = PLAYER_DYNAMIC_END;
+    _dynamicValuesCount = PLAYER_DYNAMIC_END;
 
     m_session = session;
 
@@ -19822,6 +19822,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
 
+    _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
+
     return true;
 }
 
@@ -20679,7 +20681,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
             m_dailyQuestStorage.insert(quest_id);
             if (++quest_daily_idx < DynamicFields::Count)
-                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx++, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx++, quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -25612,6 +25614,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     WorldPacket l_NullPacket;
     GetSession()->HandleLfgGetStatus(l_NullPacket);
+
+    SendToyBox();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -25944,7 +25948,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
             m_DailyQuestChanged = true;
 
             if (m_dailyQuestStorage.size() - 1 < DynamicFields::Count)
-                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, m_dailyQuestStorage.size() - 1, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, m_dailyQuestStorage.size() - 1, quest_id);
         }
         else
         {
@@ -30356,6 +30360,7 @@ void Player::ReloadPetBattles()
     stmt->setUInt32(0, GetSession()->GetAccountId());
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
 }
+
 /// PetBattleCountBattleSpecies
 void Player::PetBattleCountBattleSpecies()
 {
@@ -30377,6 +30382,7 @@ void Player::PetBattleCountBattleSpecies()
         l_Battle->Teams[l_ThisTeamID]->CapturedSpeciesCount[p_PetBattle->Species]++;
     });
 }
+
 /// Update battle pet combat team
 void Player::UpdateBattlePetCombatTeam()
 {
@@ -30394,6 +30400,95 @@ void Player::UpdateBattlePetCombatTeam()
             m_BattlePetCombatTeam[p_BattlePet->Slot] = p_BattlePet;
     });
 }
+
+//////////////////////////////////////////////////////////////////////////
+/// ToyBox
+void Player::_LoadToyBox(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        Field* l_Fields = p_Result->Fetch();
+        uint32 l_ItemID = l_Fields[0].GetUInt32();
+        bool l_IsFavorite = l_Fields[1].GetBool();
+
+        if (!HasToy(l_ItemID))
+        {
+            PlayerToy l_PlayerToy = PlayerToy(l_ItemID, l_IsFavorite);
+            m_PlayerToys.insert(std::make_pair(l_ItemID, l_PlayerToy));
+        }
+    }
+    while (p_Result->NextRow());
+
+    uint32 l_Count = 0;
+    for (PlayerToys::iterator l_Toy = m_PlayerToys.begin(); l_Toy != m_PlayerToys.end(); ++l_Toy)
+    {
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_Count, l_Toy->second.m_ItemID);
+        ++l_Count;
+    }
+}
+
+void Player::SendToyBox()
+{
+    uint32 l_ToyCount = m_PlayerToys.size();
+
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    l_Data.WriteBit(true);      // IsFullUpdate
+
+    l_Data << uint32(l_ToyCount);
+    l_Data << uint32(l_ToyCount);
+
+    for (auto l_Toy : m_PlayerToys)
+        l_Data << uint32(l_Toy.second.m_ItemID);
+
+    for (auto l_Toy : m_PlayerToys)
+        l_Data.WriteBit(l_Toy.second.m_IsFavorite);
+
+    SendDirectMessage(&l_Data);
+}
+
+void Player::AddNewToyToBox(uint32 p_ItemID)
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_TOYS);
+    l_Statement->setUInt32(0, GetSession()->GetAccountId());
+    l_Statement->setUInt32(1, p_ItemID);
+    l_Statement->setBool(2, false);
+    CharacterDatabase.Execute(l_Statement);
+
+    if (!HasToy(p_ItemID))
+    {
+        PlayerToy l_PlayerToy = PlayerToy(p_ItemID, false);
+        m_PlayerToys.insert(std::make_pair(p_ItemID, l_PlayerToy));
+
+        uint32 l_ToySize = m_PlayerToys.size();
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_ToySize, p_ItemID);
+    }
+}
+
+void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_TOY_FAVORITE);
+    l_Statement->setBool(0, p_Apply);
+    l_Statement->setUInt32(1, GetSession()->GetAccountId());
+    l_Statement->setUInt32(2, p_ItemID);
+    CharacterDatabase.Execute(l_Statement);
+
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    l_Data.WriteBit(false);     // IsFullUpdate
+
+    l_Data << uint32(1);
+    l_Data << uint32(1);
+    l_Data << uint32(p_ItemID);
+    l_Data.WriteBit(p_Apply);   // IsFavorite
+
+    SendDirectMessage(&l_Data);
+
+    if (PlayerToy* l_PlayerToy = GetToy(p_ItemID))
+        l_PlayerToy->m_IsFavorite = p_Apply;
+}
+//////////////////////////////////////////////////////////////////////////
 
 bool Player::HasUnlockedReagentBank()
 {
