@@ -234,22 +234,23 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) && 
-                       (_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
-                        _player->CastSpell(_player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_PROTECTION)
+                        l_Player->CastSpell(l_Player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->RemoveAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                    l_Player->RemoveAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
