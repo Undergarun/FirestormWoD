@@ -1509,7 +1509,10 @@ uint32 Object::GetDynamicValue(uint16 index, uint16 secondIndex) const
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false) || secondIndex < _dynamicValues[index].size());
 
-    return _dynamicValues[index][secondIndex];
+    if (_dynamicValues[index].size() > 0)
+        return _dynamicValues[index][secondIndex];
+    else
+        return 0;
 }
 
 void Object::AddDynamicValue(uint16 index, uint32 value)

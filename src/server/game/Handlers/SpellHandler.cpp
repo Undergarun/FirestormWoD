@@ -285,7 +285,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     SpellCastTargets targets;
 
-    targets.Initialize(l_SendCastFlag, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
+    targets.Initialize(l_TargetFlags, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
     targets.SetElevation(l_MissibleTrajectoryPitch);
     targets.SetSpeed(l_MissibleTrajectorySpeed);
     targets.Update(mover);
@@ -942,7 +942,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
             {
                 // Display Transmogrifications on player's clone
-                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetEnchantmentId(TRANSMOGRIFY_ENCHANTMENT_SLOT)))
+                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
                     data << uint32(proto->DisplayInfoID);
                 else
                     data << uint32(item->GetTemplate()->DisplayInfoID);
@@ -1089,21 +1089,13 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_Misc;
 
     l_TargetFlags = p_RecvData.ReadBits(21);
-    l_HasDestinationTarget = p_RecvData.ReadBit();
     l_HasSourceTarget = p_RecvData.ReadBit();
+    l_HasDestinationTarget = p_RecvData.ReadBit();
     l_HasUnkFloat = p_RecvData.ReadBit();
     l_NameLenght = p_RecvData.ReadBits(7);
     p_RecvData.FlushBits();
     p_RecvData.readPackGUID(l_TargetGUID);
     p_RecvData.readPackGUID(l_TargetItemGUID);
-
-    if (l_HasDestinationTarget)
-    {
-        p_RecvData.readPackGUID(l_DestinationTargetGUID);
-        p_RecvData >> l_DestinationTargetPosition.m_positionX;
-        p_RecvData >> l_DestinationTargetPosition.m_positionY;
-        p_RecvData >> l_DestinationTargetPosition.m_positionZ;
-    }
 
     if (l_HasSourceTarget)
     {
@@ -1111,6 +1103,14 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
         p_RecvData >> l_SourceTargetPosition.m_positionX;
         p_RecvData >> l_SourceTargetPosition.m_positionY;
         p_RecvData >> l_SourceTargetPosition.m_positionZ;
+    }
+
+    if (l_HasDestinationTarget)
+    {
+        p_RecvData.readPackGUID(l_DestinationTargetGUID);
+        p_RecvData >> l_DestinationTargetPosition.m_positionX;
+        p_RecvData >> l_DestinationTargetPosition.m_positionY;
+        p_RecvData >> l_DestinationTargetPosition.m_positionZ;
     }
 
     if (l_HasUnkFloat)
@@ -1184,7 +1184,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     SpellCastTargets l_Targets;
 
-    l_Targets.Initialize(l_SendCastFlag, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
+    l_Targets.Initialize(l_TargetFlags, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
     l_Targets.SetElevation(l_MissibleTrajectoryPitch);
     l_Targets.SetSpeed(l_MissibleTrajectorySpeed);
     l_Targets.Update(l_Mover);

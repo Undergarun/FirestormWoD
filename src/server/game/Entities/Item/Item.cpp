@@ -323,7 +323,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
                 SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
         }
 
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | ITEM_TRANSMOGRIFIED | 0x4);
     }*/
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
@@ -403,7 +403,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetEnchantmentId(TRANSMOGRIFY_ENCHANTMENT_SLOT));
+            stmt->setUInt32(++index, GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
             stmt->setUInt32(++index, 0/*GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)*/); // itemUpgrade Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
@@ -502,7 +502,10 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
 
     if (uint32 transmogId = fields[8].GetInt32())
-        SetEnchantment(TRANSMOGRIFY_ENCHANTMENT_SLOT, transmogId, 0, 0);
+    {
+        SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+    }
 
     // uint32 upgradeId = fields[9].GetUInt32(); @TODO: Remove this DB field
 

@@ -1400,8 +1400,28 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
             l_Data << uint32(l_Item->GetEntry());
             l_Data << uint32(l_Item->GetItemSuffixFactor());
             l_Data << int32(l_Item->GetItemRandomPropertyId());
-            l_Data.WriteBit(false); // HasModifications
-            l_Data.WriteBit(false); // HasBonuses
+
+            bool l_HasBonuses = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() > 0;
+            bool l_HasModifiers = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_MODIFIERS).size() > 0;
+
+            l_Data.WriteBit(l_HasBonuses);
+            l_Data.WriteBit(l_HasModifiers);
+
+            if (l_HasBonuses)
+            {
+                l_Data << uint8(0);     ///< UnkByte
+                l_Data << uint32(0);    ///< Count
+            }
+
+            if (l_HasModifiers)
+            {
+                uint32 l_ModifyMask = l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
+
+                l_Data << uint32(l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
+
+                if (l_ModifyMask & ITEM_TRANSMOGRIFIED)
+                    l_Data << uint32(l_Item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
+            }
         }
 
         l_Data << uint8(l_Iter);

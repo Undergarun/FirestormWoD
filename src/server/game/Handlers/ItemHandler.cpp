@@ -2026,8 +2026,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (!l_ItemIDs[l_I]) // reset look
         {
-            itemTransmogrified->ClearEnchantment(TRANSMOGRIFY_ENCHANTMENT_SLOT);
-            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 0x2);
+            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
         }
         else
@@ -2042,8 +2042,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
             }
 
             // All okay, proceed
-            itemTransmogrified->SetEnchantment(TRANSMOGRIFY_ENCHANTMENT_SLOT, l_ItemIDs[l_I], 0, 0);
-            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x2);
+            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_ItemIDs[l_I]);
+            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
 
             itemTransmogrified->UpdatePlayedTime(m_Player);
@@ -2200,7 +2200,7 @@ void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
     }
 
     item->SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, itemUpEntry->Id);
-    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
+    item->SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | ITEM_TRANSMOGRIFIED | 0x4);
     item->SetState(ITEM_CHANGED, player);
 
     // Don't forget to remove currency cost
