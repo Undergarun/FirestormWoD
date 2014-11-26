@@ -102,7 +102,7 @@ class npc_world_invisible_trigger : public CreatureScript
 
                         for (Player* l_Player : l_PlayerList)
                         {
-                            if (l_Player->getLevel() < 90)
+                            if (l_Player->getLevel() < 90 || l_Player->isGameMaster())
                                 continue;
 
                             if (l_Player->GetTeamId() == TEAM_ALLIANCE)
