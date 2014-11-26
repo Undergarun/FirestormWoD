@@ -1293,6 +1293,11 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature* killer, Player* killed)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(killer, killed);
 }
 
+void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestReward(p_Player, p_Quest);
+}
+
 void ScriptMgr::OnPlayerLevelChanged(Player* player, uint8 oldLevel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(player, oldLevel);

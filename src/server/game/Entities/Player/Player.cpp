@@ -17613,6 +17613,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->GetRewSpell() > 0)
         CastSpell(this, quest->GetRewSpell(), true);
 
+    sScriptMgr->OnQuestReward(this, quest);
+
     if (quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
