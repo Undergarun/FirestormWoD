@@ -35,9 +35,7 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
-#include "ScriptMgr.h"
-#include "Object.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
 #include "AreaTriggerScript.h"
 
 /*######

@@ -858,6 +858,48 @@ void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
 
 void Aura::Update(uint32 diff, Unit* caster)
 {
+    // handle manaPerSecond/manaPerSecondPerLevel
+    if (m_timeCla)
+    {
+        if (m_timeCla > int32(diff))
+            m_timeCla -= diff;
+        else if (caster)
+        {
+            for (auto itr : m_spellInfo->SpellPowers)
+            {
+                if (itr->RequiredAuraSpellId && !caster->HasAura(itr->RequiredAuraSpellId))
+                    continue;
+
+                Powers powerType = Powers(itr->PowerType);
+                if (int32 powerPerSecond = itr->CostPerSecond + int32(itr->CostPerSecondPercentage * caster->GetCreatePowers(powerType) / 100))
+                {
+                    m_timeCla += 1000 - diff;
+
+                    if (powerType == POWER_HEALTH)
+                    {
+                        if (int32(caster->GetHealth()) > powerPerSecond)
+                            caster->ModifyHealth(-powerPerSecond);
+                        else
+                        {
+                            Remove();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (int32(caster->GetPower(powerType)) >= powerPerSecond)
+                            caster->ModifyPower(powerType, -powerPerSecond);
+                        else
+                        {
+                            Remove();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if (m_duration > 0)
     {
         m_duration -= diff;
@@ -865,48 +907,6 @@ void Aura::Update(uint32 diff, Unit* caster)
             m_duration = 0;
 
         CallScriptAuraUpdateHandlers(diff);
-
-        // handle manaPerSecond/manaPerSecondPerLevel
-        if (m_timeCla)
-        {
-            if (m_timeCla > int32(diff))
-                m_timeCla -= diff;
-            else if (caster)
-            {
-                for (auto itr : m_spellInfo->SpellPowers)
-                {
-                    if (itr->RequiredAuraSpellId && !caster->HasAura(itr->RequiredAuraSpellId))
-                        continue;
-
-                    Powers powerType = Powers(itr->PowerType);
-                    if (int32 powerPerSecond = itr->CostPerSecond + int32(itr->CostPerSecondPercentage * caster->GetCreatePowers(powerType) / 100))
-                    {
-                        m_timeCla += 1000 - diff;
-
-                        if (powerType == POWER_HEALTH)
-                        {
-                            if (int32(caster->GetHealth()) > powerPerSecond)
-                                caster->ModifyHealth(-powerPerSecond);
-                            else
-                            {
-                                Remove();
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            if (int32(caster->GetPower(powerType)) >= powerPerSecond)
-                                caster->ModifyPower(powerType, -powerPerSecond);
-                            else
-                            {
-                                Remove();
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 

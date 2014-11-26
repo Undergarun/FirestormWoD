@@ -176,7 +176,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             std::string l_InviterName        = GetPlayer()->GetName();
             std::string l_InviterRealmName   = sWorld->GetRealmName();
             std::string l_NormalizeRealmName = sWorld->GetNormalizedRealmName();
-            std::list<uint32> l_LfgSlots;  
+            std::list<uint32> l_LfgSlots;
 
             // tell the player that they were invited but it failed as they were already in a group
             WorldPacket data(SMSG_PARTY_INVITE, 45);
@@ -277,7 +277,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     std::string l_InviterName        = GetPlayer()->GetName();
     std::string l_InviterRealmName   = sWorld->GetRealmName();
     std::string l_NormalizeRealmName = sWorld->GetNormalizedRealmName();
-    std::list<uint32> l_LfgSlots; 
+    std::list<uint32> l_LfgSlots;
 
     // tell the player that they were invited but it failed as they were already in a group
     WorldPacket l_Data(SMSG_PARTY_INVITE, 45);
@@ -1049,7 +1049,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         }
 
         p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 200);
-        
+
         p_Data->WriteBit(false);                    ///< ForEnemy
         p_Data->FlushBits();
         p_Data->appendPackGUID(p_Player->GetGUID());
@@ -1071,7 +1071,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         *p_Data << uint16(p_Player->GetPositionY());
         *p_Data << uint16(p_Player->GetPositionZ());
         *p_Data << uint32(0);
-        *p_Data << uint32(p_Player->GetVisibleAuras()->size() > MAX_AURAS ? MAX_AURAS : p_Player->GetVisibleAuras()->size());
+
+        uint8 l_AuraCount = 0;
+        size_t l_AuraPos = p_Data->wpos();
+        *p_Data << uint32(l_AuraCount);
 
         *p_Data << uint32(0);
         *p_Data << uint32(0);
@@ -1086,6 +1089,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 if (l_AuraMask & (uint64(1) << l_AuraIT))
                 {
                     AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
+                    l_AuraCount++;
 
                     if (!l_AuraApplication)
                     {
@@ -1099,11 +1103,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     uint32 l_EffectCount = 0;
 
                     if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                    {
                         for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
                             if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                                 l_EffectCount++;
-                    }
 
                     *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
                     *p_Data << uint8(l_AuraApplication->GetFlags());
@@ -1111,27 +1113,28 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     *p_Data << uint32(l_EffectCount);
 
                     if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                    {
                         for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
                             if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                                 *p_Data << float(l_Effect->GetAmount());
-                    }
                 }
             }
+
+            p_Data->put(l_AuraPos, l_AuraCount);
         }
 
         if (p_Data->WriteBit(p_Player->GetPet() != 0))
         {
-            p_Data->FlushBits();
-
             Pet * l_Pet = p_Player->GetPet();
 
+            p_Data->FlushBits();
             p_Data->appendPackGUID(l_Pet->GetGUID());
             *p_Data << uint16(l_Pet->GetDisplayId());
             *p_Data << uint32(l_Pet->GetHealth());
             *p_Data << uint32(l_Pet->GetMaxHealth());
 
-            *p_Data << uint32(l_Pet->GetVisibleAuras()->size() > MAX_AURAS ? MAX_AURAS : l_Pet->GetVisibleAuras()->size());
+            uint8 l_PetAuraCount = 0;
+            size_t l_PetAuraPos = p_Data->wpos();
+            *p_Data << uint32(l_PetAuraCount);
 
             uint64 l_AuraMask = l_Pet->GetAuraUpdateMaskForRaid();
 
@@ -1140,6 +1143,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 if (l_AuraMask & (uint64(1) << l_AuraIT))
                 {
                     AuraApplication const* l_AuraApplication = l_Pet->GetVisibleAura(l_AuraIT);
+                    l_PetAuraCount++;
 
                     if (!l_AuraApplication)
                     {
@@ -1153,11 +1157,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     uint32 l_EffectCount = 0;
 
                     if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                    {
                         for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
                             if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                                 l_EffectCount++;
-                    }
 
                     *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
                     *p_Data << uint8(l_AuraApplication->GetFlags());
@@ -1165,16 +1167,14 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     *p_Data << uint32(l_EffectCount);
 
                     if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                    {
                         for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
                             if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                                 *p_Data << float(l_Effect->GetAmount());
-                    }
                 }
             }
 
+            p_Data->put(l_PetAuraPos, l_PetAuraCount);
             p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
-            p_Data->FlushBits();
 
             if (l_Pet->GetName())
                 p_Data->WriteString(l_Pet->GetName());
@@ -1255,7 +1255,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         if (p_Mask & GROUP_UPDATE_FLAG_STATUS)
             *p_Data << uint16(l_PlayerStatus);
 
-        if (p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE)        
+        if (p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE)
             *p_Data << uint8(p_Player->getPowerType());
 
         if (p_Mask & GROUP_UPDATE_FLAG_CUR_HP)
@@ -1288,46 +1288,49 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
         if (p_Mask & GROUP_UPDATE_FLAG_AURAS)
         {
-            *p_Data << uint32(p_Player->GetVisibleAuras()->size() > MAX_AURAS ? MAX_AURAS : p_Player->GetVisibleAuras()->size());
+            uint8 l_AuraCount = 0;
+            size_t l_AuraPos = p_Data->wpos();
+            *p_Data << uint32(l_AuraCount);
 
-            uint64 l_AuraMask = p_Player->GetAuraUpdateMaskForRaid();
-
-            for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
+            if (p_Player->GetVisibleAuras()->size())
             {
-                if (l_AuraMask & (uint64(1) << l_AuraIT))
+                uint64 l_AuraMask = p_Player->GetAuraUpdateMaskForRaid();
+
+                for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
                 {
-                    AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
-
-                    if (!l_AuraApplication)
+                    if (l_AuraMask & (uint64(1) << l_AuraIT))
                     {
+                        AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
+                        l_AuraCount++;
+
+                        if (!l_AuraApplication)
+                        {
+                            *p_Data << uint32(0);
+                            *p_Data << uint8(0);
+                            *p_Data << uint32(0);
+                            *p_Data << uint32(0);
+                            continue;
+                        }
+
+                        uint32 l_EffectCount = 0;
+
+                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                                    l_EffectCount++;
+
+                        *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
+                        *p_Data << uint8(l_AuraApplication->GetFlags());
                         *p_Data << uint32(0);
-                        *p_Data << uint8(0);
-                        *p_Data << uint32(0);
-                        *p_Data << uint32(0);
-                        continue;
-                    }
+                        *p_Data << uint32(l_EffectCount);
 
-                    uint32 l_EffectCount = 0;
-
-                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                    {
-                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                            l_EffectCount++;
-                    }
-
-                    *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
-                    *p_Data << uint8(l_AuraApplication->GetFlags());
-                    *p_Data << uint32(0);
-                    *p_Data << uint32(l_EffectCount);
-
-                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                    {
-                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                            *p_Data << float(l_Effect->GetAmount());
+                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                                    *p_Data << float(l_Effect->GetAmount());
                     }
                 }
+                p_Data->put(l_AuraPos, l_AuraCount);
             }
         }
 
@@ -1349,7 +1352,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
             if (p_Mask & GROUP_UPDATE_FLAG_PET_NAME)
             {
                 p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
-                p_Data->FlushBits();
 
                 if (l_Pet->GetName())
                     p_Data->WriteString(l_Pet->GetName());
@@ -1366,7 +1368,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
             if (p_Mask & GROUP_UPDATE_FLAG_PET_AURAS)
             {
-                *p_Data << uint32(l_Pet->GetVisibleAuras()->size() > MAX_AURAS ? MAX_AURAS : l_Pet->GetVisibleAuras()->size());
+                uint8 l_PetAuraCount = 0;
+                size_t l_PetAuraPos = p_Data->wpos();
+                *p_Data << uint32(l_PetAuraCount);
 
                 uint64 l_AuraMask = l_Pet->GetAuraUpdateMaskForRaid();
 
@@ -1375,6 +1379,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                     if (l_AuraMask & (uint64(1) << l_AuraIT))
                     {
                         AuraApplication const* l_AuraApplication = l_Pet->GetVisibleAura(l_AuraIT);
+                        l_PetAuraCount++;
 
                         if (!l_AuraApplication)
                         {
@@ -1388,11 +1393,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                         uint32 l_EffectCount = 0;
 
                         if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                        {
                             for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                l_EffectCount++;
-                        }
+                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                                    l_EffectCount++;
 
                         *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
                         *p_Data << uint8(l_AuraApplication->GetFlags());
@@ -1400,13 +1403,12 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                         *p_Data << uint32(l_EffectCount);
 
                         if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                        {
                             for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                *p_Data << float(l_Effect->GetAmount());
-                        }
+                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                                    *p_Data << float(l_Effect->GetAmount());
                     }
                 }
+                p_Data->put(l_PetAuraPos, l_PetAuraCount);
             }
         }
     }

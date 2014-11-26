@@ -571,15 +571,26 @@ struct QuestPOI
 {
     uint32 Id;
     int32 ObjectiveIndex;
-    uint32 MapId;
-    uint32 AreaId;
-    uint32 Unk2;
-    uint32 Unk3;
-    uint32 Unk4;
-    std::vector<QuestPOIPoint> points;
+    uint32 MapID;
+    uint32 WorldMapAreaID;
+    uint32 Floor;
+    uint32 Priority;
+    uint32 Flags;
+    uint32 WorldEffectID;
+    uint32 PlayerConditionID;
+    uint32 Unk;
+    std::vector<QuestPOIPoint> Points;
 
-    QuestPOI() : Id(0), ObjectiveIndex(0), MapId(0), AreaId(0), Unk2(0), Unk3(0), Unk4(0) {}
-    QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 unk2, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), Unk2(unk2), Unk3(unk3), Unk4(unk4) {}
+    QuestPOI() 
+        : Id(0), ObjectiveIndex(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), Unk(0)
+    {
+
+    }
+    QuestPOI(uint32 id, int32 objIndex, uint32 p_MapID, uint32 p_WorldMapAreaID, uint32 p_Floor, uint32 p_Priority, uint32 p_Flags, uint32 p_WorldEffectID, uint32 p_PlayerConditionID, uint32 p_Unk)
+        : Id(id), ObjectiveIndex(objIndex), MapID(p_MapID), WorldMapAreaID(p_WorldMapAreaID), Floor(p_Floor), Priority(p_Priority), Flags(p_Flags), WorldEffectID(p_WorldEffectID), PlayerConditionID(p_PlayerConditionID), Unk(p_Unk)
+    {
+
+    }
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;

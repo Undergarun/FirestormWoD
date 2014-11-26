@@ -2311,6 +2311,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateSpellDamageAndHealingBonus();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
         void UpdateRating(CombatRating cr);
+        void UpdateItemLevel();
         void UpdateAllRatings();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
@@ -2987,7 +2988,8 @@ class Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        uint32 GetAverageItemLevel();
+        uint32 GetAverageItemLevelEquipped();
+        uint32 GetAverageItemLevelTotal();
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -3700,7 +3702,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                 totalmul = CalculatePct(totalmul, 100 + value);
         }
 
-        if (removestacks && !m_isMoltenCored)
+        if (removestacks && !m_isMoltenCored && spell)
             DropModCharge(mod, spell);
     }
 

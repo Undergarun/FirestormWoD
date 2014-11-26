@@ -1,7 +1,8 @@
 #ifndef SKYREACH_INSTANCE_H
 # define SKYREACH_INSTANCE_H
 
-# include "ScriptMgr.h"
+#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 namespace MS
 {

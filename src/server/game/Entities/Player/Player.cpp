@@ -1165,7 +1165,6 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     for (int i = 0; i < KNOWN_TITLES_SIZE; ++i)
         SetUInt64Value(PLAYER_FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
     SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, 0);
-
     SetUInt32Value(PLAYER_FIELD_YESTERDAY_HONORABLE_KILLS, 0);
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
 
@@ -4161,7 +4160,7 @@ void Player::GiveLevel(uint8 level)
 //             if (level % 2 == 0)
 //             {
 //                 ++m_grantableLevels;
-// 
+//
 //                 if (!HasByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01))
 //                     SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, 0x01);
 //             }
@@ -4480,6 +4479,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
+
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
     for (uint8 i = 0; i < 7; ++i)
@@ -12207,7 +12209,7 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 if (pItem != skipItem && pItem->GetEntry() == item)
                     count += pItem->GetCount();
-                
+
         for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 if (pItem != skipItem && pItem->GetEntry() == item)
@@ -14431,6 +14433,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     // close gossips
     PlayerTalkClass->ClearMenus();
     PlayerTalkClass->SendCloseGossip();
+    UpdateItemLevel();
 
     return pItem;
 }
@@ -14570,6 +14573,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
     }
+    UpdateItemLevel();
 }
 
 // Common operation need to remove item from inventory without delete in trade, auction, guild bank, mail....
@@ -15446,7 +15450,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     else if (IsBankPos(src))
         msg = CanBankItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsReagentBankPos(src))
-        msg = CanReagentBankItem(dstbag, dstslot, sDest, pSrcItem, true);
+        msg = CanReagentBankItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsEquipmentPos(src))
     {
         msg = CanEquipItem(srcslot, eDest2, pDstItem, true);
@@ -15598,7 +15602,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
     }
-
     AutoUnequipOffhandIfNeed();
 }
 
@@ -19046,7 +19049,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
 bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
 {
     /// 0             1               2               3                  4                         5                         6                7                  8                    9
-    /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes, 
+    /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes,
     /// 10            11              12              13                 14                        15                        16               17                 18                   19
     /// playerBytes2, playerFlags,    position_x,     position_y,        position_z,               map,                      orientation,     taximask,          cinematic,           totaltime,
     /// 20            21              22              23                 24                        25                        26               27                 28                   29
@@ -19819,7 +19822,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // Set realmID
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
-
     ReloadPetBattles();
 
     return true;
@@ -27632,8 +27634,9 @@ uint32 Player::CalculateTalentsPoints() const
 {
     uint8 l_talentPoints = getLevel() / 15;
 
-    if ((getLevel() % 15) != 0 && getLevel() == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        l_talentPoints += 1;
+    // Should be a hardcoded value
+    if (getLevel() == 100)
+        ++l_talentPoints;
 
     return l_talentPoints;
 }
@@ -28149,7 +28152,7 @@ void Player::SendTalentsInfoData(bool pet)
     {
         Pet* pPet = GetPet();
         WorldPacket data(SMSG_SET_PET_SPECIALIZATION);
-        data << uint16(pPet ? pPet->GetSpecializationId() : 0);
+        data << uint16(pPet ? pPet->GetSpecializationId() : 0);     ///< SpecId
         GetSession()->SendPacket(&data);
         return;
     }
@@ -29047,10 +29050,10 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
         m_IsBGRandomWinner = true;
 }
 
-uint32 Player::GetAverageItemLevel()
+uint32 Player::GetAverageItemLevelEquipped()
 {
-    int32 sum = 0;
-    uint32 count = 0;
+    int32 l_Sum = 0;
+    uint32 l_Count = 0;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
@@ -29059,15 +29062,58 @@ uint32 Player::GetAverageItemLevel()
             continue;
 
         if (m_items[i] && m_items[i]->GetTemplate())
-            sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
-
-        ++count;
+        {
+            l_Sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
+            ++l_Count;
+        }
     }
 
-    if (count == 0)
+    if (l_Count == 0)
         return 0;
 
-    return uint32(floorf(((float)sum) / count));
+    return uint32(float(((float)l_Sum) / l_Count));
+}
+
+uint32 Player::GetAverageItemLevelTotal()
+{
+    int32 l_Sum = 0;
+    uint32 l_Count = 0;
+
+    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        // don't check tabard, ranged, offhand or shirt
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
+            continue;
+
+        if (m_items[i] && m_items[i]->GetTemplate())
+        {
+            l_Sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
+            ++l_Count;
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (l_Item->IsEquipable())
+            {
+                l_Sum += l_Item->GetTemplate()->GetItemLevelIncludingQuality();
+                ++l_Count;
+            }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Bag* pBag = GetBagByPos(i))
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                if (Item* l_Item = pBag->GetItemByPos(j))
+                    if (l_Item->IsEquipable())
+                    {
+                        l_Sum += l_Item->GetTemplate()->GetItemLevelIncludingQuality();
+                        ++l_Count;
+                    }
+
+    if (l_Count == 0)
+        return 0;
+
+    return uint32(float(((float)l_Sum) / l_Count));
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)

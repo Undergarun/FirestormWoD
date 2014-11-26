@@ -869,11 +869,11 @@ struct ChrSpecializationsEntry
     uint32  MasterySpellID;                                 // 3        m_MasterySpellID
     //uint32    m_MasterySpellID;                           // 4        m_MasterySpellID
     uint32  OrderIndex;                                     // 5        m_OrderIndex
-    //uint32    m_PetTalentType;                            // 6        m_PetTalentType
+    uint32  PetTalentType;                                  // 6        m_PetTalentType
     uint32  Role;                                           // 7        m_Role
     //uint32    m_SpellIconID                               // 8        m_SpellIconID
     //uint32    RaidBuffs;                                  // 9        m_RaidBuffs
-    //uint32    Flags;                                      // 10       m_Flags
+    uint32    Flags;                                        // 10       m_Flags
     char*   specializationName;                             // 11       m_NameLang
     //char*     m_NameLang                                  // 12       m_NameLang1
     char*   description;                                    // 13       m_DescriptionLang

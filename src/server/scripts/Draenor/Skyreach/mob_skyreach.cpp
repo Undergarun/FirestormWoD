@@ -1,3 +1,4 @@
+#include "ScriptPCH.h"
 #include "instance_skyreach.h"
 
 /*

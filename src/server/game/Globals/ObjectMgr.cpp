@@ -7224,8 +7224,8 @@ void ObjectMgr::LoadQuestPOI()
 
     uint32 count = 0;
 
-    //                                               0        1   2         3      4               5        6     7
-    QueryResult result = WorldDatabase.Query("SELECT questId, id, objIndex, mapid, WorldMapAreaId, FloorId, unk3, unk4 FROM quest_poi order by questId");
+    //                                               0        1          2               3      4               5      6         7      8              9                  10
+    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, ObjectiveIndex, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, Unk FROM quest_poi order by QuestID");
 
     if (!result)
     {
@@ -7266,21 +7266,24 @@ void ObjectMgr::LoadQuestPOI()
 
     do
     {
-        Field* fields = result->Fetch();
+        Field * l_Fields = result->Fetch();
 
-        uint32 questId            = fields[0].GetUInt32();
-        uint32 id                 = fields[1].GetUInt32();
-        int32 objIndex            = fields[2].GetInt32();
-        uint32 mapId              = fields[3].GetUInt32();
-        uint32 WorldMapAreaId     = fields[4].GetUInt32();
-        uint32 FloorId            = fields[5].GetUInt32();
-        uint32 unk3               = fields[6].GetUInt32();
-        uint32 unk4               = fields[7].GetUInt32();
+        uint32 l_QuestId            = l_Fields[0].GetUInt32();
+        uint32 l_BlobIndex          = l_Fields[1].GetUInt32();
+        int32 l_ObjectiveIndex      = l_Fields[2].GetInt32();
+        uint32 l_MapID              = l_Fields[3].GetUInt32();
+        uint32 l_WorldMapAreaId     = l_Fields[4].GetUInt32();
+        uint32 l_Floor              = l_Fields[5].GetUInt32();
+        uint32 l_Priority           = l_Fields[6].GetUInt32();
+        uint32 l_Flags              = l_Fields[7].GetUInt32();
+        uint32 l_WorldEffectID      = l_Fields[8].GetUInt32();
+        uint32 l_PlayerConditionID  = l_Fields[9].GetUInt32();
+        uint32 l_Unk                = l_Fields[10].GetUInt32();
 
-        QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
-        POI.points = POIs[questId][id];
+        QuestPOI l_POI(l_BlobIndex, l_ObjectiveIndex, l_MapID, l_WorldMapAreaId, l_Floor, l_Priority, l_Flags, l_WorldEffectID, l_PlayerConditionID, l_Unk);
+        l_POI.Points = POIs[l_QuestId][l_BlobIndex];
 
-        _questPOIStore[questId].push_back(POI);
+        _questPOIStore[l_QuestId].push_back(l_POI);
 
         ++count;
     }
