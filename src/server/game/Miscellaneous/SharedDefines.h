@@ -961,7 +961,7 @@ enum SpellAttr13
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2
-#define MAX_TALENT_SPELLS       6
+#define MAX_TALENT_SPELLS       7
 #define MAX_GLYPH_SLOT_INDEX    6
 #define REQ_PRIMARY_TREE_TALENTS 31
 
