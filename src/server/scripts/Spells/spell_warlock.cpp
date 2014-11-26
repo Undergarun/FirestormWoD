@@ -2330,7 +2330,7 @@ class spell_warl_life_tap : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
                     {
