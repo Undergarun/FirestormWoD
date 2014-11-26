@@ -15450,7 +15450,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     else if (IsBankPos(src))
         msg = CanBankItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsReagentBankPos(src))
-        msg = CanReagentBankItem(dstbag, dstslot, sDest, pSrcItem, true);
+        msg = CanReagentBankItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsEquipmentPos(src))
     {
         msg = CanEquipItem(srcslot, eDest2, pDstItem, true);
