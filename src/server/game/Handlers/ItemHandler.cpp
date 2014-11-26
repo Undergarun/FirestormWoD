@@ -1265,8 +1265,8 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
         p_RecvData.read_skip<uint8>();    ///< Slot
     }
 
-    p_RecvData >> l_Slot;
     p_RecvData >> l_PackSlot;
+    p_RecvData >> l_Slot;
 
     Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
 
