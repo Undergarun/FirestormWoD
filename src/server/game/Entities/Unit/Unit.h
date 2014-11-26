@@ -2536,7 +2536,7 @@ class Unit : public WorldObject
         MotionMaster i_motionMaster;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
-        uint32 m_regenTimer;
+        uint32 m_RegenPowerTimer;
 
         ThreatManager m_ThreatManager;
 

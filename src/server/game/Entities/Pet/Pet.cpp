@@ -49,7 +49,7 @@ m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
     }
 
     m_name = "Pet";
-    m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+    m_RegenPowerTimer = PET_FOCUS_REGEN_INTERVAL;
     m_Stampeded = false;
 }
 
@@ -596,27 +596,27 @@ void Pet::Update(uint32 diff)
             }
 
             //regenerate focus for hunter pets or energy for deathknight's ghoul
-            if (m_regenTimer)
+            if (m_RegenPowerTimer)
             {
-                if (m_regenTimer > diff)
-                    m_regenTimer -= diff;
+                if (m_RegenPowerTimer > diff)
+                    m_RegenPowerTimer -= diff;
                 else
                 {
                     switch (getPowerType())
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
-                            m_regenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
-                            if (!m_regenTimer)
-                                ++m_regenTimer;
+                            m_RegenPowerTimer += PET_FOCUS_REGEN_INTERVAL - diff;
+                            if (!m_RegenPowerTimer)
+                                ++m_RegenPowerTimer;
 
                             // Reset if large diff (lag) causes focus to get 'stuck'
-                            if (m_regenTimer > PET_FOCUS_REGEN_INTERVAL)
-                                m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+                            if (m_RegenPowerTimer > PET_FOCUS_REGEN_INTERVAL)
+                                m_RegenPowerTimer = PET_FOCUS_REGEN_INTERVAL;
 
                             break;
                         default:
-                            m_regenTimer = 0;
+                            m_RegenPowerTimer = 0;
                             break;
                     }
                 }

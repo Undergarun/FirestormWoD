@@ -748,7 +748,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_comboPoints = 0;
 
-    m_regenTimer = 0;
+    m_RegenPowerTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
@@ -2211,7 +2211,7 @@ void Player::Update(uint32 p_time)
 
     if (isAlive())
     {
-        m_regenTimer += p_time;
+        m_RegenPowerTimer += p_time;
         RegenerateAll();
     }
 
@@ -3178,23 +3178,23 @@ void Player::RemoveFromWorld()
 
 void Player::RegenerateAll()
 {
-    m_regenTimerCount += m_regenTimer;
+    m_regenTimerCount += m_RegenPowerTimer;
 
     if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount += m_regenTimer;
+        m_holyPowerRegenTimerCount += m_RegenPowerTimer;
 
     if (getClass() == CLASS_MONK)
-        m_chiPowerRegenTimerCount += m_regenTimer;
+        m_chiPowerRegenTimerCount += m_RegenPowerTimer;
 
     if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_regenTimer;
+        m_focusRegenTimerCount += m_RegenPowerTimer;
 
     if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-        m_demonicFuryPowerRegenTimerCount += m_regenTimer;
+        m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
     else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-        m_burningEmbersRegenTimerCount += m_regenTimer;
+        m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
     else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-        m_soulShardsRegenTimerCount += m_regenTimer;
+        m_soulShardsRegenTimerCount += m_RegenPowerTimer;
 
     Regenerate(POWER_MANA);
     Regenerate(POWER_ENERGY);
@@ -3215,7 +3215,7 @@ void Player::RegenerateAll()
             }
 
             if (cd)
-                SetRuneCooldown(runeToRegen, (cd > m_regenTimer) ? cd - m_regenTimer : 0);
+                SetRuneCooldown(runeToRegen, (cd > m_RegenPowerTimer) ? cd - m_RegenPowerTimer : 0);
         }
     }
 
@@ -3272,7 +3272,7 @@ void Player::RegenerateAll()
         m_soulShardsRegenTimerCount -= 20000;
     }
 
-    m_regenTimer = 0;
+    m_RegenPowerTimer = 0;
 }
 
 void Player::Regenerate(Powers power)
@@ -3308,9 +3308,9 @@ void Player::Regenerate(Powers power)
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
             if (isInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, spellHaste));
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, spellHaste));
             break;
         }
         // Regenerate Rage
@@ -3332,7 +3332,7 @@ void Player::Regenerate(Powers power)
         }
         // Regenerate Energy
         case POWER_ENERGY:
-            addvalue += ((0.01f * m_regenTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+            addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
             break;
         // Regenerate Runic Power
         case POWER_RUNIC_POWER:
@@ -3493,7 +3493,7 @@ void Player::Regenerate(Powers power)
 
         // Butchery requires combat for this effect
         if (power != POWER_RUNIC_POWER || isInCombat())
-            addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
+            addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_RegenPowerTimer) / (5 * IN_MILLISECONDS);
     }
 
     if (addvalue < 0.0f)
