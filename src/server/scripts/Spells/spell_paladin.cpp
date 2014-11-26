@@ -198,13 +198,13 @@ class spell_pal_exorcism_energize : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                {
-                    if (GetSpellInfo()->Id == PALADIN_SPELL_EXORCISM)
-                    _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
-                    else
-                    _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) + 1);
-                }
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                    {
+                        if (GetSpellInfo()->Id == PALADIN_SPELL_EXORCISM)
+                            _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                        else
+                            _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) + 1);
+                    }
             }
 
             void Register()
