@@ -2531,7 +2531,6 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
-        void _ApplyAllLevelScaleItemMods(bool apply);
         void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
         void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
@@ -3135,6 +3134,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
+        void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
 
         void SetInPvPCombat(bool set);
         bool IsInPvPCombat() const { return m_pvpCombat; }
@@ -3142,7 +3142,6 @@ class Player : public Unit, public GridObject<Player>
         void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
 
         uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
-
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
