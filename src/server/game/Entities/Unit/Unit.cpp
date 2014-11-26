@@ -366,7 +366,7 @@ Unit::~Unit()
     //ASSERT(m_AreaTrigger.empty());
 }
 
-void Unit::Update(uint32 p_time, uint32 entry /*= 0*/)
+void Unit::Update(uint32 p_time)
 {
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
@@ -11321,9 +11321,11 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
         minion->SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 1, GetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 1));
 
         // FIXME: hack, speed must be set only at follow
-        if (GetTypeId() == TYPEID_PLAYER && minion->isPet())
-            for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
+        /*if (GetTypeId() == TYPEID_PLAYER && minion->isPet())
+        {
+            for (uint8 l_I = 0; l_I < MAX_MOVE_TYPE; ++l_I)
+                minion->SetSpeed(UnitMoveType(l_I), m_speed_rate[l_I], true);
+        }*/
 
         // Ghoul pets and Warlock's pets have energy instead of mana (is anywhere better place for this code?)
         if (minion->IsPetGhoul() || (minion->GetOwner() && minion->GetOwner()->getClass() == CLASS_WARLOCK))
@@ -12212,10 +12214,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
-    // Pets just add their bonus damage to their spell damage
-    // note that their spell damage is just gain of their own auras
-    if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-        DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
     // Check for table values
     float coeff = 0;
@@ -12551,60 +12549,66 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
-int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
+int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
 {
-    int32 DoneAdvertisedBenefit = 0;
+    int32 l_DoneAdvertisedBenefit = 0;
 
-    AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
-    for (AuraEffectList::const_iterator i = mDamageDone.begin(); i != mDamageDone.end(); ++i)
-        if (((*i)->GetMiscValue() & schoolMask) != 0 &&
-        (*i)->GetSpellInfo()->EquippedItemClass == -1 &&
-                                                            // -1 == any item class (not wand then)
-        (*i)->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)
-                                                            // 0 == any inventory type (not wand then)
-            DoneAdvertisedBenefit += (*i)->GetAmount();
+    AuraEffectList const& l_DamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+    for (AuraEffectList::const_iterator i = l_DamageDone.begin(); i != l_DamageDone.end(); ++i)
+    {
+        if (((*i)->GetMiscValue() & p_SchoolMask) != 0
+            && (*i)->GetSpellInfo()->EquippedItemClass == -1               ///< -1 == any item class (not wand then)
+            && (*i)->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)   ///< 0 == any inventory type (not wand then)
+            l_DoneAdvertisedBenefit += (*i)->GetAmount();
+    }
+
+    if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+    {
+        if (Player* l_Owner = GetOwner()->ToPlayer())
+            l_DoneAdvertisedBenefit += l_Owner->GetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER);
+    }
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
         // Base value
-        DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+        l_DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
-            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
+            l_DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
         AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
         for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
-            AddPct(DoneAdvertisedBenefit, (*i)->GetAmount());
+            AddPct(l_DoneAdvertisedBenefit, (*i)->GetAmount());
 
         // Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
         for (AuraEffectList::const_iterator i = mDamageDoneOfStatPercent.begin(); i != mDamageDoneOfStatPercent.end(); ++i)
         {
-            if ((*i)->GetMiscValue() & schoolMask)
+            if ((*i)->GetMiscValue() & p_SchoolMask)
             {
                 // stat used stored in miscValueB for this aura
                 Stats usedStat = Stats((*i)->GetMiscValueB());
-                DoneAdvertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
+                l_DoneAdvertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
             }
         }
         // ... and attack power
         AuraEffectList const& mDamageDonebyAP = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER);
         for (AuraEffectList::const_iterator i =mDamageDonebyAP.begin(); i != mDamageDonebyAP.end(); ++i)
-            if ((*i)->GetMiscValue() & schoolMask)
-                DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
+            if ((*i)->GetMiscValue() & p_SchoolMask)
+                l_DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
 
         AuraEffectList const& mOverrideSpellpower = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
         for (AuraEffectList::const_iterator i = mOverrideSpellpower.begin(); i != mOverrideSpellpower.end(); ++i)
         {
-            if (((*i)->GetMiscValue() & schoolMask))
+            if (((*i)->GetMiscValue() & p_SchoolMask))
             {
                 int32 attackPower = GetTotalAttackPowerValue(BASE_ATTACK);
-                DoneAdvertisedBenefit = (*i)->GetAmount() * attackPower / 100;
+                l_DoneAdvertisedBenefit = (*i)->GetAmount() * attackPower / 100;
             }
         }
     }
-    return DoneAdvertisedBenefit;
+    return l_DoneAdvertisedBenefit;
 }
 
 int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
@@ -14767,7 +14771,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                     // For every yard over 5, increase speed by 0.01
                     //  to help prevent pet from lagging behind and despawning
                     float dist = GetDistance(pOwner);
-                    float base_rate = 1.00f; // base speed is 100% of owner speed
+                    float base_rate = 1.14f; // base speed is 114% of owner speed
 
                     if (dist < 5)
                         dist = 5;

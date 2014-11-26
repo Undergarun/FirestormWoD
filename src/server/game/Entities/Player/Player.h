@@ -1328,7 +1328,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time, uint32 entry = 0);
+        void Update(uint32 time);
 
         static bool BuildEnumData(PreparedQueryResult p_Result, ByteBuffer * p_Data);
 

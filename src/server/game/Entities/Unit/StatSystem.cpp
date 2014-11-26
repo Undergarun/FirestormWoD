@@ -1195,94 +1195,95 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
 ########                         ########
 #######################################*/
 
-bool Guardian::UpdateStats(Stats stat)
+// @TODO: Update for WoD
+bool Guardian::UpdateStats(Stats p_Stat)
 {
-    if (stat >= MAX_STATS)
+    if (p_Stat >= MAX_STATS)
         return false;
 
-    float value  = GetTotalStatValue(stat);
-    ApplyStatBuffMod(stat, m_statFromOwner[stat], false);
-    float ownersBonus = 0.0f;
+    float l_Value  = GetTotalStatValue(p_Stat);
+    ApplyStatBuffMod(p_Stat, m_statFromOwner[p_Stat], false);
+    float l_OwnersBonus = 0.0f;
 
-    Unit* owner = GetOwner();
-    // Handle Death Knight Glyphs and Talents
-    float mod = 0.75f;
+    Unit* l_Owner = GetOwner();
 
-    switch (stat)
+    float l_Mod = 0.75f;
+
+    switch (p_Stat)
     {
         case STAT_STAMINA:
         {
-            mod = 0.3f;
+            l_Mod = 0.3f;
 
             if (IsPetGhoul() || IsPetGargoyle())
-                mod = 0.45f;
-            else if (owner->getClass() == CLASS_WARLOCK && isPet())
-                mod = 0.75f;
-            else if (owner->getClass() == CLASS_MAGE && isPet())
-                mod = 0.75f;
+                l_Mod = 0.45f;
+            else if (l_Owner->getClass() == CLASS_WARLOCK && isPet())
+                l_Mod = 0.75f;
+            else if (l_Owner->getClass() == CLASS_MAGE && isPet())
+                l_Mod = 0.75f;
             else
             {
-                mod = 0.45f;
+                l_Mod = 0.45f;
 
                 if (isPet())
                 {
                     switch (ToPet()->GetSpecializationId())
                     {
-                        case SPEC_PET_FEROCITY: mod = 0.67f; break;
-                        case SPEC_PET_TENACITY: mod = 0.78f; break;
-                        case SPEC_PET_CUNNING: mod = 0.725f; break;
+                        case SPEC_PET_FEROCITY: l_Mod = 0.67f; break;
+                        case SPEC_PET_TENACITY: l_Mod = 0.78f; break;
+                        case SPEC_PET_CUNNING:  l_Mod = 0.725f; break;
                     }
                 }
             }
 
-            ownersBonus = float(owner->GetStat(stat)) * mod;
-            ownersBonus *= GetModifierValue(UNIT_MOD_STAT_STAMINA, TOTAL_PCT);
+            l_OwnersBonus = float(l_Owner->GetStat(p_Stat)) * l_Mod;
+            l_OwnersBonus *= GetModifierValue(UNIT_MOD_STAT_STAMINA, TOTAL_PCT);
 
-            float modifier = 1.0f;
-            AuraEffectList const& mModHealthFromOwner = owner->GetAuraEffectsByType(SPELL_AURA_INCREASE_HEALTH_FROM_OWNER);
-            for (AuraEffectList::const_iterator i = mModHealthFromOwner.begin(); i != mModHealthFromOwner.end(); ++i)
-                modifier += float((*i)->GetAmount() / 100.0f);
+            float l_Modifier = 1.0f;
+            AuraEffectList const& mModHealthFromOwner = l_Owner->GetAuraEffectsByType(SPELL_AURA_INCREASE_HEALTH_FROM_OWNER);
+            for (AuraEffectList::const_iterator l_Iterator = mModHealthFromOwner.begin(); l_Iterator != mModHealthFromOwner.end(); ++l_Iterator)
+                l_Modifier += float((*l_Iterator)->GetAmount() / 100.0f);
 
-            ownersBonus *= modifier;
-            value += ownersBonus;
+            l_OwnersBonus *= l_Modifier;
+            l_Value += l_OwnersBonus;
             break;
         }
         case STAT_STRENGTH:
         {
-            mod = 0.7f;
+            l_Mod = 0.7f;
 
-            ownersBonus = owner->GetStat(stat) * mod;
-            value += ownersBonus;
+            l_OwnersBonus = l_Owner->GetStat(p_Stat) * l_Mod;
+            l_Value += l_OwnersBonus;
             break;
         }
         case STAT_INTELLECT:
         {
-            if (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
+            if (l_Owner->getClass() == CLASS_WARLOCK || l_Owner->getClass() == CLASS_MAGE)
             {
-                mod = 0.3f;
-                ownersBonus = owner->GetStat(stat) * mod;
+                l_Mod = 0.3f;
+                l_OwnersBonus = l_Owner->GetStat(p_Stat) * l_Mod;
             }
-            else if (owner->getClass() == CLASS_DEATH_KNIGHT && GetEntry() == 31216)
+            else if (l_Owner->getClass() == CLASS_DEATH_KNIGHT && GetEntry() == 31216)
             {
-                mod = 0.3f;
-                if (owner->GetSimulacrumTarget())
-                    ownersBonus = owner->GetSimulacrumTarget()->GetStat(stat) * mod;
+                l_Mod = 0.3f;
+                if (l_Owner->GetSimulacrumTarget())
+                    l_OwnersBonus = l_Owner->GetSimulacrumTarget()->GetStat(p_Stat) * l_Mod;
                 else
-                    ownersBonus = owner->GetStat(stat) * mod;
+                    l_OwnersBonus = l_Owner->GetStat(p_Stat) * l_Mod;
             }
 
-            value += ownersBonus;
+            l_Value += l_OwnersBonus;
             break;
         }
         default:
             break;
     }
 
-    SetStat(stat, int32(value));
-    m_statFromOwner[stat] = ownersBonus;
-    ApplyStatBuffMod(stat, m_statFromOwner[stat], true);
+    SetStat(p_Stat, int32(l_Value));
+    m_statFromOwner[p_Stat] = l_OwnersBonus;
+    ApplyStatBuffMod(p_Stat, m_statFromOwner[p_Stat], true);
 
-    switch (stat)
+    switch (p_Stat)
     {
         case STAT_STRENGTH:
             UpdateAttackPowerAndDamage();
@@ -1295,7 +1296,7 @@ bool Guardian::UpdateStats(Stats stat)
             break;
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
-            if (owner->getClass() == CLASS_MAGE)
+            if (l_Owner->getClass() == CLASS_MAGE)
                 UpdateAttackPowerAndDamage();
             break;
         case STAT_SPIRIT:
@@ -1306,351 +1307,186 @@ bool Guardian::UpdateStats(Stats stat)
     return true;
 }
 
+// Wod updated
 bool Guardian::UpdateAllStats()
 {
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-        UpdateStats(Stats(i));
+    for (uint8 l_I = STAT_STRENGTH; l_I < MAX_STATS; ++l_I)
+        UpdateStats(Stats(l_I));
 
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
-        UpdateMaxPower(Powers(i));
+    for (uint8 l_I = POWER_MANA; l_I < MAX_POWERS; ++l_I)
+        UpdateMaxPower(Powers(l_I));
 
-    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
-        UpdateResistances(i);
+    for (uint8 l_I = SPELL_SCHOOL_NORMAL; l_I < MAX_SPELL_SCHOOL; ++l_I)
+        UpdateResistances(l_I);
 
     return true;
 }
 
-void Guardian::UpdateResistances(uint32 school)
+// WoD updated
+void Guardian::UpdateResistances(uint32 p_School)
 {
-    if (school > SPELL_SCHOOL_NORMAL)
+    if (p_School == SPELL_SCHOOL_NORMAL)
     {
-        float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
-
-        // hunter and warlock pets gain 40% of owner's resistance
-        if (isPet())
-            value += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
-
-        SetResistance(SpellSchools(school), int32(value));
-    }
-    else
         UpdateArmor();
+        return;
+    }
+
+    float l_Value = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + p_School));
+
+    // @TODO: This is still true since WoD ? Look like resistance to specific magic school doesn't exist anymore anyway ...
+    // hunter and warlock pets gain 40% of owner's resistance
+    //if (isPet())
+    //    l_Value += float(CalculatePct(m_owner->GetResistance(SpellSchools(p_School)), 40));
+
+    SetResistance(SpellSchools(p_School), int32(l_Value));
 }
 
+// WoD updated
 void Guardian::UpdateArmor()
 {
-    float value = 0.0f;
-    UnitMods unitMod = UNIT_MOD_ARMOR;
+    UnitMods l_InitMod = UNIT_MOD_ARMOR;
+    PetStatInfo const* l_PetStat = GetPetStat();
 
-    // All pets gain 100% of owner's armor value
-    value = m_owner->GetArmor();
+    /// - Since 6.x, armor of pet are always percentage of owner armor (default 1)
+    float l_Value = m_owner->GetArmor() * (l_PetStat != nullptr ? l_PetStat->m_ArmorCoef : 1.0f);
 
-    switch (GetEntry())
+    /// - Apply mods
     {
-        case ENTRY_IMP:
-        case ENTRY_FEL_IMP:
-        case ENTRY_FELHUNTER:
-        case ENTRY_OBSERVER:
-        case ENTRY_SUCCUBUS:
-        case ENTRY_SHIVARRA:
-            value *= 3;
-            break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_VOIDLORD:
-            value *= 4;
-            break;
-        default:
-            break;
+        l_Value *= GetModifierValue(l_InitMod, BASE_PCT);
+        l_Value *= GetModifierValue(l_InitMod, TOTAL_PCT);
+
+        float l_Amount = 0;
+        AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
+        {
+            if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && GetEntry() == (*l_Iterator)->GetMiscValueB())
+                l_Amount += float((*l_Iterator)->GetAmount());
+        }
+
+        AddPct(l_Value, l_Amount);
     }
 
-    value *= GetModifierValue(unitMod, BASE_PCT);
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
-
-    if (Unit* owner = GetOwner())
-    {
-        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
-        float amount = 0;
-        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
-            if ((*i)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*i)->GetMiscValueB() && GetEntry() == (*i)->GetMiscValueB())
-                amount += float((*i)->GetAmount());
-
-        AddPct(value, amount);
-    }
-
-    SetArmor(int32(value));
+    SetArmor(int32(std::round(l_Value)));
 }
 
+// WoD updated
 void Guardian::UpdateMaxHealth()
 {
-    UnitMods unitMod = UNIT_MOD_HEALTH;
-    float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
+    UnitMods l_UnitMod = UNIT_MOD_HEALTH;
+    PetStatInfo const* l_PetStat = GetPetStat();
 
-    float multiplicator;
-    switch (GetEntry())
+    float l_Value = (l_PetStat != nullptr) ? m_owner->GetMaxHealth() * GetPetStat()->m_HealthCoef : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreateHealth();
+
+    l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
+    l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE);
+    l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
+
+    float l_Amount = 0;
+    AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+    for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
-        case ENTRY_GARGOYLE:
-            multiplicator = 15.0f;
-            break;
-        case ENTRY_WATER_ELEMENTAL:
-            multiplicator = 1.0f;
-            stamina = 0.0f;
-            break;
-        case ENTRY_BLOODWORM:
-            SetMaxHealth(GetCreateHealth());
-            return;
-        default:
-            multiplicator = 10.0f;
-            break;
+        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && GetEntry() == (*l_Iterator)->GetMiscValueB())
+            l_Amount += float((*l_Iterator)->GetAmount());
     }
 
-    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
-    value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
-
-    Unit* owner = GetOwner();
-    switch (GetEntry())
-    {
-        case ENTRY_IMP:
-        case ENTRY_FEL_IMP:
-            value = owner->CountPctFromMaxHealth(30);
-            break;
-        case ENTRY_FELHUNTER:
-        case ENTRY_OBSERVER:
-        case ENTRY_SUCCUBUS:
-        case ENTRY_SHIVARRA:
-            value = owner->CountPctFromMaxHealth(50);
-            break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_FELGUARD:
-        case ENTRY_GHOUL:
-            value = owner->CountPctFromMaxHealth(50);
-            break;
-        case ENTRY_WRATHGUARD:
-        case ENTRY_VOIDLORD:
-            value = owner->CountPctFromMaxHealth(60);
-            break;
-        default:
-            break;
-    }
-
-    if (Unit* owner = GetOwner())
-    {
-        AuraEffectList const& mModPetStats = owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
-        float amount = 0;
-        for (AuraEffectList::const_iterator i = mModPetStats.begin(); i != mModPetStats.end(); ++i)
-            if ((*i)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*i)->GetMiscValueB() && GetEntry() == (*i)->GetMiscValueB())
-                amount += float((*i)->GetAmount());
-
-        AddPct(value, amount);
-    }
-
-    SetMaxHealth((uint32)value);
+    AddPct(l_Value, l_Amount);
+    SetMaxHealth((uint32)l_Value);
 }
 
-void Guardian::UpdateMaxPower(Powers power)
+// WoD updated
+void Guardian::UpdateMaxPower(Powers p_Power)
 {
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods l_UnitMod = UnitMods(UNIT_MOD_POWER_START + p_Power);
+    PetStatInfo const* l_PetStat = GetPetStat();
 
-    float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
-    float multiplicator = 15.0f;
+    float l_AddValue = ((l_PetStat != nullptr) && p_Power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
+    float l_Multiplicator = 15.0f;
 
-    switch (GetEntry())
-    {
-        case ENTRY_IMP:
-            multiplicator = 4.95f;
-            break;
-        case ENTRY_VOIDWALKER:
-        case ENTRY_SUCCUBUS:
-        case ENTRY_FELHUNTER:
-        case ENTRY_FELGUARD:
-            multiplicator = 11.5f;
-            break;
-        case ENTRY_WATER_ELEMENTAL:
-            multiplicator = 1.0f;
-            addValue = 0.0f;
-            break;
-        default:
-            multiplicator = 15.0f;
-            break;
-    }
+    float l_Value = (l_PetStat != nullptr) ? l_PetStat->m_CreatePower : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreatePowers(p_Power);
 
-    float value  = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
-    value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) + addValue * multiplicator;
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
+    l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
+    l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE) + l_AddValue * l_Multiplicator;
+    l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    SetMaxPower(power, uint32(value));
+    SetMaxPower(p_Power, uint32(l_Value));
 }
 
-void Guardian::UpdateAttackPowerAndDamage(bool ranged)
+// WoD updated
+void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 {
-    if (ranged)
+    if (p_Ranged)
         return;
+    
+    UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
+    float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 
-    float val = 0.0f;
-    float bonusAP = 0.0f;
-    UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
-
-    // imp's attack power
-    if (GetEntry() == ENTRY_IMP)
-        val = GetStat(STAT_STRENGTH) - 10.0f;
-    else if (!isHunterPet())
-        val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
-
-    Unit* owner = GetOwner();
-    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+    PetStatInfo const* l_PetStat = GetPetStat();
+    if (l_PetStat != nullptr)
     {
-        if (isHunterPet())
+        switch (l_PetStat->m_PowerStat)
         {
-            bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK); // Hunter pets gain 100% of owner's AP
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.5f)); // Bonus damage is equal to 50% of owner's AP
-        }
-        else if (IsPetGhoul()) // ghouls benefit from deathknight's attack power (may be summon pet or not)
-        {
-            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
-            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
-        }
-        else if (isPet() && GetEntry() != ENTRY_WATER_ELEMENTAL || IsTreant()) // demons benefit from warlocks shadow or fire damage
-        {
-            int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-            SetBonusDamage(spd);
-            bonusAP = spd;
-        }
-        else if (GetEntry() == ENTRY_WATER_ELEMENTAL) // water elementals benefit from mage's frost damage
-        {
-            SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST)));
-        }
-        // Summon Gargoyle AP
-        else if (GetEntry() == 27829)
-        {
-            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f;
-            SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK)));
-        }
-    }
-
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
-
-    //in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
-    float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
-
-    // base attackPower for Warlock pets
-    if (owner && owner->getClass() == CLASS_WARLOCK && owner->ToPlayer())
-    {
-        switch (GetEntry())
-        {
-            case ENTRY_IMP:
-            case ENTRY_FEL_IMP:
-            case ENTRY_FELHUNTER:
-            case ENTRY_OBSERVER:
-            case ENTRY_VOIDWALKER:
-            case ENTRY_VOIDLORD:
-            case ENTRY_FELGUARD:
-                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f;
+            case PetStatInfo::PowerStatBase::AttackPower:
+                l_BaseValue = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * l_PetStat->m_APSPCoef;
                 break;
-            case ENTRY_SUCCUBUS:
-                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 1.67f;
-                break;
-            case ENTRY_SHIVARRA:
-                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 1.11f;
-                break;
-            case ENTRY_WRATHGUARD:
-                base_attPower = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 2.33f;
+            case PetStatInfo::PowerStatBase::SpellPower:
+                l_BaseValue = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
                 break;
             default:
                 break;
         }
     }
 
-    //UNIT_FIELD_(RANGED)_ATTACK_POWER field
-    SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
-    //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
-    SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attPowerMultiplier);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseValue);
 
-    //automatically update weapon damage after attack power modification
+    float l_BaseAttackPower       = GetModifierValue(l_UnitMod, BASE_VALUE) * GetModifierValue(l_UnitMod, BASE_PCT);
+    float l_AttackPowerMultiplier = GetModifierValue(l_UnitMod, TOTAL_PCT) - 1.0f;
+
+    /// - UNIT_FIELD_(RANGED)_ATTACK_POWER field
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER,        (int32)std::round(l_BaseAttackPower));
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER, (int32)std::round(l_BaseAttackPower));
+
+    /// - UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+    SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER,        l_AttackPowerMultiplier);
+    SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, l_AttackPowerMultiplier);
+
+    /// - Since WoD 6.x, attack power & spell power are always same value for pet / guardians
+    if (m_owner->GetTypeId() == TYPEID_PLAYER)
+        m_owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, std::round(l_BaseAttackPower));
+
+    /// - Automatically update weapon damage after attack power modification
     UpdateDamagePhysical(BASE_ATTACK);
 }
 
-void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
+// WoD updated
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
 {
-    if (attType > BASE_ATTACK)
+    if (p_AttType > BASE_ATTACK)
         return;
 
-    float bonusDamage = 0.0f;
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (GetEntry() == ENTRY_FIRE_ELEMENTAL) // greater fire elemental
-        {
-            int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-            if (spellDmg > 0)
-                bonusDamage = spellDmg * 0.4f;
-        }
-    }
+    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+    float l_AttackSpeed = float(GetAttackTime(BASE_ATTACK)) / 1000.0f;
+    float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
-    float att_speed = float(GetAttackTime(BASE_ATTACK))/1000.0f;
+    PetStatInfo const* l_PetStat = GetPetStat();
+    if (l_PetStat != nullptr)
+        l_BaseValue += GetTotalAttackPowerValue(p_AttType) * l_PetStat->m_DamageCoef;
+    else
+        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
 
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 14.0f * att_speed  + bonusDamage;
-    float base_pct    = GetModifierValue(unitMod, BASE_PCT);
-    float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
-    float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
+    float l_BasePct    = GetModifierValue(l_UnitMod, BASE_PCT);
+    float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
+    float l_TotalPct   = GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    float weapon_mindamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-    float weapon_maxdamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+    float l_WeaponMinDamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+    float l_WeaponMaxDamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
 
-    // Min and Max damage for Warlock pets
-    if (m_owner && m_owner->ToPlayer() && m_owner->getClass() == CLASS_WARLOCK)
-    {
-        switch (GetEntry())
-        {
-            case ENTRY_IMP:
-            case ENTRY_FELHUNTER:
-            case ENTRY_VOIDWALKER:
-            case ENTRY_FELGUARD:
-                base_value = 1068 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f) / 14.0f * 2 + bonusDamage;
-                break;
-            case ENTRY_SUCCUBUS:
-                base_value = 1068 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 1.67f) / 14.0f * 3 + bonusDamage;
-                break;
-            case ENTRY_FEL_IMP:
-            case ENTRY_VOIDLORD:
-            case ENTRY_OBSERVER:
-                base_value = (1068 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f) / 14.0f * 2 + bonusDamage) * 1.2f;
-                break;
-            case ENTRY_SHIVARRA:
-                base_value = (713 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 3.5f) / 14.0f * 3 + bonusDamage) * 1.2f;
-                break;
-            case ENTRY_WRATHGUARD:
-                base_value = (713 + (m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 2.33f) / 14.0f * 2 + bonusDamage) * 1.2f;
-                break;
-            default:
-                break;
-        }
+    float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
+    float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-        if (m_owner->HasAura(77219))
-        {
-            float Mastery = 1.f + m_owner->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.f;
-            base_value *= Mastery;
-        }
-    }
+    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
 
-    float mindamage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
-    float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
-
-    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, mindamage);
-    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, maxdamage);
-
-    if (GetEntry() == ENTRY_WRATHGUARD || GetEntry() == ENTRY_SHIVARRA)
-    {
-        SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, mindamage / 2);
-        SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, maxdamage / 2);
-    }
-}
-
-void Guardian::SetBonusDamage(int32 damage)
-{
-    m_bonusSpellDamage = damage;
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        GetOwner()->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, damage);
+    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
+    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MaxDamage / 2);
 }

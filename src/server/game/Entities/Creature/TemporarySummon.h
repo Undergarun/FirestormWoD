@@ -37,6 +37,8 @@ enum StatsIncreaseType
     INCREASE_MAGIC_DAMAGE_PERCENT   = 24
 };
 
+struct PetStatInfo;
+
 /// Stores data for temp summons
 struct TempSummonData
 {
@@ -107,8 +109,8 @@ class Guardian : public Minion
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
 
-        int32 GetBonusDamage() { return m_bonusSpellDamage; }
-        void SetBonusDamage(int32 damage);
+        PetStatInfo const* GetPetStat(bool p_Force = false) const;
+
     protected:
         int32   m_bonusSpellDamage;
         float   m_statFromOwner[MAX_STATS];

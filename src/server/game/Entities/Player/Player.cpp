@@ -1818,7 +1818,7 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     SendMessageToSet(&data, true);
 }
 
-void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
+void Player::Update(uint32 p_time)
 {
     if (!IsInWorld())
         return;
