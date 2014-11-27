@@ -1514,7 +1514,7 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
                         caster->ModifyHealth(-sacrifiedHealth);
                     }
 
-                    amount = CalculatePct(sacrifiedHealth, aurEff->GetBaseAmount() / 100);
+                    amount = CalculatePct(sacrifiedHealth, aurEff->GetBaseAmount());
                 }
             }
 
