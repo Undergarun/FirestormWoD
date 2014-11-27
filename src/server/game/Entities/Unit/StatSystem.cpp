@@ -1460,6 +1460,9 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
+    if (m_owner->GetTypeId() == TYPEID_PLAYER)
+        m_owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
+
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_AttackPowerMultiplier = GetModifierValue(l_UnitMod, TOTAL_PCT) - 1.0f;
 
