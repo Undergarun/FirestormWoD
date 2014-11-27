@@ -89,7 +89,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
     if (!top()->Update(*_owner, diff))
     {
         _cleanFlag &= ~MMCF_UPDATE;
-        MovementExpired();
+        MovementExpired(false);
     }
     else
         _cleanFlag &= ~MMCF_UPDATE;
