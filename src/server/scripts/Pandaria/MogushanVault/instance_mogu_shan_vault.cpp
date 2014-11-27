@@ -127,7 +127,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint64 janxiGuid;
             uint64 qinxiGuid;
 
-            std::list<const uint32> m_AuraToClear;
+            std::list<uint32> m_AuraToClear;
 
             std::vector<uint64> stoneGuardGUIDs;
             std::vector<uint64> fengStatuesGUIDs;
@@ -625,7 +625,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
                                 while (randomPos2 == randomPos)
                                     randomPos2 = urand(0, 2);
-                            
+
                                 instance->SummonCreature(NPC_EMPEROR_RAGE, woeRageSpawnPos[randomPos]);
                                 instance->SummonCreature(NPC_EMPEROR_RAGE, woeRageSpawnPos[randomPos2]);
 
@@ -653,7 +653,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                             case PHASE_WOE_COURAGE:
                             {
                                 instance->SummonCreature(NPC_EMPEROR_COURAGE, woeSpawnPos[urand(0, 7)]);
-                            
+
                                 nextWillOfEmperorPhase = PHASE_WOE_RAGE;
                                 willOfEmperirLastBigAddSpawned = PHASE_WOE_COURAGE;
                                 willOfEmperorTimer = 10000;

@@ -111,9 +111,11 @@ class mob_firesworn : public CreatureScript
             mob_fireswornAI(Creature* creature) : ScriptedAI(creature) {}
 
             uint32 immolateTimer;
+            bool m_AlreadyInDamageTaken;
 
             void Reset()
             {
+                m_AlreadyInDamageTaken = false;
                 immolateTimer = 4000;                              //These times are probably wrong
             }
 
@@ -124,8 +126,16 @@ class mob_firesworn : public CreatureScript
                 if (int32(health) - int32(damage) < int32(health10pct))
                 {
                     damage = 0;
-                    DoCastVictim(SPELL_ERUPTION);
-                    me->DespawnOrUnsummon();
+
+                    if (!m_AlreadyInDamageTaken)
+                    {
+                        m_AlreadyInDamageTaken = true;
+
+                        DoCastVictim(SPELL_ERUPTION);
+                        me->DespawnOrUnsummon();
+
+                        m_AlreadyInDamageTaken = false;
+                    }
                 }
             }
 

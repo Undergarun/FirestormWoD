@@ -1030,7 +1030,7 @@ public:
         if (qInfo)
         {
             //TODO: prisoner should help player for a short period of time
-            player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+            player->KilledMonsterCredit(qInfo->GetQuestObjectiveXIndex(0)->ObjectID, 0);
             pPrisoner->DisappearAndDie();
         }
         return true;

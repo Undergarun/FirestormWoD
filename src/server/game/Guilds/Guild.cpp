@@ -2524,7 +2524,7 @@ bool Guild::Validate()
         // If no more members left, disband guild
         if (m_members.empty())
         {
-            Disband();
+            //Disband();
             return false;
         }
     }

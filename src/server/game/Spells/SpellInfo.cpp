@@ -486,7 +486,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             {
                 if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_CAST_WITH_ITEM) == 0)
                 {
-                    GtSpellScalingEntry const* l_GtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * GT_MAX_LEVEL + l_Level - 1);
+                    int32 l_ScalingClassIndex = _spellInfo->ScalingClass;
+
+                    if (_spellInfo->ScalingClass < 0)
+                        l_ScalingClassIndex = (sChrClassesStore.GetNumRows() - 1) - _spellInfo->ScalingClass;
+
+                    l_ScalingClassIndex -= 1;
+
+                    uint32 l_GTSpellScalingRecID = l_ScalingClassIndex * GT_MAX_LEVEL + l_Level - 1;
+                    const GtSpellScalingEntry * l_GtScaling = sGtSpellScalingStore.LookupEntry(l_GTSpellScalingRecID);
+
                     if (l_GtScaling)
                         l_Multiplier = l_GtScaling->value;
                 }

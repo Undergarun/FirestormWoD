@@ -1291,7 +1291,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                         break;
                 }
 
-                uint16 avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+                uint16 avgILvl = caster->ToPlayer()->GetAverageItemLevelEquipped();
                 if (avgILvl < baseItemLevel)
                     return;                     // TODO: Research possibility of scaling down
 

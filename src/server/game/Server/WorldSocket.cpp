@@ -185,6 +185,11 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     switch (pct.GetOpcode())
     {
         case SMSG_MONSTER_MOVE:
+        case SMSG_THREAT_CLEAR:
+        case SMSG_THREAT_REMOVE:
+        case SMSG_THREAT_UPDATE:
+        case SMSG_HIGHEST_THREAT_UPDATE:
+        case SMSG_ATTACKER_STATE_UPDATE:
             break;
 
         default:

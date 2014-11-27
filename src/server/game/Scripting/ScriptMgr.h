@@ -753,6 +753,8 @@ class PlayerScript : public ScriptObject
 
         // Called when a player updates his movement
         virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
+
+        virtual void OnQuestReward(Player* /*player*/, const Quest* /*quest*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -1035,6 +1037,7 @@ class ScriptMgr
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZoneID, uint32 newArea);
         void OnPlayerUpdateMovement(Player* p_Player);
+        void OnQuestReward(Player* player, const Quest* quest);
 
     public: /* GuildScript */
 

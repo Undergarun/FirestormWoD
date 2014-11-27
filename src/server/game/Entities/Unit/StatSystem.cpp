@@ -249,6 +249,7 @@ bool Player::UpdateAllStats()
     UpdateDodgePercentage();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
+    UpdateItemLevel();
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
@@ -350,6 +351,12 @@ void Player::UpdateMaxPower(Powers power)
 
     value = floor(value + 0.5f);
     SetMaxPower(power, uint32(value));
+}
+
+void Player::UpdateItemLevel()
+{
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, (float)GetAverageItemLevelTotal());
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)

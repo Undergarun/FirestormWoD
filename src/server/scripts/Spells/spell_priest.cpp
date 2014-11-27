@@ -121,7 +121,8 @@ enum PriestSpells
     PRIEST_SHADOW_ORB_DUMMY                         = 127850,
     PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985,
     PRIEST_NPC_VOID_TENDRILS                        = 65282,
-    PRIEST_SPELL_SAVING_GRACE                       = 155274
+    PRIEST_SPELL_SAVING_GRACE                       = 155274,
+    PRIEST_SPELL_CLARITY_OF_POWER                   = 155246
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -2401,9 +2402,42 @@ public:
     }
 };
 
+// Call by Mind Spike 73510 - Mind Sear 48045 - Shadow Word: Death 32379
+// Clarity of Power - 155246
+class spell_pri_clarity_of_power : public SpellScriptLoader
+{
+public:
+    spell_pri_clarity_of_power() : SpellScriptLoader("spell_pri_clarity_of_power") {}
+
+    class spell_pri_clarity_of_power_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_clarity_of_power_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit *l_Target = GetHitUnit())
+                    if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
+                        if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) // Shadow word: pain / Vampiric touch
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(PRIEST_SPELL_CLARITY_OF_POWER)->Effects[EFFECT_0].BasePoints));
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_clarity_of_power_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_clarity_of_power_SpellScript();
+    }
+};
+
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
     new spell_pri_power_word_barrier();

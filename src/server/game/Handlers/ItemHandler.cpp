@@ -516,33 +516,48 @@ void WorldSession::SendItemSparseDb2Reply(uint32 entry)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReadItem(WorldPacket& recvData)
+/// 6.0.3 19116
+enum READ_ITEM_FAILURE
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_READ_ITEM");
+    READ_LANGUAGE_CANCELLED     = 1,
+    READ_LANGUAGE_DELAY         = 2,
+    READ_LANGUAGE_TOO_DIFFICULT = 0,
+    READ_LANGUAGE_FAILED        = 3
+};
 
-    uint8 bag, slot;
-    recvData >> bag >> slot;
+void WorldSession::HandleReadItem(WorldPacket& p_Packet)
+{
+    uint8 l_PackSlot = 0;
+    uint8 l_Slot = 0;
 
-    Item* pItem = m_Player->GetItemByPos(bag, slot);
-    if (pItem && pItem->GetTemplate()->PageText)
+    p_Packet >> l_PackSlot;
+    p_Packet >> l_Slot;
+
+    Item * l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
+
+    if (l_Item && l_Item->GetTemplate()->PageText)
     {
-        WorldPacket data;
+        WorldPacket l_Data;
 
-        InventoryResult msg = m_Player->CanUseItem(pItem);
-        if (msg == EQUIP_ERR_OK)
+        InventoryResult l_Message = m_Player->CanUseItem(l_Item);
+
+        if (l_Message == EQUIP_ERR_OK)
         {
-            data.Initialize(SMSG_READ_ITEM_OK, 8);
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Item page sent");
+            l_Data.Initialize(SMSG_READ_ITEM_OK, 2 + 16);
+            l_Data.appendPackGUID(l_Item->GetGUID());       ///< Item
         }
         else
         {
-            data.Initialize(SMSG_READ_ITEM_FAILED, 8);
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Unable to read item");
-            m_Player->SendEquipError(msg, pItem, NULL);
+            l_Data.Initialize(SMSG_READ_ITEM_FAILED, 2 + 16 + 4 + 1);
+            l_Data.appendPackGUID(l_Item->GetGUID());       ///< Item
+            l_Data << uint32(1);                            ///< Delay
+            l_Data.WriteBits(READ_LANGUAGE_FAILED, 2);      ///< Subcode
+            l_Data.FlushBits();
+
+            m_Player->SendEquipError(l_Message, l_Item, NULL);
         }
 
-        data << pItem->GetGUID();
-        SendPacket(&data);
+        SendPacket(&l_Data);
     }
     else
         m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
@@ -1250,8 +1265,8 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
         p_RecvData.read_skip<uint8>();    ///< Slot
     }
 
-    p_RecvData >> l_Slot;
     p_RecvData >> l_PackSlot;
+    p_RecvData >> l_Slot;
 
     Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
 
