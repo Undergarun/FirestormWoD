@@ -111,7 +111,9 @@ enum PaladinSpells
     PALADIN_SPELL_LIADRINS_RIGHTEOUSNESS        = 156989,
     PALADIN_SPELL_MARAADS_TRUTH                 = 156990,
     PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL   = 156322,
-    PALADIN_SPELL_ETERNAL_FLAME                 = 114163
+    PALADIN_SPELL_ETERNAL_FLAME                 = 114163,
+    PALADIN_SPELL_HAMMER_OF_WRATH               = 24275,
+    PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION   = 171648
 };
 
 // Glyph of devotion aura - 146955
@@ -236,8 +238,8 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                 {
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_PROTECTION)
-                        l_Player->CastSpell(l_Player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                        l_Player->ReduceSpellCooldown(PALADIN_SPELL_HAMMER_OF_WRATH, (l_Player->GetSpellCooldownDelay(PALADIN_SPELL_HAMMER_OF_WRATH) * 1000) * 0.50);
                 }
             }
 
@@ -1703,7 +1705,7 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasSpell(171648))
+                if (l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
                     l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
         }
 
