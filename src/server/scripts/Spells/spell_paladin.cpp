@@ -1650,7 +1650,6 @@ public:
         {
             OnCheckCast += SpellCheckCastFn(spell_pal_eternal_flame_SpellScript::CheckCast);
             OnHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleOnHit);
-
         }
     };
 
@@ -1691,8 +1690,38 @@ public:
     }
 };
 
+// Holy Wrath - 119072
+class spell_pal_holy_wrath : public SpellScriptLoader
+{
+public:
+    spell_pal_holy_wrath() : SpellScriptLoader("spell_pal_holy_wrath") { }
+
+    class spell_pal_holy_wrath_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_holy_wrath_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasSpell(171648))
+                    l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pal_holy_wrath_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_holy_wrath_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_holy_wrath();
     new spell_pal_eternal_flame_periodic_heal();
     new spell_pal_eternal_flame();
     new spell_pal_glyph_of_devotian_aura();

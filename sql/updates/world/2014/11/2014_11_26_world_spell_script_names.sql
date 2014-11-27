@@ -7,3 +7,6 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_pal_eternal_flame_perio
 INSERT INTO spell_script_names VALUES (156322, 'spell_pal_eternal_flame_periodic_heal');
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_pal_sanctified_wrath';
 INSERT INTO spell_script_names VALUES (53376, 'spell_pal_sanctified_wrath');
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_pal_holy_wrath';
+INSERT INTO spell_script_names VALUES (119072, 'spell_pal_holy_wrath');
+
