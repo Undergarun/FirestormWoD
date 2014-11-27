@@ -17187,8 +17187,12 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
 
     if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
     {
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+
+        memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
+        memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
+
         if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
         {
             uint32 index = 0;

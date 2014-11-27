@@ -413,6 +413,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
             ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, locale, questTurnTargetName);
         }
     }
+
     ObjectGuid guid = npcGUID;
     ObjectGuid guid2 = npcGUID;
     bool hiddenRewardItem = quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
@@ -476,7 +477,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
         data << uint32(quest->RewardFactionValueIdOverride[i]);
     }
 
-    data << uint32(quest->GetRewSpellCast());                                               ///< Spell Completion Display ID
+    data << uint32(quest->GetRewSpell());                                                   ///< Spell Completion Display ID
     data << uint32(quest->GetRewSpellCast());                                               ///< Spell Completion ID
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
@@ -809,7 +810,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(GUID_ENPART(npcGUID));
     data << uint32(quest->GetQuestId());
     data << uint32(quest->GetFlags());
-    data << uint32(quest->GetFlags2());                                          ///< Quest flags 2
+    data << uint32(quest->GetFlags2());
     data << uint32(quest->GetSuggestedPlayers());
 
     if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
@@ -854,7 +855,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         data << uint32(quest->RewardFactionValueIdOverride[i]);
     }
 
-    data << uint32(quest->GetRewSpellCast());                                               ///< Spell Completion Display ID
+    data << uint32(quest->GetRewSpell());                                                   ///< Spell Completion Display ID
     data << uint32(quest->GetRewSpellCast());                                               ///< Spell Completion ID
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
