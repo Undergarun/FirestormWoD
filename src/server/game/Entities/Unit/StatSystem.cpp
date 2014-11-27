@@ -1399,10 +1399,24 @@ void Guardian::UpdateMaxPower(Powers p_Power)
     UnitMods l_UnitMod = UnitMods(UNIT_MOD_POWER_START + p_Power);
     PetStatInfo const* l_PetStat = GetPetStat();
 
-    float l_AddValue = ((l_PetStat != nullptr) && p_Power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
+    float l_AddValue = ((l_PetStat != nullptr) && p_Power == l_PetStat->m_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
     float l_Multiplicator = 15.0f;
 
-    float l_Value = (l_PetStat != nullptr) ? l_PetStat->m_CreatePower : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreatePowers(p_Power);
+    float l_Value = GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreatePowers(p_Power);
+    if (l_PetStat != nullptr)
+    {
+        if (l_PetStat->m_CreatePower == -1)
+            l_Value = GetCreatePowers(l_PetStat->m_Power);
+        else
+        {
+            // Negative number, it's fix value
+            if (l_PetStat->m_CreatePower < 0.0f)
+                l_Value = l_PetStat->m_CreatePower * -1;
+            // Positive number, it's percentage of owner power
+            else
+                l_Value = float(m_owner->GetMaxPower(m_owner->getPowerType()) * l_PetStat->m_CreatePower);
+        }
+    }
 
     l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE) + l_AddValue * l_Multiplicator;
@@ -1420,26 +1434,34 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
     float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 
+    float l_BaseAttackPower       = l_BaseValue;
+    float l_SpellPower            = l_BaseValue;
+    float l_AttackPowerMultiplier = 1.f;
+
     PetStatInfo const* l_PetStat = GetPetStat();
     if (l_PetStat != nullptr)
     {
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * l_PetStat->m_APSPCoef;
+                l_BaseAttackPower = l_BaseValue;
+                l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             case PetStatInfo::PowerStatBase::SpellPower:
-                l_BaseValue = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
+                l_SpellPower      = l_BaseValue;
+                l_BaseAttackPower = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             default:
                 break;
         }
     }
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseValue);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    float l_BaseAttackPower       = GetModifierValue(l_UnitMod, BASE_VALUE) * GetModifierValue(l_UnitMod, BASE_PCT);
-    float l_AttackPowerMultiplier = GetModifierValue(l_UnitMod, TOTAL_PCT) - 1.0f;
+    l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);
+    l_AttackPowerMultiplier = GetModifierValue(l_UnitMod, TOTAL_PCT) - 1.0f;
 
     /// - UNIT_FIELD_(RANGED)_ATTACK_POWER field
     SetInt32Value(UNIT_FIELD_ATTACK_POWER,        (int32)std::round(l_BaseAttackPower));
@@ -1448,10 +1470,6 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     /// - UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER,        l_AttackPowerMultiplier);
     SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, l_AttackPowerMultiplier);
-
-    /// - Since WoD 6.x, attack power & spell power are always same value for pet / guardians
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
-        m_owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, std::round(l_BaseAttackPower));
 
     /// - Automatically update weapon damage after attack power modification
     UpdateDamagePhysical(BASE_ATTACK);

@@ -855,8 +855,11 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     SetAttackTime(OFF_ATTACK,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
     SetAttackTime(RANGED_ATTACK, l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
 
-    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
-    SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE,   1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED,                     1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE,                       1.0f);
+    SetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER,                 1.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER,             1.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, 1.0f);
 
     if (l_PetType == HUNTER_PET)
     {
@@ -876,26 +879,29 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + l_I), BASE_VALUE, float(l_CreatureTemplate->resistance[l_I]));
 
     SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     SetFullHealth();
 
     Powers l_PetPower    = l_PetStat->m_Power;
-    uint32 l_CreatePower = l_PetStat->m_CreatePower == -1 ? GetCreatePowers(l_PetStat->m_Power) : l_PetStat->m_CreatePower;
+    uint32 l_CreatePower = 0;
+
+    if (l_PetStat->m_CreatePower == -1)
+        l_CreatePower = GetCreatePowers(l_PetStat->m_Power);
+    else
+    {
+        // Negative number, it's fix value
+        if (l_PetStat->m_CreatePower < 0.0f)
+            l_CreatePower = l_PetStat->m_CreatePower * -1;
+        // Positive number, it's percentage of owner power
+        else
+            l_CreatePower = float(m_owner->GetMaxPower(m_owner->getPowerType()) * l_PetStat->m_CreatePower);
+    }
 
     SetCreateMana(l_PetPower == Powers::POWER_MANA ? l_CreatePower : 0);
 
     setPowerType(l_PetStat->m_Power);
     SetMaxPower(l_PetPower, l_CreatePower);
     SetPower(l_PetPower, l_CreatePower);
-
-    // Since WoD 6.x (not sure about that), pet doesn't have his own stat, he directly use percentage of owner stats
-    // @TODO: Be sure about that ...
-    {
-        //SetCreateStat(STAT_STRENGTH, 22);
-        //SetCreateStat(STAT_AGILITY, 22);
-        //SetCreateStat(STAT_STAMINA, 25);
-        //SetCreateStat(STAT_INTELLECT, 28);
-        //SetCreateStat(STAT_SPIRIT, 27);
-    }
 
     // Base physical damage are 0-1 for every pet since WoD
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1);

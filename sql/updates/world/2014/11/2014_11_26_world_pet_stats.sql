@@ -24,13 +24,14 @@ CREATE TABLE `pet_stats` (
   `damage_coef` float NOT NULL DEFAULT '0.85' COMMENT '% of the attack power / spell power to use to compute min/max dmg',
   `attackspeed` float NOT NULL DEFAULT '1.82' COMMENT '% of the base attack speed of the pet',
   `powertype` int(11) unsigned NOT NULL,
-  `createpower` int(11) unsigned NOT NULL,
+  `createpower` float NOT NULL,
+  `secondarystat_coef` float NOT NULL,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `pet_stats` */
 
-insert  into `pet_stats`(`entry`,`speed`,`powerstatbase`,`armor_coef`,`apsp_coef`,`health_coef`,`damage_coef`,`attackspeed`,`powertype`,`createpower`) values (1,1.14,0,1.7,0.6,0.7,0.85,1.82,2,100);
+insert  into `pet_stats`(`entry`,`speed`,`powerstatbase`,`armor_coef`,`apsp_coef`,`health_coef`,`damage_coef`,`attackspeed`,`powertype`,`createpower`,`secondarystat_coef`) values (1,1.14,0,1.7,0.6,0.7,0.85,1.82,2,100,0),(510,1.14,1,3,0.75,0.5,1,2,0,1,0);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

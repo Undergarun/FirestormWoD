@@ -663,14 +663,19 @@ void Creature::RegenerateMana()
     if (l_CurValue >= l_MaxValue)
         return;
 
-    uint32 l_Addvalue = 0;
+    float l_Addvalue = 0;
 
     // Combat and any controlled creature
     if (isInCombat() || GetCharmerOrOwnerGUID())
     {
-        float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-        float Spirit = GetStat(STAT_SPIRIT);
-        l_Addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
+        float l_ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+        float l_Spirit = GetStat(STAT_SPIRIT);
+        l_Addvalue = uint32((l_Spirit / 5.0f + 17.0f) * l_ManaIncreaseRate);
+
+        /// - Pet have 60 % of owner mana regen
+        Unit* l_Owner = GetOwner();
+        if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
+            l_Addvalue = 0.6f * (isInCombat() ? l_Owner->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) : l_Owner->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER)) * 5.0f;
     }
     else
         l_Addvalue = l_MaxValue / 3;
@@ -678,12 +683,14 @@ void Creature::RegenerateMana()
     // Apply modifiers (if any).
     AuraEffectList const& l_ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPowerRegenPCTAuras.begin(); l_Iterator != l_ModPowerRegenPCTAuras.end(); ++l_Iterator)
+    {
         if ((*l_Iterator)->GetMiscValue() == POWER_MANA)
             AddPct(l_Addvalue, (*l_Iterator)->GetAmount());
+    }
 
     l_Addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
 
-    ModifyPower(POWER_MANA, l_Addvalue);
+    ModifyPower(POWER_MANA, std::floor(l_Addvalue));
 }
 
 void Creature::RegenerateHealth()
@@ -715,7 +722,7 @@ void Creature::RegenerateHealth()
         l_AddValue += GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT);
     }
     else
-        l_AddValue = l_MaxValue/3;
+        l_AddValue = l_MaxValue / 3;
 
     // Apply modifiers (if any).
     AuraEffectList const& l_ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);

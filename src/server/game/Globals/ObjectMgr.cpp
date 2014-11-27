@@ -3165,8 +3165,8 @@ void ObjectMgr::LoadPetStatInfo()
 {
     uint32 l_OldMSTime = getMSTime();
 
-    //                                                   0     1       2             3           4          5            6            7
-    QueryResult l_Result = WorldDatabase.Query("SELECT entry, speed, powerstatbase, armor_coef, apsp_coef, health_coef, damage_coef, attackspeed, powertype, createpower FROM pet_stats");
+    //                                                   0     1       2             3           4          5            6            7            8           9            10
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, speed, powerstatbase, armor_coef, apsp_coef, health_coef, damage_coef, attackspeed, powertype, createpower, secondarystat_coef FROM pet_stats");
     if (!l_Result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
@@ -3184,15 +3184,16 @@ void ObjectMgr::LoadPetStatInfo()
         uint32 l_Entry  = l_Fields[l_Index++].GetUInt32();
 
         PetStatInfo l_PetStat;
-        l_PetStat.m_Speed       = l_Fields[l_Index++].GetFloat();
-        l_PetStat.m_PowerStat   = PetStatInfo::PowerStatBase(l_Fields[l_Index++].GetUInt32());
-        l_PetStat.m_ArmorCoef   = l_Fields[l_Index++].GetFloat();
-        l_PetStat.m_APSPCoef    = l_Fields[l_Index++].GetFloat();
-        l_PetStat.m_HealthCoef  = l_Fields[l_Index++].GetFloat();
-        l_PetStat.m_DamageCoef  = l_Fields[l_Index++].GetFloat();
-        l_PetStat.m_AttackSpeed = l_Fields[l_Index++].GetFloat();
-        l_PetStat.m_Power       = Powers(l_Fields[l_Index++].GetUInt32());
-        l_PetStat.m_CreatePower = l_Fields[l_Index++].GetInt32();
+        l_PetStat.m_Speed             = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_PowerStat         = PetStatInfo::PowerStatBase(l_Fields[l_Index++].GetUInt32());
+        l_PetStat.m_ArmorCoef         = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_APSPCoef          = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_HealthCoef        = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_DamageCoef        = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_AttackSpeed       = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_Power             = Powers(l_Fields[l_Index++].GetUInt32());
+        l_PetStat.m_CreatePower       = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_SecondaryStatCoef = l_Fields[l_Index++].GetFloat();
 
         m_PetInfoStore.insert(std::make_pair(std::move(l_Entry), std::move(l_PetStat)));
 
@@ -3203,15 +3204,16 @@ void ObjectMgr::LoadPetStatInfo()
     /// - Create default stat for pet we don't have informations
 
     PetStatInfo l_DefaultPetStat;
-    l_DefaultPetStat.m_Speed       = 1.14f;
-    l_DefaultPetStat.m_PowerStat   = PetStatInfo::PowerStatBase::SpellPower;
-    l_DefaultPetStat.m_ArmorCoef   = 1.0f;
-    l_DefaultPetStat.m_APSPCoef    = 0.5f;
-    l_DefaultPetStat.m_HealthCoef  = 0.7f;
-    l_DefaultPetStat.m_DamageCoef  = 0.85f;
-    l_DefaultPetStat.m_AttackSpeed = 2.0f;
-    l_DefaultPetStat.m_Power       = Powers::POWER_MANA;
-    l_DefaultPetStat.m_CreatePower = -1;
+    l_DefaultPetStat.m_Speed             = 1.14f;
+    l_DefaultPetStat.m_PowerStat         = PetStatInfo::PowerStatBase::SpellPower;
+    l_DefaultPetStat.m_ArmorCoef         = 1.0f;
+    l_DefaultPetStat.m_APSPCoef          = 0.5f;
+    l_DefaultPetStat.m_HealthCoef        = 0.7f;
+    l_DefaultPetStat.m_DamageCoef        = 0.85f;
+    l_DefaultPetStat.m_AttackSpeed       = 2.0f;
+    l_DefaultPetStat.m_Power             = Powers::POWER_MANA;
+    l_DefaultPetStat.m_CreatePower       = -1;
+    l_DefaultPetStat.m_SecondaryStatCoef = 1.0f;
 
     m_PetInfoStore.insert(std::make_pair(0, std::move(l_DefaultPetStat)));
 

@@ -484,8 +484,8 @@ struct PetStatInfo
     float m_HealthCoef;
     float m_DamageCoef;
     float m_AttackSpeed;
-
-    int32 m_CreatePower;
+    float m_CreatePower;
+    float m_SecondaryStatCoef;
 
     Powers        m_Power;
     PowerStatBase m_PowerStat;
