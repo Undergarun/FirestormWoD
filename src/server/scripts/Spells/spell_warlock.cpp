@@ -42,7 +42,6 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
-    WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
     //WARLOCK_DOOM                            = 603,
@@ -2214,6 +2213,12 @@ class spell_warl_burning_embers : public SpellScriptLoader
         }
 };
 
+enum SpellsDrainLife
+{
+    SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
+    SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
+};
+
 // Drain Life - 689
 class spell_warl_drain_life : public SpellScriptLoader
 {
@@ -2224,17 +2229,25 @@ class spell_warl_drain_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_life_AuraScript);
 
+            uint8 m_TickNumber;
+
+            bool Load()
+            {
+                m_TickNumber = 0;
+                return true;
+            }
+
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    Player* _player = caster->ToPlayer();
-                    if (!_player)
-                        return;
+                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints / 10;
 
-                    // Restoring 1% of the caster's total health every 1s
-                    int32 basepoints = CalculatePct(_player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
-                    _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
+                    if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
+                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * ++m_TickNumber;
+
+                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct);
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
                 }
             }
 
