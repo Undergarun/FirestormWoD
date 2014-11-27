@@ -795,36 +795,30 @@ uint16 ArchaeologyMgr::GetRandomActiveSiteInMap(uint32 mapId)
     return sitesId.front();
 }
 
-void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteId)
+void ArchaeologyMgr::SendSearchComplete(bool p_Finished, uint8 p_Count, uint16 p_SiteID)
 {
-    uint32 race = 0;
-    ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
-    if (!loot.empty())
+    uint32 l_Race = 0;
+    ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
+    if (!l_Loot.empty())
     {
-        for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
+        for (ResearchLootVector::const_iterator l_Iter = l_Loot.begin(); l_Iter != l_Loot.end(); ++l_Iter)
         {
-            ResearchLootEntry entry = (*itr);
-            if (entry.id != siteId)
+            ResearchLootEntry l_Entry = (*l_Iter);
+            if (l_Entry.id != p_SiteID)
                 continue;
 
-            race = uint32(entry.race);
+            l_Race = uint32(l_Entry.race);
             break;
         }
     }
 
-    WorldPacket data(SMSG_RESEARCH_COMPLETE, 13);
+    WorldPacket l_Data(SMSG_RESEARCH_COMPLETE, 13);
 
-    data << uint32(count);
-    data << uint32(6);
-    data << race;
+    l_Data << uint32(p_Count);
+    l_Data << uint32(6);
+    l_Data << l_Race;
 
-    data.WriteBit(finished);
-    data.FlushBits();
-
-    _player->GetSession()->SendPacket(&data);
-
-    if (count == 6)
-        SendSearchSiteComplete(siteId);
+    _player->GetSession()->SendPacket(&l_Data);
 }
 
 void ArchaeologyMgr::SendSearchSiteComplete(uint16 siteId)

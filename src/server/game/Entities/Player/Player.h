@@ -527,7 +527,7 @@ enum PlayerFlagsEx
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   5
+#define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
@@ -3168,7 +3168,7 @@ class Player : public Unit, public GridObject<Player>
             return nullptr;
         }
 
-        bool HasToy(uint32 p_ItemID)
+        bool HasToy(uint32 p_ItemID) const
         {
             if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
                 return true;

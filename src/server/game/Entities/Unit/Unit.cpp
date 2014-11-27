@@ -21497,17 +21497,9 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
 
 void Unit::SendClearTarget()
 {
-    WorldPacket data(SMSG_BREAK_TARGET);
-    ObjectGuid unitGuid = GetGUID();
-
-    uint8 bitsOrder[8] = { 2, 7, 6, 0, 5, 3, 4, 1 };
-    data.WriteBitInOrder(unitGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 3, 7, 1, 0, 4, 2, 6, 5 };
-    data.WriteBytesSeq(unitGuid, bytesOrder);
-
-    data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_BREAK_TARGET);
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
 bool Unit::IsVisionObscured(Unit* victim, SpellInfo const* spellInfo)

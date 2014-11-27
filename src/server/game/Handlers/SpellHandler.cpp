@@ -973,43 +973,6 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_PROJECTILE_POSITION");
-
-    uint64 casterGuid;
-    uint32 spellId;
-    uint8 castCount;
-    float x, y, z;    // Position of missile hit
-
-    recvPacket >> casterGuid;
-    recvPacket >> spellId;
-    recvPacket >> castCount;
-    recvPacket >> x;
-    recvPacket >> y;
-    recvPacket >> z;
-
-    Unit* caster = ObjectAccessor::GetUnit(*m_Player, casterGuid);
-    if (!caster)
-        return;
-
-    Spell* spell = caster->FindCurrentSpellBySpellId(spellId);
-    if (!spell || !spell->m_targets.HasDst())
-        return;
-
-    Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(x, y, z);
-    spell->m_targets.ModDst(pos);
-
-    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
-    data << uint64(casterGuid);
-    data << uint8(castCount);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    caster->SendMessageToSet(&data, true);
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// ToyBox
 void WorldSession::HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData)

@@ -7015,27 +7015,26 @@ void Player::RepopAtGraveyard()
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 }
 
-void Player::SendCemeteryList(bool onMap)
+void Player::SendCemeteryList(bool p_OnMap)
 {
-    ByteBuffer buf(16);
-    uint32 count = 0;
+    ByteBuffer l_Buffer(16);
+    uint32 l_Counter = 0;
 
-    uint32 zoneId = GetZoneId();
-    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(zoneId);
-    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    uint32 l_ZoneID = GetZoneId();
+    GraveYardContainer::const_iterator l_GraveLow  = sObjectMgr->GraveYardStore.lower_bound(l_ZoneID);
+    GraveYardContainer::const_iterator l_GraveUP   = sObjectMgr->GraveYardStore.upper_bound(l_ZoneID);
+    for (GraveYardContainer::const_iterator l_Iter = l_GraveLow; l_Iter != l_GraveUP; ++l_Iter)
     {
-        ++count;
-        buf << uint32(itr->second.safeLocId);
+        ++l_Counter;
+        l_Buffer << uint32(l_Iter->second.safeLocId);
     }
 
-    WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
-    packet.WriteBit(onMap);
-    packet.WriteBits(count, 22);
-    packet.FlushBits();
-    if (buf.size())
-        packet.append(buf);
-    GetSession()->SendPacket(&packet);
+    WorldPacket l_Packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, l_Buffer.wpos()+4);
+    l_Packet.WriteBit(p_OnMap);
+    l_Packet << uint32(l_Counter);
+    if (l_Counter)
+        l_Packet.append(l_Buffer);
+    GetSession()->SendPacket(&l_Packet);
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
@@ -20995,7 +20994,7 @@ void Player::BindToInstance()
         return;
 
     WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-    data << uint32(0);
+    data.WriteBit(false);
     GetSession()->SendPacket(&data);
     BindToInstance(mapSave, true);
 
@@ -21004,70 +21003,37 @@ void Player::BindToInstance()
 
 void Player::SendRaidInfo()
 {
-    uint32 counter = 0;
-    WorldPacket data(SMSG_RAID_INSTANCE_INFO);
+    uint32 l_Counter = 0;
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO);
+    ByteBuffer l_Buffer;
+    time_t l_Now = time(NULL);
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-            if (itr->second.perm)
-                counter++;
-
-    data.WriteBits(counter, 20);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
     {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
+        for (BoundInstancesMap::iterator l_Itr = m_boundInstances[l_Iter].begin(); l_Itr != m_boundInstances[l_Iter].end(); ++l_Itr)
         {
-            if (itr->second.perm)
+            if (l_Itr->second.perm)
             {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
+                InstanceSave* l_Save = l_Itr->second.save;
+                l_Counter++;
 
-                data.WriteBit(instanceGUID[0]);
-                data.WriteBit(instanceGUID[7]);
-                data.WriteBit(instanceGUID[5]);
-                data.WriteBit(1);
-                data.WriteBit(instanceGUID[2]);
-                data.WriteBit(instanceGUID[1]);
-                data.WriteBit(0);
-                data.WriteBit(instanceGUID[3]);
-                data.WriteBit(instanceGUID[4]);
-                data.WriteBit(instanceGUID[6]);
+                l_Buffer << uint32(l_Save->GetMapId());
+                l_Buffer << uint32(l_Save->GetDifficulty());
+                l_Buffer << uint64(l_Save->GetInstanceId());
+                l_Buffer << uint32(l_Save->GetResetTime() - l_Now);
+                l_Buffer << uint32(l_Save->GetEncounterMask());
+                l_Buffer.WriteBit(true);    ///< Locked
+                l_Buffer.WriteBit(false);   ///< Extended
+                l_Buffer.FlushBits();
             }
         }
     }
 
-    data.FlushBits();
+    l_Data << uint32(l_Counter);
+    if (l_Counter)
+        l_Data.append(l_Buffer);
 
-    time_t now = time(NULL);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
-            if (itr->second.perm)
-            {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
-
-                data << uint32(save->GetDifficulty());      // difficulty
-
-                data.WriteByteSeq(instanceGUID[5]);
-                data << uint32(save->GetResetTime() - now);  // reset time
-                data.WriteByteSeq(instanceGUID[1]);
-                data.WriteByteSeq(instanceGUID[4]);
-                data.WriteByteSeq(instanceGUID[6]);
-                data.WriteByteSeq(instanceGUID[3]);
-                data << uint32(save->GetMapId());           // map id
-                data.WriteByteSeq(instanceGUID[2]);
-                data.WriteByteSeq(instanceGUID[0]);
-                data << uint32(save->GetEncounterMask()); // mask boss killed
-                data.WriteByteSeq(instanceGUID[7]);
-            }
-        }
-    }
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 /*
@@ -22536,18 +22502,11 @@ void Player::SendAttackSwingCancelAttack()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendAutoRepeatCancel(Unit* target)
+void Player::SendAutoRepeatCancel(Unit* p_Target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT);
-    ObjectGuid targetGuid = target->GetGUID();
-
-    uint8 bitsOrder[8] = { 3, 7, 2, 5, 4, 1, 0, 6 };
-    data.WriteBitInOrder(targetGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 4, 1, 0, 7, 2, 3, 6, 5 };
-    data.WriteBytesSeq(targetGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_CANCEL_AUTO_REPEAT);
+    l_Data.appendPackGUID(p_Target->GetGUID());
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
