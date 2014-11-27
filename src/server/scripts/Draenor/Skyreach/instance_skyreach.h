@@ -5,40 +5,87 @@
 
 namespace MS
 {
-    enum class RandomSpells : uint32
-    {
-        INSTANCE_BOOTSTRAPPER = 171344,
-        DRAENOR_SCALING_AURA = 156832,
-        FORGETFUL = 152828,
-        SABOTEUR = 152983,
-        STEALTH_AND_INVISIBILITY_DETECTION = 141048,
-        MOD_SCALE_70_130 = 151051,
-        DORMANT = 160641,
-        SUMMON_INTRO_DREAD_RAVEN = 163831,
-        RIDE_VEHICLE_HARDCODED = 46598,
-        CLOACK = 165848,
-        INTRO_NARRATOR = 163922,
-        TWISTER_DNT = 178617,
-        CONJURE_SUN_ORB_DNT = 178618,
-        WIELD_CHAKRAMS = 173168,
-        WIELD_CHAKRAMS_2 = 170378,
-        ENERGIZE_GLOWY_ORBS_COVER_DNT = 178324, // Visual to do when closed to sun orbs.
-        ENERGIZE_GLOWY_ORBS_DNT_1 = 178321,
-        ENERGIZE_GLOWY_ORBS_DNT_2 = 178330,
-        EJECT_ALL_PASSENGERS = 50630,
-        SERENE = 153716,
-        OVERSEER_1 = 153195,
-        OVERSEER_2 = 154368,
-        EJECT_PASSENGER_1 = 60603,
-        JUMP_TO_JUMP_POINT = 163828,
-        // Skyreach Taln mobs.
-        FIXATED = 152838,
-        // Skyreach raven whisperer
-        EXCITE = 153923,
-    };
-
     namespace InstanceSkyreach
     {
+        enum RandomSpells
+        {
+            INSTANCE_BOOTSTRAPPER = 171344,
+            DRAENOR_SCALING_AURA = 156832,
+            FORGETFUL = 152828,
+            SABOTEUR = 152983,
+            STEALTH_AND_INVISIBILITY_DETECTION = 141048,
+            MOD_SCALE_70_130 = 151051,
+            DORMANT = 160641,
+            SUMMON_INTRO_DREAD_RAVEN = 163831,
+            RIDE_VEHICLE_HARDCODED = 46598,
+            CLOACK = 165848,
+            INTRO_NARRATOR = 163922,
+            TWISTER_DNT = 178617,
+            CONJURE_SUN_ORB_DNT = 178618,
+            WIELD_CHAKRAMS = 173168,
+            WIELD_CHAKRAMS_2 = 170378,
+            ENERGIZE_GLOWY_ORBS_COVER_DNT = 178324, // Visual to do when closed to sun orbs.
+            ENERGIZE_GLOWY_ORBS_DNT_1 = 178321,
+            ENERGIZE_GLOWY_ORBS_DNT_2 = 178330,
+            EJECT_ALL_PASSENGERS = 50630,
+            SERENE = 153716,
+            OVERSEER_1 = 153195,
+            OVERSEER_2 = 154368,
+            EJECT_PASSENGER_1 = 60603,
+            JUMP_TO_JUMP_POINT = 163828,
+            // Skyreach Taln mobs.
+            FIXATED = 152838,
+            // Skyreach raven whisperer
+            EXCITE = 153923,
+            SUBMERGED = 154163,
+            SUBMERGE = 154164,
+            ENERGIZE = 154139, // During 12 seconds, restart after 3 seconds.
+            ENERGIZE_HEAL = 154149,
+            ENERGIZE_DMG = 154150,
+            ENERGIZE_VISUAL_1 = 154179,
+            ENERGIZE_VISUAL_2 = 154159,
+        };
+
+        enum GameObjectEntries
+        {
+            DOOR_RANJIT_ENTRANCE        = 234311,
+            DOOR_RANJIT_EXIT            = 234310,
+            DOOR_ARAKNATH_ENTRANCE_1    = 234314,
+            DOOR_ARAKNATH_ENTRANCE_2    = 234315,
+            DOOR_ARAKNATH_EXIT_1        = 234312,
+            DOOR_ARAKNATH_EXIT_2        = 234313,
+            CACHE_OF_ARAKKOAN_TREASURES = 234164,
+            DOOR_RUKHRAN_EXIT           = 234316,
+            DOOR_RUKHRAN_ENTRANCE       = 229038,
+        };
+
+        enum BossEntries
+        {
+            RANJIT = 86238,
+            ARAKNATH = 76141,
+            RUKHRAN = 76143,
+        };
+
+        enum MobEntries
+        {
+            SKYREACH_ARCANALOGIST = 76376,
+            SKYREACH_SOLAR_CONSTRUCTOR = 76142,
+            YOUNG_KALIRI = 76121,
+            SKYREACH_RAVEN_WHISPERER = 76154,
+        };
+
+        enum Data
+        {
+            Ranjit,
+            Araknath,
+            Rukhran,
+            SkyreachArcanologist,
+            SkyreachArcanologistIsDead,
+            SkyreachArcanologistReset,
+            AraknathSolarConstructorActivation,
+            SkyreachRavenWhispererIsDead,
+        };
+
         static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<GameObject*> l_TargetList;

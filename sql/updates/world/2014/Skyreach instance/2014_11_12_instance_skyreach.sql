@@ -770,4 +770,6 @@ update creature set spawnMask=6 where map=1209;
 update gameobject set spawnMask=6 where map=1209;
 
 update creature_template set unit_flags=33554432|unit_flags where entry=76142;
+
+delete from creature where id=79505 and map=1209;
 update creature_template_addon set auras='' where entry=76142;

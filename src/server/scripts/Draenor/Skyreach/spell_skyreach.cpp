@@ -4,6 +4,45 @@
 
 namespace MS
 {
+    // Energize 154140
+    class spell_Energize : public SpellScriptLoader
+    {
+    public:
+        spell_Energize()
+            : SpellScriptLoader("spell_Energize")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            ENERGIZE = 154139, // During 12 seconds, restart after 3 seconds.
+            ENERGIZE_HEAL = 154149,
+            ENERGIZE_DMG = 154150,
+            ENERGIZE_VISUAL_1 = 154179,
+        };
+
+        class spell_EnergizeSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_EnergizeSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, uint32(Spells::ENERGIZE_HEAL));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_EnergizeSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_EnergizeSpellScript();
+        }
+    };
+
     // AreaTriggers for spells: 159221
     class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
     {
@@ -1018,4 +1057,7 @@ void AddSC_spell_instance_skyreach()
     new MS::spell_Windwall();
     new MS::spell_FourWind();
     new MS::AreaTrigger_FourWinds();
+
+    // Boss Araknath.
+    new MS::spell_Energize();
 }

@@ -13,10 +13,12 @@ set(scripts_STAT_SRCS
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
   Draenor/Skyreach/instance_skyreach.h
+  Draenor/Skyreach/instance_skyreach.cpp
   Draenor/Skyreach/mob_skyreach.cpp
   Draenor/Skyreach/spell_skyreach.cpp
   Draenor/Skyreach/boss_ranjit.cpp
   Draenor/Skyreach/boss_araknath.cpp
+  Draenor/Skyreach/boss_rukhran.cpp
 )
 
 message("  -> Prepared: Draenor")
