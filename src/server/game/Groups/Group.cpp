@@ -817,7 +817,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 
     WorldPacket data(SMSG_GROUP_NEW_LEADER);
     data << uint8(l_PartyIndex);
-    data.WriteBits(l_Name.length(), 8);
+    data.WriteBits(l_Name.length(), 6);
     data.FlushBits();
     data.WriteString(l_Name);
 

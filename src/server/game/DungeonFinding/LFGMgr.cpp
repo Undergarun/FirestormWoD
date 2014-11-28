@@ -1876,30 +1876,25 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
             RemoveFromQueue(*it);
 
-        uint8 maxPlayersToTeleport = 0;
+        uint8 maxPlayersToTeleport = 5;
         uint8 playersTeleported = 0;
 
-        if (!grp->isRaidGroup())
-            maxPlayersToTeleport = 5;
-        else
+        switch (grp->GetRaidDifficulty())
         {
-            switch (grp->GetRaidDifficulty())
-            {
-                case LEGACY_MAN10_DIFFICULTY:
-                case LEGACY_MAN10_HEROIC_DIFFICULTY:
-                    maxPlayersToTeleport = 10;
-                    break;
+            case LEGACY_MAN10_DIFFICULTY:
+            case LEGACY_MAN10_HEROIC_DIFFICULTY:
+                maxPlayersToTeleport = 10;
+                break;
 
-                case RAID_TOOL_DIFFICULTY:
-                case LEGACY_MAN25_DIFFICULTY:
-                case LEGACY_MAN25_HEROIC_DIFFICULTY:
-                    maxPlayersToTeleport = 25;
-                    break;
+            case RAID_TOOL_DIFFICULTY:
+            case LEGACY_MAN25_DIFFICULTY:
+            case LEGACY_MAN25_HEROIC_DIFFICULTY:
+                maxPlayersToTeleport = 25;
+                break;
 
-                case MAN40_DIFFICULTY:
-                    maxPlayersToTeleport = 40;
-                    break;
-            }
+            case MAN40_DIFFICULTY:
+                maxPlayersToTeleport = 40;
+                break;
         }
 
         if (dungeon->difficulty == RAID_TOOL_DIFFICULTY)
