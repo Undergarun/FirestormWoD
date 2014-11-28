@@ -226,44 +226,7 @@ class spell_pal_exorcism_energize : public SpellScriptLoader
         }
 };
 
-// Called by Avenging Wrath - 31884
-// Sanctified Wrath - 53376
-class spell_pal_sanctified_wrath : public SpellScriptLoader
-{
-    public:
-        spell_pal_sanctified_wrath() : SpellScriptLoader("spell_pal_sanctified_wrath") { }
 
-        class spell_pal_sanctified_wrath_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_sanctified_wrath_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* l_Player = GetTarget()->ToPlayer())
-                {
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                        l_Player->ReduceSpellCooldown(PALADIN_SPELL_HAMMER_OF_WRATH, (l_Player->GetSpellCooldownDelay(PALADIN_SPELL_HAMMER_OF_WRATH) * 1000) * 0.50);
-                }
-            }
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* l_Player = GetTarget()->ToPlayer())
-                    l_Player->RemoveAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pal_sanctified_wrath_AuraScript();
-        }
-};
 
 // Called by Divine Storm - 53385
 // Glyph of Divine Storm - 63220
@@ -1748,7 +1711,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_glyph_of_devotian_aura();
     new spell_pal_glyph_of_devotian_trigger_aura();
     new spell_pal_exorcism_energize();
-    new spell_pal_sanctified_wrath();
     new spell_pal_glyph_of_divine_storm();
     new spell_pal_daybreak();
     new spell_pal_hand_of_purity();
