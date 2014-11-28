@@ -2823,6 +2823,42 @@ public:
     }
 };
 
+enum SpellsRake
+{
+    SPELL_DRU_RAKE_STUNT = 163505
+};
+
+// Rake - 1822
+class spell_dru_rake : public SpellScriptLoader
+{
+public:
+    spell_dru_rake() : SpellScriptLoader("spell_dru_rake") { }
+
+    class spell_dru_rake_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_rake_SpellScript);
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster->HasStealthAura())
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_rake_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_rake_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -2874,4 +2910,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_glyph_of_the_stag();
     new spell_dru_leader_of_the_pack();
     new spell_dru_leader_of_the_pack_critical();
+    new spell_dru_rake();
 }
