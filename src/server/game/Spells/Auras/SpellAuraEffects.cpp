@@ -765,14 +765,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     }
                     break;
                 case SPELLFAMILY_MAGE:
-                    // Ice Barrier
-                    if (GetSpellInfo()->Id == 11426)
-                    {
-                        // +330% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 3.3f;
-                    }
                     // Mage Ward
-                    else if (GetSpellInfo()->SpellFamilyFlags[0] & 0x8 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
+                    if (GetSpellInfo()->SpellFamilyFlags[0] & 0x8 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
                     {
                         // +80.68% from sp bonus
                         DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
@@ -8689,31 +8683,30 @@ void AuraEffect::HandleAuraModifyManaRegenFromManaPct(AuraApplication const* aur
     player->UpdateManaRegen();
 }
 
-void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = aurApp->GetTarget();
-    if (!target)
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (!l_Target)
         return;
 
-    Player* player = target->ToPlayer();
-    if (!player)
+    Player* l_Player = l_Target->ToPlayer();
+    if (!l_Player)
         return;
 
-    if (player->GetPowerIndexByClass(POWER_MANA, player->getClass()) == MAX_POWERS)
+    if (l_Player->GetPowerIndexByClass(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
         return;
 
-    float mod = 1.f;
-    uint32 hp;
-    uint32 mana = 0;
+    float l_Mod   = 1.f;
+    uint32 l_HP;
+    uint32 l_Mana = 0;
 
-    AddPct(mod, player->GetTotalAuraModifier((AuraType)m_spellInfo->Effects[GetEffIndex()].ApplyAuraName));
-    sObjectMgr->GetPlayerClassLevelInfo(player->getClass(), player->getLevel(), hp, mana);
+    AddPct(l_Mod, l_Player->GetTotalAuraModifier((AuraType)m_spellInfo->Effects[GetEffIndex()].ApplyAuraName));
+    sObjectMgr->GetPlayerClassLevelInfo(l_Player->getClass(), l_Player->getLevel(), l_HP, l_Mana);
 
-    player->SetCreateMana(mod * mana);
-    player->SetMaxPower(POWER_MANA, mod* mana);
+    l_Player->SetMaxPower(POWER_MANA, l_Mod* l_Mana);
 }
 
 void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const

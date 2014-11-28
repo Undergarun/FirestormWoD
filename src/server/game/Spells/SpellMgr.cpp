@@ -5107,12 +5107,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 114695:// Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 6262:  // Healthstone
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_OBS_MOD_HEALTH;
-                spellInfo->Effects[1].BasePoints = 4;
-                break;
             case 56224: // Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
