@@ -777,6 +777,8 @@ class Guild
         void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
         void BroadcastPacket(WorldPacket* packet) const;
 
+        void MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank);
+
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = NULL)
         {

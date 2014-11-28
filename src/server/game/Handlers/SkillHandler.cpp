@@ -132,31 +132,29 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
     GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
 
-void WorldSession::HandleArcheologyRequestHistory(WorldPacket& recvPacket)
+void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_RESEARCH_HISTORY");
+    WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY);
 
-    WorldPacket data(SMSG_RESEARCH_SETUP_HISTORY);
+    CompletedProjectMap& l_Projects = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects();
+    uint32 l_Count = l_Projects.size();
 
-    CompletedProjectMap& projects = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects();
-    uint32 count = projects.size();
+    l_Data << uint32(l_Count);
 
-    data.WriteBits(count, 20);
-
-    if (count > 0)
+    if (l_Count > 0)
     {
-        for (CompletedProjectMap::iterator itr = projects.begin(); itr != projects.end(); itr++)
+        for (CompletedProjectMap::iterator l_Iter = l_Projects.begin(); l_Iter != l_Projects.end(); ++l_Iter)
         {
-            if (ResearchProjectEntry const* project = sResearchProjectStore.LookupEntry((*itr).first))
+            if (ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry((*l_Iter).first))
             {
-                data << uint32((*itr).first);
-                data << uint32((*itr).second.count);
-                data << uint32((*itr).second.first_date);
+                l_Data << uint32((*l_Iter).first);
+                l_Data << uint32((*l_Iter).second.count);
+                l_Data << uint32((*l_Iter).second.first_date);
             }
             else
-                data << uint32(0) << uint32(0) << uint32(0);
+                l_Data << uint32(0) << uint32(0) << uint32(0);
         }
     }
 
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }

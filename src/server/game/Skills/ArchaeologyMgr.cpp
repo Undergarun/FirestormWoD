@@ -142,8 +142,8 @@ uint32 ArchaeologyMgr::GetSurveyBotEntry(float &orientation)
     for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
     {
         //Replace by GetUInt16Value
-        uint32 site_now_1 = _player->GetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, i) & 0xFFFFF;
-        uint32 site_now_2 = _player->GetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, i) >> 20;
+        uint32 site_now_1 = _player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, i) & 0xFFFFF;
+        uint32 site_now_2 = _player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, i) >> 20;
 
         if (zoneid == site_now_1)
         {
@@ -268,17 +268,17 @@ void ArchaeologyMgr::ShowResearchSites()
         if (CanResearchWithLevel(id) == RS_RESULT_HIDE)
             id = 0;
 
-        _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES, count, id);
+        _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, count, id);
 
         for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
         {
             if (_digSites[i].site_id == id)
             {
-                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, _digSites[i].count);
+                _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, count, _digSites[i].count);
                 break;
             }
             else
-                _player->SetDynamicUInt32Value(PLAYER_DYNAMIC_ARCHEOLOGY_SITES + 1, count, 0);
+                _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, count, 0);
         }
 
         ++count;
@@ -433,7 +433,6 @@ void ArchaeologyMgr::GenerateResearchSitesForMap(uint32 p_MapId, uint32 p_SitesC
     _archaeologyChanged = true;
     ShowResearchSites();
 }
-
 
 void ArchaeologyMgr::GenerateResearchProjects()
 {
@@ -681,6 +680,8 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
         }
     }
 
+    ShowResearchSites();
+
     /// Loading current projects
     _researchProjects.clear();
     if (l_Fields[1].GetCString())
@@ -692,6 +693,7 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
     }
 
     ValidateProjects();
+    ShowResearchProjects();
 
     if (!p_ResultProjects)
         return;
@@ -793,36 +795,30 @@ uint16 ArchaeologyMgr::GetRandomActiveSiteInMap(uint32 mapId)
     return sitesId.front();
 }
 
-void ArchaeologyMgr::SendSearchComplete(bool finished, uint8 count, uint16 siteId)
+void ArchaeologyMgr::SendSearchComplete(bool p_Finished, uint8 p_Count, uint16 p_SiteID)
 {
-    uint32 race = 0;
-    ResearchLootVector const& loot = sObjectMgr->GetResearchLoot();
-    if (!loot.empty())
+    uint32 l_Race = 0;
+    ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
+    if (!l_Loot.empty())
     {
-        for (ResearchLootVector::const_iterator itr = loot.begin(); itr != loot.end(); ++itr)
+        for (ResearchLootVector::const_iterator l_Iter = l_Loot.begin(); l_Iter != l_Loot.end(); ++l_Iter)
         {
-            ResearchLootEntry entry = (*itr);
-            if (entry.id != siteId)
+            ResearchLootEntry l_Entry = (*l_Iter);
+            if (l_Entry.id != p_SiteID)
                 continue;
 
-            race = uint32(entry.race);
+            l_Race = uint32(l_Entry.race);
             break;
         }
     }
 
-    WorldPacket data(SMSG_RESEARCH_COMPLETE, 13);
+    WorldPacket l_Data(SMSG_RESEARCH_COMPLETE, 13);
 
-    data << uint32(count);
-    data << uint32(6);
-    data << race;
+    l_Data << uint32(p_Count);
+    l_Data << uint32(6);
+    l_Data << l_Race;
 
-    data.WriteBit(finished);
-    data.FlushBits();
-
-    _player->GetSession()->SendPacket(&data);
-
-    if (count == 6)
-        SendSearchSiteComplete(siteId);
+    _player->GetSession()->SendPacket(&l_Data);
 }
 
 void ArchaeologyMgr::SendSearchSiteComplete(uint16 siteId)

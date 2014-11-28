@@ -8663,8 +8663,8 @@ void AuraEffect::HandleChangeSpellVisualEffect(AuraApplication const* aurApp, ui
     uint32 spellToReplace = apply ? GetMiscValue() : 0;
     uint32 replacer = apply ? m_spellInfo->Id : 0;
 
-    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_SPELLVISUAL_CHANGE, 0, spellToReplace);
-    player->SetDynamicUInt32Value(PLAYER_DYNAMIC_SPELLVISUAL_CHANGE, 1, replacer);
+    player->SetDynamicValue(UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS, 0, spellToReplace);
+    player->SetDynamicValue(UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS, 1, replacer);
 }
 
 void AuraEffect::HandleAuraModifyManaRegenFromManaPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
