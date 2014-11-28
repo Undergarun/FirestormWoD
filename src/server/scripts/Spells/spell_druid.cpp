@@ -2869,6 +2869,49 @@ public:
     }
 };
 
+enum SpellsShred
+{
+    SPELL_DRUID_PROWL = 5215,
+    SPELL_DRUID_SWIPE = 106785
+};
+
+// Shred - 5221
+class spell_dru_shred : public SpellScriptLoader
+{
+public:
+    spell_dru_shred() : SpellScriptLoader("spell_dru_shred") { }
+
+    class spell_dru_shred_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_shred_SpellScript);
+
+        void HandleOnHit()
+        {
+            int32 l_Damage = GetHitDamage();
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster->HasStealthAura())
+                l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL)->Effects[EFFECT_3].BasePoints);
+
+            if (Unit* l_Target = GetHitUnit())
+                if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
+                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_SWIPE)->Effects[EFFECT_1].BasePoints);
+
+            SetHitDamage(l_Damage);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_shred_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_shred_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -2921,4 +2964,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_leader_of_the_pack();
     new spell_dru_leader_of_the_pack_critical();
     new spell_dru_rake();
+    new spell_dru_shred();
 }
