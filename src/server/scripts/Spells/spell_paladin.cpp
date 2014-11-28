@@ -113,7 +113,9 @@ enum PaladinSpells
     PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL   = 156322,
     PALADIN_SPELL_ETERNAL_FLAME                 = 114163,
     PALADIN_SPELL_HAMMER_OF_WRATH               = 24275,
-    PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION   = 171648
+    PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION   = 171648,
+    PALADIN_SPELL_EMPOWERED_DIVINE_STORM        = 174718,
+    PALADIN_SPELL_DIVINE_CRUSADER               = 144595
 };
 
 // Glyph of devotion aura - 146955
@@ -1705,7 +1707,7 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
+                if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
                     l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
         }
 
@@ -1718,6 +1720,20 @@ public:
     SpellScript* GetSpellScript() const
     {
         return new spell_pal_holy_wrath_SpellScript();
+    }
+};
+
+// Empowered Divine Storm - 174718
+class PlayerScript_empowered_divine_storm : public PlayerScript
+{
+public:
+    PlayerScript_empowered_divine_storm() :PlayerScript("PlayerScript_empowered_divine_storm") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_PALADIN && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
+            if (p_Value < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
+                p_Player->CastSpell(p_Player, PALADIN_SPELL_DIVINE_CRUSADER, true);
     }
 };
 
@@ -1763,4 +1779,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_holy_shock();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
+
+    // Player Script
+    new PlayerScript_empowered_divine_storm();
 }
