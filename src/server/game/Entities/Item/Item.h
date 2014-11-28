@@ -346,6 +346,7 @@ class Item : public Object
         bool HasStats() const;
         bool HasSpells() const;
         bool IsPotion() const;
+        bool IsHealthstone() const { return GetEntry() == 5512; }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
