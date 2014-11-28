@@ -755,6 +755,9 @@ class PlayerScript : public ScriptObject
         virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
 
         virtual void OnQuestReward(Player* /*player*/, const Quest* /*quest*/) { }
+
+        // Called when a player shapeshift
+        virtual void OnChangeShapeshift(Player* /*player*/, ShapeshiftForm /*p_Form*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -1038,6 +1041,7 @@ class ScriptMgr
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZoneID, uint32 newArea);
         void OnPlayerUpdateMovement(Player* p_Player);
         void OnQuestReward(Player* player, const Quest* quest);
+        void OnPlayerChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form);
 
     public: /* GuildScript */
 

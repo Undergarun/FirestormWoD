@@ -2531,8 +2531,8 @@ public:
         SpellCastResult CheckCast()
         {
             if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
-                if (Player* l_Caster = GetCaster()->ToPlayer())
-                    if (!l_Caster->GetMap()->IsOutdoors(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ()))
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (!l_Player->GetMap()->IsOutdoors(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ()))
                         return SPELL_FAILED_ONLY_OUTDOORS;
 
             return SPELL_CAST_OK;
@@ -2551,15 +2551,16 @@ public:
         void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             //Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
-            if (Unit* l_Target = GetTarget())
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    sScriptMgr->OnPlayerUpdateMovement(l_Target->ToPlayer());
+            if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                sScriptMgr->OnPlayerUpdateMovement(GetTarget()->ToPlayer());
         }
 
         void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Unit* target = GetTarget())
-                target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+            Unit* l_Target = GetTarget();
+
+            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+                l_Target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
         }
 
         void Register()
@@ -2636,13 +2637,13 @@ class spell_dru_travel_form_playerscript : public PlayerScript
                 p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_AQUATIC_FORM, true);
             }
-            else if (!p_Player->IsInWater() && p_Player->getLevel() >= 71 && CheckIfCanFlyInLoc(p_Player) &&
+            else if (!p_Player->IsInWater() && p_Player->getLevel() >= 71 && CheckIfCanFlyInLoc(p_Player) && !p_Player->isInCombat() &&
                      p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
             {
                 p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_SWIFT_FLIGHT_FORM, true);
             }
-            else if (!p_Player->IsInWater() && p_Player->getLevel() >= 60 && CheckIfCanFlyInLoc(p_Player) &&
+            else if (!p_Player->IsInWater() && p_Player->getLevel() >= 60 && CheckIfCanFlyInLoc(p_Player) && !p_Player->isInCombat() &&
                      p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && p_Player->GetShapeshiftForm() != FORM_FLIGHT &&
                      !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
             {
@@ -2654,6 +2655,15 @@ class spell_dru_travel_form_playerscript : public PlayerScript
                 p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_STAG_FORM, true);
             }
+        }
+
+        void OnChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
+        {
+            if (!p_Player || p_Player->getClass() != CLASS_DRUID)
+                return;
+
+            if (p_Player->HasAura(SPELL_DRUID_TRAVEL_FORM) && !p_Player->IsTravelForm(p_Form))
+                p_Player->RemoveAura(SPELL_DRUID_TRAVEL_FORM);
         }
 };
 

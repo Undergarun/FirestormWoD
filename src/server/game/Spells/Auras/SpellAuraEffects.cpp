@@ -2600,6 +2600,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     Powers PowerType = POWER_MANA;
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
 
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnPlayerChangeShapeshift(target->ToPlayer(), form);
+
     switch (form)
     {
         case FORM_FIERCE_TIGER:
