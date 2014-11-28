@@ -192,7 +192,48 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
         }
 };
 
-// Exorcism - 879 or Hammer of Wrath - 24275
+// Hammer of Wrath - 24275 - 158392
+class spell_pal_hammer_of_wrath : public SpellScriptLoader
+{
+public:
+    spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
+
+    class spell_pal_hammer_of_wrath_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_hammer_of_wrath_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                {
+                    l_Player->SetPower(POWER_HOLY_POWER, l_Player->GetPower(POWER_HOLY_POWER) + 1);
+
+                    uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                    uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, sSpellMgr->GetSpellInfo(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT)->Effects[EFFECT_0].BasePoints);
+
+                    l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+
+                    if (!l_Player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
+                        l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                    else
+                        l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_pal_hammer_of_wrath_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_hammer_of_wrath_SpellScript();
+    }
+};
+
+// Exorcism - 879
 class spell_pal_exorcism_energize : public SpellScriptLoader
 {
     public:
@@ -206,12 +247,8 @@ class spell_pal_exorcism_energize : public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                    {
                         if (GetSpellInfo()->Id == PALADIN_SPELL_EXORCISM)
                             _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
-                        else
-                            _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) + 1);
-                    }
             }
 
             void Register()
@@ -225,8 +262,6 @@ class spell_pal_exorcism_energize : public SpellScriptLoader
             return new spell_pal_exorcism_energize_SpellScript();
         }
 };
-
-
 
 // Called by Divine Storm - 53385
 // Glyph of Divine Storm - 63220
@@ -1442,49 +1477,47 @@ class spell_pal_holy_shock : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->IsFriendlyTo(unitTarget))
-                        {
-                            caster->CastSpell(unitTarget, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
-                            if (!caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 6 * IN_MILLISECONDS);
-                            else
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 3 * IN_MILLISECONDS);
-                        }
+                        if (l_Caster->IsFriendlyTo(l_Target))
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
                         else
-                        {
-                            caster->CastSpell(unitTarget, PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, true);
-                            if (!caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 6 * IN_MILLISECONDS);
-                            else
-                                caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 3 * IN_MILLISECONDS);
-                        }
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, true);
+                       
+                        uint32 l_OldCooldown = l_Caster->GetSpellCooldownDelay(PALADIN_SPELL_HOLY_SHOCK_R1);
+                        uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, sSpellMgr->GetSpellInfo(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT)->Effects[EFFECT_0].BasePoints);
 
-                        if (caster->HasAura(PALADIN_ENHANCED_HOLY_SHOCK_PROC))
-                            caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
-                        if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
+                        l_Caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
+
+                        if (!l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
+                            l_Caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, l_OldCooldown, true);
+                        else
+                            l_Caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, l_NewCooldown, true);
+
+                        if (l_Caster->HasAura(PALADIN_ENHANCED_HOLY_SHOCK_PROC))
+                            l_Caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
+                        if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
                             if (roll_chance_i(50))
-                                caster->CastSpell(caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
+                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
 
-                        caster->CastSpell(caster, PALADIN_SPELL_HOLY_SHOCK_ENERGIZE, true);
+                        l_Caster->CastSpell(l_Caster, PALADIN_SPELL_HOLY_SHOCK_ENERGIZE, true);
                     }
                 }
             }
 
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
+                Unit* l_Caster = GetCaster();
+                if (Unit* l_Target = GetExplTargetUnit())
                 {
-                    if (!caster->IsFriendlyTo(target))
+                    if (!l_Caster->IsFriendlyTo(l_Target))
                     {
-                        if (!caster->IsValidAttackTarget(target))
+                        if (!l_Caster->IsValidAttackTarget(l_Target))
                             return SPELL_FAILED_BAD_TARGETS;
 
-                        if (!caster->isInFront(target))
+                        if (!l_Caster->isInFront(l_Target))
                             return SPELL_FAILED_UNIT_NOT_INFRONT;
                     }
                 }
@@ -1705,6 +1738,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_hammer_of_wrath();
     new spell_pal_holy_wrath();
     new spell_pal_eternal_flame_periodic_heal();
     new spell_pal_eternal_flame();
