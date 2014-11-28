@@ -573,8 +573,8 @@ bool Guild::Member::LoadFromDB(Field* fields)
 {
     m_publicNote    = fields[3].GetString();
     m_officerNote   = fields[4].GetString();
-    m_bankRemaining[GUILD_BANK_MAX_TABS].resetTime  = fields[5].GetUInt32();
-    m_bankRemaining[GUILD_BANK_MAX_TABS].value      = fields[6].GetUInt32();
+    m_WithdrawMoneyReset = fields[5].GetUInt32();
+    m_WithdrawMoneyValue = fields[6].GetUInt32();
     for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
     {
         m_bankRemaining[i].resetTime                = fields[7 + i * 2].GetUInt32();
@@ -615,32 +615,36 @@ bool Guild::Member::CheckStats() const
     return true;
 }
 
-// Decreases amount of money/slots left for today.
-// If (tabId == GUILD_BANK_MAX_TABS) decrease money amount.
-// Otherwise decrease remaining items amount for specified tab.
+// Decrease remaining items amount for specified tab.
 void Guild::Member::DecreaseBankRemainingValue(SQLTransaction& trans, uint8 tabId, uint32 amount)
 {
     m_bankRemaining[tabId].value -= amount;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(
-        tabId == GUILD_BANK_MAX_TABS ?
-        CHAR_UPD_GUILD_MEMBER_BANK_REM_MONEY :
-        CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS0 + tabId);
-    stmt->setUInt32(0, m_bankRemaining[tabId].value);
-    stmt->setUInt32(1, m_guildId);
-    stmt->setUInt32(2, GUID_LOPART(m_guid));
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS0 + tabId);
+    l_Statement->setUInt32(0, m_bankRemaining[tabId].value);
+    l_Statement->setUInt32(1, m_guildId);
+    l_Statement->setUInt32(2, GUID_LOPART(m_guid));
+    CharacterDatabase.ExecuteOrAppend(trans, l_Statement);
 }
 
-// Get amount of money/slots left for today.
-// If (tabId == GUILD_BANK_MAX_TABS) return money amount.
-// Otherwise return remaining items amount for specified tab.
+void Guild::Member::DecreaseRemainingMoneyValue(SQLTransaction& p_Transaction, uint64 p_Amount)
+{
+    m_WithdrawMoneyValue -= p_Amount;
+
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_BANK_REM_MONEY);
+    l_Statement->setUInt32(0, m_WithdrawMoneyValue);
+    l_Statement->setUInt32(1, m_guildId);
+    l_Statement->setUInt32(2, GUID_LOPART(m_guid));
+    CharacterDatabase.ExecuteOrAppend(p_Transaction, l_Statement);
+}
+
+// Return remaining items amount for specified tab.
 // If reset time was more than 24 hours ago, renew reset time and reset amount to maximum value.
 uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* guild) const
 {
     // Guild master has unlimited amount.
     if (IsRank(GR_GUILDMASTER))
-        return tabId == GUILD_BANK_MAX_TABS ? GUILD_WITHDRAW_MONEY_UNLIMITED : GUILD_WITHDRAW_SLOT_UNLIMITED;
+        return GUILD_WITHDRAW_SLOT_UNLIMITED;
 
     // Check rights for non-money tab.
     if (tabId != GUILD_BANK_MAX_TABS)
@@ -652,14 +656,9 @@ uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* guild) con
     {
         RemainingValue& rv = const_cast <RemainingValue&> (m_bankRemaining[tabId]);
         rv.resetTime = curTime;
-        rv.value = tabId == GUILD_BANK_MAX_TABS ?
-            guild->_GetRankBankMoneyPerDay(m_rankId) :
-            guild->_GetRankBankTabSlotsPerDay(m_rankId, tabId);
+        rv.value = guild->_GetRankBankTabSlotsPerDay(m_rankId, tabId);
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(
-            tabId == GUILD_BANK_MAX_TABS ?
-            CHAR_UPD_GUILD_MEMBER_BANK_TIME_MONEY :
-            CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS0 + tabId);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS0 + tabId);
         stmt->setUInt32(0, m_bankRemaining[tabId].resetTime);
         stmt->setUInt32(1, m_bankRemaining[tabId].value);
         stmt->setUInt32(2, m_guildId);
@@ -677,7 +676,7 @@ inline void Guild::Member::ResetTabTimes()
 
 inline void Guild::Member::ResetMoneyTime()
 {
-    m_bankRemaining[GUILD_BANK_MAX_TABS].resetTime = 0;
+    m_WithdrawMoneyReset = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1970,7 +1969,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     if (!_HasRankRight(player, repair ? GR_RIGHT_WITHDRAW_REPAIR : GR_RIGHT_WITHDRAW_GOLD))
         return false;
 
-    uint32 remainingMoney = _GetMemberRemainingMoney(player->GetGUID());
+    uint64 remainingMoney = _GetMemberRemainingMoney(player->GetGUID());
     if (!remainingMoney)
         return false;
 
@@ -1982,9 +1981,12 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     // Update remaining money amount
-    if (remainingMoney < uint32(GUILD_WITHDRAW_MONEY_UNLIMITED))
+    if (remainingMoney < uint64(GUILD_WITHDRAW_MONEY_UNLIMITED))
+    {
         if (Member* member = GetMember(player->GetGUID()))
-            member->DecreaseBankRemainingValue(trans, GUILD_BANK_MAX_TABS, amount);
+            member->DecreaseRemainingMoneyValue(trans, amount);
+    }
+
     // Remove money from bank
     _ModifyBankMoney(trans, amount, false);
     // Add money to player (if required)
@@ -2087,13 +2089,16 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
         l_Log->WritePacket(l_Data);
 
         p_Session->SendPacket(&l_Data);
-
-        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LOG_QUERY_RESULT) for tab %u", p_TabID);
     }
 }
 
 void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo) const
 {
+    // Don't send packet for non purchased tab
+    BankTab const* l_CurrTab = GetBankTab(p_TabID);
+    if (!l_CurrTab && p_TabID > 0)
+        return;
+
     WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_RESULTS);
 
     uint32 l_ItemCount = 0;
@@ -2181,8 +2186,6 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
     l_Data.FlushBits();
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
 }
 
 void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
@@ -2219,10 +2222,7 @@ void Guild::SendMoneyInfo(WorldSession * p_Session) const
 {
     WorldPacket l_Data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 4);
     l_Data << uint64(_GetMemberRemainingMoney(p_Session->GetPlayer()->GetGUID()));
-
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_BANK_MONEY_WITHDRAWN");
 }
 
 void Guild::SendLoginInfo(WorldSession * p_Session)
@@ -2245,8 +2245,6 @@ void Guild::SendLoginInfo(WorldSession * p_Session)
     l_Data.WriteString(m_motd);
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_EVENT_MOTD");
 
     HandleGuildRanks(p_Session);
 
@@ -3147,13 +3145,13 @@ inline uint32 Guild::_GetMemberRemainingSlots(uint64 guid, uint8 tabId) const
 {
     if (const Member* member = GetMember(guid))
         return member->GetBankRemainingValue(tabId, this);
-    return 0;
+    return -1;
 }
 
-inline uint32 Guild::_GetMemberRemainingMoney(uint64 guid) const
+inline uint64 Guild::_GetMemberRemainingMoney(uint64 guid) const
 {
     if (const Member* member = GetMember(guid))
-        return member->GetBankRemainingValue(GUILD_BANK_MAX_TABS, this);
+        return member->GetRemainingWithdrawMoney();
     return 0;
 }
 
@@ -3161,10 +3159,14 @@ inline void Guild::_DecreaseMemberRemainingSlots(SQLTransaction& trans, uint64 g
 {
     // Remaining slots must be more then 0
     if (uint32 remainingSlots = _GetMemberRemainingSlots(guid, tabId))
+    {
         // Ignore guild master
         if (remainingSlots < uint32(GUILD_WITHDRAW_SLOT_UNLIMITED))
+        {
             if (Member* member = GetMember(guid))
                 member->DecreaseBankRemainingValue(trans, tabId, 1);
+        }
+    }
 }
 
 inline bool Guild::_MemberHasTabRights(uint64 guid, uint8 tabId, uint32 rights) const
