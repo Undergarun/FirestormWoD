@@ -1335,8 +1335,8 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     bool l_TriggerScriptEvent = recvData.ReadBit();                 // 0 or 1 expected
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(m_Player->GetLevelPlayedTime());
     data << uint32(m_Player->GetTotalPlayedTime());
+    data << uint32(m_Player->GetLevelPlayedTime());
     data.WriteBit(l_TriggerScriptEvent);                            // 0 - will not show in chat frame
     data.FlushBits();
     SendPacket(&data);
