@@ -965,8 +965,7 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
                 if (p_DmgInfo.GetAttacker() == l_Target
-                    || !p_DmgInfo.GetSpellInfo()
-                    || p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id)
+                    || (p_DmgInfo.GetSpellInfo() &&  p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id))
                     return;
 
                 if (AuraEffectPtr l_ReflectiveShield = l_Target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
