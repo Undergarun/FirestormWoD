@@ -4102,8 +4102,6 @@ void Player::GiveLevel(uint8 level)
     //update level, max level of skills
     m_Played_time[PLAYED_TIME_LEVEL] = 0;                   // Level Played Time reset
 
-    _ApplyAllLevelScaleItemMods(false);
-
     SetLevel(level);
 
     // save base values (bonuses already included in stored stats
@@ -4119,7 +4117,7 @@ void Player::GiveLevel(uint8 level)
     InitGlyphsForLevel();
 
     UpdateAllStats();
-    _ApplyAllLevelScaleItemMods(true);                      // Moved to above SetFullHealth so player will have full health from Heirlooms
+    RescaleAllItemsIfNeeded(true);
 
     // Refresh amount of all auras (aura which use scaling for basepoint calcul need to be refresh at level up ...)
     AuraApplicationMap const& l_AppliedAuras =  GetAppliedAuras();
@@ -10560,24 +10558,6 @@ void Player::_ApplyAllItemMods()
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "_ApplyAllItemMods complete.");
 }
 
-void Player::_ApplyAllLevelScaleItemMods(bool apply)
-{
-    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
-    {
-        if (m_items[i])
-        {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
-                continue;
-
-            ItemTemplate const* proto = m_items[i]->GetTemplate();
-            if (!proto)
-                continue;
-
-            RescaleItemTo(i, GetEquipItemLevelFor(proto));
-        }
-    }
-}
-
 /*  If in a battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
@@ -15449,7 +15429,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     else if (IsBankPos(src))
         msg = CanBankItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsReagentBankPos(src))
-        msg = CanReagentBankItem(dstbag, dstslot, sDest, pSrcItem, true);
+        msg = CanReagentBankItem(srcbag, srcslot, sDest2, pDstItem, true);
     else if (IsEquipmentPos(src))
     {
         msg = CanEquipItem(srcslot, eDest2, pDstItem, true);
@@ -17206,8 +17186,12 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
 
     if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
     {
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+
+        memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
+        memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
+
         if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
         {
             uint32 index = 0;
@@ -17614,6 +17598,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         CastSpell(this, quest->GetRewSpellCast(), true);
     else if (quest->GetRewSpell() > 0)
         CastSpell(this, quest->GetRewSpell(), true);
+
+    sScriptMgr->OnQuestReward(this, quest);
 
     if (quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
@@ -25527,6 +25513,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
+    RescaleAllItemsIfNeeded(true);
 
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
@@ -30538,6 +30525,38 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     m_itemScale[slot] = ilvl;
 }
 
+
+void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
+{
+    float l_HealthPct = GetHealthPct();
+    bool l_HasAnythingChanged = false;
+
+    for (uint8 l_I = 0; l_I < EQUIPMENT_SLOT_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            if (l_Item->IsBroken() || !CanUseAttackType(GetAttackBySlot(l_I)))
+                continue;
+
+            uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate());
+            if (m_itemScale[l_I] != ilvl)
+            {
+                RescaleItemTo(l_I, ilvl);
+                l_HasAnythingChanged = true;
+            }
+        }
+    }
+
+    if (l_HasAnythingChanged)
+    {
+        if (p_KeepHPPct)
+            SetHealth(l_HealthPct * (float)GetMaxHealth() / 100.f);
+
+        UpdateItemLevel();
+    }
+}
+
+
 void Player::SetInPvPCombat(bool set)
 {
     if (m_pvpCombat == set)
@@ -30551,13 +30570,7 @@ void Player::SetInPvPCombat(bool set)
 
 void Player::OnEnterPvPCombat()
 {
-    float hpPct = GetHealthPct();
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        if (Item* item = m_items[i])
-            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
-                RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
-
-    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
+    RescaleAllItemsIfNeeded(true);
 }
 
 void Player::UpdatePvP(uint32 diff)
@@ -30577,13 +30590,7 @@ void Player::UpdatePvP(uint32 diff)
 
 void Player::OnLeavePvPCombat()
 {
-    float hpPct = GetHealthPct();
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        if (Item* item = m_items[i])
-            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
-                RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
-
-    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
+    RescaleAllItemsIfNeeded(true);
 }
 
 /// Get pet battle combat team size

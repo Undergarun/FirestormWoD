@@ -109,7 +109,11 @@ enum PaladinSpells
     PALADIN_SPELL_TURALYONS_JUSTICE             = 156987,
     PALADIN_SPELL_UTHERS_INSIGHT                = 156988,
     PALADIN_SPELL_LIADRINS_RIGHTEOUSNESS        = 156989,
-    PALADIN_SPELL_MARAADS_TRUTH                 = 156990
+    PALADIN_SPELL_MARAADS_TRUTH                 = 156990,
+    PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL   = 156322,
+    PALADIN_SPELL_ETERNAL_FLAME                 = 114163,
+    PALADIN_SPELL_HAMMER_OF_WRATH               = 24275,
+    PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION   = 171648
 };
 
 // Glyph of devotion aura - 146955
@@ -198,13 +202,13 @@ class spell_pal_exorcism_energize : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                {
-                    if (GetSpellInfo()->Id == PALADIN_SPELL_EXORCISM)
-                    _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
-                    else
-                    _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) + 1);
-                }
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                    {
+                        if (GetSpellInfo()->Id == PALADIN_SPELL_EXORCISM)
+                            _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                        else
+                            _player->SetPower(POWER_HOLY_POWER, _player->GetPower(POWER_HOLY_POWER) + 1);
+                    }
             }
 
             void Register()
@@ -232,22 +236,23 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) && 
-                       (_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION))
-                        _player->CastSpell(_player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                        l_Player->ReduceSpellCooldown(PALADIN_SPELL_HAMMER_OF_WRATH, (l_Player->GetSpellCooldownDelay(PALADIN_SPELL_HAMMER_OF_WRATH) * 1000) * 0.50);
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->RemoveAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                    l_Player->RemoveAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1613,8 +1618,114 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         }
 };
 
+// Eternal Flame - 114163
+class spell_pal_eternal_flame : public SpellScriptLoader
+{
+public:
+    spell_pal_eternal_flame() : SpellScriptLoader("spell_pal_eternal_flame") { }
+
+    class spell_pal_eternal_flame_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_eternal_flame_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                if (l_Player->GetPower(POWER_HOLY_POWER) < 1)
+                    return SPELL_FAILED_NO_POWER;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
+                    if (l_Caster == l_Target)
+                        SetHitHeal(int32(GetHitHeal() - CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[1].BasePoints)));
+                }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_pal_eternal_flame_SpellScript::CheckCast);
+            OnHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_eternal_flame_SpellScript();
+    }
+};
+
+
+// Eternal Flame Aura periodic heal- 156322
+class spell_pal_eternal_flame_periodic_heal : public SpellScriptLoader
+{
+public:
+    spell_pal_eternal_flame_periodic_heal() : SpellScriptLoader("spell_pal_eternal_flame_periodic_heal") { }
+
+    class spell_pal_eternal_flame_periodic_heal_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_eternal_flame_periodic_heal_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetAura()->GetOwner()->ToUnit())
+                    if (l_Caster == l_Target)
+                        amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier, sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME)->Effects[1].BasePoints);
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_eternal_flame_periodic_heal_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_eternal_flame_periodic_heal_AuraScript();
+    }
+};
+
+// Holy Wrath - 119072
+class spell_pal_holy_wrath : public SpellScriptLoader
+{
+public:
+    spell_pal_holy_wrath() : SpellScriptLoader("spell_pal_holy_wrath") { }
+
+    class spell_pal_holy_wrath_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_holy_wrath_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
+                    l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pal_holy_wrath_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_holy_wrath_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_holy_wrath();
+    new spell_pal_eternal_flame_periodic_heal();
+    new spell_pal_eternal_flame();
     new spell_pal_glyph_of_devotian_aura();
     new spell_pal_glyph_of_devotian_trigger_aura();
     new spell_pal_exorcism_energize();

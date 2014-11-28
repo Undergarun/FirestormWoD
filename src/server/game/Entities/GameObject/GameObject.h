@@ -961,8 +961,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void SendTransportToOutOfRangePlayers() const;
 
-        float GetVisibilityRange() const;
-
     protected:
         bool AIM_Initialize();
         void UpdateModel();                                 // updates model in case displayId were changed
