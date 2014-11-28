@@ -30,35 +30,45 @@
 #include "GuildMgr.h"
 #include <vector>
 
-void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
 {
-    uint8 srcbag, srcslot, dstbag, dstslot;
-    uint32 count;
+    uint8 l_ItemCount = p_RecvData.ReadBits(2);
 
-    recvData >> count >> srcslot >> dstslot >> srcbag >> dstbag;
+    for (uint32 l_I = 0; l_I < l_ItemCount; ++l_I)
+    {
+        p_RecvData.read_skip<uint8>();    ///< ContainerSlot
+        p_RecvData.read_skip<uint8>();    ///< Slot
+    }
 
-    uint16 src = ((srcbag << 8) | srcslot);
-    uint16 dst = ((dstbag << 8) | dstslot);
+    uint8 l_SrcBag, l_SrcSlot, l_DestBag, l_DestSlot;
+    uint32 l_Count;
 
-    if (src == dst)
+    p_RecvData >> l_SrcBag >> l_SrcSlot >> l_DestBag >> l_DestSlot >> l_Count;
+
+    uint16 l_Src = ((l_SrcBag << 8) | l_SrcSlot);
+    uint16 l_Dest = ((l_DestBag << 8) | l_DestSlot);
+
+    if (l_Src == l_Dest)
         return;
 
-    if (count == 0)
-        return;                                             //check count - if zero it's fake packet
+    // Check count - if zero it's fake packet
+    if (l_Count == 0)
+        return;
 
-    if (!m_Player->IsValidPos(srcbag, srcslot, true))
+    if (!m_Player->IsValidPos(l_SrcBag, l_SrcSlot, true))
     {
         m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (!m_Player->IsValidPos(dstbag, dstslot, false))       // can be autostore pos
+    // Can be auto store pos
+    if (!m_Player->IsValidPos(l_DestBag, l_DestSlot, false))
     {
         m_Player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
-    m_Player->SplitItem(src, dst, count);
+    m_Player->SplitItem(l_Src, l_Dest, l_Count);
 }
 
 void WorldSession::HandleSwapInvItemOpcode(WorldPacket& p_RecvData)
@@ -1177,6 +1187,69 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
         return;
 
     /// TODO
+}
+
+void WorldSession::HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData)
+{
+    uint64 l_BankerGUID = 0;
+    p_RecvData.readPackGUID(l_BankerGUID);
+
+    if (!m_Player->HasUnlockedReagentBank())
+        return;
+
+    Creature* l_Banker = m_Player->GetNPCIfCanInteractWith(l_BankerGUID, UNIT_NPC_FLAG_BANKER);
+    if (!l_Banker)
+        return;
+
+    for (uint32 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Bag* l_Bag = (Bag*)m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            for (uint32 l_J = 0; l_J < l_Bag->GetBagSize(); ++l_J)
+            {
+                if (Item* l_Item = m_Player->GetItemByPos(l_I, l_J))
+                {
+                    if (l_Item->GetTemplate()->Class != ITEM_CLASS_TRADE_GOODS)
+                        continue;
+
+                    uint8 l_Slot2 = m_Player->GetFreeReagentBankSlot();
+
+                    if (!m_Player->IsValidPos(INVENTORY_SLOT_BAG_0, l_J, true))
+                        continue;
+
+                    if (!m_Player->IsValidPos(INVENTORY_SLOT_BAG_0, l_Slot2, true))
+                        continue;
+
+                    uint16 l_Src = ((l_I << 8) | l_J);
+                    uint16 l_Dest = ((INVENTORY_SLOT_BAG_0 << 8) | l_Slot2);
+
+                    m_Player->SwapItem(l_Src, l_Dest);
+                }
+            }
+        }
+    }
+
+    for (uint8 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+    {
+        if (Item* l_Item = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (l_Item->GetTemplate()->Class != ITEM_CLASS_TRADE_GOODS)
+                continue;
+
+            uint8 l_Slot2 = m_Player->GetFreeReagentBankSlot();
+
+            if (!m_Player->IsValidPos(INVENTORY_SLOT_BAG_0, l_I, true))
+                continue;
+
+            if (!m_Player->IsValidPos(INVENTORY_SLOT_BAG_0, l_Slot2, true))
+                continue;
+
+            uint16 l_Src = ((INVENTORY_SLOT_BAG_0 << 8) | l_I);
+            uint16 l_Dest = ((INVENTORY_SLOT_BAG_0 << 8) | l_Slot2);
+
+            m_Player->SwapItem(l_Src, l_Dest);
+        }
+    }
 }
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& p_RecvData)

@@ -1572,6 +1572,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool HasUnlockedReagentBank();
         void UnlockReagentBank();
+        uint32 GetFreeReagentBankSlot() const;
 
         /**
         * @name ModifyCurrency

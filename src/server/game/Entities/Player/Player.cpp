@@ -13764,16 +13764,20 @@ bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
 {
     switch (p_BagProto->SubClass)
     {
-    case ITEM_SUBCLASS_HERB_CONTAINER:
-    case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
-    case ITEM_SUBCLASS_GEM_CONTAINER:
-    case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
-    case ITEM_SUBCLASS_MINING_CONTAINER:
-    case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
-    case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
-    case ITEM_SUBCLASS_TACKLE_CONTAINER:
-    case ITEM_SUBCLASS_COOKING_CONTAINER:
-        return true;
+        case ITEM_SUBCLASS_HERB_CONTAINER:
+        case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
+        case ITEM_SUBCLASS_GEM_CONTAINER:
+        case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
+        case ITEM_SUBCLASS_MINING_CONTAINER:
+        case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
+        case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
+        case ITEM_SUBCLASS_TACKLE_CONTAINER:
+        case ITEM_SUBCLASS_COOKING_CONTAINER:
+        case ITEM_SUBCLASS_ENCHANTING_CONTAINER_2:
+        case ITEM_SUBCLASS_MATERIALS_CONTAINER:
+        case ITEM_SUBCLASS_ITEM_ENCHANTMENT_CONTAINER:
+        case ITEM_SUBCLASS_WEAPON_ENCHANTMENT_CONTAINER:
+            return true;
     }
     return false;
 }
@@ -30440,9 +30444,21 @@ bool Player::HasUnlockedReagentBank()
 {
     return HasFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
 }
+
 void Player::UnlockReagentBank()
 {
     SetFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
+}
+
+uint32 Player::GetFreeReagentBankSlot() const
+{
+    for (uint8 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; ++l_I)
+    {
+        if (!GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            return l_I;
+    }
+
+    return REAGENT_BANK_SLOT_BAG_END;
 }
 
 Garrison * Player::GetGarrison()

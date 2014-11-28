@@ -945,6 +945,7 @@ enum Opcodes
     CMSG_SOCKET_GEMS                            = 0x1BE1,   ///< 6.0.3 19116
     CMSG_RESURRECT_RESPONSE                     = 0x073E,   ///< 6.0.3 19116
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0A07,   ///< 6.0.3 19116
+    CMSG_SPLIT_ITEM                             = 0x0795,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -956,6 +957,7 @@ enum Opcodes
     CMSG_BUY_REAGENT_BANK                       = 0x11E4,   ///< 6.0.3 19116
     CMSG_SORT_BANK_BAGS                         = 0x06E4,   ///< 6.0.3 19116
     CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0557,   ///< 6.0.3 19116
+    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x039B,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
@@ -1658,7 +1660,6 @@ enum Opcodes
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
     CMSG_SET_SKILL_CHEAT                              = 0x0000,
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x0000,
-    CMSG_SPLIT_ITEM                                   = 0x0000,
     CMSG_START_QUEST                                  = 0x0000,
     CMSG_STOP_DANCE                                   = 0x0000,
     CMSG_STORE_LOOT_IN_SLOT                           = 0x0000,
