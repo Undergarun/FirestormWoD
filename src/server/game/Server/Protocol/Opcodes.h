@@ -717,7 +717,7 @@ enum Opcodes
         /// Logging
         SMSG_SPELL_DISPELL_LOG                      = 0x0000,
         SMSG_SPELL_ENERGIZE_LOG                     = 0x0000,
-        SMSG_SPELL_EXECUTE_LOG                      = 0x0000,
+        SMSG_SPELL_EXECUTE_LOG                      = 0x1823,   ///< 6.0.3 19116
         SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x11FB,   ///< 6.0.3 19116
         SMSG_SPELL_HEAL_LOG                         = 0x0114,   ///< 6.0.3 19116
         SMSG_SPELL_INSTAKILL_LOG                    = 0x0000,

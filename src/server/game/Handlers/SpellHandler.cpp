@@ -1154,6 +1154,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     Spell* l_Spell = new Spell(l_Mover, l_SpellInfo, TRIGGERED_NONE, 0, false);
     l_Spell->m_cast_count = l_CastCount;
+    l_Spell->m_CastItemEntry = l_ItemID;
     l_Spell->m_glyphIndex = l_Misc;
     l_Spell->prepare(&l_Targets);
 }

@@ -563,6 +563,7 @@ public:
     Item* m_CastItem;
     uint64 m_castItemGUID;
     uint8 m_cast_count;
+    uint32 m_CastItemEntry;
     uint32 m_glyphIndex;
     uint32 m_preCastSpell;
     SpellCastTargets m_targets;
