@@ -1918,7 +1918,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
     }
 
     // Regenerate consumed spell charges
-    spellChargesTracker_.update(p_time);
+    m_SpellChargesTracker.update(p_time);
 
     // Zone Skip Update
     if (sObjectMgr->IsSkipZone(GetZoneId()) || isAFK())
@@ -24620,7 +24620,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             {
                 SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
                 if (category && category->ChargeRegenTime != 0)
-                    spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
+                    m_SpellChargesTracker.consume(spellInfo->Id, category->ChargeRegenTime);
             }
 
             return;
@@ -24664,7 +24664,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     {
         SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
         if (category && category->ChargeRegenTime != 0)
-            spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
+            m_SpellChargesTracker.consume(spellInfo->Id, category->ChargeRegenTime);
     }
 }
 
@@ -25513,6 +25513,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendMoveRoot(0);
 
     SendCooldownAtLogin();
+    SendSpellCharges();
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
@@ -29927,7 +29928,7 @@ bool Player::HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category)
     if (category.ChargeRegenTime == 0)
         return true;
 
-    uint32 const consumedCharges = spellChargesTracker_.consumedCount(spellId);
+    uint32 const consumedCharges = m_SpellChargesTracker.consumedCount(spellId);
     if (consumedCharges == 0)
         return true;
 
@@ -30540,7 +30541,6 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     m_itemScale[slot] = ilvl;
 }
 
-
 void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
 {
     float l_HealthPct = GetHealthPct();
@@ -30570,7 +30570,6 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
         UpdateItemLevel();
     }
 }
-
 
 void Player::SetInPvPCombat(bool set)
 {
@@ -30755,3 +30754,65 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
 
     return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+/// SpellCharges
+void Player::SendSpellCharges()
+{
+    SpellChargesMap l_SpellChargesMap = m_SpellChargesTracker.GetSpellChargesMap();
+
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES);
+
+    size_t l_EntriesPos = l_Data.wpos();
+    l_Data << uint32(0);
+
+    uint32 l_Count = 0;
+    for (auto l_SpellCharges : l_SpellChargesMap)
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharges.first);
+        if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
+            continue;
+
+        l_Data << uint32(l_SpellInfo->GetSpellCategories()->ChargesCategory);
+        l_Data << uint32(l_SpellCharges.second.m_CurrentRegenTime);
+        l_Data << uint8(l_SpellCharges.second.m_ConsumedCharges);
+
+        ++l_Count;
+    }
+
+    l_Data.put(l_EntriesPos, l_Count);
+
+    SendDirectMessage(&l_Data);
+}
+
+void Player::SendClearAllSpellCharges()
+{
+    WorldPacket l_Data(SMSG_CLEAR_ALL_SPELL_CHARGES);
+    l_Data.appendPackGUID(GetGUID());
+    SendDirectMessage(&l_Data);
+}
+
+void Player::SendSetSpellCharges(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo == nullptr || p_SpellInfo->GetSpellCategories() == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
+    l_Data << int32(p_SpellInfo->GetSpellCategories()->ChargesCategory);
+    l_Data << float(0.0f);  ///< Count
+    l_Data.WriteBit(false); ///< IsPet
+    l_Data.FlushBits();
+    SendDirectMessage(&l_Data);
+}
+
+void Player::SendClearSpellCharges(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo == nullptr || p_SpellInfo->GetSpellCategories() == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_SpellInfo->GetSpellCategories()->ChargesCategory);
+    SendDirectMessage(&l_Data);
+}
+//////////////////////////////////////////////////////////////////////////

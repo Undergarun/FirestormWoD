@@ -3187,6 +3187,17 @@ class Player : public Unit, public GridObject<Player>
         void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
 
         uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// SpellCharges
+        JadeCore::SpellChargesTracker m_SpellChargesTracker;
+
+        void SendSpellCharges();
+        void SendClearAllSpellCharges();
+        void SendSetSpellCharges(SpellInfo const* p_SpellInfo);
+        void SendClearSpellCharges(SpellInfo const* p_SpellInfo);
+        //////////////////////////////////////////////////////////////////////////
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3614,8 +3625,6 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
-
-        JadeCore::SpellChargesTracker spellChargesTracker_;
 
         uint8 m_bgRoles;
 

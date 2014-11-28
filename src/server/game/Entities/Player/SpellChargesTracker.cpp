@@ -7,12 +7,12 @@ namespace JadeCore
         auto const res = spellChargesMap_.insert(std::make_pair(spellId, ChargeData()));
         auto &chargeData = res.first->second;
 
-        ++chargeData.consumedCharges;
+        ++chargeData.m_ConsumedCharges;
 
         if (res.second)
         {
-            chargeData.currRegenTimer = regenTimer;
-            chargeData.baseRegenTimer = regenTimer;
+            chargeData.m_CurrentRegenTime = regenTimer;
+            chargeData.m_BaseRegenTime = regenTimer;
         }
     }
 
@@ -23,23 +23,23 @@ namespace JadeCore
             auto &chargeData = i->second;
 
             // First, wait till it's time to replenish consumed charge
-            if (chargeData.currRegenTimer > diff)
+            if (chargeData.m_CurrentRegenTime > diff)
             {
-                chargeData.currRegenTimer -= diff;
+                chargeData.m_CurrentRegenTime -= diff;
                 ++i;
                 continue;
             }
 
             // If we replenish last consumed charge, simply erase charge data
-            if (--chargeData.consumedCharges == 0)
+            if (--chargeData.m_ConsumedCharges == 0)
             {
                 i = spellChargesMap_.erase(i);
                 continue;
             }
 
             // Otherwise, we have to start countdown again
-            std::uint32_t const rem = diff - chargeData.currRegenTimer;
-            chargeData.currRegenTimer = chargeData.baseRegenTimer - rem;
+            std::uint32_t const rem = diff - chargeData.m_CurrentRegenTime;
+            chargeData.m_CurrentRegenTime = chargeData.m_BaseRegenTime - rem;
             ++i;
         }
     }

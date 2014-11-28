@@ -111,6 +111,7 @@ class debug_commandscript : public CommandScript
                 { "lfg",            SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,             "", NULL },
                 { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
                 { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
+                { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -120,6 +121,30 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugClearSpellCharges(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 id = atoi((char*)args);
+
+            if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(id))
+            {
+                handler->GetSession()->GetPlayer()->SendClearSpellCharges(l_SpellInfo);
+                return true;
+            }
+            else
+            {
+                handler->PSendSysMessage("Spell %u doesn't exist !", id);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
         }
 
         static bool HandleDebugToyCommand(ChatHandler* p_Handler, char const* p_Args)

@@ -4,17 +4,19 @@
 #include <cstdint>
 #include <unordered_map>
 
+struct ChargeData final
+{
+    std::uint32_t m_ConsumedCharges;
+    std::uint32_t m_CurrentRegenTime;
+    std::uint32_t m_BaseRegenTime;
+};
+
+typedef std::unordered_map<std::uint32_t, ChargeData> SpellChargesMap;
+
 namespace JadeCore
 {
     class SpellChargesTracker final
     {
-        struct ChargeData final
-        {
-            std::uint32_t consumedCharges;
-            std::uint32_t currRegenTimer;
-            std::uint32_t baseRegenTimer;
-        };
-
         public:
             void consume(std::uint32_t spellId, std::uint32_t regenTimer);
 
@@ -22,14 +24,16 @@ namespace JadeCore
 
             void update(std::uint32_t diff);
 
+            SpellChargesMap GetSpellChargesMap() const { return spellChargesMap_; }
+
         private:
-            std::unordered_map<std::uint32_t, ChargeData> spellChargesMap_;
+            SpellChargesMap spellChargesMap_;
     };
 
     inline std::uint32_t SpellChargesTracker::consumedCount(std::uint32_t spellId) const
     {
         auto const i = spellChargesMap_.find(spellId);
-        return (i != spellChargesMap_.end()) ? i->second.consumedCharges : 0;
+        return (i != spellChargesMap_.end()) ? i->second.m_ConsumedCharges : 0;
     }
 } // namespace JadeCore
 

@@ -688,17 +688,17 @@ enum Opcodes
         SMSG_UPDATE_WEEKLY_SPELL_USAGE              = 0x1829,   ///< 6.0.3 19116 (unused)
         SMSG_WEEKLY_SPELL_USAGE                     = 0x13DC,   ///< 6.0.3 19116 (unused)
         SMSG_SEND_KNOWN_SPELLS                      = 0x0A81,   ///< 6.0.3 19116
-        SMSG_SEND_SPELL_CHARGES                     = 0x1A82,   ///< 6.0.3 19116 (unused)
+        SMSG_SEND_SPELL_CHARGES                     = 0x1A82,   ///< 6.0.3 19116
         SMSG_SEND_SPELL_HISTORY                     = 0x1933,   ///< 6.0.3 19116 (unused)
         SMSG_SEND_UNLEARN_SPELLS                    = 0x0BCB,   ///< 6.0.3 19116 (unused)
-        SMSG_CLEAR_ALL_SPELL_CHARGES                = 0x088B,   ///< 6.0.3 19116 (unused)
+        SMSG_CLEAR_ALL_SPELL_CHARGES                = 0x088B,   ///< 6.0.3 19116
         SMSG_CLEAR_COOLDOWN                         = 0x0226,   ///< 6.0.3 19116
         SMSG_CLEAR_COOLDOWNS                        = 0x0BFA,   ///< 6.0.3 19116
         SMSG_CATEGORY_COOLDOWN                      = 0x082A,   ///< 6.0.3 19116
-        SMSG_CLEAR_SPELL_CHARGES                    = 0x1AA1,   ///< 6.0.3 19116 (unused)
+        SMSG_CLEAR_SPELL_CHARGES                    = 0x1AA1,   ///< 6.0.3 19116
         SMSG_SET_FLAT_SPELL_MODIFIER                = 0x1884,   ///< 6.0.3 19116
         SMSG_SET_PCT_SPELL_MODIFIER                 = 0x113C,   ///< 6.0.3 19116
-        SMSG_SET_SPELL_CHARGES                      = 0x0000,   ///< 6.0.3 19116 (unused)
+        SMSG_SET_SPELL_CHARGES                      = 0x18AB,   ///< 6.0.3 19116 (unused)
         SMSG_LEARNED_SPELL                          = 0x08AB,   ///< 6.0.3 19116
         SMSG_UNLEARNED_SPELLS                       = 0x0B3B,   ///< 6.0.3 19116
 
