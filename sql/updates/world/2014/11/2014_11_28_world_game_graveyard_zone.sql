@@ -85,7 +85,7 @@ VALUES
     (4912, 6662, 0),
     (4913, 6662, 0),
     (4914, 6662, 0),
-    (4915, 6662, 0),
+    (4915, 6662, 0);
 
 -- Gorgrond
 Delete from game_graveyard_zone where ghost_zone = 6721;
