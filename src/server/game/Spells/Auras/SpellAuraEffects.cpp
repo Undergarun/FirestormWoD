@@ -5454,8 +5454,13 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, float(GetAmount()), apply);
 
     // Unholy Presence
-    if (m_spellInfo->Id == 48265)
-        target->ToPlayer()->UpdateAllRunesRegen();
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (m_spellInfo->Id == 48265)
+            target->ToPlayer()->UpdateAllRunesRegen();
+        else if (m_spellInfo->Id == 156989)
+            target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
+    }
 }
 
 void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
