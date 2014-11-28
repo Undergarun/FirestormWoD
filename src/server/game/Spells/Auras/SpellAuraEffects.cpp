@@ -765,14 +765,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     }
                     break;
                 case SPELLFAMILY_MAGE:
-                    // Ice Barrier
-                    if (GetSpellInfo()->Id == 11426)
-                    {
-                        // +330% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 3.3f;
-                    }
                     // Mage Ward
-                    else if (GetSpellInfo()->SpellFamilyFlags[0] & 0x8 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
+                    if (GetSpellInfo()->SpellFamilyFlags[0] & 0x8 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
                     {
                         // +80.68% from sp bonus
                         DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
