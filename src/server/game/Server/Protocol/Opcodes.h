@@ -1295,6 +1295,8 @@ enum Opcodes
     CMSG_PET_SET_ACTION                         = 0x020F,   ///< 6.0.3 19116
     CMSG_PET_STOP_ATTACK                        = 0x19E2,   ///< 6.0.3 19116
     CMSG_LEARN_PET_SPECIALIZATION_GROUP         = 0x08D6,   ///< 6.0.3 19116
+    CMSG_LIST_STABLE_PETS                       = 0x059D,   ///< 6.0.3 19116
+    CMSG_SET_PET_SLOT                           = 0x0BFD,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Battlegrounds
@@ -1605,7 +1607,6 @@ enum Opcodes
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x0000,
     CMSG_ITEM_REFUND                                  = 0x0000,
     CMSG_ITEM_TEXT_QUERY                              = 0x0000,
-    CMSG_LIST_STABLE_PETS                             = 0x0000,
     CMSG_LOOT_CURRENCY                                = 0x0000,
     CMSG_LOOT_MASTER_GIVE                             = 0x0000,
     CMSG_LOOT_METHOD                                  = 0x0000,
@@ -1653,7 +1654,6 @@ enum Opcodes
     CMSG_SET_FACTION_CHEAT                            = 0x0000,
     CMSG_SET_LOOT_SPECIALIZATION                      = 0x0000,
     CMSG_SET_LFG_COMMENT                              = 0x0000,
-    CMSG_SET_PET_SLOT                                 = 0x0000,
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0x0000,
     CMSG_SET_PREFERED_CEMETERY                        = 0x0000,
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
