@@ -115,7 +115,8 @@ enum PaladinSpells
     PALADIN_SPELL_HAMMER_OF_WRATH               = 24275,
     PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION   = 171648,
     PALADIN_SPELL_EMPOWERED_DIVINE_STORM        = 174718,
-    PALADIN_SPELL_DIVINE_CRUSADER               = 144595
+    PALADIN_SPELL_DIVINE_CRUSADER               = 144595,
+    PALADIN_ENHANCED_HOLY_SHOCK_PROC            = 160002
 };
 
 // Glyph of devotion aura - 146955
@@ -1499,6 +1500,8 @@ class spell_pal_holy_shock : public SpellScriptLoader
                                 caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, 3 * IN_MILLISECONDS);
                         }
 
+                        if (caster->HasAura(PALADIN_ENHANCED_HOLY_SHOCK_PROC))
+                            caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
                         if (caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
                             if (roll_chance_i(50))
                                 caster->CastSpell(caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
