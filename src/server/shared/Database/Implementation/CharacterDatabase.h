@@ -642,7 +642,22 @@ enum CharacterDatabaseStatements
     CHAR_UPD_LAST_BATTLEPET,
     CHAR_SEL_LAST_BATTLEPET,
 
-    MAX_CHARACTERDATABASE_STATEMENTS,
+    //////////////////////////////////////////////////////////////////////////
+    /// ToyBox
+    CHAR_SEL_ACCOUNT_TOYS,
+    CHAR_INS_ACCOUNT_TOYS,
+    CHAR_UPD_TOY_FAVORITE,
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Calendar
+    CHAR_REP_CALENDAR_EVENT,
+    CHAR_DEL_CALENDAR_EVENT,
+    CHAR_REP_CALENDAR_INVITE,
+    CHAR_DEL_CALENDAR_INVITE,
+    //////////////////////////////////////////////////////////////////////////
+
+    MAX_CHARACTERDATABASE_STATEMENTS
 };
 
 #endif

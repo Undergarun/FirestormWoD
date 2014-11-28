@@ -19615,6 +19615,7 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType)
 
     SendMessageToSet(&l_Data, false);
 }
+
 void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
 {
     ObjectGuid l_Guid = GetGUID();
@@ -21496,17 +21497,9 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
 
 void Unit::SendClearTarget()
 {
-    WorldPacket data(SMSG_BREAK_TARGET);
-    ObjectGuid unitGuid = GetGUID();
-
-    uint8 bitsOrder[8] = { 2, 7, 6, 0, 5, 3, 4, 1 };
-    data.WriteBitInOrder(unitGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 3, 7, 1, 0, 4, 2, 6, 5 };
-    data.WriteBytesSeq(unitGuid, bytesOrder);
-
-    data.append(GetPackGUID());
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_BREAK_TARGET);
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
 bool Unit::IsVisionObscured(Unit* victim, SpellInfo const* spellInfo)
@@ -22050,8 +22043,8 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
         if (_fieldNotifyFlags & flags[index] ||
-            ((flags[index] & visibleFlag) & UF_FLAG_EMPATH) ||
-            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) ||
+            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
             (index == UNIT_FIELD_AURA_STATE && HasFlag(UNIT_FIELD_AURA_STATE, PER_CASTER_AURA_STATE_MASK)))
         {
             updateMask.SetBit(index);

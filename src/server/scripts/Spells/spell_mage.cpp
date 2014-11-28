@@ -1353,6 +1353,34 @@ class spell_mage_mirror_image_summon : public SpellScriptLoader
         }
 };
 
+// Ice Barrier - 11426
+class spell_mage_ice_barrier : public SpellScriptLoader
+{
+    public:
+        spell_mage_ice_barrier() : SpellScriptLoader("spell_mage_ice_barrier") { }
+
+        class spell_mage_ice_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    amount = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 4.95f;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_ice_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_ice_barrier_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_greater_invisibility_removed();
@@ -1383,4 +1411,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_living_bomb();
     new spell_mage_blast_wave();
     new spell_mage_mirror_image_summon();
+    new spell_mage_ice_barrier();
 }

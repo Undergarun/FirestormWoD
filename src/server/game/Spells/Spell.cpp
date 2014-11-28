@@ -5475,47 +5475,23 @@ void Spell::SendChannelStart(uint32 p_Duration)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
 }
 
-void Spell::SendResurrectRequest(Player* target)
+void Spell::SendResurrectRequest(Player* p_Target)
 {
     // get ressurector name for creature resurrections, otherwise packet will be not accepted
     // for player resurrections the name is looked up by guid
-    char const* resurrectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
+    char const* l_RessurectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(p_Target->GetSession()->GetSessionDbLocaleIndex());
 
-    ObjectGuid guid = m_caster->GetGUID();
-
-    WorldPacket data(SMSG_RESURRECT_REQUEST, (8+4+strlen(resurrectorName)+1+1+1+4));
-    data.WriteBits(strlen(resurrectorName), 6);
-
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);
-    data.WriteBit(guid[7]);
-    data.WriteBit(false);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-
-    data << uint32(m_spellInfo->Id);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteString(resurrectorName);
-
-    data.WriteByteSeq(guid[7]);
-
-    data << uint32(0);
-    data << uint32(0);
-
-    data.WriteByteSeq(guid[6]);
-
-    target->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_RESURRECT_REQUEST, (8+4+strlen(l_RessurectorName)+1+1+1+4));
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(0);
+    l_Data << uint32(0);
+    l_Data.WriteBits(strlen(l_RessurectorName), 6);
+    l_Data.WriteBit(false);
+    l_Data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);
+    l_Data.FlushBits();
+    l_Data.WriteString(l_RessurectorName);
+    p_Target->GetSession()->SendPacket(&l_Data);
 }
 
 void Spell::TakeCastItem()

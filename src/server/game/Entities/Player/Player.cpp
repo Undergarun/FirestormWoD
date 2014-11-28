@@ -723,7 +723,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_objectTypeId = TYPEID_PLAYER;
 
     m_valuesCount = PLAYER_END;
-    _dynamicTabCount = PLAYER_DYNAMIC_END;
+    _dynamicValuesCount = PLAYER_DYNAMIC_END;
 
     m_session = session;
 
@@ -7013,27 +7013,26 @@ void Player::RepopAtGraveyard()
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 }
 
-void Player::SendCemeteryList(bool onMap)
+void Player::SendCemeteryList(bool p_OnMap)
 {
-    ByteBuffer buf(16);
-    uint32 count = 0;
+    ByteBuffer l_Buffer(16);
+    uint32 l_Counter = 0;
 
-    uint32 zoneId = GetZoneId();
-    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(zoneId);
-    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    uint32 l_ZoneID = GetZoneId();
+    GraveYardContainer::const_iterator l_GraveLow  = sObjectMgr->GraveYardStore.lower_bound(l_ZoneID);
+    GraveYardContainer::const_iterator l_GraveUP   = sObjectMgr->GraveYardStore.upper_bound(l_ZoneID);
+    for (GraveYardContainer::const_iterator l_Iter = l_GraveLow; l_Iter != l_GraveUP; ++l_Iter)
     {
-        ++count;
-        buf << uint32(itr->second.safeLocId);
+        ++l_Counter;
+        l_Buffer << uint32(l_Iter->second.safeLocId);
     }
 
-    WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
-    packet.WriteBit(onMap);
-    packet.WriteBits(count, 22);
-    packet.FlushBits();
-    if (buf.size())
-        packet.append(buf);
-    GetSession()->SendPacket(&packet);
+    WorldPacket l_Packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, l_Buffer.wpos()+4);
+    l_Packet.WriteBit(p_OnMap);
+    l_Packet << uint32(l_Counter);
+    if (l_Counter)
+        l_Packet.append(l_Buffer);
+    GetSession()->SendPacket(&l_Packet);
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
@@ -19808,6 +19807,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
 
+    _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
+
     return true;
 }
 
@@ -20665,7 +20666,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
             m_dailyQuestStorage.insert(quest_id);
             if (++quest_daily_idx < DynamicFields::Count)
-                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx++, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx++, quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -20979,7 +20980,7 @@ void Player::BindToInstance()
         return;
 
     WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-    data << uint32(0);
+    data.WriteBit(false);
     GetSession()->SendPacket(&data);
     BindToInstance(mapSave, true);
 
@@ -20988,70 +20989,37 @@ void Player::BindToInstance()
 
 void Player::SendRaidInfo()
 {
-    uint32 counter = 0;
-    WorldPacket data(SMSG_RAID_INSTANCE_INFO);
+    uint32 l_Counter = 0;
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO);
+    ByteBuffer l_Buffer;
+    time_t l_Now = time(NULL);
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-            if (itr->second.perm)
-                counter++;
-
-    data.WriteBits(counter, 20);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
     {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
+        for (BoundInstancesMap::iterator l_Itr = m_boundInstances[l_Iter].begin(); l_Itr != m_boundInstances[l_Iter].end(); ++l_Itr)
         {
-            if (itr->second.perm)
+            if (l_Itr->second.perm)
             {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
+                InstanceSave* l_Save = l_Itr->second.save;
+                l_Counter++;
 
-                data.WriteBit(instanceGUID[0]);
-                data.WriteBit(instanceGUID[7]);
-                data.WriteBit(instanceGUID[5]);
-                data.WriteBit(1);
-                data.WriteBit(instanceGUID[2]);
-                data.WriteBit(instanceGUID[1]);
-                data.WriteBit(0);
-                data.WriteBit(instanceGUID[3]);
-                data.WriteBit(instanceGUID[4]);
-                data.WriteBit(instanceGUID[6]);
+                l_Buffer << uint32(l_Save->GetMapId());
+                l_Buffer << uint32(l_Save->GetDifficulty());
+                l_Buffer << uint64(l_Save->GetInstanceId());
+                l_Buffer << uint32(l_Save->GetResetTime() - l_Now);
+                l_Buffer << uint32(l_Save->GetEncounterMask());
+                l_Buffer.WriteBit(true);    ///< Locked
+                l_Buffer.WriteBit(false);   ///< Extended
+                l_Buffer.FlushBits();
             }
         }
     }
 
-    data.FlushBits();
+    l_Data << uint32(l_Counter);
+    if (l_Counter)
+        l_Data.append(l_Buffer);
 
-    time_t now = time(NULL);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
-            if (itr->second.perm)
-            {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
-
-                data << uint32(save->GetDifficulty());      // difficulty
-
-                data.WriteByteSeq(instanceGUID[5]);
-                data << uint32(save->GetResetTime() - now);  // reset time
-                data.WriteByteSeq(instanceGUID[1]);
-                data.WriteByteSeq(instanceGUID[4]);
-                data.WriteByteSeq(instanceGUID[6]);
-                data.WriteByteSeq(instanceGUID[3]);
-                data << uint32(save->GetMapId());           // map id
-                data.WriteByteSeq(instanceGUID[2]);
-                data.WriteByteSeq(instanceGUID[0]);
-                data << uint32(save->GetEncounterMask()); // mask boss killed
-                data.WriteByteSeq(instanceGUID[7]);
-            }
-        }
-    }
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 /*
@@ -22520,18 +22488,11 @@ void Player::SendAttackSwingCancelAttack()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendAutoRepeatCancel(Unit* target)
+void Player::SendAutoRepeatCancel(Unit* p_Target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT);
-    ObjectGuid targetGuid = target->GetGUID();
-
-    uint8 bitsOrder[8] = { 3, 7, 2, 5, 4, 1, 0, 6 };
-    data.WriteBitInOrder(targetGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 4, 1, 0, 7, 2, 3, 6, 5 };
-    data.WriteBytesSeq(targetGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_CANCEL_AUTO_REPEAT);
+    l_Data.appendPackGUID(p_Target->GetGUID());
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
@@ -25599,6 +25560,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     WorldPacket l_NullPacket;
     GetSession()->HandleLfgGetStatus(l_NullPacket);
+
+    SendToyBox();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -25931,7 +25894,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
             m_DailyQuestChanged = true;
 
             if (m_dailyQuestStorage.size() - 1 < DynamicFields::Count)
-                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, m_dailyQuestStorage.size() - 1, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, m_dailyQuestStorage.size() - 1, quest_id);
         }
         else
         {
@@ -30343,6 +30306,7 @@ void Player::ReloadPetBattles()
     stmt->setUInt32(0, GetSession()->GetAccountId());
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
 }
+
 /// PetBattleCountBattleSpecies
 void Player::PetBattleCountBattleSpecies()
 {
@@ -30364,6 +30328,7 @@ void Player::PetBattleCountBattleSpecies()
         l_Battle->Teams[l_ThisTeamID]->CapturedSpeciesCount[p_PetBattle->Species]++;
     });
 }
+
 /// Update battle pet combat team
 void Player::UpdateBattlePetCombatTeam()
 {
@@ -30381,6 +30346,95 @@ void Player::UpdateBattlePetCombatTeam()
             m_BattlePetCombatTeam[p_BattlePet->Slot] = p_BattlePet;
     });
 }
+
+//////////////////////////////////////////////////////////////////////////
+/// ToyBox
+void Player::_LoadToyBox(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        Field* l_Fields = p_Result->Fetch();
+        uint32 l_ItemID = l_Fields[0].GetUInt32();
+        bool l_IsFavorite = l_Fields[1].GetBool();
+
+        if (!HasToy(l_ItemID))
+        {
+            PlayerToy l_PlayerToy = PlayerToy(l_ItemID, l_IsFavorite);
+            m_PlayerToys.insert(std::make_pair(l_ItemID, l_PlayerToy));
+        }
+    }
+    while (p_Result->NextRow());
+
+    uint32 l_Count = 0;
+    for (PlayerToys::iterator l_Toy = m_PlayerToys.begin(); l_Toy != m_PlayerToys.end(); ++l_Toy)
+    {
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_Count, l_Toy->second.m_ItemID);
+        ++l_Count;
+    }
+}
+
+void Player::SendToyBox()
+{
+    uint32 l_ToyCount = m_PlayerToys.size();
+
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    l_Data.WriteBit(true);      // IsFullUpdate
+
+    l_Data << uint32(l_ToyCount);
+    l_Data << uint32(l_ToyCount);
+
+    for (auto l_Toy : m_PlayerToys)
+        l_Data << uint32(l_Toy.second.m_ItemID);
+
+    for (auto l_Toy : m_PlayerToys)
+        l_Data.WriteBit(l_Toy.second.m_IsFavorite);
+
+    SendDirectMessage(&l_Data);
+}
+
+void Player::AddNewToyToBox(uint32 p_ItemID)
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_TOYS);
+    l_Statement->setUInt32(0, GetSession()->GetAccountId());
+    l_Statement->setUInt32(1, p_ItemID);
+    l_Statement->setBool(2, false);
+    CharacterDatabase.Execute(l_Statement);
+
+    if (!HasToy(p_ItemID))
+    {
+        PlayerToy l_PlayerToy = PlayerToy(p_ItemID, false);
+        m_PlayerToys.insert(std::make_pair(p_ItemID, l_PlayerToy));
+
+        uint32 l_ToySize = m_PlayerToys.size();
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_ToySize, p_ItemID);
+    }
+}
+
+void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_TOY_FAVORITE);
+    l_Statement->setBool(0, p_Apply);
+    l_Statement->setUInt32(1, GetSession()->GetAccountId());
+    l_Statement->setUInt32(2, p_ItemID);
+    CharacterDatabase.Execute(l_Statement);
+
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    l_Data.WriteBit(false);     // IsFullUpdate
+
+    l_Data << uint32(1);
+    l_Data << uint32(1);
+    l_Data << uint32(p_ItemID);
+    l_Data.WriteBit(p_Apply);   // IsFavorite
+
+    SendDirectMessage(&l_Data);
+
+    if (PlayerToy* l_PlayerToy = GetToy(p_ItemID))
+        l_PlayerToy->m_IsFavorite = p_Apply;
+}
+//////////////////////////////////////////////////////////////////////////
 
 bool Player::HasUnlockedReagentBank()
 {
