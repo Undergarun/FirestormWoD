@@ -190,6 +190,8 @@ enum Opcodes
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x05AF,   ///< 6.0.3 19116
         SMSG_CREATE_CHAR                            = 0x0107,   ///< 6.0.3 19116
         SMSG_CHAR_DELETE                            = 0x0BC4,   ///< 6.0.3 19116
+        SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
+
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116
@@ -945,6 +947,7 @@ enum Opcodes
     CMSG_SOCKET_GEMS                            = 0x1BE1,   ///< 6.0.3 19116
     CMSG_RESURRECT_RESPONSE                     = 0x073E,   ///< 6.0.3 19116
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0A07,   ///< 6.0.3 19116
+    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x018B,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1652,7 +1655,6 @@ enum Opcodes
     CMSG_SET_LOOT_SPECIALIZATION                      = 0x0000,
     CMSG_SET_LFG_COMMENT                              = 0x0000,
     CMSG_SET_PET_SLOT                                 = 0x0000,
-    CMSG_SET_PLAYER_DECLINED_NAMES                    = 0x0000,
     CMSG_SET_PREFERED_CEMETERY                        = 0x0000,
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0x0000,
@@ -1989,7 +1991,6 @@ enum Opcodes
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                 = 0x0000,
     SMSG_SET_MELEE_ANIM_KIT                           = 0x0000,
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0x0000,
-    SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0x0000,
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                       = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                          = 0x0000,
