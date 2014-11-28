@@ -2087,13 +2087,16 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
         l_Log->WritePacket(l_Data);
 
         p_Session->SendPacket(&l_Data);
-
-        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LOG_QUERY_RESULT) for tab %u", p_TabID);
     }
 }
 
 void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo) const
 {
+    // Don't send packet for non purchased tab
+    BankTab const* l_CurrTab = GetBankTab(p_TabID);
+    if (!l_CurrTab)
+        return;
+
     WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_RESULTS);
 
     uint32 l_ItemCount = 0;
@@ -2181,8 +2184,6 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
     l_Data.FlushBits();
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
 }
 
 void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
@@ -2221,8 +2222,6 @@ void Guild::SendMoneyInfo(WorldSession * p_Session) const
     l_Data << uint64(_GetMemberRemainingMoney(p_Session->GetPlayer()->GetGUID()));
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_BANK_MONEY_WITHDRAWN");
 }
 
 void Guild::SendLoginInfo(WorldSession * p_Session)
@@ -2245,8 +2244,6 @@ void Guild::SendLoginInfo(WorldSession * p_Session)
     l_Data.WriteString(m_motd);
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_EVENT_MOTD");
 
     HandleGuildRanks(p_Session);
 
@@ -3147,7 +3144,7 @@ inline uint32 Guild::_GetMemberRemainingSlots(uint64 guid, uint8 tabId) const
 {
     if (const Member* member = GetMember(guid))
         return member->GetBankRemainingValue(tabId, this);
-    return 0;
+    return -1;
 }
 
 inline uint32 Guild::_GetMemberRemainingMoney(uint64 guid) const
