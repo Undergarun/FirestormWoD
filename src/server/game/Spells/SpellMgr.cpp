@@ -3466,10 +3466,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[EFFECT_0].Amplitude = 2000;
                 break;
-            case 73683:  // Unleash Flame
-            case 165462: // Unleash Flame
-                spellInfo->ProcCharges = 1;
-                break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
@@ -5157,6 +5153,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 145151:// Dream of Cenarius (Balance)
             case 122510:// Ultimatum
             case 34784: // Intervene (triggered)
+            case 73683: // Unleash Flame
+            case 165462:// Unleash Flame
+            case 52437: // Sudden Death
                 spellInfo->ProcCharges = 1;
                 break;
             case 111546:
