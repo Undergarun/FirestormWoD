@@ -1886,10 +1886,6 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
 uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
-
-    if (ilvl == ItemLevel)
-        return ItemStat[index].ItemStatValue;
-
     return floor((((float)itemStat.ScalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * itemStat.SocketCostRate)) + 0.5f);
 }
 
