@@ -192,7 +192,6 @@ enum Opcodes
         SMSG_CHAR_DELETE                            = 0x0BC4,   ///< 6.0.3 19116
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
 
-
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116
         SMSG_UPDATE_ACCOUNT_DATA                    = 0x1520,   ///< 6.0.3 19116

@@ -660,8 +660,8 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
                 if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
                 {
-                    lockData.SubReason1 = 999;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelEquipped();
+                    lockData.SubReason1 = ar ? ar->itemlevelMin : 999;
+                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelTotal();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
             }
