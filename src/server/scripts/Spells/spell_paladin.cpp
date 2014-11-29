@@ -76,7 +76,7 @@ enum PaladinSpells
     PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
     PALADIN_SPELL_BASTION_OF_GLORY              = 114637,
-    PALADIN_SPELL_DIVINE_PURPOSE                = 90174,
+    PALADIN_SPELL_DIVINE_PURPOSE_AURA           = 90174,
     PALADIN_SPELL_DIVINE_SHIELD                 = 642,
     PALADIN_SPELL_LAY_ON_HANDS                  = 633,
     PALADIN_SPELL_DIVINE_PROTECTION             = 498,
@@ -116,7 +116,10 @@ enum PaladinSpells
     PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION   = 171648,
     PALADIN_SPELL_EMPOWERED_DIVINE_STORM        = 174718,
     PALADIN_SPELL_DIVINE_CRUSADER               = 144595,
-    PALADIN_ENHANCED_HOLY_SHOCK_PROC            = 160002
+    PALADIN_ENHANCED_HOLY_SHOCK_PROC            = 160002,
+    PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS       = 53600,
+    PALADIN_SPELL_LIGHT_OF_DAWN                 = 85222,
+    PALADIN_SPELL_DIVINE_PURPOSE                = 86172
 };
 
 // Glyph of devotion aura - 146955
@@ -1189,7 +1192,7 @@ class spell_pal_word_of_glory : public SpellScriptLoader
                             }
                         }
 
-                        if (!_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE))
+                        if (!_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                             _player->ModifyPower(POWER_HOLY_POWER, -holyPower);
                     }
                 }
@@ -1736,8 +1739,50 @@ public:
     }
 };
 
+// Call by Templars Verdict 85256 - Divine storm 53385 - Eternal Flame 114163
+// Call by Word of Glory 85673 - Shield of Righteous 53600
+// Call by Light of dawn 85222
+// Divine Purpose - 86172
+class spell_pal_divine_purpose : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_purpose() : SpellScriptLoader("spell_pal_divine_purpose") { }
+
+    class spell_pal_divine_purpose_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_purpose_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                    if (GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
+                        l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                    if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS)
+                        l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                    if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_LIGHT_OF_DAWN)
+                        l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_pal_divine_purpose_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_divine_purpose_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_divine_purpose();
     new spell_pal_hammer_of_wrath();
     new spell_pal_holy_wrath();
     new spell_pal_eternal_flame_periodic_heal();
