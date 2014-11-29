@@ -1694,7 +1694,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
     }
 }
 
-SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
+SpellCastResult SpellInfo::CheckShapeshift(uint32 p_Shapeshift) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
@@ -1702,22 +1702,24 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
-    uint32 stanceMask = (form ? 1 << (form - 1) : 0);
+    uint64 stanceMask = p_Shapeshift ? ((uint64)1L << (p_Shapeshift - 1)) : 0;
 
-    if (stanceMask & StancesNot)                 // can explicitly not be casted in this stance
+    // can explicitly not be casted in this stance
+    if (stanceMask & StancesNot)
         return SPELL_FAILED_NOT_SHAPESHIFT;
 
-    if (stanceMask & Stances)                    // can explicitly be casted in this stance
+    // can explicitly be casted in this stance
+    if (stanceMask & Stances)
         return SPELL_CAST_OK;
 
     bool actAsShifted = false;
     SpellShapeshiftFormEntry const* shapeInfo = NULL;
-    if (form > 0)
+    if (p_Shapeshift > 0)
     {
-        shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
+        shapeInfo = sSpellShapeshiftFormStore.LookupEntry(p_Shapeshift);
         if (!shapeInfo)
         {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "GetErrorAtShapeshiftedCast: unknown shapeshift %u", p_Shapeshift);
             return SPELL_CAST_OK;
         }
         actAsShifted = !(shapeInfo->m_Flags & 1);            // shapeshift acts as normal form for spells

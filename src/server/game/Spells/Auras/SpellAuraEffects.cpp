@@ -2101,15 +2101,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId3 = 106829;
             spellId4 = 106899;
             break;
-        case FORM_BATTLESTANCE:
-            spellId = 21156;
-            break;
-        case FORM_DEFENSIVESTANCE:
-            spellId = 7376;
-            break;
-        case FORM_BERSERKERSTANCE:
-            spellId = 7381;
-            break;
         case FORM_MOONKIN:
             spellId = 24905;
             spellId2 = 24907;
@@ -2141,14 +2132,15 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 spellId2 = 107903;
             break;
         case FORM_GHOSTWOLF:
-            spellId = 67116;
-            break;
         case FORM_GHOUL:
         case FORM_AMBIENT:
         case FORM_STEALTH:
         case FORM_CREATURECAT:
         case FORM_CREATUREBEAR:
-            break;
+        case FORM_BATTLESTANCE:
+        case FORM_DEFENSIVESTANCE:
+        case FORM_BERSERKERSTANCE:
+        case FORM_GLADIATORSTANCE:
         default:
             break;
     }
@@ -2615,6 +2607,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_BATTLESTANCE:                             // 0x11
         case FORM_DEFENSIVESTANCE:                          // 0x12
         case FORM_BERSERKERSTANCE:                          // 0x13
+        case FORM_GLADIATORSTANCE:                          // 0x21
             PowerType = POWER_RAGE;
             break;
         case FORM_TREE:                                     // 0x02
