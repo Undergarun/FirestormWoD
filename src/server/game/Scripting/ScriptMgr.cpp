@@ -1423,6 +1423,11 @@ void ScriptMgr::OnPlayerUpdateMovement(Player* p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
 }
 
+void ScriptMgr::OnPlayerChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
+}
+
 // Guild
 void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
 {

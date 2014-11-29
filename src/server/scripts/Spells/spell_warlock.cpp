@@ -2229,22 +2229,14 @@ class spell_warl_drain_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_life_AuraScript);
 
-            uint8 m_TickNumber;
-
-            bool Load()
-            {
-                m_TickNumber = 0;
-                return true;
-            }
-
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints / 10;
 
                     if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * ++m_TickNumber;
+                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
 
                     int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct);
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);

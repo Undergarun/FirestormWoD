@@ -2075,13 +2075,15 @@ class Unit : public WorldObject
         {
             SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3, form);
         }
-
         inline bool IsInFeralForm() const
         {
             ShapeshiftForm form = GetShapeshiftForm();
             return form == FORM_CAT || form == FORM_BEAR;
         }
-
+        inline bool IsTravelForm(ShapeshiftForm p_Form) const
+        {
+            return p_Form == FORM_AQUA || p_Form == FORM_STAG || p_Form == FORM_FLIGHT || p_Form == FORM_FLIGHT_EPIC;
+        }
         inline bool IsInDisallowedMountForm() const
         {
             ShapeshiftForm form = GetShapeshiftForm();

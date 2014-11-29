@@ -2600,6 +2600,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     Powers PowerType = POWER_MANA;
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
 
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnPlayerChangeShapeshift(target->ToPlayer(), form);
+
     switch (form)
     {
         case FORM_FIERCE_TIGER:
@@ -5454,8 +5457,13 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, float(GetAmount()), apply);
 
     // Unholy Presence
-    if (m_spellInfo->Id == 48265)
-        target->ToPlayer()->UpdateAllRunesRegen();
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (m_spellInfo->Id == 48265)
+            target->ToPlayer()->UpdateAllRunesRegen();
+        else if (m_spellInfo->Id == 156989)
+            target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
+    }
 }
 
 void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const

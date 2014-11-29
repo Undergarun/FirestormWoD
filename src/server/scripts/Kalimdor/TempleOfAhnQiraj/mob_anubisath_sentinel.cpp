@@ -197,11 +197,15 @@ public:
                     break;
 
                 AddSentinelsNear(pNearby);
-                CAST_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
-                CAST_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+
+                aqsentinelAI* l_AI = CAST_AI(aqsentinelAI, pNearby->AI());
+                if (l_AI != nullptr)
+                {
+                    l_AI->gatherOthersWhenAggro = false;
+                    l_AI->selectAbility(pickAbilityRandom(chosenAbilities));
+                }
             }
-            /*if (bli < 3)
-                DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
+
             SendMyListToBuddies();
             CallBuddiesToAttack(who);
 
@@ -245,15 +249,20 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            for (int ni=0; ni<3; ++ni)
+            for (int l_Ni = 0; l_Ni < 3; ++l_Ni)
             {
-                Creature* sent = Unit::GetCreature(*me, NearbyGUID[ni]);
-                if (!sent)
+                Creature* l_Sent = Unit::GetCreature(*me, NearbyGUID[l_Ni]);
+                if (!l_Sent)
                     continue;
-                if (sent->isDead())
+
+                if (l_Sent->isDead())
                     continue;
-                sent->ModifyHealth(int32(sent->CountPctFromMaxHealth(50)));
-                CAST_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
+
+                l_Sent->ModifyHealth(int32(l_Sent->CountPctFromMaxHealth(50)));
+
+                aqsentinelAI* l_AI = CAST_AI(aqsentinelAI, l_Sent->AI());
+                if (l_AI != nullptr)
+                    l_AI->GainSentinelAbility(ability);
             }
         }
     };
