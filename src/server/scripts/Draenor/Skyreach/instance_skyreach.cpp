@@ -42,6 +42,9 @@ namespace MS
                 // Rukhran part.
                 uint64 m_RukhranGuid;
                 uint64 m_SkyreachRavenWhispererGuid;
+                std::set<uint64> m_PileOfAshesGuid;
+                std::set<uint64> m_SolarFlaresGuid;
+                uint64 m_CacheOfArakoanTreasuresGuid;
 
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
@@ -52,7 +55,11 @@ namespace MS
                     m_SkyreachArcanologistGuid(0),
                     m_SolarConstructorsGuid(),
                     m_SelectedSolarConstructor(0),
-                    m_RukhranGuid(0)
+                    m_RukhranGuid(0),
+                    m_SkyreachRavenWhispererGuid(0),
+                    m_PileOfAshesGuid(),
+                    m_SolarFlaresGuid(),
+                    m_CacheOfArakoanTreasuresGuid(0)
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
@@ -89,6 +96,12 @@ namespace MS
                         p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
+                    case MobEntries::PILE_OF_ASHES:
+                        m_PileOfAshesGuid.insert(p_Creature->GetGUID());
+                        break;
+                    case MobEntries::SOLAR_FLARE:
+                        m_SolarFlaresGuid.insert(p_Creature->GetGUID());
+                        break;
                     default:
                         break;
                     }
@@ -109,7 +122,8 @@ namespace MS
                         AddDoor(p_Gameobject, true);
                         break;
                     case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
-                        p_Gameobject->RemoveFromWorld();
+                        p_Gameobject->SetPhaseMask(0, true);
+                        m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
                         break;
                     default:
                         break;
@@ -137,6 +151,10 @@ namespace MS
                     case Data::Rukhran:
                         switch (p_State)
                         {
+                        case DONE:
+                            if (GameObject* l_Gob = sObjectAccessor->FindGameObject(m_CacheOfArakoanTreasuresGuid))
+                                l_Gob->SetPhaseMask(1, true);
+                            break;
                         case FAIL:
                             if (Creature* l_SkyreachRavenWhisperer = sObjectAccessor->FindCreature(m_SkyreachRavenWhispererGuid))
                                 l_SkyreachRavenWhisperer->Respawn();
@@ -240,6 +258,58 @@ namespace MS
                     {
                     default:
                         return 0;
+                    }
+                }
+
+                void SetData64(uint32 p_Type, uint64 p_Data)
+                {
+                    enum class Spells : uint32
+                    {
+                        SOLAR_FLARE = 160964,
+                        DORMANT = 160641,
+                        SUMMON_SOLAR_FLARE = 153810,
+                    };
+
+                    switch (p_Type)
+                    {
+                    case Data::SolarFlareDying:
+                        if (m_SolarFlaresGuid.find(p_Data) == m_SolarFlaresGuid.end())
+                            break;
+                        m_SolarFlaresGuid.erase(p_Data);
+
+                        if (Unit* l_SolarFlareDying = sObjectAccessor->FindCreature(p_Data))
+                        {
+                            auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
+                            for (auto l_Pile : l_Piles)
+                            {
+                                if (m_PileOfAshesGuid.find(l_Pile->GetGUID()) == m_PileOfAshesGuid.end())
+                                    continue;
+                                m_PileOfAshesGuid.erase(l_Pile->GetGUID());
+
+                                Position l_Pos;
+                                l_Pile->GetPosition(&l_Pos);
+                                if (l_Pile->ToCreature())
+                                {
+                                    l_Pile->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), false);
+                                    l_Pile->ToCreature()->DespawnOrUnsummon(500);
+                                }
+                            }
+
+                            // We summon a new pile of ashes.
+                            l_SolarFlareDying->CastSpell(l_SolarFlareDying, uint32(Spells::DORMANT), true);
+
+                            Position l_Pos;
+                            l_SolarFlareDying->GetPosition(&l_Pos);
+                            TempSummon* l_Sum = l_SolarFlareDying->SummonCreature(MobEntries::PILE_OF_ASHES, l_Pos);
+                            l_Sum->setFaction(16);
+                            l_Sum->SetReactState(REACT_PASSIVE);
+                            l_Sum->CastSpell(l_Sum, uint32(Spells::DORMANT), true);
+                            l_SolarFlareDying->Kill(l_SolarFlareDying);
+
+                            if (l_SolarFlareDying->ToCreature())
+                                l_SolarFlareDying->ToCreature()->DespawnOrUnsummon(500);
+                        }
+                        break;
                     }
                 }
 

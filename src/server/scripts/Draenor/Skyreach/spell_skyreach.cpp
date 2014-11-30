@@ -4,6 +4,45 @@
 
 namespace MS
 {
+    // Summon Solar Flare - 153827
+    class spell_SummonSolarFlare : public SpellScriptLoader
+    {
+    public:
+        spell_SummonSolarFlare()
+            : SpellScriptLoader("spell_SummonSolarFlare")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+        };
+
+        class spell_SummonSolarFlareSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_SummonSolarFlareSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetCaster())
+                {
+                    Position l_Position;
+                    GetSpell()->GetDestTarget()->GetPosition(&l_Position);
+                    GetCaster()->SummonCreature(InstanceSkyreach::MobEntries::SOLAR_FLARE, l_Position);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_SummonSolarFlareSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_SummonSolarFlareSpellScript();
+        }
+    };
+
     // Energize 154140
     class spell_Energize : public SpellScriptLoader
     {
@@ -1060,4 +1099,7 @@ void AddSC_spell_instance_skyreach()
 
     // Boss Araknath.
     new MS::spell_Energize();
+
+    // Boss Rukhran.
+    new MS::spell_SummonSolarFlare();
 }

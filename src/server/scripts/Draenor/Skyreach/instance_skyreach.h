@@ -73,6 +73,8 @@ namespace MS
             SKYREACH_SOLAR_CONSTRUCTOR = 76142,
             YOUNG_KALIRI = 76121,
             SKYREACH_RAVEN_WHISPERER = 76154,
+            SOLAR_FLARE = 76227,
+            PILE_OF_ASHES = 79505
         };
 
         enum Data
@@ -85,6 +87,7 @@ namespace MS
             SkyreachArcanologistReset,
             AraknathSolarConstructorActivation,
             SkyreachRavenWhispererIsDead,
+            SolarFlareDying,
         };
 
         static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
@@ -186,6 +189,45 @@ namespace MS
             }
 
             return nullptr;
+        }
+
+        static Player* SelectNearestPlayer(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        {
+            Map* map = p_me->GetMap();
+            if (!map->IsDungeon())
+                return nullptr;
+
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            if (PlayerList.isEmpty())
+                return nullptr;
+
+            std::list<Player*> temp;
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            {
+                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS) && p_me->getVictim() != i->getSource() &&
+                    p_me->GetExactDist2d(i->getSource()) < p_range && i->getSource()->isAlive())
+                    temp.push_back(i->getSource());
+            }
+
+            if (!temp.empty())
+                return temp.front();
+
+            return nullptr;
+        }
+
+        static void ApplyOnEveryPlayer(Unit* p_Me, std::function<void(Unit*, Player*)> p_Function)
+        {
+            Map* map = p_Me->GetMap();
+            if (!map->IsDungeon())
+                return;
+
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            if (PlayerList.isEmpty())
+                return;
+
+            std::list<Player*> temp;
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                p_Function(p_Me, i->getSource());
         }
 
         static Player* SelectRandomPlayerExcludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)

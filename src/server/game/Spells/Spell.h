@@ -608,6 +608,8 @@ public:
     Unit* GetUnitTarget() { return m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : unitTarget; }
 
     void SetPeriodicDamageModifier(float newModifier) { m_periodicDamageModifier = newModifier; }
+
+    WorldLocation* GetDestTarget() const { return destTarget; }
 protected:
     bool HasGlobalCooldown() const;
     void TriggerGlobalCooldown();

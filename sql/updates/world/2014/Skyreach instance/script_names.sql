@@ -17,6 +17,7 @@ update creature_template set ScriptName='boss_Araknath' where entry=76141;
 update creature_template set ScriptName='mob_SkyreachSunTalon' where entry=79093;
 update creature_template set ScriptName='boss_Rukhran' where entry=76143;
 update creature_template set ScriptName='mob_SkyreachRavenWhisperer' where entry=76154;
+update creature_template set ScriptName='mob_SolarFlare' where entry=76227;
 
 INSERT INTO spell_script_names VALUES ('154140', 'spell_Energize');
 INSERT INTO spell_script_names VALUES ('153544', 'spell_SpinningBlade');
@@ -25,6 +26,7 @@ INSERT INTO spell_script_names VALUES ('153581', 'spell_BladeDance');
 INSERT INTO spell_script_names VALUES ('153315', 'spell_Windwall');
 INSERT INTO spell_script_names VALUES ('156793', 'spell_FourWind');
 INSERT INTO spell_script_names VALUES ('159215', 'spell_SolarStorm');
+INSERT INTO spell_script_names VALUES ('153827', 'spell_SummonSolarFlare');
 
 update creature_template set modelid1=61365 where entry=76119;
 UPDATE creature_template SET flags_extra=128 WHERE entry=76119;
