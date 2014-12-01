@@ -628,6 +628,8 @@ enum Opcodes
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x00C5,   ///< 6.0.3 19116
         SMSG_MOVE_SET_VEHICLE_REC_ID                        = 0x09DD,   ///< 6.0.3 19116
         SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x008D,   ///< 6.0.3 19116
+        SMSG_APPLY_MOVEMENT_FORCE                           = 0x06CB,   ///< 6.0.3 19116
+        SMSG_UNAPPLY_MOVEMENT_FORCE                         = 0x0073,   ///< 6.0.3 19116
 
         /// Creature
         SMSG_MONSTER_MOVE                           = 0x0994,   ///< 6.0.3 19116
@@ -1710,7 +1712,6 @@ enum Opcodes
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
-    SMSG_APPLY_MOVEMENT_FORCE                         = 0x0000,
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                 = 0x0000,
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x0000,
     SMSG_AREA_TRIGGER_DENIED                          = 0x0000,
@@ -2005,7 +2006,6 @@ enum Opcodes
     SMSG_TIME_ADJUSTMENT                              = 0x0000,
     SMSG_TOGGLE_XP_GAIN                               = 0x0000,
     SMSG_UI_TIME                                      = 0x0000,
-    SMSG_UNAPPLY_MOVEMENT_FORCE                       = 0x0000,
     SMSG_UNIT_HEALTH_FREQUENT                         = 0x0000,
     SMSG_UNIT_SPELLCAST_START                         = 0x0000,
     SMSG_UPDATE_EXPANSION_LEVEL                       = 0x0000,

@@ -2299,7 +2299,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
 
-        Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
+        Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_LegacyRaidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficulty() const { return m_raidDifficulty; }
         Difficulty GetLegacyRaidDifficulty() const { return m_LegacyRaidDifficulty; }
@@ -2770,8 +2770,9 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(bool apply, Position source, float force = 0.0f);
-        bool hasForcedMovement;
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f);
+        void RemoveAllMovementForces();
+        bool HasMovementForce(uint64 p_Source);
 
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
@@ -3228,6 +3229,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+
+        std::set<uint64> m_ActiveMovementForces;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/

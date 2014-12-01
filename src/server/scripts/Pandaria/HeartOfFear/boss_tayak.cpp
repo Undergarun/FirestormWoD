@@ -220,8 +220,8 @@ class boss_tayak : public CreatureScript
                         Position pos = {me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f};
 
                         for (Player* player : playerList)
-                            if (player->isAlive() && !player->hasForcedMovement)
-                                player->SendApplyMovementForce(true, pos, 3.0f);
+                            if (player->isAlive() && !player->HasMovementForce(me->GetGUID()))
+                                player->SendApplyMovementForce(me->GetGUID(), true, pos, 3.0f);
 
                         // Won't reach the event until 6-7 secs as Ta'yak has UNIT_STATE_CASTING
                         events.ScheduleEvent(EVENT_TAYAK_BT_END, 100);
@@ -612,8 +612,8 @@ class boss_tayak : public CreatureScript
                             Position pos = {me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f};
 
                             for (Player* player : playerList)
-                                if (player->hasForcedMovement)
-                                    player->SendApplyMovementForce(false, pos);
+                                if (player->HasMovementForce(me->GetGUID()))
+                                    player->SendApplyMovementForce(me->GetGUID(), false, pos);
 
                             break;
                         }
@@ -1049,8 +1049,8 @@ class mob_gale_winds_stalker : public CreatureScript
                                 GetPlayerListInGrid(playerList, me, 500.0f);
 
                                 for (auto player : playerList)
-                                    if (player->hasForcedMovement)
-                                        player->SendApplyMovementForce(false, pos);
+                                    if (player->HasMovementForce(me->GetGUID()))
+                                        player->SendApplyMovementForce(me->GetGUID(), false, pos);    ///< Use creature entry has force ID
                             }
 
                             isActive = false;
@@ -1081,15 +1081,15 @@ class mob_gale_winds_stalker : public CreatureScript
                         if (player->GetPositionX() > -2109.51f || player->GetPositionX() < -2129.05f)
                         {
                             // Player doesn't have forcedMovement
-                            if (player->isAlive() && !player->hasForcedMovement)
-                                player->SendApplyMovementForce(true, pos, -7.0f);
+                            if (player->isAlive() && !player->HasMovementForce(me->GetGUID()))
+                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.0f);
                             // Dead player has forcedMovement
-                            else if (!player->isAlive() && player->hasForcedMovement)
-                                player->SendApplyMovementForce(false, pos);
+                            else if (!player->isAlive() && player->HasMovementForce(me->GetGUID()))
+                                player->SendApplyMovementForce(me->GetGUID(), false, pos);
                         }
                         // player not in wind gale
-                        else if (player->hasForcedMovement)
-                            player->SendApplyMovementForce(false, pos);
+                        else if (player->HasMovementForce(me->GetGUID()))
+                            player->SendApplyMovementForce(me->GetGUID(), false, pos);
                     }
                 }
             }

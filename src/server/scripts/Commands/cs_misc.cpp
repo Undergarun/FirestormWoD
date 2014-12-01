@@ -585,7 +585,7 @@ class misc_commandscript : public CommandScript
                     }
 
                     if (map->IsRaid())
-                        _player->SetRaidDifficulty(target->GetRaidDifficulty());
+                        _player->SetLegacyRaidDifficulty(target->GetLegacyRaidDifficulty());
                     else
                         _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
                 }

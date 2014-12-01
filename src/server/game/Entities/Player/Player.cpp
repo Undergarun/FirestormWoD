@@ -707,8 +707,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_lastEclipseState = ECLIPSE_NONE;
 
-    hasForcedMovement = false;
-
     m_bgRoles = 0;
 
     m_lastPlayedEmote = 0;
@@ -25514,12 +25512,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     SendRefreshSpellMods();
 
-    if (hasForcedMovement)
-    {
-        Position pos;
-        GetPosition(&pos);
-        SendApplyMovementForce(false, pos);
-    }
+    RemoveAllMovementForces();
 
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
@@ -29990,63 +29983,52 @@ void Player::SetEmoteState(uint32 anim_id)
     m_emote = anim_id;
 }
 
-void Player::SendApplyMovementForce(bool apply, Position source, float force /*= 0.0f*/)
+void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude)
 {
-    ObjectGuid playerGuid = GetGUID();
-
-    if (apply)
+    if (p_Apply)
     {
-        // Forced movement can cumulate
-        if (hasForcedMovement)
-            return;
+        uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
 
-        WorldPacket data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+        l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
+        l_Data << uint32(0);                            ///< Sequence Index
 
-        uint8 bits[8] = { 3, 5, 4, 6, 7, 1, 0, 2 };
-        data.WriteBitInOrder(playerGuid, bits);
+        l_Data.appendPackGUID(p_Source);                ///< Movement ForceID
+        l_Data << float(p_Direction.GetPositionX());    ///< Direction X
+        l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
+        l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
+        l_Data << uint32(l_TransportID);                ///< Transport ID
+        l_Data << float(p_Magnitude);                   ///< Magnitude
 
-        data.WriteBits(1, 2); // Force type, still one yet
+        l_Data.WriteBits(1, 2);                         ///< Force type, still one yet
+        l_Data.FlushBits();
 
-        data << float(source.GetPositionZ());
-        data << uint32(0);                  // Transport ID
-        data.WriteByteSeq(playerGuid[5]);
-        data << uint32(1024);               // ID
-        data.WriteByteSeq(playerGuid[0]);
-        data << float(source.GetPositionY());
-        data.WriteByteSeq(playerGuid[7]);
-        data.WriteByteSeq(playerGuid[1]);
-        data << float(force);
-        data.WriteByteSeq(playerGuid[6]);
-        data.WriteByteSeq(playerGuid[2]);
-        data.WriteByteSeq(playerGuid[4]);
-        data << float(source.GetPositionX());
-        data.WriteByteSeq(playerGuid[3]);
-        data << uint32(268441055);          // MovementSequenceID
+        GetSession()->SendPacket(&l_Data);
 
-        GetSession()->SendPacket(&data);
-
-        hasForcedMovement = true;
+        m_ActiveMovementForces.insert(p_Source);
     }
     else
     {
-        if (!hasForcedMovement)
-            return;
+        WorldPacket l_Data(SMSG_UNAPPLY_MOVEMENT_FORCE, (2 * (2 + 16)) + 4);
+        l_Data.appendPackGUID(GetGUID()); ///< Mover GUID
+        l_Data << uint32(0);              ///< Sequence Index
+        l_Data.appendPackGUID(p_Source);  ///< Movement ForceID
 
-        WorldPacket data(SMSG_UNAPPLY_MOVEMENT_FORCE, 2 * 4 + 1 + 8);
+        GetSession()->SendPacket(&l_Data);
 
-        data << uint32(1024);               // ID
-        data << uint32(268441055);          // MovementSequenceID
-
-        uint8 bits[8] = { 6, 5, 7, 0, 4, 3, 1, 2 };
-        data.WriteBitInOrder(playerGuid, bits);
-
-        uint8 bytes[8] = { 2, 4, 5, 6, 3, 1, 0, 7 };
-        data.WriteBytesSeq(playerGuid, bytes);
-
-        GetSession()->SendPacket(&data);
-
-        hasForcedMovement = false;
+        m_ActiveMovementForces.erase(p_Source);
     }
+}
+void Player::RemoveAllMovementForces()
+{
+    std::set<uint64> l_ActiveMovementForces = m_ActiveMovementForces;
+
+    for (uint64 l_ForceID : l_ActiveMovementForces)
+        SendApplyMovementForce(l_ForceID, false, Position());
+}
+bool Player::HasMovementForce(uint64 p_Source)
+{
+    return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
 }
 
 void Player::SendResumeToken(uint32 token)

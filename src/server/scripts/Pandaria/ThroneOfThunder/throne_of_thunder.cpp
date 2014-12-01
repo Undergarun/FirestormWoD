@@ -1144,11 +1144,11 @@ class mob_dark_winds : public CreatureScript
 
                     if (inSquare)
                     {
-                        plr->SendApplyMovementForce(true, darkWindSourcePos, force);
+                        plr->SendApplyMovementForce(me->GetGUID(), true, darkWindSourcePos, force);    ///< Use creature entry has force ID
                         plr->CastSpell(plr, SPELL_DARK_WINDS_FORCE_WEATHER, true);
                     }
                     else
-                        plr->SendApplyMovementForce(false, darkWindSourcePos, force);
+                        plr->SendApplyMovementForce(me->GetGUID(), false, darkWindSourcePos, force);    ///< Use creature entry has force ID
                 }
             }
 

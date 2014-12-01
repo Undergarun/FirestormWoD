@@ -448,12 +448,28 @@ class debug_commandscript : public CommandScript
             if (!param)
                 return false;
 
+            Position pos;
+            pos.m_positionX = float(atoi(param));
+            
+            param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
+            pos.m_positionY = float(atoi(param));
+
+            param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
+            pos.m_positionZ = float(atoi(param));
+
+            param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
             float force = float(atoi(param));
 
-            Position pos;
-            handler->GetSession()->GetPlayer()->GetPosition(&pos);
-
-            handler->GetSession()->GetPlayer()->SendApplyMovementForce(apply, pos, -force);
+            handler->GetSession()->GetPlayer()->SendApplyMovementForce(handler->GetSession()->GetPlayer()->GetGUID(), apply, pos, force);
 
             return true;
         }

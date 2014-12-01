@@ -125,7 +125,7 @@ bool Group::Create(Player* leader)
     if (!isBGGroup() && !isBFGroup())
     {
         m_dungeonDifficulty = leader->GetDungeonDifficulty();
-        m_raidDifficulty = isLFGGroup() ? RAID_TOOL_DIFFICULTY : leader->GetRaidDifficulty();
+        m_raidDifficulty = isLFGGroup() ? RAID_TOOL_DIFFICULTY : leader->GetLegacyRaidDifficulty();
 
         m_dbStoreId = sGroupMgr->GenerateNewGroupDbStoreId();
 
@@ -524,9 +524,9 @@ bool Group::AddMember(Player* player)
                     player->SetDungeonDifficulty(GetDungeonDifficulty());
                     player->SendDungeonDifficulty(true);
                 }
-                if (player->GetRaidDifficulty() != GetRaidDifficulty())
+                if (player->GetLegacyRaidDifficulty() != GetLegacyRaidDifficulty())
                 {
-                    player->SetRaidDifficulty(GetRaidDifficulty());
+                    player->SetLegacyRaidDifficulty(GetLegacyRaidDifficulty());
                     player->SendRaidDifficulty(true);
                 }
             }
@@ -3169,7 +3169,7 @@ bool Group::CanEnterInInstance()
         maxplayers = 5;
     else
     {
-        switch (GetRaidDifficulty())
+        switch (GetLegacyRaidDifficulty())
         {
             case LEGACY_MAN10_DIFFICULTY:
             case LEGACY_MAN10_HEROIC_DIFFICULTY:
