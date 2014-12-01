@@ -1648,7 +1648,7 @@ public:
                 {
                     l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
                     if (l_Caster == l_Target)
-                        SetHitHeal(int32(GetHitHeal() - CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[1].BasePoints)));
+                        SetHitHeal(int32(GetHitHeal() + CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[1].BasePoints)));
                 }
         }
 
