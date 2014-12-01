@@ -522,7 +522,7 @@ class WorldSession
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPacket& recvPacket);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
-        void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
+        void HandleMasterLootItemOpcode(WorldPacket& recvPacket);
         void HandleWhoOpcode(WorldPacket& recvPacket);
         void HandleLogoutRequestOpcode(WorldPacket& recvPacket);
         void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
@@ -611,7 +611,7 @@ class WorldSession
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
         void HandleLootRoll(WorldPacket& recvData);
-        void HandleLootMasterAskForRoll(WorldPacket& recvData);
+        void HandleDoMasterLootRollOpcode(WorldPacket& recvData);
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidConfirmReadyCheck(WorldPacket& recvData);
         void HandleRaidLeaderReadyCheck(WorldPacket& recvData);

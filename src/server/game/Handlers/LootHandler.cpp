@@ -515,18 +515,13 @@ void WorldSession::DoLootRelease(uint64 lguid)
     loot->RemoveLooter(player->GetGUID());
 }
 
-void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
+void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
 {
-    ObjectGuid guid = 0;
-    uint8 slot = 0;
+    uint64 l_ObjectGUID = 0;
+    uint8 l_LootListID = 0;
 
-    recvData >> slot;
-
-    uint8 bitOrder[8] = {6, 0, 4, 3, 2, 7, 1, 5};
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    uint8 byteOrder[8] = {2, 0, 7, 5, 3, 6, 1, 4};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    p_Packet.readPackGUID(l_ObjectGUID);
+    p_Packet >> l_LootListID;
 
     if (!m_Player->GetGroup() || m_Player->GetGroup()->GetLooterGuid() != m_Player->GetGUID())
     {
@@ -534,96 +529,72 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
         return;
     }
 
-    Loot* loot = NULL;
+    Loot * l_Loot = NULL;
 
     if (IS_CRE_OR_VEH_GUID(GetPlayer()->GetLootGUID()))
     {
-        Creature* creature = GetPlayer()->GetMap()->GetCreature(guid);
-        if (!creature)
+        Creature * l_Creature = GetPlayer()->GetMap()->GetCreature(l_ObjectGUID);
+
+        if (!l_Creature)
             return;
 
-        loot = &creature->loot;
-        if (loot->isLinkedLoot(slot))
+        l_Loot = &l_Creature->loot;
+
+        if (l_Loot->isLinkedLoot(l_LootListID))
         {
-            LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(slot);
-            creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
-            if (!creature)
+            LinkedLootInfo linkedLootInfo = l_Loot->getLinkedLoot(l_LootListID);
+            l_Creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
+            if (!l_Creature)
                 return;
 
-            loot = &creature->loot;
-            slot = linkedLootInfo.slot;
+            l_Loot = &l_Creature->loot;
+            l_LootListID = linkedLootInfo.slot;
         }
     }
     else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
     {
-        GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(guid);
-        if (!pGO)
+        GameObject* l_GameObject = GetPlayer()->GetMap()->GetGameObject(l_ObjectGUID);
+
+        if (!l_GameObject)
             return;
 
-        loot = &pGO->loot;
+        l_Loot = &l_GameObject->loot;
     }
 
-    if (!loot || loot->alreadyAskedForRoll)
+    if (!l_Loot || l_Loot->alreadyAskedForRoll)
         return;
 
-    if (slot >= loot->items.size() + loot->quest_items.size())
+    if (l_LootListID >= l_Loot->items.size() + l_Loot->quest_items.size())
     {
-        sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slot, (unsigned long)loot->items.size());
+        sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), l_LootListID, (unsigned long)l_Loot->items.size());
         return;
     }
 
-    LootItem& item = slot >= loot->items.size() ? loot->quest_items[slot - loot->items.size()] : loot->items[slot];
+    LootItem& l_Item = l_LootListID >= l_Loot->items.size() ? l_Loot->quest_items[l_LootListID - l_Loot->items.size()] : l_Loot->items[l_LootListID];
+    l_Loot->alreadyAskedForRoll = true;
 
-    loot->alreadyAskedForRoll = true;
-
-    m_Player->GetGroup()->DoRollForAllMembers(guid, slot, m_Player->GetMapId(), loot, item, m_Player);
+    m_Player->GetGroup()->DoRollForAllMembers(l_ObjectGUID, l_LootListID, m_Player->GetMapId(), l_Loot, l_Item, m_Player);
 }
 
-void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
+void WorldSession::HandleMasterLootItemOpcode(WorldPacket & p_Packet)
 {
-    ObjectGuid target_playerguid = 0;
+    uint64 l_TargetGUID = 0;
+    uint32 l_LootCount  = 0;
 
-    target_playerguid[6] = recvData.ReadBit();
-    target_playerguid[2] = recvData.ReadBit();
-    target_playerguid[5] = recvData.ReadBit();
-    target_playerguid[7] = recvData.ReadBit();
-    target_playerguid[3] = recvData.ReadBit();
-    target_playerguid[4] = recvData.ReadBit();
-    target_playerguid[0] = recvData.ReadBit();
+    p_Packet >> l_LootCount;
+    p_Packet.readPackGUID(l_TargetGUID);
 
-    uint32 count = recvData.ReadBits(23);
-    if (count > 40)
+    if (l_LootCount > 40)
         return;
 
-    std::vector<ObjectGuid> guids(count);
-    std::vector<uint8> types(count);
+    std::vector<uint64> l_Objects(l_LootCount);
+    std::vector<uint8>  l_LootListIDs(l_LootCount);
 
-    uint8 bitOrder[8] = {1, 4, 3, 6, 0, 2, 7, 5};
-    for (uint32 i = 0; i < count; ++i)
-        recvData.ReadBitInOrder(guids[i], bitOrder);
-
-    target_playerguid[1] = recvData.ReadBit();
-    recvData.FlushBits();
-
-    recvData.ReadByteSeq(target_playerguid[5]);
-    recvData.ReadByteSeq(target_playerguid[6]);
-
-    uint8 byteOrder[8] = {3, 5, 0, 6, 2, 1, 4, 7};
-    for (uint32 i = 0; i < count; ++i)
+    for (uint32 l_I = 0; l_I < l_LootCount; ++l_I)
     {
-        recvData >> types[i];
-        recvData.ReadBytesSeq(guids[i], byteOrder);
+        p_Packet.readPackGUID(l_Objects[l_I]);
+        p_Packet >> l_LootListIDs[l_I];
     }
-
-    recvData.ReadByteSeq(target_playerguid[3]);
-    recvData.ReadByteSeq(target_playerguid[2]);
-    recvData.ReadByteSeq(target_playerguid[0]);
-    recvData.ReadByteSeq(target_playerguid[4]);
-    recvData.ReadByteSeq(target_playerguid[1]);
-    recvData.ReadByteSeq(target_playerguid[7]);
-
-
-    //recvData >> lootguid >> slotid >> target_playerguid;
 
     if (!m_Player->GetGroup() || m_Player->GetGroup()->GetLooterGuid() != m_Player->GetGUID())
     {
@@ -631,84 +602,90 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(target_playerguid, 0, HIGHGUID_PLAYER));
-    if (!target)
+    Player * l_Target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(l_TargetGUID, 0, HIGHGUID_PLAYER));
+
+    if (!l_Target)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_MASTER_LOOT_ITEM, 0x02A3) Target = [%s].", l_Target->GetName());
 
-    for (uint32 i = 0; i < count; ++i)
+    for (uint32 l_I = 0; l_I < l_LootCount; ++l_I)
     {
-        ObjectGuid lootguid = guids[i];
-        uint8 slotid = types[i];
-        Loot* loot = NULL;
+        uint64 l_LootGUID = l_Objects[l_I];
+        uint8 l_SlotID = l_LootListIDs[l_I];
+        Loot* l_Loot = NULL;
 
         if (IS_CRE_OR_VEH_GUID(GetPlayer()->GetLootGUID()))
         {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(sObjectMgr->GetCreatureGUIDByLootViewGUID(lootguid));
-            if (!creature)
+            Creature* l_Creature = GetPlayer()->GetMap()->GetCreature(sObjectMgr->GetCreatureGUIDByLootViewGUID(l_LootGUID));
+            if (!l_Creature)
                 return;
 
-            loot = &creature->loot;
-            if (loot->isLinkedLoot(slotid))
+            l_Loot = &l_Creature->loot;
+
+            if (l_Loot->isLinkedLoot(l_SlotID))
             {
-                LinkedLootInfo linkedLootInfo = loot->getLinkedLoot(slotid);
-                creature = GetPlayer()->GetCreature(*GetPlayer(), linkedLootInfo.creatureGUID);
-                if (!creature)
+                LinkedLootInfo l_LinkedLootInfo = l_Loot->getLinkedLoot(l_SlotID);
+                l_Creature = GetPlayer()->GetCreature(*GetPlayer(), l_LinkedLootInfo.creatureGUID);
+
+                if (!l_Creature)
                     return;
 
-                loot = &creature->loot;
-                slotid = linkedLootInfo.slot;
+                l_Loot   = &l_Creature->loot;
+                l_SlotID = l_LinkedLootInfo.slot;
             }
 
         }
         else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
         {
-            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(GetPlayer()->GetLootGUID());
-            if (!pGO)
+            GameObject* l_GameObject = GetPlayer()->GetMap()->GetGameObject(GetPlayer()->GetLootGUID());
+
+            if (!l_GameObject)
                 return;
 
-            loot = &pGO->loot;
+            l_Loot = &l_GameObject->loot;
         }
 
-        if (!loot)
+        if (!l_Loot)
             return;
 
-        if (slotid >= loot->items.size() + loot->quest_items.size())
+        if (l_SlotID >= l_Loot->items.size() + l_Loot->quest_items.size())
         {
-            sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slotid, (unsigned long)loot->items.size());
+            sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), l_SlotID, (unsigned long)l_Loot->items.size());
             return;
         }
 
-        LootItem& item = slotid >= loot->items.size() ? loot->quest_items[slotid - loot->items.size()] : loot->items[slotid];
+        LootItem& l_Item = l_SlotID >= l_Loot->items.size() ? l_Loot->quest_items[l_SlotID - l_Loot->items.size()] : l_Loot->items[l_SlotID];
 
-        ItemPosCountVec dest;
-        InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
-        if (item.follow_loot_rules && !item.AllowedForPlayer(target))
-            msg = EQUIP_ERR_CANT_EQUIP_EVER;
-        if (msg != EQUIP_ERR_OK)
+        ItemPosCountVec l_Destination;
+        InventoryResult l_Message = l_Target->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_Item.itemid, l_Item.count);
+
+        if (l_Item.follow_loot_rules && !l_Item.AllowedForPlayer(l_Target))
+            l_Message = EQUIP_ERR_CANT_EQUIP_EVER;
+
+        if (l_Message != EQUIP_ERR_OK)
         {
-            target->SendEquipError(msg, NULL, NULL, item.itemid);
-            // send duplicate of error massage to master looter
-            m_Player->SendEquipError(msg, NULL, NULL, item.itemid);
+            l_Target->SendEquipError(l_Message, NULL, NULL, l_Item.itemid);
+            /// Send duplicate of error massage to master looter
+            m_Player->SendEquipError(l_Message, NULL, NULL, l_Item.itemid);
             return;
         }
 
-        // list of players allowed to receive this item in trade
-        AllowedLooterSet looters = item.GetAllowedLooters();
+        /// List of players allowed to receive this item in trade
+        AllowedLooterSet l_Looters = l_Item.GetAllowedLooters();
 
-        // not move item from loot to target inventory
-        Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
-        target->SendNewItem(newitem, uint32(item.count), false, false, true);
-        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
-        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
-        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
+        /// Not move item from loot to target inventory
+        Item* l_NewItem = l_Target->StoreNewItem(l_Destination, l_Item.itemid, true, l_Item.randomPropertyId, l_Looters);
+        l_Target->SendNewItem(l_NewItem, uint32(l_Item.count), false, false, true);
+        l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, l_Item.itemid, l_Item.count);
+        l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, l_Loot->loot_type, l_Item.count);
+        l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, l_Item.itemid, l_Item.count);
 
-        // mark as looted
-        item.count=0;
-        item.is_looted=true;
+        /// Mark as looted
+        l_Item.count=0;
+        l_Item.is_looted=true;
 
-        loot->NotifyItemRemoved(slotid);
-        --loot->unlootedCount;
+        l_Loot->NotifyItemRemoved(l_SlotID);
+        --l_Loot->unlootedCount;
     }
 }

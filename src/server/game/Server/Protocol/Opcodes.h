@@ -247,6 +247,16 @@ enum Opcodes
         SMSG_LOOT_RELEASE_ALL                       = 0x198C,   ///< 6.0.3 19116
         SMSG_LOOT_REMOVED                           = 0x0906,   ///< 6.0.3 19116
         SMSG_COIN_REMOVED                           = 0x0D30,   ///< 6.0.3 19116
+        SMSG_LOOT_ALL_PASSED                        = 0x0DBD,   ///< 6.0.3 19116
+        SMSG_LOOT_CONTENTS                          = 0x02F1,   ///< 6.0.3 19116 (unused)
+        SMSG_LOOT_ITEM_LIST                         = 0x1789,   ///< 6.0.3 19116 (unused)
+        SMSG_MASTER_LOOT_CANDIDATE_LIST             = 0x171D,   ///< 6.0.3 19116
+        SMSG_LOOT_ROLL                              = 0x1BE2,   ///< 6.0.3 19116
+        SMSG_LOOT_ROLLS_COMPLETE                    = 0x0D2F,   ///< 6.0.3 19116 (unused)
+        SMSG_LOOT_ROLL_WON                          = 0x071E,   ///< 6.0.3 19116
+        SMSG_LOOT_START_ROLL                        = 0x1B84,   ///< 6.0.3 19116
+        SMSG_AE_LOOT_TARGETS                        = 0x15AF,   ///< 6.0.3 19116 (unused)
+        SMSG_AE_LOOT_TARGETS_ACK                    = 0x031D,   ///< 6.0.3 19116 (unused)
 
         /// Bank
         SMSG_SHOW_BANK                              = 0x1B51,   ///< 6.0.3 19116
@@ -980,6 +990,13 @@ enum Opcodes
     CMSG_LOOT_MONEY                             = 0x1991,   ///< 6.0.3 19116
     CMSG_LOOT_ITEM                              = 0x0609,   ///< 6.0.3 19116
     CMSG_LOOT_RELEASE                           = 0x1199,   ///< 6.0.3 19116
+    CMSG_LOOT_CURRENCY                          = 0x0000,
+    CMSG_LOOT_ROLL                              = 0x09C5,   ///< 6.0.3 19116
+    CMSG_MASTER_LOOT_ITEM                       = 0x0AA6,   ///< 6.0.3 19116
+    CMSG_DO_MASTER_LOOT_ROLL                    = 0x09BE,   ///< 6.0.3 19116
+    CMSG_SET_LOOT_SPECIALIZATION                = 0x0226,   ///< 6.0.3 19116
+    CMSG_SET_LOOT_METHOD                        = 0x0729,   ///< 6.0.3 19116
+    CMSG_OPT_OUT_OF_LOOT                        = 0x0810,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Combat
@@ -1020,6 +1037,7 @@ enum Opcodes
     CMSG_PETITION_QUERY                         = 0x048B,   ///< 6.0.3 19116
     CMSG_QUERY_GUILD_INFO                       = 0x0930,   ///< 6.0.3 19116
     CMSG_PAGE_TEXT_QUERY                        = 0x0BBB,   ///< 6.0.3 19116
+    CMSG_ITEM_TEXT_QUERY                        = 0x0000,
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -1251,12 +1269,9 @@ enum Opcodes
     CMSG_PARTY_UNINVITE                         = 0x1982,   ///< 6.0.3 19116
     CMSG_SET_PARTY_LEADER                       = 0x091E,   ///< 6.0.3 19116
     CMSG_SET_ROLE                               = 0x0326,   ///< 6.0.3 19116
-    CMSG_LOOT_ROLL                              = 0x09C5,   ///< 6.0.3 19116
     CMSG_MINIMAP_PING                           = 0x0116,   ///< 6.0.3 19116
-    CMSG_SET_LOOT_METHOD                        = 0x0729,   ///< 6.0.3 19116
     CMSG_RANDOM_ROLL                            = 0x12AA,   ///< 6.0.3 19116
     CMSG_UPDATE_RAID_TARGET                     = 0x1122,   ///< 6.0.3 19116
-    CMSG_OPT_OUT_OF_LOOT                        = 0x0810,   ///< 6.0.3 19116
     CMSG_CONVERT_RAID                           = 0x0137,   ///< 6.0.3 19116
     CMSG_DO_READY_CHECK                         = 0x1221,   ///< 6.0.3 19116
     CMSG_READY_CHECK_RESPONSE                   = 0x071A,   ///< 6.0.3 19116
@@ -1609,11 +1624,6 @@ enum Opcodes
     CMSG_HEARTH_AND_RESURRECT                         = 0x0000,
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0x0000,
     CMSG_ITEM_REFUND                                  = 0x0000,
-    CMSG_ITEM_TEXT_QUERY                              = 0x0000,
-    CMSG_LOOT_CURRENCY                                = 0x0000,
-    CMSG_LOOT_MASTER_GIVE                             = 0x0000,
-    CMSG_LOOT_METHOD                                  = 0x0000,
-    CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0x0000,
     CMSG_MANEUVER_START                               = 0x0000,
     CMSG_MEETINGSTONE_INFO                            = 0x0000,
     CMSG_MINIGAME_MOVE                                = 0x0000,
@@ -1655,7 +1665,6 @@ enum Opcodes
     CMSG_SET_FACTION_ATWAR                            = 0x0000,
     CMSG_UNSET_FACTION_ATWAR                          = 0x0000,
     CMSG_SET_FACTION_CHEAT                            = 0x0000,
-    CMSG_SET_LOOT_SPECIALIZATION                      = 0x0000,
     CMSG_SET_LFG_COMMENT                              = 0x0000,
     CMSG_SET_PREFERED_CEMETERY                        = 0x0000,
     CMSG_SET_RELATIVE_POSITION                        = 0x0000,
@@ -1664,7 +1673,6 @@ enum Opcodes
     CMSG_SHOW_ACCOUNT_ACHIEVEMENT                     = 0x0000,
     CMSG_START_QUEST                                  = 0x0000,
     CMSG_STOP_DANCE                                   = 0x0000,
-    CMSG_STORE_LOOT_IN_SLOT                           = 0x0000,
     CMSG_SUBMIT_BUG                                   = 0x0000,
     CMSG_SUBMIT_COMPLAIN                              = 0x0000,
     CMSG_SUGGESTION_SUBMIT                            = 0x0000,
@@ -1702,8 +1710,6 @@ enum Opcodes
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                = 0x0000,
     SMSG_ADD_LOSS_OF_CONTROL                          = 0x0000,
-    SMSG_AE_LOOT_TARGETS                              = 0x0000,
-    SMSG_AE_LOOT_TARGETS_ACK                          = 0x0000,
     SMSG_APPLY_MOVEMENT_FORCE                         = 0x0000,
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                 = 0x0000,
     SMSG_AREA_SHARE_INFO_RESPONSE                     = 0x0000,
@@ -1880,16 +1886,6 @@ enum Opcodes
     SMSG_LEARNED_DANCE_MOVES                          = 0x0000,
     SMSG_LIST_TARGETS                                 = 0x0000,
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0x0000,
-    SMSG_LOOT_ALL_PASSED                              = 0x0000,
-    SMSG_LOOT_CONTENTS                                = 0x0000,
-    SMSG_LOOT_ITEM_LIST                               = 0x0000,
-    SMSG_MASTER_LOOT_CANDIDATE_LIST                   = 0x0000,
-    SMSG_LOOT_RELEASE_RESPONSE                        = 0x0000,
-    SMSG_LOOT_ROLL                                    = 0x0000,
-    SMSG_LOOT_ROLLS_COMPLETE                          = 0x0000,
-    SMSG_LOOT_ROLL_WON                                = 0x0000,
-    SMSG_LOOT_START_ROLL                              = 0x0000,
-    SMSG_LOOT_UPDATED                                 = 0x0000,
     SMSG_MAP_OBJ_EVENTS                               = 0x0000,
     SMSG_MEETINGSTONE_COMPLETE                        = 0x0000,
     SMSG_MEETINGSTONE_IN_PROGRESS                     = 0x0000,

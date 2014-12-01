@@ -618,7 +618,6 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-/// @TODO: Verify order, l_RollType & l_LootListID are maybe inversed
 void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
 {
     uint64 l_LootObj;
@@ -626,8 +625,8 @@ void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
     uint8  l_RollType;
 
     p_RecvData.readPackGUID(l_LootObj);
-    p_RecvData >> l_RollType;
     p_RecvData >> l_LootListID;
+    p_RecvData >> l_RollType;
 
     Group* l_Group = GetPlayer()->GetGroup();
 
