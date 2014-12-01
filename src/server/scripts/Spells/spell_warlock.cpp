@@ -1882,11 +1882,33 @@ class spell_warl_nightfall : public SpellScriptLoader
         }
 };
 
-// Drain Soul - 1120
+enum DrainSoulSpells
+{
+    SPELL_WARL_IMPROVED_DRAIN_SOUL = 157077
+};
+
+// Drain Soul - 103103
 class spell_warl_drain_soul : public SpellScriptLoader
 {
     public:
         spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
+
+        class spell_warl_drain_soul_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_drain_soul_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                if (AuraPtr l_ImprovedDrainSoul = l_Caster->GetAura(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedDrainSoul->GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_drain_soul_SpellScript::HandleOnHit);
+            }
+        };
 
         class spell_warl_drain_soul_AuraScript : public AuraScript
         {
@@ -1894,19 +1916,25 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * caster->GetPowerCoeff(POWER_SOUL_SHARDS));
-                }
+                Unit* l_Target = GetTarget();
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    if (Unit* l_Caster = GetCaster())
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                            if (l_Caster->ToPlayer()->isHonorOrXPTarget(l_Target))
+                                l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_4, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_drain_soul_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
