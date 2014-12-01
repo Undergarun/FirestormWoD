@@ -271,9 +271,6 @@ ObjectMgr::~ObjectMgr()
     for (QuestMap::iterator i = _questTemplates.begin(); i != _questTemplates.end(); ++i)
         delete i->second;
 
-    for (PetLevelInfoContainer::iterator i = _petInfoStore.begin(); i != _petInfoStore.end(); ++i)
-        delete[] i->second;
-
     for (int race = 0; race < MAX_RACES; ++race)
         for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
             delete[] _playerInfo[race][class_].levelInfo;
@@ -3163,108 +3160,63 @@ void ObjectMgr::LoadAreaTriggerTemplates()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger templates in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-void ObjectMgr::LoadPetLevelInfo()
+void ObjectMgr::LoadPetStatInfo()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 l_OldMSTime = getMSTime();
 
-    //                                                 0               1      2   3     4    5    6    7     8    9
-    QueryResult result = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
-
-    if (!result)
+    //                                                   0     1       2             3           4          5            6            7            8           9            10
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, speed, powerstatbase, armor_coef, apsp_coef, health_coef, damage_coef, attackspeed, powertype, createpower, secondarystat_coef FROM pet_stats");
+    if (!l_Result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
-
         return;
     }
 
-    uint32 count = 0;
+    /// - Load databases stats
+
+    uint32 l_Count = 0;
 
     do
     {
-        Field* fields = result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_Index  = 0;
+        uint32 l_Entry  = l_Fields[l_Index++].GetUInt32();
 
-        uint32 creature_id = fields[0].GetUInt32();
-        if (!sObjectMgr->GetCreatureTemplate(creature_id))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Wrong creature id %u in `pet_levelstats` table, ignoring.", creature_id);
-            continue;
-        }
+        PetStatInfo l_PetStat;
+        l_PetStat.m_Speed             = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_PowerStat         = PetStatInfo::PowerStatBase(l_Fields[l_Index++].GetUInt32());
+        l_PetStat.m_ArmorCoef         = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_APSPCoef          = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_HealthCoef        = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_DamageCoef        = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_AttackSpeed       = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_Power             = Powers(l_Fields[l_Index++].GetUInt32());
+        l_PetStat.m_CreatePower       = l_Fields[l_Index++].GetFloat();
+        l_PetStat.m_SecondaryStatCoef = l_Fields[l_Index++].GetFloat();
 
-        uint32 current_level = fields[1].GetUInt8();
-        if (current_level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        {
-            if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                sLog->outError(LOG_FILTER_SQL, "Wrong (> %u) level %u in `pet_levelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
-            else
-            {
-                sLog->outInfo(LOG_FILTER_GENERAL, "Unused (> MaxPlayerLevel in worldserver.conf) level %u in `pet_levelstats` table, ignoring.", current_level);
-                ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-            }
-            continue;
-        }
-        else if (current_level < 1)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Wrong (<1) level %u in `pet_levelstats` table, ignoring.", current_level);
-            continue;
-        }
+        m_PetInfoStore.insert(std::make_pair(std::move(l_Entry), std::move(l_PetStat)));
 
-        PetLevelInfo*& pInfoMapEntry = _petInfoStore[creature_id];
-
-        if (pInfoMapEntry == NULL)
-            pInfoMapEntry = new PetLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
-
-        // data for level 1 stored in [0] array element, ...
-        PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level-1];
-
-        pLevelInfo->health = fields[2].GetUInt32();
-        pLevelInfo->mana   = fields[3].GetUInt32();
-        pLevelInfo->armor  = fields[9].GetUInt32();
-
-        for (int i = 0; i < MAX_STATS; i++)
-        {
-            pLevelInfo->stats[i] = fields[i+4].GetUInt16();
-        }
-
-        ++count;
+        ++l_Count;
     }
-    while (result->NextRow());
+    while (l_Result->NextRow());
 
-    // Fill gaps and check integrity
-    for (PetLevelInfoContainer::iterator itr = _petInfoStore.begin(); itr != _petInfoStore.end(); ++itr)
-    {
-        PetLevelInfo* pInfo = itr->second;
+    /// - Create default stat for pet we don't have informations
 
-        // fatal error if no level 1 data
-        if (!pInfo || pInfo[0].health == 0)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Creature %u does not have pet stats data for Level 1!", itr->first);
-            exit(1);
-        }
+    PetStatInfo l_DefaultPetStat;
+    l_DefaultPetStat.m_Speed             = 1.14f;
+    l_DefaultPetStat.m_PowerStat         = PetStatInfo::PowerStatBase::SpellPower;
+    l_DefaultPetStat.m_ArmorCoef         = 1.0f;
+    l_DefaultPetStat.m_APSPCoef          = 0.5f;
+    l_DefaultPetStat.m_HealthCoef        = 0.7f;
+    l_DefaultPetStat.m_DamageCoef        = 0.85f;
+    l_DefaultPetStat.m_AttackSpeed       = 2.0f;
+    l_DefaultPetStat.m_Power             = Powers::POWER_MANA;
+    l_DefaultPetStat.m_CreatePower       = -1;
+    l_DefaultPetStat.m_SecondaryStatCoef = 1.0f;
 
-        // fill level gaps
-        for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-        {
-            if (pInfo[level].health == 0)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Creature %u has no data for Level %i pet stats data, using data of Level %i.", itr->first, level+1, level);
-                pInfo[level] = pInfo[level-1];
-            }
-        }
-    }
+    m_PetInfoStore.insert(std::make_pair(0, std::move(l_DefaultPetStat)));
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u level pet stats definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) const
-{
-    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-
-    PetLevelInfoContainer::const_iterator itr = _petInfoStore.find(creature_id);
-    if (itr == _petInfoStore.end())
-        return NULL;
-
-    return &itr->second[level-1];                           // data for level 1 stored in [0] array element, ...
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pet stats definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
@@ -3710,6 +3662,15 @@ void ObjectMgr::LoadPlayerInfo()
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u xp for level definitions in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
     }
+}
+
+PetStatInfo const* ObjectMgr::GetPetStatInfo(uint32 p_Entry) const
+{
+    PetStatInfoContainer::const_iterator l_Iterator = m_PetInfoStore.find(p_Entry);
+    if (l_Iterator != m_PetInfoStore.end())
+        return &l_Iterator->second;
+
+    return nullptr;
 }
 
 void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseHP, uint32& baseMana) const

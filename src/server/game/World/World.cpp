@@ -1744,8 +1744,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet stats...");
+    sObjectMgr->LoadPetStatInfo();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Corpses...");
     sObjectMgr->LoadCorpses();

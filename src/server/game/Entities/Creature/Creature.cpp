@@ -148,9 +148,11 @@ m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_O
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
 {
-    m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
     _dynamicValuesCount = UNIT_DYNAMIC_END;
+
+    m_HealthRegenTimer = CREATURE_REGEN_HEALTH_INTERVAL;
+    m_RegenPowerTimer  = CREATURE_REGEN_INTERVAL;
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = 0;
@@ -599,43 +601,52 @@ void Creature::Update(uint32 diff)
             if (!isAlive())
                 break;
 
-            if (m_regenTimer > 0)
+            /// - Handle regen timers
             {
-                if (diff >= m_regenTimer)
-                    m_regenTimer = 0;
-                else
-                    m_regenTimer -= diff;
+                if (m_RegenPowerTimer > 0)
+                {
+                    if (diff >= m_RegenPowerTimer)
+                        m_RegenPowerTimer = 0;
+                    else
+                        m_RegenPowerTimer -= diff;
+                }
+
+                if (m_HealthRegenTimer > 0)
+                {
+                    if (diff >= m_HealthRegenTimer)
+                        m_HealthRegenTimer = 0;
+                    else
+                        m_HealthRegenTimer -= diff;
+                }
+
+                if (m_RegenPowerTimer == 0)
+                {
+                    if (getPowerType() == POWER_ENERGY)
+                    {
+                        if (!IsVehicle() ||
+                            (GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_PYRITE &&
+                            GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_HEAT))
+                            Regenerate(POWER_ENERGY);
+                    }
+                    else
+                        RegenerateMana();
+
+                    m_RegenPowerTimer = CREATURE_REGEN_INTERVAL;
+                }
+
+                if (m_HealthRegenTimer == 0)
+                {
+                    bool bInCombat = isInCombat() && (!getVictim() ||                                        // if isInCombat() is true and this has no victim
+                        !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                             // or the victim/owner/charmer is not a player
+                        !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster());              // or the victim/owner/charmer is not a GameMaster
+
+                    if ((!bInCombat || IsPolymorphed() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT)) && !HealthRegenIsDisable()) // regenerate health if not in combat or if polymorphed
+                        RegenerateHealth();
+
+                    m_HealthRegenTimer = CREATURE_REGEN_HEALTH_INTERVAL;
+                }
             }
 
-            if (m_regenTimer != 0)
-               break;
-
-            bool bInCombat = isInCombat() && (!getVictim() ||                                        // if isInCombat() is true and this has no victim
-                             !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
-                             !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()); // or the victim/owner/charmer is not a GameMaster
-
-            /*if (m_regenTimer <= diff)
-            {*/
-            if ((!bInCombat || IsPolymorphed()) && !HealthRegenIsDisable()) // regenerate health if not in combat or if polymorphed
-                RegenerateHealth();
-
-            if (getPowerType() == POWER_ENERGY)
-            {
-                 if (!IsVehicle() ||
-                     (GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_PYRITE &&
-                     GetVehicleKit()->GetVehicleInfo()->m_PowerDisplayID != POWER_HEAT))
-                    Regenerate(POWER_ENERGY);
-            }
-            else
-                RegenerateMana();
-
-            /*if (!bIsPolymorphed) // only increase the timer if not polymorphed
-                    m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
-            }
-            else
-                if (!bIsPolymorphed) // if polymorphed, skip the timer
-                    m_regenTimer -= diff;*/
-            m_regenTimer = CREATURE_REGEN_INTERVAL;
             break;
         }
         default:
@@ -647,33 +658,40 @@ void Creature::Update(uint32 diff)
 
 void Creature::RegenerateMana()
 {
-    uint32 curValue = GetPower(POWER_MANA);
-    uint32 maxValue = GetMaxPower(POWER_MANA);
+    uint32 l_CurValue = GetPower(POWER_MANA);
+    uint32 l_MaxValue = GetMaxPower(POWER_MANA);
 
-    if (curValue >= maxValue)
+    if (l_CurValue >= l_MaxValue)
         return;
 
-    uint32 addvalue = 0;
+    float l_Addvalue = 0;
 
     // Combat and any controlled creature
     if (isInCombat() || GetCharmerOrOwnerGUID())
     {
-        float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-        float Spirit = GetStat(STAT_SPIRIT);
-        addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
+        float l_ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+        float l_Spirit = GetStat(STAT_SPIRIT);
+        l_Addvalue = uint32((l_Spirit / 5.0f + 17.0f) * l_ManaIncreaseRate);
+
+        /// - Pet have 60 % of owner mana regen
+        Unit* l_Owner = GetOwner();
+        if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
+            l_Addvalue = 0.6f * (isInCombat() ? l_Owner->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) : l_Owner->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER)) * 5.0f;
     }
     else
-        addvalue = maxValue / 3;
+        l_Addvalue = l_MaxValue / 3;
 
     // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_MANA)
-            AddPct(addvalue, (*i)->GetAmount());
+    AuraEffectList const& l_ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator l_Iterator = l_ModPowerRegenPCTAuras.begin(); l_Iterator != l_ModPowerRegenPCTAuras.end(); ++l_Iterator)
+    {
+        if ((*l_Iterator)->GetMiscValue() == POWER_MANA)
+            AddPct(l_Addvalue, (*l_Iterator)->GetAmount());
+    }
 
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
+    l_Addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
 
-    ModifyPower(POWER_MANA, addvalue);
+    ModifyPower(POWER_MANA, std::floor(l_Addvalue));
 }
 
 void Creature::RegenerateHealth()
@@ -681,36 +699,43 @@ void Creature::RegenerateHealth()
     if (!isRegeneratingHealth())
         return;
 
-    uint32 curValue = GetHealth();
-    uint32 maxValue = GetMaxHealth();
+    uint32 l_CurValue = GetHealth();
+    uint32 l_MaxValue = GetMaxHealth();
 
-    if (curValue >= maxValue)
+    if (l_CurValue >= l_MaxValue)
         return;
 
-    uint32 addvalue = 0;
+    uint32 l_AddValue = 0;
+    bool   l_Fight    = HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT);
 
     // Not only pet, but any controlled creature
-    if (GetCharmerOrOwnerGUID())
+    if (GetCharmerOrOwnerGUID() || l_Fight)
     {
-        float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-        float Spirit = GetStat(STAT_SPIRIT);
+        float l_HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
 
-        if (GetPower(POWER_MANA) > 0)
-            addvalue = uint32(Spirit * 0.25 * HealthIncreaseRate);
+        l_AddValue = l_HealthIncreaseRate;
+
+        if (getLevel() < 15)
+            l_AddValue = 106.0f * l_HealthIncreaseRate;                                             ///< I've try level 1 to 5, it's always 106 at each tick
         else
-            addvalue = uint32(Spirit * 0.80 * HealthIncreaseRate);
+            l_AddValue = 0.027f * (float)GetMaxHealth() * l_HealthIncreaseRate;                     ///< Sure about this one, hunter lvl 90 without any stuff/buff/spec
+
+        l_AddValue += GetTotalAuraModifier(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT);
     }
     else
-        addvalue = maxValue/3;
+        l_AddValue = l_MaxValue / 3;
 
     // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        AddPct(addvalue, (*i)->GetAmount());
+    AuraEffectList const& l_ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator l_Iterator = l_ModPowerRegenPCTAuras.begin(); l_Iterator != l_ModPowerRegenPCTAuras.end(); ++l_Iterator)
+        AddPct(l_AddValue, (*l_Iterator)->GetAmount());
 
-    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * CREATURE_REGEN_INTERVAL  / (5 * IN_MILLISECONDS);
+    if (l_Fight)
+        ApplyPct(l_AddValue, GetTotalAuraModifier(SPELL_AURA_MOD_REGEN_DURING_COMBAT));
 
-    ModifyHealth(addvalue);
+    l_AddValue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * CREATURE_REGEN_INTERVAL  / (5 * IN_MILLISECONDS);
+
+    ModifyHealth(l_AddValue);
 }
 
 void Creature::DoFleeToGetAssistance()

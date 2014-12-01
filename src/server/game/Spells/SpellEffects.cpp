@@ -443,11 +443,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
                                             damage = aurEff->GetAmount();
                                         break;
-                                        // Mirror Image, Frost Bolt
-                                    case 59638:
-                                        if (m_caster->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-                                            damage += int32(((Guardian*)m_caster)->GetBonusDamage() * 0.25f);
-                                        break;
                                         // Consumption
                                     case 28865:
                                         damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY ? 2750 : 4250);
@@ -819,11 +814,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         {
                                  switch (m_spellInfo->Id)
                                  {
-                                     // Mirror Image, Fire Blast
-                                 case 59637:
-                                     if (m_caster->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-                                         damage += int32(((Guardian*)m_caster)->GetBonusDamage() * 0.15f);
-                                     break;
                                      // Frost Bomb
                                  case 113092:
                                  {

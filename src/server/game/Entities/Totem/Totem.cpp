@@ -32,7 +32,7 @@ Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(prop
     m_type = TOTEM_PASSIVE;
 }
 
-void Totem::Update(uint32 time, uint32 entry)
+void Totem::Update(uint32 time)
 {
     if (!m_owner->isAlive() || !isAlive())
     {

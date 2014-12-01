@@ -465,14 +465,30 @@ typedef ACE_Based::LockedMap<uint32, QuestObjectiveLocale> QuestObjectiveLocaleC
 typedef std::multimap<uint32, uint32> QuestRelations;
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
 
-struct PetLevelInfo
+struct PetStatInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
+    enum PowerStatBase
+    {
+        AttackPower = 0,
+        SpellPower  = 1
+    };
 
-    uint16 stats[MAX_STATS];
-    uint32 health;
-    uint32 mana;
-    uint16 armor;
+    PetStatInfo()
+    {
+        memset(this, 0, sizeof(PetStatInfo));
+    }
+
+    float m_Speed;
+    float m_ArmorCoef;
+    float m_APSPCoef;
+    float m_HealthCoef;
+    float m_DamageCoef;
+    float m_AttackSpeed;
+    float m_CreatePower;
+    float m_SecondaryStatCoef;
+
+    Powers        m_Power;
+    PowerStatBase m_PowerStat;
 };
 
 struct MailLevelReward
@@ -783,7 +799,7 @@ class ObjectMgr
 
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId);
 
-        PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
+        PetStatInfo const* GetPetStatInfo(uint32 p_Entry) const;
 
         void GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseHP, uint32& baseMana) const;
 
@@ -1049,7 +1065,7 @@ class ObjectMgr
         PageText const* GetPageText(uint32 pageEntry);
 
         void LoadPlayerInfo();
-        void LoadPetLevelInfo();
+        void LoadPetStatInfo();
         void LoadExplorationBaseXP();
         void LoadPetNames();
         void LoadPetNumber();
@@ -1547,9 +1563,8 @@ class ObjectMgr
 
         CreatureBaseStatsContainer _creatureBaseStatsStore;
 
-        typedef std::map<uint32, PetLevelInfo*> PetLevelInfoContainer;
-        // PetLevelInfoContainer[creature_id][level]
-        PetLevelInfoContainer _petInfoStore;                            // [creature_id][level]
+        typedef std::map<uint32, PetStatInfo> PetStatInfoContainer;
+        PetStatInfoContainer m_PetInfoStore;
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
