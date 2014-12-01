@@ -4517,22 +4517,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                                    m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
                                break;
     }
-    case SPELLFAMILY_DRUID:
-    {
-                              switch (m_spellInfo->Id)
-                              {
-                              case 5221:  // Shred
-                              case 114236:// Shred (Glyph of Shred)
-                                  if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                                  if (unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-                                      totalDamagePercentMod *= 1.2f;
-                                  break;
-                              default:
-                                  break;
-                              }
-
-                              break;
-    }
     case SPELLFAMILY_HUNTER:
     {
                                float shotMod = 0;

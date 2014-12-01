@@ -4525,9 +4525,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 67801: // Deterrence
                 spellInfo->ProcCharges = 100;
                 break;
-            case 114234:// Glyph of Shred
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
             case 120954:// Fortifying Brew
                 spellInfo->Effects[4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
