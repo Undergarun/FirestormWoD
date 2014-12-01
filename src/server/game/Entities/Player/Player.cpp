@@ -18460,6 +18460,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
 
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, real_entry);   // MUST BE CALLED FIRST
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, real_entry, addkillcount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
+
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -18484,6 +18485,9 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         m_QuestStatusSave[questid] = true;
                         SendQuestUpdateAddCredit(qInfo, l_Objective, guid, currentCounter, addkillcount);
                     }
+
+                    if (l_Objective.Amount == m_questObjectiveStatus[l_Objective.ID])
+                        sScriptMgr->OnObjectiveValidate(this, questid, l_Objective.ID);
 
                     if (CanCompleteQuest(questid))
                         CompleteQuest(questid);

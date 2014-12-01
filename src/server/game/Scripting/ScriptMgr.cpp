@@ -1298,6 +1298,11 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
     FOREACH_SCRIPT(PlayerScript)->OnQuestReward(p_Player, p_Quest);
 }
 
+void ScriptMgr::OnObjectiveValidate(Player* p_Player, uint32 p_QuestId, uint32 p_ObjectiveId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnObjectiveValidate(p_Player, p_QuestId, p_ObjectiveId);
+}
+
 void ScriptMgr::OnPlayerLevelChanged(Player* player, uint8 oldLevel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(player, oldLevel);

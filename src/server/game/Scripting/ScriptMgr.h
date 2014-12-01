@@ -755,6 +755,8 @@ class PlayerScript : public ScriptObject
         virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
 
         virtual void OnQuestReward(Player* /*player*/, const Quest* /*quest*/) { }
+
+        virtual void OnObjectiveValidate(Player* /*player*/, uint32 /*questid*/, uint32 /*ObjectiveId*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -1038,6 +1040,7 @@ class ScriptMgr
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZoneID, uint32 newArea);
         void OnPlayerUpdateMovement(Player* p_Player);
         void OnQuestReward(Player* player, const Quest* quest);
+        void OnObjectiveValidate(Player* player, uint32 questId, uint32 ObjectiveId);
 
     public: /* GuildScript */
 
