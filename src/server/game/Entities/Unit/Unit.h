@@ -235,7 +235,8 @@ enum ShapeshiftForm
     FORM_FLIGHT             = 0x1D,
     FORM_STEALTH            = 0x1E,
     FORM_MOONKIN            = 0x1F,
-    FORM_SPIRITOFREDEMPTION = 0x20
+    FORM_SPIRITOFREDEMPTION = 0x20,
+    FORM_GLADIATORSTANCE    = 0x21
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2
@@ -2075,17 +2076,19 @@ class Unit : public WorldObject
         {
             SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3, form);
         }
-
         inline bool IsInFeralForm() const
         {
             ShapeshiftForm form = GetShapeshiftForm();
             return form == FORM_CAT || form == FORM_BEAR;
         }
-
+        inline bool IsTravelForm(ShapeshiftForm p_Form) const
+        {
+            return p_Form == FORM_AQUA || p_Form == FORM_STAG || p_Form == FORM_FLIGHT || p_Form == FORM_FLIGHT_EPIC;
+        }
         inline bool IsInDisallowedMountForm() const
         {
             ShapeshiftForm form = GetShapeshiftForm();
-            return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
+            return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_GLADIATORSTANCE && form != FORM_DEFENSIVESTANCE &&
                 form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD && form != FORM_WISE_SERPENT && form != FORM_STURDY_OX && form != FORM_FIERCE_TIGER && form != FORM_MOONKIN;
         }
 

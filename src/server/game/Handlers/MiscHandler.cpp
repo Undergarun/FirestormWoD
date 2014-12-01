@@ -915,33 +915,22 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& p_Packet)
     GetPlayer()->SpawnCorpseBones();
 }
 
-void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RESURRECT_RESPONSE");
-
-    uint32 status;
-    recvData >> status;
-
-    ObjectGuid guid;
-
-    uint8 bitsOrder[8] = { 3, 4, 1, 5, 2, 0, 7, 6 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 0, 6, 4, 5, 3, 1, 2, 7 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
+    uint32 l_Status = p_RecvData.read<uint32>();
 
     if (GetPlayer()->isAlive())
         return;
 
-    if (status == 1)
+    if (l_Status == 1)
     {
         GetPlayer()->ClearResurrectRequestData();           // reject
         return;
     }
 
-    if (!GetPlayer()->IsRessurectRequestedBy(guid))
+    if (!GetPlayer()->IsRessurectRequestedBy(l_Guid))
         return;
 
     GetPlayer()->ResurectUsingRequestData();
@@ -1346,8 +1335,8 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     bool l_TriggerScriptEvent = recvData.ReadBit();                 // 0 or 1 expected
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(m_Player->GetLevelPlayedTime());
     data << uint32(m_Player->GetTotalPlayedTime());
+    data << uint32(m_Player->GetLevelPlayedTime());
     data.WriteBit(l_TriggerScriptEvent);                            // 0 - will not show in chat frame
     data.FlushBits();
     SendPacket(&data);
@@ -1400,8 +1389,28 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
             l_Data << uint32(l_Item->GetEntry());
             l_Data << uint32(l_Item->GetItemSuffixFactor());
             l_Data << int32(l_Item->GetItemRandomPropertyId());
-            l_Data.WriteBit(false); // HasModifications
-            l_Data.WriteBit(false); // HasBonuses
+
+            bool l_HasBonuses = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() > 0;
+            bool l_HasModifiers = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_MODIFIERS).size() > 0;
+
+            l_Data.WriteBit(l_HasBonuses);
+            l_Data.WriteBit(l_HasModifiers);
+
+            if (l_HasBonuses)
+            {
+                l_Data << uint8(0);     ///< UnkByte
+                l_Data << uint32(0);    ///< Count
+            }
+
+            if (l_HasModifiers)
+            {
+                uint32 l_ModifyMask = l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
+
+                l_Data << uint32(l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
+
+                if (l_ModifyMask & ITEM_TRANSMOGRIFIED)
+                    l_Data << uint32(l_Item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
+            }
         }
 
         l_Data << uint8(l_Iter);
@@ -1600,30 +1609,25 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
 
     std::string msg = charname + "'s " + "account is " + acc + ", e-mail: " + email + ", last ip: " + lastip;
 
-    WorldPacket data(SMSG_WHOIS, msg.size()+1);
-    data.WriteBits(msg.size(), 11);
-
-    data.FlushBits();
-    if (msg.size())
-        data.append(msg.c_str(), msg.size());
-
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_WHOIS, msg.size()+1);
+    l_Data.WriteBits(msg.size(), 11);
+    l_Data.FlushBits();
+    l_Data.WriteString(msg);
+    SendPacket(&l_Data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received whois command from player %s for character %s", GetPlayer()->GetName(), charname.c_str());
 }
 
 void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_COMPLAIN");
-
     // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
     WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
-    data << uint8(0);   // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
     data << uint32(0);  // value 0xC generates a "CalendarError" in client.
+    data << uint8(0);   // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
     SendPacket(&data);
 }
 
@@ -1927,23 +1931,16 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }
 
-void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
+void WorldSession::HandleQueryInspectAchievements(WorldPacket& p_RecvData)
 {
-    ObjectGuid guid;
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
 
-    uint8 bitsOrder[8] = { 7, 4, 0, 5, 2, 1, 3, 6 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 3, 2, 4, 6, 1, 7, 5, 0 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)
+    Player* l_Player = ObjectAccessor::FindPlayer(l_Guid);
+    if (!l_Player)
         return;
 
-    player->GetAchievementMgr().SendAchievementInfo(m_Player);
+    l_Player->GetAchievementMgr().SendAchievementInfo(m_Player);
 }
 
 void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& p_Packet)

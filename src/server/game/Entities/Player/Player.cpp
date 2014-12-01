@@ -723,7 +723,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_objectTypeId = TYPEID_PLAYER;
 
     m_valuesCount = PLAYER_END;
-    _dynamicTabCount = PLAYER_DYNAMIC_END;
+    _dynamicValuesCount = PLAYER_DYNAMIC_END;
 
     m_session = session;
 
@@ -1918,7 +1918,7 @@ void Player::Update(uint32 p_time, uint32 entry /*= 0*/)
     }
 
     // Regenerate consumed spell charges
-    spellChargesTracker_.update(p_time);
+    m_SpellChargesTracker.update(p_time);
 
     // Zone Skip Update
     if (sObjectMgr->IsSkipZone(GetZoneId()) || isAFK())
@@ -4102,8 +4102,6 @@ void Player::GiveLevel(uint8 level)
     //update level, max level of skills
     m_Played_time[PLAYED_TIME_LEVEL] = 0;                   // Level Played Time reset
 
-    _ApplyAllLevelScaleItemMods(false);
-
     SetLevel(level);
 
     // save base values (bonuses already included in stored stats
@@ -4119,7 +4117,7 @@ void Player::GiveLevel(uint8 level)
     InitGlyphsForLevel();
 
     UpdateAllStats();
-    _ApplyAllLevelScaleItemMods(true);                      // Moved to above SetFullHealth so player will have full health from Heirlooms
+    RescaleAllItemsIfNeeded(true);
 
     // Refresh amount of all auras (aura which use scaling for basepoint calcul need to be refresh at level up ...)
     AuraApplicationMap const& l_AppliedAuras =  GetAppliedAuras();
@@ -7015,27 +7013,26 @@ void Player::RepopAtGraveyard()
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 }
 
-void Player::SendCemeteryList(bool onMap)
+void Player::SendCemeteryList(bool p_OnMap)
 {
-    ByteBuffer buf(16);
-    uint32 count = 0;
+    ByteBuffer l_Buffer(16);
+    uint32 l_Counter = 0;
 
-    uint32 zoneId = GetZoneId();
-    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(zoneId);
-    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    uint32 l_ZoneID = GetZoneId();
+    GraveYardContainer::const_iterator l_GraveLow  = sObjectMgr->GraveYardStore.lower_bound(l_ZoneID);
+    GraveYardContainer::const_iterator l_GraveUP   = sObjectMgr->GraveYardStore.upper_bound(l_ZoneID);
+    for (GraveYardContainer::const_iterator l_Iter = l_GraveLow; l_Iter != l_GraveUP; ++l_Iter)
     {
-        ++count;
-        buf << uint32(itr->second.safeLocId);
+        ++l_Counter;
+        l_Buffer << uint32(l_Iter->second.safeLocId);
     }
 
-    WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
-    packet.WriteBit(onMap);
-    packet.WriteBits(count, 22);
-    packet.FlushBits();
-    if (buf.size())
-        packet.append(buf);
-    GetSession()->SendPacket(&packet);
+    WorldPacket l_Packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, l_Buffer.wpos()+4);
+    l_Packet.WriteBit(p_OnMap);
+    l_Packet << uint32(l_Counter);
+    if (l_Counter)
+        l_Packet.append(l_Buffer);
+    GetSession()->SendPacket(&l_Packet);
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
@@ -10561,24 +10558,6 @@ void Player::_ApplyAllItemMods()
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "_ApplyAllItemMods complete.");
 }
 
-void Player::_ApplyAllLevelScaleItemMods(bool apply)
-{
-    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
-    {
-        if (m_items[i])
-        {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
-                continue;
-
-            ItemTemplate const* proto = m_items[i]->GetTemplate();
-            if (!proto)
-                continue;
-
-            RescaleItemTo(i, GetEquipItemLevelFor(proto));
-        }
-    }
-}
-
 /*  If in a battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
@@ -13785,16 +13764,20 @@ bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
 {
     switch (p_BagProto->SubClass)
     {
-    case ITEM_SUBCLASS_HERB_CONTAINER:
-    case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
-    case ITEM_SUBCLASS_GEM_CONTAINER:
-    case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
-    case ITEM_SUBCLASS_MINING_CONTAINER:
-    case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
-    case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
-    case ITEM_SUBCLASS_TACKLE_CONTAINER:
-    case ITEM_SUBCLASS_COOKING_CONTAINER:
-        return true;
+        case ITEM_SUBCLASS_HERB_CONTAINER:
+        case ITEM_SUBCLASS_ENGINEERING_CONTAINER:
+        case ITEM_SUBCLASS_GEM_CONTAINER:
+        case ITEM_SUBCLASS_ENCHANTING_CONTAINER:
+        case ITEM_SUBCLASS_MINING_CONTAINER:
+        case ITEM_SUBCLASS_LEATHERWORKING_CONTAINER:
+        case ITEM_SUBCLASS_INSCRIPTION_CONTAINER:
+        case ITEM_SUBCLASS_TACKLE_CONTAINER:
+        case ITEM_SUBCLASS_COOKING_CONTAINER:
+        case ITEM_SUBCLASS_ENCHANTING_CONTAINER_2:
+        case ITEM_SUBCLASS_MATERIALS_CONTAINER:
+        case ITEM_SUBCLASS_ITEM_ENCHANTMENT_CONTAINER:
+        case ITEM_SUBCLASS_WEAPON_ENCHANTMENT_CONTAINER:
+            return true;
     }
     return false;
 }
@@ -17207,8 +17190,12 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
 
     if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
     {
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+
+        memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
+        memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
+
         if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
         {
             uint32 index = 0;
@@ -19828,6 +19815,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
 
+    _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
+
     return true;
 }
 
@@ -20685,7 +20674,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
             m_dailyQuestStorage.insert(quest_id);
             if (++quest_daily_idx < DynamicFields::Count)
-                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, quest_daily_idx++, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx++, quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -20999,7 +20988,7 @@ void Player::BindToInstance()
         return;
 
     WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-    data << uint32(0);
+    data.WriteBit(false);
     GetSession()->SendPacket(&data);
     BindToInstance(mapSave, true);
 
@@ -21008,70 +20997,37 @@ void Player::BindToInstance()
 
 void Player::SendRaidInfo()
 {
-    uint32 counter = 0;
-    WorldPacket data(SMSG_RAID_INSTANCE_INFO);
+    uint32 l_Counter = 0;
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO);
+    ByteBuffer l_Buffer;
+    time_t l_Now = time(NULL);
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-            if (itr->second.perm)
-                counter++;
-
-    data.WriteBits(counter, 20);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
     {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
+        for (BoundInstancesMap::iterator l_Itr = m_boundInstances[l_Iter].begin(); l_Itr != m_boundInstances[l_Iter].end(); ++l_Itr)
         {
-            if (itr->second.perm)
+            if (l_Itr->second.perm)
             {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
+                InstanceSave* l_Save = l_Itr->second.save;
+                l_Counter++;
 
-                data.WriteBit(instanceGUID[0]);
-                data.WriteBit(instanceGUID[7]);
-                data.WriteBit(instanceGUID[5]);
-                data.WriteBit(1);
-                data.WriteBit(instanceGUID[2]);
-                data.WriteBit(instanceGUID[1]);
-                data.WriteBit(0);
-                data.WriteBit(instanceGUID[3]);
-                data.WriteBit(instanceGUID[4]);
-                data.WriteBit(instanceGUID[6]);
+                l_Buffer << uint32(l_Save->GetMapId());
+                l_Buffer << uint32(l_Save->GetDifficulty());
+                l_Buffer << uint64(l_Save->GetInstanceId());
+                l_Buffer << uint32(l_Save->GetResetTime() - l_Now);
+                l_Buffer << uint32(l_Save->GetEncounterMask());
+                l_Buffer.WriteBit(true);    ///< Locked
+                l_Buffer.WriteBit(false);   ///< Extended
+                l_Buffer.FlushBits();
             }
         }
     }
 
-    data.FlushBits();
+    l_Data << uint32(l_Counter);
+    if (l_Counter)
+        l_Data.append(l_Buffer);
 
-    time_t now = time(NULL);
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
-            if (itr->second.perm)
-            {
-                InstanceSave* save = itr->second.save;
-                ObjectGuid instanceGUID = MAKE_NEW_GUID(save->GetInstanceId(), 0, HIGHGUID_INSTANCE_SAVE);
-
-                data << uint32(save->GetDifficulty());      // difficulty
-
-                data.WriteByteSeq(instanceGUID[5]);
-                data << uint32(save->GetResetTime() - now);  // reset time
-                data.WriteByteSeq(instanceGUID[1]);
-                data.WriteByteSeq(instanceGUID[4]);
-                data.WriteByteSeq(instanceGUID[6]);
-                data.WriteByteSeq(instanceGUID[3]);
-                data << uint32(save->GetMapId());           // map id
-                data.WriteByteSeq(instanceGUID[2]);
-                data.WriteByteSeq(instanceGUID[0]);
-                data << uint32(save->GetEncounterMask()); // mask boss killed
-                data.WriteByteSeq(instanceGUID[7]);
-            }
-        }
-    }
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 /*
@@ -22540,18 +22496,11 @@ void Player::SendAttackSwingCancelAttack()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendAutoRepeatCancel(Unit* target)
+void Player::SendAutoRepeatCancel(Unit* p_Target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT);
-    ObjectGuid targetGuid = target->GetGUID();
-
-    uint8 bitsOrder[8] = { 3, 7, 2, 5, 4, 1, 0, 6 };
-    data.WriteBitInOrder(targetGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 4, 1, 0, 7, 2, 3, 6, 5 };
-    data.WriteBytesSeq(targetGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_CANCEL_AUTO_REPEAT);
+    l_Data.appendPackGUID(p_Target->GetGUID());
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
@@ -24675,7 +24624,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             {
                 SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
                 if (category && category->ChargeRegenTime != 0)
-                    spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
+                    m_SpellChargesTracker.consume(spellInfo->Id, category->ChargeRegenTime);
             }
 
             return;
@@ -24719,11 +24668,11 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     {
         SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
         if (category && category->ChargeRegenTime != 0)
-            spellChargesTracker_.consume(spellInfo->Id, category->ChargeRegenTime);
+            m_SpellChargesTracker.consume(spellInfo->Id, category->ChargeRegenTime);
     }
 }
 
-void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time)
+void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
 {
     SpellCooldown sc;
     uint64 currTime = 0;
@@ -24731,6 +24680,18 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time)
     sc.end = currTime + end_time;
     sc.itemid = itemid;
     m_spellCooldowns[spellid] = sc;
+
+    if (p_send)
+    {
+        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+        data.appendPackGUID(GetGUID());
+        data << uint8(1);
+        data << uint32(1);
+        data << uint32(spellid);
+        data << uint32(end_time);
+
+        GetSession()->SendPacket(&data);
+    }
 }
 
 void Player::SendCategoryCooldown(uint32 p_CategoryID, int32 p_CoolDown)
@@ -24921,7 +24882,6 @@ void Player::CorrectMetaGemEnchants(uint8 exceptslot, bool apply)
     }
 }
 
-                                                            //if false -> then toggled off if was on| if true -> toggled on if was off AND meets requirements
 void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
 {
     //cycle all equipped items
@@ -25569,9 +25529,11 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendMoveRoot(0);
 
     SendCooldownAtLogin();
+    SendSpellCharges();
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
+    RescaleAllItemsIfNeeded(true);
 
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
@@ -25618,6 +25580,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     WorldPacket l_NullPacket;
     GetSession()->HandleLfgGetStatus(l_NullPacket);
+
+    SendToyBox();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -25950,7 +25914,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
             m_DailyQuestChanged = true;
 
             if (m_dailyQuestStorage.size() - 1 < DynamicFields::Count)
-                SetDynamicUInt32Value(PLAYER_DYNAMIC_DAILY_QUESTS_COMPLETED, m_dailyQuestStorage.size() - 1, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, m_dailyQuestStorage.size() - 1, quest_id);
         }
         else
         {
@@ -29980,7 +29944,7 @@ bool Player::HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category)
     if (category.ChargeRegenTime == 0)
         return true;
 
-    uint32 const consumedCharges = spellChargesTracker_.consumedCount(spellId);
+    uint32 const consumedCharges = m_SpellChargesTracker.consumedCount(spellId);
     if (consumedCharges == 0)
         return true;
 
@@ -30362,6 +30326,7 @@ void Player::ReloadPetBattles()
     stmt->setUInt32(0, GetSession()->GetAccountId());
     _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
 }
+
 /// PetBattleCountBattleSpecies
 void Player::PetBattleCountBattleSpecies()
 {
@@ -30383,6 +30348,7 @@ void Player::PetBattleCountBattleSpecies()
         l_Battle->Teams[l_ThisTeamID]->CapturedSpeciesCount[p_PetBattle->Species]++;
     });
 }
+
 /// Update battle pet combat team
 void Player::UpdateBattlePetCombatTeam()
 {
@@ -30401,13 +30367,114 @@ void Player::UpdateBattlePetCombatTeam()
     });
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// ToyBox
+void Player::_LoadToyBox(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        Field* l_Fields = p_Result->Fetch();
+        uint32 l_ItemID = l_Fields[0].GetUInt32();
+        bool l_IsFavorite = l_Fields[1].GetBool();
+
+        if (!HasToy(l_ItemID))
+        {
+            PlayerToy l_PlayerToy = PlayerToy(l_ItemID, l_IsFavorite);
+            m_PlayerToys.insert(std::make_pair(l_ItemID, l_PlayerToy));
+        }
+    }
+    while (p_Result->NextRow());
+
+    uint32 l_Count = 0;
+    for (PlayerToys::iterator l_Toy = m_PlayerToys.begin(); l_Toy != m_PlayerToys.end(); ++l_Toy)
+    {
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_Count, l_Toy->second.m_ItemID);
+        ++l_Count;
+    }
+}
+
+void Player::SendToyBox()
+{
+    uint32 l_ToyCount = m_PlayerToys.size();
+
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    l_Data.WriteBit(true);      // IsFullUpdate
+
+    l_Data << uint32(l_ToyCount);
+    l_Data << uint32(l_ToyCount);
+
+    for (auto l_Toy : m_PlayerToys)
+        l_Data << uint32(l_Toy.second.m_ItemID);
+
+    for (auto l_Toy : m_PlayerToys)
+        l_Data.WriteBit(l_Toy.second.m_IsFavorite);
+
+    SendDirectMessage(&l_Data);
+}
+
+void Player::AddNewToyToBox(uint32 p_ItemID)
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_TOYS);
+    l_Statement->setUInt32(0, GetSession()->GetAccountId());
+    l_Statement->setUInt32(1, p_ItemID);
+    l_Statement->setBool(2, false);
+    CharacterDatabase.Execute(l_Statement);
+
+    if (!HasToy(p_ItemID))
+    {
+        PlayerToy l_PlayerToy = PlayerToy(p_ItemID, false);
+        m_PlayerToys.insert(std::make_pair(p_ItemID, l_PlayerToy));
+
+        uint32 l_ToySize = m_PlayerToys.size();
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_ToySize, p_ItemID);
+    }
+}
+
+void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_TOY_FAVORITE);
+    l_Statement->setBool(0, p_Apply);
+    l_Statement->setUInt32(1, GetSession()->GetAccountId());
+    l_Statement->setUInt32(2, p_ItemID);
+    CharacterDatabase.Execute(l_Statement);
+
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    l_Data.WriteBit(false);     // IsFullUpdate
+
+    l_Data << uint32(1);
+    l_Data << uint32(1);
+    l_Data << uint32(p_ItemID);
+    l_Data.WriteBit(p_Apply);   // IsFavorite
+
+    SendDirectMessage(&l_Data);
+
+    if (PlayerToy* l_PlayerToy = GetToy(p_ItemID))
+        l_PlayerToy->m_IsFavorite = p_Apply;
+}
+//////////////////////////////////////////////////////////////////////////
+
 bool Player::HasUnlockedReagentBank()
 {
     return HasFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
 }
+
 void Player::UnlockReagentBank()
 {
     SetFlag(PLAYER_FIELD_PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED);
+}
+
+uint32 Player::GetFreeReagentBankSlot() const
+{
+    for (uint8 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; ++l_I)
+    {
+        if (!GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            return l_I;
+    }
+
+    return REAGENT_BANK_SLOT_BAG_END;
 }
 
 Garrison * Player::GetGarrison()
@@ -30490,6 +30557,36 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     m_itemScale[slot] = ilvl;
 }
 
+void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
+{
+    float l_HealthPct = GetHealthPct();
+    bool l_HasAnythingChanged = false;
+
+    for (uint8 l_I = 0; l_I < EQUIPMENT_SLOT_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            if (l_Item->IsBroken() || !CanUseAttackType(GetAttackBySlot(l_I)))
+                continue;
+
+            uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate());
+            if (m_itemScale[l_I] != ilvl)
+            {
+                RescaleItemTo(l_I, ilvl);
+                l_HasAnythingChanged = true;
+            }
+        }
+    }
+
+    if (l_HasAnythingChanged)
+    {
+        if (p_KeepHPPct)
+            SetHealth(l_HealthPct * (float)GetMaxHealth() / 100.f);
+
+        UpdateItemLevel();
+    }
+}
+
 void Player::SetInPvPCombat(bool set)
 {
     if (m_pvpCombat == set)
@@ -30503,13 +30600,7 @@ void Player::SetInPvPCombat(bool set)
 
 void Player::OnEnterPvPCombat()
 {
-    float hpPct = GetHealthPct();
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        if (Item* item = m_items[i])
-            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
-                RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
-
-    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
+    RescaleAllItemsIfNeeded(true);
 }
 
 void Player::UpdatePvP(uint32 diff)
@@ -30529,13 +30620,7 @@ void Player::UpdatePvP(uint32 diff)
 
 void Player::OnLeavePvPCombat()
 {
-    float hpPct = GetHealthPct();
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        if (Item* item = m_items[i])
-            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
-                RescaleItemTo(i, GetEquipItemLevelFor(item->GetTemplate()));
-
-    SetHealth(hpPct * (float)GetMaxHealth() / 100.f);
+    RescaleAllItemsIfNeeded(true);
 }
 
 /// Get pet battle combat team size
@@ -30685,3 +30770,65 @@ bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
 
     return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+/// SpellCharges
+void Player::SendSpellCharges()
+{
+    SpellChargesMap l_SpellChargesMap = m_SpellChargesTracker.GetSpellChargesMap();
+
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES);
+
+    size_t l_EntriesPos = l_Data.wpos();
+    l_Data << uint32(0);
+
+    uint32 l_Count = 0;
+    for (auto l_SpellCharges : l_SpellChargesMap)
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharges.first);
+        if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
+            continue;
+
+        l_Data << uint32(l_SpellInfo->GetSpellCategories()->ChargesCategory);
+        l_Data << uint32(l_SpellCharges.second.m_CurrentRegenTime);
+        l_Data << uint8(l_SpellCharges.second.m_ConsumedCharges);
+
+        ++l_Count;
+    }
+
+    l_Data.put(l_EntriesPos, l_Count);
+
+    SendDirectMessage(&l_Data);
+}
+
+void Player::SendClearAllSpellCharges()
+{
+    WorldPacket l_Data(SMSG_CLEAR_ALL_SPELL_CHARGES);
+    l_Data.appendPackGUID(GetGUID());
+    SendDirectMessage(&l_Data);
+}
+
+void Player::SendSetSpellCharges(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo == nullptr || p_SpellInfo->GetSpellCategories() == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
+    l_Data << int32(p_SpellInfo->GetSpellCategories()->ChargesCategory);
+    l_Data << float(0.0f);  ///< Count
+    l_Data.WriteBit(false); ///< IsPet
+    l_Data.FlushBits();
+    SendDirectMessage(&l_Data);
+}
+
+void Player::SendClearSpellCharges(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo == nullptr || p_SpellInfo->GetSpellCategories() == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_SpellInfo->GetSpellCategories()->ChargesCategory);
+    SendDirectMessage(&l_Data);
+}
+//////////////////////////////////////////////////////////////////////////

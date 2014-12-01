@@ -534,6 +534,12 @@ class ByteBuffer
             return *this;
         }
 
+        ByteBuffer &operator<<(bool &value)
+        {
+            append<uint8>(value);
+            return *this;
+        }
+
         ByteBuffer &operator>>(bool &value)
         {
             value = read<char>() > 0 ? true : false;

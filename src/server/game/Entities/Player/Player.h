@@ -527,7 +527,7 @@ enum PlayerFlagsEx
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   5
+#define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
@@ -896,7 +896,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY             = 40,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS    = 41,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
-    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 43,
+    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1284,6 +1285,25 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
+struct PlayerToy
+{
+    PlayerToy()
+    {
+        memset(this, 0, sizeof (PlayerToy));
+    }
+
+    PlayerToy(uint32 p_Item, bool p_Favorite)
+    {
+        m_ItemID = p_Item;
+        m_IsFavorite = p_Favorite;
+    }
+
+    uint32 m_ItemID;
+    bool m_IsFavorite;
+};
+
+typedef std::map<uint32, PlayerToy> PlayerToys;
+
 enum BattlegroundTimerTypes
 {
     PVP_TIMER,
@@ -1552,6 +1572,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool HasUnlockedReagentBank();
         void UnlockReagentBank();
+        uint32 GetFreeReagentBankSlot() const;
 
         /**
         * @name ModifyCurrency
@@ -2043,7 +2064,7 @@ class Player : public Unit, public GridObject<Player>
             return uint32(itr != m_spellCooldowns.end() && itr->second.end > currTime ? itr->second.end - currTime : 0);
         }
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
-        void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time);
+        void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time, bool send = false);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID = 0, Spell * p_Spell = NULL, bool p_SetCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
@@ -2531,7 +2552,6 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
-        void _ApplyAllLevelScaleItemMods(bool apply);
         void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
         void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
@@ -3133,8 +3153,33 @@ class Player : public Unit, public GridObject<Player>
         /// Update battle pet combat team
         void UpdateBattlePetCombatTeam();
 
+        //////////////////////////////////////////////////////////////////////////
+        /// ToyBox
+        void _LoadToyBox(PreparedQueryResult p_Result);
+        void SendToyBox();
+        void AddNewToyToBox(uint32 p_ItemID);
+        void SetFavoriteToy(bool p_Apply, uint32 p_ItemID);
+
+        PlayerToy* GetToy(uint32 p_ItemID)
+        {
+            if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
+                return &m_PlayerToys[p_ItemID];
+
+            return nullptr;
+        }
+
+        bool HasToy(uint32 p_ItemID) const
+        {
+            if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
+                return true;
+
+            return false;
+        }
+        //////////////////////////////////////////////////////////////////////////
+
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
+        void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
 
         void SetInPvPCombat(bool set);
         bool IsInPvPCombat() const { return m_pvpCombat; }
@@ -3142,6 +3187,16 @@ class Player : public Unit, public GridObject<Player>
         void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
 
         uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// SpellCharges
+        JadeCore::SpellChargesTracker m_SpellChargesTracker;
+
+        void SendSpellCharges();
+        void SendClearAllSpellCharges();
+        void SendSetSpellCharges(SpellInfo const* p_SpellInfo);
+        void SendClearSpellCharges(SpellInfo const* p_SpellInfo);
+        //////////////////////////////////////////////////////////////////////////
 
     protected:
         void OnEnterPvPCombat();
@@ -3158,6 +3213,8 @@ class Player : public Unit, public GridObject<Player>
         std::vector<std::pair<uint32, uint32>> m_OldPetBattleSpellToMerge;
 
         PreparedQueryResultFuture _petBattleJournalCallback;
+
+        PlayerToys m_PlayerToys;
 
     private:
         // Gamemaster whisper whitelist
@@ -3568,8 +3625,6 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
-
-        JadeCore::SpellChargesTracker spellChargesTracker_;
 
         uint8 m_bgRoles;
 

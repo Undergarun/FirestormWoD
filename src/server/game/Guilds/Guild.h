@@ -372,6 +372,8 @@ class Guild
 
                 void DecreaseBankRemainingValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
                 uint32 GetBankRemainingValue(uint8 tabId, const Guild* guild) const;
+                uint64 GetRemainingWithdrawMoney() const { return m_WithdrawMoneyValue; }
+                void DecreaseRemainingMoneyValue(SQLTransaction& p_Transaction, uint64 p_Amount);
 
                 void ResetTabTimes();
                 void ResetMoneyTime();
@@ -395,7 +397,9 @@ class Guild
                 std::string m_publicNote;
                 std::string m_officerNote;
 
-                RemainingValue m_bankRemaining[GUILD_BANK_MAX_TABS + 1];
+                RemainingValue m_bankRemaining[GUILD_BANK_MAX_TABS];
+                uint32 m_WithdrawMoneyReset;
+                uint64 m_WithdrawMoneyValue;
         };
 
         // News Log class
@@ -777,6 +781,8 @@ class Guild
         void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
         void BroadcastPacket(WorldPacket* packet) const;
 
+        void MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank);
+
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = NULL)
         {
@@ -904,7 +910,7 @@ class Guild
         std::string _GetRankName(uint32 rankId) const;
 
         uint32 _GetMemberRemainingSlots(uint64 guid, uint8 tabId) const;
-        uint32 _GetMemberRemainingMoney(uint64 guid) const;
+        uint64 _GetMemberRemainingMoney(uint64 guid) const;
         void _DecreaseMemberRemainingSlots(SQLTransaction& trans, uint64 guid, uint8 tabId);
         bool _MemberHasTabRights(uint64 guid, uint8 tabId, uint32 rights) const;
 

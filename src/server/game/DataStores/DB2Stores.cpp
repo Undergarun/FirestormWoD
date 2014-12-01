@@ -243,9 +243,7 @@ void LoadDB2Stores(const std::string& dataPath)
     for (uint32 l_I = 1; l_I < sItemEffectStore.GetNumRows(); ++l_I)
     {
         if (ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(l_I))
-        {
             sItemEffectsByItemID[l_Entry->ItemID].push_back(l_I);
-        }
     }
 
     // Initialize global taxinodes mask

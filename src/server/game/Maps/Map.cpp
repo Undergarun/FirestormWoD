@@ -2939,7 +2939,7 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
             l_Player->BindToInstance(l_Save, true);
 
             WorldPacket l_Data(SMSG_INSTANCE_SAVE_CREATED, 4);
-            l_Data << uint32(0);
+            l_Data.WriteBit(false);
             l_Player->GetSession()->SendPacket(&l_Data);
 
             l_Player->GetSession()->SendCalendarRaidLockout(l_Save, true);

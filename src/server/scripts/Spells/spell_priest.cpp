@@ -961,16 +961,17 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_divine_insight_discipline_AuraScript);
 
-            void Trigger(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Trigger(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
             {
-                Unit* target = GetTarget();
-                if (dmgInfo.GetAttacker() == target)
+                Unit* l_Target = GetTarget();
+                if (p_DmgInfo.GetAttacker() == l_Target
+                    || (p_DmgInfo.GetSpellInfo() &&  p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id))
                     return;
 
-                if (AuraEffectPtr reflectiveShield = target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
+                if (AuraEffectPtr l_ReflectiveShield = l_Target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
                 {
-                    int32 bp = CalculatePct(absorbAmount, reflectiveShield->GetAmount());
-                    target->CastCustomSpell(dmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &bp, NULL, NULL, true);
+                    int32 l_BasePoint = CalculatePct(p_AbsorbAmount, l_ReflectiveShield->GetAmount());
+                    l_Target->CastCustomSpell(p_DmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_BasePoint, NULL, NULL, true);
                 }
             }
 

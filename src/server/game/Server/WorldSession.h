@@ -16,10 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup u2w
-/// @{
-/// \file
-
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
 
@@ -32,8 +28,6 @@
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
 
-class CalendarEvent;
-class CalendarInvite;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -692,6 +686,7 @@ class WorldSession
         void HandleBuyBankSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyReagentBankOpcode(WorldPacket& recvPacket);
         void HandleSortReagentBankBagsOpcode(WorldPacket& recvPacket);
+        void HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData);
 
         void HandleTrainerListOpcode(WorldPacket& recvPacket);
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
@@ -991,36 +986,25 @@ class WorldSession
         void HandleAcceptGrantLevel(WorldPacket& recvData);
 
         // Calendar
-        void HandleCalendarGetCalendar(WorldPacket& recvData);
-        void HandleCalendarGetEvent(WorldPacket& recvData);
-        void HandleCalendarGuildFilter(WorldPacket& recvData);
-        void HandleCalendarArenaTeam(WorldPacket& recvData);
-        void HandleCalendarAddEvent(WorldPacket& recvData);
-        void HandleCalendarUpdateEvent(WorldPacket& recvData);
-        void HandleCalendarRemoveEvent(WorldPacket& recvData);
-        void HandleCalendarCopyEvent(WorldPacket& recvData);
-        void HandleCalendarEventInvite(WorldPacket& recvData);
-        void HandleCalendarEventRsvp(WorldPacket& recvData);
-        void HandleCalendarEventRemoveInvite(WorldPacket& recvData);
-        void HandleCalendarEventStatus(WorldPacket& recvData);
-        void HandleCalendarEventModeratorStatus(WorldPacket& recvData);
-        void HandleCalendarComplain(WorldPacket& recvData);
-        void HandleCalendarGetNumPending(WorldPacket& recvData);
-        void HandleCalendarEventSignup(WorldPacket& recvData);
+        void HandleCalendarGetCalendar(WorldPacket& p_RecvData);
+        void HandleCalendarGetEvent(WorldPacket& p_RecvData);
+        void HandleCalendarGuildFilter(WorldPacket& p_RecvData);
+        void HandleCalendarAddEvent(WorldPacket& p_RecvData);
+        void HandleCalendarUpdateEvent(WorldPacket& p_RecvData);
+        void HandleCalendarRemoveEvent(WorldPacket& p_RecvData);
+        void HandleCalendarCopyEvent(WorldPacket& p_RecvData);
+        void HandleCalendarEventInvite(WorldPacket& p_RecvData);
+        void HandleCalendarEventRsvp(WorldPacket& p_RecvData);
+        void HandleCalendarEventRemoveInvite(WorldPacket& p_RecvData);
+        void HandleCalendarEventStatus(WorldPacket& p_RecvData);
+        void HandleCalendarEventModeratorStatus(WorldPacket& p_RecvData);
+        void HandleCalendarComplain(WorldPacket& p_RecvData);
+        void HandleCalendarGetNumPending(WorldPacket& p_RecvData);
+        void HandleCalendarEventSignup(WorldPacket& p_RecvData);
+        void HandleSetSavedInstanceExtend(WorldPacket& p_RecvData);
 
-        void SendCalendarEvent(CalendarEvent const& calendarEvent, CalendarSendEventType sendEventType);
-        void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
-        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& calendarInvite);
-        void SendCalendarEventInviteRemove(CalendarInvite const& invite, uint32 flags);
-        void SendCalendarEventInviteRemoveAlert(CalendarEvent const& calendarEvent, CalendarInviteStatus status);
-        void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent);
-        void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, CalendarSendEventType sendEventType);
-        void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
-        void SendCalendarClearPendingAction();
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void SendCalendarCommandResult(CalendarError err, char const* param = "");
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);
@@ -1059,7 +1043,6 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
-        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleRequestHotfix(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
@@ -1116,6 +1099,13 @@ class WorldSession
         void SendPetBattleFirstRound(PetBattle* battle);
         void SendPetBattleFinalRound(PetBattle* p_Battle);
         void SendPetBattleFinished(PetBattle* battle);
+
+        //////////////////////////////////////////////////////////////////////////
+        /// ToyBox
+        //////////////////////////////////////////////////////////////////////////
+        void HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData);
+        void HandleSetFavoriteToyOpcode(WorldPacket& p_RecvData);
+        void HandleUseToyOpcode(WorldPacket& p_RecvData);
 
     private:
         void InitializeQueryCallbackParameters();

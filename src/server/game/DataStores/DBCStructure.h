@@ -2165,11 +2165,9 @@ struct SpellShapeshiftFormEntry
 struct SpellShapeshiftEntry
 {
     uint32  Id;                                             // 0 -      m_ID
-    uint32  StancesNot;                                     // 3 -      m_shapeshiftExclude
-    // uint32    m_shapeshiftExclude;                       // 2 -      m_shapeshiftExclude
-    uint32  Stances;                                        // 1 -      m_shapeshiftMask
-    // uint32   m_ShapeshiftMask;                           // 4 -      m_ShapeshiftMask
-    // int32    StanceBarOrder;                             // 5 -      m_stanceBarOrder
+    uint64  StancesNot;                                     // 1 - 2    m_shapeshiftExclude
+    uint64  Stances;                                        // 3 - 4    m_shapeshiftMask
+    int32   StanceBarOrder;                                 // 5 -      m_stanceBarOrder
 };
 
 struct SpellTargetRestrictionsEntry

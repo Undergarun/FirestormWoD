@@ -3466,10 +3466,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[EFFECT_0].Amplitude = 2000;
                 break;
-            case 73683:  // Unleash Flame
-            case 165462: // Unleash Flame
-                spellInfo->ProcCharges = 1;
-                break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
@@ -5107,12 +5103,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 114695:// Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 6262:  // Healthstone
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_OBS_MOD_HEALTH;
-                spellInfo->Effects[1].BasePoints = 4;
-                break;
             case 56224: // Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
@@ -5163,6 +5153,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 145151:// Dream of Cenarius (Balance)
             case 122510:// Ultimatum
             case 34784: // Intervene (triggered)
+            case 73683: // Unleash Flame
+            case 165462:// Unleash Flame
+            case 52437: // Sudden Death
                 spellInfo->ProcCharges = 1;
                 break;
             case 111546:

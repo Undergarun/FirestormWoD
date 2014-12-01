@@ -553,7 +553,7 @@ public:
     void SendInterrupted(uint8 result);
     void SendChannelUpdate(uint32 time);
     void SendChannelStart(uint32 duration);
-    void SendResurrectRequest(Player* target);
+    void SendResurrectRequest(Player* p_Target);
 
     void HandleHolyPower(Player* caster);
     void HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_GOTarget, AreaTrigger* p_AreaTrigger, uint32 i, SpellEffectHandleMode mode);
@@ -563,6 +563,7 @@ public:
     Item* m_CastItem;
     uint64 m_castItemGUID;
     uint8 m_cast_count;
+    uint32 m_CastItemEntry;
     uint32 m_glyphIndex;
     uint32 m_preCastSpell;
     SpellCastTargets m_targets;

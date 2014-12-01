@@ -2526,16 +2526,15 @@ void ObjectMgr::LoadItemTemplates()
         for (uint32 l_I = 0; l_I < l_EffectsIndex.size(); ++l_I)
         {
             const ItemEffectEntry * l_Entry = sItemEffectStore.LookupEntry(l_EffectsIndex[l_I]);
-
             if (!l_Entry)
                 continue;
 
-            itemTemplate.Spells[l_I].SpellId                  = l_Entry->SpellID;
-            itemTemplate.Spells[l_I].SpellTrigger             = l_Entry->SpellTrigger;
-            itemTemplate.Spells[l_I].SpellCharges             = l_Entry->SpellCharge;
-            itemTemplate.Spells[l_I].SpellCooldown            = l_Entry->SpellCooldown;
-            itemTemplate.Spells[l_I].SpellCategory            = l_Entry->SpellCategory;
-            itemTemplate.Spells[l_I].SpellCategoryCooldown    = l_Entry->SpellCategoryCooldown;
+            itemTemplate.Spells[l_Entry->EffectIndex].SpellId               = l_Entry->SpellID;
+            itemTemplate.Spells[l_Entry->EffectIndex].SpellTrigger          = l_Entry->SpellTrigger;
+            itemTemplate.Spells[l_Entry->EffectIndex].SpellCharges          = l_Entry->SpellCharge;
+            itemTemplate.Spells[l_Entry->EffectIndex].SpellCooldown         = l_Entry->SpellCooldown;
+            itemTemplate.Spells[l_Entry->EffectIndex].SpellCategory         = l_Entry->SpellCategory;
+            itemTemplate.Spells[l_Entry->EffectIndex].SpellCategoryCooldown = l_Entry->SpellCategoryCooldown;
         }
 
         itemTemplate.SpellPPMRate = 0.0f;
@@ -2695,8 +2694,8 @@ void ObjectMgr::LoadItemTemplates()
                 itemTemplate.Spells[i].SpellCategoryCooldown = fields[73 + 6 * i + 5].GetInt32();
 
              // Add spell into the store for correct handling
-            if (itemTemplate.Spells[i].SpellCategory > 0)
-                sSpellCategoryStore[itemTemplate.Spells[i].SpellCategory].insert(itemTemplate.Spells[i].SpellId);
+                if (itemTemplate.Spells[i].SpellCategory > 0)
+                    sSpellCategoryStore[itemTemplate.Spells[i].SpellCategory].insert(itemTemplate.Spells[i].SpellId);
             }
 
             itemTemplate.SpellPPMRate   = 0.0f;

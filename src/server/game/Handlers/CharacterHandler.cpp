@@ -242,6 +242,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_TOYS);
+    l_Statement->setUInt32(0, m_accountId);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS, l_Statement);
+
     return l_Result;
 }
 
@@ -1614,86 +1618,81 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     sWorld->UpdateCharacterNameData(guidLow, newName);
 }
 
-void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
+void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& p_RecvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    uint64       l_Player;
+    uint8        l_DeclinedNameSize[5];
+    DeclinedName l_DeclinedName;
 
-    // not accept declined names for unsupported languages
-    std::string name;
-    if (!sObjectMgr->GetPlayerNameByGUID(guid, name))
+    p_RecvData.readPackGUID(l_Player);
+
+    for (int l_I = 0; l_I < MAX_DECLINED_NAME_CASES; l_I++)
+        l_DeclinedNameSize[l_I] = p_RecvData.ReadBits(7);
+
+    for (int l_I = 0; l_I < MAX_DECLINED_NAME_CASES; l_I++)
     {
-        SendPlayerDeclinedNamesResult(guid, 1);
-        return;
-    }
-
-    std::wstring wname;
-    if (!Utf8toWStr(name, wname))
-    {
-        SendPlayerDeclinedNamesResult(guid, 1);
-        return;
-    }
-
-    if (!isCyrillicCharacter(wname[0]))                      // name already stored as only single alphabet using
-    {
-        SendPlayerDeclinedNamesResult(guid, 1);
-        return;
-    }
-
-    std::string name2;
-    DeclinedName declinedname;
-
-    recvData >> name2;
-
-    if (name2 != name)                                       // character have different name
-    {
-        SendPlayerDeclinedNamesResult(guid, 1);
-        return;
-    }
-
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-    {
-        recvData >> declinedname.name[i];
-        if (!normalizePlayerName(declinedname.name[i]))
+        l_DeclinedName.name[l_I] = p_RecvData.ReadString(l_DeclinedNameSize[l_I]);
+        if (!normalizePlayerName(l_DeclinedName.name[l_I]))
         {
-            SendPlayerDeclinedNamesResult(guid, 1);
+            SendPlayerDeclinedNamesResult(l_Player, 1);
             return;
         }
     }
 
-    if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
+    // not accept declined names for unsupported languages
+    std::string l_Name;
+    if (!sObjectMgr->GetPlayerNameByGUID(l_Player, l_Name))
     {
-        SendPlayerDeclinedNamesResult(guid, 1);
+        SendPlayerDeclinedNamesResult(l_Player, 1);
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        CharacterDatabase.EscapeString(declinedname.name[i]);
+    std::wstring l_WName;
+    if (!Utf8toWStr(l_Name, l_WName))
+    {
+        SendPlayerDeclinedNamesResult(l_Player, 1);
+        return;
+    }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    if (!isCyrillicCharacter(l_WName[0]))                      // name already stored as only single alphabet using
+    {
+        SendPlayerDeclinedNamesResult(l_Player, 1);
+        return;
+    }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-    stmt->setUInt32(0, GUID_LOPART(guid));
-    trans->Append(stmt);
+    if (!ObjectMgr::CheckDeclinedNames(l_WName, l_DeclinedName))
+    {
+        SendPlayerDeclinedNamesResult(l_Player, 1);
+        return;
+    }
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_DECLINED_NAME);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    for (int l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+        CharacterDatabase.EscapeString(l_DeclinedName.name[l_I]);
 
-    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-        stmt->setString(i+1, declinedname.name[i]);
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    trans->Append(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
+    l_Statement->setUInt32(0, GUID_LOPART(l_Player));
+    l_Transaction->Append(l_Statement);
 
-    CharacterDatabase.CommitTransaction(trans);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_DECLINED_NAME);
+    l_Statement->setUInt32(0, GUID_LOPART(l_Player));
 
-    SendPlayerDeclinedNamesResult(guid, 0);
+    for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; l_I++)
+        l_Statement->setString(l_I + 1, l_DeclinedName.name[l_I]);
+
+    l_Transaction->Append(l_Statement);
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    SendPlayerDeclinedNamesResult(l_Player, 0);
 }
 
-void WorldSession::SendPlayerDeclinedNamesResult(uint64 guid, uint32 result)
+void WorldSession::SendPlayerDeclinedNamesResult(uint64 p_Player, uint32 p_Result)
 {
-    WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
-    data << uint32(result);
-    data << uint64(guid);
+    WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4 + 8);
+    data << uint32(p_Result);
+    data.appendPackGUID(p_Player);
     SendPacket(&data);
 }
 

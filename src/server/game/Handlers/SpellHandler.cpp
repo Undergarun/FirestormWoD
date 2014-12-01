@@ -285,7 +285,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     SpellCastTargets targets;
 
-    targets.Initialize(l_SendCastFlag, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
+    targets.Initialize(l_TargetFlags, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
     targets.SetElevation(l_MissibleTrajectoryPitch);
     targets.SetSpeed(l_MissibleTrajectorySpeed);
     targets.Update(mover);
@@ -942,7 +942,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
             {
                 // Display Transmogrifications on player's clone
-                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)))
+                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
                     data << uint32(proto->DisplayInfoID);
                 else
                     data << uint32(item->GetTemplate()->DisplayInfoID);
@@ -973,39 +973,189 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
+//////////////////////////////////////////////////////////////////////////
+/// ToyBox
+void WorldSession::HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_PROJECTILE_POSITION");
+    uint64 l_ItemGuid = 0;
+    p_RecvData.readPackGUID(l_ItemGuid);
 
-    uint64 casterGuid;
-    uint32 spellId;
-    uint8 castCount;
-    float x, y, z;    // Position of missile hit
-
-    recvPacket >> casterGuid;
-    recvPacket >> spellId;
-    recvPacket >> castCount;
-    recvPacket >> x;
-    recvPacket >> y;
-    recvPacket >> z;
-
-    Unit* caster = ObjectAccessor::GetUnit(*m_Player, casterGuid);
-    if (!caster)
+    Item* l_Item = m_Player->GetItemByGuid(l_ItemGuid);
+    if (!l_Item)
         return;
 
-    Spell* spell = caster->FindCurrentSpellBySpellId(spellId);
-    if (!spell || !spell->m_targets.HasDst())
+    if (m_Player->HasToy(l_Item->GetEntry()))
         return;
 
-    Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(x, y, z);
-    spell->m_targets.ModDst(pos);
-
-    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
-    data << uint64(casterGuid);
-    data << uint8(castCount);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    caster->SendMessageToSet(&data, true);
+    m_Player->AddNewToyToBox(l_Item->GetEntry());
+    m_Player->DestroyItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+    m_Player->SendPlaySpellVisualKit(179, 0);   // SpellCastDirected
 }
+
+void WorldSession::HandleSetFavoriteToyOpcode(WorldPacket& p_RecvData)
+{
+    uint32 l_ItemID = p_RecvData.read<uint32>();
+    bool l_Apply = p_RecvData.ReadBit();
+
+    if (!m_Player->HasToy(l_ItemID))
+        return;
+
+    m_Player->SetFavoriteToy(l_Apply, l_ItemID);
+}
+
+void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
+{
+    uint32 l_ItemID = p_RecvData.read<uint32>();
+
+    if (!m_Player->HasToy(l_ItemID))
+    {
+        p_RecvData.rfinish();
+        return;
+    }
+
+    std::string l_SrcTargetName;
+
+    uint64 l_TargetItemGUID = 0;
+    uint64 l_SourceTargetGUID = 0;
+    uint64 l_DestinationTargetGUID = 0;
+    uint64 l_TargetGUID = 0;
+    uint64 l_UnkGUID = 0;
+
+    float l_MissibleTrajectorySpeed = 0.00f;
+    float l_MissibleTrajectoryPitch = 0.00f;
+
+    uint8   * l_SpellWeightType = nullptr;
+    uint32  * l_SpellWeightID = nullptr;
+    uint32  * l_SpellWeightQuantity = nullptr;
+
+    uint32 l_SpellID = 0;
+    uint32 l_Misc = 0;
+    uint32 l_TargetFlags = 0;
+    uint32 l_NameLenght = 0;
+    uint32 l_SpellWeightCount = 0;
+
+    float l_UnkFloat = 0;
+
+    uint8 l_CastCount = 0;
+    uint8 l_SendCastFlag = 0;
+
+    bool l_HasSourceTarget = false;
+    bool l_HasDestinationTarget = false;
+    bool l_HasUnkFloat = false;
+    bool l_HasMovementInfos = false;
+
+    WorldLocation l_SourceTargetPosition;
+    WorldLocation l_DestinationTargetPosition;
+
+    p_RecvData >> l_CastCount;
+    p_RecvData >> l_SpellID;
+    p_RecvData >> l_Misc;
+
+    l_TargetFlags = p_RecvData.ReadBits(21);
+    l_HasSourceTarget = p_RecvData.ReadBit();
+    l_HasDestinationTarget = p_RecvData.ReadBit();
+    l_HasUnkFloat = p_RecvData.ReadBit();
+    l_NameLenght = p_RecvData.ReadBits(7);
+    p_RecvData.FlushBits();
+    p_RecvData.readPackGUID(l_TargetGUID);
+    p_RecvData.readPackGUID(l_TargetItemGUID);
+
+    if (l_HasSourceTarget)
+    {
+        p_RecvData.readPackGUID(l_SourceTargetGUID);
+        p_RecvData >> l_SourceTargetPosition.m_positionX;
+        p_RecvData >> l_SourceTargetPosition.m_positionY;
+        p_RecvData >> l_SourceTargetPosition.m_positionZ;
+    }
+
+    if (l_HasDestinationTarget)
+    {
+        p_RecvData.readPackGUID(l_DestinationTargetGUID);
+        p_RecvData >> l_DestinationTargetPosition.m_positionX;
+        p_RecvData >> l_DestinationTargetPosition.m_positionY;
+        p_RecvData >> l_DestinationTargetPosition.m_positionZ;
+    }
+
+    if (l_HasUnkFloat)
+        p_RecvData >> l_UnkFloat;
+
+    l_SrcTargetName = p_RecvData.ReadString(l_NameLenght);
+
+    p_RecvData >> l_MissibleTrajectoryPitch;
+    p_RecvData >> l_MissibleTrajectorySpeed;
+
+    p_RecvData.readPackGUID(l_UnkGUID);
+
+    l_SendCastFlag = p_RecvData.ReadBits(5);
+    l_HasMovementInfos = p_RecvData.ReadBit();
+    l_SpellWeightCount = p_RecvData.ReadBits(2);
+
+    if (l_HasMovementInfos)
+        HandleMovementOpcodes(p_RecvData);
+
+    if (l_SpellWeightCount)
+    {
+        l_SpellWeightType = new uint8[l_SpellWeightCount];
+        l_SpellWeightID = new uint32[l_SpellWeightCount];
+        l_SpellWeightQuantity = new uint32[l_SpellWeightCount];
+
+        for (uint32 l_I = 0; l_I < l_SpellWeightCount; ++l_I)
+        {
+            l_SpellWeightType[l_I] = p_RecvData.ReadBits(2);
+            p_RecvData >> l_SpellWeightID[l_I];
+            p_RecvData >> l_SpellWeightQuantity[l_I];
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+
+    if (l_SpellWeightCount)
+    {
+        for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
+        {
+            switch (l_SpellWeightType[l_I])
+            {
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
+                case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        delete[] l_SpellWeightType;
+        delete[] l_SpellWeightID;
+        delete[] l_SpellWeightQuantity;
+    }
+
+    // ignore for remote control state (for player case)
+    Unit* l_Mover = m_Player->m_mover;
+    if (l_Mover != m_Player && l_Mover->GetTypeId() == TYPEID_PLAYER)
+    {
+        p_RecvData.rfinish();
+        return;
+    }
+
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+    if (!l_SpellInfo)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown spell id %u", l_SpellID);
+        p_RecvData.rfinish();
+        return;
+    }
+
+    SpellCastTargets l_Targets;
+
+    l_Targets.Initialize(l_TargetFlags, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);
+    l_Targets.SetElevation(l_MissibleTrajectoryPitch);
+    l_Targets.SetSpeed(l_MissibleTrajectorySpeed);
+    l_Targets.Update(l_Mover);
+
+    Spell* l_Spell = new Spell(l_Mover, l_SpellInfo, TRIGGERED_NONE, 0, false);
+    l_Spell->m_cast_count = l_CastCount;
+    l_Spell->m_CastItemEntry = l_ItemID;
+    l_Spell->m_glyphIndex = l_Misc;
+    l_Spell->prepare(&l_Targets);
+}
+//////////////////////////////////////////////////////////////////////////

@@ -1046,10 +1046,10 @@ class spell_warr_charge : public SpellScriptLoader
 
         enum
         {
-            CHARGE_STUN        = 7922,
+            WARBRINGER_STUN    = 7922,
             DOUBLE_TIME        = 103827,
             WARBRINGER         = 103828,
-            WARBRINGER_STUN    = 105771,
+            CHARGE_ROOT        = 105771,
             DOUBLE_TIME_MARKER = 124184
         };
 
@@ -1075,7 +1075,7 @@ class spell_warr_charge : public SpellScriptLoader
             if (!caster)
                 return;
 
-            uint32 stunSpellId = caster->HasAura(WARBRINGER) ? WARBRINGER_STUN : CHARGE_STUN;
+            uint32 stunSpellId = caster->HasAura(WARBRINGER) ? WARBRINGER_STUN : CHARGE_ROOT;
             caster->CastSpell(target, stunSpellId, true);
         }
 

@@ -77,13 +77,14 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
     m_objectTypeId      = TYPEID_OBJECT;
     m_objectType        = TYPEMASK_OBJECT;
+    m_updateFlag        = UPDATEFLAG_NONE;
 
-    m_uint32Values      = NULL;
-    _changedFields      = NULL;
-    _dynamicFields      = NULL;
-    m_valuesCount       = 0;
-    _dynamicTabCount    = 0;
-    _fieldNotifyFlags   = UF_FLAG_URGENT;
+    m_uint32Values = nullptr;
+    _dynamicChangesArrayMask = nullptr;
+    _dynamicValues = nullptr;
+    m_valuesCount = 0;
+    _dynamicValuesCount = 0;
+    _fieldNotifyFlags = UF_FLAG_VIEWER_DEPENDENT;
 
     m_inWorld           = false;
     m_objectUpdated     = false;
@@ -131,27 +132,45 @@ Object::~Object()
         sObjectAccessor->RemoveUpdateObject(this);
     }
 
-    delete [] m_uint32Values;
-    delete [] _changedFields;
-    delete [] _dynamicFields;
+    if (m_uint32Values)
+    {
+        delete[] m_uint32Values;
+        m_uint32Values = nullptr;
+    }
+
+    if (_dynamicValues)
+    {
+        delete[] _dynamicValues;
+        _dynamicValues = nullptr;
+    }
+
+    if (_dynamicChangesArrayMask)
+    {
+        delete[] _dynamicChangesArrayMask;
+        _dynamicChangesArrayMask = nullptr;
+    }
 }
 
 void Object::_InitValues()
 {
     m_uint32Values = new uint32[m_valuesCount];
-    memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
+    memset(m_uint32Values, 0, m_valuesCount * sizeof (uint32));
 
-    _changedFields = new bool[m_valuesCount];
-    memset(_changedFields, 0, m_valuesCount*sizeof(bool));
+    _changesMask.SetCount(m_valuesCount);
+    _dynamicChangesMask.SetCount(_dynamicValuesCount);
 
-    _dynamicFields = new DynamicFields[_dynamicTabCount];
+    if (_dynamicValuesCount)
+    {
+        _dynamicValues = new std::vector<uint32>[_dynamicValuesCount];
+        _dynamicChangesArrayMask = new UpdateMask[_dynamicValuesCount];
+    }
 
     m_objectUpdated = false;
 }
 
 void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
 {
-    if (!m_uint32Values || !_dynamicFields)
+    if (!m_uint32Values || !_dynamicValues)
         _InitValues();
 
     uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
@@ -257,7 +276,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
-    BuildDynamicValuesUpdate(updateType, &buf);
+    BuildDynamicValuesUpdate(updateType, &buf, target);
 
     data->AddUpdateBlock(buf);
 }
@@ -294,7 +313,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
-    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
     data->AddUpdateBlock(buf);
 }
@@ -854,7 +873,7 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)))
         {
             updateMask.SetBit(index);
             fieldBuffer << m_uint32Values[index];
@@ -876,74 +895,58 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     data->append(fieldBuffer);
 }
 
-void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data) const
+void Object::BuildDynamicValuesUpdate(uint8 p_UpdateType, ByteBuffer* p_Data, Player* p_Target) const
 {
-    // Crashfix, prevent use of bag with dynamic field
-    Item* temp = ((Item*)this);
-    if (GetTypeId() == TYPEID_ITEM && temp && temp->ToBag())
-    {
-        *data << uint8(0);
+    if (!p_Target)
         return;
-    }
 
-    if (_dynamicTabCount == 0)
+    ByteBuffer l_FieldBuffer;
+    UpdateMask l_UpdateMask;
+    l_UpdateMask.SetCount(_dynamicValuesCount);
+
+    uint32* l_Flags = nullptr;
+    uint32 l_VisibleFlags = GetDynamicUpdateFieldData(p_Target, l_Flags);
+
+    for (uint16 l_Index = 0; l_Index < _dynamicValuesCount; ++l_Index)
     {
-        *data << uint8(0);
-        return;
-    }
-
-    uint32 dynamicTabMask = 0;
-    std::vector<uint32> dynamicFieldsMask;
-    dynamicFieldsMask.resize(_dynamicTabCount);
-
-    for (uint32 i = 0; i < _dynamicTabCount; ++i)
-    {
-        dynamicFieldsMask[i] = 0;
-
-        for (int index = 0; index < DynamicFields::Count; ++index)
+        ByteBuffer l_Buffer;
+        std::vector<uint32> const& l_Values = _dynamicValues[l_Index];
+        if (_fieldNotifyFlags & l_Flags[l_Index] ||
+            ((p_UpdateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(l_Index) : !l_Values.empty()) && (l_Flags[l_Index] & l_VisibleFlags)))
         {
-            if (updateType == UPDATETYPE_VALUES ? (!_dynamicFields[i]._dynamicChangedFields[index])
-                                                : (!_dynamicFields[i]._dynamicValues[index]))
-                continue;
+            l_UpdateMask.SetBit(l_Index);
 
-            dynamicTabMask |= 1 << i;
-            dynamicFieldsMask[i] |= 1 << index;
-        }
-    }
-
-    *data << uint8(bool(dynamicTabMask));
-    if (dynamicTabMask)
-    {
-        *data << uint32(dynamicTabMask);
-
-        for (uint32 i = 0; i < _dynamicTabCount; ++i)
-        {
-            if (dynamicTabMask & (1 << i)) //if ( (1 << (v16 & 31)) & *(&dest + (v16 >> 5)) )
+            UpdateMask l_ArrayMask;
+            l_ArrayMask.SetCount(l_Values.size());
+            for (std::size_t l_Iter = 0; l_Iter < l_Values.size(); ++l_Iter)
             {
-                *data << uint8(1);
-                *data << uint32(dynamicFieldsMask[i]);
-
-                for (int index = 0; index < 32; index++)
+                if (p_UpdateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[l_Index].GetBit(l_Iter))
                 {
-                    if (dynamicFieldsMask[i] & (1 << index))
-                        *data << uint32(_dynamicFields[i]._dynamicValues[index]);
+                    l_ArrayMask.SetBit(l_Iter);
+                    l_Buffer << uint32(l_Values[l_Iter]);           ///< DynamicValue
                 }
             }
+
+            l_FieldBuffer << uint8(l_ArrayMask.GetBlockCount());    ///< TabCount
+            l_ArrayMask.AppendToPacket(&l_FieldBuffer);             ///< TabMask (Completed fields)
+            l_FieldBuffer.append(l_Buffer);
         }
     }
+
+    *p_Data << uint8(l_UpdateMask.GetBlockCount());                 ///< MaskSize
+    l_UpdateMask.AppendToPacket(p_Data);                            ///< Mask
+    p_Data->append(l_FieldBuffer);
 }
 
 void Object::ClearUpdateMask(bool remove)
 {
-    memset(_changedFields, 0, m_valuesCount*sizeof(bool));
+    _changesMask.Clear();
+    _dynamicChangesMask.Clear();
+    for (uint32 i = 0; i < _dynamicValuesCount; ++i)
+        _dynamicChangesArrayMask[i].Clear();
 
     if (m_objectUpdated)
     {
-        for (uint32 i = 0; i < _dynamicTabCount; ++i)
-        {
-            _dynamicFields[i].ClearMask();
-        }
-
         if (remove)
             sObjectAccessor->RemoveUpdateObject(this);
         m_objectUpdated = false;
@@ -977,7 +980,7 @@ void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 cou
     for (uint32 index = 0; index < count; ++index)
     {
         m_uint32Values[startOffset + index] = atol(tokens[index]);
-        _changedFields[startOffset + index] = true;
+        _changesMask.SetBit(startOffset + index);
     }
 }
 
@@ -1006,7 +1009,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 
             if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
                 if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
-                    visibleFlag |= UF_FLAG_EMPATH;
+                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
 
             if (plr && plr->IsInSameRaidWith(target))
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
@@ -1042,6 +1045,45 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     return visibleFlag;
 }
 
+uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const
+{
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
+    switch (GetTypeId())
+    {
+        case TYPEID_ITEM:
+        case TYPEID_CONTAINER:
+            flags = ItemDynamicUpdateFieldFlags;
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+            break;
+        case TYPEID_UNIT:
+        case TYPEID_PLAYER:
+        {
+            Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
+            flags = UnitDynamicUpdateFieldFlags;
+            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
+
+            if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+                if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
+
+            if (plr && plr->IsInSameRaidWith(target))
+                visibleFlag |= UF_FLAG_PARTY_MEMBER;
+            break;
+        }
+        default:
+            flags = nullptr;
+            break;
+    }
+
+    return visibleFlag;
+}
+
 bool Object::AddGuidValue(uint16 index, uint64 value)
 {
     if (value && !*((uint64*)&(m_uint32Values[index])) && !*((uint64*)&(m_uint32Values[index + 2])))
@@ -1052,25 +1094,25 @@ bool Object::AddGuidValue(uint16 index, uint64 value)
         if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
         {
             m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
-            _changedFields[index] = true;
+            _changesMask.SetBit(index);
             l_Changed = true;
         }
         if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
         {
             m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
-            _changedFields[index + 1] = true;
+            _changesMask.SetBit(index + 1);
             l_Changed = true;
         }
         if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
         {
             m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
-            _changedFields[index + 2] = true;
+            _changesMask.SetBit(index + 2);
             l_Changed = true;
         }
         if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
         {
             m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
-            _changedFields[index + 3] = true;
+            _changesMask.SetBit(index + 3);
             l_Changed = true;
         }
 
@@ -1098,10 +1140,10 @@ bool Object::RemoveGuidValue(uint16 index, uint64 value)
         m_uint32Values[index + 2] = 0;
         m_uint32Values[index + 3] = 0;
 
-        _changedFields[index + 0] = true;
-        _changedFields[index + 1] = true;
-        _changedFields[index + 2] = true;
-        _changedFields[index + 3] = true;
+        _changesMask.SetBit(index + 0);
+        _changesMask.SetBit(index + 1);
+        _changesMask.SetBit(index + 2);
+        _changesMask.SetBit(index + 3);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1125,25 +1167,25 @@ void Object::SetGuidValue(uint16 index, uint64 value)
     if (m_uint32Values[index] != PAIR64_LOPART(l_Value.GetLow()))
     {
         m_uint32Values[index] = PAIR64_LOPART(l_Value.GetLow());
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
         l_Changed = true;
     }
     if (m_uint32Values[index + 1] != PAIR64_HIPART(l_Value.GetLow()))
     {
         m_uint32Values[index + 1] = PAIR64_HIPART(l_Value.GetLow());
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index + 1);
         l_Changed = true;
     }
     if (m_uint32Values[index + 2] != PAIR64_LOPART(l_Value.GetHi()))
     {
         m_uint32Values[index + 2] = PAIR64_LOPART(l_Value.GetHi());
-        _changedFields[index + 2] = true;
+        _changesMask.SetBit(index + 2);
         l_Changed = true;
     }
     if (m_uint32Values[index + 3] != PAIR64_HIPART(l_Value.GetHi()))
     {
         m_uint32Values[index + 3] = PAIR64_HIPART(l_Value.GetHi());
-        _changedFields[index + 3] = true;
+        _changesMask.SetBit(index + 3);
         l_Changed = true;
     }
 
@@ -1161,7 +1203,7 @@ void Object::SetInt32Value(uint16 index, int32 value)
     if (m_int32Values[index] != value)
     {
         m_int32Values[index] = value;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1178,7 +1220,7 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
     if (m_uint32Values[index] != value)
     {
         m_uint32Values[index] = value;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1193,7 +1235,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
     m_uint32Values[index] = value;
-    _changedFields[index] = true;
+    _changesMask.SetBit(index);
 }
 
 void Object::SetUInt64Value(uint16 index, uint64 value)
@@ -1203,8 +1245,8 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1221,8 +1263,8 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1243,8 +1285,8 @@ bool Object::RemoveUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1265,7 +1307,7 @@ void Object::SetFloatValue(uint16 index, float value)
     if (m_floatValues[index] != value)
     {
         m_floatValues[index] = value;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1289,7 +1331,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFF) << (offset * 8));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 8));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1313,7 +1355,7 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 16));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1380,7 +1422,7 @@ void Object::SetFlag(uint16 index, uint32 newFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1401,7 +1443,7 @@ void Object::RemoveFlag(uint16 index, uint32 oldFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1424,7 +1466,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
     if (!(uint8(m_uint32Values[index] >> (offset * 8)) & newFlag))
     {
         m_uint32Values[index] |= uint32(uint32(newFlag) << (offset * 8));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1447,7 +1489,7 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
     if (uint8(m_uint32Values[index] >> (offset * 8)) & oldFlag)
     {
         m_uint32Values[index] &= ~uint32(uint32(oldFlag) << (offset * 8));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1457,15 +1499,89 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
     }
 }
 
-void Object::SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value)
+std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
 {
-    ASSERT(tab < _dynamicTabCount);
-    ASSERT(index < DynamicFields::Count);
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    return _dynamicValues[index];
+}
 
-    if (_dynamicFields[tab]._dynamicValues[index] != value)
+uint32 Object::GetDynamicValue(uint16 index, uint16 secondIndex) const
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false) || secondIndex < _dynamicValues[index].size());
+
+    if (_dynamicValues[index].size() > 0)
+        return _dynamicValues[index][secondIndex];
+    else
+        return 0;
+}
+
+void Object::AddDynamicValue(uint16 index, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    std::vector<uint32>& values = _dynamicValues[index];
+    UpdateMask& mask = _dynamicChangesArrayMask[index];
+
+    _dynamicChangesMask.SetBit(index);
+    if (values.size() >= values.capacity())
+        values.reserve(values.capacity() + 32);
+
+    values.push_back(value);
+    if (mask.GetCount() < values.size())
+        mask.AddBlock();
+
+    mask.SetBit(values.size() - 1);
+
+    if (m_inWorld && !m_objectUpdated)
     {
-        _dynamicFields[tab]._dynamicValues[index] = value;
-        _dynamicFields[tab]._dynamicChangedFields[index] = true;
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
+void Object::RemoveDynamicValue(uint16 index, uint32 /*value*/)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    /// TODO: Research if this is actually needed
+}
+
+void Object::ClearDynamicValue(uint16 index)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    if (!_dynamicValues[index].empty())
+    {
+        _dynamicValues[index].clear();
+        _dynamicChangesMask.SetBit(index);
+        _dynamicChangesArrayMask[index].SetCount(0);
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+    }
+}
+
+void Object::SetDynamicValue(uint16 index, uint8 offset, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    std::vector<uint32>& values = _dynamicValues[index];
+
+    if (offset >= values.size())
+    {
+        AddDynamicValue(index, value);
+        return;
+    }
+
+    ASSERT(offset < values.size());
+
+    if (values[offset] != value)
+    {
+        values[offset] = value;
+        _dynamicChangesMask.SetBit(index);
+        _dynamicChangesArrayMask[index].SetBit(offset);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1514,6 +1630,7 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
     streamer.m_pos->Relocate(x, y, z, o);
     return buf;
 }
+
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer)
 {
     float x, y, z;
@@ -2360,7 +2477,7 @@ void WorldObject::SendPlaySound(uint32 p_SoundKitID, bool p_OnlySelf)
 
 void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
-    _changedFields[i] = true;
+    _changesMask.SetBit(i);
     if (m_inWorld && !m_objectUpdated)
     {
         sObjectAccessor->AddUpdateObject(this);

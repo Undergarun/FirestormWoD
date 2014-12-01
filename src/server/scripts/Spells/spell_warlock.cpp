@@ -42,7 +42,6 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
-    WARLOCK_DRAIN_LIFE_HEAL                 = 89653,
     WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
     //WARLOCK_DOOM                            = 603,
@@ -72,7 +71,6 @@ enum WarlockSpells
     WARLOCK_SHADOWFLAME                     = 47960,
     WARLOCK_SOUL_LEECH_HEAL                 = 108366,
     WARLOCK_DARK_REGENERATION               = 108359,
-    WARLOCK_DARK_BARGAIN_DOT                = 110914,
     WARLOCK_MOLTEN_CORE                     = 122355,
     WARLOCK_MOLTEN_CORE_AURA                = 122351,
     WARLOCK_WILD_IMP_SUMMON                 = 104317,
@@ -1361,34 +1359,58 @@ class spell_warl_immolation_aura : public SpellScriptLoader
         }
 };
 
+enum SpellsDarkBargain
+{
+    WARLOCK_DARK_BARGAIN_DOT = 110914
+};
+
 // Dark Bargain - 110913
-class spell_warl_dark_bargain_on_absorb : public SpellScriptLoader
+class spell_warl_dark_bargain : public SpellScriptLoader
 {
     public:
-        spell_warl_dark_bargain_on_absorb() : SpellScriptLoader("spell_warl_dark_bargain_on_absorb") { }
+        spell_warl_dark_bargain() : SpellScriptLoader("spell_warl_dark_bargain") { }
 
-        class spell_warl_dark_bargain_on_absorb_AuraScript : public AuraScript
+        class spell_warl_dark_bargain_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_dark_bargain_on_absorb_AuraScript);
+            PrepareAuraScript(spell_warl_dark_bargain_AuraScript);
+
+            uint32 absorbedAmount;
+
+            bool Load()
+            {
+                absorbedAmount = 0;
+                return true;
+            }
+
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
+            {
+                amount = -1;
+            }
+
+            void Absorb(AuraEffectPtr /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                absorbedAmount += dmgInfo.GetDamage();
+                absorbAmount = dmgInfo.GetDamage();
+            }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    uint32 damageTaken = CalculatePct(caster->GetDamageTakenInPastSecs(GetSpellInfo()->GetDuration()), aurEff->GetBaseAmount());
-                    caster->CastCustomSpell(WARLOCK_DARK_BARGAIN_DOT, SPELLVALUE_BASE_POINT0, damageTaken, caster, true);
-                }
+                uint32 l_Bp0 = CalculatePct(absorbedAmount, aurEff->GetBaseAmount()) / (sSpellMgr->GetSpellInfo(WARLOCK_DARK_BARGAIN_DOT)->GetDuration() / IN_MILLISECONDS);
+                if (l_Bp0)
+                    GetTarget()->CastCustomSpell(WARLOCK_DARK_BARGAIN_DOT, SPELLVALUE_BASE_POINT0, l_Bp0, GetTarget(), true);
             }
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_warl_dark_bargain_on_absorb_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_dark_bargain_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_dark_bargain_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_warl_dark_bargain_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_warl_dark_bargain_on_absorb_AuraScript();
+            return new spell_warl_dark_bargain_AuraScript();
         }
 };
 
@@ -1492,7 +1514,7 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
                         caster->ModifyHealth(-sacrifiedHealth);
                     }
 
-                    amount = CalculatePct(sacrifiedHealth, aurEff->GetBaseAmount() / 100);
+                    amount = CalculatePct(sacrifiedHealth, aurEff->GetBaseAmount());
                 }
             }
 
@@ -1737,34 +1759,6 @@ class spell_warl_demonic_leap : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_demonic_leap_SpellScript();
-        }
-};
-
-// Burning Rush - 111400
-class spell_warl_burning_rush : public SpellScriptLoader
-{
-    public:
-        spell_warl_burning_rush() : SpellScriptLoader("spell_warl_burning_rush") { }
-
-        class spell_warl_burning_rush_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_burning_rush_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                    amount = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_burning_rush_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_burning_rush_AuraScript();
         }
 };
 
@@ -2219,6 +2213,12 @@ class spell_warl_burning_embers : public SpellScriptLoader
         }
 };
 
+enum SpellsDrainLife
+{
+    SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
+    SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
+};
+
 // Drain Life - 689
 class spell_warl_drain_life : public SpellScriptLoader
 {
@@ -2229,17 +2229,17 @@ class spell_warl_drain_life : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_life_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    Player* _player = caster->ToPlayer();
-                    if (!_player)
-                        return;
+                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints / 10;
 
-                    // Restoring 1% of the caster's total health every 1s
-                    int32 basepoints = CalculatePct(_player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
-                    _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
+                    if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
+                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
+
+                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct);
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
                 }
             }
 
@@ -2330,7 +2330,7 @@ class spell_warl_life_tap : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
 
                     if (caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
                     {
@@ -2724,7 +2724,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_call();
     new spell_warl_touch_of_chaos();
     new spell_warl_immolation_aura();
-    new spell_warl_dark_bargain_on_absorb();
+    new spell_warl_dark_bargain();
     new spell_warl_dark_regeneration();
     new spell_warl_soul_leech();
     new spell_warl_sacrificial_pact();
@@ -2734,7 +2734,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hellfire_periodic();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
-    new spell_warl_burning_rush();
     new spell_warl_soul_swap_soulburn();
     new spell_warl_soul_swap();
     new spell_warl_nightfall();

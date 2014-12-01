@@ -540,7 +540,7 @@ bool Group::AddMember(Player* player)
 
         {
             // Broadcast new player group member fields to rest of the group
-            player->SetFieldNotifyFlag(UF_FLAG_ALL_UNITS);
+            player->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
 
             UpdateData groupData(player->GetMapId());
             WorldPacket groupDataPacket;
@@ -555,9 +555,9 @@ bool Group::AddMember(Player* player)
                 {
                     if (player->HaveAtClient(member))   // must be on the same map, or shit will break
                     {
-                        member->SetFieldNotifyFlag(UF_FLAG_ALL_UNITS);
+                        member->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
                         member->BuildValuesUpdateBlockForPlayer(&groupData, player);
-                        member->RemoveFieldNotifyFlag(UF_FLAG_ALL_UNITS);
+                        member->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
                     }
 
                     if (member->HaveAtClient(player))
@@ -578,7 +578,7 @@ bool Group::AddMember(Player* player)
                 if (groupData.BuildPacket(&groupDataPacket))
                     player->SendDirectMessage(&groupDataPacket);
 
-            player->RemoveFieldNotifyFlag(UF_FLAG_ALL_UNITS);
+                player->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
         }
 
         if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
@@ -817,7 +817,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 
     WorldPacket data(SMSG_GROUP_NEW_LEADER);
     data << uint8(l_PartyIndex);
-    data.WriteBits(l_Name.length(), 8);
+    data.WriteBits(l_Name.length(), 6);
     data.FlushBits();
     data.WriteString(l_Name);
 
@@ -3082,46 +3082,26 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 
 void Group::SendRaidMarkersUpdate()
 {
-    uint32 mask = RAID_MARKER_NONE;
+    uint32 l_Mask = RAID_MARKER_NONE;
 
-    for (auto itr : GetRaidMarkers())
-        mask |= itr.mask;
+    for (auto l_Iter : GetRaidMarkers())
+        l_Mask |= l_Iter.mask;
 
-    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, 10);
-    ByteBuffer dataBuffer;
+    WorldPacket l_Data(SMSG_RAID_MARKERS_CHANGED, 10);
+    l_Data << uint8(0);
+    l_Data << uint32(l_Mask);
+    l_Data.WriteBits(GetRaidMarkers().size(), 4);
 
-    data << uint8(0);
-    data << uint32(mask);
-
-    data.WriteBits(GetRaidMarkers().size(), 3);
-
-    // @TODO: Send in classic order instead of summon order
-    for (auto itr : GetRaidMarkers())
+    for (auto l_Iter : GetRaidMarkers())
     {
-        ObjectGuid guid = 0;
-
-        uint8 bits[8] = { 6, 3, 1, 4, 7, 2, 5, 0 };
-        data.WriteBitInOrder(guid, bits);
-
-        dataBuffer << float(itr.posZ);
-        dataBuffer.WriteByteSeq(guid[6]);
-        dataBuffer << uint32(itr.mapId);
-        dataBuffer.WriteByteSeq(guid[4]);
-        dataBuffer << float(itr.posX);
-        dataBuffer << float(itr.posY);
-        dataBuffer.WriteByteSeq(guid[1]);
-        dataBuffer.WriteByteSeq(guid[2]);
-        dataBuffer.WriteByteSeq(guid[7]);
-        dataBuffer.WriteByteSeq(guid[0]);
-        dataBuffer.WriteByteSeq(guid[5]);
-        dataBuffer.WriteByteSeq(guid[3]);
+        l_Data.appendPackGUID(0);
+        l_Data << uint32(l_Iter.mapId);
+        l_Data << float(l_Iter.posX);
+        l_Data << float(l_Iter.posY);
+        l_Data << float(l_Iter.posZ);
     }
 
-    data.FlushBits();
-    if (dataBuffer.size())
-        data.append(dataBuffer);
-
-    BroadcastPacket(&data, true);
+    BroadcastPacket(&l_Data, true);
 }
 
 void Group::AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z)
