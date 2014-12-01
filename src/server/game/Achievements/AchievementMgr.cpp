@@ -1349,6 +1349,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
@@ -1616,7 +1617,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                 break;                                   // Not implemented yet :(
         }
@@ -1790,7 +1790,19 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_BATTLEPET:
         case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT:
         case ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
+        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_PETBATTLE:
+        case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             return l_Progress->counter >= l_CriteriaTree->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2331,7 +2343,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 }
 
 template<class T>
-void AchievementMgr<T>::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/)
+void AchievementMgr<T>::SendAchievementInfo(Player* p_Receiver, uint32 p_AchievementID /*= 0*/)
 {
 }
 
@@ -2381,101 +2393,48 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* p_Receiver, uint32 /*p_
 }
 
 template<>
-void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/)
+void AchievementMgr<Guild>::SendAchievementInfo(Player* p_Receiver, uint32 p_AchievementID /*= 0*/)
 {
     // Will send response to criteria progress request
-    /*AchievementCriteriaEntryList const* criteria = sAchievementMgr->GetAchievementCriteriaByAchievement(achievementId);
-    if (!criteria)
-    {
-        // Send empty packet
-        WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
-        data.WriteBits(0, 19);
-        receiver->GetSession()->SendPacket(&data);
-        return;
-    }
-
-    ObjectGuid counter;
-    ObjectGuid guid;
-    uint32 numCriteria = 0;
-    ByteBuffer criteriaData;
-    ByteBuffer criteriaBits;
-
-    CriteriaProgressMap* progressMap = GetCriteriaProgressMap();
-
-    if (!progressMap)
+    CriteriaProgressMap* l_ProgressMap = GetCriteriaProgressMap();
+    if (l_ProgressMap == nullptr)
         return;
 
-    for (AchievementCriteriaEntryList::const_iterator itr = criteria->begin(); itr != criteria->end(); ++itr)
+    AchievementEntry const* l_Achievement = sAchievementStore.LookupEntry(p_AchievementID);
+    if (l_Achievement == nullptr)
+        return;
+
+    AchievementCriteriaTreeList const* l_CriteriaTreeList = sAchievementMgr->GetSubCriteriaTreeById(l_Achievement->CriteriaTree);
+    if (l_CriteriaTreeList == nullptr)
+        return;
+
+    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaTreeList->begin(); l_Iter != l_CriteriaTreeList->end(); ++l_Iter)
     {
-        uint32 criteriaId = (*itr)->ID;
-        CriteriaProgress* progress = GetCriteriaProgress(criteriaId);
-        if (!progress)
-            continue;
+        for (CriteriaProgressMap::const_iterator l_It = l_ProgressMap->begin(); l_It != l_ProgressMap->end(); ++l_It)
+        {
+            CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_It->first);
+            if (l_Criteria == nullptr)
+                continue;
 
-        ++numCriteria;
+            if (l_Criteria->ID == (*l_Iter)->CriteriaID)
+            {
+                WorldPacket l_Data(SMSG_GUILD_CRITERIA_UPDATE);
+
+                l_Data << uint32(1);
+
+                l_Data << uint32(l_Criteria->ID);
+                l_Data << uint32(l_It->second.date);
+                l_Data << uint32(l_It->second.date);
+                l_Data << uint32(l_It->second.date);
+                l_Data << uint64(l_It->second.counter);
+                l_Data.appendPackGUID(l_It->second.CompletedGUID);
+                l_Data << uint32(l_It->second.changed);
+
+                p_Receiver->GetSession()->SendPacket(&l_Data);
+                break;
+            }
+        }
     }
-
-    criteriaBits.WriteBits(numCriteria, 19);
-
-    for (AchievementCriteriaEntryList::const_iterator itr = criteria->begin(); itr != criteria->end(); ++itr)
-    {
-        uint32 criteriaId = (*itr)->ID;
-        CriteriaProgress* progress = GetCriteriaProgress(criteriaId);
-        if (!progress)
-            continue;
-
-        counter = progress->counter;
-        guid = progress->CompletedGUID;
-
-        criteriaBits.WriteBit(counter[3]);
-        criteriaBits.WriteBit(counter[6]);
-        criteriaBits.WriteBit(guid[5]);
-        criteriaBits.WriteBit(guid[4]);
-        criteriaBits.WriteBit(counter[2]);
-        criteriaBits.WriteBit(guid[0]);
-        criteriaBits.WriteBit(counter[7]);
-        criteriaBits.WriteBit(guid[6]);
-        criteriaBits.WriteBit(guid[7]);
-        criteriaBits.WriteBit(guid[3]);
-        criteriaBits.WriteBit(counter[5]);
-        criteriaBits.WriteBit(counter[0]);
-        criteriaBits.WriteBit(guid[2]);
-        criteriaBits.WriteBit(counter[1]);
-        criteriaBits.WriteBit(counter[4]);
-        criteriaBits.WriteBit(guid[1]);
-
-        criteriaData.WriteByteSeq(guid[4]);
-        criteriaData << uint32(progress->date);      // Unknown date
-        criteriaData.WriteByteSeq(counter[2]);
-        criteriaData.WriteByteSeq(counter[0]);
-        criteriaData << uint32(progress->changed);
-        criteriaData.WriteByteSeq(guid[7]);
-        criteriaData.WriteByteSeq(guid[1]);
-        criteriaData << uint32(criteriaId);
-        criteriaData << uint32(progress->date);      // Last update time (not packed!)
-        criteriaData.WriteByteSeq(guid[6]);
-        criteriaData.WriteByteSeq(counter[1]);
-        criteriaData.WriteByteSeq(guid[3]);
-        criteriaData.WriteByteSeq(counter[4]);
-        criteriaData << uint32(progress->date);      // Unknown date
-        criteriaData.WriteByteSeq(counter[5]);
-        criteriaData.WriteByteSeq(counter[3]);
-        criteriaData.WriteByteSeq(guid[0]);
-        criteriaData.WriteByteSeq(counter[6]);
-        criteriaData.WriteByteSeq(counter[7]);
-        criteriaData.WriteByteSeq(guid[2]);
-        criteriaData.WriteByteSeq(guid[5]);
-    }
-
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, criteriaBits.size() + criteriaData.size());
-
-    data.append(criteriaBits);
-    data.FlushBits();
-
-    if (numCriteria)
-        data.append(criteriaData);
-
-    receiver->GetSession()->SendPacket(&data);*/
 }
 
 template<class T>
@@ -2658,6 +2617,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
         case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
             if (m_completedAchievements.find(p_Criteria->complete_achievement.linkedAchievement) == m_completedAchievements.end())
@@ -2967,10 +2927,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             if (p_MiscValue1 != p_Criteria->win_arena.mapID)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
-            //if (miscValue1 != achievementCriteria->guild_challenge_complete_type.challenge_type)
-                return false;
-            //break;
+            return false;
         default:
             break;
     }
@@ -3112,9 +3071,12 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
             {
                 if (!p_Unit)
                     return false;
+
+                // We must return true here, only one guild achievement and one player statistic which have this condition
+                // This condition is CREATURE_TYPE_CRITER, but the other one is BattlePet type, which is not used yet
                 Creature const* l_Creature = p_Unit->ToCreature();
                 if (!l_Creature || l_Creature->GetCreatureType() != l_ReqValue)
-                    return false;
+                    return true;
                 break;
             }
             case CRITERIA_CONDITION_SOURCE_MAP:                         // 32
@@ -3122,7 +3084,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             case CRITERIA_CONDITION_BUILD_VERSION:                      // 33
-                if ((l_ReqValue - 33000) >= 17399)
+                if ((l_ReqValue - 33000) >= 19116)
                     return false;
                 break;
             case CRITERIA_CONDITION_BATTLEPET_TEAM_LEVEL:               // 34
@@ -3596,6 +3558,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 p_Type)
             return "GUILD_CHALLENGE_TYPE";
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             return "GUILD_CHALLENGE";
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
+            return "COLLECT_TOYS";
     }
     return "MISSING_TYPE";
 }

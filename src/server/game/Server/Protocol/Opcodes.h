@@ -192,7 +192,6 @@ enum Opcodes
         SMSG_CHAR_DELETE                            = 0x0BC4,   ///< 6.0.3 19116
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
 
-
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116
         SMSG_UPDATE_ACCOUNT_DATA                    = 0x1520,   ///< 6.0.3 19116
@@ -1375,6 +1374,7 @@ enum Opcodes
     CMSG_GUILD_BANK_SET_TAB_TEXT                   = 0x0E30,   ///< 6.0.3 19116
     CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x0C40,   ///< 6.0.3 19116 (unused)
     CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x0C7E,   ///< 6.0.3 19116
+    CMSG_GUILD_SET_ACHIEVEMENT_TRACKING            = 0x1640,   ///< 6.0.3 19116 (unused)
     CMSG_GUILD_SET_MEMBER_NOTE                     = 0x1C27,   ///< 6.0.3 19116
     CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x166E,   ///< 6.0.3 19116
     CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x0000,   ///<

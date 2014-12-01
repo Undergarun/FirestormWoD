@@ -2521,20 +2521,20 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     uint32 bgType = 0;
     switch (m_spellInfo->Id)
     {
-    case SPELL_AV_MARK_WINNER:
-    case SPELL_AV_MARK_LOSER:
-        bgType = BATTLEGROUND_AV;
-        break;
-    case SPELL_WS_MARK_WINNER:
-    case SPELL_WS_MARK_LOSER:
-        bgType = BATTLEGROUND_WS;
-        break;
-    case SPELL_AB_MARK_WINNER:
-    case SPELL_AB_MARK_LOSER:
-        bgType = BATTLEGROUND_AB;
-        break;
-    default:
-        break;
+        case SPELL_AV_MARK_WINNER:
+        case SPELL_AV_MARK_LOSER:
+            bgType = BATTLEGROUND_AV;
+            break;
+        case SPELL_WS_MARK_WINNER:
+        case SPELL_WS_MARK_LOSER:
+            bgType = BATTLEGROUND_WS;
+            break;
+        case SPELL_AB_MARK_WINNER:
+        case SPELL_AB_MARK_LOSER:
+            bgType = BATTLEGROUND_AB;
+            break;
+        default:
+            break;
     }
 
     uint32 num_to_add = damage;
@@ -2606,14 +2606,8 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
             player->UpdateCraftSkill(m_spellInfo->Id);
     }
 
-    /*
-    // for battleground marks send by mail if not add all expected
-    if (no_space > 0 && bgType)
-    {
-    if (Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BattlegroundTypeId(bgType)))
-    bg->SendRewardMarkByMail(player, newitemid, no_space);
-    }
-    */
+    if (Guild* l_Guild = player->GetGuild())
+        l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD, 1, 0, 0, nullptr, player);
 }
 
 void Spell::EffectCreateItem(SpellEffIndex effIndex)
@@ -2622,8 +2616,10 @@ void Spell::EffectCreateItem(SpellEffIndex effIndex)
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) || m_spellInfo->IsCustomArchaeologySpell()))
-    if (!m_caster->ToPlayer()->GetArchaeologyMgr().SolveResearchProject(m_spellInfo->ResearchProject))
-        return;
+    {
+        if (!m_caster->ToPlayer()->GetArchaeologyMgr().SolveResearchProject(m_spellInfo->ResearchProject))
+            return;
+    }
 
     DoCreateItem(effIndex, m_spellInfo->Effects[effIndex].ItemType);
     ExecuteLogEffectCreateItem(effIndex, m_spellInfo->Effects[effIndex].ItemType);

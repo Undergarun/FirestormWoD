@@ -65,6 +65,7 @@
 #include "BattlegroundKT.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
+#include "Guild.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -18625,6 +18626,14 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
     {
         if (l_KilledVictim->GetEntry() != 19833 && l_KilledVictim->GetEntry() != 19921) // snake trap can't trigger PROC_FLAG_KILL
             ProcDamageAndSpell(l_KilledVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0, 0, BASE_ATTACK, p_SpellProto ? p_SpellProto : NULL, NULL);
+    }
+
+    if (l_KilledVictim->ToCreature() && GetTypeId() == TYPEID_PLAYER)
+    {
+        ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, 1, 0, 0, l_KilledVictim);
+
+        if (Guild* l_Guild = ToPlayer()->GetGuild())
+            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 1, 0, 0, l_KilledVictim, ToPlayer());
     }
 
     /// Proc auras on death - must be before aura/combat remove

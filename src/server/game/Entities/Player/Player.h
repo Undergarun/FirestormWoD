@@ -41,7 +41,6 @@
 #include "WorldSession.h"
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
-#include "SpellChargesTracker.h"
 #include "CinematicPathMgr.h"
 
 // for template
@@ -753,24 +752,39 @@ enum TradeSlots
 
 enum TransferAbortReason
 {
-    TRANSFER_ABORT_NONE                         = 0x00,
-    TRANSFER_ABORT_ERROR                        = 0x01,
-    TRANSFER_ABORT_MAX_PLAYERS                  = 0x02,         // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND                    = 0x03,         // Transfer Aborted: instance not found
-    TRANSFER_ABORT_TOO_MANY_INSTANCES           = 0x04,         // You have entered too many instances recently.
-    TRANSFER_ABORT_ZONE_IN_COMBAT               = 0x06,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL              = 0x07,         // You must have <TBC, WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY                   = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_UNIQUE_MESSAGE               = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES     = 0x0A,         // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // Transfer Aborted: you must be in a raid group to enter this instance
-    TRANSFER_ABORT_NOT_FOUND1                   = 0x0C,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND2                   = 0x0D,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND3                   = 0x0E,         // 3.2
-    TRANSFER_ABORT_REALM_ONLY                   = 0x0F,         // All players on party must be from the same realm.
-    TRANSFER_ABORT_MAP_NOT_ALLOWED              = 0x10,         // Map can't be entered at this time.
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // You are already locked to %s.
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_NONE                          = 0,
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 1,   // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_DIFFICULTY                    = 3,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 8,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_NOT_FOUND                     = 10,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 11,  // You have entered too many instances recently.
+    TRANSFER_ABORT_MAX_PLAYERS                   = 12,  // Transfer Aborted: instance is full
+    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 14,  // Transfer Aborted: cross-realm zone is down
+    TRANSFER_ABORT_NOT_FOUND_2                   = 15,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 16,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
+    TRANSFER_ABORT_NOT_FOUND_3                   = 17,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_4                   = 18,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 19,  // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 20,  // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 24,  // You are already locked to %s
+    TRANSFER_ABORT_REALM_ONLY                    = 25,  // All players in the party must be from the same realm to enter %s.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 27,  // Map cannot be entered at this time.
+    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 28,  // This instance is already in progress. You may only switch difficulties from inside the instance.
+    TRANSFER_ABORT_NEED_GROUP                    = 29,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 30,  // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_ERROR                         = 31
+    /*
+    // Unknown values - not used by the client to display any error
+    TRANSFER_ABORT_MANY_REALM_INSTANCES
+    TRANSFER_ABORT_AREA_NOT_ZONED
+    TRANSFER_ABORT_TIMEOUT
+    TRANSFER_ABORT_SHUTTING_DOWN
+    TRANSFER_ABORT_PLAYER_CONDITION
+    TRANSFER_ABORT_BUSY
+    TRANSFER_ABORT_DISCONNECTED
+    TRANSFER_ABORT_LOGGING_OUT
+    TRANSFER_ABORT_NEED_SERVER
+    */
 };
 
 enum InstanceResetWarningType
@@ -898,6 +912,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
+    PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS       = 45,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1303,6 +1318,44 @@ struct PlayerToy
 };
 
 typedef std::map<uint32, PlayerToy> PlayerToys;
+
+struct ChargesData
+{
+    ChargesData()
+    {
+        m_MaxCharges = 0;
+        m_ConsumedCharges = 0;
+        m_Changed = false;
+    }
+
+    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown)
+    {
+        m_MaxCharges = p_MaxCharges;
+
+        // Called in ConsumeCharge, so one charge has gone
+        m_ConsumedCharges = 1;
+
+        m_ChargesCooldown.push_back(p_Cooldown);
+        m_Changed = true;
+    }
+
+    std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
+    void DecreaseCooldown(uint8 p_Charge, uint32 p_Time)
+    {
+        if (p_Charge >= m_MaxCharges)
+            return;
+
+        m_ChargesCooldown[p_Charge] -= p_Time;
+    }
+
+    uint32 m_MaxCharges;
+    uint32 m_ConsumedCharges;
+    std::vector<uint64> m_ChargesCooldown;
+    bool m_Changed;
+};
+
+///<            SpellID
+typedef std::map<uint32, ChargesData> SpellChargesMap;
 
 enum BattlegroundTimerTypes
 {
@@ -2079,7 +2132,9 @@ class Player : public Unit, public GridObject<Player>
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(PreparedQueryResult result);
+        void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
+        void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -3111,8 +3166,6 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
-        bool HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category);
-
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
@@ -3191,12 +3244,17 @@ class Player : public Unit, public GridObject<Player>
 
         //////////////////////////////////////////////////////////////////////////
         /// SpellCharges
-        JadeCore::SpellChargesTracker m_SpellChargesTracker;
+        SpellChargesMap m_SpellChargesMap;
 
         void SendSpellCharges();
         void SendClearAllSpellCharges();
-        void SendSetSpellCharges(SpellInfo const* p_SpellInfo);
-        void SendClearSpellCharges(SpellInfo const* p_SpellInfo);
+        void SendSetSpellCharges(uint32 p_SpellID);
+        void SendClearSpellCharges(uint32 p_SpellID);
+
+        bool CanUseCharge(uint32 p_SpellID) const;
+        void UpdateCharges(uint32 const p_Time);
+        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = true);
+        ChargesData* GetChargesData(uint32 p_SpellID);
         //////////////////////////////////////////////////////////////////////////
 
     protected:

@@ -1597,6 +1597,12 @@ void Guild::HandleBuyBankTab(WorldSession* p_Session, uint8 p_TabID)
 
     p_Player->ModifyMoney(-int64(p_TabCost));
 
+    HandleSpellEffectBuyBankTab(p_Session, p_TabID);
+}
+
+void Guild::HandleSpellEffectBuyBankTab(WorldSession* p_Session, uint8 p_TabID)
+{
+    Player* p_Player = p_Session->GetPlayer();
     _SetRankBankMoneyPerDay(p_Player->GetRank(), uint32(GUILD_WITHDRAW_MONEY_UNLIMITED));
     _SetRankBankTabRightsAndSlots(p_Player->GetRank(), p_TabID, GuildBankRightsAndSlots(GUILD_BANK_RIGHT_FULL, uint32(GUILD_WITHDRAW_SLOT_UNLIMITED)));
 
@@ -1607,27 +1613,8 @@ void Guild::HandleBuyBankTab(WorldSession* p_Session, uint8 p_TabID)
     BroadcastPacket(&l_Data);
 
     SendBankList(p_Session, p_TabID, false, true);
-}
 
-void Guild::HandleSpellEffectBuyBankTab(WorldSession* p_Session, uint8 p_TabID)
-{
-    if (p_TabID != GetPurchasedTabsSize())
-        return;
-
-    Player* p_Player = p_Session->GetPlayer();
-
-    if (!_CreateNewBankTab())
-        return;
-
-    _SetRankBankMoneyPerDay(p_Player->GetRank(), uint32(GUILD_WITHDRAW_MONEY_UNLIMITED));
-    _SetRankBankTabRightsAndSlots(p_Player->GetRank(), p_TabID, GuildBankRightsAndSlots(GUILD_BANK_RIGHT_FULL, uint32(GUILD_WITHDRAW_SLOT_UNLIMITED)));
-
-    WorldPacket l_Data(SMSG_GUILD_EVENT_RANKS_UPDATED);
-    BroadcastPacket(&l_Data);
-
-    SendBankList(p_Session, p_TabID, false, true);
-
-    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, p_TabID + 1, 0, 0, NULL, p_Player);
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, 1, 0, 0, NULL, p_Player);
 }
 
 void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Name)
@@ -3151,7 +3138,12 @@ inline uint32 Guild::_GetMemberRemainingSlots(uint64 guid, uint8 tabId) const
 inline uint64 Guild::_GetMemberRemainingMoney(uint64 guid) const
 {
     if (const Member* member = GetMember(guid))
+    {
+        if (member->IsRank(GR_GUILDMASTER))
+            return GUILD_WITHDRAW_SLOT_UNLIMITED;
+
         return member->GetRemainingWithdrawMoney();
+    }
     return 0;
 }
 

@@ -532,7 +532,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_GUILD_ACHIEVEMENT_DELETED,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GUILD_ACHIEVEMENT_MEMBERS,                       STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GUILD_ACHIEVEMENT_EARNED,                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GUILD_CRITERIA_UPDATE,                           STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GUILD_CRITERIA_UPDATE,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GUILD_CRITERIA_DELETED,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_ALL_GUILD_ACHIEVEMENTS,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
@@ -1411,6 +1411,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_BANK_SET_TAB_TEXT,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetGuildBankTabText        );
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS,                   STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT,                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildAchievementProgressQuery);
+    DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_ACHIEVEMENT_TRACKING,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_SET_MEMBER_NOTE,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildSetMemberNoteOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_CHALLENGE_UPDATE_REQUEST,                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGuildChallengeUpdateRequest);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_GUILD_PARTY_STATE,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestGuildPartyState     );
