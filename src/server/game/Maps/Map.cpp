@@ -241,6 +241,11 @@ void Map::InitVisibilityDistance()
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodOnContinents();
 }
 
+void Map::SetObjectVisibility(float p_Visibility)
+{
+    m_VisibleDistance = p_Visibility;
+}
+
 // Template specialization of utility methods
 template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)

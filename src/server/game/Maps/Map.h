@@ -327,6 +327,7 @@ class Map : public GridRefManager<NGridType>
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
         static uint32 GetZoneIdByAreaFlag(uint16 areaflag, uint32 map_id);
         static void GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 areaflag, uint32 map_id);
+        virtual void SetObjectVisibility(float p_Visibility);
 
         uint32 GetAreaId(float x, float y, float z) const
         {
