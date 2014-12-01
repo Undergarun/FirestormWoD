@@ -1169,37 +1169,37 @@ class spell_pal_word_of_glory : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!_player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                            if ((unitTarget->GetTypeId() != TYPEID_PLAYER && !unitTarget->isPet()) || !unitTarget->IsFriendlyTo(_player))
-                                unitTarget = _player;
+                        if (!l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                            if ((l_Target->GetTypeId() != TYPEID_PLAYER && !l_Target->isPet()) || !l_Target->IsFriendlyTo(l_Player))
+                                l_Target = l_Player;
 
-                        int32 holyPower = _player->GetPower(POWER_HOLY_POWER);
+                        int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
 
-                        if (holyPower > 2)
-                            holyPower = 2;
+                        if (l_Power > 2)
+                            l_Power = 2;
 
-                        if (unitTarget->IsFriendlyTo(_player))
-                        _player->CastSpell(unitTarget, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
-                        else if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                        _player->CastSpell(unitTarget, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
+                        if (l_Target->IsFriendlyTo(l_Player))
+                        l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                        else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                        l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
-                        if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY))
+                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY))
                         {
-                            AuraPtr aura = _player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, _player);
+                            AuraPtr l_Aura = l_Player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Player);
 
-                            if (aura)
+                            if (l_Aura)
                             {
-                                aura->GetEffect(0)->ChangeAmount(aura->GetEffect(0)->GetAmount() * (holyPower + 1));
-                                aura->SetNeedClientUpdateForTargets();
+                                l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (l_Power + 1));
+                                l_Aura->SetNeedClientUpdateForTargets();
                             }
                         }
 
-                        if (!_player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
-                            _player->ModifyPower(POWER_HOLY_POWER, -holyPower);
+                        if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                            l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
                     }
                 }
             }
@@ -1786,8 +1786,36 @@ public:
     }
 };
 
+// Holy Shield - 152261
+class spell_pal_holy_shield : public SpellScriptLoader
+{
+public:
+    spell_pal_holy_shield() : SpellScriptLoader("spell_pal_holy_shield") { }
+
+    class spell_pal_holy_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_holy_shield_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+        {
+            amount = 0;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_holy_shield_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_holy_shield_AuraScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_holy_shield();
     new spell_pal_divine_purpose();
     new spell_pal_hammer_of_wrath();
     new spell_pal_holy_wrath();
