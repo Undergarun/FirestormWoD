@@ -277,19 +277,19 @@ class ByteBuffer
         const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
-        ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _curbitval(0), _rbitpos(8)
+        ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
         {
             _storage.reserve(DEFAULT_SIZE);
         }
 
-        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _curbitval(0), _rbitpos(8)
+        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
         {
             _storage.reserve(reserve);
         }
 
         // copy constructor
         ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _wbitpos(buf._wbitpos), _curbitval(buf._curbitval), _storage(buf._storage), _rbitpos(8)
+            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), _storage(buf._storage)
         {
         }
 
@@ -298,7 +298,8 @@ class ByteBuffer
             _storage.clear();
             _rpos = _wpos = 0;
             _curbitval = 0;
-            _wbitpos = _rbitpos = 8;
+            _wbitpos = 8;
+            _rbitpos = 8;
         }
 
         template <typename T> void append(T value)

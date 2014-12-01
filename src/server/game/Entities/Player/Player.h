@@ -1242,7 +1242,7 @@ struct PlayerTalentInfo
     PlayerTalentInfo() :
         FreeTalentPoints(0), UsedTalentCount(0), QuestRewardedTalentCount(0),
         ResetTalentsCost(0), ResetTalentsTime(0), ResetSpecializationCost(0),
-        ActiveSpec(0), SpecsCount(1), ResetSpecializationTime(0)
+        ResetSpecializationTime(0), ActiveSpec(0), SpecsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {

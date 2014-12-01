@@ -213,8 +213,8 @@ class CharacterCreateInfo
 
     protected:
         CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId, uint32 templateId,
-        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), TemplateId(templateId),
-        OutfitId(outfitId), Data(data), CharCount(0)
+        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), OutfitId(outfitId),
+        TemplateId(templateId), Data(data), CharCount(0)
         {}
 
         /// User specified variables

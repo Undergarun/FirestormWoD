@@ -332,7 +332,7 @@ struct Loot
     uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), alreadyAskedForRoll(false), maxLinkedSlot(0), additionalLinkedGold(0) {}
+    Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), maxLinkedSlot(0), additionalLinkedGold(0), gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE) {}
     ~Loot() { clear(); }
 
     // if loot becomes invalid this reference is used to inform the listener
@@ -436,9 +436,9 @@ struct LootView
 {
     Loot &loot;
     Player* viewer;
-    PermissionTypes permission;
     uint8 _loot_type;
     ObjectGuid _guid;
+    PermissionTypes permission;
     LootView(Loot &_loot, Player* _viewer, uint8 loot_type, uint64 guid, PermissionTypes _permission = ALL_PERMISSION)
         : loot(_loot), viewer(_viewer), _loot_type(loot_type), _guid(ObjectGuid(guid)), permission(_permission) {}
 };
