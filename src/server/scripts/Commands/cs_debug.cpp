@@ -134,9 +134,9 @@ class debug_commandscript : public CommandScript
 
             uint32 id = atoi((char*)args);
 
-            if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(id))
+            if (sSpellMgr->GetSpellInfo(id) != nullptr)
             {
-                handler->GetSession()->GetPlayer()->SendClearSpellCharges(l_SpellInfo);
+                handler->GetSession()->GetPlayer()->SendClearSpellCharges(id);
                 return true;
             }
             else

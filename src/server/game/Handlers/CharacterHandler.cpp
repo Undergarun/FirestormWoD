@@ -246,6 +246,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, m_accountId);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARGES_COOLDOWN);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS, l_Statement);
+
     return l_Result;
 }
 

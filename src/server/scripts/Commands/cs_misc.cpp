@@ -1015,8 +1015,7 @@ class misc_commandscript : public CommandScript
                 if (!spellIid)
                     return false;
 
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(spellIid);
-                if (l_SpellInfo == nullptr)
+                if (sSpellMgr->GetSpellInfo(spellIid) == nullptr)
                 {
                     handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
                     handler->SetSentErrorMessage(true);
@@ -1024,7 +1023,7 @@ class misc_commandscript : public CommandScript
                 }
 
                 target->RemoveSpellCooldown(spellIid, true);
-                target->SendClearSpellCharges(l_SpellInfo);
+                target->SendClearSpellCharges(spellIid);
                 handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
             }
             return true;

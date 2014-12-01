@@ -763,7 +763,7 @@ class spell_mage_combustion : public SpellScriptLoader
                     {
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
-                        l_Player->SendClearSpellCharges(sSpellMgr->GetSpellInfo(SPELL_MAGE_INFERNO_BLAST));
+                        l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
 
                         int32 combustionBp = 0;
 

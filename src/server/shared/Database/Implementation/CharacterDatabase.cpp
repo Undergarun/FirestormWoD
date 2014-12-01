@@ -702,4 +702,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_REP_CALENDAR_INVITE, "REPLACE INTO calendar_invites (id, event, invitee, sender, status, statustime, rank, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_CALENDAR_INVITE, "DELETE FROM calendar_invites WHERE id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// SpellCharges
+    PREPARE_STATEMENT(CHAR_SEL_CHARGES_COOLDOWN, "SELECT spell_id, charge, time FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_CHARGES_COOLDOWN, "INSERT INTO character_charges_cooldown (guid, spell_id, charge, time) VALUE (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_CHARGES_COOLDOWN, "DELETE FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
 }

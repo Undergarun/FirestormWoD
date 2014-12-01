@@ -41,7 +41,6 @@
 #include "WorldSession.h"
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
-#include "SpellChargesTracker.h"
 #include "CinematicPathMgr.h"
 
 // for template
@@ -913,6 +912,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
+    PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS       = 45,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1318,6 +1318,44 @@ struct PlayerToy
 };
 
 typedef std::map<uint32, PlayerToy> PlayerToys;
+
+struct ChargesData
+{
+    ChargesData()
+    {
+        memset(this, 0, sizeof (ChargesData));
+    }
+
+    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown)
+    {
+        memset(this, 0, sizeof (ChargesData));
+
+        m_MaxCharges = p_MaxCharges;
+
+        // Called in ConsumeCharge, so one charge has gone
+        m_ConsumedCharges = 1;
+
+        m_ChargesCooldown.push_back(p_Cooldown);
+        m_Changed = true;
+    }
+
+    std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
+    void DecreaseCooldown(uint8 p_Charge, uint32 p_Time)
+    {
+        if (p_Charge >= m_MaxCharges)
+            return;
+
+        m_ChargesCooldown[p_Charge] -= p_Time;
+    }
+
+    uint32 m_MaxCharges;
+    uint32 m_ConsumedCharges;
+    std::vector<uint64> m_ChargesCooldown;
+    bool m_Changed;
+};
+
+///<            SpellID
+typedef std::map<uint32, ChargesData> SpellChargesMap;
 
 enum BattlegroundTimerTypes
 {
@@ -2094,7 +2132,9 @@ class Player : public Unit, public GridObject<Player>
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(PreparedQueryResult result);
+        void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
+        void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -3125,8 +3165,6 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
-        bool HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category);
-
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
@@ -3205,12 +3243,17 @@ class Player : public Unit, public GridObject<Player>
 
         //////////////////////////////////////////////////////////////////////////
         /// SpellCharges
-        JadeCore::SpellChargesTracker m_SpellChargesTracker;
+        SpellChargesMap m_SpellCharges;
 
         void SendSpellCharges();
         void SendClearAllSpellCharges();
-        void SendSetSpellCharges(SpellInfo const* p_SpellInfo);
-        void SendClearSpellCharges(SpellInfo const* p_SpellInfo);
+        void SendSetSpellCharges(uint32 p_SpellID);
+        void SendClearSpellCharges(uint32 p_SpellID);
+
+        bool CanUseCharge(uint32 p_SpellID) const;
+        void UpdateCharges(uint32 const p_Time);
+        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = true);
+        ChargesData* GetChargesData(uint32 p_SpellID);
         //////////////////////////////////////////////////////////////////////////
 
     protected:
