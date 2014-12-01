@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __TRINITY_ACHIEVEMENTMGR_H
 #define __TRINITY_ACHIEVEMENTMGR_H
 
@@ -68,6 +69,366 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18, // 0              0             maker instance script call for check current criteria requirements fit
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19, // item_level     item_quality  for equipped item in slot to check item level and quality
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
+};
+
+enum AchievementFaction
+{
+    ACHIEVEMENT_FACTION_HORDE           = 0,
+    ACHIEVEMENT_FACTION_ALLIANCE        = 1,
+    ACHIEVEMENT_FACTION_ANY             = -1
+};
+
+enum AchievementFlags
+{
+    ACHIEVEMENT_FLAG_COUNTER                = 0x00000001,    // Just count statistic (never stop and complete)
+    ACHIEVEMENT_FLAG_HIDDEN                 = 0x00000002,    // Not sent to client - internal use only
+    ACHIEVEMENT_FLAG_PLAY_NO_VISUAL         = 0x00000004,    // Client does not play achievement earned visual
+    ACHIEVEMENT_FLAG_SUMM                   = 0x00000008,    // Use sum criteria value from all requirements (and calculate max value)
+    ACHIEVEMENT_FLAG_MAX_USED               = 0x00000010,    // Show max criteria (and calculate max value ??)
+    ACHIEVEMENT_FLAG_REQ_COUNT              = 0x00000020,    // Use not zero req count (and calculate max value)
+    ACHIEVEMENT_FLAG_AVERAGE                = 0x00000040,    // Show as average value (value / time_in_days) depend from other flag (by def use last criteria value)
+    ACHIEVEMENT_FLAG_BAR                    = 0x00000080,    // Show as progress bar (value / max vale) depend from other flag (by def use last criteria value)
+    ACHIEVEMENT_FLAG_REALM_FIRST_REACH      = 0x00000100,    //
+    ACHIEVEMENT_FLAG_REALM_FIRST_KILL       = 0x00000200,    //
+    ACHIEVEMENT_FLAG_UNK3                   = 0x00000400,    // ACHIEVEMENT_FLAG_HIDE_NAME_IN_TIE
+    ACHIEVEMENT_FLAG_REALM_FIRST_GUILD      = 0x00000800,    // first guild on realm done something
+    ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS     = 0x00001000,    // Shows in guild news
+    ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER   = 0x00002000,    // Shows in guild news header
+    ACHIEVEMENT_FLAG_GUILD                  = 0x00004000,    //
+    ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS     = 0x00008000,    //
+    ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS  = 0x00010000,    //
+    ACHIEVEMENT_FLAG_ACCOUNT                = 0x00020000     // achievement linked to account
+};
+
+enum AchievementCriteriaLimits
+{
+    MAX_CRITERIA_REQUIREMENTS          = 2,
+    MAX_ADDITIONAL_CRITERIA_CONDITIONS = 3
+};
+
+enum AchievementCriteriaCondition
+{
+    ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH        = 1,    // reset progress on death
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK1            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP          = 3,    // requires you to be on specific map, reset at change
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
+    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13    // unk
+};
+
+enum AchievementCriteriaAdditionalCondition
+{
+    CRITERIA_CONDITION_SOURCE_DRUNK_VALUE                   = 1,    // 17399
+    CRITERIA_CONDITION_UNK2                                 = 2,    // 17399 - NYI - See: http://www.wowhead.com/achievement=5869
+    CRITERIA_CONDITION_ITEM_LEVEL                           = 3,    // 17399
+    CRITERIA_CONDITION_TARGET_CREATURE_ENTRY                = 4,    // 17399
+    CRITERIA_CONDITION_TARGET_MUST_BE_PLAYER                = 5,    // 17399
+    CRITERIA_CONDITION_TARGET_MUST_BE_DEAD                  = 6,    // 17399
+    CRITERIA_CONDITION_TARGET_MUST_BE_ENEMY                 = 7,    // 17399
+    CRITERIA_CONDITION_SOURCE_HAS_AURA                      = 8,    // 17399
+    CRITERIA_CONDITION_TARGET_HAS_AURA                      = 10,   // 17399
+    CRITERIA_CONDITION_TARGET_HAS_AURA_TYPE                 = 11,   // 17399
+    CRITERIA_CONDITION_UNK12                                = 12,   // 17399 - Required Value : 14
+    CRITERIA_CONDITION_ITEM_QUALITY_MIN                     = 14,   // 17399
+    CRITERIA_CONDITION_ITEM_QUALITY_EQUALS                  = 15,   // 17399
+    CRITERIA_CONDITION_UNK16                                = 16,   // 17399 - NYI - See: http://www.wowhead.com/achievement=1260
+    CRITERIA_CONDITION_SOURCE_AREA_OR_ZONE                  = 17,   // 17399
+    CRITERIA_CONDITION_TARGET_AREA_OR_ZONE                  = 18,   // 17399
+    CRITERIA_CONDITION_MAP_DIFFICULTY                       = 20,   // 17399
+    CRITERIA_CONDITION_TARGET_CREATURE_YIELDS_XP            = 21,   // 17399
+    CRITERIA_CONDITION_ARENA_TYPE                           = 24,   // 17399
+    CRITERIA_CONDITION_SOURCE_RACE                          = 25,   // 17399
+    CRITERIA_CONDITION_SOURCE_CLASS                         = 26,   // 17399
+    CRITERIA_CONDITION_TARGET_RACE                          = 27,   // 17399
+    CRITERIA_CONDITION_TARGET_CLASS                         = 28,   // 17399
+    CRITERIA_CONDITION_MAX_GROUP_MEMBERS                    = 29,   // 17399
+    CRITERIA_CONDITION_TARGET_CREATURE_TYPE                 = 30,   // 17399
+    CRITERIA_CONDITION_SOURCE_MAP                           = 32,   // 17399
+    CRITERIA_CONDITION_BUILD_VERSION                        = 33,   // 17399
+    CRITERIA_CONDITION_BATTLEPET_TEAM_LEVEL                 = 34,   // 17399
+    CRITERIA_CONDITION_COMPLETE_QUEST_NOT_IN_GROUP          = 35,   // 17399
+    CRITERIA_CONDITION_MIN_PERSONAL_RATING                  = 37,   // 17399
+    CRITERIA_CONDITION_TITLE_BIT_INDEX                      = 38,   // 17399
+    CRITERIA_CONDITION_SOURCE_LEVEL                         = 39,   // 17399
+    CRITERIA_CONDITION_TARGET_LEVEL                         = 40,   // 17399
+    CRITERIA_CONDITION_TARGET_ZONE                          = 41,   // 17399
+    CRITERIA_CONDITION_UNK43                                = 43,   // 17399 - Not used
+    CRITERIA_CONDITION_TARGET_HEALTH_PERCENT_BELOW          = 46,   // 17399
+    CRITERIA_CONDITION_UNK55                                = 55,   // 17399 - NYI - See: http://www.wowhead.com/achievement=2422
+    CRITERIA_CONDITION_MIN_ACHIEVEMENT_POINTS               = 56,   // 17399
+    CRITERIA_CONDITION_REQUIRES_LFG_GROUP                   = 58,   // 17399
+    CRITERIA_CONDITION_BE_THE_LAST_SURVIVOR_5V5             = 60,   // 17399
+    CRITERIA_CONDITION_REQUIRES_GUILD_GROUP                 = 61,   // 17399
+    CRITERIA_CONDITION_GUILD_REPUTATION                     = 62,   // 17399
+    CRITERIA_CONDITION_RATED_BATTLEGROUND                   = 63,   // 17399
+    CRITERIA_CONDITION_PROJECT_RARITY                       = 65,   // 17399
+    CRITERIA_CONDITION_PROJECT_RACE                         = 66,   // 17399
+    CRITERIA_CONDITION_UNK67                                = 67,   // 17399 - NYI - See: http://www.wowhead.com/achievement=156 - May need hard code
+    CRITERIA_CONDITION_RAID_DIFFICULTY                      = 68,   // 17399
+    CRITERIA_CONDITION_UNK69                                = 69,   // 17399 - Not used
+    CRITERIA_CONDITION_TARGET_MIN_LEVEL                     = 70,   // 17399
+    CRITERIA_CONDITION_UNK73                                = 73,   // 17399 - NYI - See: http://www.wowhead.com/achievement=6683 - May need hard code
+    CRITERIA_CONDITION_BATTLEPET_TYPE                       = 78,   // 17399
+    CRITERIA_CONDITION_CAPTURE_BATTLEPET_ABOVE_HEALT_PCT    = 79,   // 17399
+    CRITERIA_CONDITION_COUNT_OF_GUILD_MEMBER_IN_GROUP       = 80,   // 17399
+    CRITERIA_CONDITION_TARGET_IS_BATTLEPET_MASTER           = 81,   // 17399 - NYI
+    CRITERIA_CONDITION_UNK82                                = 82,   // 17399 - Not used
+    CRITERIA_CONDITION_NEED_CHALLENGE_MEDAL                 = 83,   // 17399 - NYI - Related to dungeon challenges
+    CRITERIA_CONDITION_UNK84                                = 84,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK86                                = 86,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK87                                = 87,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK88                                = 88,   // 17399 - Not used
+    CRITERIA_CONDITION_BATTLEPET_MUST_BE_RARE               = 89,   // 17399
+    CRITERIA_CONDITION_WIN_PVP_PETBATTLE                    = 90,   // 17399 - NYI
+    CRITERIA_CONDITION_CAPTURE_PETBATTLE                    = 91,   // 17399
+    CRITERIA_CONDITION_UNK92                                = 92,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK93                                = 93,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK94                                = 94,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK95                                = 95,   // 17399 - Not used
+    CRITERIA_CONDITION_CRAFT_AMOUNT_OF_ITEM                 = 96,   // 17399
+    CRITERIA_CONDITION_UNK97                                = 97,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK99                                = 99,   // 17399 - Not used
+    CRITERIA_CONDITION_UNK112                               = 112,  // 17399 - Not used
+    CRITERIA_CONDITION_EARN_CURRENCY_DURING_ARENA_SEASON    = 121,  // 17399
+    CRITERIA_CONDITION_REQUIRE_DEATH_IN_DUNGEON_OR_RAID     = 122,  // 17399
+    CRITERIA_CONDITION_REACH_ARENA_RATING_DURING_SEASON     = 125,  // 17399 - NYI
+    CRITERIA_CONDITION_UNK126                               = 126,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK127                               = 127,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK128                               = 128,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK132                               = 132,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK134                               = 134,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK135                               = 135,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK138                               = 138,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK139                               = 139,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK140                               = 140,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK141                               = 141,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK142                               = 142,  // 19116 - NYI
+    CRITERIA_CONDITION_FOLLOWER_QUALITY                     = 145,  // 19116 - NYI
+    CRITERIA_CONDITION_FOLLOWER_LEVEL                       = 146,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK147                               = 147,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK148                               = 148,  // 19116 - NYI
+    CRITERIA_CONDITION_BUILDING_LEVEL                       = 149,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK150                               = 150,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK151                               = 151,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK152                               = 152,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK153                               = 153,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK154                               = 154,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK155                               = 155,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK156                               = 156,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK157                               = 157,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK158                               = 158,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK159                               = 159,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK167                               = 167,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK168                               = 168,  // 19116 - NYI
+    CRITERIA_CONDITION_FOLLOWER_ILEVEL                      = 169,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK170                               = 170,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK171                               = 171,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK172                               = 172,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK173                               = 173,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK174                               = 174,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK175                               = 175,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK176                               = 176,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK178                               = 178,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK179                               = 179,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK180                               = 180,  // 19116 - NYI
+    CRITERIA_CONDITION_UNK182                               = 182   // 19116 - NYI
+};
+
+enum AchievementCriteriaFlags
+{
+    CRITERIA_FLAG_PROGRESS_BAR          = 0x00000001,   // Show progress as bar
+    CRITERIA_FLAG_HIDDEN                = 0x00000002,   // Not show criteria in client
+    CRITERIA_FLAG_FAIL_ACHIEVEMENT      = 0x00000004,   //
+    CRITERIA_FLAG_RESET_ON_START        = 0x00000008,   //
+    CRITERIA_FLAG_IS_DATE               = 0x00000010,   // not used
+    CRITERIA_FLAG_IS_MONEY              = 0x00000020,   // Displays counter as money
+    CRITERIA_FLAG_IS_ACHIEVEMENT_ID     = 0x00000040,   //
+    CRITERIA_FLAG_QUANTITY_IS_CAPPED    = 0x00000080    //
+};
+
+enum AchievementCriteriaTimedTypes
+{
+    ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER = 7,    // Timer is started by casting a spell with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET = 8,    // Timer is started by being target of spell with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_QUEST        = 9,    // Timer is started by accepting quest with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_CREATURE     = 10,   // Timer is started by killing creature with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_ITEM         = 12,   // Timer is started by using item with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_EVENT        = 13,   // Timer is started by internal event with id in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_UNK          = 14,   // Unknown
+
+    ACHIEVEMENT_TIMED_TYPE_MAX
+};
+
+enum AchievementCriteriaTypes
+{
+    ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE                     = 0,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                            = 1,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS     = 3,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL                       = 5,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL                 = 7,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT              = 8,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT              = 9,    // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY        = 10,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE           = 11,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CURRENCY                          = 12,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE                       = 13,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST              = 14,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND             = 15,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP                      = 16,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_DEATH                             = 17,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON                  = 18,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID                     = 19,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE                = 20,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGH_SCORE_IN_ORDALIE             = 21,   // 19116 - Only three - Statistics
+    ACHIEVEMENT_CRITERIA_TYPE_MOST_CHALLENGE_DUNGEON_WON        = 22,   // 19116 - NYI - Statistics
+    ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER                  = 23,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING                = 24,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM                       = 26,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST                    = 27,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET                   = 28,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL                        = 29,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE              = 30,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA            = 31,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA                         = 32,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA                        = 33,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL                       = 34,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL                    = 35,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM                          = 36,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA                   = 37,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING               = 38,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING           = 39,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL                 = 40,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM                          = 41,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM                         = 42,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA                      = 43,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK                          = 44,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT                     = 45,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION                   = 46,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION           = 47,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP                 = 48,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM                   = 49,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT                 = 50,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT                = 51,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS                          = 52,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HK_RACE                           = 53,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE                          = 54,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE                      = 55,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS                 = 56,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM                        = 57,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS                = 59,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS            = 60,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS           = 61,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD           = 62,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING         = 63,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK64                             = 64,   // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER              = 65,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL               = 66,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY                        = 67,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT                    = 68,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2                  = 69,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL                  = 70,   // 19116
+    ACHIEVEMENT_CRITERIA_WIN_CHALLENGE_DUNGEON                  = 71,   // 19116 - NYI
+    ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT                = 72,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE                  = 74,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS            = 75,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL                          = 76,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL                         = 77,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE                = 78,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COOK_SOME_MEALS                   = 79,   // 19116 - NYI
+    ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS           = 80,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_ACHIEVEMENTS_IN_BATTLE_PET        = 81,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION                    = 82,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID               = 83,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS                      = 84,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD              = 85,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED          = 86,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION           = 87,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION           = 88,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS                    = 89,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM                    = 90,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM                 = 91,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK92                             = 92,   // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED                         = 93,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED                        = 94,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK95                             = 95,   // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET                 = 96,   // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT                 = 101,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED              = 102,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED             = 103,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED               = 104,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED            = 105,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED          = 106,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED                   = 107,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN                = 108,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE                         = 109,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2                       = 110,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE                  = 112,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL               = 113,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS               = 114,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS           = 115,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK118                            = 118,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS     = 119,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK120                            = 120,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK121                            = 121,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK122                            = 122,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK123                            = 123,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS          = 124,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL                 = 125,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD                 = 126,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL                   = 127,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS              = 128,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS     = 129,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND            = 130,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING                   = 132,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD                  = 133,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD             = 134,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD             = 135,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD          = 136,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK137                            = 137,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE     = 138,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE          = 139,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK140                            = 140,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK141                            = 141,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK142                            = 142,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK143                            = 143,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK144                            = 144,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK145                            = 145,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK146                            = 146,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK147                            = 147,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK148                            = 148,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK149                            = 149,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK150                            = 150,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_SCENARIOS_COMPLETED               = 151,  // 19116 - NYI
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO_ID              = 152,  // 19116 - NYI
+    ACHIEVEMENT_CRITERIA_TYPE_UNK153                            = 153,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_SPECIFIC_BATTLEPET        = 155,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_EARN_BATTLEPET                    = 156,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT       = 157,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_PETBATTLE                     = 158,  // 19116 - NYI
+    ACHIEVEMENT_CRITERIA_TYPE_UNK159                            = 159,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET                 = 160,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_ZONE         = 161,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_UNK162                            = 162,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_PLACE_WORK_ORDER                  = 163,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_UNK164                            = 164,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UNK165                            = 165,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_UNK167                            = 167,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_UPDATE_BUILDING_LEVEL             = 168,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_BUILD_PRESET_BUILDING             = 169,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_UPDATE_GARRISON_LEVEL             = 170,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_UNK171                            = 171,  // 19116 - Not used
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSIONS        = 173,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON  = 175,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINTS         = 178,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_WORK_ORDERS              = 182,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_RAISE_FOLLOWER_ILEVEL             = 183,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS                 = 184,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS                      = 186,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_OF_QUALITY       = 187,  // 19116 NYI
+    // 0..162 => 163 criteria types total
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL                             = 188
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum

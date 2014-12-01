@@ -1349,6 +1349,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
@@ -1616,7 +1617,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                 break;                                   // Not implemented yet :(
         }
@@ -1790,8 +1790,19 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_BATTLEPET:
         case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT:
         case ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET:
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_PETBATTLE:
         case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
+        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_PETBATTLE:
+        case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             return l_Progress->counter >= l_CriteriaTree->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2606,6 +2617,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
         case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
             if (m_completedAchievements.find(p_Criteria->complete_achievement.linkedAchievement) == m_completedAchievements.end())
@@ -2915,10 +2927,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             if (p_MiscValue1 != p_Criteria->win_arena.mapID)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
-            //if (miscValue1 != achievementCriteria->guild_challenge_complete_type.challenge_type)
-                return false;
-            //break;
+            return false;
         default:
             break;
     }
@@ -3060,9 +3071,12 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
             {
                 if (!p_Unit)
                     return false;
+
+                // We must return true here, only one guild achievement and one player statistic which have this condition
+                // This condition is CREATURE_TYPE_CRITER, but the other one is BattlePet type, which is not used yet
                 Creature const* l_Creature = p_Unit->ToCreature();
                 if (!l_Creature || l_Creature->GetCreatureType() != l_ReqValue)
-                    return false;
+                    return true;
                 break;
             }
             case CRITERIA_CONDITION_SOURCE_MAP:                         // 32
@@ -3070,7 +3084,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             case CRITERIA_CONDITION_BUILD_VERSION:                      // 33
-                if ((l_ReqValue - 33000) >= 17399)
+                if ((l_ReqValue - 33000) >= 19116)
                     return false;
                 break;
             case CRITERIA_CONDITION_BATTLEPET_TEAM_LEVEL:               // 34
@@ -3544,6 +3558,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 p_Type)
             return "GUILD_CHALLENGE_TYPE";
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             return "GUILD_CHALLENGE";
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
+            return "COLLECT_TOYS";
     }
     return "MISSING_TYPE";
 }

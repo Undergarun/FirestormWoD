@@ -651,8 +651,10 @@ void KillRewarder::Reward()
             instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
 
         if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
+        {
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                 guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+        }
     }
 
 }
@@ -684,10 +686,7 @@ bool PetLoginQueryHolder::Initialize()
     return res;
 }
 
-
-
 // == Player ====================================================
-
 // we can disable this warning for this since it only
 // causes undefined behavior when passed to the base class constructor
 #ifdef _MSC_VER
@@ -6933,6 +6932,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
                 if (!guild->HandleMemberWithdrawMoney(GetSession(), costs, true))
                     return TotalCost;
 
+                guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS, TotalCost, 0, 0, nullptr, this);
                 TotalCost = costs;
             }
             else if (!HasEnoughMoney(uint64(costs)))
@@ -8636,6 +8636,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, victim->getRace());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);
+
+            if (Guild* l_Guild = GetGuild())
+                l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD, 1, 0, 0, nullptr, this);
         }
         else
         {
@@ -17353,6 +17356,9 @@ void Player::CompleteQuest(uint32 quest_id)
             else
                 SendQuestComplete(qInfo);
         }
+
+        if (Guild* l_Guild = GetGuild())
+            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD, 1, 0, 0, nullptr, this);
     }
 }
 
@@ -30421,6 +30427,8 @@ void Player::AddNewToyToBox(uint32 p_ItemID)
 
     if (!HasToy(p_ItemID))
     {
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS, 1, 0, 0, nullptr);
+
         PlayerToy l_PlayerToy = PlayerToy(p_ItemID, false);
         m_PlayerToys.insert(std::make_pair(p_ItemID, l_PlayerToy));
 

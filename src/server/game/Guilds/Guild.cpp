@@ -3138,7 +3138,12 @@ inline uint32 Guild::_GetMemberRemainingSlots(uint64 guid, uint8 tabId) const
 inline uint64 Guild::_GetMemberRemainingMoney(uint64 guid) const
 {
     if (const Member* member = GetMember(guid))
+    {
+        if (member->IsRank(GR_GUILDMASTER))
+            return GUILD_WITHDRAW_SLOT_UNLIMITED;
+
         return member->GetRemainingWithdrawMoney();
+    }
     return 0;
 }
 
