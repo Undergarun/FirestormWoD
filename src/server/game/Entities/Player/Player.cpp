@@ -30899,6 +30899,23 @@ bool Player::CanUseCharge(uint32 p_SpellID) const
         return true;
 
     ChargesData l_Charges = m_SpellChargesMap.at(p_SpellID);
+    if (!l_Charges.m_ConsumedCharges)
+        return true;
+
+    uint32 l_Count = 0;
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
+    for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
+    {
+        if (l_SpellInfo != nullptr && (*l_Iter)->GetSpellInfo()->SpellFamilyFlags & l_SpellInfo->SpellFamilyFlags)
+            ++l_Count;
+    }
+
+    // If spell is not modified, we should assume
+    // that spell doesn't use charges yet
+    if (!l_Count)
+        return true;
+
     if (l_Charges.m_ConsumedCharges >= l_Charges.m_MaxCharges)
         return false;
 
