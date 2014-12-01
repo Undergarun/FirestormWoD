@@ -50,6 +50,8 @@ enum PaladinSpells
     PALADIN_SPELL_WORD_OF_GLORY_HEAL            = 130551,
     PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY        = 54936,
     PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE = 115522,
+    PALADIN_SPELL_GLYPH_OF_HARSH_WORDS          = 54938,
+    PALADIN_SPELL_HARSH_WORDS_DAMAGE            = 130552,
     PALADIN_SPELL_CONSECRATION_AREA_DUMMY       = 81298,
     PALADIN_SPELL_CONSECRATION_DAMAGE           = 81297,
     PALADIN_SPELL_HOLY_PRISM_ALLIES             = 114871,
@@ -1148,7 +1150,7 @@ class spell_pal_consecration_area : public SpellScriptLoader
         }
 };
 
-// Word of Glory - 85673
+// Word of Glory - 85673 - 136494
 class spell_pal_word_of_glory : public SpellScriptLoader
 {
     public:
@@ -1171,15 +1173,19 @@ class spell_pal_word_of_glory : public SpellScriptLoader
                 {
                     if (Unit* unitTarget = GetHitUnit())
                     {
-                        if ((unitTarget->GetTypeId() != TYPEID_PLAYER && !unitTarget->isPet()) || unitTarget->IsHostileTo(_player))
-                            unitTarget = _player;
+                        if (!_player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                            if ((unitTarget->GetTypeId() != TYPEID_PLAYER && !unitTarget->isPet()) || !unitTarget->IsFriendlyTo(_player))
+                                unitTarget = _player;
 
                         int32 holyPower = _player->GetPower(POWER_HOLY_POWER);
 
                         if (holyPower > 2)
                             holyPower = 2;
 
+                        if (unitTarget->IsFriendlyTo(_player))
                         _player->CastSpell(unitTarget, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                        else if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                        _player->CastSpell(unitTarget, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
                         if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY))
                         {
