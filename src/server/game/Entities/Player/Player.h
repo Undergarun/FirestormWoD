@@ -1323,13 +1323,13 @@ struct ChargesData
 {
     ChargesData()
     {
-        memset(this, 0, sizeof (ChargesData));
+        m_MaxCharges = 0;
+        m_ConsumedCharges = 0;
+        m_Changed = false;
     }
 
     ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown)
     {
-        memset(this, 0, sizeof (ChargesData));
-
         m_MaxCharges = p_MaxCharges;
 
         // Called in ConsumeCharge, so one charge has gone
@@ -3243,7 +3243,7 @@ class Player : public Unit, public GridObject<Player>
 
         //////////////////////////////////////////////////////////////////////////
         /// SpellCharges
-        SpellChargesMap m_SpellCharges;
+        SpellChargesMap m_SpellChargesMap;
 
         void SendSpellCharges();
         void SendClearAllSpellCharges();

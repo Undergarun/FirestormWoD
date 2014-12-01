@@ -5720,14 +5720,14 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
                 continue;
 
             uint64 l_RealCooldown = (l_Cooldown - l_CurrTime);
-            if (m_SpellCharges.find(l_SpellID) != m_SpellCharges.end())
+            if (m_SpellChargesMap.find(l_SpellID) != m_SpellChargesMap.end())
             {
                 ChargesData* l_Charges = GetChargesData(l_SpellID);
                 ++l_Charges->m_ConsumedCharges;
                 l_Charges->m_ChargesCooldown.push_back(l_RealCooldown);
             }
             else
-                m_SpellCharges.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown)));
+                m_SpellChargesMap.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown)));
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_SpellID, uint32(l_Cooldown - l_CurrTime));
         }
@@ -5783,7 +5783,7 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
     uint64 l_CurrTime = 0;
     ACE_OS::gettimeofday().msec(l_CurrTime);
     
-    for (auto l_SpellCharges : m_SpellCharges)
+    for (auto l_SpellCharges : m_SpellChargesMap)
     {
         uint8 l_Count = 0;
         for (uint64 l_Cooldown : l_SpellCharges.second.m_ChargesCooldown)
@@ -30833,7 +30833,7 @@ void Player::SendSpellCharges()
     l_Data << uint32(0);
 
     uint32 l_Count = 0;
-    for (auto l_SpellCharges : m_SpellCharges)
+    for (auto l_SpellCharges : m_SpellChargesMap)
     {
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharges.first);
         if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
@@ -30858,7 +30858,7 @@ void Player::SendClearAllSpellCharges()
     l_Data.appendPackGUID(GetGUID());
     SendDirectMessage(&l_Data);
 
-    m_SpellCharges.clear();
+    m_SpellChargesMap.clear();
 }
 
 void Player::SendSetSpellCharges(uint32 p_SpellID)
@@ -30895,10 +30895,10 @@ void Player::SendClearSpellCharges(uint32 p_SpellID)
 
 bool Player::CanUseCharge(uint32 p_SpellID) const
 {
-    if (m_SpellCharges.find(p_SpellID) == m_SpellCharges.end())
+    if (m_SpellChargesMap.find(p_SpellID) == m_SpellChargesMap.end())
         return true;
 
-    ChargesData l_Charges = m_SpellCharges.at(p_SpellID);
+    ChargesData l_Charges = m_SpellChargesMap.at(p_SpellID);
     if (l_Charges.m_ConsumedCharges >= l_Charges.m_MaxCharges)
         return false;
 
@@ -30907,7 +30907,7 @@ bool Player::CanUseCharge(uint32 p_SpellID) const
 
 void Player::UpdateCharges(uint32 const p_Time)
 {
-    for (SpellChargesMap::iterator l_Iter = m_SpellCharges.begin(); l_Iter != m_SpellCharges.end();)
+    for (SpellChargesMap::iterator l_Iter = m_SpellChargesMap.begin(); l_Iter != m_SpellChargesMap.end();)
     {
         ChargesData* l_Charges = GetChargesData(l_Iter->first);
 
@@ -30921,7 +30921,7 @@ void Player::UpdateCharges(uint32 const p_Time)
                 if (l_Charges->m_ConsumedCharges <= 1)
                 {
                     SendClearSpellCharges(l_Iter->first);
-                    l_Iter = m_SpellCharges.erase(l_Iter);
+                    l_Iter = m_SpellChargesMap.erase(l_Iter);
                     l_MustContinue = true;
                     break;
                 }
@@ -30948,9 +30948,9 @@ void Player::UpdateCharges(uint32 const p_Time)
 
 void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket /*= true*/)
 {
-    if (m_SpellCharges.find(p_SpellID) == m_SpellCharges.end())
+    if (m_SpellChargesMap.find(p_SpellID) == m_SpellChargesMap.end())
     {
-        m_SpellCharges.insert(std::make_pair(p_SpellID, ChargesData(p_Category->MaxCharges, p_Category->ChargeRegenTime)));
+        m_SpellChargesMap.insert(std::make_pair(p_SpellID, ChargesData(p_Category->MaxCharges, p_Category->ChargeRegenTime)));
 
         if (p_SendPacket)
             SendSetSpellCharges(p_SpellID);
@@ -30966,8 +30966,8 @@ void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Categor
 
 ChargesData* Player::GetChargesData(uint32 p_SpellID)
 {
-    if (m_SpellCharges.find(p_SpellID) != m_SpellCharges.end())
-        return &m_SpellCharges[p_SpellID];
+    if (m_SpellChargesMap.find(p_SpellID) != m_SpellChargesMap.end())
+        return &m_SpellChargesMap[p_SpellID];
 
     return nullptr;
 }
