@@ -1,20 +1,27 @@
-/*
-SQLyog Ultimate v11.11 (64 bit)
-MySQL - 5.6.20-log : Database - characters
-*********************************************************************
-*/
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4135
+#
+# http://www.sequelpro.com/
+# http://code.google.com/p/sequel-pro/
+#
+# Host: 127.0.0.1 (MySQL 5.5.38)
+# Database: characters
+# Generation Time: 2014-12-01 10:07:25 +0000
+# ************************************************************
 
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
-
-/*!40101 SET SQL_MODE=''*/;
-
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`characters` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
-/*Table structure for table `account_achievement` */
+
+# Dump of table account_achievement
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `account_achievement`;
 
@@ -26,7 +33,10 @@ CREATE TABLE `account_achievement` (
   PRIMARY KEY (`account`,`achievement`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `account_achievement_progress` */
+
+
+# Dump of table account_achievement_progress
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `account_achievement_progress`;
 
@@ -39,7 +49,10 @@ CREATE TABLE `account_achievement_progress` (
   KEY `Account` (`account`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `account_data` */
+
+
+# Dump of table account_data
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `account_data`;
 
@@ -51,7 +64,10 @@ CREATE TABLE `account_data` (
   PRIMARY KEY (`accountId`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `account_instance_times` */
+
+
+# Dump of table account_instance_times
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `account_instance_times`;
 
@@ -62,7 +78,10 @@ CREATE TABLE `account_instance_times` (
   PRIMARY KEY (`accountId`,`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `account_social` */
+
+
+# Dump of table account_social
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `account_social`;
 
@@ -75,7 +94,24 @@ CREATE TABLE `account_social` (
   KEY `friend` (`friend`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `account_tutorial` */
+
+
+# Dump of table account_toys
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `account_toys`;
+
+CREATE TABLE `account_toys` (
+  `account_id` int(10) unsigned NOT NULL,
+  `item_id` int(10) unsigned NOT NULL,
+  `is_favorite` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`account_id`,`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table account_tutorial
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `account_tutorial`;
 
@@ -92,7 +128,10 @@ CREATE TABLE `account_tutorial` (
   PRIMARY KEY (`accountId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `addons` */
+
+
+# Dump of table addons
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `addons`;
 
@@ -102,7 +141,10 @@ CREATE TABLE `addons` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Addons';
 
-/*Table structure for table `arena_team` */
+
+
+# Dump of table arena_team
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `arena_team`;
 
@@ -125,7 +167,10 @@ CREATE TABLE `arena_team` (
   PRIMARY KEY (`arenaTeamId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `arena_team_member` */
+
+
+# Dump of table arena_team_member
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `arena_team_member`;
 
@@ -140,7 +185,10 @@ CREATE TABLE `arena_team_member` (
   PRIMARY KEY (`arenaTeamId`,`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `auctionhouse` */
+
+
+# Dump of table auctionhouse
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `auctionhouse`;
 
@@ -159,7 +207,10 @@ CREATE TABLE `auctionhouse` (
   UNIQUE KEY `item_guid` (`itemguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `autobroadcast` */
+
+
+# Dump of table autobroadcast
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `autobroadcast`;
 
@@ -169,7 +220,10 @@ CREATE TABLE `autobroadcast` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `blackmarket` */
+
+
+# Dump of table blackmarket
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `blackmarket`;
 
@@ -183,7 +237,10 @@ CREATE TABLE `blackmarket` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `bugreport` */
+
+
+# Dump of table bugreport
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `bugreport`;
 
@@ -194,7 +251,49 @@ CREATE TABLE `bugreport` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Debug System';
 
-/*Table structure for table `channels` */
+
+
+# Dump of table calendar_events
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `calendar_events`;
+
+CREATE TABLE `calendar_events` (
+  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `creator` int(10) unsigned NOT NULL DEFAULT '0',
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `description` varchar(255) NOT NULL DEFAULT '',
+  `type` tinyint(1) unsigned NOT NULL DEFAULT '4',
+  `dungeon` int(10) NOT NULL DEFAULT '-1',
+  `eventtime` int(10) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `time2` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table calendar_invites
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `calendar_invites`;
+
+CREATE TABLE `calendar_invites` (
+  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `event` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `invitee` int(10) unsigned NOT NULL DEFAULT '0',
+  `sender` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `statustime` int(10) unsigned NOT NULL DEFAULT '0',
+  `rank` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `text` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table channels
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `channels`;
 
@@ -209,7 +308,10 @@ CREATE TABLE `channels` (
   PRIMARY KEY (`name`,`team`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Channel System';
 
-/*Table structure for table `character_account_data` */
+
+
+# Dump of table character_account_data
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_account_data`;
 
@@ -221,7 +323,10 @@ CREATE TABLE `character_account_data` (
   PRIMARY KEY (`guid`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_achievement` */
+
+
+# Dump of table character_achievement
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_achievement`;
 
@@ -231,7 +336,10 @@ CREATE TABLE `character_achievement` (
   PRIMARY KEY (`guid`,`achievement`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_achievement_count` */
+
+
+# Dump of table character_achievement_count
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_achievement_count`;
 
@@ -241,7 +349,10 @@ CREATE TABLE `character_achievement_count` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_achievement_progress` */
+
+
+# Dump of table character_achievement_progress
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_achievement_progress`;
 
@@ -253,7 +364,10 @@ CREATE TABLE `character_achievement_progress` (
   PRIMARY KEY (`guid`,`criteria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_action` */
+
+
+# Dump of table character_action
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_action`;
 
@@ -266,23 +380,24 @@ CREATE TABLE `character_action` (
   PRIMARY KEY (`guid`,`spec`,`button`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_archaeology` */
+
+
+# Dump of table character_archaeology
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_archaeology`;
 
 CREATE TABLE `character_archaeology` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
-  `sites0` text,
-  `sites1` text,
-  `sites2` text,
-  `sites3` text,
-  `sites4` text,
   `counts` text,
   `projects` text,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_archaeology_projects` */
+
+
+# Dump of table character_archaeology_projects
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_archaeology_projects`;
 
@@ -294,7 +409,24 @@ CREATE TABLE `character_archaeology_projects` (
   PRIMARY KEY (`guid`,`project`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_arena_data` */
+
+
+# Dump of table character_archaeology_sites
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_archaeology_sites`;
+
+CREATE TABLE `character_archaeology_sites` (
+  `guid` int(11) unsigned NOT NULL,
+  `map` int(11) unsigned NOT NULL,
+  `sites` text NOT NULL,
+  PRIMARY KEY (`guid`,`map`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table character_arena_data
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_arena_data`;
 
@@ -357,7 +489,10 @@ CREATE TABLE `character_arena_data` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_arena_stats` */
+
+
+# Dump of table character_arena_stats
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_arena_stats`;
 
@@ -368,7 +503,10 @@ CREATE TABLE `character_arena_stats` (
   PRIMARY KEY (`guid`,`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_aura` */
+
+
+# Dump of table character_aura
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_aura`;
 
@@ -387,7 +525,10 @@ CREATE TABLE `character_aura` (
   PRIMARY KEY (`guid`,`caster_guid`,`item_guid`,`spell`,`effect_mask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_aura_effect` */
+
+
+# Dump of table character_aura_effect
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_aura_effect`;
 
@@ -400,7 +541,10 @@ CREATE TABLE `character_aura_effect` (
   PRIMARY KEY (`guid`,`slot`,`effect`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_banned` */
+
+
+# Dump of table character_banned
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_banned`;
 
@@ -414,7 +558,10 @@ CREATE TABLE `character_banned` (
   PRIMARY KEY (`guid`,`bandate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ban List';
 
-/*Table structure for table `character_battleground_data` */
+
+
+# Dump of table character_battleground_data
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_battleground_data`;
 
@@ -433,7 +580,10 @@ CREATE TABLE `character_battleground_data` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_battleground_random` */
+
+
+# Dump of table character_battleground_random
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_battleground_random`;
 
@@ -442,7 +592,10 @@ CREATE TABLE `character_battleground_random` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_currency` */
+
+
+# Dump of table character_currency
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_currency`;
 
@@ -458,7 +611,10 @@ CREATE TABLE `character_currency` (
   PRIMARY KEY (`guid`,`currency`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_declinedname` */
+
+
+# Dump of table character_declinedname
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_declinedname`;
 
@@ -472,7 +628,10 @@ CREATE TABLE `character_declinedname` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_equipmentsets` */
+
+
+# Dump of table character_equipmentsets
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_equipmentsets`;
 
@@ -507,7 +666,10 @@ CREATE TABLE `character_equipmentsets` (
   KEY `Idx_setindex` (`setindex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_garrison` */
+
+
+# Dump of table character_garrison
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_garrison`;
 
@@ -520,7 +682,10 @@ CREATE TABLE `character_garrison` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_garrison_building` */
+
+
+# Dump of table character_garrison_building
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_garrison_building`;
 
@@ -536,7 +701,10 @@ CREATE TABLE `character_garrison_building` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_garrison_follower` */
+
+
+# Dump of table character_garrison_follower
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_garrison_follower`;
 
@@ -555,7 +723,10 @@ CREATE TABLE `character_garrison_follower` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_garrison_mission` */
+
+
+# Dump of table character_garrison_mission
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_garrison_mission`;
 
@@ -570,7 +741,10 @@ CREATE TABLE `character_garrison_mission` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_gifts` */
+
+
+# Dump of table character_gifts
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_gifts`;
 
@@ -583,7 +757,10 @@ CREATE TABLE `character_gifts` (
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_glyphs` */
+
+
+# Dump of table character_glyphs
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_glyphs`;
 
@@ -602,7 +779,10 @@ CREATE TABLE `character_glyphs` (
   PRIMARY KEY (`guid`,`spec`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_homebind` */
+
+
+# Dump of table character_homebind
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_homebind`;
 
@@ -616,7 +796,10 @@ CREATE TABLE `character_homebind` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_instance` */
+
+
+# Dump of table character_instance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_instance`;
 
@@ -628,7 +811,10 @@ CREATE TABLE `character_instance` (
   KEY `instance` (`instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_inventory` */
+
+
+# Dump of table character_inventory
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_inventory`;
 
@@ -642,7 +828,10 @@ CREATE TABLE `character_inventory` (
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_lf_guild_params` */
+
+
+# Dump of table character_lf_guild_params
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_lf_guild_params`;
 
@@ -654,7 +843,10 @@ CREATE TABLE `character_lf_guild_params` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_pet` */
+
+
+# Dump of table character_pet
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_pet`;
 
@@ -681,7 +873,10 @@ CREATE TABLE `character_pet` (
   KEY `idx_slot` (`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 
-/*Table structure for table `character_pet_declinedname` */
+
+
+# Dump of table character_pet_declinedname
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_pet_declinedname`;
 
@@ -697,7 +892,10 @@ CREATE TABLE `character_pet_declinedname` (
   KEY `owner_key` (`owner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_queststatus` */
+
+
+# Dump of table character_queststatus
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_queststatus`;
 
@@ -707,19 +905,13 @@ CREATE TABLE `character_queststatus` (
   `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `explored` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `timer` int(10) unsigned NOT NULL DEFAULT '0',
-  `mobcount1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `mobcount2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `mobcount3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `mobcount4` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `itemcount1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `itemcount2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `itemcount3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `itemcount4` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `playercount` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`quest`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_queststatus_daily` */
+
+
+# Dump of table character_queststatus_daily
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_queststatus_daily`;
 
@@ -731,7 +923,10 @@ CREATE TABLE `character_queststatus_daily` (
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_queststatus_monthly` */
+
+
+# Dump of table character_queststatus_monthly
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_queststatus_monthly`;
 
@@ -742,7 +937,24 @@ CREATE TABLE `character_queststatus_monthly` (
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_queststatus_rewarded` */
+
+
+# Dump of table character_queststatus_objective
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_queststatus_objective`;
+
+CREATE TABLE `character_queststatus_objective` (
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `objectiveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `amount` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`objectiveId`,`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table character_queststatus_rewarded
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_queststatus_rewarded`;
 
@@ -752,7 +964,10 @@ CREATE TABLE `character_queststatus_rewarded` (
   PRIMARY KEY (`guid`,`quest`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_queststatus_seasonal` */
+
+
+# Dump of table character_queststatus_seasonal
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_queststatus_seasonal`;
 
@@ -764,7 +979,10 @@ CREATE TABLE `character_queststatus_seasonal` (
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_queststatus_weekly` */
+
+
+# Dump of table character_queststatus_weekly
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_queststatus_weekly`;
 
@@ -775,7 +993,10 @@ CREATE TABLE `character_queststatus_weekly` (
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_rates` */
+
+
+# Dump of table character_rates
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_rates`;
 
@@ -785,7 +1006,10 @@ CREATE TABLE `character_rates` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `character_reputation` */
+
+
+# Dump of table character_reputation
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_reputation`;
 
@@ -797,7 +1021,10 @@ CREATE TABLE `character_reputation` (
   PRIMARY KEY (`guid`,`faction`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_skills` */
+
+
+# Dump of table character_skills
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_skills`;
 
@@ -809,7 +1036,10 @@ CREATE TABLE `character_skills` (
   PRIMARY KEY (`guid`,`skill`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_spell` */
+
+
+# Dump of table character_spell
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_spell`;
 
@@ -821,7 +1051,10 @@ CREATE TABLE `character_spell` (
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `character_spell_cooldown` */
+
+
+# Dump of table character_spell_cooldown
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_spell_cooldown`;
 
@@ -833,7 +1066,10 @@ CREATE TABLE `character_spell_cooldown` (
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_stats` */
+
+
+# Dump of table character_stats
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_stats`;
 
@@ -870,7 +1106,10 @@ CREATE TABLE `character_stats` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_talent` */
+
+
+# Dump of table character_talent
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_talent`;
 
@@ -881,7 +1120,10 @@ CREATE TABLE `character_talent` (
   PRIMARY KEY (`guid`,`spell`,`spec`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `character_void_storage` */
+
+
+# Dump of table character_void_storage
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `character_void_storage`;
 
@@ -898,7 +1140,10 @@ CREATE TABLE `character_void_storage` (
   KEY `idx_player` (`playerGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `characters` */
+
+
+# Dump of table characters
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `characters`;
 
@@ -985,7 +1230,10 @@ CREATE TABLE `characters` (
   KEY `idx_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `corpse` */
+
+
+# Dump of table corpse
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `corpse`;
 
@@ -1014,7 +1262,10 @@ CREATE TABLE `corpse` (
   KEY `idx_time` (`time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Death System';
 
-/*Table structure for table `creature_respawn` */
+
+
+# Dump of table creature_respawn
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `creature_respawn`;
 
@@ -1027,7 +1278,10 @@ CREATE TABLE `creature_respawn` (
   KEY `idx_instance` (`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
 
-/*Table structure for table `cuf_profile` */
+
+
+# Dump of table cuf_profile
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `cuf_profile`;
 
@@ -1038,7 +1292,10 @@ CREATE TABLE `cuf_profile` (
   PRIMARY KEY (`guid`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `daily_players_reports` */
+
+
+# Dump of table daily_players_reports
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `daily_players_reports`;
 
@@ -1056,7 +1313,10 @@ CREATE TABLE `daily_players_reports` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `game_event_condition_save` */
+
+
+# Dump of table game_event_condition_save
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `game_event_condition_save`;
 
@@ -1067,7 +1327,10 @@ CREATE TABLE `game_event_condition_save` (
   PRIMARY KEY (`eventEntry`,`condition_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `game_event_save` */
+
+
+# Dump of table game_event_save
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `game_event_save`;
 
@@ -1078,7 +1341,10 @@ CREATE TABLE `game_event_save` (
   PRIMARY KEY (`eventEntry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `gameobject_respawn` */
+
+
+# Dump of table gameobject_respawn
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `gameobject_respawn`;
 
@@ -1091,7 +1357,10 @@ CREATE TABLE `gameobject_respawn` (
   KEY `idx_instance` (`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
 
-/*Table structure for table `gm_subsurveys` */
+
+
+# Dump of table gm_subsurveys
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `gm_subsurveys`;
 
@@ -1103,7 +1372,10 @@ CREATE TABLE `gm_subsurveys` (
   PRIMARY KEY (`surveyId`,`subsurveyId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `gm_surveys` */
+
+
+# Dump of table gm_surveys
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `gm_surveys`;
 
@@ -1116,7 +1388,10 @@ CREATE TABLE `gm_surveys` (
   PRIMARY KEY (`surveyId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `gm_tickets` */
+
+
+# Dump of table gm_tickets
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `gm_tickets`;
 
@@ -1126,7 +1401,7 @@ CREATE TABLE `gm_tickets` (
   `name` varchar(12) NOT NULL COMMENT 'Name of ticket creator',
   `message` text NOT NULL,
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `mapId` int(10) unsigned NOT NULL DEFAULT '0',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
@@ -1141,7 +1416,10 @@ CREATE TABLE `gm_tickets` (
   PRIMARY KEY (`ticketId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `group_instance` */
+
+
+# Dump of table group_instance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `group_instance`;
 
@@ -1153,7 +1431,10 @@ CREATE TABLE `group_instance` (
   KEY `instance` (`instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `group_member` */
+
+
+# Dump of table group_member
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `group_member`;
 
@@ -1166,7 +1447,10 @@ CREATE TABLE `group_member` (
   PRIMARY KEY (`memberGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
 
-/*Table structure for table `groups` */
+
+
+# Dump of table groups
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `groups`;
 
@@ -1192,7 +1476,10 @@ CREATE TABLE `groups` (
   KEY `leaderGuid` (`leaderGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
 
-/*Table structure for table `guild` */
+
+
+# Dump of table guild
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild`;
 
@@ -1215,7 +1502,10 @@ CREATE TABLE `guild` (
   PRIMARY KEY (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 
-/*Table structure for table `guild_achievement` */
+
+
+# Dump of table guild_achievement
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_achievement`;
 
@@ -1227,7 +1517,10 @@ CREATE TABLE `guild_achievement` (
   PRIMARY KEY (`guildId`,`achievement`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_achievement_progress` */
+
+
+# Dump of table guild_achievement_progress
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_achievement_progress`;
 
@@ -1240,7 +1533,10 @@ CREATE TABLE `guild_achievement_progress` (
   PRIMARY KEY (`guildId`,`criteria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_bank_eventlog` */
+
+
+# Dump of table guild_bank_eventlog
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_bank_eventlog`;
 
@@ -1260,7 +1556,10 @@ CREATE TABLE `guild_bank_eventlog` (
   KEY `Idx_LogGuid` (`LogGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_bank_item` */
+
+
+# Dump of table guild_bank_item
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_bank_item`;
 
@@ -1274,7 +1573,10 @@ CREATE TABLE `guild_bank_item` (
   KEY `Idx_item_guid` (`item_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_bank_right` */
+
+
+# Dump of table guild_bank_right
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_bank_right`;
 
@@ -1288,7 +1590,10 @@ CREATE TABLE `guild_bank_right` (
   KEY `guildid_key` (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_bank_tab` */
+
+
+# Dump of table guild_bank_tab
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_bank_tab`;
 
@@ -1302,7 +1607,10 @@ CREATE TABLE `guild_bank_tab` (
   KEY `guildid_key` (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_eventlog` */
+
+
+# Dump of table guild_eventlog
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_eventlog`;
 
@@ -1320,7 +1628,10 @@ CREATE TABLE `guild_eventlog` (
   KEY `Idx_LogGuid` (`LogGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Eventlog';
 
-/*Table structure for table `guild_finder_applicant` */
+
+
+# Dump of table guild_finder_applicant
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_finder_applicant`;
 
@@ -1335,7 +1646,10 @@ CREATE TABLE `guild_finder_applicant` (
   UNIQUE KEY `guildId` (`guildId`,`playerGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `guild_finder_guild_settings` */
+
+
+# Dump of table guild_finder_guild_settings
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_finder_guild_settings`;
 
@@ -1350,7 +1664,10 @@ CREATE TABLE `guild_finder_guild_settings` (
   PRIMARY KEY (`guildId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `guild_member` */
+
+
+# Dump of table guild_member
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_member`;
 
@@ -1383,7 +1700,10 @@ CREATE TABLE `guild_member` (
   KEY `guildid_rank_key` (`guildid`,`rank`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 
-/*Table structure for table `guild_news_log` */
+
+
+# Dump of table guild_news_log
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_news_log`;
 
@@ -1398,7 +1718,10 @@ CREATE TABLE `guild_news_log` (
   PRIMARY KEY (`guild`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `guild_rank` */
+
+
+# Dump of table guild_rank
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `guild_rank`;
 
@@ -1412,7 +1735,10 @@ CREATE TABLE `guild_rank` (
   KEY `Idx_rid` (`rid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 
-/*Table structure for table `instance` */
+
+
+# Dump of table instance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `instance`;
 
@@ -1429,7 +1755,10 @@ CREATE TABLE `instance` (
   KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `instance_reset` */
+
+
+# Dump of table instance_reset
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `instance_reset`;
 
@@ -1441,7 +1770,10 @@ CREATE TABLE `instance_reset` (
   KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_instance` */
+
+
+# Dump of table item_instance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_instance`;
 
@@ -1467,7 +1799,10 @@ CREATE TABLE `item_instance` (
   KEY `idx_owner_guid` (`owner_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item System';
 
-/*Table structure for table `item_refund_instance` */
+
+
+# Dump of table item_refund_instance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_refund_instance`;
 
@@ -1479,7 +1814,10 @@ CREATE TABLE `item_refund_instance` (
   PRIMARY KEY (`item_guid`,`player_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
 
-/*Table structure for table `item_soulbound_trade_data` */
+
+
+# Dump of table item_soulbound_trade_data
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_soulbound_trade_data`;
 
@@ -1489,7 +1827,10 @@ CREATE TABLE `item_soulbound_trade_data` (
   PRIMARY KEY (`itemGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
 
-/*Table structure for table `lag_reports` */
+
+
+# Dump of table lag_reports
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `lag_reports`;
 
@@ -1506,7 +1847,10 @@ CREATE TABLE `lag_reports` (
   PRIMARY KEY (`reportId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
-/*Table structure for table `lfg_data` */
+
+
+# Dump of table lfg_data
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `lfg_data`;
 
@@ -1517,7 +1861,10 @@ CREATE TABLE `lfg_data` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='LFG Data';
 
-/*Table structure for table `log_arena` */
+
+
+# Dump of table log_arena
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_arena`;
 
@@ -1528,7 +1875,10 @@ CREATE TABLE `log_arena` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `log_faction_change` */
+
+
+# Dump of table log_faction_change
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_faction_change`;
 
@@ -1542,7 +1892,10 @@ CREATE TABLE `log_faction_change` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_gm` */
+
+
+# Dump of table log_gm
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_gm`;
 
@@ -1562,7 +1915,10 @@ CREATE TABLE `log_gm` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_gm_chat` */
+
+
+# Dump of table log_gm_chat
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_gm_chat`;
 
@@ -1582,7 +1938,10 @@ CREATE TABLE `log_gm_chat` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_mail` */
+
+
+# Dump of table log_mail
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_mail`;
 
@@ -1603,7 +1962,10 @@ CREATE TABLE `log_mail` (
   `checked` tinyint(3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_rename` */
+
+
+# Dump of table log_rename
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_rename`;
 
@@ -1614,7 +1976,10 @@ CREATE TABLE `log_rename` (
   `newName` tinytext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_store_gold` */
+
+
+# Dump of table log_store_gold
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_store_gold`;
 
@@ -1626,7 +1991,10 @@ CREATE TABLE `log_store_gold` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_store_item` */
+
+
+# Dump of table log_store_item
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_store_item`;
 
@@ -1639,7 +2007,10 @@ CREATE TABLE `log_store_item` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_store_title` */
+
+
+# Dump of table log_store_title
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_store_title`;
 
@@ -1651,7 +2022,10 @@ CREATE TABLE `log_store_title` (
   `date` timestamp NULL DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `log_trade` */
+
+
+# Dump of table log_trade
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `log_trade`;
 
@@ -1670,7 +2044,10 @@ CREATE TABLE `log_trade` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `mail` */
+
+
+# Dump of table mail
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `mail`;
 
@@ -1693,7 +2070,10 @@ CREATE TABLE `mail` (
   KEY `idx_receiver` (`receiver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Mail System';
 
-/*Table structure for table `mail_items` */
+
+
+# Dump of table mail_items
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `mail_items`;
 
@@ -1706,7 +2086,10 @@ CREATE TABLE `mail_items` (
   KEY `idx_mail_id` (`mail_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-/*Table structure for table `pet_aura` */
+
+
+# Dump of table pet_aura
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `pet_aura`;
 
@@ -1724,7 +2107,10 @@ CREATE TABLE `pet_aura` (
   PRIMARY KEY (`guid`,`spell`,`effect_mask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 
-/*Table structure for table `pet_aura_effect` */
+
+
+# Dump of table pet_aura_effect
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `pet_aura_effect`;
 
@@ -1737,7 +2123,10 @@ CREATE TABLE `pet_aura_effect` (
   PRIMARY KEY (`guid`,`slot`,`effect`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `pet_spell` */
+
+
+# Dump of table pet_spell
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `pet_spell`;
 
@@ -1748,7 +2137,10 @@ CREATE TABLE `pet_spell` (
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 
-/*Table structure for table `pet_spell_cooldown` */
+
+
+# Dump of table pet_spell_cooldown
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `pet_spell_cooldown`;
 
@@ -1759,7 +2151,10 @@ CREATE TABLE `pet_spell_cooldown` (
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `petition` */
+
+
+# Dump of table petition
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `petition`;
 
@@ -1772,7 +2167,10 @@ CREATE TABLE `petition` (
   UNIQUE KEY `index_ownerguid_petitionguid` (`ownerguid`,`petitionguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 
-/*Table structure for table `petition_sign` */
+
+
+# Dump of table petition_sign
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `petition_sign`;
 
@@ -1787,7 +2185,10 @@ CREATE TABLE `petition_sign` (
   KEY `Idx_ownerguid` (`ownerguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 
-/*Table structure for table `players_reports_status` */
+
+
+# Dump of table players_reports_status
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `players_reports_status`;
 
@@ -1805,7 +2206,10 @@ CREATE TABLE `players_reports_status` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `pool_quest_save` */
+
+
+# Dump of table pool_quest_save
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `pool_quest_save`;
 
@@ -1815,7 +2219,10 @@ CREATE TABLE `pool_quest_save` (
   PRIMARY KEY (`pool_id`,`quest_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `reserved_name` */
+
+
+# Dump of table reserved_name
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `reserved_name`;
 
@@ -1824,7 +2231,10 @@ CREATE TABLE `reserved_name` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player Reserved Names';
 
-/*Table structure for table `store_gold` */
+
+
+# Dump of table store_gold
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `store_gold`;
 
@@ -1837,7 +2247,10 @@ CREATE TABLE `store_gold` (
   KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `store_item` */
+
+
+# Dump of table store_item
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `store_item`;
 
@@ -1851,7 +2264,10 @@ CREATE TABLE `store_item` (
   KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `store_level` */
+
+
+# Dump of table store_level
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `store_level`;
 
@@ -1864,7 +2280,10 @@ CREATE TABLE `store_level` (
   KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `store_metier` */
+
+
+# Dump of table store_metier
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `store_metier`;
 
@@ -1877,7 +2296,10 @@ CREATE TABLE `store_metier` (
   UNIQUE KEY `NewIndex1` (`skill`,`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `store_title` */
+
+
+# Dump of table store_title
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `store_title`;
 
@@ -1888,7 +2310,10 @@ CREATE TABLE `store_title` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `time_diff_log` */
+
+
+# Dump of table time_diff_log
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `time_diff_log`;
 
@@ -1899,9 +2324,12 @@ CREATE TABLE `time_diff_log` (
   `max` int(10) unsigned DEFAULT '0',
   `players` int(10) unsigned DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1371 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `warden_action` */
+
+
+# Dump of table warden_action
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `warden_action`;
 
@@ -1911,7 +2339,10 @@ CREATE TABLE `warden_action` (
   PRIMARY KEY (`wardenId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `worldstates` */
+
+
+# Dump of table worldstates
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `worldstates`;
 
@@ -1922,7 +2353,12 @@ CREATE TABLE `worldstates` (
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Variable Saves';
 
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
