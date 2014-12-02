@@ -415,15 +415,16 @@ namespace MS
                                 }
                             }
 
+                            auto l_CurrentSpell = l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
                             if (l_ClosestPlayerInBeam
-                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)
-                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()
-                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()->ToPlayer() != l_ClosestPlayerInBeam)
+                                && l_CurrentSpell
+                                && l_CurrentSpell->GetUnitTarget()
+                                && l_CurrentSpell->GetUnitTarget()->ToPlayer() != l_ClosestPlayerInBeam)
                                 l_SelectedSolarConstructor->CastSpell(l_ClosestPlayerInBeam, uint32(RandomSpells::ENERGIZE_DMG), false, nullptr, NULLAURA_EFFECT, m_AraknathGuid);
                             else if (!l_ClosestPlayerInBeam
-                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)
-                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()
-                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()->ToPlayer())
+                                && l_CurrentSpell
+                                && l_CurrentSpell->GetUnitTarget()
+                                && l_CurrentSpell->GetUnitTarget()->ToPlayer())
                             l_SelectedSolarConstructor->CastSpell(l_SelectedSolarConstructor, uint32(RandomSpells::ENERGIZE_HEAL));
                         }
                     }
