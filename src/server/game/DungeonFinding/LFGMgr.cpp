@@ -1879,7 +1879,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         uint8 maxPlayersToTeleport = 5;
         uint8 playersTeleported = 0;
 
-        switch (grp->GetRaidDifficulty())
+        switch (grp->GetLegacyRaidDifficulty())
         {
             case LEGACY_MAN10_DIFFICULTY:
             case LEGACY_MAN10_HEROIC_DIFFICULTY:
