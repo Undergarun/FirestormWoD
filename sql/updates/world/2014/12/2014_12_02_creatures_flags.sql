@@ -1,0 +1,2 @@
+ALTER TABLE `creature_template`     ADD COLUMN `unit_flags3` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `unit_flags2`,     ADD COLUMN `WorldEffectID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `dynamicflags`;
+ALTER TABLE `creature`              ADD COLUMN `unit_flags3` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `unit_flags2`,     ADD COLUMN `WorldEffectID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `dynamicflags`;

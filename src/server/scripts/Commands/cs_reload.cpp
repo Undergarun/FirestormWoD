@@ -457,8 +457,8 @@ public:
             cInfo->expansion           = fields[l_Index++].GetUInt16();
             cInfo->expansionUnknown    = fields[l_Index++].GetUInt16();
             cInfo->faction             = fields[l_Index++].GetUInt16();
-            cInfo->npcflag             = fields[l_Index++].GetUInt32();
-            cInfo->npcflag2            = fields[l_Index++].GetUInt32();
+            cInfo->NpcFlags1           = fields[l_Index++].GetUInt32();
+            cInfo->NpcFlags2           = fields[l_Index++].GetUInt32();
             cInfo->speed_walk          = fields[l_Index++].GetFloat();
             cInfo->speed_run           = fields[l_Index++].GetFloat();
             cInfo->speed_fly           = fields[l_Index++].GetFloat();
@@ -471,9 +471,11 @@ public:
             cInfo->baseVariance        = fields[l_Index++].GetFloat();
             cInfo->rangeVariance       = fields[l_Index++].GetFloat();
             cInfo->unit_class          = fields[l_Index++].GetUInt8();
-            cInfo->unit_flags          = fields[l_Index++].GetUInt32();
-            cInfo->unit_flags2         = fields[l_Index++].GetUInt32();
+            cInfo->UnitFlags1          = fields[l_Index++].GetUInt32();
+            cInfo->UnitFlags2          = fields[l_Index++].GetUInt32();
+            cInfo->UnitFlags3          = fields[l_Index++].GetUInt32();
             cInfo->dynamicflags        = fields[l_Index++].GetUInt32();
+            cInfo->WorldEffectID       = fields[l_Index++].GetUInt32();
             cInfo->family              = fields[l_Index++].GetUInt8();
             cInfo->trainer_type        = fields[l_Index++].GetUInt8();
             cInfo->trainer_spell       = fields[l_Index++].GetUInt32();

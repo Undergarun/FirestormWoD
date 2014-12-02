@@ -372,60 +372,68 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     return true;
 }
 
-bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
+bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_SpawnData)
 {
-    if (!InitEntry(Entry, team, data))
+    if (!InitEntry(p_Entry, p_Team, p_SpawnData))
         return false;
 
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    const CreatureTemplate * l_CreatureTemplate = GetCreatureTemplate();
 
-    m_regenHealth = cInfo->RegenHealth;
+    m_regenHealth = l_CreatureTemplate->RegenHealth;
 
-    // creatures always have melee weapon ready if any unless specified otherwise
+    /// Creatures always have melee weapon ready if any unless specified otherwise
     if (!GetCreatureAddon())
         SetSheath(SHEATH_STATE_MELEE);
 
     SelectLevel(GetCreatureTemplate());
-    setFaction(cInfo->faction);
+    setFaction(l_CreatureTemplate->faction);
 
-    uint32 npcflag, unit_flags, unit_flags2, dynamicflags;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, unit_flags2, dynamicflags, data);
+    uint32 l_NpcFlag1       = 0;
+    uint32 l_NpcFlag2       = 0;
+    uint32 l_UnitFlags1     = 0;
+    uint32 l_UnitFlags2     = 0;
+    uint32 l_UnitFlags3     = 0;
+    uint32 l_DynamicFlags   = 0;
 
-    if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
-        SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
+    ObjectMgr::ChooseCreatureFlags(l_CreatureTemplate, l_NpcFlag1, l_NpcFlag2, l_UnitFlags1, l_UnitFlags2, l_UnitFlags3, l_DynamicFlags, p_SpawnData);
+
+    if (l_CreatureTemplate->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
+        SetUInt32Value(UNIT_FIELD_NPC_FLAGS, l_NpcFlag1 | sGameEventMgr->GetNPCFlag(this));
     else
-        SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag);
+        SetUInt32Value(UNIT_FIELD_NPC_FLAGS, l_NpcFlag1);
 
-    SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, cInfo->npcflag2);
+    SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, l_NpcFlag2);
+    SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, l_CreatureTemplate->WorldEffectID);
 
-    SetAttackTime(BASE_ATTACK,  cInfo->baseattacktime);
-    SetAttackTime(OFF_ATTACK,   cInfo->baseattacktime);
-    SetAttackTime(RANGED_ATTACK, cInfo->rangeattacktime);
+    SetAttackTime(BASE_ATTACK,  l_CreatureTemplate->baseattacktime);
+    SetAttackTime(OFF_ATTACK,   l_CreatureTemplate->baseattacktime);
+    SetAttackTime(RANGED_ATTACK, l_CreatureTemplate->rangeattacktime);
 
-    SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    SetUInt32Value(UNIT_FIELD_FLAGS2, unit_flags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS, l_UnitFlags1);
+    SetUInt32Value(UNIT_FIELD_FLAGS2, l_UnitFlags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS3, l_UnitFlags3);
     SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
 
-    SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, dynamicflags);
+    SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, l_DynamicFlags);
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
-    float armor = (float)stats->GenerateArmor(cInfo); // TODO: Why is this treated as uint32 when it's a float?
+    SetMeleeDamageSchool(SpellSchools(l_CreatureTemplate->dmgschool));
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), l_CreatureTemplate->unit_class);
+    float armor = (float)stats->GenerateArmor(l_CreatureTemplate); // TODO: Why is this treated as uint32 when it's a float?
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, armor);
-    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FIRE]));
-    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_NATURE]));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FROST]));
-    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_SHADOW]));
-    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_ARCANE]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(l_CreatureTemplate->resistance[SPELL_SCHOOL_HOLY]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(l_CreatureTemplate->resistance[SPELL_SCHOOL_FIRE]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(l_CreatureTemplate->resistance[SPELL_SCHOOL_NATURE]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(l_CreatureTemplate->resistance[SPELL_SCHOOL_FROST]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(l_CreatureTemplate->resistance[SPELL_SCHOOL_SHADOW]));
+    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(l_CreatureTemplate->resistance[SPELL_SCHOOL_ARCANE]));
 
     SetCanModifyStats(true);
     UpdateAllStats();
 
     // checked and error show at loading templates
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction))
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(l_CreatureTemplate->faction))
     {
         if (factionTemplate->Flags & FACTION_TEMPLATE_FLAG_PVP)
             SetPvP(true);
@@ -439,7 +447,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
 
     InitializeReactState();
 
-    if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
+    if (l_CreatureTemplate->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
     {
         ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -451,9 +459,9 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     //! Set MOVEMENTFLAG_DISABLE_GRAVITY
     //! The only time I saw Movement Flags: DisableGravity, CanFly, Flying (50332672) on the same unit
     //! it was a vehicle
-    if (cInfo->InhabitType & INHABIT_AIR && cInfo->InhabitType & INHABIT_GROUND)
+    if (l_CreatureTemplate->InhabitType & INHABIT_AIR && l_CreatureTemplate->InhabitType & INHABIT_GROUND)
         SetCanFly(true);
-    else if (cInfo->InhabitType & INHABIT_AIR)
+    else if (l_CreatureTemplate->InhabitType & INHABIT_AIR)
         SetDisableGravity(true);
     /*! Implemented in LoadCreatureAddon. Suspect there's a rule for UNIT_BYTE_1_FLAG_HOVER
         in relation to DisableGravity also.
@@ -464,7 +472,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     */
 
     // TODO: Shouldn't we check whether or not the creature is in water first?
-    if (cInfo->InhabitType & INHABIT_WATER && IsInWater())
+    if (l_CreatureTemplate->InhabitType & INHABIT_WATER && IsInWater())
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     return true;
@@ -1113,40 +1121,49 @@ void Creature::SaveToDB()
 
 void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 {
-    // update in loaded data
+    /// Update in loaded data
     if (!m_DBTableGuid)
         m_DBTableGuid = GetGUIDLow();
-    CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_DBTableGuid);
 
-    uint32 displayId = GetNativeDisplayId();
-    uint32 npcflag = GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
-    uint32 npcflag2 = GetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1);
-    uint32 unit_flags = GetUInt32Value(UNIT_FIELD_FLAGS);
-    uint32 unit_flags2 = GetUInt32Value(UNIT_FIELD_FLAGS2);
-    uint32 dynamicflags = GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS);
+    CreatureData & l_SpawnData = sObjectMgr->NewOrExistCreatureData(m_DBTableGuid);
 
-    // check if it's a custom model and if not, use 0 for displayId
-    CreatureTemplate const* cinfo = GetCreatureTemplate();
-    if (cinfo)
+    uint32 l_DisplayID      = GetNativeDisplayId();
+    uint32 l_NpcFlags1      = GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
+    uint32 l_NpcFlags2      = GetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1);
+    uint32 l_UnitFlags1     = GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 l_UnitFlags2     = GetUInt32Value(UNIT_FIELD_FLAGS2);
+    uint32 l_UnitFlags3     = GetUInt32Value(UNIT_FIELD_FLAGS3);
+    uint32 l_Dynamicflags   = GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS);
+    uint32 l_WorldEffectID  = GetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID);
+
+    /// Check if it's a custom model and if not, use 0 for displayId
+    const CreatureTemplate * l_CreatureTemplate = GetCreatureTemplate();
+    if (l_CreatureTemplate)
     {
-        if (displayId == cinfo->Modelid1 || displayId == cinfo->Modelid2 ||
-            displayId == cinfo->Modelid3 || displayId == cinfo->Modelid4)
-            displayId = 0;
+        if (l_DisplayID == l_CreatureTemplate->Modelid1 || l_DisplayID == l_CreatureTemplate->Modelid2 ||
+            l_DisplayID == l_CreatureTemplate->Modelid3 || l_DisplayID == l_CreatureTemplate->Modelid4)
+            l_DisplayID = 0;
 
-        if (npcflag == cinfo->npcflag)
-            npcflag = 0;
+        if (l_NpcFlags1 == l_CreatureTemplate->NpcFlags1)
+            l_NpcFlags1 = 0;
 
-        if (npcflag2 == cinfo->npcflag2)
-            npcflag2 = 0;
+        if (l_NpcFlags2 == l_CreatureTemplate->NpcFlags2)
+            l_NpcFlags2 = 0;
 
-        if (unit_flags == cinfo->unit_flags)
-            unit_flags = 0;
+        if (l_UnitFlags1 == l_CreatureTemplate->UnitFlags1)
+            l_UnitFlags1 = 0;
 
-        if (dynamicflags == cinfo->dynamicflags)
-            dynamicflags = 0;
+        if (l_UnitFlags2 == l_CreatureTemplate->UnitFlags2)
+            l_UnitFlags2 = 0;
 
-        if (unit_flags2 == cinfo->unit_flags2)
-            unit_flags2 = 0;
+        if (l_UnitFlags3 == l_CreatureTemplate->UnitFlags3)
+            l_UnitFlags3 = 0;
+
+        if (l_Dynamicflags == l_CreatureTemplate->dynamicflags)
+            l_Dynamicflags = 0;
+
+        if (l_WorldEffectID == l_CreatureTemplate->WorldEffectID)
+            l_WorldEffectID = 0;
     }
 
     uint32 zoneId = 0;
@@ -1154,44 +1171,47 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     sMapMgr->GetZoneAndAreaId(zoneId, areaId, mapid, GetPositionX(), GetPositionY(), GetPositionZ());
 
     // data->guid = guid must not be updated at save
-    data.id = GetEntry();
-    data.mapid = mapid;
-    data.zoneId = zoneId;
-    data.areaId = areaId;
-    data.phaseMask = phaseMask;
-    data.displayid = displayId;
-    data.equipmentId = GetCurrentEquipmentId();
+    l_SpawnData.id = GetEntry();
+    l_SpawnData.mapid = mapid;
+    l_SpawnData.zoneId = zoneId;
+    l_SpawnData.areaId = areaId;
+    l_SpawnData.phaseMask = phaseMask;
+    l_SpawnData.displayid = l_DisplayID;
+    l_SpawnData.equipmentId = GetCurrentEquipmentId();
 
     if (!GetTransport())
     {
-        data.posX = GetPositionX();
-        data.posY = GetPositionY();
-        data.posZ = GetPositionZMinusOffset();
-        data.orientation = GetOrientation();
+        l_SpawnData.posX = GetPositionX();
+        l_SpawnData.posY = GetPositionY();
+        l_SpawnData.posZ = GetPositionZMinusOffset();
+        l_SpawnData.orientation = GetOrientation();
     }
     else
     {
-        data.posX = GetTransOffsetX();
-        data.posY = GetTransOffsetY();
-        data.posZ = GetTransOffsetZ();
-        data.orientation = GetTransOffsetO();
+        l_SpawnData.posX = GetTransOffsetX();
+        l_SpawnData.posY = GetTransOffsetY();
+        l_SpawnData.posZ = GetTransOffsetZ();
+        l_SpawnData.orientation = GetTransOffsetO();
     }
 
-    data.spawntimesecs = m_respawnDelay;
+    l_SpawnData.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
-    data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_respawnradius;
-    data.currentwaypoint = 0;
-    data.curhealth = GetHealth();
-    data.curmana = GetPower(POWER_MANA);
+    l_SpawnData.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_respawnradius;
+    l_SpawnData.currentwaypoint = 0;
+    l_SpawnData.curhealth = GetHealth();
+    l_SpawnData.curmana = GetPower(POWER_MANA);
     // prevent add data integrity problems
-    data.movementType = !m_respawnradius && GetDefaultMovementType() == RANDOM_MOTION_TYPE
+    l_SpawnData.movementType = !m_respawnradius && GetDefaultMovementType() == RANDOM_MOTION_TYPE
         ? IDLE_MOTION_TYPE : GetDefaultMovementType();
-    data.spawnMask = spawnMask;
-    data.npcflag = npcflag;
-    data.unit_flags = unit_flags;
-    data.unit_flags2 = unit_flags2;
-    data.dynamicflags = dynamicflags;
-    data.isActive = isActiveObject();
+    l_SpawnData.spawnMask = spawnMask;
+    l_SpawnData.NpcFlags1 = l_NpcFlags1;
+    l_SpawnData.NpcFlags2 = l_NpcFlags2;
+    l_SpawnData.UnitFlags1 = l_UnitFlags1;
+    l_SpawnData.UnitFlags2 = l_UnitFlags2;
+    l_SpawnData.UnitFlags3 = l_UnitFlags3;
+    l_SpawnData.dynamicflags = l_Dynamicflags;
+    l_SpawnData.WorldEffectID = l_WorldEffectID;
+    l_SpawnData.isActive = isActiveObject();
 
     // update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
@@ -1210,7 +1230,7 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, areaId);
     stmt->setUInt8(index++,  spawnMask);
     stmt->setUInt32(index++, uint32(GetPhaseMask()));
-    stmt->setUInt32(index++, displayId);
+    stmt->setUInt32(index++, l_DisplayID);
     stmt->setInt32(index++,  int32(GetCurrentEquipmentId()));
     stmt->setFloat(index++,  GetPositionX());
     stmt->setFloat(index++,  GetPositionY());
@@ -1222,11 +1242,13 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, GetHealth());
     stmt->setUInt32(index++, GetPower(POWER_MANA));
     stmt->setUInt8(index++,  uint8(GetDefaultMovementType()));
-    stmt->setUInt32(index++, npcflag);
-    stmt->setUInt32(index++, npcflag2);
-    stmt->setUInt32(index++, unit_flags);
-    stmt->setUInt32(index++, unit_flags2);
-    stmt->setUInt32(index++, dynamicflags);
+    stmt->setUInt32(index++, l_NpcFlags1);
+    stmt->setUInt32(index++, l_NpcFlags2);
+    stmt->setUInt32(index++, l_UnitFlags1);
+    stmt->setUInt32(index++, l_UnitFlags2);
+    stmt->setUInt32(index++, l_UnitFlags3);
+    stmt->setUInt32(index++, l_Dynamicflags);
+    stmt->setUInt32(index++, l_WorldEffectID);
     stmt->setUInt32(index++, uint8(isActiveObject()));
     trans->Append(stmt);
 
@@ -1783,8 +1805,8 @@ void Creature::setDeathState(DeathState s)
         else
             RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
-        SetUInt32Value(UNIT_FIELD_NPC_FLAGS, cinfo->npcflag);
-        SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, cinfo->npcflag2);
+        SetUInt32Value(UNIT_FIELD_NPC_FLAGS, cinfo->NpcFlags1);
+        SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, cinfo->NpcFlags2);
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
