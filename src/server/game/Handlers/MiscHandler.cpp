@@ -754,7 +754,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
 
     l_Stmt->setString(0, l_IgnoreName);
 
-    _addIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
+    m_AddIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)

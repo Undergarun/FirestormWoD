@@ -3538,6 +3538,36 @@ class spell_gen_orb_of_power : public SpellScriptLoader
         }
 };
 
+// Whispers of Insanity - 176151, custom script, that buff is used to reward player vote
+class spell_vote_buff : public SpellScriptLoader
+{
+public:
+    spell_vote_buff() : SpellScriptLoader("spell_vote_buff") { }
+
+    class spell_vote_buff_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_vote_buff_AuraScript);
+
+        void CalculateEffectAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
+        {
+            if (!GetUnitOwner())
+                return;
+
+            p_Amount = GetUnitOwner()->getLevel() * 2;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_vote_buff_AuraScript::CalculateEffectAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_vote_buff_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3617,4 +3647,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_hardened_shell();
     new spell_gen_ds_flush_knockback();
     new spell_gen_orb_of_power();
+    new spell_vote_buff();
 }

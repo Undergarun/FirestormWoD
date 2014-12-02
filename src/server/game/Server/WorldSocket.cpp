@@ -1113,6 +1113,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     //////////////////////////////////////////////////////////////////////////
 
     uint32          l_AccountID             = 0;
+    uint32          l_VoteRemainingTime     = 0;
     uint16          l_AccountGMLevel        = 0;
     uint8           l_AccountPremiumType    = 0;
     bool            l_AccountIsPremium      = false;
@@ -1223,15 +1224,25 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
         return -1;
     }
 
-    QueryResult l_PremiumResult = LoginDatabase.PQuery("SELECT premium_type FROM account_premium WHERE id = '%u' AND active = 1", l_AccountID);
-
-    /// If account premium
-    if (l_PremiumResult)
+    /// - Vote buff
     {
-        Field * l_PremiumFields = l_PremiumResult->Fetch();
+        QueryResult l_VoteResult = LoginDatabase.PQuery("SELECT remainingTime FROM account_vote where account = %u", l_AccountID);
+        if (l_VoteResult)
+            l_VoteRemainingTime = l_VoteResult->Fetch()->GetUInt32();
+    }
 
-        l_AccountIsPremium      = true;
-        l_AccountPremiumType    = l_PremiumFields->GetUInt8();
+    /// - Premium
+    {
+        QueryResult l_PremiumResult = LoginDatabase.PQuery("SELECT premium_type FROM account_premium WHERE id = '%u' AND active = 1", l_AccountID);
+
+        /// If account premium
+        if (l_PremiumResult)
+        {
+            Field * l_PremiumFields = l_PremiumResult->Fetch();
+
+            l_AccountIsPremium = true;
+            l_AccountPremiumType = l_PremiumFields->GetUInt8();
+        }
     }
 
     /// Check locked state for server
@@ -1278,7 +1289,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     LoginDatabase.PExecute("UPDATE account SET last_ip = '%s' WHERE username = '%s'", l_SessionIP.c_str(), l_EscapedAccountName.c_str());
 
     /// NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime), -1);
 
     m_Crypt.Init(&l_SessionKey);
 

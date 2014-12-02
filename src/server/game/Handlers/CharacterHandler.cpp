@@ -316,7 +316,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     stmt->setUInt8(0, PET_SLOT_ACTUAL_PET_SLOT);
     stmt->setUInt32(1, GetAccountId());
 
-    _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
+    m_CharEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
@@ -990,7 +990,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
     PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHARACTER_SPELL);
     l_Stmt->setUInt32(0, GetAccountId());
 
-    _accountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
+    m_AccountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
@@ -1341,6 +1341,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     pCurrChar->StopCastingBindSight();
     pCurrChar->StopCastingCharm();
     pCurrChar->RemoveAurasByType(SPELL_AURA_BIND_SIGHT);
+
+    /// - Vote bonus
+    if (HaveVoteRemainingTime())
+    {
+        AuraPtr l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
+        if (l_VoteAura)
+            l_VoteAura->SetDuration(GetVoteRemainingTime() + 60 * IN_MILLISECONDS);
+    }
+    else
+        pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 

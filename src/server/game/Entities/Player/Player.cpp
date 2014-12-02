@@ -6698,6 +6698,16 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
     /// Update visibility
     UpdateObjectVisibility();
 
+    SummonLastSummonedBattlePet();
+
+    /// - Vote bonus
+    if (GetSession()->HaveVoteRemainingTime() && !HasAura(VOTE_BUFF))
+    {
+        AuraPtr l_VoteAura = AddAura(VOTE_BUFF, this);
+        if (l_VoteAura)
+            l_VoteAura->SetDuration(GetSession()->GetVoteRemainingTime() + 60 * IN_MILLISECONDS);
+    }
+
     if (!p_ApplySickness)
         return;
 
@@ -6725,8 +6735,6 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
             }
         }
     }
-
-    SummonLastSummonedBattlePet();
 }
 
 void Player::KillPlayer()
