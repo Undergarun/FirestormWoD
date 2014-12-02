@@ -1831,7 +1831,6 @@ class Unit : public WorldObject
         void SendMovementHover(bool apply);
         void SendMovementFeatherFall();
         void SendMovementWaterWalking();
-        void SendMovementGravityChange();
         void SendMovementCanFlyChange();
         void SendCanTurnWhileFalling(bool apply);
 

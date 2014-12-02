@@ -670,8 +670,8 @@ enum Opcodes
         SMSG_SPLINE_MOVE_STOP_SWIM                  = 0x1391,   ///< 6.0.3 19116 (unused)
         SMSG_SPLINE_MOVE_SET_RUN_MODE               = 0x0896,   ///< 6.0.3 19116
         SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x03D6,   ///< 6.0.3 19116
-        SMSG_SPLINE_MOVE_SET_FLYING                 = 0x02BD,   ///< 6.0.3 19116 (unused)
-        SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x09D9,   ///< 6.0.3 19116 (unused)
+        SMSG_SPLINE_MOVE_SET_FLYING                 = 0x02BD,   ///< 6.0.3 19116
+        SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x09D9,   ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1558,43 +1558,6 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-
-    // MSG
-    MSG_INSPECT_ARENA_TEAMS = 0x0000,
-    MSG_AUCTION_HELLO = 0x0000,
-    MSG_BATTLEGROUND_PLAYER_POSITIONS = 0x0000,
-    MSG_GM_BIND_OTHER = 0x0000,
-    MSG_GM_SHOWLABEL = 0x0000,
-    MSG_GM_SUMMON = 0x0000,
-    MSG_MOVE_CHARM_TELEPORT_CHEAT = 0x0000,
-    MSG_MOVE_FALL_LAND = 0x0000,
-    MSG_MOVE_GRAVITY_CHNG = 0x0000,
-    MSG_MOVE_HOVER = 0x0000,
-    MSG_MOVE_JUMP = 0x0000,
-    MSG_MOVE_SET_ALL_SPEED_CHEAT = 0x0000,
-    MSG_MOVE_SET_COLLISION_HEIGHT = 0x0000,
-    MSG_MOVE_SET_FACING = 0x0000,
-    MSG_MOVE_SET_PITCH = 0x0000,
-    MSG_MOVE_SET_RAW_POSITION_ACK = 0x0000,
-    MSG_MOVE_SET_RUN_MODE = 0x0000,
-    MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT = 0x0000,
-    MSG_MOVE_SET_TURN_RATE_CHEAT = 0x0000,
-    MSG_MOVE_SET_WALK_MODE = 0x0000,
-    MSG_MOVE_SET_WALK_SPEED_CHEAT = 0x0000,
-    MSG_MOVE_START_ASCEND = 0x0000,
-    MSG_MOVE_START_DESCEND = 0x0000,
-    MSG_MOVE_TELEPORT_CHEAT = 0x0000,
-    MSG_MOVE_TIME_SKIPPED = 0x0000,
-    MSG_MOVE_TOGGLE_COLLISION_CHEAT = 0x0000,
-    MSG_MOVE_TOGGLE_FALL_LOGGING = 0x0000,
-    MSG_MOVE_TOGGLE_LOGGING = 0x0000,
-    MSG_MOVE_UPDATE_CAN_FLY = 0x0000,
-    MSG_MOVE_UPDATE_FLIGHT_SPEED = 0x0000,
-    MSG_MOVE_UPDATE_RUN_SPEED = 0x0000,
-    MSG_MOVE_UPDATE_TELEPORT = 0x0000,
-    MSG_MOVE_WATER_WALK = 0x0000,
-    MSG_NOTIFY_PARTY_SQUELCH = 0x0000,
-
 
     // CMSG
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0000,

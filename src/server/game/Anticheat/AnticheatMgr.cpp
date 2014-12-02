@@ -20,7 +20,7 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo movementInfo,u
 
     uint32 key = player->GetGUIDLow();
 
-    if (m_Players[key].GetLastOpcode() == MSG_MOVE_JUMP && opcode == MSG_MOVE_JUMP)
+    if (m_Players[key].GetLastOpcode() == CMSG_MOVE_JUMP && opcode == CMSG_MOVE_JUMP)
     {
         BuildReport(player,JUMP_HACK_REPORT);
         //sLog->outError("AnticheatMgr:: Jump-Hack detected player GUID (low) %u",player->GetGUIDLow());
