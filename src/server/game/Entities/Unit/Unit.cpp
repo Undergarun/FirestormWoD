@@ -14129,14 +14129,14 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     return NULL;
 }
 
-void Unit::SendMountResult(MountResult error)
+void Unit::SendMountResult(MountResult p_Error)
 {
     if (!ToPlayer())
         return;
 
-    WorldPacket data(SMSG_MOUNT_RESULT, 4);
-    data << uint32(error);
-    ToPlayer()->SendDirectMessage(&data);
+    WorldPacket l_Data(SMSG_MOUNT_RESULT, 4);
+    l_Data << uint32(p_Error);
+    ToPlayer()->SendDirectMessage(&l_Data);
 }
 
 void Unit::SetInCombatWith(Unit* enemy)
@@ -18501,23 +18501,10 @@ void Unit::SendDurabilityLoss(Player * p_Receiver, uint32 p_Percent)
 
 void Unit::PlayOneShotAnimKit(uint32 id)
 {
-    WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
-    ObjectGuid unitGuid = GetGUID();
-
-    uint8 bitsOrder[8] = { 4, 5, 7, 2, 1, 6, 0, 3 };
-    data.WriteBitInOrder(unitGuid, bitsOrder);
-
-    data.WriteByteSeq(unitGuid[3]);
-    data.WriteByteSeq(unitGuid[1]);
-    data.WriteByteSeq(unitGuid[7]);
-    data << uint16(id);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[2]);
-    data.WriteByteSeq(unitGuid[5]);
-    data.WriteByteSeq(unitGuid[6]);
-    data.WriteByteSeq(unitGuid[0]);
-
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(id);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)
@@ -19647,48 +19634,16 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
     }
 
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
-
-    l_Data.WriteBit(l_Guid[7]);
-    l_Data.WriteBit(l_Target[6]);
-    l_Data.WriteBit(l_Target[5]);
-    l_Data.WriteBit(l_Guid[3]);
-    l_Data.WriteBit(l_Guid[0]);
-    l_Data.WriteBit(l_Guid[6]);
-    l_Data.WriteBit(l_Target[2]);
-    l_Data.WriteBit(p_SpeedAsTime);
-    l_Data.WriteBit(l_Guid[5]);
-    l_Data.WriteBit(l_Target[1]);
-    l_Data.WriteBit(l_Target[0]);
-    l_Data.WriteBit(l_Guid[1]);
-    l_Data.WriteBit(l_Guid[4]);
-    l_Data.WriteBit(l_Target[4]);
-    l_Data.WriteBit(l_Target[7]);
-    l_Data.WriteBit(l_Target[3]);
-    l_Data.WriteBit(l_Guid[2]);
-
-    l_Data.WriteByteSeq(l_Guid[4]);
-    l_Data.WriteByteSeq(l_Target[0]);
-    l_Data << float(l_Pos.m_positionY);
-    l_Data.WriteByteSeq(l_Target[6]);
-    l_Data << float(l_Pos.m_positionZ);
-    l_Data << float(p_Speed);
-    l_Data.WriteByteSeq(l_Guid[0]);
-    l_Data << uint32(p_ID);         // spellVisualID
-    l_Data.WriteByteSeq(l_Guid[3]);
-    l_Data.WriteByteSeq(l_Target[3]);
-    l_Data << uint16(0);            // missReason
-    l_Data.WriteByteSeq(l_Guid[7]);
-    l_Data << uint16(0);            // reflectStatus
-    l_Data.WriteByteSeq(l_Target[5]);
-    l_Data.WriteByteSeq(l_Target[2]);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data.appendPackGUID(p_Target ? p_Target->GetGUID() : 0);
     l_Data << float(l_Pos.m_positionX);
-    l_Data.WriteByteSeq(l_Target[4]);
-    l_Data.WriteByteSeq(l_Target[1]);
-    l_Data.WriteByteSeq(l_Guid[2]);
-    l_Data.WriteByteSeq(l_Target[7]);
-    l_Data.WriteByteSeq(l_Guid[5]);
-    l_Data.WriteByteSeq(l_Guid[6]);
-    l_Data.WriteByteSeq(l_Guid[1]);
+    l_Data << float(l_Pos.m_positionY);
+    l_Data << float(l_Pos.m_positionZ);
+    l_Data << uint32(p_ID);         // spellVisualID
+    l_Data << float(p_Speed);
+    l_Data << uint16(0);            // missReason
+    l_Data << uint16(0);            // reflectStatus
+    l_Data.WriteBit(p_SpeedAsTime);
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession())
         ToPlayer()->GetSession()->SendPacket(&l_Data);

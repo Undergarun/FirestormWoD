@@ -1009,32 +1009,16 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
     return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
 }
 
-// Though the client has the information in the item's data field,
-// we have to send SMSG_ITEM_TIME_UPDATE to display the remaining
-// time.
-void Item::SendTimeUpdate(Player* owner)
+void Item::SendTimeUpdate(Player* p_Owner)
 {
-    uint32 duration = GetUInt32Value(ITEM_FIELD_EXPIRATION);
-    if (!duration)
+    uint32 l_Duration = GetUInt32Value(ITEM_FIELD_EXPIRATION);
+    if (!l_Duration)
         return;
 
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    ObjectGuid guid = GetGUID();
-
-    uint8 bits[8] = { 0, 4, 2, 5, 7, 1, 6, 3 };
-    data.WriteBitInOrder(guid, bits);
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data << duration;
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-
-    owner->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_ITEM_TIME_UPDATE, (8+4));
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << l_Duration;
+    p_Owner->GetSession()->SendPacket(&l_Data);
 }
 
 Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)

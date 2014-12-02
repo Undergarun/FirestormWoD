@@ -273,7 +273,6 @@ class WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData = 0, uint64 p_ResultGuid = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
@@ -795,7 +794,6 @@ class WorldSession
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
-        void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);

@@ -1796,23 +1796,11 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     if (newDrunkenState == oldDrunkenState)
         return;
 
-    WorldPacket data(SMSG_CROSSED_INEBRIATION_THRESHOLD, (8+4+4));
-    ObjectGuid playerGuid = GetGUID();
-
-    uint8 bitsOrder[8] = { 6, 0, 1, 3, 2, 7, 4, 5 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    data << uint32(itemId);
-    data.WriteByteSeq(playerGuid[7]);
-    data.WriteByteSeq(playerGuid[3]);
-    data.WriteByteSeq(playerGuid[0]);
-    data.WriteByteSeq(playerGuid[6]);
-    data.WriteByteSeq(playerGuid[2]);
-    data << uint32(newDrunkenState);
-    data.WriteByteSeq(playerGuid[5]);
-    data.WriteByteSeq(playerGuid[1]);
-    data.WriteByteSeq(playerGuid[4]);
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_CROSSED_INEBRIATION_THRESHOLD, (8+4+4));
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(itemId);
+    l_Data << uint32(newDrunkenState);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Player::Update(uint32 p_time)
@@ -4609,67 +4597,6 @@ void Player::SendKnownSpells()
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CHARACTER: Sent Send Known Spells");
 }
 
-void Player::SendInitialSpells()
-{
-    uint32 curTime = time(NULL);
-
-    uint16 spellCount = 0;
-
-    WorldPacket data(SMSG_INITIAL_SPELLS, (1+2+4*m_spells.size()+2+m_spellCooldowns.size()*(2+2+2+4+4)));
-    data << uint8(0);
-
-    size_t countPos = data.wpos();
-    data << uint16(spellCount);                             // spell count placeholder
-
-    for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
-    {
-        if (itr->second->state == PLAYERSPELL_REMOVED)
-            continue;
-
-        if (!itr->second->active || itr->second->disabled)
-            continue;
-
-        data << uint32(itr->first);
-        data << uint16(0);                                  // it's not slot id
-
-        ++spellCount;
-    }
-
-    data.put<uint16>(countPos, spellCount);                  // write real count value
-
-    uint16 spellCooldowns = m_spellCooldowns.size();
-
-    data << uint16(spellCooldowns);
-    for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
-    {
-        SpellInfo const* sEntry = sSpellMgr->GetSpellInfo(itr->first);
-        if (!sEntry)
-            continue;
-
-        data << uint32(itr->first);
-
-        data << uint32(itr->second.itemid);                 // cast item id
-        data << uint16(sEntry->Category);                   // spell category
-
-        time_t cooldown = (itr->second.end / IN_MILLISECONDS) > curTime ? ((itr->second.end / IN_MILLISECONDS) - curTime) : 0;
-
-        if (sEntry->Category)                                // may be wrong, but anyway better than nothing...
-        {
-            data << uint32(0);                              // cooldown
-            data << uint32(cooldown);                       // category cooldown
-        }
-        else
-        {
-            data << uint32(cooldown);                       // cooldown
-            data << uint32(0);                              // category cooldown
-        }
-    }
-
-    GetSession()->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CHARACTER: Sent Initial Spells");
-}
-
 void Player::RemoveMail(uint32 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
@@ -4932,12 +4859,12 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (next_active_spell_id)
                 {
                     // update spell ranks in spellbook and action bar
-                    WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                    data.WriteBits(1, 22);
-                    data.WriteBits(1, 22);
-                    data << uint32(next_active_spell_id);
-                    data << uint32(spellId);
-                    GetSession()->SendPacket(&data);
+                    WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
+                    l_Data << uint32(1);
+                    l_Data << uint32(1);
+                    l_Data << uint32(next_active_spell_id);
+                    l_Data << uint32(spellId);
+                    GetSession()->SendPacket(&l_Data);
                 }
                 else
                 {
@@ -5004,35 +4931,37 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
         if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
         {
-            WorldPacket data(SMSG_SUPERCEDED_SPELL);
+            WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
+
             uint32 bitCount = 0;
-            ByteBuffer dataBuffer;
-            for (PlayerSpellMap::iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
+            ByteBuffer l_DataBuffer;
+
+            for (PlayerSpellMap::iterator l_Iter = m_spells.begin(); l_Iter != m_spells.end(); ++l_Iter)
             {
-                if (itr2->second->state == PLAYERSPELL_REMOVED)
+                if (l_Iter->second->state == PLAYERSPELL_REMOVED)
                     continue;
 
-                SpellInfo const* i_spellInfo = sSpellMgr->GetSpellInfo(itr2->first);
-                if (!i_spellInfo)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
+                if (!l_SpellInfo)
                     continue;
 
-                if (spellInfo->IsDifferentRankOf(i_spellInfo))
+                if (spellInfo->IsDifferentRankOf(l_SpellInfo))
                 {
-                    if (itr2->second->active)
+                    if (l_Iter->second->active)
                     {
-                        if (spellInfo->IsHighRankOf(i_spellInfo))
+                        if (spellInfo->IsHighRankOf(l_SpellInfo))
                         {
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
                                 bitCount++;
-                                dataBuffer << uint32(spellId);
-                                dataBuffer << uint32(itr2->first);
+                                l_DataBuffer << uint32(spellId);
+                                l_DataBuffer << uint32(l_Iter->first);
                             }
 
                             // mark old spell as disable (SMSG_SUPERCEDED_SPELL replace it in client by new)
-                            itr2->second->active = false;
-                            if (itr2->second->state != PLAYERSPELL_NEW)
-                                itr2->second->state = PLAYERSPELL_CHANGED;
+                            l_Iter->second->active = false;
+                            if (l_Iter->second->state != PLAYERSPELL_NEW)
+                                l_Iter->second->state = PLAYERSPELL_CHANGED;
                             superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else
@@ -5040,8 +4969,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
                                 bitCount++;
-                                dataBuffer << uint32(itr2->first);
-                                dataBuffer << uint32(spellId);
+                                l_DataBuffer << uint32(l_Iter->first);
+                                l_DataBuffer << uint32(spellId);
                             }
 
                             // mark new spell as disable (not learned yet for client and will not learned)
@@ -5052,12 +4981,14 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     }
                 }
             }
-            data.WriteBits(bitCount, 22);
-            data.WriteBits(bitCount, 22);
-            data.FlushBits();
-            if (dataBuffer.size())
-                data.append(dataBuffer);
-            GetSession()->SendPacket(&data);
+
+            l_Data << uint32(bitCount);
+            l_Data << uint32(bitCount);
+
+            if (l_DataBuffer.size())
+                l_Data.append(l_DataBuffer);
+
+            GetSession()->SendPacket(&l_Data);
         }
 
         m_spells[spellId] = newspell;
@@ -5497,12 +5428,12 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     if (addSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
                         // downgrade spell ranks in spellbook and action bar
-                        WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                        data.WriteBits(1, 22);
-                        data.WriteBits(1, 22);
-                        data << uint32(prev_id);
-                        data << uint32(spell_id);
-                        GetSession()->SendPacket(&data);
+                        WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
+                        l_Data << uint32(1);
+                        l_Data << uint32(1);
+                        l_Data << uint32(prev_id);
+                        l_Data << uint32(spell_id);
+                        GetSession()->SendPacket(&l_Data);
                         prev_activate = true;
                     }
                 }
@@ -6559,16 +6490,9 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 */
 void Player::BuildPlayerRepop()
 {
-    WorldPacket data(SMSG_PRE_RESURRECT, 8);
-    ObjectGuid guid = GetGUID();
-
-    uint8 bits[8] = { 0, 3, 5, 4, 6, 7, 1, 2 };
-    data.WriteBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 4, 6, 7, 0, 2, 5, 1, 3 };
-    data.WriteBytesSeq(guid, bytes);
-
-    GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_PRE_RESURRECT, 8);
+    l_Data.appendPackGUID(GetGUID());
+    GetSession()->SendPacket(&l_Data);
 
     if (getRace() == RACE_NIGHTELF)
         CastSpell(this, 20584, true);
@@ -8752,18 +8676,11 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [1..4]  HK: <dishonored rank>
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
-    WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
-    ObjectGuid guid = victim_guid;
 
+    WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4);
     data << uint32(honor);
+    data.appendPackGUID(victim_guid);
     data << uint32(victim_rank);
-
-    uint8 bits[8] = { 4, 3, 0, 2, 1, 5, 6, 7 };
-    data.WriteBitInOrder(guid, bits);
-
-    uint8 bytes[8] = { 1, 7, 6, 5, 2, 4, 3, 0 };
-    data.WriteBytesSeq(guid, bytes);
-
     GetSession()->SendPacket(&data);
 
     // add honor points
@@ -21213,10 +21130,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             missingItem = ar->item2;
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
-        {
-            GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
             return false;
-        }
 
         uint32 missingQuest = 0;
         if (GetTeam() == ALLIANCE && ar->quest_A && !GetQuestRewardStatus(ar->quest_A))
@@ -21261,10 +21175,6 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
                 else if (mapDiff->hasErrorMessage) // if (missingAchievement) covered by this case
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
-                else if (missingItem)
-                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, sObjectMgr->GetItemTemplate(missingItem)->Name1.c_str());
-                else if (LevelMin)
-                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED), LevelMin);
             }
             return false;
         }
@@ -25940,7 +25850,6 @@ void Player::SendAurasForTarget(Unit* p_Target)
         return;
 
     /// Blizz sends certain movement packets sometimes even before CreateObject
-    /// These movement packets are usually found in SMSG_COMPRESSED_MOVES
     if (p_Target->HasAuraType(SPELL_AURA_FEATHER_FALL))
         p_Target->SendMovementFeatherFall();
 
@@ -26649,24 +26558,14 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-void Player::SetClientControl(Unit* target, uint8 allowMove)
+void Player::SetClientControl(Unit* p_Target, uint8 p_AllowMove)
 {
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE);
-    ObjectGuid targetGuid = target->GetGUID();
+    WorldPacket l_Data(SMSG_CLIENT_CONTROL_UPDATE);
+    l_Data.appendPackGUID(p_Target->GetGUID());
+    l_Data.WriteBit(p_AllowMove);
+    GetSession()->SendPacket(&l_Data);
 
-    data.WriteBit(allowMove);
-
-    uint8 bitsOrder[8] = { 2, 1, 4, 6, 5, 7, 0, 3 };
-    data.WriteBitInOrder(targetGuid, bitsOrder);
-
-    data.FlushBits();
-
-    uint8 bytesOrder[8] = { 5, 1, 2, 4, 0, 3, 7, 6 };
-    data.WriteBytesSeq(targetGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
-
-    if (target == this && allowMove)
+    if (p_Target == this && p_AllowMove)
         SetMover(this);
 }
 
@@ -27069,11 +26968,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         if (target->isType(TYPEMASK_UNIT) && !GetVehicle())
             ((Unit*)target)->RemovePlayerFromVision(this);
 
-        //must immediately set seer back otherwise may crash
+        // Must immediately set seer back otherwise may crash
         m_seer = this;
-
-        //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
-        //GetSession()->SendPacket(&data);
     }
 }
 
@@ -27621,7 +27517,6 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
 
         SendNotifyLootItemRemoved(lootSlot);
-        SendTokenResponse();
         currency->is_looted = true;
         --loot->unlootedCount;
         return;
@@ -28332,29 +28227,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
     eqslot = eqset;
 
     if (eqset.Guid == 0)
-    {
         eqslot.Guid = sObjectMgr->GenerateEquipmentSetGuid();
-        ObjectGuid guid = eqslot.Guid;
-
-        WorldPacket l_Data(SMSG_EQUIPMENT_SET_SAVED);
-
-        uint8 bitsOrder[8] = { 2, 6, 0, 5, 3, 4, 1, 7 };
-        l_Data.WriteBitInOrder(guid, bitsOrder);
-
-        l_Data.WriteByteSeq(guid[4]);
-        l_Data.WriteByteSeq(guid[6]);
-        l_Data.WriteByteSeq(guid[0]);
-        l_Data.WriteByteSeq(guid[5]);
-        l_Data.WriteByteSeq(guid[2]);
-        l_Data.WriteByteSeq(guid[1]);
-
-        l_Data << uint32(index);
-
-        l_Data.WriteByteSeq(guid[7]);
-        l_Data.WriteByteSeq(guid[3]);
-
-        GetSession()->SendPacket(&l_Data);
-    }
 
     eqslot.state = old_state == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
 }
@@ -28913,43 +28786,31 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
     return true;
 }
 
-void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
+void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_ExtendedCost, uint8 p_Error)
 {
-    ObjectGuid itemGuid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_RESULT);
+    WorldPacket l_Data(SMSG_ITEM_PURCHASE_REFUND_RESULT);
+    l_Data.appendPackGUID(p_Item->GetGUID());
+    l_Data << uint8(p_Error);
+    l_Data.WriteBit(!p_Error);
 
-    data.WriteBit(itemGuid[2]);
-    data.WriteBit(itemGuid[1]);
-    data.WriteBit(itemGuid[4]);
-    data.WriteBit(itemGuid[3]);
-    data.WriteBit(!error);
-    data.WriteBit(itemGuid[5]);
-    data.WriteBit(itemGuid[7]);
-    data.WriteBit(itemGuid[0]);
-    data.WriteBit(itemGuid[6]);
-    data << uint8(error);
-
-    if (!error)
+    if (!p_Error)
     {
+        l_Data << uint32(p_Item->GetPaidMoney());
+
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
-            data << uint32(iece->RequiredItemCount[i]);
-            data << uint32(iece->RequiredItem[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItem[i]);
         }
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
-            data << uint32(iece->RequiredCurrency[i]);
-            data << uint32(iece->RequiredCurrencyCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredCurrency[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i]);
         }
-
-        data << uint32(item->GetPaidMoney());
     }
 
-    uint8 bytesOrder[8] = { 1, 6, 4, 2, 0, 5, 7, 3 };
-    data.WriteBytesSeq(itemGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::RefundItem(Item* item)
@@ -30073,6 +29934,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         m_ActiveMovementForces.erase(p_Source);
     }
 }
+
 void Player::RemoveAllMovementForces()
 {
     std::set<uint64> l_ActiveMovementForces = m_ActiveMovementForces;
@@ -30080,6 +29942,7 @@ void Player::RemoveAllMovementForces()
     for (uint64 l_ForceID : l_ActiveMovementForces)
         SendApplyMovementForce(l_ForceID, false, Position());
 }
+
 bool Player::HasMovementForce(uint64 p_Source)
 {
     return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
@@ -30092,16 +29955,6 @@ void Player::SendResumeToken(uint32 token)
     data.WriteBit(token == m_tokenCounter);
     data.FlushBits();
     GetSession()->SendPacket(&data);
-}
-
-void Player::SendTokenResponse()
-{
-    WorldPacket data(SMSG_SUSPEND_TOKEN_RESPONSE, 5);
-    data.WriteBits(2, 2);
-    data.FlushBits();
-    data << uint32(m_tokenCounter);
-    GetSession()->SendPacket(&data);
-    ++m_tokenCounter;
 }
 
 void Player::SendRefreshSpellMods()
@@ -30199,6 +30052,7 @@ uint32 Player::GetUnlockedPetBattleSlot()
 
     return l_SlotCount;
 }
+
 /// Summon current pet if any active
 void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 {
@@ -30221,6 +30075,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
     SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
 }
+
 /// Summon new pet
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
@@ -30309,6 +30164,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
 
     m_BattlePetSummon = l_CurrentPet->GetGUID();
 }
+
 /// Get current summoned battle pet
 Creature * Player::GetSummonedBattlePet()
 {
@@ -30316,6 +30172,7 @@ Creature * Player::GetSummonedBattlePet()
 
     return l_Pet ? l_Pet->ToCreature() : NULL;
 }
+
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
 {
@@ -30327,6 +30184,7 @@ std::vector<std::shared_ptr<BattlePet>> Player::GetBattlePets()
 {
     return m_BattlePets;
 }
+
 /// Get pet battles
 std::shared_ptr<BattlePet> Player::GetBattlePet(uint64 p_JournalID)
 {
@@ -30343,6 +30201,7 @@ std::shared_ptr<BattlePet> Player::GetBattlePet(uint64 p_JournalID)
 
     return (*l_It);
 }
+
 /// Get pet battle combat team
 std::shared_ptr<BattlePet> * Player::GetBattlePetCombatTeam()
 {

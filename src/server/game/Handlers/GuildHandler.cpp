@@ -592,7 +592,7 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
 {
     uint32 l_CurrentVersion = p_Packet.read<uint32>();
 
-    if (Guild* l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
+    if (sGuildMgr->GetGuildById(m_Player->GetGuildId()) != nullptr)
     {
         std::vector<GuildReward> const& l_Rewards = sGuildMgr->GetGuildRewards();
 

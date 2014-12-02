@@ -1836,30 +1836,32 @@ void WorldSession::HandleItemRefund(WorldPacket& recvData)
     GetPlayer()->RefundItem(item);
 }
 
-/**
- * Handles the packet sent by the client when requesting information about item text.
- *
- * This function is called when player clicks on item which has some flag set
- */
-void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
+void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
 {
-    uint64 itemGuid;
-    recvData >> itemGuid;
+    uint64 l_ItemGuid = 0;
+    p_RecvData >> l_ItemGuid;
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
+    WorldPacket l_Data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);
 
-    if (Item* item = m_Player->GetItemByGuid(itemGuid))
+    if (Item* l_Item = m_Player->GetItemByGuid(l_ItemGuid))
     {
-        data << uint8(0);                                       // has text
-        data << uint64(itemGuid);                               // item guid
-        data << item->GetText();
+        l_Data.WriteBit(true);  ///< HasText
+        l_Data.FlushBits();
+        l_Data.appendPackGUID(l_ItemGuid);
+        l_Data.WriteBits(l_Item->GetText().size(), 13);
+        l_Data.FlushBits();
+        l_Data.WriteString(l_Item->GetText());
     }
     else
     {
-        data << uint8(1);                                       // no text
+        l_Data.WriteBit(false);  ///< HasText
+        l_Data.FlushBits();
+        l_Data.appendPackGUID(l_ItemGuid);
+        l_Data.WriteBits(0, 13);
+        l_Data.FlushBits();
     }
 
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
@@ -2029,10 +2031,6 @@ void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
 
 void WorldSession::SendItemUpgradeResult(bool success)
 {
-    WorldPacket data(SMSG_ITEM_UPGRADE_RESULT, 1);
-    data.WriteBit(success);
-    data.FlushBits();
-    SendPacket(&data);
 }
 
 void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)

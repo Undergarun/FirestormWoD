@@ -7224,20 +7224,6 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELLSTEALLOG, 8 + 8 + 4 + 1 + 4 + damage * 5);
-    dataSuccess.append(unitTarget->GetPackGUID());  // Victim GUID
-    dataSuccess.append(m_caster->GetPackGUID());    // Caster GUID
-    dataSuccess << uint32(m_spellInfo->Id);         // dispel spell id
-    dataSuccess << uint8(0);                        // not used
-    dataSuccess << uint32(success_list.size());     // count
-    for (DispelList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
-    {
-        dataSuccess << uint32(itr->first);          // Spell Id
-        dataSuccess << uint8(0);                    // 0 - steals !=0 transfers
-        unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
-    }
-    m_caster->SendMessageToSet(&dataSuccess, true);
-
     // Glyph of SpellSteal
     if (m_caster->HasAura(115713))
         m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
@@ -7813,27 +7799,19 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     player->SetHomebind(loc, area_id);
 
     // binding
-    WorldPacket data(SMSG_BIND_POINT_UPDATE, (4 + 4 + 4 + 4 + 4));
-    data << float(loc.m_positionX);
-    data << float(loc.m_positionY);
-    data << float(loc.m_positionZ);
-    data << uint32(loc.m_mapId);
-    data << uint32(area_id);
-    player->SendDirectMessage(&data);
+    WorldPacket l_Data(SMSG_BIND_POINT_UPDATE, (4 + 4 + 4 + 4 + 4));
+    l_Data << float(loc.m_positionX);
+    l_Data << float(loc.m_positionY);
+    l_Data << float(loc.m_positionZ);
+    l_Data << uint32(loc.m_mapId);
+    l_Data << uint32(area_id);
+    player->SendDirectMessage(&l_Data);
 
     // zone update
-    data.Initialize(SMSG_PLAYER_BOUND, 8 + 4);
-    ObjectGuid playerGuid = player->GetGUID();
-
-    uint8 bitsOrder[8] = { 0, 7, 2, 4, 5, 3, 1, 6 };
-    data.WriteBitInOrder(playerGuid, bitsOrder);
-
-    data << uint32(area_id);
-
-    uint8 bytesOrder[8] = { 7, 5, 3, 0, 4, 1, 6, 2 };
-    data.WriteBytesSeq(playerGuid, bytesOrder);
-
-    player->SendDirectMessage(&data);
+    l_Data.Initialize(SMSG_PLAYER_BOUND, 8 + 4);
+    l_Data.appendPackGUID(player->GetGUID());
+    l_Data << uint32(area_id);
+    player->SendDirectMessage(&l_Data);
 }
 
 void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
