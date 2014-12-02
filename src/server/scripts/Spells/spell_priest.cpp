@@ -122,7 +122,9 @@ enum PriestSpells
     PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985,
     PRIEST_NPC_VOID_TENDRILS                        = 65282,
     PRIEST_SPELL_SAVING_GRACE                       = 155274,
-    PRIEST_SPELL_CLARITY_OF_POWER                   = 155246
+    PRIEST_SPELL_CLARITY_OF_POWER                   = 155246,
+    PRIEST_SPELL_SPIRIT_SHELL_AURA                  = 109964,
+    PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -2181,6 +2183,40 @@ class spell_pri_levitate : public SpellScriptLoader
         }
 };
 
+// Call by Flah Heal 2061 - Heal 2060 - Prayer of healing 596
+// Spirit Shell - 109964
+class spell_pri_spirit_shell : public SpellScriptLoader
+{
+public:
+    spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
+
+    class spell_pri_spirit_shell_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (l_Caster->GetAura(PRIEST_SPELL_SPIRIT_SHELL_AURA))
+            {
+                int32 l_Absorb = GetHitHeal();
+                l_Caster->CastCustomSpell(GetHitUnit(), PRIEST_SPELL_SPIRIT_SHELL_PROC, &l_Absorb, NULL, NULL, true);
+                SetHitHeal(0);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_shell_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_spirit_shell_SpellScript();
+    }
+};
+
 // Flash heal - 2061
 class spell_pri_flash_heal : public SpellScriptLoader
 {
@@ -2410,6 +2446,7 @@ public:
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_spirit_shell();
     new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
