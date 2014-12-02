@@ -2285,34 +2285,6 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         }
 };
 
-// Saving Grace - 152116
-class spell_pri_saving_grace : public SpellScriptLoader
-{
-public:
-    spell_pri_saving_grace() : SpellScriptLoader("spell_pri_saving_grace") { }
-
-    class spell_pri_saving_grace_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_saving_grace_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, PRIEST_SPELL_SAVING_GRACE, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pri_saving_grace_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_saving_grace_SpellScript;
-    }
-};
-
 //Power word : Barrier - 62618
 class spell_pri_power_word_barrier : public SpellScriptLoader
 {
@@ -2442,7 +2414,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
     new spell_pri_power_word_barrier();
-    new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
     new spell_pri_confession();
