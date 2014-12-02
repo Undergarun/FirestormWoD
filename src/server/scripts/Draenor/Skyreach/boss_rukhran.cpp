@@ -70,7 +70,8 @@ namespace MS
                 mob_SolarFlareAI(Creature* creature) : ScriptedAI(creature),
                 m_Instance(creature->GetInstanceScript()),
                 m_events(),
-                m_PlayerTargetGuid(0)
+                m_PlayerTargetGuid(0),
+                m_IsKilledByPlayers(true)
                 {
                     me->setFaction(16);
                     me->SetSpeed(MOVE_WALK, 0.5f);
@@ -92,12 +93,13 @@ namespace MS
                 void Reset()
                 {
                     m_events.Reset();
+                    m_IsKilledByPlayers = true;
                     
                     if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 100.0f, false))
                     {
                         m_PlayerTargetGuid = l_Plr->GetGUID();
                         me->AddThreat(l_Plr, 1000.0f);
-                        me->AddAura(uint32(Spells::FIXATE), l_Plr);
+                        me->CastSpell(l_Plr, uint32(Spells::FIXATE));
 
                         events.ScheduleEvent(uint32(Events::UPDATE_POSITION), 500);
                     }
@@ -106,7 +108,8 @@ namespace MS
                 void JustDied(Unit*)
                 {
                     // If creature dies, it spawns a new pile of ashes and it explodes.
-                    me->CastSpell(me, uint32(Spells::SUNBURST), true);
+                    if (m_IsKilledByPlayers)
+                        me->CastSpell(me, uint32(Spells::SUNBURST), true);
                     SpawnPileOfAshes();
                 }
 
@@ -118,8 +121,9 @@ namespace MS
                     if (Unit* l_Plr = me->GetUnit(*me, m_PlayerTargetGuid))
                     {
                         // It should be less than 2 but I don't know how to make the monsters touch players.
-                        if (l_Plr->GetExactDist2d(me) < 0.5f)
+                        if (l_Plr->GetExactDist2d(me) < 0.2f)
                         {
+                            m_IsKilledByPlayers = false;
                             me->CastSpell(me, uint32(Spells::SUNSTRIKE), true);
                             SpawnPileOfAshes();
                         }
@@ -145,6 +149,7 @@ namespace MS
                 InstanceScript* m_Instance;
                 EventMap m_events;
                 uint64 m_PlayerTargetGuid;
+                bool m_IsKilledByPlayers;
             };
         };
 
@@ -157,6 +162,16 @@ namespace MS
             {
             }
 
+            enum class Spells : uint32
+            {
+                BLAZE_OF_GLORY = 153926,
+            };
+
+            enum class Events : uint32
+            {
+                BLAZE_OF_GLORY = 1,
+            };
+
             CreatureAI* GetAI(Creature* creature) const
             {
                 return new mob_SkyreachRavenWhispererAI(creature);
@@ -165,14 +180,18 @@ namespace MS
             struct mob_SkyreachRavenWhispererAI : public ScriptedAI
             {
                 mob_SkyreachRavenWhispererAI(Creature* creature) : ScriptedAI(creature),
-                m_Instance(creature->GetInstanceScript()),
-                m_events()
+                m_Instance(creature->GetInstanceScript())
                 {
                 }
 
                 void Reset()
                 {
-                    m_events.Reset();
+                    events.Reset();
+                }
+
+                void EnterCombat(Unit*)
+                {
+                    events.ScheduleEvent(uint32(Events::BLAZE_OF_GLORY), 2000);
                 }
 
                 void JustDied(Unit*)
@@ -186,16 +205,23 @@ namespace MS
                     if (!UpdateVictim())
                         return;
 
-                    m_events.Update(diff);
+                    events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
+
+                    switch (events.ExecuteEvent())
+                    {
+                    case uint32(Events::BLAZE_OF_GLORY):
+                        me->CastSpell(me, uint32(Spells::BLAZE_OF_GLORY));
+                        events.ScheduleEvent(uint32(Events::BLAZE_OF_GLORY), 10000);
+                        break;
+                    }
 
                     DoMeleeAttackIfReady();
                 }
 
                 InstanceScript* m_Instance;
-                EventMap m_events;
             };
         };
 
@@ -241,7 +267,6 @@ namespace MS
                     me->SetDisableGravity(true);
                     me->SetCanFly(true);
                     me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                    me->setPowerType(POWER_ENERGY);
                 }
 
                 void Reset()
@@ -255,13 +280,13 @@ namespace MS
                     me->SetControlled(false, UNIT_STATE_ROOT);
 
                     // Cleaning the summons.
-                    auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, 79505, 50.0f);
+                    auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
                     for (auto l_Pile : l_Piles)
                     {
                         if (l_Pile->ToCreature())
                             l_Pile->ToCreature()->DespawnOrUnsummon();
                     }
-                    auto l_SolarFlares = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, 76227, 50.0f);
+                    auto l_SolarFlares = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::SOLAR_FLARE, 50.0f);
                     for (auto l_SolarFlare : l_SolarFlares)
                     {
                         if (l_SolarFlare->ToCreature())
@@ -311,6 +336,20 @@ namespace MS
                 void JustDied(Unit* /*killer*/)
                 {
                     _JustDied();
+
+                    // Cleaning the summons.
+                    auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
+                    for (auto l_Pile : l_Piles)
+                    {
+                        if (l_Pile->ToCreature())
+                            l_Pile->ToCreature()->DespawnOrUnsummon();
+                    }
+                    auto l_SolarFlares = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::SOLAR_FLARE, 50.0f);
+                    for (auto l_SolarFlare : l_SolarFlares)
+                    {
+                        if (l_SolarFlare->ToCreature())
+                            l_SolarFlare->ToCreature()->DespawnOrUnsummon();
+                    }
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -374,7 +413,7 @@ namespace MS
                         }
                         else
                         {
-                            events.ScheduleEvent(uint32(Events::PIERCE_ARMOR_OR_SCREECH), urand(6500, 8500));
+                            events.ScheduleEvent(uint32(Events::PIERCE_ARMOR_OR_SCREECH), urand(2000, 3000));
                             // We can't, so we cast Screech and Weak.
                             me->CastSpell(me, uint32(Spells::SCREECH));
                             InstanceSkyreach::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {

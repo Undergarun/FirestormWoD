@@ -107,7 +107,7 @@ namespace MS
             enum class Spells : uint32
             {
                 MELEE = 154121, // Every 2 seconds.
-                SMASH = 154113, // Every 6 to 7 seconds.
+                SMASH = 154110, // Every 6 to 7 seconds.
                 BURST = 154135, // Every 23 seconds.
                 BREATH_OF_SINDRAGOSA = 155168,
                 SUBMERGE = 154164,
@@ -139,13 +139,21 @@ namespace MS
                 {
                     _Reset();
 
+                    me->RemoveAllAuras();
+                    me->CombatStop();
                     me->AddAura(uint32(Spells::SUBMERGED), me);
                     me->SetReactState(REACT_PASSIVE);
+
+                    if (instance)
+                        instance->SetData(Data::AraknathSolarConstructorActivation, false);
                 }
 
                 void JustDied(Unit* /*p_Killer*/)
                 {
                     _JustDied();
+
+                    if (instance)
+                        instance->SetData(Data::AraknathSolarConstructorActivation, false);
                 }
 
                 void KilledUnit(Unit* /*p_Victim*/)
@@ -166,9 +174,9 @@ namespace MS
                 void EnterCombat(Unit* who)
                 {
                     _EnterCombat();
-                    /*events.ScheduleEvent(uint32(Events::MELEE), 2000);
+                    events.ScheduleEvent(uint32(Events::MELEE), 2000);
                     events.ScheduleEvent(uint32(Events::SMASH), urand(5500, 7000));
-                    events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));*/
+                    events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));
                     events.ScheduleEvent(uint32(Events::ENERGIZE_START), 12000);
                 }
 
@@ -190,7 +198,10 @@ namespace MS
                         break;
                     case uint32(Events::SMASH):
                         events.ScheduleEvent(uint32(Events::SMASH), urand(5500, 7000));
-                        me->CastSpell(me->getVictim(), uint32(Spells::SMASH));
+                        me->CastSpell(me, uint32(Spells::SMASH));
+
+                        events.CancelEvent(uint32(Events::MELEE));
+                        events.ScheduleEvent(uint32(Events::MELEE), 2000);
                         break;
                     case uint32(Events::BURST):
                         events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));

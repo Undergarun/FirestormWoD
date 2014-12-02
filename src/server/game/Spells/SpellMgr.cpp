@@ -3449,25 +3449,24 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
-            case 45470:
+            case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
-            // Lava Surge
-            case 77756:
+            case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
-            // Magma Totem Passive
-            case 8188:
-            // Healing Streams
-            case 5672:
-            // Healing Tide
-            case 114941:
+            case 8188:  // Magma Totem Passive
+            case 5672:  // Healing Streams
+            case 114941:// Healing Tide
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[EFFECT_0].Amplitude = 2000;
                 break;
-            case 73683:  // Unleash Flame
-            case 165462: // Unleash Flame
+            case 154150:// Energize
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 73683: // Unleash Flame
+            case 165462:// Unleash Flame
                 spellInfo->ProcCharges = 1;
                 break;
             case 45477: // Icy touch

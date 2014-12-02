@@ -773,3 +773,9 @@ update creature_template set unit_flags=33554432|unit_flags where entry=76142;
 
 delete from creature where id=79505 and map=1209;
 update creature_template_addon set auras='' where entry=76142;
+
+update creature_template set unit_class=4 where entry=76143;
+
+UPDATE creature_template SET modelid2=0 WHERE modelid2=46710;
+UPDATE creature_template SET modelid3=0 WHERE modelid3=46710;
+UPDATE creature_template SET modelid4=0 WHERE modelid4=46710;

@@ -4,6 +4,219 @@
 
 namespace MS
 {
+    // AreaTriggers for spells: 154110
+    class AreaTrigger_Smash : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            SMASH = 154110,
+            SMASH_2 = 154113,
+            SMASH_DMG = 154132,
+        };
+
+    public:
+        AreaTrigger_Smash()
+            : MS::AreaTriggerEntityScript("at_Smash")
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_Smash();
+        }
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            //Unit* l_Caster = p_AreaTrigger->GetCaster();
+            //if (l_Caster && p_AreaTrigger->GetSpellId() == uint32(Spells::SMASH))
+            //    l_Caster->CastSpell(l_Caster, uint32(Spells::SMASH_2), true);
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            static const float k_Radius = 10.0f;
+            static const float k_RadiusFromLine = 3.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), k_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(k_Radius, l_Searcher);
+
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+            l_Pos.m_positionX += k_Radius * cos(p_AreaTrigger->GetOrientation());
+            l_Pos.m_positionY += k_Radius * sin(p_AreaTrigger->GetOrientation());
+
+            for (auto l_Target : l_TargetList)
+            {
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && InstanceSkyreach::DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
+                {
+                    if (p_AreaTrigger->GetCaster())
+                        p_AreaTrigger->GetCaster()->CastSpell(l_Target, uint32(Spells::SMASH_DMG), true);
+                }
+            }
+        }
+    };
+
+    // Visual Energize - 154177
+    class spell_VisualEnergize2 : public SpellScriptLoader
+    {
+    public:
+        spell_VisualEnergize2()
+            : SpellScriptLoader("spell_VisualEnergize2")
+        {
+        }
+
+        class spell_VisualEnergize2SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_VisualEnergize2SpellScript);
+
+            void CheckTarget(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    if (!p_Obj->ToCreature())
+                        return true;
+
+                    if (l_Caster->GetEntry() == 77543)
+                        return p_Obj->ToCreature()->GetEntry() != 76367;
+                    else
+                        return p_Obj->ToCreature()->GetEntry() != 76142;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_VisualEnergize2SpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_VisualEnergize2SpellScript();
+        }
+    };
+
+    // Visual Energize - 154159
+    class spell_VisualEnergize : public SpellScriptLoader
+    {
+    public:
+        spell_VisualEnergize()
+            : SpellScriptLoader("spell_VisualEnergize")
+        {
+        }
+
+        class spell_VisualEnergizeSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_VisualEnergizeSpellScript);
+
+            void CheckTarget(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return !(p_Obj->ToCreature()
+                        && p_Obj->ToCreature()->GetEntry() == 76142
+                        && p_Obj->ToCreature()->GetCurrentSpell(CURRENT_CHANNELED_SPELL));
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_VisualEnergizeSpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_VisualEnergizeSpellScript();
+        }
+    };
+
+    // Flash Bang - 160066
+    class spell_FlashBang : public SpellScriptLoader
+    {
+    public:
+        spell_FlashBang()
+            : SpellScriptLoader("spell_FlashBang")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+        };
+
+        class spell_FlashBangSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_FlashBangSpellScript);
+
+            void CheckTarget(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return !p_Obj->isInFront(l_Caster);
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_FlashBangSpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_FlashBangSpellScript::CheckTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_FlashBangSpellScript::CheckTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_FlashBangSpellScript();
+        }
+    };
+
+    // Sunstrike - 153828
+    class spell_Sunstrike : public SpellScriptLoader
+    {
+    public:
+        spell_Sunstrike()
+            : SpellScriptLoader("spell_Sunstrike")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+        };
+
+        class spell_SunstrikeSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_SunstrikeSpellScript);
+
+            void CheckTargetIn(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return p_Obj->GetExactDist2d(l_Caster) > 10.0f;
+                });
+            }
+
+            void CheckTargetOut(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return p_Obj->GetExactDist2d(l_Caster) < 10.0f;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_SunstrikeSpellScript::CheckTargetIn, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_SunstrikeSpellScript::CheckTargetOut, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_SunstrikeSpellScript();
+        }
+    };
+
     // Summon Solar Flare - 153827
     class spell_SummonSolarFlare : public SpellScriptLoader
     {
@@ -384,7 +597,7 @@ namespace MS
                 };
                 if (GetCaster())
                 {
-                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), 76119, 40.0f);
+                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
                     if (l_Target.empty())
                         return;
 
@@ -1090,6 +1303,7 @@ void AddSC_spell_instance_skyreach()
     new MS::spell_BladeDance();
     new MS::spell_SolarStorm();
     new MS::AreaTrigger_SolarStorm();
+    new MS::spell_FlashBang();
 
     // Boss Ranjit.
     new MS::AreaTrigger_WindWall();
@@ -1099,7 +1313,11 @@ void AddSC_spell_instance_skyreach()
 
     // Boss Araknath.
     new MS::spell_Energize();
+    new MS::spell_VisualEnergize();
+    new MS::spell_VisualEnergize2();
+    new MS::AreaTrigger_Smash();
 
     // Boss Rukhran.
     new MS::spell_SummonSolarFlare();
+    new MS::spell_Sunstrike();
 }

@@ -80,11 +80,11 @@ namespace MS
 
                     if (!m_TriggerFourWinds[0])
                     {
-                        m_TriggerFourWinds[0] = me->SummonCreature(76119, 1165.871f, 1727.601f, 186)->GetGUID();
+                        m_TriggerFourWinds[0] = me->SummonCreature(MobEntries::ArakkoaPincerBirdsController, 1165.871f, 1727.601f, 186)->GetGUID();
                     }
                     if (!m_TriggerFourWinds[1])
                     {
-                        m_TriggerFourWinds[1] = me->SummonCreature(76119, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
+                        m_TriggerFourWinds[1] = me->SummonCreature(MobEntries::ArakkoaPincerBirdsController, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
                     }
                 }
 

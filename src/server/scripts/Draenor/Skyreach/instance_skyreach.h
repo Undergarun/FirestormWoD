@@ -45,6 +45,7 @@ namespace MS
             ENERGIZE_DMG = 154150,
             ENERGIZE_VISUAL_1 = 154179,
             ENERGIZE_VISUAL_2 = 154159,
+            ENERGIZE_VISUAL_3 = 154177,
         };
 
         enum GameObjectEntries
@@ -74,7 +75,14 @@ namespace MS
             YOUNG_KALIRI = 76121,
             SKYREACH_RAVEN_WHISPERER = 76154,
             SOLAR_FLARE = 76227,
-            PILE_OF_ASHES = 79505
+            PILE_OF_ASHES = 79505,
+            ArakkoaPincerBirdsController = 76119,
+            AirFamiliar = 76102,
+            Kaliri = 81080,
+            Kaliri2 = 81081,
+            SunConstructEnergizer = 76367,
+            InteriorFocus = 77543,
+            DreadRavenHatchling = 76253,
         };
 
         enum Data
@@ -89,6 +97,19 @@ namespace MS
             SkyreachRavenWhispererIsDead,
             SolarFlareDying,
         };
+
+        static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
+        {
+            float l_x1 = p_PointLine1.GetPositionX();
+            float l_x2 = p_PointLine2.GetPositionX();
+            float l_y1 = p_PointLine1.GetPositionY();
+            float l_y2 = p_PointLine2.GetPositionY();
+
+            float l_dx = l_x2 - l_x1;
+            float l_dy = l_y2 - l_y1;
+
+            return std::abs(l_dy * p_Point3.GetPositionX() - l_dx * p_Point3.GetPositionY() - l_x1 * l_y2 + l_x2 * l_y1) / std::sqrt(l_dx * l_dx + l_dy * l_dy);
+        }
 
         static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {

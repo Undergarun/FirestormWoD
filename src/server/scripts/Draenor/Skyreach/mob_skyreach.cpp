@@ -14,6 +14,72 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
+        class mob_DreadRavenHatchling : public CreatureScript
+        {
+        public:
+            // Entry: 76253
+            mob_DreadRavenHatchling()
+                : CreatureScript("mob_DreadRavenHatchling")
+            {
+            }
+            
+            enum class Spells : uint32
+            {
+                EXCITED = 157259,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_DreadRavenHatchlingAI(creature);
+            }
+
+            struct mob_DreadRavenHatchlingAI : public ScriptedAI
+            {
+                mob_DreadRavenHatchlingAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                }
+
+                void SpellHit(Unit* /*caster*/, SpellInfo const* p_Spell)
+                {
+                    if (p_Spell->Id == uint32(Spells::EXCITED))
+                    {
+                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 50.0f, false))
+                        {
+                            me->AddThreat(l_Plr, 10000.0f);
+                            me->Attack(l_Plr, true);
+                        }
+                    }
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
         class mob_SkyreachSunTalon : public CreatureScript
         {
         public:
@@ -1181,4 +1247,5 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_DrivingGaleCaller();
     new MS::InstanceSkyreach::mob_AdornedBladetalon();
     new MS::InstanceSkyreach::mob_SkyreachSunTalon();
+    new MS::InstanceSkyreach::mob_DreadRavenHatchling();
 }

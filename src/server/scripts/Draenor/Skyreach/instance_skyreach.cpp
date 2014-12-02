@@ -37,7 +37,9 @@ namespace MS
                 uint64 m_AraknathGuid;
                 uint64 m_SkyreachArcanologistGuid;
                 std::list<uint64> m_SolarConstructorsGuid;
-                uint64 m_SelectedSolarConstructor;
+                uint64 m_SelectedSolarConstructorGuid;
+                uint64 m_InteriorFocusGuid;
+                uint64 m_SolarConstructorEnergizerGuid;
 
                 // Rukhran part.
                 uint64 m_RukhranGuid;
@@ -54,12 +56,14 @@ namespace MS
                     m_AraknathGuid(0),
                     m_SkyreachArcanologistGuid(0),
                     m_SolarConstructorsGuid(),
-                    m_SelectedSolarConstructor(0),
+                    m_SelectedSolarConstructorGuid(0),
+                    m_InteriorFocusGuid(0),
                     m_RukhranGuid(0),
                     m_SkyreachRavenWhispererGuid(0),
                     m_PileOfAshesGuid(),
                     m_SolarFlaresGuid(),
-                    m_CacheOfArakoanTreasuresGuid(0)
+                    m_CacheOfArakoanTreasuresGuid(0),
+                    m_SolarConstructorEnergizerGuid(0)
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
@@ -83,13 +87,16 @@ namespace MS
                     case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                         m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
                         p_Creature->RemoveAura(RandomSpells::SUBMERGED);
-                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
                         p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
                         break;
                     case MobEntries::SKYREACH_RAVEN_WHISPERER:
                         m_SkyreachRavenWhispererGuid = p_Creature->GetGUID();
                         break;
                     case MobEntries::YOUNG_KALIRI:
+                    case MobEntries::Kaliri:
+                    case MobEntries::Kaliri2:
                         // Setting fly.
                         p_Creature->SetDisableGravity(true);
                         p_Creature->SetCanFly(true);
@@ -101,6 +108,30 @@ namespace MS
                         break;
                     case MobEntries::SOLAR_FLARE:
                         m_SolarFlaresGuid.insert(p_Creature->GetGUID());
+                        break;
+                    case MobEntries::AirFamiliar:
+                        p_Creature->setFaction(16);
+                        break;
+                    case MobEntries::ArakkoaPincerBirdsController:
+                        p_Creature->setFaction(16);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        break;
+                    case MobEntries::DreadRavenHatchling:
+                        p_Creature->setFaction(16);
+                        break;
+                    case MobEntries::SunConstructEnergizer:
+                        m_SolarConstructorEnergizerGuid = p_Creature->GetGUID();
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        break;
+                    case MobEntries::InteriorFocus:
+                        m_InteriorFocusGuid = p_Creature->GetGUID();
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     default:
                         break;
@@ -196,6 +227,11 @@ namespace MS
                                 l_Constructor->AddAura(RandomSpells::SUBMERGED, l_Constructor);
                             }
                         }
+
+                        if (Creature* l_InteriorFocus = sObjectAccessor->FindCreature(m_InteriorFocusGuid))
+                            l_InteriorFocus->CastStop();
+                        if (Creature* l_SolarConstructorEnergizer = sObjectAccessor->FindCreature(m_SolarConstructorEnergizerGuid))
+                            l_SolarConstructorEnergizer->CastStop();
                         break;
                     case Data::SkyreachArcanologistReset:
                         if (Creature* l_Araknath = sObjectAccessor->FindCreature(m_AraknathGuid))
@@ -214,27 +250,49 @@ namespace MS
                                 l_Constructor->RemoveAura(RandomSpells::SUBMERGED);
                             }
                         }
+
+                        if (Creature* l_InteriorFocus = sObjectAccessor->FindCreature(m_InteriorFocusGuid))
+                            l_InteriorFocus->CastSpell(l_InteriorFocus, uint32(RandomSpells::ENERGIZE_VISUAL_3));
+
+                        if (Creature* l_SolarConstructorEnergizer = sObjectAccessor->FindCreature(m_SolarConstructorEnergizerGuid))
+                            l_SolarConstructorEnergizer->CastSpell(l_SolarConstructorEnergizer, uint32(RandomSpells::ENERGIZE_VISUAL_3));
                         break;
                     case Data::AraknathSolarConstructorActivation:
                         if (p_Data)
                         {
                             auto l_RandUnit = m_SolarConstructorsGuid.begin();
                             std::advance(l_RandUnit, urand(0, m_SolarConstructorsGuid.size() - 1));
-                            m_SelectedSolarConstructor = *l_RandUnit;
+                            m_SelectedSolarConstructorGuid = *l_RandUnit;
 
-                            if (Creature* l_Constructor = sObjectAccessor->FindCreature(m_SelectedSolarConstructor))
+                            if (Creature* l_Constructor = sObjectAccessor->FindCreature(m_SelectedSolarConstructorGuid))
                             {
                                 l_Constructor->RemoveAura(RandomSpells::SUBMERGED);
                                 l_Constructor->CastSpell(l_Constructor, uint32(RandomSpells::ENERGIZE_HEAL));
                             }
+
+                            // Visual part.
+                            if (Creature* l_InteriorFocus = sObjectAccessor->FindCreature(m_InteriorFocusGuid))
+                                l_InteriorFocus->CastSpell(l_InteriorFocus, uint32(RandomSpells::ENERGIZE_VISUAL_3));
+
+                            if (Creature* l_SolarConstructorEnergizer = sObjectAccessor->FindCreature(m_SolarConstructorEnergizerGuid))
+                                l_SolarConstructorEnergizer->CastSpell(l_SolarConstructorEnergizer, uint32(RandomSpells::ENERGIZE_VISUAL_2));
                         }
                         else
                         {
-                            if (Creature* l_Constructor = sObjectAccessor->FindCreature(m_SelectedSolarConstructor))
+                            if (Creature* l_Constructor = sObjectAccessor->FindCreature(m_SelectedSolarConstructorGuid))
                             {
                                 l_Constructor->AddAura(RandomSpells::SUBMERGED, l_Constructor);
                                 l_Constructor->CastStop();
                             }
+
+                            // Visual part.
+                            if (Creature* l_InteriorFocus = sObjectAccessor->FindCreature(m_InteriorFocusGuid))
+                                l_InteriorFocus->CastStop();
+
+                            if (Creature* l_SolarConstructorEnergizer = sObjectAccessor->FindCreature(m_SolarConstructorEnergizerGuid))
+                                l_SolarConstructorEnergizer->CastStop();
+
+                            m_SelectedSolarConstructorGuid = 0;
                         }
                     default:
                         break;
@@ -290,7 +348,9 @@ namespace MS
                                 l_Pile->GetPosition(&l_Pos);
                                 if (l_Pile->ToCreature())
                                 {
-                                    l_Pile->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), false);
+                                    l_Pile->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), true);
+                                    TempSummon* l_Summon = l_Pile->SummonCreature(MobEntries::SOLAR_FLARE, l_Pos);
+                                    m_SolarFlaresGuid.insert(l_Summon->GetGUID());
                                     l_Pile->ToCreature()->DespawnOrUnsummon(500);
                                 }
                             }
@@ -327,6 +387,46 @@ namespace MS
                         return;
 
                     m_BeginningTime += p_Diff;
+
+                    if (m_SelectedSolarConstructorGuid)
+                    {
+                        if (instance)
+                        {
+                            Map::PlayerList const &PlayerList = instance->GetPlayers();
+                            if (PlayerList.isEmpty())
+                                return;
+
+                            Unit* l_Araknath = instance->GetCreature(m_AraknathGuid);
+                            Unit* l_SelectedSolarConstructor = instance->GetCreature(m_SelectedSolarConstructorGuid);
+
+                            if (!l_Araknath || !l_SelectedSolarConstructor)
+                                return;
+
+                            Player* l_ClosestPlayerInBeam = nullptr;
+                            float l_ClosestDistance = std::numeric_limits<float>::max();
+                            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            {
+                                if (DistanceFromLine(*l_Araknath, *l_SelectedSolarConstructor, *i->getSource()) < 0.5f // If is in beam.
+                                    && dotProductXY(*l_Araknath - *l_SelectedSolarConstructor, *l_Araknath - *i->getSource()) > 0 // If player is between solar constructor and araknath.
+                                    && l_ClosestDistance > l_SelectedSolarConstructor->GetDistance(i->getSource()))
+                                {
+                                    l_ClosestDistance = l_SelectedSolarConstructor->GetDistance(i->getSource());
+                                    l_ClosestPlayerInBeam = i->getSource();
+                                }
+                            }
+
+                            if (l_ClosestPlayerInBeam
+                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)
+                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()
+                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()->ToPlayer() != l_ClosestPlayerInBeam)
+                                l_SelectedSolarConstructor->CastSpell(l_ClosestPlayerInBeam, uint32(RandomSpells::ENERGIZE_DMG), false, nullptr, NULLAURA_EFFECT, m_AraknathGuid);
+                            else if (!l_ClosestPlayerInBeam
+                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)
+                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()
+                                && l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetUnitTarget()->ToPlayer())
+                            l_SelectedSolarConstructor->CastSpell(l_SelectedSolarConstructor, uint32(RandomSpells::ENERGIZE_HEAL));
+                        }
+                    }
                 }
             };
 

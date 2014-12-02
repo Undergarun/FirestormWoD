@@ -476,6 +476,16 @@ struct Position
         return !(operator==(a));
     }
 
+    Position operator-(Position const& p_Rhs) const
+    {
+        Position l_Pos;
+        l_Pos.m_positionX = m_positionX - p_Rhs.m_positionX;
+        l_Pos.m_positionY = m_positionY - p_Rhs.m_positionY;
+        l_Pos.m_positionZ = m_positionZ - p_Rhs.m_positionZ;
+
+        return l_Pos;
+    }
+
     void Relocate(float x, float y)
         { m_positionX = x; m_positionY = y;}
     void Relocate(float x, float y, float z)
@@ -583,6 +593,12 @@ struct Position
         return o;
     }
 };
+
+static float dotProductXY(Position const& p_Pos1, Position const& p_Pos2)
+{
+    return p_Pos1.m_positionX * p_Pos2.m_positionX + p_Pos1.m_positionY * p_Pos2.m_positionY;
+}
+
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
