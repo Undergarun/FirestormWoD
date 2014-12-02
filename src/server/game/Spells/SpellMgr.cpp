@@ -3568,6 +3568,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 165376:// Enlightenment
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
             case 139834:// Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
