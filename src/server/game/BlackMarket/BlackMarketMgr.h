@@ -128,7 +128,7 @@ class BlackMarketMgr
 
         void Update();
 
-        void BuildBlackMarketAuctionsPacket(WorldPacket& data, uint32 guidLow);
+        void BuildBlackMarketAuctionsPacket(WorldPacket& p_Data, uint32 p_GuidLow);
 };
 
 #define sBlackMarketMgr ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>::instance()

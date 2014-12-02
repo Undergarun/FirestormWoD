@@ -130,7 +130,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket& /*p_RecvData*/)
         sTicketMgr->SendTicket(this, NULL);
 }
 
-void WorldSession::HandleGMTicketGetWebTicketOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGMTicketGetWebTicketOpcode(WorldPacket& /*p_RecvData*/)
 {
 }
 

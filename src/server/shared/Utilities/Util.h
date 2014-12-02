@@ -705,4 +705,12 @@ public:
     }
 };
 
+inline uint32 ExtractBitMaskBitCount(uint32 p_Value)
+{
+    uint32 l_MaskPart = (p_Value - ((p_Value >> 1) & 0x55555555));
+
+    return 0x1010101 * (((l_MaskPart & 0x33333333) + ((l_MaskPart >> 2) & 0x33333333)
+        + (((l_MaskPart & 0x33333333) + ((l_MaskPart >> 2) & 0x33333333)) >> 4)) & 0xF0F0F0F) >> 24;
+}
+
 #endif

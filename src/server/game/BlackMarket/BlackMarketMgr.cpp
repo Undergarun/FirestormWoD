@@ -260,49 +260,54 @@ void BlackMarketMgr::CreateAuctions(uint32 number, SQLTransaction& trans)
     }
 }
 
-void BlackMarketMgr::BuildBlackMarketAuctionsPacket(WorldPacket& data, uint32 guidLow)
+void BlackMarketMgr::BuildBlackMarketAuctionsPacket(WorldPacket& p_Data, uint32 p_GuidLow)
 {
-    uint32 count = 0;
-    ByteBuffer datas;
+    uint32 l_ItemCount = 0;
+    ByteBuffer l_Datas;
 
-    data << uint32(time(NULL));
-
-    for (BMAuctionEntryMap::const_iterator itr = GetAuctionsBegin(); itr != GetAuctionsEnd(); ++itr)
-        if (itr->second->IsActive())
-            ++count;
-
-    data.WriteBits(count, 18);
-
-    for (BMAuctionEntryMap::const_iterator itr = GetAuctionsBegin(); itr != GetAuctionsEnd(); ++itr)
+    for (BMAuctionEntryMap::const_iterator l_Iter = GetAuctionsBegin(); l_Iter != GetAuctionsEnd(); ++l_Iter)
     {
-        BMAuctionEntry* auction = itr->second;
+        BMAuctionEntry* l_Auction = l_Iter->second;
+        if (l_Auction->IsActive())
+        {
+            ++l_ItemCount;
 
-        if (!auction->IsActive())
-            continue;
+            uint64 l_CurrentBid = l_Auction->bidder ? l_Auction->bid : 0;
+            uint64 l_MinBid = l_Auction->bidder ? l_Auction->bid + GetAuctionOutBid(l_Auction->bid) : l_Auction->bid;
+            uint64 l_MinIncrement = l_Auction->bidder ? l_MinBid - l_CurrentBid : 1;
 
-        data.WriteBit(guidLow == auction->bidder);          // Is owner
+            l_Datas << int32(l_Auction->id);
+            l_Datas << int32(l_Auction->bm_template->seller);
 
-        uint64 currentBid = auction->bidder ? auction->bid : 0;
-        uint64 nextBidPrice = auction->bidder ? auction->bid + GetAuctionOutBid(auction->bid) : auction->bid;
-        uint64 upPrice = auction->bidder ? nextBidPrice - currentBid : 1;
+            ///< ItemStruct
+            {
+                l_Datas << int32(l_Auction->bm_template->itemEntry);
+                l_Datas << int32(0);    ///< RandomPropertiesSeed
+                l_Datas << int32(0);    ///< RandomPropertiesID
 
-        datas << uint32(auction->bm_template->itemEntry);
-        datas << uint32(auction->bm_template->seller);
-        datas << uint32(auction->id);
-        datas << uint32(auction->bidderCount);
-        datas << uint32(auction->TimeLeft());
-        datas << uint64(currentBid);
-        datas << uint32(auction->bm_template->itemCount);
-        datas << uint32(0);                                 // Unk
-        datas << uint64(nextBidPrice);
-        datas << uint64(upPrice);
+                l_Datas.WriteBit(true);     ///< HasBonus
+                l_Datas.WriteBit(false);    ///< HasModifiers
+
+                l_Datas << uint8(15);   ///< UnkByte for Bonuses
+                l_Datas << uint32(0);   ///< BonusCount
+            }
+
+            l_Datas << int32(l_Auction->bm_template->itemCount);
+            l_Datas << uint64(l_MinBid);
+            l_Datas << uint64(l_MinIncrement);
+            l_Datas << uint64(l_CurrentBid);
+            l_Datas << int32(l_Auction->TimeLeft());
+            l_Datas << int32(l_Auction->bidderCount);
+            l_Datas.WriteBit(p_GuidLow == l_Auction->bidder); ///< HighBid
+        }
     }
 
-    data.FlushBits();
-    if (datas.size())
-        data.append(datas);
+    p_Data << int32(time(NULL));
+    p_Data << uint32(l_ItemCount);
+    p_Data.FlushBits();
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, ">> Sent %u BlackMarket Auctions", count);
+    if (l_ItemCount)
+        p_Data.append(l_Datas);
 }
 
 void BlackMarketMgr::UpdateAuction(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder)
@@ -338,48 +343,69 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
     return strm.str();
 }
 
-void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans)
+void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_NewPrice, Player* p_NewBidder, SQLTransaction& p_Transaction)
 {
-    Player* bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER));
-    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(auction->bm_template->itemEntry);
-    if (!itemTemplate)
+    Player* l_Bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(p_Auction->bidder, 0, HIGHGUID_PLAYER));
+    ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(p_Auction->bm_template->itemEntry);
+    if (!l_ItemTemplate)
         return;
-    if (bidder)
+
+    if (l_Bidder)
     {
-        WorldPacket data(SMSG_BLACK_MARKET_OUT_BID, 12);
-        data << uint32(itemTemplate->ItemId);
-        data << uint32(itemTemplate->RandomProperty);
-        data << uint32(itemTemplate->RandomSuffix);
-        bidder->GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_BLACK_MARKET_OUTBID, 12);
+        l_Data << int32(0); ///< MarketID
+
+        ///< ItemStruct
+        {
+            l_Data << uint32(l_ItemTemplate->ItemId);
+            l_Data << uint32(0);   ///< RandomPropertiesSeed
+            l_Data << int32(0);    ///< RandomPropertiesID
+
+            l_Data.WriteBit(false);    ///< HasBonus
+            l_Data.WriteBit(false);    ///< HasModifiers
+        }
+
+        l_Data << uint32(l_ItemTemplate->RandomProperty);
+        l_Bidder->GetSession()->SendPacket(&l_Data);
     }
 
-    MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_OUTBIDDED), auction->BuildAuctionMailBody(auction->bm_template->seller))
-    .AddMoney(auction->bid)
-    .SendMailTo(trans, MailReceiver(bidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
+    MailDraft(p_Auction->BuildAuctionMailSubject(BM_AUCTION_OUTBIDDED), p_Auction->BuildAuctionMailBody(p_Auction->bm_template->seller))
+    .AddMoney(p_Auction->bid)
+    .SendMailTo(p_Transaction, MailReceiver(l_Bidder, p_Auction->bidder), p_Auction, MAIL_CHECK_MASK_COPIED);
 }
 
-void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* auction, SQLTransaction& trans)
+void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* p_Auction, SQLTransaction& p_Transaction)
 {
-    uint64 bidderGUID = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
-    Player* bidder = sObjectAccessor->FindPlayer(bidderGUID);
-    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(auction->bm_template->itemEntry);
-    if (!itemTemplate)
+    uint64 l_BidderGuid = MAKE_NEW_GUID(p_Auction->bidder, 0, HIGHGUID_PLAYER);
+    Player* l_Bidder = sObjectAccessor->FindPlayer(l_BidderGuid);
+    ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(p_Auction->bm_template->itemEntry);
+    if (!l_ItemTemplate)
         return;
 
-    if (bidder)
+    if (l_Bidder)
     {
-        WorldPacket data(SMSG_BLACK_MARKET_WON, 12);
-        data << uint32(itemTemplate->RandomSuffix);
-        data << uint32(itemTemplate->RandomProperty);
-        data << uint32(itemTemplate->ItemId);
-        bidder->GetSession()->SendPacket(&data);
+        WorldPacket l_Data(SMSG_BLACK_MARKET_WON, 12);
+        l_Data << int32(0); ///< MarketID
+
+        ///< ItemStruct
+        {
+            l_Data << uint32(l_ItemTemplate->ItemId);
+            l_Data << uint32(0);   ///< RandomPropertiesSeed
+            l_Data << int32(0);    ///< RandomPropertiesID
+
+            l_Data.WriteBit(false);    ///< HasBonus
+            l_Data.WriteBit(false);    ///< HasModifiers
+        }
+
+        l_Data << uint32(l_ItemTemplate->RandomProperty);
+        l_Bidder->GetSession()->SendPacket(&l_Data);
     }
 
-    Item* pItem = Item::CreateItem(auction->bm_template->itemEntry, auction->bm_template->itemCount, bidder);
-    pItem->SetGuidValue(ITEM_FIELD_OWNER, bidderGUID);
-    pItem->SaveToDB(trans);
+    Item* l_Item = Item::CreateItem(p_Auction->bm_template->itemEntry, p_Auction->bm_template->itemCount, l_Bidder);
+    l_Item->SetGuidValue(ITEM_FIELD_OWNER, l_BidderGuid);
+    l_Item->SaveToDB(p_Transaction);
 
-    MailDraft(auction->BuildAuctionMailSubject(BM_AUCTION_WON), auction->BuildAuctionMailBody(auction->bidder))
-    .AddItem(pItem)
-    .SendMailTo(trans, MailReceiver(bidder, auction->bidder), MailSender(auction), MAIL_CHECK_MASK_COPIED);
+    MailDraft(p_Auction->BuildAuctionMailSubject(BM_AUCTION_WON), p_Auction->BuildAuctionMailBody(p_Auction->bidder))
+    .AddItem(l_Item)
+    .SendMailTo(p_Transaction, MailReceiver(l_Bidder, p_Auction->bidder), MailSender(p_Auction), MAIL_CHECK_MASK_COPIED);
 }

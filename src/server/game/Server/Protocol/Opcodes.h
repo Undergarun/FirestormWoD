@@ -451,6 +451,19 @@ enum Opcodes
         SMSG_CALENDAR_SEND_CALENDAR                             = 0x0184, ///< 6.0.3 19116
         SMSG_CALENDAR_SEND_EVENT                                = 0x0225, ///< 6.0.3 19116
         SMSG_CALENDAR_SEND_NUM_PENDING                          = 0x1B3A, ///< 6.0.3 19116
+
+        /// Warden
+        SMSG_WARDEN_DATA                                        = 0x0000, ///< 6.0.3 19116
+
+        /// Challenges
+        SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x07AA, ///< 6.0.3 19116
+
+        /// BlackMarket
+        SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x0A05, ///< 6.0.3 19116
+        SMSG_BLACK_MARKET_OUTBID                                = 0x0B1D, ///< 6.0.3 19116
+        SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x1BC2, ///< 6.0.3 19116
+        SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0825, ///< 6.0.3 19116
+        SMSG_BLACK_MARKET_WON                                   = 0x1BAA, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -960,6 +973,7 @@ enum Opcodes
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0A07,   ///< 6.0.3 19116
     CMSG_SPLIT_ITEM                             = 0x0795,   ///< 6.0.3 19116
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x018B,   ///< 6.0.3 19116
+    CMSG_MOUNT_SET_FAVORITE                     = 0x090E,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1341,6 +1355,7 @@ enum Opcodes
     CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE  = 0x059A,   ///< 6.0.3 19116
     CMSG_BATTLEFIELD_LIST                       = 0x03B1,   ///< 6.0.3 19116
     CMSG_BATTLEFIELD_LEAVE                      = 0x0000,
+    CMSG_REQUEST_RATED_BATTLEFIELD_INFO         = 0x1323,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Guild
@@ -1421,7 +1436,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x0000,    ///< 6.0.2 19027 (unused)
+    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x120C,    ///< 6.0.3 19116 (unused)
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
@@ -1439,6 +1454,7 @@ enum Opcodes
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_RESET_INSTANCES                           = 0x0389,    ///< 6.0.3 19116
+    CMSG_REQUEST_LFGLIST_BLACKLIST                 = 0x0BCA,    ///< 6.0.3 19116 (unused)
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
@@ -1490,7 +1506,7 @@ enum Opcodes
     CMSG_GMTICKET_CREATE                            = 0x0935,    ///< 6.0.3 19116
     CMSG_GMTICKET_DELETETICKET                      = 0x0F2E,    ///< 6.0.3 19116
     CMSG_GMTICKET_GETTICKET                         = 0x0B28,    ///< 6.0.3 19116
-    CMSG_GMTICKET_GETWEBTICKET                      = 0x0000,    ///< 6.0.3 19116
+    CMSG_GMTICKET_GET_CASE_STATUS                   = 0x0F0A,    ///< 6.0.3 19116
     CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0B0E,    ///< 6.0.3 19116
     CMSG_GMTICKET_UPDATETEXT                        = 0x0323,    ///< 6.0.3 19116
     CMSG_GM_REPORT_LAG                              = 0x0000,    ///< 6.0.3 19116
@@ -1519,10 +1535,24 @@ enum Opcodes
     CMSG_CALENDAR_EVENT_STATUS                      = 0x1201,    ///< 6.0.3 19116
     CMSG_CALENDAR_GET_CALENDAR                      = 0x0336,    ///< 6.0.3 19116
     CMSG_CALENDAR_GET_EVENT                         = 0x1229,    ///< 6.0.3 19116
-    CMSG_CALENDAR_GET_NUM_PENDING                   = 0x0000,    ///< 6.0.3 19116
+    CMSG_CALENDAR_GET_NUM_PENDING                   = 0x033E,    ///< 6.0.3 19116
     CMSG_CALENDAR_GUILD_FILTER                      = 0x0000,    ///< 6.0.3 19116
     CMSG_CALENDAR_REMOVE_EVENT                      = 0x0330,    ///< 6.0.3 19116
     CMSG_CALENDAR_UPDATE_EVENT                      = 0x12A2,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Challenges
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_CHALLENGE_MODE_REQUEST_LEADERS             = 0x0E66,    ///< 6.0.3 19116
+    CMSG_GET_CHALLENGE_MODE_REWARDS                 = 0x1C2F,    ///< 6.0.3 19116
+    CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS           = 0x0E78,    ///< 6.0.3 19116
+
+    //////////////////////////////////////////////////////////////////////////
+    /// BlackMarket
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_BLACK_MARKET_OPEN                         = 0x1B39,    ///< 6.0.3 19116
+    CMSG_BLACK_MARKET_REQUEST_ITEMS                = 0x0B21,    ///< 6.0.3 19116
+    CMSG_BLACK_MARKET_PLACE_BID                    = 0x13C2,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1582,9 +1612,6 @@ enum Opcodes
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x0000,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
-    CMSG_BLACK_MARKET_HELLO                           = 0x0000,
-    CMSG_BLACK_MARKET_REQUEST_ITEMS                   = 0x0000,
-    CMSG_BLACK_MARKET_PLACE_BID                       = 0x0000,
     CMSG_BOT_DETECTED2                                = 0x0000,
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x0000,
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0x0000,
@@ -1743,11 +1770,6 @@ enum Opcodes
     SMSG_BATTLEPET_UPDATE                             = 0x0000,
     SMSG_BEASTMASTER_FAILED                           = 0x0000,
     SMSG_BIND_ZONE_REPLY                              = 0x0000,
-    SMSG_BLACK_MARKET_OPEN_RESULT                     = 0x0000,
-    SMSG_BLACK_MARKET_OUT_BID                         = 0x0000,
-    SMSG_BLACK_MARKET_ITEM_RESULT                     = 0x0000,
-    SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT              = 0x0000,
-    SMSG_BLACK_MARKET_WON                             = 0x0000,
     SMSG_BONUS_ROLL_EMPTY                             = 0x0000,
     SMSG_CAMERA_SHAKE                                 = 0x0000,
     SMSG_CANCEL_SCENE                                 = 0x0000,
@@ -1756,7 +1778,6 @@ enum Opcodes
     SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE              = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT          = 0x0000,
     SMSG_CHALLENGE_MODE_ALL_MAP_STATS                 = 0x0000,
-    SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT        = 0x0000,
     SMSG_CHALLENGE_MODE_REWARDS                       = 0x0000,
     SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD             = 0x0000,
     SMSG_CHALLENGE_MODE_COMPLETE                      = 0x0000,
@@ -2015,7 +2036,6 @@ enum Opcodes
     SMSG_VOICE_SET_TALKER_MUTED                       = 0x0000,
     SMSG_WAIT_QUEUE_FINISH                            = 0x0000,
     SMSG_WAIT_QUEUE_UPDATE                            = 0x0000,
-    SMSG_WARDEN_DATA                                  = 0x0000,
     SMSG_WARGAME_REQUEST_SENT                         = 0x0000,
     SMSG_WEEKLY_LAST_RESET                            = 0x0000,
     SMSG_XP_GAIN_ABORTED                              = 0x0000,

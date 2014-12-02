@@ -502,6 +502,16 @@ void InitOpcodes()
 
         /// Warden
         DEFINE_OPCODE_HANDLER(SMSG_WARDEN_DATA,                                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
+        /// Challenges
+        DEFINE_OPCODE_HANDLER(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT,               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
+        /// BlackMarket
+        DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_OPEN_RESULT,                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_OUTBID,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT,                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_WON,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1012,6 +1022,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_INSPECT_ACHIEVEMENTS,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQueryInspectAchievements   );
     DEFINE_OPCODE_HANDLER(CMSG_SPLIT_ITEM,                                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSplitItemOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_SET_PLAYER_DECLINED_NAMES,                       STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleSetPlayerDeclinedNames     );
+    DEFINE_OPCODE_HANDLER(CMSG_MOUNT_SET_FAVORITE,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::Handle_NULL                      );
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1377,7 +1388,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_QUEUE_EXIT_REQUEST,              STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBfExitQueueRequest         );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE,           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBfEntryInviteResponse      );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LIST,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlefieldListOpcode      );
-    //DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LEAVE,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfExitRequest             );
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LEAVE,                               STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBfExitRequest              );
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RATED_BATTLEFIELD_INFO,                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
 
     //////////////////////////////////////////////////////////////////////////
     /// Guild
@@ -1487,6 +1499,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_SEARCH_LFG_JOIN,                                 STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_SEARCH_LFG_LEAVE,                                STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_RESET_INSTANCES,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleResetInstancesOpcode       );
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_LFGLIST_BLACKLIST,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::Handle_NULL                      );
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
@@ -1538,7 +1551,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_CREATE,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketCreateOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_DELETETICKET,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketDeleteOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GETTICKET,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketGetTicketOpcode    );
-    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GETWEBTICKET,                           STATUS_UNHANDLED,   PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketGetWebTicketOpcode );
+    DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GET_CASE_STATUS,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketGetWebTicketOpcode );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_SYSTEMSTATUS,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketSystemStatusOpcode );
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_UPDATETEXT,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketUpdateOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_GM_REPORT_LAG,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleReportLag                  );
@@ -1572,6 +1585,20 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_UPDATE_EVENT,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarUpdateEvent         );
 
     //////////////////////////////////////////////////////////////////////////
+    /// Challenges
+    //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_LEADERS,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL                       );
+    DEFINE_OPCODE_HANDLER(CMSG_GET_CHALLENGE_MODE_REWARDS,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL                       );
+    DEFINE_OPCODE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL                       );
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Challenges
+    //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_OPEN,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketHello            );
+    DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_REQUEST_ITEMS,                     STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketRequestItems     );
+    DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_PLACE_BID,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketBid              );
+
+    //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -1590,9 +1617,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_ARENA_TEAM_REMOVE,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRemoveOpcode     );
     //DEFINE_OPCODE_HANDLER(CMSG_ARENA_TEAM_ROSTER,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRosterOpcode     );
     //DEFINE_OPCODE_HANDLER(CMSG_AUTOEQUIP_ITEM_SLOT,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAutoEquipItemSlotOpcode   );
-    //DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_HELLO,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketHello          );
-    //DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_REQUEST_ITEMS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketRequestItems   );
-    //DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_PLACE_BID,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketBid            );
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_CHAR_CUSTOMIZE,                          STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCustomize             );
@@ -1706,11 +1730,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_BATTLEFIELD_LIST,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_BATTLEGROUND_INFO_THROTTLED,             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_BATTLEPET_JOURNAL,                       STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_OPEN_RESULT,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_OUT_BID,                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_ITEM_RESULT,                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT,         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_WON,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CAMERA_SHAKE,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHARACTER_LOGIN_FAILED,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
