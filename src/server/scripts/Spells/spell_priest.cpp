@@ -91,6 +91,7 @@ enum PriestSpells
     PRIEST_SURGE_OF_LIGHT_AURA                      = 109186,
     PRIEST_SURGE_OF_LIGHT                           = 114255,
     PRIEST_SURGE_OF_DARKNESS                        = 87160,
+    PRIEST_SURGE_OF_DARKNESS_AURA                   = 162448,
     PRIEST_SHADOW_WORD_INSANITY_DAMAGE              = 129249,
     PRIEST_SPELL_MIND_BLAST                         = 8092,
     PRIEST_SPELL_2P_S12_SHADOW                      = 92711,
@@ -2443,10 +2444,42 @@ public:
     }
 };
 
+// Call by Vampiric Touch 34914 - Devouring Plague 2944
+// Surge of Darkness - 162448
+class spell_pri_surge_of_darkness : public SpellScriptLoader
+{
+public:
+    spell_pri_surge_of_darkness() : SpellScriptLoader("spell_pri_surge_of_darkness") {}
+
+    class spell_pri_surge_of_darkness_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_surge_of_darkness_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_surge_of_darkness_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_surge_of_darkness_SpellScript();
+    }
+};
+
 
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_spirit_shell();
+    new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
