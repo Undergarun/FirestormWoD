@@ -5268,7 +5268,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
     // talent dependent passives activated at form apply have proper stance data
     ShapeshiftForm form = GetShapeshiftForm();
-    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (1 << (form - 1)))) ||
+    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & uint64(1L << (form - 1)))) ||
         (!form && (spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
 
     //Check CasterAuraStates
@@ -30815,20 +30815,38 @@ void Player::SendSpellCharges()
 {
     WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES);
 
+    if (m_SpellChargesMap.empty())
+    {
+        l_Data << uint32(0);
+        SendDirectMessage(&l_Data);
+        return;
+    }
+
     size_t l_EntriesPos = l_Data.wpos();
     l_Data << uint32(0);
 
     uint32 l_Count = 0;
-    for (auto l_SpellCharges : m_SpellChargesMap)
+    SpellChargesMap l_SpellCharges = m_SpellChargesMap;
+    for (auto l_SpellCharge : l_SpellCharges)
     {
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharges.first);
-        if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharge.first);
+        if (l_SpellInfo == nullptr)
             continue;
 
+        SpellCategoriesEntry const* l_Categories = l_SpellInfo->GetSpellCategories();
+        if (l_Categories == nullptr)
+            continue;
+
+        ChargesData l_Charges = l_SpellCharge.second;
         ///< @TODO: Find how display the right time client side
-        l_Data << uint32(l_SpellInfo->GetSpellCategories()->ChargesCategory);
-        l_Data << uint32(l_SpellCharges.second.m_ChargesCooldown.front() / IN_MILLISECONDS);
-        l_Data << uint8(l_SpellCharges.second.m_ConsumedCharges);
+        l_Data << uint32(l_Categories->ChargesCategory);
+
+        if (l_Charges.m_ChargesCooldown.empty())
+            l_Data << uint32(0);
+        else
+            l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
+
+        l_Data << uint8(l_Charges.m_ConsumedCharges);
 
         ++l_Count;
     }
