@@ -5268,7 +5268,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
     // talent dependent passives activated at form apply have proper stance data
     ShapeshiftForm form = GetShapeshiftForm();
-    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (1 << (form - 1)))) ||
+    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & uint64(1L << (form - 1)))) ||
         (!form && (spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
 
     //Check CasterAuraStates
@@ -5780,7 +5780,7 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
 
     uint64 l_CurrTime = 0;
     ACE_OS::gettimeofday().msec(l_CurrTime);
-    
+
     for (auto l_SpellCharges : m_SpellChargesMap)
     {
         uint8 l_Count = 0;
@@ -11967,6 +11967,65 @@ void Player::SetSheath(SheathState sheathed)
     Unit::SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
 }
 
+uint8 Player::GetGuessedEquipSlot(ItemTemplate const* proto) const
+{
+    switch (proto->InventoryType)
+    {
+        case INVTYPE_HEAD:
+            return EQUIPMENT_SLOT_HEAD;
+        case INVTYPE_NECK:
+            return EQUIPMENT_SLOT_NECK;
+        case INVTYPE_SHOULDERS:
+            return EQUIPMENT_SLOT_SHOULDERS;
+        case INVTYPE_BODY:
+            return EQUIPMENT_SLOT_BODY;
+        case INVTYPE_CHEST:
+            return EQUIPMENT_SLOT_CHEST;
+        case INVTYPE_ROBE:
+            return EQUIPMENT_SLOT_CHEST;
+        case INVTYPE_WAIST:
+            return EQUIPMENT_SLOT_WAIST;
+        case INVTYPE_LEGS:
+            return EQUIPMENT_SLOT_LEGS;
+        case INVTYPE_FEET:
+            return EQUIPMENT_SLOT_FEET;
+        case INVTYPE_WRISTS:
+            return EQUIPMENT_SLOT_WRISTS;
+        case INVTYPE_HANDS:
+            return EQUIPMENT_SLOT_HANDS;
+        case INVTYPE_FINGER:
+            return EQUIPMENT_SLOT_FINGER1;
+        case INVTYPE_TRINKET:
+            return EQUIPMENT_SLOT_TRINKET1;
+        case INVTYPE_CLOAK:
+            return EQUIPMENT_SLOT_BACK;
+        case INVTYPE_WEAPON:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_SHIELD:
+            return EQUIPMENT_SLOT_OFFHAND;
+        case INVTYPE_RANGED:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_2HWEAPON:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_TABARD:
+            return EQUIPMENT_SLOT_TABARD;
+        case INVTYPE_WEAPONMAINHAND:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_WEAPONOFFHAND:
+            return EQUIPMENT_SLOT_OFFHAND;
+        case INVTYPE_HOLDABLE:
+            return EQUIPMENT_SLOT_OFFHAND;
+        case INVTYPE_THROWN:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_RANGEDRIGHT:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_BAG:
+            return INVENTORY_SLOT_BAG_START;
+        default:
+            return NULL_SLOT;
+    }
+}
+
 uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const
 {
     uint8 playerClass = getClass();
@@ -14186,6 +14245,8 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
 
         lastItem = _StoreItem(pos, pItem, count, true, update);
     }
+
+    UpdateItemLevel();
     return lastItem;
 }
 
@@ -19676,6 +19737,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         sLog->outError(LOG_FILTER_PLAYER, "Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName(), GetGUIDLow(), GetSpecsCount(), GetActiveSpec());
     }
 
+    _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGLYPHS));
+    _LoadGlyphAuras();
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADTALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_CHAR_LOADSPELLS));
 
@@ -19725,9 +19788,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         addSpell(78381, true, false, false, false, true);
     }
 
-    _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGLYPHS));
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS), time_diff);
-    _LoadGlyphAuras();
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
@@ -25625,6 +25686,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendItemDurations();                                    // must be after add to map
     RescaleAllItemsIfNeeded(true);
 
+    AuraEffectList const& l_ModSpeedAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPEED_ALWAYS);
+    for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); iter++)
+        (*iter)->RecalculateAmount((*iter)->GetCaster(), true);
+
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
     {
@@ -29112,21 +29177,30 @@ uint32 Player::GetAverageItemLevelEquipped()
 {
     int32 l_Sum = 0;
     uint32 l_Count = 0;
+    bool l_HasTwoHanded = false;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
         // don't check tabard, ranged, offhand or shirt
-        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (m_items[i] && m_items[i]->GetTemplate())
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
         {
-            l_Sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
+            if (i == EQUIPMENT_SLOT_MAINHAND && l_Item->GetTemplate()->IsTwoHandedWeapon())
+                l_HasTwoHanded = true;
+
+            l_Sum += l_Item->GetTemplate()->GetItemLevelIncludingQuality(m_itemScale[i]);
             ++l_Count;
         }
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
+            continue;
+        else
+            ++l_Count;
     }
 
-    if (l_Count == 0)
+    if (!l_Count)
         return 0;
 
     return uint32(float(((float)l_Sum) / l_Count));
@@ -29134,41 +29208,112 @@ uint32 Player::GetAverageItemLevelEquipped()
 
 uint32 Player::GetAverageItemLevelTotal()
 {
-    int32 l_Sum = 0;
+    // If player has a 2h ignore offhand if not found (if found fury and count it)
+    // If player does not have a 2h check offhand
+    int l_EquipItemLevel[EQUIPMENT_SLOT_END];
+
+    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        // don't check tabard, ranged or shirt
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
+            continue;
+
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            l_EquipItemLevel[i] = l_Item->GetTemplate()->GetItemLevelIncludingQuality(m_itemScale[i]);
+
+            if (i == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+            if (i == EQUIPMENT_SLOT_OFFHAND && l_Item->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                l_EquipItemLevel[EQUIPMENT_SLOT_MAINHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_MAINHAND]);
+
+            continue;
+        }
+
+        l_EquipItemLevel[i] = 0;
+    }
+
+    l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1];
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1];
+
+    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item->IsSuitableForItemLevelCalulcation(true))
+            {
+                int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
+                int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate()));
+
+                if (slot != NULL_SLOT)
+                {
+                    if (slot == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                        l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+                    if (slot == EQUIPMENT_SLOT_TRINKET1)
+                        l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+
+                    if (slot == EQUIPMENT_SLOT_FINGER1)
+                        l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
+
+                    l_EquipItemLevel[slot] = std::max(l_EquipItemLevel[slot], l_ThisIlvl);
+                }
+            }
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* pBag = GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            {
+                if (Item* l_Item = pBag->GetItemByPos(j))
+                {
+                    if (l_Item->IsSuitableForItemLevelCalulcation(true))
+                    {
+                        int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
+                        int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate()));
+
+                        if (slot != NULL_SLOT)
+                        {
+                            if (slot == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                                l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+                            if (slot == EQUIPMENT_SLOT_TRINKET1)
+                                l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+
+                            if (slot == EQUIPMENT_SLOT_FINGER1)
+                                l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
+
+                            l_EquipItemLevel[slot] = std::max(l_EquipItemLevel[slot], l_ThisIlvl);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    uint32 l_Sum = 0;
     uint32 l_Count = 0;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
-        // don't check tabard, ranged, offhand or shirt
-        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (m_items[i] && m_items[i]->GetTemplate())
-        {
-            l_Sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
-            ++l_Count;
-        }
+        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
+            continue;
+
+        l_Sum += l_EquipItemLevel[i];
+        ++l_Count;
     }
 
-    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (l_Item->IsEquipable())
-            {
-                l_Sum += l_Item->GetTemplate()->GetItemLevelIncludingQuality();
-                ++l_Count;
-            }
-
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-        if (Bag* pBag = GetBagByPos(i))
-            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
-                if (Item* l_Item = pBag->GetItemByPos(j))
-                    if (l_Item->IsEquipable())
-                    {
-                        l_Sum += l_Item->GetTemplate()->GetItemLevelIncludingQuality();
-                        ++l_Count;
-                    }
-
-    if (l_Count == 0)
+    if (!l_Count)
         return 0;
 
     return uint32(float(((float)l_Sum) / l_Count));
@@ -30577,9 +30722,9 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto) const
     if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
         ilvl = itemProto->GetItemLevelForHeirloom(getLevel());
 
-    if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
-        if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemProto->ItemId))
-            ilvl += pvpItem->ilvl;
+    if (itemProto->PvPScalingLevel)
+        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
+            ilvl += itemProto->PvPScalingLevel;
 
     return ilvl;
 }
@@ -30823,20 +30968,38 @@ void Player::SendSpellCharges()
 {
     WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES);
 
+    if (m_SpellChargesMap.empty())
+    {
+        l_Data << uint32(0);
+        SendDirectMessage(&l_Data);
+        return;
+    }
+
     size_t l_EntriesPos = l_Data.wpos();
     l_Data << uint32(0);
 
     uint32 l_Count = 0;
-    for (auto l_SpellCharges : m_SpellChargesMap)
+    SpellChargesMap l_SpellCharges = m_SpellChargesMap;
+    for (auto l_SpellCharge : l_SpellCharges)
     {
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharges.first);
-        if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharge.first);
+        if (l_SpellInfo == nullptr)
             continue;
 
+        SpellCategoriesEntry const* l_Categories = l_SpellInfo->GetSpellCategories();
+        if (l_Categories == nullptr)
+            continue;
+
+        ChargesData l_Charges = l_SpellCharge.second;
         ///< @TODO: Find how display the right time client side
-        l_Data << uint32(l_SpellInfo->GetSpellCategories()->ChargesCategory);
-        l_Data << uint32(l_SpellCharges.second.m_ChargesCooldown.front() / IN_MILLISECONDS);
-        l_Data << uint8(l_SpellCharges.second.m_ConsumedCharges);
+        l_Data << uint32(l_Categories->ChargesCategory);
+
+        if (l_Charges.m_ChargesCooldown.empty())
+            l_Data << uint32(0);
+        else
+            l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
+
+        l_Data << uint8(l_Charges.m_ConsumedCharges);
 
         ++l_Count;
     }

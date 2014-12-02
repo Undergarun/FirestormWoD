@@ -2520,6 +2520,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxCount = sparse->MaxCount;
         itemTemplate.Stackable = sparse->Stackable;
         itemTemplate.ContainerSlots = sparse->ContainerSlots;
+
         for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         {
             itemTemplate.ItemStat[i].ItemStatType = sparse->ItemStatType[i];
@@ -2600,6 +2601,12 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
+
+        if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
+            itemTemplate.PvPScalingLevel = pvpItem->ilvl;
+        else
+            itemTemplate.PvPScalingLevel = 0;
+
         ++sparseCount;
     }
 
@@ -2763,6 +2770,12 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.FoodType                  = 0;
             itemTemplate.MinMoneyLoot              = 0;
             itemTemplate.MaxMoneyLoot              = 0;
+
+            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
+                itemTemplate.PvPScalingLevel = pvpItem->ilvl;
+            else
+                itemTemplate.PvPScalingLevel = 0;
+
             ++dbCount;
         }
         while (result->NextRow());
