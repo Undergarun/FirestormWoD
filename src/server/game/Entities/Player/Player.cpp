@@ -5780,7 +5780,7 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
 
     uint64 l_CurrTime = 0;
     ACE_OS::gettimeofday().msec(l_CurrTime);
-    
+
     for (auto l_SpellCharges : m_SpellChargesMap)
     {
         uint8 l_Count = 0;
@@ -29186,7 +29186,7 @@ uint32 Player::GetAverageItemLevelEquipped()
             l_Sum += l_Item->GetTemplate()->GetItemLevelIncludingQuality(m_itemScale[i]);
             ++l_Count;
         }
-        else if (i == EQUIPMENT_SLOT_OFFHAND && (CanTitanGrip() || (!l_HasTwoHanded)))
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
             continue;
         else
             ++l_Count;
@@ -29214,11 +29214,23 @@ uint32 Player::GetAverageItemLevelTotal()
         if (l_Item && l_Item->GetTemplate())
         {
             l_EquipItemLevel[i] = l_Item->GetTemplate()->GetItemLevelIncludingQuality(m_itemScale[i]);
+
+            if (i == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+            if (i == EQUIPMENT_SLOT_OFFHAND && l_Item->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                l_EquipItemLevel[EQUIPMENT_SLOT_MAINHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_MAINHAND]);
+
             continue;
         }
 
         l_EquipItemLevel[i] = 0;
     }
+
+    l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1];
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1];
 
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
@@ -29236,6 +29248,9 @@ uint32 Player::GetAverageItemLevelTotal()
 
                     if (slot == EQUIPMENT_SLOT_TRINKET1)
                         l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+
+                    if (slot == EQUIPMENT_SLOT_FINGER1)
+                        l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
 
                     l_EquipItemLevel[slot] = std::max(l_EquipItemLevel[slot], l_ThisIlvl);
                 }
@@ -29263,6 +29278,9 @@ uint32 Player::GetAverageItemLevelTotal()
 
                             if (slot == EQUIPMENT_SLOT_TRINKET1)
                                 l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+
+                            if (slot == EQUIPMENT_SLOT_FINGER1)
+                                l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
 
                             l_EquipItemLevel[slot] = std::max(l_EquipItemLevel[slot], l_ThisIlvl);
                         }
