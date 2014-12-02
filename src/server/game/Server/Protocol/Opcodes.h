@@ -127,7 +127,6 @@ enum Opcodes
         SMSG_TOTEM_CREATED                          = 0x0352,   ///< 6.0.3 19116
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x1341,   ///< 6.0.3 19116
         SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0128,   ///< 6.0.3 19116
-        SMSG_TRADE_INFO                             = 0x0000,   ///< 6.0.3 19116
         SMSG_TRADE_STATUS                           = 0x093D,   ///< 6.0.3 19116
         SMSG_TRADE_UPDATED                          = 0x0B43,   ///< 6.0.3 19116
         SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI  = 0x053D,   ///< 6.0.3 19116
@@ -529,7 +528,6 @@ enum Opcodes
         SMSG_GUILD_ROSTER                           = 0x1026,   ///< 6.0.3 19116
         SMSG_GUILD_ROSTER_UPDATE                    = 0x1265,   ///< 6.0.3 19116 (unused)
         SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x1046,   ///< 6.0.3 19116
-        SMSG_GUILD_SEND_MAX_DAILY_XP                = 0x0000,   ///< Debug opcode (disabled)
         SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x1846,   ///< 6.0.3 19116 (unused)
         SMSG_GUILD_REWARDS_LIST                     = 0x1818,   ///< 6.0.3 19116
         SMSG_GUILD_SEND_RANK_CHANGE                 = 0x1207,   ///< 6.0.3 19116
@@ -572,9 +570,6 @@ enum Opcodes
         SMSG_GUILD_EVENT_TAB_TEXT_CHANGED           = 0x1076,   ///< 6.0.3 19116
         SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED      = 0x1045,   ///< 6.0.3 19116
         SMSG_GUILD_EVENT_BANK_MONEY_CHANGED         = 0x1077,   ///< 6.0.3 19116
-
-        /// Misc
-        SMSG_GMGUILD_SAVE_RESPONSE                  = 0x0000,   ///< Debug opcode (disabled)
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -973,7 +968,6 @@ enum Opcodes
     CMSG_CREATE_CHARACTER                       = 0x070D,   ///< 6.0.3 19116
     CMSG_CHAR_DELETE                            = 0x030E,   ///< 6.0.3 19116
     CMSG_REORDER_CHARACTERS                     = 0x0DAA,   ///< 6.0.3 19116
-    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x19A9,   ///< 6.0.3 19116
     CMSG_PLAYER_LOGIN                           = 0x0B1D,   ///< 6.0.3 19116
     CMSG_VIOLENCE_LEVEL                         = 0x098D,   ///< 6.0.3 19116
     CMSG_LOAD_SCREEN                            = 0x0B08,   ///< 6.0.3 19116
@@ -1128,7 +1122,6 @@ enum Opcodes
     CMSG_SET_TRADE_CURRENCY                     = 0x0000,
     CMSG_SET_TRADE_GOLD                         = 0x064C,   ///< 6.0.3 19116
     CMSG_SET_TRADE_ITEM                         = 0x14A2,   ///< 6.0.3 19116
-    CMSG_TRADE_INFO                             = 0x0000,
     CMSG_CLEAR_TRADE_ITEM                       = 0x1149,   ///< 6.0.3 19116
     CMSG_ACCEPT_TRADE                           = 0x01E5,   ///< 6.0.3 19116
     CMSG_BUSY_TRADE                             = 0x00D5,   ///< 6.0.3 19116
@@ -1199,7 +1192,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Account data
     //////////////////////////////////////////////////////////////////////////
-    CMSG_READY_FOR_ACCOUNT_DATA_TIMES           = 0x0000,   ///<
+    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x19A9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Chat
@@ -1327,6 +1320,7 @@ enum Opcodes
     CMSG_INITIATE_ROLE_POLL                     = 0x1BA2,   ///< 6.0.3 19116
     CMSG_REQUEST_RAID_INFO                      = 0x0104,   ///< 6.0.3 19116
     CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0F3D,   ///< 6.0.3 19116
+    CMSG_CLEAR_RAID_MARKER                      = 0x1C9C,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -1426,17 +1420,17 @@ enum Opcodes
     CMSG_GUILD_SET_ACHIEVEMENT_TRACKING            = 0x1640,   ///< 6.0.3 19116 (unused)
     CMSG_GUILD_SET_MEMBER_NOTE                     = 0x1C27,   ///< 6.0.3 19116
     CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x166E,   ///< 6.0.3 19116
-    CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x0000,   ///<
+    CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x0A8E,   ///< 6.0.3 19116
     CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x028D,   ///< 6.0.3 19116
     CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x0000,   ///<
     CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x0000,   ///<  (unused)
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x0000,   ///<
     CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0E37,   ///< 6.0.3 19116
-    CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x0000,   ///<
+    CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x1625,   ///< 6.0.3 19116
     CMSG_GUILD_QUERY_NEWS                          = 0x0676,   ///< 6.0.3 19116
-    CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000,   ///<  (unused)
-    CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x0000,   ///<  (unused)
-    CMSG_QUERY_GUILD_RECIPES                       = 0x0000,   ///<
+    CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000,   ///< 6.0.3 19116 (unused)
+    CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x163D,   ///< 6.0.3 19116 (unused)
+    CMSG_QUERY_GUILD_RECIPES                       = 0x1438,   ///< 6.0.3 19116
     CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x00F6,   ///< 6.0.3 19116
 
     /// Guild finding
@@ -1536,14 +1530,14 @@ enum Opcodes
     /// GameMasters
     //////////////////////////////////////////////////////////////////////////
     CMSG_GMRESPONSE_RESOLVE                         = 0x0B20,    ///< 6.0.3 19116
-    CMSG_GMSURVEY_SUBMIT                            = 0x0000,    ///< 6.0.3 19116
+    CMSG_GMSURVEY_SUBMIT                            = 0x01AB,    ///< 6.0.3 19116
     CMSG_GMTICKET_CREATE                            = 0x0935,    ///< 6.0.3 19116
     CMSG_GMTICKET_DELETETICKET                      = 0x0F2E,    ///< 6.0.3 19116
     CMSG_GMTICKET_GETTICKET                         = 0x0B28,    ///< 6.0.3 19116
     CMSG_GMTICKET_GET_CASE_STATUS                   = 0x0F0A,    ///< 6.0.3 19116
     CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0B0E,    ///< 6.0.3 19116
     CMSG_GMTICKET_UPDATETEXT                        = 0x0323,    ///< 6.0.3 19116
-    CMSG_GM_REPORT_LAG                              = 0x0000,    ///< 6.0.3 19116
+    CMSG_GM_REPORT_LAG                              = 0x0101,    ///< 6.0.3 19116
     CMSG_REPORT_BUG                                 = 0x0B0D,    ///< 6.0.3 19116
     CMSG_REPORT_SUGGESTION                          = 0x0D0A,    ///< 6.0.3 19116
 
@@ -1559,7 +1553,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_CALENDAR_ADD_EVENT                         = 0x09A3,    ///< 6.0.3 19116
     CMSG_CALENDAR_COMPLAIN                          = 0x0D19,    ///< 6.0.3 19116
-    CMSG_CALENDAR_CONTEXT_EVENT_SIGNUP              = 0x0000,    ///< 6.0.3 19116
+    CMSG_CALENDAR_CONTEXT_EVENT_SIGNUP              = 0x0BAA,    ///< 6.0.3 19116
     CMSG_CALENDAR_COPY_EVENT                        = 0x0317,    ///< 6.0.3 19116
     CMSG_CALENDAR_EVENT_INVITE                      = 0x010E,    ///< 6.0.3 19116
     CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x118C,    ///< 6.0.3 19116
@@ -1617,7 +1611,6 @@ enum Opcodes
     CMSG_CHAR_RENAME                                    = 0x0000,
     CMSG_CHAT_FILTERED                                  = 0x0000,
     CMSG_CHAT_IGNORED                                   = 0x0000,
-    CMSG_CLEAR_RAID_MARKER                              = 0x0000,
     CMSG_COMMENTATOR_ENABLE                             = 0x0000,
     CMSG_COMMENTATOR_ENTER_INSTANCE                     = 0x0000,
     CMSG_COMMENTATOR_EXIT_INSTANCE                      = 0x0000,

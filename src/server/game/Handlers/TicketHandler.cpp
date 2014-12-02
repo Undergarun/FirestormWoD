@@ -181,28 +181,26 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
     CharacterDatabase.Execute(stmt);
 }
 
-void WorldSession::HandleReportLag(WorldPacket& recvData)
+void WorldSession::HandleReportLag(WorldPacket& p_RecvData)
 {
-    // just put the lag report into the database...
-    // can't think of anything else to do with it
-    uint32 lagType, mapId;
-    recvData >> lagType;
-    recvData >> mapId;
-    float x, y, z;
-    recvData >> x;
-    recvData >> y;
-    recvData >> z;
+    uint32 l_Type, l_MapID = 0;
+    p_RecvData >> l_Type;
+    p_RecvData >> l_MapID;
+    float l_X, l_Y, l_Z;
+    p_RecvData >> l_X;
+    p_RecvData >> l_Y;
+    p_RecvData >> l_Z;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
-    stmt->setUInt32(0, GUID_LOPART(GetPlayer()->GetGUID()));
-    stmt->setUInt8 (1, lagType);
-    stmt->setUInt16(2, mapId);
-    stmt->setFloat (3, x);
-    stmt->setFloat (4, y);
-    stmt->setFloat (5, z);
-    stmt->setUInt32(6, GetLatency());
-    stmt->setUInt32(7, time(NULL));
-    CharacterDatabase.Execute(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
+    l_Statement->setUInt32(0, GUID_LOPART(m_Player->GetGUID()));
+    l_Statement->setUInt8 (1, l_Type);
+    l_Statement->setUInt16(2, l_MapID);
+    l_Statement->setFloat (3, l_X);
+    l_Statement->setFloat (4, l_Y);
+    l_Statement->setFloat (5, l_Z);
+    l_Statement->setUInt32(6, GetLatency());
+    l_Statement->setUInt32(7, time(NULL));
+    CharacterDatabase.Execute(l_Statement);
 }
 
 void WorldSession::HandleGMResponseResolve(WorldPacket& /*p_RecvData*/)

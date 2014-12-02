@@ -573,7 +573,6 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& p_Packet)
 void WorldSession::HandleRequestGuildPartyState(WorldPacket& p_Packet)
 {
     uint64 l_GuildGUID = 0;
-
     p_Packet.readPackGUID(l_GuildGUID);
 
     if (Guild* l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGUID))
@@ -646,7 +645,6 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& p_Packet)
 
     p_Packet.readPackGUID(l_GuildGUID);
     p_Packet >> l_NewsID;
-
     l_Sticky = p_Packet.ReadBit();
 
     if (Guild* l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
@@ -690,7 +688,6 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& /*p_RecvData*/
 void WorldSession::HandleGuildRequestGuildRecipes(WorldPacket& p_Packet)
 {
     uint64 l_GuildGUID = 0;
-
     p_Packet.readPackGUID(l_GuildGUID);
 
     if (Guild* l_Guild = sGuildMgr->GetGuildByGuid(l_GuildGUID))
