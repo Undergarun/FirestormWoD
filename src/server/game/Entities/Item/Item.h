@@ -250,6 +250,15 @@ class Item : public Object
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
         bool IsEquipable() const { return GetTemplate()->InventoryType != INVTYPE_NON_EQUIP; }
 
+        bool IsSuitableForItemLevelCalulcation(bool p_IncludeOffHand) const
+        {  return (GetTemplate()->Class == ITEM_CLASS_WEAPON || GetTemplate()->Class == ITEM_CLASS_ARMOR) &&
+                  GetTemplate()->InventoryType != INVTYPE_NON_EQUIP &&
+                  GetTemplate()->InventoryType != INVTYPE_TABARD &&
+                  GetTemplate()->InventoryType != INVTYPE_RANGED &&
+                  GetTemplate()->InventoryType != INVTYPE_ROBE &&
+                  (!p_IncludeOffHand ||  GetTemplate()->InventoryType != INVTYPE_TABARD);
+        }
+
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
