@@ -190,13 +190,13 @@ class misc_commandscript : public CommandScript
             switch (l_GroupSize)
             {
             case 2:
-                l_ArenaType = ARENA_TYPE_2v2;
+                l_ArenaType = ArenaType::Arena2v2;
                 break;
             case 3:
-                l_ArenaType = ARENA_TYPE_3v3;
+                l_ArenaType = ArenaType::Arena3v3;
                 break;
             case 5:
-                l_ArenaType = ARENA_TYPE_5v5;
+                l_ArenaType = ArenaType::Arena5v5;
                 break;
             default:
                 p_Handler->PSendSysMessage("Groups are invalid.");

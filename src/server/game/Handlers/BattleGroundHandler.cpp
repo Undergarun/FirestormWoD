@@ -746,6 +746,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     sBattlegroundMgr->ScheduleQueueUpdate(l_MatchmakerRating, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
 }
 
+/// - WORK IN PROGRESS
 void WorldSession::HandleBattlemasterJoinArenaSkrimish(WorldPacket& p_Packet)
 {
     uint8 l_Roles;
