@@ -1888,39 +1888,13 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
 }
 
-void GameObject::SendCustomAnim(uint32 anim)
+void GameObject::SendCustomAnim(uint32 p_Anim)
 {
-    ObjectGuid guid = GetGUID();
-
-    WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
-
-    data.WriteBit(false);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(anim == 0);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-
-    if (anim)
-    {
-        data << uint32(anim);
-    }
-
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_Anim);
+    l_Data.WriteBit(p_Anim == 0);
+    SendMessageToSet(&l_Data, true);
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
@@ -2034,8 +2008,8 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
         data.appendPackGUID(GetGUID());
         data.appendPackGUID(attackerOrHealer->GetGUID());
         data.appendPackGUID(player->GetGUID());
-        data << uint32(-change);
-        data << uint32(spellId);
+        data << int32(-change);
+        data << int32(spellId);
         player->GetSession()->SendPacket(&data);
     }
 

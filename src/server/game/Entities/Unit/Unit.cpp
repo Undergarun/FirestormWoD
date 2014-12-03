@@ -14129,14 +14129,14 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     return NULL;
 }
 
-void Unit::SendMountResult(MountResult error)
+void Unit::SendMountResult(MountResult p_Error)
 {
     if (!ToPlayer())
         return;
 
-    WorldPacket data(SMSG_MOUNT_RESULT, 4);
-    data << uint32(error);
-    ToPlayer()->SendDirectMessage(&data);
+    WorldPacket l_Data(SMSG_MOUNT_RESULT, 4);
+    l_Data << uint32(p_Error);
+    ToPlayer()->SendDirectMessage(&l_Data);
 }
 
 void Unit::SetInCombatWith(Unit* enemy)
@@ -18501,23 +18501,10 @@ void Unit::SendDurabilityLoss(Player * p_Receiver, uint32 p_Percent)
 
 void Unit::PlayOneShotAnimKit(uint32 id)
 {
-    WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
-    ObjectGuid unitGuid = GetGUID();
-
-    uint8 bitsOrder[8] = { 4, 5, 7, 2, 1, 6, 0, 3 };
-    data.WriteBitInOrder(unitGuid, bitsOrder);
-
-    data.WriteByteSeq(unitGuid[3]);
-    data.WriteByteSeq(unitGuid[1]);
-    data.WriteByteSeq(unitGuid[7]);
-    data << uint16(id);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(unitGuid[2]);
-    data.WriteByteSeq(unitGuid[5]);
-    data.WriteByteSeq(unitGuid[6]);
-    data.WriteByteSeq(unitGuid[0]);
-
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(id);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)
@@ -19647,48 +19634,16 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
     }
 
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
-
-    l_Data.WriteBit(l_Guid[7]);
-    l_Data.WriteBit(l_Target[6]);
-    l_Data.WriteBit(l_Target[5]);
-    l_Data.WriteBit(l_Guid[3]);
-    l_Data.WriteBit(l_Guid[0]);
-    l_Data.WriteBit(l_Guid[6]);
-    l_Data.WriteBit(l_Target[2]);
-    l_Data.WriteBit(p_SpeedAsTime);
-    l_Data.WriteBit(l_Guid[5]);
-    l_Data.WriteBit(l_Target[1]);
-    l_Data.WriteBit(l_Target[0]);
-    l_Data.WriteBit(l_Guid[1]);
-    l_Data.WriteBit(l_Guid[4]);
-    l_Data.WriteBit(l_Target[4]);
-    l_Data.WriteBit(l_Target[7]);
-    l_Data.WriteBit(l_Target[3]);
-    l_Data.WriteBit(l_Guid[2]);
-
-    l_Data.WriteByteSeq(l_Guid[4]);
-    l_Data.WriteByteSeq(l_Target[0]);
-    l_Data << float(l_Pos.m_positionY);
-    l_Data.WriteByteSeq(l_Target[6]);
-    l_Data << float(l_Pos.m_positionZ);
-    l_Data << float(p_Speed);
-    l_Data.WriteByteSeq(l_Guid[0]);
-    l_Data << uint32(p_ID);         // spellVisualID
-    l_Data.WriteByteSeq(l_Guid[3]);
-    l_Data.WriteByteSeq(l_Target[3]);
-    l_Data << uint16(0);            // missReason
-    l_Data.WriteByteSeq(l_Guid[7]);
-    l_Data << uint16(0);            // reflectStatus
-    l_Data.WriteByteSeq(l_Target[5]);
-    l_Data.WriteByteSeq(l_Target[2]);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data.appendPackGUID(p_Target ? p_Target->GetGUID() : 0);
     l_Data << float(l_Pos.m_positionX);
-    l_Data.WriteByteSeq(l_Target[4]);
-    l_Data.WriteByteSeq(l_Target[1]);
-    l_Data.WriteByteSeq(l_Guid[2]);
-    l_Data.WriteByteSeq(l_Target[7]);
-    l_Data.WriteByteSeq(l_Guid[5]);
-    l_Data.WriteByteSeq(l_Guid[6]);
-    l_Data.WriteByteSeq(l_Guid[1]);
+    l_Data << float(l_Pos.m_positionY);
+    l_Data << float(l_Pos.m_positionZ);
+    l_Data << uint32(p_ID);         // spellVisualID
+    l_Data << float(p_Speed);
+    l_Data << uint16(0);            // missReason
+    l_Data << uint16(0);            // reflectStatus
+    l_Data.WriteBit(p_SpeedAsTime);
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession())
         ToPlayer()->GetSession()->SendPacket(&l_Data);
@@ -21693,6 +21648,7 @@ bool Unit::SetWalk(bool enable)
 
     return true;
 }
+
 bool Unit::SetFall(bool enable)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
@@ -21708,6 +21664,7 @@ bool Unit::SetFall(bool enable)
 
     return true;
 }
+
 bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
 {
     if (disable == IsLevitating())
@@ -21752,13 +21709,15 @@ void Unit::SendMovementHover(bool apply)
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetHover(HasUnitMovementFlag(MOVEMENTFLAG_HOVER));
 
-    if (apply)
-    {
-        WorldPacket data(MSG_MOVE_HOVER, 64);
-        data.append(GetPackGUID());
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
-    }
+    WorldPacket l_Data;
+
+    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 8);
+    else
+        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 8);
+
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
 void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
@@ -21791,10 +21750,15 @@ void Unit::SendMovementWaterWalking()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
 
-    WorldPacket data(MSG_MOVE_WATER_WALK, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data;
+
+    if (HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 8);
+    else
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 8);
+
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
 void Unit::SendMovementFeatherFall()
@@ -21802,88 +21766,54 @@ void Unit::SendMovementFeatherFall()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
 
-    WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
+    WorldPacket l_Data;
+
+    if (HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
+    else
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 8);
+
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
 }
 
-void Unit::SendMovementGravityChange()
-{
-    WorldPacket data(MSG_MOVE_GRAVITY_CHNG, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-}
-
 void Unit::SendMovementCanFlyChange()
 {
-    /*!
-        if ( a3->MoveFlags & MOVEMENTFLAG_CAN_FLY )
-        {
-            v4->MoveFlags |= 0x1000000u;
-            result = 1;
-        }
-        else
-        {
-            if ( v4->MoveFlags & MOVEMENTFLAG_FLYING )
-                CMovement::DisableFlying(v4);
-            v4->MoveFlags &= 0xFEFFFFFFu;
-            result = 1;
-        }
-    */
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetCanFly(CanFly());
 
-    WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    WorldPacket l_Data;
+
+    if (CanFly())
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLYING, 8);
+    else
+        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_FLYING, 8);
+
+    l_Data.appendPackGUID(GetGUID());
+    SendMessageToSet(&l_Data, false);
 }
 
-void Unit::SendCanTurnWhileFalling(bool apply)
+void Unit::SendCanTurnWhileFalling(bool p_Apply)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid targetGuid = GetGUID();
-    WorldPacket data;
+    WorldPacket l_Data;
 
-    if (apply)
+    if (p_Apply)
     {
-        data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
-
-        uint8 bits[8] = { 3, 0, 5, 1, 7, 6, 4, 2 };
-        data.WriteBitInOrder(targetGuid, bits);
-
-        data.WriteByteSeq(targetGuid[3]);
-        data.WriteByteSeq(targetGuid[0]);
-        data.WriteByteSeq(targetGuid[6]);
-        data.WriteByteSeq(targetGuid[5]);
-        data.WriteByteSeq(targetGuid[1]);
-        data.WriteByteSeq(targetGuid[7]);
-        data << uint32(0);  // Movement counter
-        data.WriteByteSeq(targetGuid[4]);
-        data.WriteByteSeq(targetGuid[2]);
+        l_Data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);  // Movement counter
     }
     else
     {
-        data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
-
-        uint8 bits[8] = { 6, 2, 0, 3, 5, 4, 1, 7 };
-        data.WriteBitInOrder(targetGuid, bits);
-
-        data.WriteByteSeq(targetGuid[5]);
-        data.WriteByteSeq(targetGuid[6]);
-        data << uint32(0);  // Movement counter
-        data.WriteByteSeq(targetGuid[2]);
-        data.WriteByteSeq(targetGuid[4]);
-        data.WriteByteSeq(targetGuid[0]);
-        data.WriteByteSeq(targetGuid[7]);
-        data.WriteByteSeq(targetGuid[3]);
-        data.WriteByteSeq(targetGuid[1]);
+        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);  // Movement counter
     }
 
-    ToPlayer()->GetSession()->SendPacket(&data);
+    ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 bool Unit::IsSplineEnabled() const

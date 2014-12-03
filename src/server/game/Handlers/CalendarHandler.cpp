@@ -537,12 +537,11 @@ void WorldSession::HandleCalendarComplain(WorldPacket& p_RecvData)
 
 void WorldSession::HandleCalendarGetNumPending(WorldPacket& /*p_RecvData*/)
 {
-    /*ObjectGuid guid = _player->GetGUID();
-    uint32 pending = sCalendarMgr->GetPlayerNumPending(guid);
+    uint32 l_Pending = sCalendarMgr->GetPlayerNumPending(m_Player->GetGUID());
 
-    WorldPacket data(SMSG_CALENDAR_SEND_NUM_PENDING, 4);
-    data << uint32(pending);
-    SendPacket(&data);*/
+    WorldPacket l_Data(SMSG_CALENDAR_SEND_NUM_PENDING, 4);
+    l_Data << uint32(l_Pending);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& p_RecvData)

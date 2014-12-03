@@ -2010,7 +2010,6 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        void SendInitialSpells();
         bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
@@ -3170,7 +3169,6 @@ class Player : public Unit, public GridObject<Player>
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
-        void SendTokenResponse();
         void SendRefreshSpellMods();
 
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
