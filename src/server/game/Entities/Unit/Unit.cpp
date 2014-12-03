@@ -19950,9 +19950,14 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 return 38150;
 
             bool kingOfTheJungle = HasAura(102543);
+            bool clawsOfShirvallah = HasAura(171745); // Claws of Shirvallah
+
             // Based on Hair color
             if (getRace() == RACE_NIGHTELF)
             {
+                if (clawsOfShirvallah)
+                    return 55887; // Panther
+
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
                 switch (hairColor)
                 {
@@ -19998,6 +20003,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
             else if (getRace() == RACE_TROLL)
             {
+                if (clawsOfShirvallah)
+                    return 55889; // Tiger
+
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
                 switch (hairColor)
                 {
@@ -20045,6 +20053,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
             else if (getRace() == RACE_WORGEN)
             {
+                if (clawsOfShirvallah)
+                    return 55888; // Snowleopard
+
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
                 // Male
@@ -20140,6 +20151,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Based on Skin color
             else if (getRace() == RACE_TAUREN)
             {
+                if (clawsOfShirvallah)
+                    return 55886; // Lion
+
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
                 // Male
                 if (getGender() == GENDER_MALE)

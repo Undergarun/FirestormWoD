@@ -43,35 +43,39 @@ class spell_dru_yseras_gift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_yseras_gift_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (!l_Caster->IsFullHealth())
                 {
-                    if (!caster->IsFullHealth())
-                        caster->CastSpell(caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
-                    else
+                    int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, &l_HealAmount, NULL, NULL, true);
+                }
+                else
+                {
+                    std::list<Unit*> l_Party;
+
+                    l_Caster->GetPartyMembers(l_Party);
+                    for (auto itr : l_Party)
                     {
-                        std::list<Unit*> party;
-                        caster->GetPartyMembers(party);
-
-                        if (party.empty())
-                            return;
-
-                        std::list<Unit*> tempList;
-                        for (auto itr : party)
-                        {
-                            if (itr->IsFullHealth() || itr->GetDistance(caster) >= 40.0f)
-                                continue;
-
-                            tempList.push_back(itr);
-                        }
-
-                        if (tempList.empty())
-                            return;
-
-                        tempList.sort(JadeCore::HealthPctOrderPred());
-                        caster->CastSpell(tempList.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, true);
+                        if (itr->IsFullHealth() || itr->GetDistance(l_Caster) >= 40.0f)
+                            l_Party.remove(itr);
                     }
+
+                    if (l_Party.empty())
+                        return;
+
+                    if (l_Party.size() > 1)
+                    {
+                        l_Party.sort(JadeCore::HealthPctOrderPred());
+                        l_Party.resize(1); // Just to be sure
+                    }
+
+                    int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
+                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
                 }
             }
 

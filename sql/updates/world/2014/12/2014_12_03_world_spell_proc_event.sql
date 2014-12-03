@@ -1,0 +1,3 @@
+-- (159286) Primal Fury
+DELETE FROM `spell_proc_event` WHERE `entry` IN (159286);
+INSERT INTO `spell_proc_event` VALUES (159286, 0x02, 0x07, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00015410, 0x00000002, 0, 100, 0);
