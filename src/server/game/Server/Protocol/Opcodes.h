@@ -319,7 +319,7 @@ enum Opcodes
         SMSG_BATTLEFIELD_STATUS_FAILED                      = 0x0308,   ///< 6.0.3 19116
         SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS             = 0x082D,   ///< 6.0.3 19116
         SMSG_BATTLEFIELD_PORT_DENIED                        = 0x0930,   ///< 6.0.3 19116 (unused)
-        SMSG_BATTLEFIELD_RATED_INFO                         = 0x1F0A,   ///< 6.0.3 19116
+        SMSG_RATED_BATTLEFIELD_INFO                         = 0x1F0A,   ///< 6.0.3 19116
         SMSG_BATTLEGROUND_PLAYER_JOINED                     = 0x13EA,   ///< 6.0.3 19116
         SMSG_BATTLEGROUND_PLAYER_LEFT                       = 0x1BD1,   ///< 6.0.3 19116
         SMSG_BATTLEGROUND_PLAYER_POSITIONS                  = 0x1BE9,   ///< 6.0.3 19116
