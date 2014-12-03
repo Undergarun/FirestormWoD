@@ -129,7 +129,7 @@ class spell_dk_death_barrier : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    amount += caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
+                    amount += caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f;
                     amount = int32(caster->SpellDamageBonusDone(GetUnitOwner(), sSpellMgr->GetSpellInfo(DK_SPELL_DEATH_COIL_DAMAGE), amount, aurEff->GetEffIndex(), SPELL_DIRECT_DAMAGE));
                 }
             }

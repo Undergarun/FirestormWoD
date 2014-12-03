@@ -3733,7 +3733,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
     int32 playerWeaponMask = 0;
 
-    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
         if (!tmpitem || tmpitem->IsBroken() || !tmpitem->GetTemplate())

@@ -348,7 +348,7 @@ class spell_monk_storm_earth_and_fire_stats : public SpellScriptLoader
                     return;
 
                 if (Unit* owner = GetCaster()->GetOwner())
-                    amount = owner->GetTotalAttackPowerValue(BASE_ATTACK);
+                    amount = owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
             }
 
             void CalculateHaste(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
@@ -1487,7 +1487,7 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
 
                 if (Player* _plr = GetCaster()->ToPlayer())
                 {
-                    uint32 value = _plr->GetTotalAttackPowerValue(BASE_ATTACK) * 16;
+                    uint32 value = _plr->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 16;
 
                     damageDealed += data;
 
@@ -1577,7 +1577,7 @@ class spell_monk_guard : public SpellScriptLoader
 
                 if (caster->GetTypeId() == TYPEID_PLAYER)
                 {
-                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.971f);
 
                     if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
@@ -1588,7 +1588,7 @@ class spell_monk_guard : public SpellScriptLoader
                 // For Black Ox Statue
                 else if (Unit* player = GetCaster()->GetOwner())
                 {
-                    amount += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += int32(player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.971f);
 
                     if (player->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);

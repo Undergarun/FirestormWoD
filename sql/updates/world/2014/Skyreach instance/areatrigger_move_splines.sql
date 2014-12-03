@@ -40,3 +40,5 @@ INSERT INTO areatrigger_move_splines VALUES ('515', '18', '3.786', '-4.871', '0'
 INSERT INTO areatrigger_move_splines VALUES ('515', '19', '0.108', '0.004', '0');
 INSERT INTO areatrigger_move_splines VALUES ('515', '20', '0', '0', '0');
 INSERT INTO areatrigger_move_splines VALUES ('515', '21', '0', '0', '0');
+
+UPDATE areatrigger_move_splines SET path_y=-path_y WHERE move_curve_id=463;

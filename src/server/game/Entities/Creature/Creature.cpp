@@ -405,9 +405,9 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, l_NpcFlag2);
     SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, l_CreatureTemplate->WorldEffectID);
 
-    SetAttackTime(BASE_ATTACK,  l_CreatureTemplate->baseattacktime);
-    SetAttackTime(OFF_ATTACK,   l_CreatureTemplate->baseattacktime);
-    SetAttackTime(RANGED_ATTACK, l_CreatureTemplate->rangeattacktime);
+    SetAttackTime(WeaponAttackType::BaseAttack,  l_CreatureTemplate->baseattacktime);
+    SetAttackTime(WeaponAttackType::OffAttack,   l_CreatureTemplate->baseattacktime);
+    SetAttackTime(WeaponAttackType::RangedAttack, l_CreatureTemplate->rangeattacktime);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, l_UnitFlags1);
     SetUInt32Value(UNIT_FIELD_FLAGS2, l_UnitFlags2);
@@ -1381,14 +1381,14 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MAXDAMAGE, weaponBaseMaxDamage);
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);

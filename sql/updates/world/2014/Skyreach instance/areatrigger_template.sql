@@ -8,7 +8,7 @@ insert into areatrigger_template values ('160935', '0', '6743', '257', '5', '5',
 
 insert into areatrigger_template values ('166623', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '');
 insert into areatrigger_template values ('166664', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '');
-
+insert into areatrigger_template values ('152973', '0', '0', '0', '1', '1', '4096', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '');
 
 update areatrigger_template set eff_index=1 where spell_id=153905;
 
@@ -33,6 +33,7 @@ UPDATE areatrigger_template SET ScriptName='at_vileblood_serum' WHERE spell_id=1
 UPDATE areatrigger_template SET ScriptName='at_noxious_spit' WHERE spell_id=161827;
 UPDATE areatrigger_template SET ScriptName='at_zen_sphere_1' WHERE spell_id=115460;
 UPDATE areatrigger_template SET ScriptName='at_zen_sphere_2' WHERE spell_id=119031;
+UPDATE areatrigger_template SET ScriptName='at_ProtectiveBarrier' WHERE spell_id=152973;
 
 UPDATE areatrigger_template SET ScriptName='at_solar_zone' WHERE spell_id=160935;
 update areatrigger_template set ScriptName='at_spinning_blade' where spell_id=153535;
@@ -54,3 +55,6 @@ update areatrigger_template set ScriptName='at_FourWinds' where spell_id=156634;
 update areatrigger_template set ScriptName='at_FourWinds' where spell_id=156636;
 
 update areatrigger_template set ScriptName='at_SolarStorm' where spell_id=159221;
+
+update areatrigger_template set ScriptName='at_Smash' where spell_id=154110;
+update areatrigger_template set ScriptName='at_Smash' where spell_id=154113;

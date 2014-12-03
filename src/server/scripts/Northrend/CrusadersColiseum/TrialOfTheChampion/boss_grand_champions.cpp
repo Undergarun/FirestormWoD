@@ -1009,7 +1009,7 @@ public:
 
             // Settings for offhand attack
             DoCast(me, SPELL_DUAL_WIELD, true);
-            me->SetAttackTime(OFF_ATTACK, 1400);
+            me->SetAttackTime(WeaponAttackType::OffAttack, 1400);
             me->SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, IsHeroic() ? 5000.0f : 3000.0f);
             me->SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, IsHeroic() ? 6000.0f : 4000.0f);
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
