@@ -25,6 +25,7 @@
 #include "ObjectDefines.h"
 #include "ByteBuffer.h"
 #include "Unit.h"
+#include "AchievementMgr.h"
 
 class Creature;
 class GameObject;

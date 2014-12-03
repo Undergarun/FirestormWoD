@@ -177,10 +177,10 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     , m_vehicle(NULL)
     , m_vehicleKit(NULL)
     , m_unitTypeMask(UNIT_MASK_NONE)
-    , m_HostileRefManager(this)
-    , _lastDamagedTime(0)
     , m_disableHealthRegen(false)
     , m_disableEnterEvadeMode(false)
+    , m_HostileRefManager(this)
+    , _lastDamagedTime(0)
 
 {
 #ifdef _MSC_VER
@@ -5744,7 +5744,7 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
 
 bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo(); //@todo hasteSpell is unused variable
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -10175,7 +10175,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         {
             uint32 health = CountPctFromMaxHealth(2);
 
-            if (damage < 0 && damage < health && !(procFlags & PROC_FLAG_KILL))
+            if (damage < 0 && damage < health && !(procFlags & PROC_FLAG_KILL)) //@todo Comparison of unsigned expression < 0 is always false
                 return false;
 
             break;

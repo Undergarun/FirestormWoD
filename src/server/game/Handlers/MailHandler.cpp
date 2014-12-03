@@ -258,7 +258,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             //TODO: character guid
             sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                             rc_account, "", 0, l_Target.c_str(),
-                            "GM %s (Account: %u) mail money: %u to player: %s (Account: %u)",
+                            "GM %s (Account: %u) mail money: %lu to player: %s (Account: %u)",
                             GetPlayerName().c_str(), GetAccountId(), l_SendMoney, l_Target.c_str(), rc_account);
         }
     }
@@ -464,7 +464,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& p_Packet)
                 }
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                                 sender_accId, "", sender_guid, sender_name.c_str(),
-                                "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
+                                "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %lu to player: %s (Account: %u)",
                                 GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount(), l_Mail->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receive)

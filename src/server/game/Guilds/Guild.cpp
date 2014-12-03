@@ -1924,11 +1924,11 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     // Remove money from player
     player->ModifyMoney(-int64(amount));
     player->SaveGoldToDB(trans);
-    // Log GM action (TODO: move to scripts)
+    // Log GM action (@TODO: move to scripts)
     if (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(), "", player->GetGUIDLow(), player->GetName(), 0, "", 0, "",
-                        "GM %s (Account: %u) deposit money (Amount: %u) to guild bank (Guild ID %u)",
+                        "GM %s (Account: %u) deposit money (Amount: %lu) to guild bank (Guild ID %u)",
                         player->GetName(), player->GetSession()->GetAccountId(), amount, m_id);
     }
     // Log guild bank event

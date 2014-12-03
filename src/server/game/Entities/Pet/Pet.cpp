@@ -35,8 +35,8 @@
 
 Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner, true),
 m_removed(false), m_owner(owner),
-m_petType(type), m_duration(0), m_specialization(0),
-m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
+m_petType(type), m_duration(0), m_auraRaidUpdateMask(0),
+m_loading(false), m_specialization(0), m_declinedname(NULL)
 {
     m_unitTypeMask |= UNIT_MASK_PET;
     if (type == HUNTER_PET)
@@ -863,7 +863,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (l_PetType == HUNTER_PET)
     {
-        if (CreatureModelInfo const* l_CreatureModelInfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
+        if (sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
         {
             SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, m_owner->GetFloatValue(UNIT_FIELD_BOUNDING_RADIUS));
             SetFloatValue(UNIT_FIELD_COMBAT_REACH, m_owner->GetFloatValue(UNIT_FIELD_COMBAT_REACH));
