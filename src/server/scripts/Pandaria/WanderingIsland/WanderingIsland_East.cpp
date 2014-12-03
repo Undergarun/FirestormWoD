@@ -4,6 +4,9 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+#define QUEST_SPIRIT_OF_WATER 29678
+#define QUEST_A_NEW_FRIEND    29679
+
 class AreaTrigger_at_bassin_curse : public AreaTriggerScript
 {
     public:
@@ -142,15 +145,18 @@ class spell_rock_jump: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
+                    if (!caster->ToPlayer() || caster->ToPlayer()->GetQuestStatus(29678) != QUEST_STATUS_INCOMPLETE)
+                        return;
+
                     if (caster->GetPositionZ() < 90.0f)
-                        caster->GetMotionMaster()->MoveJump(1045.36f, 2848.47f, 91.38f, 10.0f, 10.0f);
+                        caster->GetMotionMaster()->MoveJump(1045.36f, 2848.47f, 91.38f, 20.0f, 10.0f, 10.0f);
                     else if (caster->GetPositionZ() < 92.0f)
-                        caster->GetMotionMaster()->MoveJump(1054.42f, 2842.65f, 92.96f, 10.0f, 10.0f);
+                        caster->GetMotionMaster()->MoveJump(1054.42f, 2842.65f, 92.96f, 20.0f, 10.0f, 10.0f);
                     else if (caster->GetPositionZ() < 94.0f)
-                        caster->GetMotionMaster()->MoveJump(1063.66f, 2843.49f, 95.50f, 10.0f, 10.0f);
+                        caster->GetMotionMaster()->MoveJump(1063.66f, 2843.49f, 95.50f, 20.0f, 10.0f, 10.0f);
                     else
                     {
-                        caster->GetMotionMaster()->MoveJump(1078.42f, 2845.07f, 95.16f, 10.0f, 10.0f);
+                        caster->GetMotionMaster()->MoveJump(1078.42f, 2845.07f, 95.16f, 20.0f, 10.0f, 10.0f);
 
                         if (caster->ToPlayer())
                             caster->ToPlayer()->KilledMonsterCredit(57476);
@@ -263,7 +269,7 @@ public:
                     }
                     while (newPlace == actualPlace);
 
-                    me->GetMotionMaster()->MoveJump(rocksPos[newPlace].GetPositionX(), rocksPos[newPlace].GetPositionY(), rocksPos[newPlace].GetPositionZ(), 10.0f, 10.0f, 1);
+                    me->GetMotionMaster()->MoveJump(rocksPos[newPlace].GetPositionX(), rocksPos[newPlace].GetPositionY(), rocksPos[newPlace].GetPositionZ(), 10.0f, 10.0f, 10.0f, 1);
                     me->AddAura(SPELL_WATER_SPOUT_WARNING, me); // Just visual
                     actualPlace = newPlace;
                     break;
@@ -728,6 +734,70 @@ public:
     }
 };
 
+
+class npc_ji_firepaw_killcredit : public CreatureScript
+{
+    public:
+        npc_ji_firepaw_killcredit() : CreatureScript("npc_ji_firepaw_killcredit") { }
+
+        struct npc_ji_firepaw_killcreditAI : public ScriptedAI
+        {
+            npc_ji_firepaw_killcreditAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            uint64 m_CheckTimer;
+
+            void Reset()
+            {
+                m_CheckTimer = 2000;
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (m_CheckTimer)
+                {
+                    if (m_CheckTimer <= p_Diff)
+                    {
+                        std::list<Player*> l_PlayerList;
+                        GetPlayerListInGrid(l_PlayerList, me, 15.0f);
+
+                        for (Player* l_Player : l_PlayerList)
+                        {
+                            if (l_Player->GetQuestStatus(29680) == QUEST_STATUS_INCOMPLETE && l_Player->GetQuestObjectiveCounter(276325) < 1)
+                                l_Player->KilledMonsterCredit(57710);
+                        }
+
+                        m_CheckTimer = 1500;
+                    }
+                    else
+                        m_CheckTimer -= p_Diff;
+                }
+            }
+
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_ji_firepaw_killcreditAI(creature);
+        }
+};
+
+class playerScript_AutoAcceptQuest : public PlayerScript
+{
+    public:
+        playerScript_AutoAcceptQuest() : PlayerScript("playerScript_AutoAcceptQuest") { }
+
+        void OnQuestReward(Player* p_Player, const Quest* p_Quest)
+        {
+            if (p_Quest->GetQuestId() == QUEST_SPIRIT_OF_WATER)
+            {
+                if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_A_NEW_FRIEND))
+                    p_Player->AddQuest(l_Quest, nullptr);
+            }
+        }
+};
+
 void AddSC_WanderingIsland_East()
 {
     new AreaTrigger_at_bassin_curse();
@@ -740,4 +810,6 @@ void AddSC_WanderingIsland_East()
     new npc_nourished_yak();
     new npc_water_spirit_dailo();
     new mob_delivery_cart_tender();
+    new npc_ji_firepaw_killcredit();
+    new playerScript_AutoAcceptQuest();
 }
