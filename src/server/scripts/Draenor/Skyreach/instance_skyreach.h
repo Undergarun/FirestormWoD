@@ -74,7 +74,7 @@ namespace MS
         {
             SKYREACH_ARCANALOGIST = 76376,
             SKYREACH_SOLAR_CONSTRUCTOR = 76142,
-            YOUNG_KALIRI = 76121,
+            YoungKaliri = 76121,
             SKYREACH_RAVEN_WHISPERER = 76154,
             SOLAR_FLARE = 76227,
             PILE_OF_ASHES = 79505,

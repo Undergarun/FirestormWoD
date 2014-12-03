@@ -104,7 +104,15 @@ namespace MS
                     case MobEntries::SKYREACH_RAVEN_WHISPERER:
                         m_SkyreachRavenWhispererGuid = p_Creature->GetGUID();
                         break;
-                    case MobEntries::YOUNG_KALIRI:
+                    case MobEntries::YoungKaliri:
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->setFaction(16);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        break;
                     case MobEntries::Kaliri:
                     case MobEntries::Kaliri2:
                         // Setting fly.

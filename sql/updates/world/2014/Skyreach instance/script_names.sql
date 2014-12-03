@@ -23,6 +23,7 @@ update creature_template set ScriptName='mob_SolarMagnifier' where entry=77559;
 update creature_template set ScriptName='mob_WhirlingDervish' where entry=79469;
 update creature_template set ScriptName='mob_DefenseConstruct' where entry=76087;
 update creature_template set ScriptName='mob_RadiantSupernova' where entry=79463;
+update creature_template set ScriptName='mob_YoungKaliri' where entry=76121;
 
 INSERT INTO spell_script_names VALUES ('154140', 'spell_Energize');
 INSERT INTO spell_script_names VALUES ('153544', 'spell_SpinningBlade');
