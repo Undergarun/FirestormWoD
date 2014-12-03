@@ -2482,9 +2482,9 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-            if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
-            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
-                l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
         }
 
         void Register()
@@ -2499,8 +2499,39 @@ public:
     }
 };
 
+// Angelic Feather - 121536
+class spell_pri_angelic_feather : public SpellScriptLoader
+{
+public:
+    spell_pri_angelic_feather() : SpellScriptLoader("spell_pri_angelic_feather") {}
+
+    class spell_pri_angelic_feather_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_angelic_feather_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit *l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, 158624, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_angelic_feather_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_angelic_feather_SpellScript();
+    }
+};
+
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
     new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
