@@ -126,7 +126,9 @@ enum PriestSpells
     PRIEST_SPELL_SAVING_GRACE                       = 155274,
     PRIEST_SPELL_CLARITY_OF_POWER                   = 155246,
     PRIEST_SPELL_SPIRIT_SHELL_AURA                  = 109964,
-    PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908
+    PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908,
+    PRIEST_SPELL_HALO_AREA_DAMAGE                   = 120644,
+    PRIEST_SPELL_HALO_AREA_HEAL                     = 120517
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -1710,8 +1712,8 @@ class spell_pri_halo_heal : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    if (Unit*   l_Target = GetHitUnit())
+                if (Unit* l_Player = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
                         if (l_Target->IsFriendlyTo(l_Player))
                         {
                             int32 l_Heal = GetHitHeal();
@@ -1752,8 +1754,7 @@ class spell_pri_halo_damage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
+                if (Unit* l_Player = GetCaster()->ToPlayer())
                     if (Unit*   l_Target = GetHitUnit())
                         if (!l_Target->IsFriendlyTo(l_Player))
                         {
@@ -1764,7 +1765,6 @@ class spell_pri_halo_damage : public SpellScriptLoader
                             
                             SetHitDamage(l_Damage);
                         }
-                }
             }
 
             void Register()
@@ -1792,36 +1792,32 @@ public:
 
         void HandleOnHit()
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            if (Unit* l_Player = GetCaster())
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
                     std::list<Creature*> l_TempListCreature;
                     std::list<Player*> l_TempListPlayer;
-                    AreaTrigger* l_Area;
 
-                    if (GetSpellInfo()->Id == 120644)
-                        l_Area = l_Player->GetAreaTrigger(120644);
-                    else if (GetSpellInfo()->Id == 120517)
-                        l_Area = l_Player->GetAreaTrigger(120517);
+                    AreaTrigger* l_Area = l_Player->GetAreaTrigger(GetSpellInfo()->Id);
 
                     if (l_Area)
                     {
-                        l_Area->GetCreatureListInGrid(l_TempListCreature, 30.0f);
+                        l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
                         for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                         {
-                            if (GetSpellInfo()->Id == 120644 && !(*i)->IsFriendlyTo(l_Player))
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player))
                                 l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                            if (GetSpellInfo()->Id == 120517 && (*i)->IsFriendlyTo(l_Player))
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
                                 l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
                         }
 
-                        l_Area->GetPlayerListInGrid(l_TempListPlayer, 30.0f);
+                        l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
                         for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                         {
-                            if (GetSpellInfo()->Id == 120644 && (*i)->IsHostileTo(l_Player))
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && (*i)->IsHostileTo(l_Player))
                                 l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                            if (GetSpellInfo()->Id == 120517 && (*i)->IsFriendlyTo(l_Player))
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
                                 l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
                         }
                     }
@@ -1853,7 +1849,7 @@ class spell_pri_leap_of_faith : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* _player = GetCaster())
                     if (Unit* target = GetHitUnit())
                         target->CastSpell(_player, PRIEST_LEAP_OF_FAITH_JUMP, true);
             }
@@ -2502,7 +2498,6 @@ public:
         return new spell_pri_surge_of_darkness_SpellScript();
     }
 };
-
 
 void AddSC_priest_spell_scripts()
 {
