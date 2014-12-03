@@ -235,16 +235,16 @@ public:
     }
     uint32 GetMid() const
     {
-        return (GetHi() >> 6) & 0x3FFFFF;
+        return (GetHi() >> 6) & 0x7FFFFF;
     }
     void Make(Guid128Type p_Type, uint32 p_RealmID, uint32 p_Entry, uint64 p_ID)
     {
 #if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
-        m_Data[1] = (uint64(p_Type) << 58) | (uint64(p_RealmID) << 32) | (uint64(p_Entry) << 6);
+        m_Data[1] = (uint64(p_Type) << 58) | (uint64(p_RealmID & 0xFFFF) << 42) | (uint64(p_Entry & 0x7FFFFF) << 6);
         m_Data[0] = p_ID;
 #else
         m_Data[1] = p_ID;
-        m_Data[0] = (uint64(p_Type) << 58) | (uint64(p_RealmID) << 32) | (uint64(p_Entry) << 6);
+        m_Data[0] = (uint64(p_Type) << 58) | (uint64(p_RealmID & 0xFFFF) << 42) | (uint64(p_Entry & 0x7FFFFF) << 6);
 #endif
     }
 

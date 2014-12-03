@@ -2010,7 +2010,6 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        void SendInitialSpells();
         bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
@@ -3170,7 +3169,6 @@ class Player : public Unit, public GridObject<Player>
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
-        void SendTokenResponse();
         void SendRefreshSpellMods();
 
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
@@ -3735,7 +3733,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
     int32 playerWeaponMask = 0;
 
-    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
         if (!tmpitem || tmpitem->IsBroken() || !tmpitem->GetTemplate())

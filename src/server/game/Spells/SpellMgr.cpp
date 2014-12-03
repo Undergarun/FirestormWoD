@@ -3445,22 +3445,21 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
-            case 45470:
+            case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
-            // Lava Surge
-            case 77756:
+            case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
-            // Magma Totem Passive
-            case 8188:
-            // Healing Streams
-            case 5672:
-            // Healing Tide
-            case 114941:
+            case 8188:  // Magma Totem Passive
+            case 5672:  // Healing Streams
+            case 114941:// Healing Tide
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+                break;
+            case 154150:// Energize
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
@@ -3568,6 +3567,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 165376:// Enlightenment
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
             case 139834:// Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
@@ -4133,7 +4134,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
-            case 154179: // Energize (Skyreach)
+            case 152973: // Protective Barrier (Skyreach)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 156634: // Four winds (Skyreach)
             case 156636: // Four winds (Skyreach)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;

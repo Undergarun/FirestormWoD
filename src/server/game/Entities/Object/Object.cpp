@@ -2717,11 +2717,11 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
+void WorldObject::SendObjectDeSpawnAnim(uint64 p_Guid)
 {
-    WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
-    data << uint64(guid);
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 8);
+    l_Data.appendPackGUID(p_Guid);
+    SendMessageToSet(&l_Data, true);
 }
 
 void WorldObject::SetMap(Map* map)

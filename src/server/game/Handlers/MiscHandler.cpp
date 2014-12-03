@@ -754,7 +754,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
 
     l_Stmt->setString(0, l_IgnoreName);
 
-    _addIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
+    m_AddIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
@@ -934,23 +934,6 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
         return;
 
     GetPlayer()->ResurectUsingRequestData();
-}
-
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
-{
-    va_list ap;
-    char szStr [1024];
-    szStr[0] = '\0';
-
-    va_start(ap, Text);
-    vsnprintf(szStr, 1024, Text, ap);
-    va_end(ap);
-
-    uint32 length = strlen(szStr)+1;
-    WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4+length);
-    data << length;
-    data << szStr;
-    SendPacket(&data);
 }
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
@@ -1187,8 +1170,6 @@ void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
 
 int32 WorldSession::HandleEnableNagleAlgorithm()
 {
-    // Instructs the server we wish to receive few amounts of large packets (SMSG_MULTIPLE_PACKETS?)
-    // instead of large amount of small packets
     return 0;
 }
 
@@ -2261,75 +2242,6 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
         data << int32(-effect->GetAmount());
     }
 
-    SendPacket(&data);
-}
-
-// DEPRECATED ?
-void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
-{
-    uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
-    uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
-
-    uint32 skillId = recvPacket.read<uint32>();
-    uint32 spellId = recvPacket.read<uint32>();
-
-    ObjectGuid guid;
-
-    recvPacket.ReadBitInOrder(guid, bitOrder);
-    recvPacket.FlushBits();
-    recvPacket.ReadBytesSeq(guid, byteOrder);
-
-    Player* plr = sObjectAccessor->FindPlayer(guid);
-    if (!plr || !plr->HasSkill(skillId) || !plr->HasSpell(spellId))
-        return;
-
-    uint32 spellSkillCount = 0;
-    ByteBuffer buff(sizeof(uint32)*32);
-    for (auto itr : plr->GetSpellMap())
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
-            continue;
-
-        if (!spell->IsAbilityOfSkillType(skillId))
-            continue;
-
-        if (!(spell->Attributes & SPELL_ATTR0_TRADESPELL))
-            continue;
-
-        buff.append(itr.first);
-        ++spellSkillCount;
-    }
-    WorldPacket data(SMSG_TRADE_INFO);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBits(spellSkillCount, 22);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBits(1, 22); // skill value count
-    data.WriteBits(1, 22); // skill id count
-    data.WriteBits(1, 22); // skill max value
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
-    data.FlushBits();
-
-    data << uint32(plr->GetSkillValue(skillId));
-    data.WriteByteSeq(guid[0]);
-    data << uint32(skillId);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(spellId);
-
-    data.append(buff);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data << uint32(plr->GetMaxSkillValue(skillId));
     SendPacket(&data);
 }
 

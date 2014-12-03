@@ -825,7 +825,7 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
-                    SetHitDamage(int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier));
+                    SetHitDamage(int32(caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier));
             }
 
             void Register()
@@ -1299,7 +1299,7 @@ class spell_warr_shield_barrier : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
-                    amount = l_Caster->GetTotalAttackPowerValue(BASE_ATTACK) * 1.125;
+                    amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.125;
             }
 
             void Register()

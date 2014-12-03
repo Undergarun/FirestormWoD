@@ -1739,7 +1739,7 @@ public:
 
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {
-        if (p_Player->getClass() == CLASS_PALADIN && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
+        if (p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
             if (p_Value < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
                 p_Player->CastSpell(p_Player, PALADIN_SPELL_DIVINE_CRUSADER, true);
     }

@@ -91,19 +91,19 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime) :
 m_muteTime(mute_time), m_timeOutTime(0),
 m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
-_ispremium(ispremium), _premiumType(premiumType), _logoutTime(0), m_inQueue(false),
+_ispremium(ispremium), m_PremiumType(premiumType), m_VoteRemainingTime(p_VoteRemainingTime), m_VoteTimePassed(0), m_VoteSyncTimer(VOTE_SYNC_TIMER), _logoutTime(0), m_inQueue(false),
 m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(locale), m_latency(0),
 m_TutorialsChanged(false), recruiterId(recruiter), isRecruiter(isARecruiter), timeLastWhoCommand(0),
 timeCharEnumOpcode(0), m_TimeLastChannelInviteCommand(0), m_TimeLastChannelPassCommand(0),
 m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChannelUnbanCommand(0),
-m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0), m_TimeLastChannelOwnerCommand(0),
-m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0), m_TimeLastChannelUnmuteCommand(0),
-m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastChangeSubGroupCommand(0),
-m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0)
+m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0),
+m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
+m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
+timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -154,6 +154,9 @@ WorldSession::~WorldSession()
     WorldPacket* packet = NULL;
     while (_recvQueue.next(packet))
         delete packet;
+
+    if (m_VoteTimePassed)
+        LoginDatabase.PExecute("UPDATE account_vote SET remainingTime = remainingTime - %u WHERE account = %u", m_VoteTimePassed, GetAccountId());
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 
@@ -301,6 +304,53 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     /// Antispam Timer update
     if (sWorld->getBoolConfig(CONFIG_ANTISPAM_ENABLED))
         UpdateAntispamTimer(diff);
+
+    /// - Vote remaining time
+    if (m_VoteRemainingTime != 0                //< Session have remaining time
+        && m_Player != nullptr                  //< Player is online
+        && m_VoteTimeCallback.GetStage() == 0)  //< We doesn't waiting for vote callback
+    {
+        m_VoteTimePassed += diff;
+        if (m_VoteTimePassed >= m_VoteRemainingTime)
+        {
+            m_VoteTimePassed    = m_VoteRemainingTime;
+            m_VoteRemainingTime = 0;
+
+            std::ostringstream l_Query;
+            l_Query << "UPDATE account_vote SET remainingTime = remainingTime - " << m_VoteTimePassed << " WHERE account = " << GetAccountId();
+
+            // Callback to sync core / database remaining time
+            m_VoteTimeCallback.NextStage();
+            m_VoteTimeCallback.SetParam(false);     //< not sync callback
+            m_VoteTimeCallback.SetFutureResult(LoginDatabase.AsyncQuery(l_Query.str().c_str()));
+        }
+    }
+
+    /// - Vote sync
+    if (m_VoteSyncTimer <= diff)
+    {
+        if (m_VoteTimeCallback.GetStage() == 0)
+        {
+            std::ostringstream l_Query;
+
+            if (!m_VoteTimePassed)
+            {
+                l_Query << "SELECT remainingTime FROM account_vote WHERE account = " << GetAccountId();
+                m_VoteTimeCallback.NextStage();     //< Switch to stage 2 directly
+            }
+            else
+                l_Query << "UPDATE account_vote SET remainingTime = remainingTime - " << m_VoteTimePassed << " WHERE account = " << GetAccountId();
+
+            // Callback to sync core with database
+            m_VoteTimeCallback.NextStage();
+            m_VoteTimeCallback.SetParam(true);  //< sync callback
+            m_VoteTimeCallback.SetFutureResult(LoginDatabase.AsyncQuery(l_Query.str().c_str()));
+        }
+        else
+            m_VoteSyncTimer = VOTE_SYNC_TIMER;
+    }
+    else
+        m_VoteSyncTimer -= diff;
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
@@ -710,11 +760,11 @@ void WorldSession::SendNotification(const char *format, ...)
         va_end(ap);
 
         size_t len = strlen(szStr);
-        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + len);
+        l_Data.WriteBits(len, 12);
+        l_Data.FlushBits();
+        l_Data.append(szStr, len);
+        SendPacket(&l_Data);
     }
 }
 
@@ -731,11 +781,11 @@ void WorldSession::SendNotification(uint32 string_id, ...)
         va_end(ap);
 
         size_t len = strlen(szStr);
-        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + len);
+        l_Data.WriteBits(len, 12);
+        l_Data.FlushBits();
+        l_Data.append(szStr, len);
+        SendPacket(&l_Data);
     }
 }
 
@@ -1218,12 +1268,58 @@ void WorldSession::ProcessQueryCallbacks()
 {
     PreparedQueryResult result;
 
-    //! HandleCharEnumOpcode
-    if (_charEnumCallback.ready())
+    //! Vote
+    if (m_VoteTimeCallback.IsReady())
     {
-        _charEnumCallback.get(result);
+        switch (m_VoteTimeCallback.GetStage())
+        {
+            /// - DB is sync (time elapsed update is done)
+            case 1:
+            {
+                std::ostringstream l_Query;
+                l_Query << "SELECT remainingTime FROM account_vote WHERE account = " << GetAccountId();
+
+                m_VoteTimeCallback.FreeResult();
+                m_VoteTimeCallback.SetFutureResult(LoginDatabase.AsyncQuery(l_Query.str().c_str()));
+                m_VoteTimeCallback.NextStage();
+                break;
+            }
+            /// - Now, we can sync the core !
+            case 2:
+            {
+                QueryResult l_Result;
+                m_VoteTimeCallback.GetResult(l_Result);
+
+                m_VoteTimePassed    = 0;
+                m_VoteRemainingTime = l_Result ? l_Result->Fetch()->GetUInt32() : 0;
+
+                if (m_VoteRemainingTime == 0 && m_Player && m_Player->HasAura(VOTE_BUFF))
+                    m_Player->RemoveAurasDueToSpell(VOTE_BUFF);
+                else if (m_Player && m_VoteRemainingTime != 0)
+                {
+                    AuraPtr l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
+                    if (l_Aura != nullptr)
+                        l_Aura->SetDuration(m_VoteRemainingTime + 60 * IN_MILLISECONDS);    //< Add remaining time + 1 mins (callback lag)
+                }
+
+                m_VoteSyncTimer = VOTE_SYNC_TIMER;
+
+                m_VoteTimeCallback.FreeResult();
+                m_VoteTimeCallback.Reset();
+                break;
+            }
+            /// - Can't happen
+            default:
+                break;
+        }
+    }
+
+    //! HandleCharEnumOpcode
+    if (m_CharEnumCallback.ready())
+    {
+        m_CharEnumCallback.get(result);
         HandleCharEnum(result);
-        _charEnumCallback.cancel();
+        m_CharEnumCallback.cancel();
     }
 
     if (_charCreateCallback.IsReady())
@@ -1234,14 +1330,14 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (m_CharacterLoginCallback.ready() && _accountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
     {
         SQLQueryHolder* param;
         m_CharacterLoginCallback.get(param);
-        _accountSpellCallback.get(result);
+        m_AccountSpellCallback.get(result);
         HandlePlayerLogin((LoginQueryHolder*)param, result);
         m_CharacterLoginCallback.cancel();
-        _accountSpellCallback.cancel();
+        m_AccountSpellCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
@@ -1263,11 +1359,11 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //- HandleCharAddIgnoreOpcode
-    if (_addIgnoreCallback.ready())
+    if (m_AddIgnoreCallback.ready())
     {
-        _addIgnoreCallback.get(result);
+        m_AddIgnoreCallback.get(result);
         HandleAddIgnoreOpcodeCallBack(result);
-        _addIgnoreCallback.cancel();
+        m_AddIgnoreCallback.cancel();
     }
 
     //- SendStabledPet

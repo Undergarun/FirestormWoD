@@ -851,9 +851,9 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, m_owner->GetArmor() * l_PetStat->m_ArmorCoef);
 
-    SetAttackTime(BASE_ATTACK,   l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
-    SetAttackTime(OFF_ATTACK,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
-    SetAttackTime(RANGED_ATTACK, l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
+    SetAttackTime(WeaponAttackType::BaseAttack,   l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
+    SetAttackTime(WeaponAttackType::OffAttack,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
+    SetAttackTime(WeaponAttackType::RangedAttack, l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
 
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED,                     1.0f);
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE,                       1.0f);
@@ -904,8 +904,8 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     SetPower(l_PetPower, l_CreatePower);
 
     // Base physical damage are 0-1 for every pet since WoD
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 1);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 1);
 
     if (l_PetType == HUNTER_PET)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
