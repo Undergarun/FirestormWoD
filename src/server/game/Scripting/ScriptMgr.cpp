@@ -1298,6 +1298,11 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
     FOREACH_SCRIPT(PlayerScript)->OnQuestReward(p_Player, p_Quest);
 }
 
+void ScriptMgr::OnObjectiveValidate(Player* p_Player, uint32 p_QuestId, uint32 p_ObjectiveId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnObjectiveValidate(p_Player, p_QuestId, p_ObjectiveId);
+}
+
 void ScriptMgr::OnPlayerLevelChanged(Player* player, uint8 oldLevel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(player, oldLevel);
@@ -1421,6 +1426,11 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 p_OldZ
 void ScriptMgr::OnPlayerUpdateMovement(Player* p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
+}
+
+void ScriptMgr::OnPlayerChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
 
 // Guild

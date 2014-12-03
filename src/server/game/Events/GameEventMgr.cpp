@@ -1120,8 +1120,8 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
 
                 if (const CreatureTemplate* ci = cr->GetCreatureTemplate())
                 {
-                    npcflag |= ci->npcflag;
-                    npcflag2 |= ci->npcflag2;
+                    npcflag |= ci->NpcFlags1;
+                    npcflag2 |= ci->NpcFlags2;
                 }
 
                 cr->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag);

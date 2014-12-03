@@ -660,8 +660,8 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
                 if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
                 {
-                    lockData.SubReason1 = 999;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelEquipped();
+                    lockData.SubReason1 = ar ? ar->itemlevelMin : 999;
+                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelTotal();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
             }
@@ -1876,30 +1876,25 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
             RemoveFromQueue(*it);
 
-        uint8 maxPlayersToTeleport = 0;
+        uint8 maxPlayersToTeleport = 5;
         uint8 playersTeleported = 0;
 
-        if (!grp->isRaidGroup())
-            maxPlayersToTeleport = 5;
-        else
+        switch (grp->GetLegacyRaidDifficulty())
         {
-            switch (grp->GetRaidDifficulty())
-            {
-                case LEGACY_MAN10_DIFFICULTY:
-                case LEGACY_MAN10_HEROIC_DIFFICULTY:
-                    maxPlayersToTeleport = 10;
-                    break;
+            case LEGACY_MAN10_DIFFICULTY:
+            case LEGACY_MAN10_HEROIC_DIFFICULTY:
+                maxPlayersToTeleport = 10;
+                break;
 
-                case RAID_TOOL_DIFFICULTY:
-                case LEGACY_MAN25_DIFFICULTY:
-                case LEGACY_MAN25_HEROIC_DIFFICULTY:
-                    maxPlayersToTeleport = 25;
-                    break;
+            case RAID_TOOL_DIFFICULTY:
+            case LEGACY_MAN25_DIFFICULTY:
+            case LEGACY_MAN25_HEROIC_DIFFICULTY:
+                maxPlayersToTeleport = 25;
+                break;
 
-                case MAN40_DIFFICULTY:
-                    maxPlayersToTeleport = 40;
-                    break;
-            }
+            case MAN40_DIFFICULTY:
+                maxPlayersToTeleport = 40;
+                break;
         }
 
         if (dungeon->difficulty == RAID_TOOL_DIFFICULTY)

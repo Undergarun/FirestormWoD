@@ -2,6 +2,9 @@
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 
+#define QUEST_A_NEW_FATE 29800
+#define A_NEW_FATE_KILL_CREDIT 57741
+
 class AreaTrigger_at_mandori : public AreaTriggerScript
 {
     public:
@@ -904,6 +907,45 @@ class npc_shang_xi_choose_faction : public CreatureScript
 
             player->PlayerTalkClass->SendCloseGossip();
             return true;
+        }
+
+        struct npc_shang_xi_choose_factionAI : public ScriptedAI
+        {
+            npc_shang_xi_choose_factionAI(Creature* creature) : ScriptedAI(creature) { }
+
+            uint32 l_CheckPlayerTimer;
+
+            void Reset()
+            {
+                l_CheckPlayerTimer = 1000;
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (l_CheckPlayerTimer)
+                {
+                    if (l_CheckPlayerTimer <= diff)
+                    {
+                        std::list<Player*> l_PlayerList;
+                        GetPlayerListInGrid(l_PlayerList, me, 20.0f);
+
+                        for (Player* l_Plr : l_PlayerList)
+                        {
+                            if (l_Plr->GetQuestStatus(QUEST_A_NEW_FATE) == QUEST_STATUS_INCOMPLETE)
+                                l_Plr->KilledMonsterCredit(A_NEW_FATE_KILL_CREDIT);
+                        }
+
+                        l_CheckPlayerTimer = 1000;
+                    }
+                    else
+                        l_CheckPlayerTimer -= diff;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_shang_xi_choose_factionAI(creature);
         }
 };
 

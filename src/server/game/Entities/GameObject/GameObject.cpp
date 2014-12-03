@@ -46,6 +46,7 @@ m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
     m_updateFlag = (UPDATEFLAG_HAS_POSITION | UPDATEFLAG_HAS_ROTATION);
 
     m_valuesCount = GAMEOBJECT_END;
+    _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_lootState = GO_NOT_READY;
@@ -411,7 +412,7 @@ void GameObject::Update(uint32 diff)
                     if (visualStateBefore != visualStateAfter)
                     {
                         ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
-                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_PERCENT_HEALTH);
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_BYTES_1);
                     }
                 }
             }
@@ -1887,39 +1888,13 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
 }
 
-void GameObject::SendCustomAnim(uint32 anim)
+void GameObject::SendCustomAnim(uint32 p_Anim)
 {
-    ObjectGuid guid = GetGUID();
-
-    WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
-
-    data.WriteBit(false);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(anim == 0);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-
-    if (anim)
-    {
-        data << uint32(anim);
-    }
-
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[2]);
-
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_Anim);
+    l_Data.WriteBit(p_Anim == 0);
+    SendMessageToSet(&l_Data, true);
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
@@ -2033,8 +2008,8 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
         data.appendPackGUID(GetGUID());
         data.appendPackGUID(attackerOrHealer->GetGUID());
         data.appendPackGUID(player->GetGUID());
-        data << uint32(-change);
-        data << uint32(spellId);
+        data << int32(-change);
+        data << int32(spellId);
         player->GetSession()->SendPacket(&data);
     }
 
@@ -2172,7 +2147,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
 void GameObject::SetGoState(GOState state)
 {
-    SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0, state);
+    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     sScriptMgr->OnGameObjectStateChanged(this, state);
     if (m_model)
     {
@@ -2304,8 +2279,8 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
-            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_FIELD_PERCENT_HEALTH || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
+            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_BYTES_1 || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
         {
             updateMask.SetBit(index);
 

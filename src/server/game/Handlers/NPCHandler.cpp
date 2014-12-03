@@ -503,20 +503,12 @@ void WorldSession::SendBindPoint(Creature* npc)
     m_Player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
+void WorldSession::HandleListStabledPetsOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_LIST_STABLED_PETS");
-    ObjectGuid npcGUID;
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
 
-    uint8 bitsOrder[8] = { 0, 7, 2, 4, 5, 3, 1, 6 };
-    recvData.ReadBitInOrder(npcGUID, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 0, 2, 3, 1, 7, 5, 6, 4 };
-    recvData.ReadBytesSeq(npcGUID, bytesOrder);
-
-    if (!CheckStableMaster(npcGUID))
+    if (!CheckStableMaster(l_Guid))
         return;
 
     // remove fake death
@@ -527,7 +519,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
     if (GetPlayer()->IsMounted())
         GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-    SendStablePet(npcGUID);
+    SendStablePet(l_Guid);
 }
 
 void WorldSession::SendStablePet(uint64 guid)
@@ -548,7 +540,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
         return;
 
     uint64 l_StableMaster = p_Guid;
-    uint32 l_PetsCount   = p_QueryResult ? p_QueryResult->GetRowCount() : 0;
+    uint32 l_PetsCount    = p_QueryResult ? p_QueryResult->GetRowCount() : 0;
 
     WorldPacket l_Data(SMSG_PET_STABLE_LIST, 200);
     l_Data.appendPackGUID(l_StableMaster);              ///< StableMaster
@@ -588,37 +580,29 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
     SendPacket(&l_Data);
 }
 
-void WorldSession::SendStableResult(uint8 res)
+void WorldSession::SendStableResult(uint8 p_Res)
 {
-    WorldPacket data(SMSG_STABLE_RESULT, 1);
-    data << uint8(res);
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_STABLE_RESULT, 1);
+    l_Data << uint8(p_Res);
+    SendPacket(&l_Data);
 }
 
-void WorldSession::HandleStableSetPetSlot(WorldPacket& recvData)
+void WorldSession::HandleStableSetPetSlot(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_SET_PET_SLOT.");
-    ObjectGuid npcGuid;
-    uint32 pet_number;
-    uint8 new_slot;
+    uint64 l_Guid = 0;
+    uint32 l_PetNumber = 0;
+    uint8 l_NewSlot = 0;
 
-    recvData >> pet_number >> new_slot;
+    p_RecvData >> l_PetNumber >> l_NewSlot;
+    p_RecvData.readPackGUID(l_Guid);
 
-    uint8 bitsOrder[8] = { 3, 2, 4, 6, 0, 1, 7, 5 };
-    recvData.ReadBitInOrder(npcGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 5, 3, 2, 0, 1, 4, 7, 6 };
-    recvData.ReadBytesSeq(npcGuid, bytesOrder);
-
-    if (!CheckStableMaster(npcGuid))
+    if (!CheckStableMaster(l_Guid))
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    if (new_slot > MAX_PET_STABLES)
+    if (l_NewSlot > MAX_PET_STABLES)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
@@ -631,19 +615,19 @@ void WorldSession::HandleStableSetPetSlot(WorldPacket& recvData)
     Pet* pet = m_Player->GetPet();
 
     //If we move the pet already summoned...
-    if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetPetNumber() == pet_number)
+    if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetPetNumber() == l_PetNumber)
         m_Player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
 
     //If we move to the pet already summoned...
-    if (pet && GetPlayer()->m_currentPetSlot == new_slot)
+    if (pet && GetPlayer()->m_currentPetSlot == l_NewSlot)
         m_Player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
 
     stmt->setUInt32(0, m_Player->GetGUIDLow());
-    stmt->setUInt32(1, pet_number);
+    stmt->setUInt32(1, l_PetNumber);
 
-    _setPetSlotCallback.SetParam(new_slot);
+    _setPetSlotCallback.SetParam(l_NewSlot);
     _setPetSlotCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 

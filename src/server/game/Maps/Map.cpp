@@ -241,6 +241,11 @@ void Map::InitVisibilityDistance()
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodOnContinents();
 }
 
+void Map::SetObjectVisibility(float p_Visibility)
+{
+    m_VisibleDistance = p_Visibility;
+}
+
 // Template specialization of utility methods
 template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
@@ -2753,18 +2758,11 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                                 sLog->outError(LOG_FILTER_MAPS, "GroupBind save NULL");
                             return false;
                         }
+
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter
                         if (groupBind->perm)
-                        {
-                            WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 10);
-                            data << uint32(60000);
-                            data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
-                            data << uint8(0);
-                            data << uint8(0); // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-                            player->GetSession()->SendPacket(&data);
                             player->SetPendingBind(mapSave->GetInstanceId(), 60000);
-                        }
                     }
                 }
                 else
@@ -2934,7 +2932,7 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
             l_Player->BindToInstance(l_Save, true);
 
             WorldPacket l_Data(SMSG_INSTANCE_SAVE_CREATED, 4);
-            l_Data << uint32(0);
+            l_Data.WriteBit(false);
             l_Player->GetSession()->SendPacket(&l_Data);
 
             l_Player->GetSession()->SendCalendarRaidLockout(l_Save, true);

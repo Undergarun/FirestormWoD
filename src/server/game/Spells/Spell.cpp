@@ -573,6 +573,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_AreaTrigger = nullptr;
 
     m_cast_count = 0;
+    m_CastItemEntry = 0;
     m_glyphIndex = 0;
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
@@ -4274,7 +4275,7 @@ void Spell::SendSpellCooldown()
     Player* _player = (Player*)m_caster;
 
     // mana/health/etc potions, disabled by client (until combat out as declarate)
-    if (m_CastItem && m_CastItem->IsPotion())
+    if (m_CastItem && (m_CastItem->IsPotion() || m_CastItem->IsHealthstone()))
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
         _player->SetLastPotionId(m_CastItem->GetEntry());
@@ -4288,7 +4289,7 @@ void Spell::SendSpellCooldown()
     if (m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         return;
 
-    _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : 0, this);
+    _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : m_CastItemEntry, this);
 }
 
 void Spell::update(uint32 difftime)
@@ -5238,90 +5239,58 @@ void Spell::SendLogExecute()
     if (m_effectExecuteData.size() <= 0)
         return;
 
-    ObjectGuid guid = m_caster->GetGUID();
-    WorldPacket data(SMSG_SPELL_EXECUTE_LOG, (8+4+4+4+4+8));
+    ByteBuffer l_PowerDrainBuffer;
+    ByteBuffer l_GenericVictimTargetsBuffer;
+    ByteBuffer l_TradeSkillTargetsBuffer;
+    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG);
 
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(m_effectExecuteData.size());
 
-    data.WriteBits(m_effectExecuteData.size(), 19);
-
-    for (auto itr : m_effectExecuteData)
+    for (auto l_Iter : m_effectExecuteData)
     {
-        auto helper = itr.second;
+        auto l_EffIndex = l_Iter.first;
+        auto l_Helper = l_Iter.second;
 
-        data.WriteBits(helper.CreatedItems.size(), 22);
-        data.WriteBit(false); // CasterData - temp disabled
-        data.WriteBits(0, 21); // unk block Guids1 in parser
-        data.WriteBits(0, 21); // unk block Guids2 in parser
-        data.WriteBits(helper.Targets.size(), 24);
+        l_Data << uint32(m_spellInfo->Effects[l_EffIndex].Effect);
+        l_Data << uint32(l_Helper.Energizes.size());    ///< PowerDrainTargets
 
-        for (auto target : helper.Targets)
+        for (SpellLog_EnergyzeHelper l_Energyze : l_Helper.Energizes)
         {
-            uint8 bitOrder[8] = {7, 1, 2, 5, 0, 3, 6, 4};
-            data.WriteBitInOrder(target, bitOrder);
+            l_PowerDrainBuffer.appendPackGUID(l_Energyze.Guid);
+            l_PowerDrainBuffer << uint32(l_Energyze.Value);
+            l_PowerDrainBuffer << uint32(l_Energyze.PowerType);
+            l_PowerDrainBuffer << float(l_Energyze.Multiplier);
         }
 
-        data.WriteBits(0, 22); // unk counter84
-        data.WriteBits(helper.Energizes.size(), 20);
+        l_Data << uint32(0);    ///< ExtraAttacksTargets
+        l_Data << uint32(0);    ///< DurabilityDamageTargets
+        l_Data << uint32(l_Helper.Targets.size());      ///< GenericVictimTargets
 
-        for (auto energize : helper.Energizes)
-        {
-            uint8 bitOrder[8] = {6, 4, 1, 0, 5, 7, 3, 2};
-            data.WriteBitInOrder(energize.Guid, bitOrder);
-        }
+        for (ObjectGuid l_Guid : l_Helper.Targets)
+            l_GenericVictimTargetsBuffer.appendPackGUID(uint64(l_Guid));
+
+        l_Data << uint32(l_Helper.CreatedItems.size()); ///< TradeSkillTargets
+
+        for (uint32 l_ItemID : l_Helper.CreatedItems)
+            l_TradeSkillTargetsBuffer << uint32(l_ItemID);
+
+        l_Data << uint32(0);    ///< FeedPetTargets
+
+        if (l_Helper.Energizes.size())
+            l_Data.append(l_PowerDrainBuffer);
+
+        if (l_Helper.Targets.size())
+            l_Data.append(l_GenericVictimTargetsBuffer);
+
+        if (l_Helper.CreatedItems.size())
+            l_Data.append(l_TradeSkillTargetsBuffer);
     }
 
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-
-    for (auto itr : m_effectExecuteData)
-    {
-        auto effIndex = itr.first;
-        auto helper = itr.second;
-
-        for (auto id : helper.CreatedItems)
-            data << uint32(id);
-
-        for (auto energize : helper.Energizes)
-        {
-            data.WriteByteSeq(energize.Guid[3]);
-            data.WriteByteSeq(energize.Guid[7]);
-            data << uint32(energize.PowerType);
-            data.WriteByteSeq(energize.Guid[5]);
-            data.WriteByteSeq(energize.Guid[0]);
-            data << uint32(energize.Value);
-            data.WriteByteSeq(energize.Guid[2]);
-            data << float(energize.Multiplier);
-            data.WriteByteSeq(energize.Guid[1]);
-            data.WriteByteSeq(energize.Guid[6]);
-            data.WriteByteSeq(energize.Guid[4]);
-        }
-
-        for (auto target : helper.Targets)
-        {
-            uint8 bytesOrder[8] = { 1, 0, 2, 3, 7, 4, 5, 6 };
-            data.WriteBytesSeq(target, bytesOrder);
-        }
-
-        data << uint32(m_spellInfo->Effects[effIndex].Effect);
-    }
-
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data << uint32(m_spellInfo->Id);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[7]);
-
-    m_caster->SendMessageToSet(&data, true);
+    l_Data.WriteBit(false); ///< HasLogData
+    l_Data.FlushBits();
+    m_caster->SendMessageToSet(&l_Data, true);
 
     m_effectExecuteData.clear();
 }
@@ -5475,47 +5444,23 @@ void Spell::SendChannelStart(uint32 p_Duration)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
 }
 
-void Spell::SendResurrectRequest(Player* target)
+void Spell::SendResurrectRequest(Player* p_Target)
 {
     // get ressurector name for creature resurrections, otherwise packet will be not accepted
     // for player resurrections the name is looked up by guid
-    char const* resurrectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
+    char const* l_RessurectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(p_Target->GetSession()->GetSessionDbLocaleIndex());
 
-    ObjectGuid guid = m_caster->GetGUID();
-
-    WorldPacket data(SMSG_RESURRECT_REQUEST, (8+4+strlen(resurrectorName)+1+1+1+4));
-    data.WriteBits(strlen(resurrectorName), 6);
-
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);
-    data.WriteBit(guid[7]);
-    data.WriteBit(false);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-
-    data << uint32(m_spellInfo->Id);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteString(resurrectorName);
-
-    data.WriteByteSeq(guid[7]);
-
-    data << uint32(0);
-    data << uint32(0);
-
-    data.WriteByteSeq(guid[6]);
-
-    target->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_RESURRECT_REQUEST, (8+4+strlen(l_RessurectorName)+1+1+1+4));
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(0);
+    l_Data << uint32(0);
+    l_Data.WriteBits(strlen(l_RessurectorName), 6);
+    l_Data.WriteBit(false);
+    l_Data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);
+    l_Data.FlushBits();
+    l_Data.WriteString(l_RessurectorName);
+    p_Target->GetSession()->SendPacket(&l_Data);
 }
 
 void Spell::TakeCastItem()
@@ -6062,7 +6007,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && !player->HasSpellCharge(m_spellInfo->Id, *category))
+            if (category && !player->CanUseCharge(m_spellInfo->Id))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }

@@ -689,13 +689,14 @@ class gobject_commandscript : public CommandScript
             int32 objectState = atoi(state);
 
             if (objectType < 4)
-                object->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, objectType, objectState);
+                object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
             else if (objectType == 4)
             {
-                WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
-                data << object->GetGUID();
-                data << (uint32)(objectState);
-                object->SendMessageToSet(&data, true);
+                WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+                l_Data.appendPackGUID(object->GetGUID());
+                l_Data << (uint32)(objectState);
+                l_Data.WriteBit(objectState != 0);
+                object->SendMessageToSet(&l_Data, true);
             }
             handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
             return true;
@@ -748,10 +749,10 @@ class gobject_commandscript : public CommandScript
                 return false;
             }
 
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 0, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0));
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 1, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1));
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 2, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2));
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 3, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 0, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 0));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 1, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 1));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 2, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 2));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 3, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 3));
             return true;
         }
 

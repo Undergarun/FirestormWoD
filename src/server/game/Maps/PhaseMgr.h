@@ -86,11 +86,7 @@ typedef UNORDERED_MAP<uint32 /*spellId*/, PhaseInfo> PhaseInfoContainer;
 
 struct PhaseData
 {
-    PhaseData(Player* _player) : player(_player), _PhasemaskThroughDefinitions(0), _PhasemaskThroughAuras(0), _CustomPhasemask(0) {}
-
-    uint32 _PhasemaskThroughDefinitions;
-    uint32 _PhasemaskThroughAuras;
-    uint32 _CustomPhasemask;
+    PhaseData(Player* _player) : _PhasemaskThroughDefinitions(0), _PhasemaskThroughAuras(0), _CustomPhasemask(0),player(_player) {}
 
     uint32 GetCurrentPhasemask() const;
     inline uint32 GetPhaseMaskForSpawn() const;
@@ -105,6 +101,10 @@ struct PhaseData
     void SendPhaseMaskToPlayer();
     void SendPhaseshiftToPlayer();
 
+    uint32 _PhasemaskThroughDefinitions;
+    uint32 _PhasemaskThroughAuras;
+    uint32 _CustomPhasemask;
+    
 private:
     Player* player;
     std::list<PhaseDefinition const*> activePhaseDefinitions;

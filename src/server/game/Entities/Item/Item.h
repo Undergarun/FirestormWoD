@@ -156,6 +156,11 @@ enum SellResult
     SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
 };
 
+enum eItemsModifiedFlags
+{
+    ITEM_TRANSMOGRIFIED = 0x02
+};
+
 // -1 from client enchantment slot number
 enum EnchantmentSlot
 {
@@ -166,15 +171,15 @@ enum EnchantmentSlot
     SOCK_ENCHANTMENT_SLOT_3         = 4,
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
-    ENGINEERING_ENCHANTMENT_SLOT    = 7,                    // TODO
+    ENGINEERING_ENCHANTMENT_SLOT    = 7,
     MAX_INSPECTED_ENCHANTMENT_SLOT  = 8,
 
-    PROP_ENCHANTMENT_SLOT_0         = 8,                   // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_1         = 9,                   // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_0         = 8,                    // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_1         = 9,                    // used with RandomSuffix
     PROP_ENCHANTMENT_SLOT_2         = 10,                   // used with RandomSuffix and RandomProperty
     PROP_ENCHANTMENT_SLOT_3         = 11,                   // used with RandomProperty
     PROP_ENCHANTMENT_SLOT_4         = 12,                   // used with RandomProperty
-    MAX_ENCHANTMENT_SLOT            = 13
+    MAX_ENCHANTMENT_SLOT
 };
 
 #define MAX_VISIBLE_ITEM_OFFSET       2                     // 2 fields per visible item (entry+enchantment)
@@ -244,6 +249,15 @@ class Item : public Object
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
         bool IsEquipable() const { return GetTemplate()->InventoryType != INVTYPE_NON_EQUIP; }
+
+        bool IsSuitableForItemLevelCalulcation(bool p_IncludeOffHand) const
+        {  return (GetTemplate()->Class == ITEM_CLASS_WEAPON || GetTemplate()->Class == ITEM_CLASS_ARMOR) &&
+                  GetTemplate()->InventoryType != INVTYPE_NON_EQUIP &&
+                  GetTemplate()->InventoryType != INVTYPE_TABARD &&
+                  GetTemplate()->InventoryType != INVTYPE_RANGED &&
+                  GetTemplate()->InventoryType != INVTYPE_ROBE &&
+                  (!p_IncludeOffHand ||  GetTemplate()->InventoryType != INVTYPE_TABARD);
+        }
 
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
@@ -341,6 +355,7 @@ class Item : public Object
         bool HasStats() const;
         bool HasSpells() const;
         bool IsPotion() const;
+        bool IsHealthstone() const { return GetEntry() == 5512; }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
@@ -376,7 +391,7 @@ class Item : public Object
 
         uint32 GetVisibleEntry() const
         {
-            if (uint32 transmogrification = GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1))
+            if (uint32 transmogrification = GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0))
                 return transmogrification;
             return GetEntry();
         }

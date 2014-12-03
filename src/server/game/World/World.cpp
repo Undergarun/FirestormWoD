@@ -1744,8 +1744,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet stats...");
+    sObjectMgr->LoadPetStatInfo();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Corpses...");
     sObjectMgr->LoadCorpses();
@@ -3140,22 +3140,22 @@ void World::SendAutoBroadcast()
 
     else if (abcenter == 1)
     {
-        WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
-        data.WriteBits(msg.length(), 12);
-        data.FlushBits();
-        data.WriteString(msg);
-        sWorld->SendGlobalMessage(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
+        l_Data.WriteBits(msg.length(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(msg);
+        sWorld->SendGlobalMessage(&l_Data);
     }
 
     else if (abcenter == 2)
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
-        WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
-        data.WriteBits(msg.length(), 12);
-        data.FlushBits();
-        data.WriteString(msg);
-        sWorld->SendGlobalMessage(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
+        l_Data.WriteBits(msg.length(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(msg);
+        sWorld->SendGlobalMessage(&l_Data);
     }
 
     sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());

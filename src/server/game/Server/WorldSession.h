@@ -16,10 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup u2w
-/// @{
-/// \file
-
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
 
@@ -32,8 +28,6 @@
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
 
-class CalendarEvent;
-class CalendarInvite;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -172,6 +166,9 @@ enum DB2Types : uint32
     DB2_REPLY_ITEM_EXTENDED_COST              = 0xBB858355,           // hash of ItemExtendedCost.db2
 };
 
+#define VOTE_BUFF           176151
+#define VOTE_SYNC_TIMER     600000      ///< 10 mins
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -219,8 +216,8 @@ class CharacterCreateInfo
 
     protected:
         CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId, uint32 templateId,
-        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), TemplateId(templateId),
-        OutfitId(outfitId), Data(data), CharCount(0)
+        WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), OutfitId(outfitId),
+        TemplateId(templateId), Data(data), CharCount(0)
         {}
 
         /// User specified variables
@@ -248,7 +245,7 @@ class CharacterCreateInfo
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime);
         ~WorldSession();
 
         uint64 GetWoWAccountGUID()
@@ -279,7 +276,6 @@ class WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData = 0, uint64 p_ResultGuid = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
@@ -289,7 +285,7 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         bool IsPremium() const { return _ispremium; }
-        uint8 getPremiumType() const { return _premiumType; }
+        uint8 getPremiumType() const { return m_PremiumType; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return m_Player; }
         std::string GetPlayerName(bool simple = true) const;
@@ -462,6 +458,12 @@ class WorldSession
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Vote
+        //////////////////////////////////////////////////////////////////////////
+        bool HaveVoteRemainingTime() const { return m_VoteRemainingTime != 0; }
+        uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
+
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
@@ -528,7 +530,7 @@ class WorldSession
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPacket& recvPacket);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
-        void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
+        void HandleMasterLootItemOpcode(WorldPacket& recvPacket);
         void HandleWhoOpcode(WorldPacket& recvPacket);
         void HandleLogoutRequestOpcode(WorldPacket& recvPacket);
         void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
@@ -617,7 +619,7 @@ class WorldSession
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
         void HandleLootRoll(WorldPacket& recvData);
-        void HandleLootMasterAskForRoll(WorldPacket& recvData);
+        void HandleDoMasterLootRollOpcode(WorldPacket& recvData);
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidConfirmReadyCheck(WorldPacket& recvData);
         void HandleRaidLeaderReadyCheck(WorldPacket& recvData);
@@ -692,6 +694,7 @@ class WorldSession
         void HandleBuyBankSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyReagentBankOpcode(WorldPacket& recvPacket);
         void HandleSortReagentBankBagsOpcode(WorldPacket& recvPacket);
+        void HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData);
 
         void HandleTrainerListOpcode(WorldPacket& recvPacket);
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
@@ -800,7 +803,6 @@ class WorldSession
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
-        void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
@@ -938,19 +940,6 @@ class WorldSession
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
 
-        // Arena Team
-        void HandleInspectArenaTeamsOpcode(WorldPacket& recvData);
-        void HandleArenaTeamQueryOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRosterOpcode(WorldPacket& recvData);
-        void HandleArenaTeamInviteOpcode(WorldPacket& recvData);
-        void HandleArenaTeamAcceptOpcode(WorldPacket& recvData);
-        void HandleArenaTeamCreateOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDeclineOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRemoveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDisbandOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaderOpcode(WorldPacket& recvData);
-
         void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData);
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
         void HandleCancelMountAuraOpcode(WorldPacket& recvData);
@@ -991,36 +980,25 @@ class WorldSession
         void HandleAcceptGrantLevel(WorldPacket& recvData);
 
         // Calendar
-        void HandleCalendarGetCalendar(WorldPacket& recvData);
-        void HandleCalendarGetEvent(WorldPacket& recvData);
-        void HandleCalendarGuildFilter(WorldPacket& recvData);
-        void HandleCalendarArenaTeam(WorldPacket& recvData);
-        void HandleCalendarAddEvent(WorldPacket& recvData);
-        void HandleCalendarUpdateEvent(WorldPacket& recvData);
-        void HandleCalendarRemoveEvent(WorldPacket& recvData);
-        void HandleCalendarCopyEvent(WorldPacket& recvData);
-        void HandleCalendarEventInvite(WorldPacket& recvData);
-        void HandleCalendarEventRsvp(WorldPacket& recvData);
-        void HandleCalendarEventRemoveInvite(WorldPacket& recvData);
-        void HandleCalendarEventStatus(WorldPacket& recvData);
-        void HandleCalendarEventModeratorStatus(WorldPacket& recvData);
-        void HandleCalendarComplain(WorldPacket& recvData);
-        void HandleCalendarGetNumPending(WorldPacket& recvData);
-        void HandleCalendarEventSignup(WorldPacket& recvData);
+        void HandleCalendarGetCalendar(WorldPacket& p_RecvData);
+        void HandleCalendarGetEvent(WorldPacket& p_RecvData);
+        void HandleCalendarGuildFilter(WorldPacket& p_RecvData);
+        void HandleCalendarAddEvent(WorldPacket& p_RecvData);
+        void HandleCalendarUpdateEvent(WorldPacket& p_RecvData);
+        void HandleCalendarRemoveEvent(WorldPacket& p_RecvData);
+        void HandleCalendarCopyEvent(WorldPacket& p_RecvData);
+        void HandleCalendarEventInvite(WorldPacket& p_RecvData);
+        void HandleCalendarEventRsvp(WorldPacket& p_RecvData);
+        void HandleCalendarEventRemoveInvite(WorldPacket& p_RecvData);
+        void HandleCalendarEventStatus(WorldPacket& p_RecvData);
+        void HandleCalendarEventModeratorStatus(WorldPacket& p_RecvData);
+        void HandleCalendarComplain(WorldPacket& p_RecvData);
+        void HandleCalendarGetNumPending(WorldPacket& p_RecvData);
+        void HandleCalendarEventSignup(WorldPacket& p_RecvData);
+        void HandleSetSavedInstanceExtend(WorldPacket& p_RecvData);
 
-        void SendCalendarEvent(CalendarEvent const& calendarEvent, CalendarSendEventType sendEventType);
-        void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
-        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& calendarInvite);
-        void SendCalendarEventInviteRemove(CalendarInvite const& invite, uint32 flags);
-        void SendCalendarEventInviteRemoveAlert(CalendarEvent const& calendarEvent, CalendarInviteStatus status);
-        void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent);
-        void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, CalendarSendEventType sendEventType);
-        void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
-        void SendCalendarClearPendingAction();
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void SendCalendarCommandResult(CalendarError err, char const* param = "");
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);
@@ -1040,7 +1018,6 @@ class WorldSession
         void HandleSetLootSpecialization(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleTradeInfo (WorldPacket& recvData);
         void HandleSaveCUFProfiles(WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
@@ -1059,7 +1036,6 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
-        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleRequestHotfix(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
@@ -1117,13 +1093,22 @@ class WorldSession
         void SendPetBattleFinalRound(PetBattle* p_Battle);
         void SendPetBattleFinished(PetBattle* battle);
 
+        //////////////////////////////////////////////////////////////////////////
+        /// ToyBox
+        //////////////////////////////////////////////////////////////////////////
+        void HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData);
+        void HandleSetFavoriteToyOpcode(WorldPacket& p_RecvData);
+        void HandleUseToyOpcode(WorldPacket& p_RecvData);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
-        PreparedQueryResultFuture _charEnumCallback;
-        PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture _accountSpellCallback;
+        QueryCallback<QueryResult, bool, true> m_VoteTimeCallback;
+
+        PreparedQueryResultFuture m_CharEnumCallback;
+        PreparedQueryResultFuture m_AddIgnoreCallback;
+        PreparedQueryResultFuture m_AccountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
@@ -1158,8 +1143,19 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Premium
+        //////////////////////////////////////////////////////////////////////////
         bool _ispremium;
-        uint8 _premiumType;
+        uint8 m_PremiumType;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vote
+        //////////////////////////////////////////////////////////////////////////
+        uint32 m_VoteRemainingTime;
+        uint32 m_VoteTimePassed;
+        uint32 m_VoteSyncTimer;
 
         typedef std::list<AddonInfo> AddonsList;
 

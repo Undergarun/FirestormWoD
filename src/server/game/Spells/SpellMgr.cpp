@@ -2646,10 +2646,6 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!skillLine)
                     continue;
 
-                //if (skillLine->skillId != creatureFamily->skillLine[0] &&
-                //    (!creatureFamily->skillLine[1] || skillLine->skillId != creatureFamily->skillLine[1]))
-                //    continue;
-
                 if (skillLine->skillId != creatureFamily->skillLine[j])
                     continue;
 
@@ -3465,10 +3461,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 73683: // Unleash Flame
-            case 165462:// Unleash Flame
-                spellInfo->ProcCharges = 1;
-                break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
                 break;
@@ -3575,6 +3567,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 165376:// Enlightenment
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
             case 139834:// Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
@@ -4534,9 +4528,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 67801: // Deterrence
                 spellInfo->ProcCharges = 100;
                 break;
-            case 114234:// Glyph of Shred
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
             case 120954:// Fortifying Brew
                 spellInfo->Effects[4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
@@ -5108,12 +5099,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 114695:// Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 6262:  // Healthstone
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_OBS_MOD_HEALTH;
-                spellInfo->Effects[1].BasePoints = 4;
-                break;
             case 56224: // Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
@@ -5164,6 +5149,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 145151:// Dream of Cenarius (Balance)
             case 122510:// Ultimatum
             case 34784: // Intervene (triggered)
+            case 73683: // Unleash Flame
+            case 165462:// Unleash Flame
+            case 52437: // Sudden Death
                 spellInfo->ProcCharges = 1;
                 break;
             case 111546:

@@ -585,7 +585,7 @@ class misc_commandscript : public CommandScript
                     }
 
                     if (map->IsRaid())
-                        _player->SetRaidDifficulty(target->GetRaidDifficulty());
+                        _player->SetLegacyRaidDifficulty(target->GetLegacyRaidDifficulty());
                     else
                         _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
                 }
@@ -1005,6 +1005,7 @@ class misc_commandscript : public CommandScript
             if (!*args)
             {
                 target->RemoveAllSpellCooldown();
+                target->SendClearAllSpellCharges();
                 handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, nameLink.c_str());
             }
             else
@@ -1014,7 +1015,7 @@ class misc_commandscript : public CommandScript
                 if (!spellIid)
                     return false;
 
-                if (!sSpellMgr->GetSpellInfo(spellIid))
+                if (sSpellMgr->GetSpellInfo(spellIid) == nullptr)
                 {
                     handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
                     handler->SetSentErrorMessage(true);
@@ -1022,6 +1023,7 @@ class misc_commandscript : public CommandScript
                 }
 
                 target->RemoveSpellCooldown(spellIid, true);
+                target->SendClearSpellCharges(spellIid);
                 handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
             }
             return true;
@@ -2636,15 +2638,9 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            /// - Send the message
-            // Use SendAreaTriggerMessage for fastest delivery.
-            player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
-            player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
-
             // Confirmation message
             std::string nameLink = handler->GetNameLink(player);
             handler->PSendSysMessage(LANG_SENDMESSAGE, nameLink.c_str(), msgStr);
-
             return true;
         }
 

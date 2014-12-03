@@ -914,13 +914,13 @@ public:
         {
             if (player->IsWithinDist(l_Caster, 40.0f, false))
             {
-                if (player->isAlive() && !player->hasForcedMovement)
-                    player->SendApplyMovementForce(true, pos, -3.0f);
-                else if (!player->isAlive() && player->hasForcedMovement)
-                    player->SendApplyMovementForce(false, pos);
+                if (player->isAlive() && !player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                    player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, pos, -3.0f);
+                else if (!player->isAlive() && player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                    player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, pos);
             }
-            else if (player->hasForcedMovement)
-                player->SendApplyMovementForce(false, pos);
+            else if (player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, pos);
         }
     }
 
@@ -933,7 +933,7 @@ public:
         p_AreaTrigger->GetPosition(&pos);
 
         for (auto player : playerList)
-            player->SendApplyMovementForce(false, pos);
+            player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, pos);
     }
 };
 
@@ -1179,13 +1179,13 @@ public:
         {
             if (player->IsWithinDist(p_AreaTrigger->GetCaster(), 30.0f, false))
             {
-                if (player->isAlive() && !player->hasForcedMovement)
-                    player->SendApplyMovementForce(true, pos, -12.0f);
-                else if (!player->isAlive() && player->hasForcedMovement)
-                    player->SendApplyMovementForce(false, pos);
+                if (player->isAlive() && !player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                    player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, pos, -12.0f);
+                else if (!player->isAlive() && player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                    player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, pos);
             }
-            else if (player->hasForcedMovement)
-                player->SendApplyMovementForce(false, pos);
+            else if (player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, pos);
         }
     }
 
@@ -1198,7 +1198,7 @@ public:
         p_AreaTrigger->GetPosition(&pos);
 
         for (auto player : playerList)
-            player->SendApplyMovementForce(false, pos);
+            player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, pos);
     }
 };
 

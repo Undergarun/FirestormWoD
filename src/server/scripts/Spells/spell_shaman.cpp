@@ -115,7 +115,8 @@ enum ShamanSpells
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT = 159103,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION = 159105,
     SPELL_SHA_LAVA_LASH_SPREAD              = 105792,
-    SPELL_SHA_LIQUID_MAGMA_DAMAGE           = 177601
+    SPELL_SHA_LIQUID_MAGMA_DAMAGE           = 177601,
+    SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED        = 159642
 };
 
 // Totemic Projection - 108287
@@ -1833,6 +1834,53 @@ class spell_sha_liquid_magma_visual : public SpellScriptLoader
         }
 };
 
+// 2645 Ghost Wolf
+class spell_sha_ghost_wolf : public SpellScriptLoader
+{
+    public:
+        spell_sha_ghost_wolf() : SpellScriptLoader("spell_sha_ghost_wolf") { }
+
+        class spell_sha_ghost_wolf_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_ghost_wolf_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                SpellInfo const* l_GhostlySpeed = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED);
+                if (! l_GhostlySpeed)
+                    return;
+
+                p_CanBeRecalculated = true;
+                if (Player* l_Owner = GetOwner()->ToPlayer())
+                {
+                    if (l_Owner->HasGlyph(l_GhostlySpeed->Id))
+                    {
+                        if (!l_Owner->isInCombat())
+                        {
+                            if (Map* l_Map = l_Owner->GetMap())
+                            {
+                                if (!l_Map->IsBattlegroundOrArena())
+                                {
+                                    p_Amount += l_GhostlySpeed->Effects[EFFECT_0].BasePoints;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_ghost_wolf_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_ghost_wolf_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_totemic_projection();
@@ -1873,4 +1921,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash();
     new spell_sha_liquid_magma();
     new spell_sha_liquid_magma_visual();
+    new spell_sha_ghost_wolf();
 }

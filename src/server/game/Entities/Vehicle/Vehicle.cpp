@@ -31,7 +31,7 @@
 #include "MoveSplineInit.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) : _me(unit), _vehicleInfo(vehInfo), _usableSeatNum(0), _creatureEntry(creatureEntry),
-_passengersSpawnedByAI(false), _canBeCastedByPassengers(false), _status(STATUS_NONE)
+ _status(STATUS_NONE), _passengersSpawnedByAI(false), _canBeCastedByPassengers(false)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {

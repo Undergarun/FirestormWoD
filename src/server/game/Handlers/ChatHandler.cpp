@@ -73,56 +73,43 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         case CMSG_CHAT_MESSAGE_SAY:
             l_Type = CHAT_MSG_SAY;
             break;
-
         case CMSG_CHAT_MESSAGE_YELL:
             l_Type = CHAT_MSG_YELL;
             break;
-
         case CMSG_CHAT_MESSAGE_CHANNEL:
             l_Type = CHAT_MSG_CHANNEL;
             break;
-
         case CMSG_CHAT_MESSAGE_WHISPER:
             l_Type = CHAT_MSG_WHISPER;
             break;
-
         case CMSG_CHAT_MESSAGE_GUILD:
             l_Type = CHAT_MSG_GUILD;
             break;
-
         case CMSG_CHAT_MESSAGE_OFFICER:
             l_Type = CHAT_MSG_OFFICER;
             break;
-
         case CMSG_CHAT_MESSAGE_AFK:
             l_Type = CHAT_MSG_AFK;
             break;
-
         case CMSG_CHAT_MESSAGE_DND:
             l_Type = CHAT_MSG_DND;
             break;
-
         case CMSG_CHAT_MESSAGE_EMOTE:
             l_Type = CHAT_MSG_EMOTE;
             break;
-
         case CMSG_CHAT_MESSAGE_PARTY:
             l_Type = CHAT_MSG_PARTY;
             break;
-
         case CMSG_CHAT_MESSAGE_RAID:
             l_Type = CHAT_MSG_RAID;
             break;
-
         case CMSG_CHAT_MESSAGE_RAID_WARNING:
             l_Type = CHAT_MSG_RAID_WARNING;
             break;
-
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", p_RecvData.GetOpcode());
             p_RecvData.hexlike();
             return;
-
     }
 
     if (l_Type >= MAX_CHAT_MSG_TYPE)
@@ -286,29 +273,24 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             l_TextLenght    = p_RecvData.ReadBits(8);
             l_Text          = p_RecvData.ReadString(l_TextLenght);
             break;
-
         case CHAT_MSG_WHISPER:
             l_ReceiverLength    = p_RecvData.ReadBits(9);
             l_TextLenght        = p_RecvData.ReadBits(8);
             l_ReceiverName      = p_RecvData.ReadString(l_ReceiverLength);
             l_Text              = p_RecvData.ReadString(l_TextLenght);
             break;
-
         case CHAT_MSG_CHANNEL:
             l_ChannelLength     = p_RecvData.ReadBits(9);
             l_TextLenght        = p_RecvData.ReadBits(8);
             l_ChannelName       = p_RecvData.ReadString(l_ChannelLength);
             l_Text              = p_RecvData.ReadString(l_TextLenght);
             break;
-
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
             l_TextLenght    = p_RecvData.ReadBits(8);
             l_Text          = p_RecvData.ReadString(l_TextLenght);
-
             l_IgnoreChecks = true;
             break;
-
     }
 
     if (!l_IgnoreChecks)
@@ -375,10 +357,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_SenderIsPlayer && l_ReceiverIsPlayer)
             {
                 if (GetPlayer()->GetTeam() != l_Receiver->GetTeam())
-                {
-                    SendWrongFactionNotice();
                     return;
-                }
             }
 
             /// Check if silenced http://wowhead.com/spell=1852
@@ -880,12 +859,10 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
 void WorldSession::SendPlayerNotFoundNotice(std::string p_Name)
 {
     WorldPacket l_Data(SMSG_CHAT_PLAYER_NOTFOUND, p_Name.size()+1);
-
-    l_Data.WriteBits(p_Name.size(), 9);
+    l_Data.WriteBits(p_Name.size() / 2, 8);
+    l_Data.WriteBit(p_Name.size() % 2);
     l_Data.FlushBits();
-
     l_Data.WriteString(p_Name);
-
     SendPacket(&l_Data);
 }
 
@@ -897,12 +874,6 @@ void WorldSession::SendPlayerAmbiguousNotice(std::string p_Name)
     l_Data.WriteString(p_Name);
 
     SendPacket(&l_Data);
-}
-
-void WorldSession::SendWrongFactionNotice()
-{
-    //WorldPacket data(SMSG_CHAT_WRONG_FACTION, 0);
-    //SendPacket(&data);
 }
 
 void WorldSession::SendChatRestrictedNotice(ChatRestrictionType restriction)

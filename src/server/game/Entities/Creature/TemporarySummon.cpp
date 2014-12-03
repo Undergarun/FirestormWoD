@@ -351,6 +351,19 @@ void Guardian::InitSummon()
         m_owner->ToPlayer()->CharmSpellInitialize();
 }
 
+PetStatInfo const* Guardian::GetPetStat(bool p_Force) const
+{
+    uint32 l_PetStatEntry = GetEntry();
+    if (isPet() && ToPet()->getPetType() == HUNTER_PET)
+        l_PetStatEntry = 1;
+
+    PetStatInfo const* l_PetStat = sObjectMgr->GetPetStatInfo(l_PetStatEntry);
+    if (l_PetStat == nullptr && (p_Force || isPet()))
+        l_PetStat = sObjectMgr->GetPetStatInfo(0);
+
+    return l_PetStat;
+}
+
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false) //maybe true?
 {
     ASSERT(owner->GetTypeId() == TYPEID_PLAYER);

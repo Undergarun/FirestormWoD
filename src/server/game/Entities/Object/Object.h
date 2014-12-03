@@ -26,6 +26,7 @@
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "Map.h"
+#include "UpdateMask.h"
 
 #include <set>
 #include <string>
@@ -354,16 +355,12 @@ class Object
         uint16 GetValuesCount() const { return m_valuesCount; }
 
         // Dynamic Field function
-
-        uint32 GetDynamicUInt32Value(uint32 tab, uint16 index) const
-        {
-            ASSERT(tab < _dynamicTabCount);
-            ASSERT(index < DynamicFields::Count);
-
-            return _dynamicFields[tab]._dynamicValues[index];
-        }
-
-        void SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value);
+        std::vector<uint32> const& GetDynamicValues(uint16 index) const;
+        uint32 GetDynamicValue(uint16 index, uint16 secondIndex) const;
+        void AddDynamicValue(uint16 index, uint32 value);
+        void RemoveDynamicValue(uint16 index, uint32 value);
+        void ClearDynamicValue(uint16 index);
+        void SetDynamicValue(uint16 index, uint8 offset, uint32 value);
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
@@ -406,12 +403,13 @@ class Object
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
+        uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
         bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
 
         void BuildMovementUpdate(ByteBuffer * data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
-        void BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data) const;
+        void BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
@@ -425,16 +423,17 @@ class Object
             float  *m_floatValues;
         };
 
-        bool* _changedFields;
-
         uint16 m_valuesCount;
 
         uint16 _fieldNotifyFlags;
 
         bool m_objectUpdated;
 
-        DynamicFields* _dynamicFields;
-        uint32 _dynamicTabCount;
+        std::vector<uint32>* _dynamicValues;
+        uint32 _dynamicValuesCount;
+        UpdateMask _changesMask;
+        UpdateMask _dynamicChangesMask;
+        UpdateMask* _dynamicChangesArrayMask;
 
     private:
         bool m_inWorld;

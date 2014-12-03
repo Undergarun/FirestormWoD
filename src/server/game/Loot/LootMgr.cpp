@@ -981,12 +981,12 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
-                    l_ItemsDataBuffer.WriteBits(l_SlotType, 3);                 ///< Ui Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);        ///< Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
-                    l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                    l_ItemsDataBuffer << uint8(l_SlotType);
                     l_ItemsDataBuffer << uint8(l_I);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
@@ -1017,12 +1017,12 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);        ///< Type
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
-                    l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                    l_ItemsDataBuffer << uint8(l_ItemListType);
                     l_ItemsDataBuffer << uint8(l_I);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
@@ -1051,12 +1051,12 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);             ///< Type
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
-                    l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
+                    l_ItemsDataBuffer << uint8(l_ItemListType);
                     l_ItemsDataBuffer << uint8(l_I);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);

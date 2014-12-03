@@ -107,6 +107,10 @@ enum CreatureFlagsExtra
 #define ENTRY_GARGOYLE          27829
 
 #define MAX_KILL_CREDIT 2
+
+/// - Pet & creatures regen life every 5 secs (WoD 6.x)
+#define CREATURE_REGEN_HEALTH_INTERVAL 5 * IN_MILLISECONDS
+
 #define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
 #define MAX_CREATURE_QUEST_ITEMS 6
@@ -132,8 +136,8 @@ struct CreatureTemplate
     uint32  expansion;
     uint32  expansionUnknown;                               // either 0 or 5, sent to the client / wdb
     uint32  faction;
-    uint32  npcflag;
-    uint32  npcflag2;
+    uint32  NpcFlags1;
+    uint32  NpcFlags2;
     float   speed_walk;
     float   speed_run;
     float   speed_fly;
@@ -146,9 +150,11 @@ struct CreatureTemplate
     float   baseVariance;
     float   rangeVariance;
     uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
-    uint32  unit_flags;                                     // enum UnitFlags mask values
-    uint32  unit_flags2;                                    // enum UnitFlags2 mask values
+    uint32  UnitFlags1;                                     // enum UnitFlags mask values
+    uint32  UnitFlags2;                                     // enum UnitFlags2 mask values
+    uint32  UnitFlags3;                                     // enum UnitFlags3 mask values
     uint32  dynamicflags;
+    uint32  WorldEffectID;
     uint32  family;                                         // enum CreatureFamily values (optional)
     uint32  trainer_type;
     uint32  trainer_spell;
@@ -299,10 +305,13 @@ struct CreatureData
     uint32 curmana;
     uint8 movementType;
     uint32 spawnMask;
-    uint32 npcflag;
-    uint32 unit_flags;                                      // enum UnitFlags mask values
-    uint32 unit_flags2;                                     // enum UnitFlags mask values
+    uint32 NpcFlags1;
+    uint32 NpcFlags2;
+    uint32 UnitFlags1;                                     // enum UnitFlags mask values
+    uint32 UnitFlags2;                                     // enum UnitFlags2 mask values
+    uint32 UnitFlags3;                                     // enum UnitFlags3 mask values
     uint32 dynamicflags;
+    uint32 WorldEffectID;
     bool isActive;
     bool dbData;
 };
@@ -474,7 +483,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void Update(uint32 time);                         // overwrited Unit::Update
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
+        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
@@ -531,7 +540,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
 
-        bool AIM_Initialize(CreatureAI* ai = NULL);
+        bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
         bool isCanGiveSpell(Unit* /*caster*/)
@@ -572,7 +581,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool HasSpell(uint32 spellID) const;
 
-        bool UpdateEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
+        bool UpdateEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
         void UpdateResistances(uint32 school);
@@ -769,8 +778,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_LOSCheck_player;
 
     protected:
-        bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = NULL);
-        bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
+        bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = nullptr);
+        bool InitEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
 
         // vendor items
         VendorItemCounts m_vendorItemCounts;
@@ -781,13 +790,13 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 m_lootRecipientGroup;
 
         /// Timers
-        time_t m_corpseRemoveTime;                          // (msecs) timer for death or corpse disappearance
-        time_t m_respawnTime;                               // (secs)  time of next respawn
-        uint32 m_respawnDelay;                              // (secs)  delay between corpse disappearance and respawning
-        uint32 m_corpseDelay;                               // (secs)  delay between death and corpse disappearance
+        time_t m_corpseRemoveTime;                          ///< (msecs) timer for death or corpse disappearance
+        time_t m_respawnTime;                               ///< (secs)  time of next respawn
+        uint32 m_respawnDelay;                              ///< (secs)  delay between corpse disappearance and respawning
+        uint32 m_corpseDelay;                               ///< (secs)  delay between death and corpse disappearance
         float m_respawnradius;
 
-        ReactStates m_reactState;                           // for AI, not charmInfo
+        ReactStates m_reactState;                           ///< for AI, not charmInfo
         void RegenerateMana();
         void RegenerateHealth();
         void Regenerate(Powers power);
@@ -809,11 +818,13 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool DisableReputationGain;
 
-        CreatureTemplate const* m_creatureInfo;                 // in difficulty mode > 0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
+        CreatureTemplate const* m_creatureInfo;             ///< in difficulty mode > 0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
         CreatureData const* m_creatureData;
 
-        uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+        uint16 m_LootMode;                                  ///< bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         uint32 guid_transport;
+
+        uint32 m_HealthRegenTimer;
 
         bool IsInvisibleDueToDespawn() const;
         bool CanAlwaysSee(WorldObject const* obj) const;

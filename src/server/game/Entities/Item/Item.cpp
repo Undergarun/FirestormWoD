@@ -278,7 +278,7 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
-    _dynamicTabCount = 32;
+    _dynamicValuesCount = ITEM_DYNAMIC_END;
 }
 
 Item::~Item()
@@ -304,7 +304,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
         return false;
 
     // For Item Upgrade
-    if (CanUpgrade())
+    /*if (CanUpgrade())
     {
         if (IsPvPItem())
         {
@@ -323,8 +323,8 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
                 SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2, 451);
         }
 
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | 0x2 | 0x4);
-    }
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x1 | ITEM_TRANSMOGRIFIED | 0x4);
+    }*/
 
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
     SetUInt32Value(ITEM_FIELD_MAX_DURABILITY, itemProto->MaxDurability);
@@ -403,8 +403,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)); // Transmogrification Id
-            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)); // itemUpgrade Id
+            stmt->setUInt32(++index, GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
+            stmt->setUInt32(++index, 0/*GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)*/); // itemUpgrade Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
@@ -501,11 +501,10 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     std::string enchants = fields[6].GetString();
     _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
 
-
     if (uint32 transmogId = fields[8].GetInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, transmogId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 2);
+        SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
+        SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
     }
 
     // uint32 upgradeId = fields[9].GetUInt32(); @TODO: Remove this DB field
@@ -1010,32 +1009,16 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
     return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
 }
 
-// Though the client has the information in the item's data field,
-// we have to send SMSG_ITEM_TIME_UPDATE to display the remaining
-// time.
-void Item::SendTimeUpdate(Player* owner)
+void Item::SendTimeUpdate(Player* p_Owner)
 {
-    uint32 duration = GetUInt32Value(ITEM_FIELD_EXPIRATION);
-    if (!duration)
+    uint32 l_Duration = GetUInt32Value(ITEM_FIELD_EXPIRATION);
+    if (!l_Duration)
         return;
 
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    ObjectGuid guid = GetGUID();
-
-    uint8 bits[8] = { 0, 4, 2, 5, 7, 1, 6, 3 };
-    data.WriteBitInOrder(guid, bits);
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data << duration;
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-
-    owner->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_ITEM_TIME_UPDATE, (8+4));
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << l_Duration;
+    p_Owner->GetSession()->SendPacket(&l_Data);
 }
 
 Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
@@ -1887,10 +1870,6 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
 uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
-
-    if (ilvl == ItemLevel)
-        return ItemStat[index].ItemStatValue;
-
     return floor((((float)itemStat.ScalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * itemStat.SocketCostRate)) + 0.5f);
 }
 

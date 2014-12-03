@@ -371,10 +371,15 @@ enum ItemSubclassContainer
     ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7,
     ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8,
     ITEM_SUBCLASS_TACKLE_CONTAINER              = 9,
-    ITEM_SUBCLASS_COOKING_CONTAINER             = 10
+    ITEM_SUBCLASS_COOKING_CONTAINER             = 10,
+    ITEM_SUBCLASS_OTHER_CONTAINER               = 11,
+    ITEM_SUBCLASS_ENCHANTING_CONTAINER_2        = 12,
+    ITEM_SUBCLASS_MATERIALS_CONTAINER           = 13,
+    ITEM_SUBCLASS_ITEM_ENCHANTMENT_CONTAINER    = 14,
+    ITEM_SUBCLASS_WEAPON_ENCHANTMENT_CONTAINER  = 15
 };
 
-#define MAX_ITEM_SUBCLASS_CONTAINER               11
+#define MAX_ITEM_SUBCLASS_CONTAINER               16
 
 enum ItemSubclassWeapon
 {
@@ -746,6 +751,7 @@ struct ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     SpecList specs;
+    uint32 PvPScalingLevel;
 
     // helpers
     bool CanChangeEquipStateInCombat() const
@@ -775,9 +781,9 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    int GetItemLevelIncludingQuality() const
+    int GetItemLevelIncludingQuality(int l_ScalingItemLevel = 0) const
     {
-        int itemLevel = (int)ItemLevel;
+        int l_ItemLevel = l_ScalingItemLevel ? l_ScalingItemLevel : (int)ItemLevel;
         switch (Quality)
         {
             case ITEM_QUALITY_POOR:
@@ -785,17 +791,17 @@ struct ItemTemplate
             case ITEM_QUALITY_UNCOMMON:
             case ITEM_QUALITY_ARTIFACT:
             case ITEM_QUALITY_HEIRLOOM:
-                itemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
+                l_ItemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
                 break;
             case ITEM_QUALITY_RARE:
-                itemLevel -= 13;
+                l_ItemLevel -= 13;
                 break;
             case ITEM_QUALITY_EPIC:
             case ITEM_QUALITY_LEGENDARY:
             default:
                 break;
         }
-        return itemLevel >= 0 ? itemLevel : 1;
+        return l_ItemLevel >= 0 ? l_ItemLevel : 1;
     }
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && (SubClass == ITEM_SUBCLASS_POTION || SubClass == ITEM_SUBCLASS_FOOD_DRINK); }
@@ -817,7 +823,13 @@ struct ItemTemplate
             SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
             SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
             SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
-            SubClass == ITEM_SUBCLASS_WEAPON_FIST_WEAPON);
+            SubClass == ITEM_SUBCLASS_WEAPON_FIST_WEAPON ||
+            SubClass == ITEM_SUBCLASS_WEAPON_EXOTIC);
+    }
+
+    bool IsTwoHandedWeapon() const
+    {
+        return Class == ITEM_CLASS_WEAPON && !IsOneHanded();
     }
 
     uint32 GetSkill() const

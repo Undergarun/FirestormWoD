@@ -968,7 +968,7 @@ namespace JadeCore
     {
         public:
             AnyUnitHavingBuffInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, uint32 spellid, bool isfriendly)
-                : i_obj(obj), i_funit(funit), i_range(range), i_spellid(spellid), i_friendly(isfriendly) {}
+                : i_obj(obj), i_funit(funit), i_range(range), i_friendly(isfriendly), i_spellid(spellid) {}
             bool operator()(Unit* u)
             {
                 if (u->isAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) == i_friendly && u->HasAura(i_spellid, i_obj->GetGUID()))
@@ -1489,7 +1489,7 @@ namespace JadeCore
     class AllDeadCreaturesInRange
     {
         public:
-            AllDeadCreaturesInRange(const WorldObject* object, float maxRange, uint64 excludeGUID) : m_pObject(object), m_fRange(maxRange), m_excludeGUID(excludeGUID) {}
+            AllDeadCreaturesInRange(const WorldObject* object, float maxRange, uint64 excludeGUID) : m_pObject(object), m_excludeGUID(excludeGUID), m_fRange(maxRange) {}
             bool operator() (Unit* unit)
             {
                 if (unit->GetTypeId() == TYPEID_UNIT && unit->GetGUID() != m_excludeGUID && !unit->isAlive() && m_pObject->IsWithinDist(unit, m_fRange, false))

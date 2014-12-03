@@ -218,15 +218,11 @@ void BattlegroundAB::HandleAreaTrigger(Player* Source, uint32 Trigger)
     switch (Trigger)
     {
         case 3948:                                          // Arathi Basin Alliance Exit.
-            if (Source->GetBGTeam() != ALLIANCE)
-                Source->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
-            else
+            if (Source->GetBGTeam() == ALLIANCE)
                 Source->LeaveBattleground();
             break;
         case 3949:                                          // Arathi Basin Horde Exit.
-            if (Source->GetBGTeam() != HORDE)
-                Source->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
-            else
+            if (Source->GetBGTeam() == HORDE)
                 Source->LeaveBattleground();
             break;
         case 3866:                                          // Stables

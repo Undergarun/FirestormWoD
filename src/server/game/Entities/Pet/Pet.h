@@ -124,8 +124,8 @@ class Pet : public Guardian
         void Remove(PetSlot mode, bool returnreagent = false, bool stampeded = false);
         static void DeleteFromDB(uint32 guidlow);
 
-        void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
-        void Update(uint32 diff, uint32 entry);             // overwrite virtual Creature::Update and Unit::Update
+        void setDeathState(DeathState s);                   ///< Overwrite virtual Creature::setDeathState and Unit::setDeathState
+        void Update(uint32 diff);                           ///< Overwrite virtual Creature::Update and Unit::Update
 
         uint8 GetPetAutoSpellSize() const { return m_autospells.size(); }
         uint32 GetPetAutoSpellOnPos(uint8 pos) const
@@ -146,17 +146,6 @@ class Pet : public Guardian
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
         void SetDuration(int32 dur) { m_duration = dur; }
         int32 GetDuration() { return m_duration; }
-
-        /*
-        bool UpdateStats(Stats stat);
-        bool UpdateAllStats();
-        void UpdateResistances(uint32 school);
-        void UpdateArmor();
-        void UpdateMaxHealth();
-        void UpdateMaxPower(Powers power);
-        void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
-        */
 
         void ToggleAutocast(SpellInfo const* spellInfo, bool apply);
 
@@ -210,7 +199,7 @@ class Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        uint32  m_regenTimer;
+        uint32  m_RegenPowerTimer;
         uint32  m_specialization;
         uint8   m_slot;
 

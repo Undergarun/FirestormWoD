@@ -235,7 +235,8 @@ enum ShapeshiftForm
     FORM_FLIGHT             = 0x1D,
     FORM_STEALTH            = 0x1E,
     FORM_MOONKIN            = 0x1F,
-    FORM_SPIRITOFREDEMPTION = 0x20
+    FORM_SPIRITOFREDEMPTION = 0x20,
+    FORM_GLADIATORSTANCE    = 0x21
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2
@@ -610,7 +611,7 @@ enum DamageEffectType
 };
 
 // Value masks for UNIT_FIELD_FLAGS
-enum UnitFlags
+enum eUnitFlags
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
     UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
@@ -647,7 +648,7 @@ enum UnitFlags
 };
 
 // Value masks for UNIT_FIELD_FLAGS2
-enum UnitFlags2
+enum eUnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,
     UNIT_FLAG2_UNK1                         = 0x00000002,   // Hide unit model (show only player equip)
@@ -658,6 +659,7 @@ enum UnitFlags2
     UNIT_FLAG2_FORCE_MOVEMENT               = 0x00000040,
     UNIT_FLAG2_DISARM_OFFHAND               = 0x00000080,
     UNIT_FLAG2_DISABLE_PRED_STATS           = 0x00000100,   // Player has disabled predicted stats (Used by raid frames)
+    UNIT_FLAG2_UNK16                        = 0x00000200,
     UNIT_FLAG2_DISARM_RANGED                = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
     UNIT_FLAG2_REGENERATE_POWER             = 0x00000800,
     UNIT_FLAG2_RESTRICT_PARTY_INTERACTION   = 0x00001000,   // Restrict interaction to party or raid
@@ -674,7 +676,49 @@ enum UnitFlags2
     UNIT_FLAG2_UNK7                         = 0x00800000,
     UNIT_FLAG2_UNK8                         = 0x01000000,
     UNIT_FLAG2_UPDATE_REACTION              = 0x02000000,
-    UNIT_FLAG2_UNK10                        = 0x04000000
+    UNIT_FLAG2_UNK10                        = 0x04000000,
+    UNIT_FLAG2_UNK11                        = 0x08000000,
+    UNIT_FLAG2_UNK12                        = 0x10000000,
+    UNIT_FLAG2_UNK13                        = 0x20000000,
+    UNIT_FLAG2_UNK14                        = 0x40000000,
+    UNIT_FLAG2_UNK15                        = 0x80000000
+};
+
+// Value masks for UNIT_FIELD_FLAGS3
+enum eUnitFlags3
+{
+    UNIT_FLAG3_UNK1                         = 0x00000001,
+    UNIT_FLAG3_UNK2                         = 0x00000002,
+    UNIT_FLAG3_UNK3                         = 0x00000004,
+    UNIT_FLAG3_UNK4                         = 0x00000008,
+    UNIT_FLAG3_UNK5                         = 0x00000010,
+    UNIT_FLAG3_UNK6                         = 0x00000020,
+    UNIT_FLAG3_UNK7                         = 0x00000040,
+    UNIT_FLAG3_UNK8                         = 0x00000080,
+    UNIT_FLAG3_UNK9                         = 0x00000100,
+    UNIT_FLAG3_UNK10                        = 0x00000200,
+    UNIT_FLAG3_UNK11                        = 0x00000400,
+    UNIT_FLAG3_UNK12                        = 0x00000800,
+    UNIT_FLAG3_UNK13                        = 0x00001000,
+    UNIT_FLAG3_UNK14                        = 0x00002000,
+    UNIT_FLAG3_UNK15                        = 0x00004000,
+    UNIT_FLAG3_UNK16                        = 0x00008000,
+    UNIT_FLAG3_UNK17                        = 0x00010000,
+    UNIT_FLAG3_UNK18                        = 0x00020000,
+    UNIT_FLAG3_UNK19                        = 0x00040000,
+    UNIT_FLAG3_UNK20                        = 0x00080000,
+    UNIT_FLAG3_UNK21                        = 0x00100000,
+    UNIT_FLAG3_UNK22                        = 0x00200000,
+    UNIT_FLAG3_UNK23                        = 0x00400000,
+    UNIT_FLAG3_UNK24                        = 0x00800000,
+    UNIT_FLAG3_UNK25                        = 0x01000000,
+    UNIT_FLAG3_UNK26                        = 0x02000000,
+    UNIT_FLAG3_UNK27                        = 0x04000000,
+    UNIT_FLAG3_UNK28                        = 0x08000000,
+    UNIT_FLAG3_UNK29                        = 0x10000000,
+    UNIT_FLAG3_UNK30                        = 0x20000000,
+    UNIT_FLAG3_UNK31                        = 0x40000000,
+    UNIT_FLAG3_UNK32                        = 0x80000000
 };
 
 /// Non Player Character flags
@@ -1391,7 +1435,7 @@ class Unit : public WorldObject
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-        virtual void Update(uint32 time, uint32 entry = 0);
+        virtual void Update(uint32 time);
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
@@ -1787,7 +1831,6 @@ class Unit : public WorldObject
         void SendMovementHover(bool apply);
         void SendMovementFeatherFall();
         void SendMovementWaterWalking();
-        void SendMovementGravityChange();
         void SendMovementCanFlyChange();
         void SendCanTurnWhileFalling(bool apply);
 
@@ -2075,17 +2118,19 @@ class Unit : public WorldObject
         {
             SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3, form);
         }
-
         inline bool IsInFeralForm() const
         {
             ShapeshiftForm form = GetShapeshiftForm();
             return form == FORM_CAT || form == FORM_BEAR;
         }
-
+        inline bool IsTravelForm(ShapeshiftForm p_Form) const
+        {
+            return p_Form == FORM_AQUA || p_Form == FORM_STAG || p_Form == FORM_FLIGHT || p_Form == FORM_FLIGHT_EPIC;
+        }
         inline bool IsInDisallowedMountForm() const
         {
             ShapeshiftForm form = GetShapeshiftForm();
-            return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
+            return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_GLADIATORSTANCE && form != FORM_DEFENSIVESTANCE &&
                 form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD && form != FORM_WISE_SERPENT && form != FORM_STURDY_OX && form != FORM_FIERCE_TIGER && form != FORM_MOONKIN;
         }
 
@@ -2536,7 +2581,7 @@ class Unit : public WorldObject
         MotionMaster i_motionMaster;
 
         uint32 m_reactiveTimer[MAX_REACTIVE];
-        uint32 m_regenTimer;
+        uint32 m_RegenPowerTimer;
 
         ThreatManager m_ThreatManager;
 

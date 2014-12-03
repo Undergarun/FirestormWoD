@@ -76,7 +76,6 @@ typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSet
 extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
-extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;

@@ -110,8 +110,9 @@ class debug_commandscript : public CommandScript
                 { "boss",           SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,            "", NULL },
                 { "lfg",            SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,             "", NULL },
                 { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
-
-                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL },
+                { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
+                { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
+                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
             {
@@ -120,6 +121,49 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugClearSpellCharges(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 id = atoi((char*)args);
+
+            if (sSpellMgr->GetSpellInfo(id) != nullptr)
+            {
+                handler->GetSession()->GetPlayer()->SendClearSpellCharges(id);
+                return true;
+            }
+            else
+            {
+                handler->PSendSysMessage("Spell %u doesn't exist !", id);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        static bool HandleDebugToyCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrIndex = strtok((char*)p_Args, " ");
+            uint32 l_Index = uint32(atoi(l_StrIndex));
+
+            char* l_StrID = strtok(NULL, " ");
+            uint32 l_ID = l_StrID ? uint32(atoi(l_StrID)) : 0;
+
+            p_Handler->GetSession()->GetPlayer()->AddDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, l_ID);
+            return true;
         }
 
         static bool HandleDebugBossCommand(ChatHandler* p_Handler, char const* p_Args)
@@ -404,12 +448,28 @@ class debug_commandscript : public CommandScript
             if (!param)
                 return false;
 
+            Position pos;
+            pos.m_positionX = float(atoi(param));
+            
+            param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
+            pos.m_positionY = float(atoi(param));
+
+            param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
+            pos.m_positionZ = float(atoi(param));
+
+            param = strtok(NULL, " ");
+            if (!param)
+                return false;
+
             float force = float(atoi(param));
 
-            Position pos;
-            handler->GetSession()->GetPlayer()->GetPosition(&pos);
-
-            handler->GetSession()->GetPlayer()->SendApplyMovementForce(apply, pos, -force);
+            handler->GetSession()->GetPlayer()->SendApplyMovementForce(handler->GetSession()->GetPlayer()->GetGUID(), apply, pos, force);
 
             return true;
         }

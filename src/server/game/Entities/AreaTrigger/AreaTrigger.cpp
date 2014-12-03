@@ -43,6 +43,7 @@ AreaTrigger::AreaTrigger()
     m_updateFlag = UPDATEFLAG_HAS_POSITION | UPDATEFLAG_HAS_AREATRIGGER;
 
     m_valuesCount = AREATRIGGER_END;
+    _dynamicValuesCount = AREATRIGGER_DYNAMIC_END;
     m_CreatedTime = 0;
     m_Flags = 0;
 

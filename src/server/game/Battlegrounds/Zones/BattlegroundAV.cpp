@@ -501,15 +501,11 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
     {
         case 95:
         case 2608:
-            if (Source->GetTeam() != ALLIANCE)
-                Source->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
-            else
+            if (Source->GetTeam() == ALLIANCE)
                 Source->LeaveBattleground();
             break;
         case 2606:
-            if (Source->GetTeam() != HORDE)
-                Source->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
-            else
+            if (Source->GetTeam() == HORDE)
                 Source->LeaveBattleground();
             break;
         case 3326:
@@ -778,6 +774,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
+
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);

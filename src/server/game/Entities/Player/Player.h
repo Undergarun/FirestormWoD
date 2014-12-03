@@ -41,7 +41,6 @@
 #include "WorldSession.h"
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
-#include "SpellChargesTracker.h"
 #include "CinematicPathMgr.h"
 
 // for template
@@ -527,7 +526,7 @@ enum PlayerFlagsEx
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   5
+#define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
@@ -753,24 +752,39 @@ enum TradeSlots
 
 enum TransferAbortReason
 {
-    TRANSFER_ABORT_NONE                         = 0x00,
-    TRANSFER_ABORT_ERROR                        = 0x01,
-    TRANSFER_ABORT_MAX_PLAYERS                  = 0x02,         // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND                    = 0x03,         // Transfer Aborted: instance not found
-    TRANSFER_ABORT_TOO_MANY_INSTANCES           = 0x04,         // You have entered too many instances recently.
-    TRANSFER_ABORT_ZONE_IN_COMBAT               = 0x06,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL              = 0x07,         // You must have <TBC, WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY                   = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_UNIQUE_MESSAGE               = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES     = 0x0A,         // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // Transfer Aborted: you must be in a raid group to enter this instance
-    TRANSFER_ABORT_NOT_FOUND1                   = 0x0C,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND2                   = 0x0D,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND3                   = 0x0E,         // 3.2
-    TRANSFER_ABORT_REALM_ONLY                   = 0x0F,         // All players on party must be from the same realm.
-    TRANSFER_ABORT_MAP_NOT_ALLOWED              = 0x10,         // Map can't be entered at this time.
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // You are already locked to %s.
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_NONE                          = 0,
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 1,   // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_DIFFICULTY                    = 3,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 8,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_NOT_FOUND                     = 10,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 11,  // You have entered too many instances recently.
+    TRANSFER_ABORT_MAX_PLAYERS                   = 12,  // Transfer Aborted: instance is full
+    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 14,  // Transfer Aborted: cross-realm zone is down
+    TRANSFER_ABORT_NOT_FOUND_2                   = 15,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 16,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
+    TRANSFER_ABORT_NOT_FOUND_3                   = 17,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_4                   = 18,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 19,  // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 20,  // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 24,  // You are already locked to %s
+    TRANSFER_ABORT_REALM_ONLY                    = 25,  // All players in the party must be from the same realm to enter %s.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 27,  // Map cannot be entered at this time.
+    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 28,  // This instance is already in progress. You may only switch difficulties from inside the instance.
+    TRANSFER_ABORT_NEED_GROUP                    = 29,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 30,  // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_ERROR                         = 31
+    /*
+    // Unknown values - not used by the client to display any error
+    TRANSFER_ABORT_MANY_REALM_INSTANCES
+    TRANSFER_ABORT_AREA_NOT_ZONED
+    TRANSFER_ABORT_TIMEOUT
+    TRANSFER_ABORT_SHUTTING_DOWN
+    TRANSFER_ABORT_PLAYER_CONDITION
+    TRANSFER_ABORT_BUSY
+    TRANSFER_ABORT_DISCONNECTED
+    TRANSFER_ABORT_LOGGING_OUT
+    TRANSFER_ABORT_NEED_SERVER
+    */
 };
 
 enum InstanceResetWarningType
@@ -896,7 +910,9 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY             = 40,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS    = 41,
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES       = 42,
-    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 43,
+    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
+    PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS       = 45,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1241,7 +1257,7 @@ struct PlayerTalentInfo
     PlayerTalentInfo() :
         FreeTalentPoints(0), UsedTalentCount(0), QuestRewardedTalentCount(0),
         ResetTalentsCost(0), ResetTalentsTime(0), ResetSpecializationCost(0),
-        ActiveSpec(0), SpecsCount(1), ResetSpecializationTime(0)
+        ResetSpecializationTime(0), ActiveSpec(0), SpecsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {
@@ -1283,6 +1299,63 @@ struct PlayerTalentInfo
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
+
+struct PlayerToy
+{
+    PlayerToy()
+    {
+        memset(this, 0, sizeof (PlayerToy));
+    }
+
+    PlayerToy(uint32 p_Item, bool p_Favorite)
+    {
+        m_ItemID = p_Item;
+        m_IsFavorite = p_Favorite;
+    }
+
+    uint32 m_ItemID;
+    bool m_IsFavorite;
+};
+
+typedef std::map<uint32, PlayerToy> PlayerToys;
+
+struct ChargesData
+{
+    ChargesData()
+    {
+        m_MaxCharges = 0;
+        m_ConsumedCharges = 0;
+        m_Changed = false;
+    }
+
+    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown)
+    {
+        m_MaxCharges = p_MaxCharges;
+
+        // Called in ConsumeCharge, so one charge has gone
+        m_ConsumedCharges = 1;
+
+        m_ChargesCooldown.push_back(p_Cooldown);
+        m_Changed = true;
+    }
+
+    std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
+    void DecreaseCooldown(uint8 p_Charge, uint32 p_Time)
+    {
+        if (p_Charge >= m_MaxCharges)
+            return;
+
+        m_ChargesCooldown[p_Charge] -= p_Time;
+    }
+
+    uint32 m_MaxCharges;
+    uint32 m_ConsumedCharges;
+    std::vector<uint64> m_ChargesCooldown;
+    bool m_Changed;
+};
+
+///<            SpellID
+typedef std::map<uint32, ChargesData> SpellChargesMap;
 
 enum BattlegroundTimerTypes
 {
@@ -1328,7 +1401,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time, uint32 entry = 0);
+        void Update(uint32 time);
 
         static bool BuildEnumData(PreparedQueryResult p_Result, ByteBuffer * p_Data);
 
@@ -1448,6 +1521,7 @@ class Player : public Unit, public GridObject<Player>
         void SetVirtualItemSlot(uint8 i, Item* item);
         void SetSheath(SheathState sheathed);             // overwrite Unit version
         uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
+        uint8 GetGuessedEquipSlot(ItemTemplate const* proto) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
         Item* GetItemByGuid(uint64 guid) const;
@@ -1552,6 +1626,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool HasUnlockedReagentBank();
         void UnlockReagentBank();
+        uint32 GetFreeReagentBankSlot() const;
 
         /**
         * @name ModifyCurrency
@@ -1935,7 +2010,6 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        void SendInitialSpells();
         bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
@@ -2043,7 +2117,7 @@ class Player : public Unit, public GridObject<Player>
             return uint32(itr != m_spellCooldowns.end() && itr->second.end > currTime ? itr->second.end - currTime : 0);
         }
         void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
-        void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time);
+        void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time, bool send = false);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID = 0, Spell * p_Spell = NULL, bool p_SetCooldown = true);
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
@@ -2058,7 +2132,9 @@ class Player : public Unit, public GridObject<Player>
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(PreparedQueryResult result);
+        void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
+        void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -2278,7 +2354,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
 
-        Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
+        Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_LegacyRaidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficulty() const { return m_raidDifficulty; }
         Difficulty GetLegacyRaidDifficulty() const { return m_LegacyRaidDifficulty; }
@@ -2749,8 +2825,9 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(bool apply, Position source, float force = 0.0f);
-        bool hasForcedMovement;
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f);
+        void RemoveAllMovementForces();
+        bool HasMovementForce(uint64 p_Source);
 
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
@@ -3089,12 +3166,9 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
-        bool HasSpellCharge(uint32 spellId, SpellCategoryEntry const &category);
-
         void SendCUFProfiles();
 
         void SendResumeToken(uint32 token);
-        void SendTokenResponse();
         void SendRefreshSpellMods();
 
         uint8 GetBattleGroundRoles() const { return m_bgRoles; }
@@ -3132,6 +3206,30 @@ class Player : public Unit, public GridObject<Player>
         /// Update battle pet combat team
         void UpdateBattlePetCombatTeam();
 
+        //////////////////////////////////////////////////////////////////////////
+        /// ToyBox
+        void _LoadToyBox(PreparedQueryResult p_Result);
+        void SendToyBox();
+        void AddNewToyToBox(uint32 p_ItemID);
+        void SetFavoriteToy(bool p_Apply, uint32 p_ItemID);
+
+        PlayerToy* GetToy(uint32 p_ItemID)
+        {
+            if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
+                return &m_PlayerToys[p_ItemID];
+
+            return nullptr;
+        }
+
+        bool HasToy(uint32 p_ItemID) const
+        {
+            if (m_PlayerToys.find(p_ItemID) != m_PlayerToys.end())
+                return true;
+
+            return false;
+        }
+        //////////////////////////////////////////////////////////////////////////
+
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
@@ -3142,6 +3240,22 @@ class Player : public Unit, public GridObject<Player>
         void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
 
         uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// SpellCharges
+        SpellChargesMap m_SpellChargesMap;
+
+        void SendSpellCharges();
+        void SendClearAllSpellCharges();
+        void SendSetSpellCharges(uint32 p_SpellID);
+        void SendClearSpellCharges(uint32 p_SpellID);
+
+        bool CanUseCharge(uint32 p_SpellID) const;
+        void UpdateCharges(uint32 const p_Time);
+        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = true);
+        ChargesData* GetChargesData(uint32 p_SpellID);
+        //////////////////////////////////////////////////////////////////////////
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3158,6 +3272,8 @@ class Player : public Unit, public GridObject<Player>
 
         PreparedQueryResultFuture _petBattleJournalCallback;
 
+        PlayerToys m_PlayerToys;
+
     private:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -3170,6 +3286,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+
+        std::set<uint64> m_ActiveMovementForces;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -3567,8 +3685,6 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
-
-        JadeCore::SpellChargesTracker spellChargesTracker_;
 
         uint8 m_bgRoles;
 

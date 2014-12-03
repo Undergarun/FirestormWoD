@@ -618,7 +618,6 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-/// @TODO: Verify order, l_RollType & l_LootListID are maybe inversed
 void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
 {
     uint64 l_LootObj;
@@ -626,8 +625,8 @@ void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
     uint8  l_RollType;
 
     p_RecvData.readPackGUID(l_LootObj);
-    p_RecvData >> l_RollType;
     p_RecvData >> l_LootListID;
+    p_RecvData >> l_RollType;
 
     Group* l_Group = GetPlayer()->GetGroup();
 
@@ -1510,20 +1509,16 @@ void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recvData)
+void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& p_RecvData)
 {
-    uint8 markerId = recvData.read<uint8>();
+    uint8 l_MarkerID = p_RecvData.read<uint8>();
 
-    Player* plr = GetPlayer();
-    if (!plr)
+    Group* l_Group = m_Player->GetGroup();
+    if (!l_Group)
         return;
 
-    Group* group = plr->GetGroup();
-    if (!group)
-        return;
-
-    if (markerId < 5)
-        group->RemoveRaidMarker(markerId);
+    if (l_MarkerID < 5)
+        l_Group->RemoveRaidMarker(l_MarkerID);
     else
-        group->RemoveAllRaidMarkers();
+        l_Group->RemoveAllRaidMarkers();
 }
