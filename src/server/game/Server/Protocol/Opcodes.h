@@ -333,7 +333,7 @@ enum Opcodes
         SMSG_BATTLEFIELD_MGR_EXIT_REQUEST                   = 0x0000,
         SMSG_REQUEST_PVP_REWARDS_RESPONSE                   = 0x1DAE,   ///< 6.0.3 19116
         SMSG_PVP_OPTIONS_ENABLED                            = 0x0320,   ///< 6.0.3 19116 (unused)
-        SMSG_PVP_LOG_DATA                                   = 0x1ECA,   ///< 6.0.3 19116
+        SMSG_PVPLOG_DATA                                    = 0x1ECA,   ///< 6.0.3 19116
         SMSG_ARENA_OPPONENT_SPECIALIZATIONS                 = 0x03AA,   ///< 6.0.3 19116
         SMSG_DESTROY_ARENA_UNIT                             = 0x19E1,   ///< 6.0.3 19116 (unused)
         SMSG_BATTLEGROUND_POINTS                            = 0x122A,   ///< 6.0.3 19116 (unused)
