@@ -3302,6 +3302,19 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
 
+void WorldObject::GetCreatureListInGrid(std::list<Creature*>& creatureList, float maxSearchRange) const
+{
+    CellCoord pair(JadeCore::ComputeCellCoord(this->GetPositionX(), this->GetPositionY()));
+    Cell cell(pair);
+    cell.SetNoCreate();
+
+    JadeCore::AllCreaturesInRange check(this, maxSearchRange);
+    JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(this, creatureList, check);
+    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> visitor(searcher);
+
+    cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
+}
+
 void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
 {
     JadeCore::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);

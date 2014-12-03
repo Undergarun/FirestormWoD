@@ -1708,26 +1708,24 @@ class spell_pri_halo_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_halo_heal_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 heal = GetHitHeal();
-                        heal += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier);
-                        float Distance = _player->GetDistance(target);
-                        float pct = Distance / 25.0f;
-                        heal = int32(heal * pct);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (Unit*   l_Target = GetHitUnit())
+                        if (l_Target->IsFriendlyTo(l_Player))
+                        {
+                            int32 l_Heal = GetHitHeal();
 
-                        SetHitHeal(heal);
-                    }
-                }
+                            if (l_Player->GetDistance(l_Target) < 25.0f)
+                                l_Heal = (l_Player->GetDistance(l_Target) / 25.0f) * GetHitHeal();
+
+                            SetHitHeal(l_Heal);
+                        }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_halo_heal_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -1742,7 +1740,7 @@ enum Halo_Spell
     PRIEST_SPELL_HALO_DAMAGE = 120696
 };
 
-// Halo (shadow) - 120517
+// Halo Damage (shadow) - 120696
 class spell_pri_halo_damage : public SpellScriptLoader
 {
     public:
@@ -1752,42 +1750,26 @@ class spell_pri_halo_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_halo_damage_SpellScript);
 
-            void HandleDamage(SpellEffIndex eff)
+            void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 damage = GetHitDamage();
-                        damage += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sSpellMgr->GetSpellInfo(PRIEST_SPELL_HALO_DAMAGE)->Effects[EFFECT_0].AttackPowerMultiplier);
-
-                        float Distance = _player->GetDistance(target);
-                        float pct = Distance / 25.0f;
-                        damage = int32(damage * pct);
-
-                        SetHitDamage(damage);
-                    }
-                }
-            }
-
-            void HandleScript(SpellEffIndex eff)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpellInfo()->Id == 120517)
-                            _player->CastSpell(target, PRIEST_SPELL_HALO_HEAL_SHADOW, true);
-                        else
-                            _player->CastSpell(target, PRIEST_SPELL_HALO_HEAL_HOLY, true);
-                    }
+                    if (Unit*   l_Target = GetHitUnit())
+                        if (!l_Target->IsFriendlyTo(l_Player))
+                        {
+                            int32 l_Damage = GetHitDamage();
+                            
+                            if (l_Player->GetDistance(l_Target) < 25.0f)
+                                l_Damage = (l_Player->GetDistance(l_Target) / 25.0f) * GetHitDamage();
+                            
+                            SetHitDamage(l_Damage);
+                        }
                 }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_damage_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnHit += SpellHitFn(spell_pri_halo_damage_SpellScript::HandleOnHit);
             }
         };
 
@@ -1795,6 +1777,68 @@ class spell_pri_halo_damage : public SpellScriptLoader
         {
             return new spell_pri_halo_damage_SpellScript;
         }
+};
+
+// Halo - 120644 (damage)
+// Halo - 120517 (heal)
+class spell_pri_halo : public SpellScriptLoader
+{
+public:
+    spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
+
+    class spell_pri_halo_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_halo_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    std::list<Creature*> l_TempListCreature;
+                    std::list<Player*> l_TempListPlayer;
+                    AreaTrigger* l_Area;
+
+                    if (GetSpellInfo()->Id == 120644)
+                        l_Area = l_Player->GetAreaTrigger(120644);
+                    else if (GetSpellInfo()->Id == 120517)
+                        l_Area = l_Player->GetAreaTrigger(120517);
+
+                    if (l_Area)
+                    {
+                        l_Area->GetCreatureListInGrid(l_TempListCreature, 30.0f);
+                        for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
+                        {
+                            if (GetSpellInfo()->Id == 120644 && !(*i)->IsFriendlyTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
+                            if (GetSpellInfo()->Id == 120517 && (*i)->IsFriendlyTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                        }
+
+                        l_Area->GetPlayerListInGrid(l_TempListPlayer, 30.0f);
+                        for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
+                        {
+                            if (GetSpellInfo()->Id == 120644 && (*i)->IsHostileTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
+                            if (GetSpellInfo()->Id == 120517 && (*i)->IsFriendlyTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                        }
+                    }
+                }
+            }
+        }
+
+    void Register()
+    {
+        OnHit += SpellHitFn(spell_pri_halo_SpellScript::HandleOnHit);
+    }
+};
+
+SpellScript* GetSpellScript() const
+{
+    return new spell_pri_halo_SpellScript;
+}
 };
 
 // Leap of Faith - 73325
@@ -2504,6 +2548,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_second();
     new spell_pri_cascade_trigger();
     new spell_pri_cascade_first();
+    new spell_pri_halo();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
     new spell_pri_leap_of_faith();
