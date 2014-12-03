@@ -207,7 +207,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
         if (l_Group->GetLeaderGUID() != m_Player->GetGUID())
             return;
 
-        l_Error = l_Group->CanJoinBattlegroundQueue(l_BG, l_BGQueueTypeID, 0, l_BG->GetMaxPlayersPerTeam(), false, 0);
+        l_Error = l_Group->CanJoinBattlegroundQueue(l_BG, l_BGQueueTypeID, 0);
         l_IsPremade = (l_Group->GetMembersCount() >= l_BG->GetMinPlayersPerTeam());
 
         BattlegroundQueue& bgQueue = sBattlegroundMgr->m_BattlegroundQueues[l_BGQueueTypeID];
@@ -697,7 +697,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     uint32 l_AverageTime = 0;
     GroupQueueInfo * l_GroupQueueInfo = NULL;
 
-    l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType, l_ArenaType, true, l_TeamSizeIndex);
+    l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType);
     
     if (!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting()))
     {
@@ -938,7 +938,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket & recvData)
     uint32 avgTime = 0;
     GroupQueueInfo* ginfo;
 
-    err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10, 10, true, 0);
+    err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10);
     if (!err)
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");

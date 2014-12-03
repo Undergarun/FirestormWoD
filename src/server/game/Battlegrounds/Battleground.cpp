@@ -563,14 +563,13 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             PlaySoundToAll(SOUND_BG_START);
 
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
                 }
-            // Announce BG starting
-            if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
-                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
+            }
         }
     }
 
@@ -808,10 +807,6 @@ void Battleground::EndBattleground(uint32 winner)
             SetArenaTeamRatingChangeForTeam(winner, winner_change);
             SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
 
-            //if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
-            //    for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
-            //        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            //            sLog->outArena("Statistics match Type: %u for %s (GUID: " UI64FMTD ", IP: %s): %u damage, %u healing, %u killing blows", m_ArenaType, player->GetName(), itr->first, player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
         }
         // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
         else if (GetWinner() == 3)
@@ -868,10 +863,7 @@ void Battleground::EndBattleground(uint32 winner)
             player->getHostileRefManager().deleteReferences();
         }
 
-        //this line is obsolete - team is set ALWAYS
-        //if (!team) team = player->GetTeam();
-
-        // per player calculation
+        // per player calculation, achievements
         if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
             uint8 slot = Arena::GetSlotByType(GetArenaType());
@@ -886,16 +878,6 @@ void Battleground::EndBattleground(uint32 winner)
             else
             {
                 // Member lost
-                // Update personal rating
-                /*int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), winner_matchmaker_rating, false);
-                player->SetArenaPersonalRating(player->GetArenaPersonalRating(slot) + mod, slot);
-
-                // Update matchmaker rating
-                player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + loser_matchmaker_change);
-
-                // Update personal played stats
-                player->IncrementWeekGames(slot);
-                player->IncrementSeasonGames(slot);*/
 
                 // Arena lost => reset the win_rated_arena having the "no_lose" condition
                 player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
@@ -1628,28 +1610,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
         delete go;
         return false;
     }
-/*
-    uint32 guid = go->GetGUIDLow();
 
-    // without this, UseButtonOrDoor caused the crash, since it tried to get go info from godata
-    // iirc that was changed, so adding to go data map is no longer required if that was the only function using godata from GameObject without checking if it existed
-    GameObjectData& data = sObjectMgr->NewGOData(guid);
-
-    data.id             = entry;
-    data.mapid          = GetMapId();
-    data.posX           = x;
-    data.posY           = y;
-    data.posZ           = z;
-    data.orientation    = o;
-    data.rotation0      = rotation0;
-    data.rotation1      = rotation1;
-    data.rotation2      = rotation2;
-    data.rotation3      = rotation3;
-    data.spawntimesecs  = respawnTime;
-    data.spawnMask      = 1;
-    data.animprogress   = 100;
-    data.go_state       = 1;
-*/
     // Add to world, so it can be later looked up from HashMapHolder
     if (!map->AddToMap(go))
     {
@@ -1818,14 +1779,11 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         creature->setDeathState(DEAD);
         creature->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
         // aura
-        // TODO: Fix display here
-        // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
         creature->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
         creature->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
         creature->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
-        //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }
     sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::AddSpiritGuide: cannot create spirit guide (type: %u, entry: %u) for BG (map: %u, instance id: %u)!",

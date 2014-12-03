@@ -392,7 +392,7 @@ class debug_commandscript : public CommandScript
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
 
-            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10, 10, true, 0);
+            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10);
             if (!err)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
