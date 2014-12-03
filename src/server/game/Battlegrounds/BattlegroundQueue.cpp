@@ -127,70 +127,66 @@ bool BattlegroundQueue::SelectionPool::AddGroup(GroupQueueInfo* ginfo, uint32 de
 /*********************************************************/
 
 // add group or player (grp == NULL) to bg queue with the given leader and bg specifications
-GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, BattlegroundTypeId BgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating)
+GroupQueueInfo* BattlegroundQueue::AddGroup(Player* p_Leader, Group* p_Group, BattlegroundTypeId p_BgTypeId, PvPDifficultyEntry const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRated, bool p_IsPremade, uint32 p_ArenaRating, uint32 p_MatchmakerRating)
 {
-    BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
+    BattlegroundBracketId l_BracketId = p_BracketEntry->GetBracketId();
 
     // create new ginfo
-    GroupQueueInfo* ginfo            = new GroupQueueInfo;
-    ginfo->BgTypeId                  = BgTypeId;
-    ginfo->ArenaType                 = ArenaType;
-    ginfo->IsRated                   = isRated;
-    ginfo->IsRatedBG                 = BgTypeId == BATTLEGROUND_RATED_10_VS_10;
-    ginfo->IsInvitedToBGInstanceGUID = 0;
-    ginfo->JoinTime                  = getMSTime();
-    ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetTeam();
-    ginfo->ArenaTeamRating           = ArenaRating;
-    ginfo->ArenaMatchmakerRating     = MatchmakerRating;
-    ginfo->OpponentsTeamRating       = 0;
-    ginfo->OpponentsMatchmakerRating = 0;
-    ginfo->group                     = grp;
+    GroupQueueInfo* l_GroupQueue            = new GroupQueueInfo;
+    l_GroupQueue->BgTypeId                  = p_BgTypeId;
+    l_GroupQueue->ArenaType                 = p_ArenaType;
+    l_GroupQueue->IsRated                   = p_IsRated;
+    l_GroupQueue->IsInvitedToBGInstanceGUID = 0;
+    l_GroupQueue->JoinTime                  = getMSTime();
+    l_GroupQueue->RemoveInviteTime          = 0;
+    l_GroupQueue->Team                      = p_Leader->GetTeam();
+    l_GroupQueue->ArenaTeamRating           = p_ArenaRating;
+    l_GroupQueue->ArenaMatchmakerRating     = p_MatchmakerRating;
+    l_GroupQueue->OpponentsTeamRating       = 0;
+    l_GroupQueue->OpponentsMatchmakerRating = 0;
+    l_GroupQueue->group                     = p_Group;
 
-    ginfo->Players.clear();
+    l_GroupQueue->Players.clear();
 
     //compute index (if group is premade or joined a rated match) to queues
-    uint32 index = 0;
-    if (!isRated && !isPremade)
-        index += BG_TEAMS_COUNT;
-    if (ginfo->Team == HORDE)
-        index++;
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Adding Group to BattlegroundQueue bgTypeId : %u, bracket_id : %u, index : %u", BgTypeId, bracketId, index);
+    uint32 l_Index = 0;
+    if (!p_IsRated && !p_IsPremade)
+        l_Index += BG_TEAMS_COUNT;
+    if (l_GroupQueue->Team == HORDE)
+        l_Index++;
 
-    uint32 lastOnlineTime = getMSTime();
+    uint32 l_LastOnlineTime = getMSTime();
 
     //add players from group to ginfo
     {
-        //ACE_Guard<ACE_Recursive_Thread_Mutex> guard(m_Lock);
-        if (grp)
+        if (p_Group)
         {
-            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* l_Iterator = p_Group->GetFirstMember(); l_Iterator != NULL; l_Iterator = l_Iterator->next())
             {
-                Player* member = itr->getSource();
-                if (!member)
-                    continue;   // this should never happen
-                PlayerQueueInfo& pl_info = m_QueuedPlayers[member->GetGUID()];
-                pl_info.LastOnlineTime   = lastOnlineTime;
-                pl_info.GroupInfo        = ginfo;
-                // add the pinfo to ginfo's list
-                ginfo->Players[member->GetGUID()]  = &pl_info;
+                Player* l_Member = l_Iterator->getSource();
+                if (!l_Member)
+                    continue;
+
+                PlayerQueueInfo& l_PlayerQueue = m_QueuedPlayers[l_Member->GetGUID()];
+                l_PlayerQueue.LastOnlineTime   = l_LastOnlineTime;
+                l_PlayerQueue.GroupInfo        = l_GroupQueue;
+
+                l_GroupQueue->Players[l_Member->GetGUID()]  = &l_PlayerQueue;
             }
         }
         else
         {
-            PlayerQueueInfo& pl_info = m_QueuedPlayers[leader->GetGUID()];
-            pl_info.LastOnlineTime   = lastOnlineTime;
-            pl_info.GroupInfo        = ginfo;
-            ginfo->Players[leader->GetGUID()]  = &pl_info;
+            PlayerQueueInfo& l_PlayerQueue = m_QueuedPlayers[p_Leader->GetGUID()];
+            l_PlayerQueue.LastOnlineTime   = l_LastOnlineTime;
+            l_PlayerQueue.GroupInfo        = l_GroupQueue;
+
+            l_GroupQueue->Players[p_Leader->GetGUID()]  = &l_PlayerQueue;
         }
 
-        //add GroupInfo to m_QueuedGroups
-        m_QueuedGroups[bracketId][index].push_back(ginfo);
-
-        //release mutex
+        m_QueuedGroups[l_BracketId][l_Index].push_back(l_GroupQueue);
     }
 
-    return ginfo;
+    return l_GroupQueue;
 }
 
 void BattlegroundQueue::PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id)

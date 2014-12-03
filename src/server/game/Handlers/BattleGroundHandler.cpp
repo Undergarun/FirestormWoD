@@ -87,9 +87,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
 
     uint32  l_BGTypeID_  = 0;
     uint32  l_InstanceID = 0;
-    Group * l_Group      = NULL;
-
-    bool l_IsPremade = false;
+    Group*  l_Group      = nullptr;
+    bool    l_IsPremade  = false;
 
     l_BGTypeID_ = GUID_LOPART(l_QueueID);
 
@@ -784,7 +783,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkrimish(WorldPacket& p_Packet)
     }
 
     /// Check existance
-    /*Battleground* l_Battleground = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
+    Battleground* l_Battleground = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
     if (!l_Battleground)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: template bg (all arenas) not found");
@@ -820,15 +819,12 @@ void WorldSession::HandleBattlemasterJoinArenaSkrimish(WorldPacket& p_Packet)
 
     if (l_JoinAsGroup)
     {
-
-        l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType, l_ArenaType, true, l_TeamSizeIndex);
+        l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType);
 
         if (!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting()))
         {
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued with matchmaker rating %u for type %u", m_Player->GetName(), l_MatchmakerRating, l_ArenaType);
-
-            l_GroupQueueInfo = l_BGQueue.AddGroup(m_Player, l_Group, l_BGTypeId, l_BracketEntry, l_ArenaType, true, false, l_ArenaRating, l_MatchmakerRating);
-            l_AverageTime = l_BGQueue.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->GetBracketId());
+            l_GroupQueueInfo = l_BGQueue.AddGroup(m_Player, l_Group, l_BGTypeId, l_BracketEntry, l_ArenaType, true, false, 0, 0);
+            l_AverageTime    = l_BGQueue.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->GetBracketId());
         }
 
         for (GroupReference * l_It = l_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())
@@ -871,7 +867,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkrimish(WorldPacket& p_Packet)
     {
     }
 
-    sBattlegroundMgr->ScheduleQueueUpdate(l_MatchmakerRating, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());*/
+    sBattlegroundMgr->ScheduleQueueUpdate(0, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
 }
 
 void WorldSession::HandleBattlemasterJoinRated(WorldPacket & recvData)
@@ -933,7 +929,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket & recvData)
     if (matchmakerRating <= 0)
         matchmakerRating = 1;
 
-    BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+    BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
 
     uint32 avgTime = 0;
     GroupQueueInfo* ginfo;
@@ -941,8 +937,6 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket & recvData)
     err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10);
     if (!err)
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
-
         ginfo = bgQueue.AddGroup(m_Player, grp, bgTypeId, bracketEntry, 0, false, true, personalRating, matchmakerRating);
         avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
     }

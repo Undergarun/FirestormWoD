@@ -581,7 +581,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
     }
 }
 
-void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* p_Data, Battleground * p_BG, Player* p_Player, uint32 p_QueueSlot, GroupJoinBattlegroundResult p_Result)
+void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint32 p_QueueSlot, GroupJoinBattlegroundResult p_Result)
 {
     uint64 l_ClientID = 0;
 
