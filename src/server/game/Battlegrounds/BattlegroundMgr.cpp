@@ -1151,9 +1151,9 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
         bgTypeId == BATTLEGROUND_RL);
 }
 
-BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType)
+BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish)
 {
-    switch (bgTypeId)
+    switch (p_BgTypeId)
     {
         case BATTLEGROUND_WS:
             return BATTLEGROUND_QUEUE_WS;
@@ -1189,13 +1189,13 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
         case BATTLEGROUND_BE:
         case BATTLEGROUND_DS:
         case BATTLEGROUND_RV:
-            switch (arenaType)
+            switch (p_ArenaType)
             {
-                case ARENA_TYPE_2v2:
-                    return BATTLEGROUND_QUEUE_2v2;
-                case ARENA_TYPE_3v3:
-                    return BATTLEGROUND_QUEUE_3v3;
-                case ARENA_TYPE_5v5:
+                case ArenaType::Arena2v2:
+                    return p_IsSkirmish ? BATTLEGROUND_QUEUE_SKIRMISH_2V2 : BATTLEGROUND_QUEUE_2v2;
+                case ArenaType::Arena3v3:
+                    return p_IsSkirmish ? BATTLEGROUND_QUEUE_SKIRMISH_3V3 : BATTLEGROUND_QUEUE_3v3;
+                case ArenaType::Arena5v5:
                     return BATTLEGROUND_QUEUE_5v5;
                 default:
                     return BATTLEGROUND_QUEUE_NONE;
@@ -1244,6 +1244,8 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
         case BATTLEGROUND_QUEUE_2v2:
         case BATTLEGROUND_QUEUE_3v3:
         case BATTLEGROUND_QUEUE_5v5:
+        case BATTLEGROUND_QUEUE_SKIRMISH_2V2:
+        case BATTLEGROUND_QUEUE_SKIRMISH_3V3:
             return BATTLEGROUND_AA;
         case BATTLEGROUND_QUEUE_RATED_10_VS_10:
             return BATTLEGROUND_RATED_10_VS_10;
@@ -1261,11 +1263,13 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
     switch (bgQueueTypeId)
     {
         case BATTLEGROUND_QUEUE_2v2:
-            return ARENA_TYPE_2v2;
+        case BATTLEGROUND_QUEUE_SKIRMISH_2V2:
+            return ArenaType::Arena2v2;
         case BATTLEGROUND_QUEUE_3v3:
-            return ARENA_TYPE_3v3;
+        case BATTLEGROUND_QUEUE_SKIRMISH_3V3:
+            return ArenaType::Arena3v3;
         case BATTLEGROUND_QUEUE_5v5:
-            return ARENA_TYPE_5v5;
+            return ArenaType::Arena5v5;
         default:
             return 0;
     }
