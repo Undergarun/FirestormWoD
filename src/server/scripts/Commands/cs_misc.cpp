@@ -2325,7 +2325,7 @@ class misc_commandscript : public CommandScript
             SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
             if (Unit::IsDamageReducedByArmor(schoolmask))
-                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, BASE_ATTACK);
+                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, WeaponAttackType::BaseAttack);
 
             char* spellStr = strtok((char*)NULL, " ");
 

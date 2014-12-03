@@ -1430,7 +1430,7 @@ class spell_sha_flametongue : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 SpellInfo const* spellProto = GetSpellInfo();
 
-                if (eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK || spellProto)
+                if (eventInfo.GetDamageInfo()->GetAttackType() == WeaponAttackType::OffAttack || spellProto)
                     GetCaster()->CastSpell(target, SPELL_SHA_LAMETONGUE_ATTACK, true);
             }
 

@@ -846,7 +846,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         break;
 
                     uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    float ap = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
                     switch (cp)
                     {
@@ -881,7 +881,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     amount *= 10;
 
                     uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    int32 AP = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
                     // In feral spec : 0.484 * $AP * cp
                     if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_FERAL)
@@ -1039,7 +1039,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (!m_owner)
                         break;
 
-                    amount += int32(m_owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.35f * 0.335f);
+                    amount += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.335f);
 
                     break;
                 }
@@ -2753,7 +2753,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         // Disarm handling
         // If druid shifts while being disarmed we need to deal with that since forms aren't affected by disarm
         // and also HandleAuraModDisarm is not triggered
-        if (!target->CanUseAttackType(BASE_ATTACK))
+        if (!target->CanUseAttackType(WeaponAttackType::BaseAttack))
         {
             if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
@@ -3216,13 +3216,13 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
             field=UNIT_FIELD_FLAGS;
             flag=UNIT_FLAG_DISARMED;
             slot=EQUIPMENT_SLOT_MAINHAND;
-            attType=BASE_ATTACK;
+            attType=WeaponAttackType::BaseAttack;
             break;
         case SPELL_AURA_MOD_DISARM_OFFHAND:
             field=UNIT_FIELD_FLAGS2;
             flag=UNIT_FLAG2_DISARM_OFFHAND;
             slot=EQUIPMENT_SLOT_OFFHAND;
-            attType=OFF_ATTACK;
+            attType=WeaponAttackType::OffAttack;
             break;
         case SPELL_AURA_MOD_DISARM_RANGED:
             /*field=UNIT_FIELD_FLAGS2;
@@ -3245,7 +3245,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
         {
             uint8 attacktype = Player::GetAttackBySlot(slot);
 
-            if (attacktype < MAX_ATTACK)
+            if (attacktype < WeaponAttackType::MaxAttack)
             {
                 target->ToPlayer()->_ApplyWeaponDamage(slot, pItem->GetTemplate(), !apply);
                 target->ToPlayer()->_ApplyWeaponDependentAuraMods(pItem, WeaponAttackType(attacktype), !apply);
@@ -5275,7 +5275,7 @@ void AuraEffect::HandleAuraModWeaponCritPercent(AuraApplication const* aurApp, u
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int i = 0; i < MAX_ATTACK; ++i)
+    for (int i = 0; i < WeaponAttackType::MaxAttack; ++i)
         if (Item* pItem = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), true))
             target->ToPlayer()->_ApplyWeaponDependentAuraCritMod(pItem, WeaponAttackType(i), CONST_CAST(AuraEffect, shared_from_this()), apply);
 
@@ -5429,9 +5429,9 @@ void AuraEffect::HandleModMeleeRangedSpeedPct(AuraApplication const* aurApp, uin
     //! ToDo: Haste auras with the same handler _CAN'T_ stack together
     Unit* target = aurApp->GetTarget();
 
-    target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), apply);
-    target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), apply);
-    target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, (float)GetAmount(), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, (float)GetAmount(), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, (float)GetAmount(), apply);
 
     if (target->getClass() == CLASS_DEATH_KNIGHT && target->ToPlayer())
         target->ToPlayer()->UpdateAllRunesRegen();
@@ -5445,9 +5445,9 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
     Unit* target = aurApp->GetTarget();
 
     target->ApplyCastTimePercentMod(float(m_amount), apply);
-    target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
-    target->ApplyAttackTimePercentMod(OFF_ATTACK, float(GetAmount()), apply);
-    target->ApplyAttackTimePercentMod(RANGED_ATTACK, float(GetAmount()), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, float(GetAmount()), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, float(GetAmount()), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, float(GetAmount()), apply);
 
     // Unholy Presence
     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -5466,8 +5466,8 @@ void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode,
 
     Unit* target = aurApp->GetTarget();
 
-    target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), apply);
-    target->UpdateDamagePhysical(BASE_ATTACK);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, (float)GetAmount(), apply);
+    target->UpdateDamagePhysical(WeaponAttackType::BaseAttack);
 }
 
 void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5480,8 +5480,8 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
 
     int32 value = GetAmount();
 
-    target->ApplyAttackTimePercentMod(BASE_ATTACK,   (float)value, apply);
-    target->ApplyAttackTimePercentMod(OFF_ATTACK,    (float)value, apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack,   (float)value, apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::OffAttack,    (float)value, apply);
 
     if (GetId() == 120275 && target->GetTypeId() == TYPEID_PLAYER)
         target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
@@ -5495,7 +5495,7 @@ void AuraEffect::HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 m
     //! ToDo: Haste auras with the same handler _CAN'T_ stack together
     Unit* target = aurApp->GetTarget();
 
-    target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), apply);
+    target->ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, (float)GetAmount(), apply);
 }
 
 /********************************/
@@ -5683,7 +5683,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
     // apply item specific bonuses for already equipped weapon
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        for (int i = 0; i < MAX_ATTACK; ++i)
+        for (int i = 0; i < WeaponAttackType::MaxAttack; ++i)
             if (Item* pItem = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), true))
                 target->ToPlayer()->_ApplyWeaponDependentAuraDamageMod(pItem, WeaponAttackType(i), CONST_CAST(AuraEffect, shared_from_this()), apply);
     }
@@ -5755,7 +5755,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
 
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        for (int i = 0; i < MAX_ATTACK; ++i)
+        for (int i = 0; i < WeaponAttackType::MaxAttack; ++i)
             if (Item* item = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), false))
                 target->ToPlayer()->_ApplyWeaponDependentAuraDamageMod(item, WeaponAttackType(i), CONST_CAST(AuraEffect, shared_from_this()), apply);
     }
@@ -7435,7 +7435,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     uint32 absorb = 0;
     uint32 resist = 0;
-    CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+    CleanDamage cleanDamage = CleanDamage(0, 0, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
 
     // AOE spells are not affected by the new periodic system.
     bool isAreaAura = m_spellInfo->Effects[m_effIndex].IsAreaAuraEffect() || m_spellInfo->Effects[m_effIndex].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
@@ -7820,7 +7820,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), damage, overkill, absorb, resist, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 
-    caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, BASE_ATTACK, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+    caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
 
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
 }
@@ -7842,7 +7842,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     uint32 absorb = 0;
     uint32 resist = 0;
-    CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+    CleanDamage cleanDamage = CleanDamage(0, 0, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
 
     bool isAreaAura = m_spellInfo->Effects[m_effIndex].IsAreaAuraEffect() || m_spellInfo->Effects[m_effIndex].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
     // ignore negative values (can be result apply spellmods to aura damage
@@ -7897,7 +7897,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     if (damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
     if (caster->isAlive())
-        caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, BASE_ATTACK, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+        caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
     int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), false);
     if (caster->isAlive())
     {
@@ -8072,7 +8072,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_HOT;
     // ignore item heals
     if (!haveCastItem)
-        caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, BASE_ATTACK, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+        caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
 }
 
 void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const
@@ -8244,7 +8244,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     if (damageInfo.damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
-    caster->ProcDamageAndSpell(damageInfo.target, procAttacker, procVictim, procEx, damageInfo.damage, damageInfo.absorb, BASE_ATTACK, spellProto, NULL, CONST_CAST(AuraEffect, shared_from_this()));
+    caster->ProcDamageAndSpell(damageInfo.target, procAttacker, procVictim, procEx, damageInfo.damage, damageInfo.absorb, WeaponAttackType::BaseAttack, spellProto, NULL, CONST_CAST(AuraEffect, shared_from_this()));
 
     caster->DealSpellDamage(&damageInfo, true);
 }
