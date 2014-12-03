@@ -92,25 +92,18 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
-m_muteTime(mute_time), m_timeOutTime(0), m_Player(NULL), m_Socket(sock),
-_security(sec), _premiumType(premiumType), _ispremium(ispremium), _accountId(id), m_expansion(expansion), _logoutTime(0),
-m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
-m_playerRecentlyLogout(false), m_playerSave(false),
-m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
-m_sessionDbLocaleIndex(locale),
-m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
-isRecruiter(isARecruiter), timeLastWhoCommand(0),
-m_TimeLastChannelInviteCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastGuildInviteCommand(0), m_TimeLastChannelPassCommand(0),
-m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChannelUnbanCommand(0), m_TimeLastChannelAnnounceCommand(0),
-m_TimeLastChannelModerCommand(0), m_TimeLastChannelOwnerCommand(0),
-m_TimeLastChannelSetownerCommand(0),
-m_TimeLastChannelUnmoderCommand(0),
-m_TimeLastChannelUnmuteCommand(0),
-m_TimeLastChannelKickCommand(0),
-timeCharEnumOpcode(0),
-m_PlayerLoginCounter(0),
-timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastChangeSubGroupCommand(0),
-m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_TimeLastSellItemOpcode(0)
+m_muteTime(mute_time), m_timeOutTime(0),
+m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
+_ispremium(ispremium), _premiumType(premiumType), _logoutTime(0), m_inQueue(false),
+m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_playerSave(false),
+m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(locale), m_latency(0),
+m_TutorialsChanged(false), recruiterId(recruiter), isRecruiter(isARecruiter), timeLastWhoCommand(0),
+timeCharEnumOpcode(0), m_TimeLastChannelInviteCommand(0), m_TimeLastChannelPassCommand(0),
+m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChannelUnbanCommand(0),
+m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0), m_TimeLastChannelOwnerCommand(0),
+m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0), m_TimeLastChannelUnmuteCommand(0),
+m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0), timeLastChangeSubGroupCommand(0),
+m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;

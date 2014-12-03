@@ -811,6 +811,7 @@ class spell_item_create_heart_candy : public SpellScriptLoader
         }
 };
 
+// Item 45912 spell 64323
 class spell_item_book_of_glyph_mastery : public SpellScriptLoader
 {
     public:

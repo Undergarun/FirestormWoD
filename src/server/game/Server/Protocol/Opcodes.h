@@ -2068,8 +2068,6 @@ inline std::string GetOpcodeNameForLogging(Opcodes id, int p_Direction)
 
     if (id < UNKNOWN_OPCODE)
     {
-        bool foundet = false;
-
         OpcodeHandler* handler = g_OpcodeTable[p_Direction][uint32(id) & 0x7FFF];
 
         if (!handler)

@@ -256,7 +256,7 @@ size_t CinematicSequenceMgr::Load()
             Camera* l_Camera    = (Camera*)(l_FileBuffer + l_Header->CameraOffset);
             Camera* l_EndCamera = l_Camera + l_Header->CameraCount;
 
-            for (; l_Camera != l_EndCamera; ++l_Camera)
+            for (; l_Camera != l_EndCamera; ++l_Camera) // @todo :  Variable 'l_Translations' is used uninitialized whenever 'for' loop exits because its condition is false
             {
                 if (l_Camera->Type != -1)
                     continue;
@@ -272,7 +272,7 @@ size_t CinematicSequenceMgr::Load()
             CameraV10* l_Camera     = (CameraV10*)(l_FileBuffer + l_Header->CameraOffset);
             CameraV10* l_EndCamera  = l_Camera + l_Header->CameraCount;
 
-            for (; l_Camera != l_EndCamera; ++l_Camera)
+            for (; l_Camera != l_EndCamera; ++l_Camera) // @todo :  Variable 'l_Translations' is used uninitialized whenever 'for' loop exits because its condition is false
             {
                 if (l_Camera->Type != -1)
                     continue;

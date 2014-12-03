@@ -122,7 +122,7 @@ void WorldSession::HandleBlackMarketBid(WorldPacket& recvData)
     uint8 bytes[8] = { 5, 1, 3, 0, 2, 6, 7, 4 };
     recvData.ReadBytesSeq(guid, bytes);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, ">> HandleBid >> id : %u, price : %u, itemid : %u", id, price, itemid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, ">> HandleBid >> id : %u, price : %lu, itemid : %u", id, price, itemid);
 
     if (!price)
         return;
