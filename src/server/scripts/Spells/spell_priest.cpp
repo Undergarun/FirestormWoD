@@ -59,6 +59,7 @@ enum PriestSpells
     PRIEST_SHADOW_WORD_PAIN                         = 589,
     PRIEST_DEVOURING_PLAGUE                         = 2944,
     PRIEST_DEVOURING_PLAGUE_HEAL                    = 127626,
+    PRIEST_DEVOURING_PLAGUE_AURA                    = 158831,
     PRIEST_VAMPIRIC_TOUCH                           = 34914,
     PRIEST_PHANTASM_AURA                            = 108942,
     PRIEST_PHANTASM_PROC                            = 114239,
@@ -91,6 +92,7 @@ enum PriestSpells
     PRIEST_SURGE_OF_LIGHT_AURA                      = 109186,
     PRIEST_SURGE_OF_LIGHT                           = 114255,
     PRIEST_SURGE_OF_DARKNESS                        = 87160,
+    PRIEST_SURGE_OF_DARKNESS_AURA                   = 162448,
     PRIEST_SHADOW_WORD_INSANITY_DAMAGE              = 129249,
     PRIEST_SPELL_MIND_BLAST                         = 8092,
     PRIEST_SPELL_2P_S12_SHADOW                      = 92711,
@@ -122,7 +124,9 @@ enum PriestSpells
     PRIEST_GLYPH_OF_SHADOW_RAVENS                   = 57985,
     PRIEST_NPC_VOID_TENDRILS                        = 65282,
     PRIEST_SPELL_SAVING_GRACE                       = 155274,
-    PRIEST_SPELL_CLARITY_OF_POWER                   = 155246
+    PRIEST_SPELL_CLARITY_OF_POWER                   = 155246,
+    PRIEST_SPELL_SPIRIT_SHELL_AURA                  = 109964,
+    PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -1247,36 +1251,32 @@ class spell_pri_devouring_plague : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_devouring_plague_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                if (l_Caster->GetPower(POWER_SHADOW_ORB) < 3)
+                    return SPELL_FAILED_NO_POWER;
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            uint32 powerUsed = 0;
-                            if (AuraEffectPtr devouringPlague = target->GetAuraEffect(PRIEST_DEVOURING_PLAGUE, EFFECT_2))
-                            {
-                                powerUsed = devouringPlague->GetAmount();
+                            // Shadow Orb visual
+                            if (l_Player->HasAura(PRIEST_SHADOW_ORB_AURA))
+                                l_Player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
+                            // Glyph of Shadow Ravens
+                            else if (l_Player->HasAura(PRIEST_SHADOW_ORB_DUMMY))
+                                l_Player->RemoveAura(PRIEST_SHADOW_ORB_DUMMY);
 
-                                // Shadow Orb visual
-                                if (_player->HasAura(PRIEST_SHADOW_ORB_AURA))
-                                    _player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
-                                // Glyph of Shadow Ravens
-                                else if (_player->HasAura(PRIEST_SHADOW_ORB_DUMMY))
-                                    _player->RemoveAura(PRIEST_SHADOW_ORB_DUMMY);
-
-                                // Instant damage equal to amount of shadow orb
-                                int32 hitDamage = int32(GetHitDamage() * powerUsed);
-                                SetHitDamage(hitDamage);
-                                _player->SetHealth(_player->GetHealth() + (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100) * hitDamage);
-                            }
-                            if (AuraEffectPtr devouringPlague = target->GetAuraEffect(PRIEST_DEVOURING_PLAGUE, EFFECT_1))
-                            {
-                                int32 newAmount = devouringPlague->GetAmount() * powerUsed;
-                                devouringPlague->SetAmount(newAmount);
-                            }
+                            int32 l_Heal = GetHitDamage();
+                            l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
+                            l_Player->CastSpell(l_Target, PRIEST_DEVOURING_PLAGUE_AURA, true);
                         }
                     }
                 }
@@ -1284,6 +1284,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_pri_devouring_plague_SpellScript::CheckCast);
                 OnHit += SpellHitFn(spell_pri_devouring_plague_SpellScript::HandleOnHit);
             }
         };
@@ -1292,62 +1293,48 @@ class spell_pri_devouring_plague : public SpellScriptLoader
         {
             return new spell_pri_devouring_plague_SpellScript;
         }
+};
 
-        class spell_pri_devouring_plague_AuraScript : public AuraScript
+// Devouring Plague Periodic Damage - 158831
+class spell_pri_devouring_plague_aura : public SpellScriptLoader
+{
+public:
+    spell_pri_devouring_plague_aura() : SpellScriptLoader("spell_pri_devouring_plague_aura") { }
+
+    class spell_pri_devouring_plague_aura_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_devouring_plague_aura_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
         {
-            PrepareAuraScript(spell_pri_devouring_plague_AuraScript);
-
-            uint8 powerUsed;
-
-            bool Load()
-            {
-                powerUsed = 0;
-                return true;
-            }
-
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                // Don't forget power cost
-                powerUsed = GetCaster()->GetPower(POWER_SHADOW_ORB) + 1 * GetCaster()->GetPowerCoeff(POWER_BURNING_EMBERS);
-                GetCaster()->SetPower(POWER_SHADOW_ORB, 0);
-            }
-
-            void CalculateSecondAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                amount = powerUsed;
-            }
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                int32 bp = 1;
-
-                if (constAuraEffectPtr aurEff2 = aurEff->GetBase()->GetEffect(2))
-                    bp *= aurEff2->GetAmount();
-
-                GetCaster()->CastCustomSpell(GetCaster(), PRIEST_DEVOURING_PLAGUE_HEAL, &bp, NULL, NULL, true);
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_devouring_plague_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_devouring_plague_AuraScript::CalculateSecondAmount, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_devouring_plague_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_devouring_plague_AuraScript();
+            if (Unit* l_Caster = GetCaster())
+                amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), sSpellMgr->GetSpellInfo(2944)->Effects[EFFECT_1].BasePoints);
         }
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                int32 l_TickDamage = 1;
+
+                if (constAuraEffectPtr aurEff2 = aurEff->GetBase()->GetEffect(0))
+                    l_TickDamage *= aurEff2->GetAmount();
+
+                l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_devouring_plague_aura_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_devouring_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_devouring_plague_aura_AuraScript();
+    }
 };
 
 // Called by Fade - 586
@@ -2181,6 +2168,40 @@ class spell_pri_levitate : public SpellScriptLoader
         }
 };
 
+// Call by Flah Heal 2061 - Heal 2060 - Prayer of healing 596
+// Spirit Shell - 109964
+class spell_pri_spirit_shell : public SpellScriptLoader
+{
+public:
+    spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
+
+    class spell_pri_spirit_shell_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (l_Caster->GetAura(PRIEST_SPELL_SPIRIT_SHELL_AURA))
+            {
+                int32 l_Absorb = GetHitHeal();
+                l_Caster->CastCustomSpell(GetHitUnit(), PRIEST_SPELL_SPIRIT_SHELL_PROC, &l_Absorb, NULL, NULL, true);
+                SetHitHeal(0);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_shell_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_spirit_shell_SpellScript();
+    }
+};
+
 // Flash heal - 2061
 class spell_pri_flash_heal : public SpellScriptLoader
 {
@@ -2283,34 +2304,6 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         {
             return new spell_pri_void_tendrils_SpellScript();
         }
-};
-
-// Saving Grace - 152116
-class spell_pri_saving_grace : public SpellScriptLoader
-{
-public:
-    spell_pri_saving_grace() : SpellScriptLoader("spell_pri_saving_grace") { }
-
-    class spell_pri_saving_grace_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_saving_grace_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, PRIEST_SPELL_SAVING_GRACE, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pri_saving_grace_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_saving_grace_SpellScript;
-    }
 };
 
 //Power word : Barrier - 62618
@@ -2435,14 +2428,46 @@ public:
     }
 };
 
+// Call by Vampiric Touch 34914 - Devouring Plague 2944
+// Surge of Darkness - 162448
+class spell_pri_surge_of_darkness : public SpellScriptLoader
+{
+public:
+    spell_pri_surge_of_darkness() : SpellScriptLoader("spell_pri_surge_of_darkness") {}
+
+    class spell_pri_surge_of_darkness_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_surge_of_darkness_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_surge_of_darkness_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_surge_of_darkness_SpellScript();
+    }
+};
+
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_spirit_shell();
+    new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
     new spell_pri_power_word_barrier();
-    new spell_pri_saving_grace();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
     new spell_pri_confession();
@@ -2473,6 +2498,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_atonement();
     new spell_pri_purify();
     new spell_pri_devouring_plague();
+    new spell_pri_devouring_plague_aura();
     new spell_pri_phantasm();
     new spell_pri_mind_spike();
     new spell_pri_cascade_second();

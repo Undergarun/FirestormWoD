@@ -509,7 +509,7 @@ class spell_dru_maul : public SpellScriptLoader
 
                         if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
                         {
-                            int32 bp = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.4f;
+                            int32 bp = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
 
                             caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
                             caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);

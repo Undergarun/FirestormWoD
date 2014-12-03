@@ -599,13 +599,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
         if (CanScale())
         {
             bool l_RangedClass = _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && _spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MAGIC && p_Caster->getClass() == CLASS_HUNTER;
-            WeaponAttackType l_AttType = (_spellInfo->IsRangedWeaponSpell() && l_RangedClass) ? RANGED_ATTACK : BASE_ATTACK;
+            WeaponAttackType l_AttType = (_spellInfo->IsRangedWeaponSpell() && l_RangedClass) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
             float l_AttackPower = p_Caster->GetTotalAttackPowerValue(l_AttType);
             float l_SpellPower = p_Caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
 
             {
                 if (l_AttackPower == 0.f)
-                    l_AttackPower = p_Caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    l_AttackPower = p_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                 if (l_AttackPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_AttackPower = p_Caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
             }
@@ -2012,7 +2012,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         Player const* player = unitTarget->ToPlayer();
-                        if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
+                        if (!player->GetWeaponForAttack(WeaponAttackType::BaseAttack) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
                     else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID) && Id != 64058) // Custom MoP Script - Hack Fix Psychic Horror
@@ -2980,6 +2980,14 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             if (SpellIconID == 45)
                 return true;
             break;
+        case SPELLFAMILY_WARLOCK:
+            switch (Id)
+            {
+                case 111400: // Burning Rush
+                    return true;
+                default:
+                    break;
+            }
         case SPELLFAMILY_PRIEST:
             switch (Id)
             {

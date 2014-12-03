@@ -307,7 +307,7 @@ public:
         void ClearWeapons()
         {
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-            me->UpdateDamagePhysical(BASE_ATTACK);
+            me->UpdateDamagePhysical(WeaponAttackType::BaseAttack);
         }
 
         void EnfeebleHealthEffect()
@@ -427,8 +427,8 @@ public:
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
                     //damage
-                    me->UpdateDamagePhysical(BASE_ATTACK);
-                    me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
+                    me->UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+                    me->SetAttackTime(WeaponAttackType::OffAttack, (me->GetAttackTime(WeaponAttackType::BaseAttack)*150)/100);
                 }
             }
             else if (phase == 2)
@@ -588,10 +588,10 @@ public:
                     me->resetAttackTimer();
                 }
                 //Check for offhand attack
-                if (me->isAttackReady(OFF_ATTACK) && me->getVictim())
+                if (me->isAttackReady(WeaponAttackType::OffAttack) && me->getVictim())
                 {
-                    me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
-                    me->resetAttackTimer(OFF_ATTACK);
+                    me->AttackerStateUpdate(me->getVictim(), WeaponAttackType::OffAttack);
+                    me->resetAttackTimer(WeaponAttackType::OffAttack);
                 }
             }
         }

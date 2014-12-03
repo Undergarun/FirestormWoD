@@ -443,15 +443,15 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     //automatically update weapon damage after attack power modification
     if (ranged)
     {
-        UpdateDamagePhysical(RANGED_ATTACK);
+        UpdateDamagePhysical(WeaponAttackType::RangedAttack);
         if (pet && pet->isHunterPet()) // At ranged attack change for hunter pet
             pet->UpdateAttackPowerAndDamage();
     }
     else
     {
-        UpdateDamagePhysical(BASE_ATTACK);
+        UpdateDamagePhysical(WeaponAttackType::BaseAttack);
         if (CanDualWield() && haveOffhandWeapon())           //allow update offhand damage only if player knows DualWield Spec and has equipped offhand weapon
-            UpdateDamagePhysical(OFF_ATTACK);
+            UpdateDamagePhysical(WeaponAttackType::OffAttack);
         if (getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
 
@@ -469,14 +469,14 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     switch (attType)
     {
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
         default:
             unitMod = UNIT_MOD_DAMAGE_MAINHAND;
             break;
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             unitMod = UNIT_MOD_DAMAGE_OFFHAND;
             break;
-        case RANGED_ATTACK:
+        case WeaponAttackType::RangedAttack:
             unitMod = UNIT_MOD_DAMAGE_RANGED;
             break;
     }
@@ -533,16 +533,16 @@ void Player::UpdateDamagePhysical(WeaponAttackType attType)
 
     switch (attType)
     {
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
         default:
             SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, mindamage);
             SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, maxdamage);
             break;
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, mindamage);
             SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, maxdamage);
             break;
-        case RANGED_ATTACK:
+        case WeaponAttackType::RangedAttack:
             SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, mindamage);
             SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, maxdamage);
             break;
@@ -557,17 +557,17 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
     switch (attType)
     {
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             modGroup = OFFHAND_CRIT_PERCENTAGE;
             index = PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE;
             cr = CR_CRIT_MELEE;
             break;
-        case RANGED_ATTACK:
+        case WeaponAttackType::RangedAttack:
             modGroup = RANGED_CRIT_PERCENTAGE;
             index = PLAYER_FIELD_RANGED_CRIT_PERCENTAGE;
             cr = CR_CRIT_RANGED;
             break;
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
         default:
             modGroup = CRIT_PERCENTAGE;
             index = PLAYER_FIELD_CRIT_PERCENTAGE;
@@ -602,9 +602,9 @@ void Player::UpdateAllCritPercentages()
     SetBaseModValue(OFFHAND_CRIT_PERCENTAGE, PCT_MOD, l_Crit);
     SetBaseModValue(RANGED_CRIT_PERCENTAGE, PCT_MOD, l_Crit);
 
-    UpdateCritPercentage(BASE_ATTACK);
-    UpdateCritPercentage(OFF_ATTACK);
-    UpdateCritPercentage(RANGED_ATTACK);
+    UpdateCritPercentage(WeaponAttackType::BaseAttack);
+    UpdateCritPercentage(WeaponAttackType::OffAttack);
+    UpdateCritPercentage(WeaponAttackType::RangedAttack);
 }
 
 const float k_constant[MAX_CLASSES] =
@@ -1118,11 +1118,11 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 
     //automatically update weapon damage after attack power modification
     if (ranged)
-        UpdateDamagePhysical(RANGED_ATTACK);
+        UpdateDamagePhysical(WeaponAttackType::RangedAttack);
     else
     {
-        UpdateDamagePhysical(BASE_ATTACK);
-        UpdateDamagePhysical(OFF_ATTACK);
+        UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+        UpdateDamagePhysical(WeaponAttackType::OffAttack);
     }
 }
 
@@ -1132,16 +1132,16 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
     UnitMods l_UnitMod;
     switch (p_AttType)
     {
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
         default:
             l_Variance = GetCreatureTemplate()->baseVariance;
             l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
             break;
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             l_Variance = GetCreatureTemplate()->baseVariance;
             l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
             break;
-        case RANGED_ATTACK:
+        case WeaponAttackType::RangedAttack:
             l_Variance = GetCreatureTemplate()->rangeVariance;
             l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
             break;
@@ -1173,16 +1173,16 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
 
     switch (p_AttType)
     {
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
         default:
             SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, mindamage);
             SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, maxdamage);
             break;
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, mindamage);
             SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, maxdamage);
             break;
-        case RANGED_ATTACK:
+        case WeaponAttackType::RangedAttack:
             SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, mindamage);
             SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, maxdamage);
             break;
@@ -1444,7 +1444,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue       = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = m_owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
                 l_BaseAttackPower = l_BaseValue;
                 l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
@@ -1475,18 +1475,18 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, l_AttackPowerMultiplier);
 
     /// - Automatically update weapon damage after attack power modification
-    UpdateDamagePhysical(BASE_ATTACK);
+    UpdateDamagePhysical(WeaponAttackType::BaseAttack);
 }
 
 // WoD updated
 void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
 {
-    if (p_AttType > BASE_ATTACK)
+    if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
     UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    float l_AttackSpeed = float(GetAttackTime(BASE_ATTACK)) / 1000.0f;
+    float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
     PetStatInfo const* l_PetStat = GetPetStat();
@@ -1499,8 +1499,8 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
     float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct   = GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    float l_WeaponMinDamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-    float l_WeaponMaxDamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+    float l_WeaponMinDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
+    float l_WeaponMaxDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
 
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;

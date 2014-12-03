@@ -263,7 +263,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1), _hiAreaTriggerGuid(1), _skipUpdateCount(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -405,15 +405,15 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
     //                                             20       21   22     23            24           25               26               27          28             29
                                              "speed_fly, scale, rank,  dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance,  unit_class, "
-    //                                             30         31          32          33            34              35          36     37          38
-                                             "unit_flags, unit_flags2, dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
-    //                                            39           40        41          42           43          44           45          46          47             48         49
+    //                                             30         31           32          33            34              35          36            37          38            39           40
+                                             "unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID,   family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
+    //                                            41          42           43          44          45         46         47            48         49            50           51
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           50      51      52     53       54     55       56     57       58              59        60        61     62       63
+    //                                           52     53       54     55       56     57       58      59        60           61          62      63       64         65
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                             64          65            66        67        68             69           70           71         72          73         74          75
+    //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            76          77           78               79                 80          81
+    //                                            78           79         80               81               82           83
                                              "questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -455,8 +455,8 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.expansion         = uint32(fields[index++].GetInt16());
         creatureTemplate.expansionUnknown  = uint32(fields[index++].GetUInt16());
         creatureTemplate.faction           = uint32(fields[index++].GetUInt16());
-        creatureTemplate.npcflag           = fields[index++].GetUInt32();
-        creatureTemplate.npcflag2          = fields[index++].GetUInt32();
+        creatureTemplate.NpcFlags1         = fields[index++].GetUInt32();
+        creatureTemplate.NpcFlags2         = fields[index++].GetUInt32();
         creatureTemplate.speed_walk        = fields[index++].GetFloat();
         creatureTemplate.speed_run         = fields[index++].GetFloat();
         creatureTemplate.speed_fly         = fields[index++].GetFloat();
@@ -469,9 +469,11 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.baseVariance      = fields[index++].GetFloat();
         creatureTemplate.rangeVariance     = fields[index++].GetFloat();
         creatureTemplate.unit_class        = uint32(fields[index++].GetUInt8());
-        creatureTemplate.unit_flags        = fields[index++].GetUInt32();
-        creatureTemplate.unit_flags2       = fields[index++].GetUInt32();
+        creatureTemplate.UnitFlags1        = fields[index++].GetUInt32();
+        creatureTemplate.UnitFlags2        = fields[index++].GetUInt32();
+        creatureTemplate.UnitFlags3        = fields[index++].GetUInt32();
         creatureTemplate.dynamicflags      = fields[index++].GetUInt32();
+        creatureTemplate.WorldEffectID     = fields[index++].GetUInt32();
         creatureTemplate.family            = uint32(fields[index++].GetUInt32());
         creatureTemplate.trainer_type      = uint32(fields[index++].GetUInt8());
         creatureTemplate.trainer_spell     = fields[index++].GetUInt32();
@@ -690,9 +692,15 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             continue;
         }
 
-        if (cInfo->npcflag != difficultyInfo->npcflag)
+        if (cInfo->NpcFlags1 != difficultyInfo->NpcFlags1)
         {
             sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has different `npcflag` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
+            continue;
+        }
+
+        if (cInfo->NpcFlags2 != difficultyInfo->NpcFlags2)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has different `npcflag2` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -843,7 +851,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (cInfo->rangeattacktime == 0)
         const_cast<CreatureTemplate*>(cInfo)->rangeattacktime = BASE_ATTACK_TIME;
 
-    if ((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
+    if ((cInfo->NpcFlags1 & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong trainer type %u.", cInfo->Entry, cInfo->trainer_type);
 
     if (cInfo->type && !sCreatureTypeStore.LookupEntry(cInfo->type))
@@ -1157,26 +1165,34 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureTemplate* cinfo
     return display_id;
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& unit_flags2, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
+void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate * p_CreatureTemplate, uint32 & p_NpcFlags1, uint32 & p_NpcFlags2, uint32 & p_UnitFlags1, uint32 & p_UnitFlags2, uint32 & p_UnitFlags3, uint32 & p_Dynamicflags, const CreatureData * p_Data)
 {
-    npcflag = cinfo->npcflag;
-    unit_flags = cinfo->unit_flags;
-    unit_flags2 = cinfo->unit_flags2;
-    dynamicflags = cinfo->dynamicflags;
+    p_NpcFlags1     = p_CreatureTemplate->NpcFlags1;
+    p_NpcFlags2     = p_CreatureTemplate->NpcFlags2;
+    p_UnitFlags1    = p_CreatureTemplate->UnitFlags1;
+    p_UnitFlags2    = p_CreatureTemplate->UnitFlags2;
+    p_UnitFlags3    = p_CreatureTemplate->UnitFlags3;
+    p_Dynamicflags  = p_CreatureTemplate->dynamicflags;
 
-    if (data)
+    if (p_Data)
     {
-        if (data->npcflag)
-            npcflag = data->npcflag;
+        if (p_Data->NpcFlags1)
+            p_NpcFlags1 = p_Data->NpcFlags1;
 
-        if (data->unit_flags)
-            unit_flags = data->unit_flags;
+        if (p_Data->NpcFlags2)
+            p_NpcFlags2 = p_Data->NpcFlags2;
 
-        if (data->unit_flags2)
-            unit_flags2 = data->unit_flags2;
+        if (p_Data->UnitFlags1)
+            p_UnitFlags1 = p_Data->UnitFlags1;
 
-        if (data->dynamicflags)
-            dynamicflags = data->dynamicflags;
+        if (p_Data->UnitFlags2)
+            p_UnitFlags2 = p_Data->UnitFlags2;
+
+        if (p_Data->UnitFlags3)
+            p_UnitFlags3 = p_Data->UnitFlags3;
+
+        if (p_Data->dynamicflags)
+            p_Dynamicflags = p_Data->dynamicflags;
     }
 }
 
@@ -1577,8 +1593,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //        13            14         15       16            17         18         19          20          21                22                   23                     24
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.unit_flags2,  creature.dynamicflags, creature.isActive "
+    //        13            14         15       16            17         18         19          20            21                22                      23                  24                     25                     26                      27                   28
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.unit_flags2,  creature.unit_flags3, creature.dynamicflags, creature.WorldEffectID, creature.isActive "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1637,10 +1653,13 @@ void ObjectMgr::LoadCreatures()
         data.phaseMask      = fields[index++].GetUInt32();
         int16 gameEvent     = fields[index++].GetInt8();
         uint32 PoolId       = fields[index++].GetUInt32();
-        data.npcflag        = fields[index++].GetUInt32();
-        data.unit_flags     = fields[index++].GetUInt32();
-        data.unit_flags2    = fields[index++].GetUInt32();
+        data.NpcFlags1      = fields[index++].GetUInt32();
+        data.NpcFlags2      = fields[index++].GetUInt32();
+        data.UnitFlags1     = fields[index++].GetUInt32();
+        data.UnitFlags2     = fields[index++].GetUInt32();
+        data.UnitFlags3     = fields[index++].GetUInt32();
         data.dynamicflags   = fields[index++].GetUInt32();
+        data.WorldEffectID  = fields[index++].GetUInt32();
         data.isActive       = fields[index++].GetBool();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
@@ -1843,41 +1862,48 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
 
 uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay)
 {
-    CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
-    if (!cInfo)
+    CreatureTemplate const* l_CreatureTemplate = GetCreatureTemplate(entry);
+    if (!l_CreatureTemplate)
         return 0;
 
-    uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
-    CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
+    uint32 level = l_CreatureTemplate->minlevel == l_CreatureTemplate->maxlevel ? l_CreatureTemplate->minlevel : urand(l_CreatureTemplate->minlevel, l_CreatureTemplate->maxlevel); // Only used for extracting creature base stats
+    CreatureBaseStats const* stats = GetCreatureBaseStats(level, l_CreatureTemplate->unit_class);
 
     uint32 guid = GenerateLowGuid(HIGHGUID_UNIT);
-    CreatureData& data = NewOrExistCreatureData(guid);
-    data.id = entry;
-    data.mapid = mapId;
-    data.displayid = 0;
-    if (_equipmentInfoStore.find(entry) != _equipmentInfoStore.end())
-        data.equipmentId = 1; // Assuming equipmentId is 1
-    else
-        data.equipmentId = 0;
-    data.posX = x;
-    data.posY = y;
-    data.posZ = z;
-    data.orientation = o;
-    data.spawntimesecs = spawntimedelay;
-    data.spawndist = 0;
-    data.currentwaypoint = 0;
-    data.curhealth = stats->GenerateHealth(cInfo);
-    data.curmana = stats->GenerateMana(cInfo);
-    data.movementType = cInfo->MovementType;
-    data.spawnMask = 1;
-    data.phaseMask = PHASEMASK_NORMAL;
-    data.dbData = false;
-    data.npcflag = cInfo->npcflag;
-    data.unit_flags = cInfo->unit_flags;
-    data.unit_flags2 = cInfo->unit_flags2;
-    data.dynamicflags = cInfo->dynamicflags;
 
-    AddCreatureToGrid(guid, &data);
+    CreatureData& l_Data = NewOrExistCreatureData(guid);
+
+    l_Data.id = entry;
+    l_Data.mapid = mapId;
+    l_Data.displayid = 0;
+
+    if (_equipmentInfoStore.find(entry) != _equipmentInfoStore.end())
+        l_Data.equipmentId = 1; // Assuming equipmentId is 1
+    else
+        l_Data.equipmentId = 0;
+
+    l_Data.posX = x;
+    l_Data.posY = y;
+    l_Data.posZ = z;
+    l_Data.orientation = o;
+    l_Data.spawntimesecs = spawntimedelay;
+    l_Data.spawndist = 0;
+    l_Data.currentwaypoint = 0;
+    l_Data.curhealth = stats->GenerateHealth(l_CreatureTemplate);
+    l_Data.curmana = stats->GenerateMana(l_CreatureTemplate);
+    l_Data.movementType = l_CreatureTemplate->MovementType;
+    l_Data.spawnMask = 1;
+    l_Data.phaseMask = PHASEMASK_NORMAL;
+    l_Data.dbData = false;
+    l_Data.NpcFlags1      = l_CreatureTemplate->NpcFlags1;
+    l_Data.NpcFlags2      = l_CreatureTemplate->NpcFlags2;
+    l_Data.UnitFlags1     = l_CreatureTemplate->UnitFlags1;
+    l_Data.UnitFlags2     = l_CreatureTemplate->UnitFlags2;
+    l_Data.UnitFlags3     = l_CreatureTemplate->UnitFlags3;
+    l_Data.dynamicflags   = l_CreatureTemplate->dynamicflags;
+    l_Data.WorldEffectID  = l_CreatureTemplate->WorldEffectID;
+
+    AddCreatureToGrid(guid, &l_Data);
 
     // Spawn if necessary (loaded grids only)
     if (Map* map = sMapMgr->CreateBaseMap(mapId))
@@ -2494,6 +2520,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxCount = sparse->MaxCount;
         itemTemplate.Stackable = sparse->Stackable;
         itemTemplate.ContainerSlots = sparse->ContainerSlots;
+
         for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         {
             itemTemplate.ItemStat[i].ItemStatType = sparse->ItemStatType[i];
@@ -2574,6 +2601,12 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
+
+        if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
+            itemTemplate.PvPScalingLevel = pvpItem->ilvl;
+        else
+            itemTemplate.PvPScalingLevel = 0;
+
         ++sparseCount;
     }
 
@@ -2737,6 +2770,12 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.FoodType                  = 0;
             itemTemplate.MinMoneyLoot              = 0;
             itemTemplate.MaxMoneyLoot              = 0;
+
+            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
+                itemTemplate.PvPScalingLevel = pvpItem->ilvl;
+            else
+                itemTemplate.PvPScalingLevel = 0;
+
             ++dbCount;
         }
         while (result->NextRow());
@@ -4432,7 +4471,7 @@ void ObjectMgr::LoadQuestDynamicRewards()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestLocales()
@@ -7309,10 +7348,10 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
     for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
     {
-        if ((itr->second.npcflag & UNIT_NPC_FLAG_SPELLCLICK) && _spellClickInfoStore.find(itr->second.Entry) == _spellClickInfoStore.end())
+        if ((itr->second.NpcFlags1 & UNIT_NPC_FLAG_SPELLCLICK) && _spellClickInfoStore.find(itr->second.Entry) == _spellClickInfoStore.end())
         {
             sLog->outError(LOG_FILTER_SQL, "npc_spellclick_spells: Creature template %u has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", itr->second.Entry);
-            const_cast<CreatureTemplate*>(&itr->second)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
+            const_cast<CreatureTemplate*>(&itr->second)->NpcFlags1 &= ~UNIT_NPC_FLAG_SPELLCLICK;
         }
     }
 
@@ -7435,7 +7474,7 @@ void ObjectMgr::LoadCreatureQuestRelations()
         CreatureTemplate const* cInfo = GetCreatureTemplate(l_Iterator->first);
         if (!cInfo)
             sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` have data for not existed creature entry (%u) and existed quest %u", l_Iterator->first, l_Iterator->second);
-        else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
+        else if (!(cInfo->NpcFlags1 & UNIT_NPC_FLAG_QUESTGIVER))
             sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", l_Iterator->first, l_Iterator->second);
 
         Quest* l_Quest = const_cast<Quest*>(GetQuestTemplate(l_Iterator->second));
@@ -7453,7 +7492,7 @@ void ObjectMgr::LoadCreatureInvolvedRelations()
         CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
         if (!cInfo)
             sLog->outError(LOG_FILTER_SQL, "Table `creature_involvedrelation` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
-        else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
+        else if (!(cInfo->NpcFlags1 & UNIT_NPC_FLAG_QUESTGIVER))
             sLog->outError(LOG_FILTER_SQL, "Table `creature_involvedrelation` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
 }
@@ -8130,7 +8169,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
         return;
     }
 
-    if (!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
+    if (!(cInfo->NpcFlags1 & UNIT_NPC_FLAG_TRAINER))
     {
         sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry for a creature template (Entry: %u) without trainer flag, ignoring", entry);
         return;
@@ -8489,7 +8528,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if (!((cInfo->npcflag | ORnpcflag) & UNIT_NPC_FLAG_VENDOR))
+    if (!((cInfo->NpcFlags1 | ORnpcflag) & UNIT_NPC_FLAG_VENDOR))
     {
         if (!skip_vendors || skip_vendors->count(vendor_entry) == 0)
         {

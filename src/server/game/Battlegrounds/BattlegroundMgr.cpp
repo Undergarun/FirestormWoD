@@ -335,7 +335,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
     uint8 l_IsArena             = (p_BG->isArena() ? 1 : 0);               ///< Arena names
     uint8 l_IsRatedBg           = (p_BG->IsRatedBG() ? 1 : 0);
 
-    p_Data->Initialize(SMSG_PVP_LOG_DATA);
+    p_Data->Initialize(SMSG_PVPLOG_DATA);
 
     Battleground::BattlegroundScoreMap::const_iterator l_ScoreBeginIT = p_BG->GetPlayerScoresBegin();
 
@@ -542,8 +542,8 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
         *p_Data << uint32(l_ScoreBeginIT->second->DamageDone);
         *p_Data << uint32(l_ScoreBeginIT->second->HealingDone);
         *p_Data << uint32(l_Buffer.size() / 4);                                         ///< Stats count
-        *p_Data << int32(0);                                                            ///< Unk can be l_Player->GetPrimaryTalentTree(player->GetActiveSpec()) ?
-        *p_Data << int32(0);                                                            ///< Unk can be l_Player->GetPrimaryTalentTree(player->GetActiveSpec()) ?
+        *p_Data << int32(l_Player->GetPrimaryTalentTree(l_Player->GetActiveSpec()));    ///< PrimaryTalentTree
+        *p_Data << int32(l_Player->getGender());                                        ///< Gender
 
         p_Data->append(l_Buffer);                                                       ///< Stats
 
@@ -551,6 +551,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket * p_Data, Battleground *
             p_Data->WriteBit(p_BG->GetPlayerTeam(l_Player->GetGUID()) == ALLIANCE);     ///< Faction
         else
             p_Data->WriteBit(l_Player->GetTeam() == ALLIANCE);                          ///< Faction
+
         p_Data->WriteBit(true);                                                         ///< Is In world
         p_Data->WriteBit(l_HasHonor);                                                   ///< Has Honor
         p_Data->WriteBit(l_HasPreMatchRating);                                          ///< Pre Match Rating

@@ -14,13 +14,31 @@ update creature_template set ScriptName='mob_DrivingGaleCaller' where entry=7893
 update creature_template set ScriptName='mob_AdornedBladetalon' where entry=79303;
 update creature_template set ScriptName='mob_SkyreachArcanologist' where entry=76376;
 update creature_template set ScriptName='boss_Araknath' where entry=76141;
+update creature_template set ScriptName='mob_SkyreachSunTalon' where entry=79093;
+update creature_template set ScriptName='boss_Rukhran' where entry=76143;
+update creature_template set ScriptName='mob_SkyreachRavenWhisperer' where entry=76154;
+update creature_template set ScriptName='mob_SolarFlare' where entry=76227;
+update creature_template set ScriptName='mob_DreadRavenHatchling' where entry=76253;
+update creature_template set ScriptName='mob_SolarMagnifier' where entry=77559;
+update creature_template set ScriptName='mob_WhirlingDervish' where entry=79469;
+update creature_template set ScriptName='mob_DefenseConstruct' where entry=76087;
+update creature_template set ScriptName='mob_RadiantSupernova' where entry=79463;
 
+INSERT INTO spell_script_names VALUES ('154140', 'spell_Energize');
 INSERT INTO spell_script_names VALUES ('153544', 'spell_SpinningBlade');
 INSERT INTO spell_script_names VALUES ('156515', 'spell_Storm');
 INSERT INTO spell_script_names VALUES ('153581', 'spell_BladeDance');
 INSERT INTO spell_script_names VALUES ('153315', 'spell_Windwall');
 INSERT INTO spell_script_names VALUES ('156793', 'spell_FourWind');
 INSERT INTO spell_script_names VALUES ('159215', 'spell_SolarStorm');
+INSERT INTO spell_script_names VALUES ('153827', 'spell_SummonSolarFlare');
+INSERT INTO spell_script_names VALUES ('153828', 'spell_Sunstrike');
+INSERT INTO spell_script_names VALUES ('160066', 'spell_FlashBang');
+INSERT INTO spell_script_names VALUES ('154159', 'spell_VisualEnergize');
+INSERT INTO spell_script_names VALUES ('154177', 'spell_VisualEnergize2');
+
 
 update creature_template set modelid1=61365 where entry=76119;
 UPDATE creature_template SET flags_extra=128 WHERE entry=76119;
+
+update instance_template set script='instance_Skyreach' where map=1209;

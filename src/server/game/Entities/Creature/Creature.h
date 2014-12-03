@@ -136,8 +136,8 @@ struct CreatureTemplate
     uint32  expansion;
     uint32  expansionUnknown;                               // either 0 or 5, sent to the client / wdb
     uint32  faction;
-    uint32  npcflag;
-    uint32  npcflag2;
+    uint32  NpcFlags1;
+    uint32  NpcFlags2;
     float   speed_walk;
     float   speed_run;
     float   speed_fly;
@@ -150,9 +150,11 @@ struct CreatureTemplate
     float   baseVariance;
     float   rangeVariance;
     uint32  unit_class;                                     // enum Classes. Note only 4 classes are known for creatures.
-    uint32  unit_flags;                                     // enum UnitFlags mask values
-    uint32  unit_flags2;                                    // enum UnitFlags2 mask values
+    uint32  UnitFlags1;                                     // enum UnitFlags mask values
+    uint32  UnitFlags2;                                     // enum UnitFlags2 mask values
+    uint32  UnitFlags3;                                     // enum UnitFlags3 mask values
     uint32  dynamicflags;
+    uint32  WorldEffectID;
     uint32  family;                                         // enum CreatureFamily values (optional)
     uint32  trainer_type;
     uint32  trainer_spell;
@@ -303,10 +305,13 @@ struct CreatureData
     uint32 curmana;
     uint8 movementType;
     uint32 spawnMask;
-    uint32 npcflag;
-    uint32 unit_flags;                                      // enum UnitFlags mask values
-    uint32 unit_flags2;                                     // enum UnitFlags mask values
+    uint32 NpcFlags1;
+    uint32 NpcFlags2;
+    uint32 UnitFlags1;                                     // enum UnitFlags mask values
+    uint32 UnitFlags2;                                     // enum UnitFlags2 mask values
+    uint32 UnitFlags3;                                     // enum UnitFlags3 mask values
     uint32 dynamicflags;
+    uint32 WorldEffectID;
     bool isActive;
     bool dbData;
 };

@@ -557,10 +557,10 @@ extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
 enum WeaponAttackType
 {
-    BASE_ATTACK   = 0,
-    OFF_ATTACK    = 1,
-    RANGED_ATTACK = 2,
-    MAX_ATTACK
+    BaseAttack   = 0,
+    OffAttack    = 1,
+    RangedAttack = 2,
+    MaxAttack
 };
 
 // Last check : 6.0.3
@@ -611,7 +611,7 @@ enum DamageEffectType
 };
 
 // Value masks for UNIT_FIELD_FLAGS
-enum UnitFlags
+enum eUnitFlags
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
     UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
@@ -648,7 +648,7 @@ enum UnitFlags
 };
 
 // Value masks for UNIT_FIELD_FLAGS2
-enum UnitFlags2
+enum eUnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,
     UNIT_FLAG2_UNK1                         = 0x00000002,   // Hide unit model (show only player equip)
@@ -659,6 +659,7 @@ enum UnitFlags2
     UNIT_FLAG2_FORCE_MOVEMENT               = 0x00000040,
     UNIT_FLAG2_DISARM_OFFHAND               = 0x00000080,
     UNIT_FLAG2_DISABLE_PRED_STATS           = 0x00000100,   // Player has disabled predicted stats (Used by raid frames)
+    UNIT_FLAG2_UNK16                        = 0x00000200,
     UNIT_FLAG2_DISARM_RANGED                = 0x00000400,   // this does not disable ranged weapon display (maybe additional flag needed?)
     UNIT_FLAG2_REGENERATE_POWER             = 0x00000800,
     UNIT_FLAG2_RESTRICT_PARTY_INTERACTION   = 0x00001000,   // Restrict interaction to party or raid
@@ -675,7 +676,49 @@ enum UnitFlags2
     UNIT_FLAG2_UNK7                         = 0x00800000,
     UNIT_FLAG2_UNK8                         = 0x01000000,
     UNIT_FLAG2_UPDATE_REACTION              = 0x02000000,
-    UNIT_FLAG2_UNK10                        = 0x04000000
+    UNIT_FLAG2_UNK10                        = 0x04000000,
+    UNIT_FLAG2_UNK11                        = 0x08000000,
+    UNIT_FLAG2_UNK12                        = 0x10000000,
+    UNIT_FLAG2_UNK13                        = 0x20000000,
+    UNIT_FLAG2_UNK14                        = 0x40000000,
+    UNIT_FLAG2_UNK15                        = 0x80000000
+};
+
+// Value masks for UNIT_FIELD_FLAGS3
+enum eUnitFlags3
+{
+    UNIT_FLAG3_UNK1                         = 0x00000001,
+    UNIT_FLAG3_UNK2                         = 0x00000002,
+    UNIT_FLAG3_UNK3                         = 0x00000004,
+    UNIT_FLAG3_UNK4                         = 0x00000008,
+    UNIT_FLAG3_UNK5                         = 0x00000010,
+    UNIT_FLAG3_UNK6                         = 0x00000020,
+    UNIT_FLAG3_UNK7                         = 0x00000040,
+    UNIT_FLAG3_UNK8                         = 0x00000080,
+    UNIT_FLAG3_UNK9                         = 0x00000100,
+    UNIT_FLAG3_UNK10                        = 0x00000200,
+    UNIT_FLAG3_UNK11                        = 0x00000400,
+    UNIT_FLAG3_UNK12                        = 0x00000800,
+    UNIT_FLAG3_UNK13                        = 0x00001000,
+    UNIT_FLAG3_UNK14                        = 0x00002000,
+    UNIT_FLAG3_UNK15                        = 0x00004000,
+    UNIT_FLAG3_UNK16                        = 0x00008000,
+    UNIT_FLAG3_UNK17                        = 0x00010000,
+    UNIT_FLAG3_UNK18                        = 0x00020000,
+    UNIT_FLAG3_UNK19                        = 0x00040000,
+    UNIT_FLAG3_UNK20                        = 0x00080000,
+    UNIT_FLAG3_UNK21                        = 0x00100000,
+    UNIT_FLAG3_UNK22                        = 0x00200000,
+    UNIT_FLAG3_UNK23                        = 0x00400000,
+    UNIT_FLAG3_UNK24                        = 0x00800000,
+    UNIT_FLAG3_UNK25                        = 0x01000000,
+    UNIT_FLAG3_UNK26                        = 0x02000000,
+    UNIT_FLAG3_UNK27                        = 0x04000000,
+    UNIT_FLAG3_UNK28                        = 0x08000000,
+    UNIT_FLAG3_UNK29                        = 0x10000000,
+    UNIT_FLAG3_UNK30                        = 0x20000000,
+    UNIT_FLAG3_UNK31                        = 0x40000000,
+    UNIT_FLAG3_UNK32                        = 0x80000000
 };
 
 /// Non Player Character flags
@@ -1395,9 +1438,9 @@ class Unit : public WorldObject
         virtual void Update(uint32 time);
 
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
-        void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
+        void resetAttackTimer(WeaponAttackType type = WeaponAttackType::BaseAttack);
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
-        bool isAttackReady(WeaponAttackType type = BASE_ATTACK) const { return m_attackTimer[type] == 0; }
+        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] == 0; }
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         void SetCanDualWield(bool value) { m_canDualWield = value; }
@@ -1603,7 +1646,7 @@ class Unit : public WorldObject
         void Kill(Unit* victim, bool durabilityLoss = true, SpellInfo const* spellProto = NULL);
         int32 DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto = NULL);
 
-        void ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVictim, uint32 procEx, uint32 amount, uint32 absorb = 0, WeaponAttackType attType = BASE_ATTACK, SpellInfo const* procSpell = NULL, SpellInfo const* procAura = NULL, constAuraEffectPtr ownerAuraEffect = NULL);
+        void ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVictim, uint32 procEx, uint32 amount, uint32 absorb = 0, WeaponAttackType attType = WeaponAttackType::BaseAttack, SpellInfo const* procSpell = NULL, SpellInfo const* procAura = NULL, constAuraEffectPtr ownerAuraEffect = NULL);
         void ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell, uint32 damage, uint32 absorb = 0, SpellInfo const* procAura = NULL, constAuraEffectPtr ownerAuraEffect = NULL);
 
         bool IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell, uint32 damage, uint32 absorb, SpellInfo const* procAura, SpellInfo const* spellProto) const;
@@ -1614,13 +1657,13 @@ class Unit : public WorldObject
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, std::list<AuraApplication*>& procAuras);
 
         void HandleEmoteCommand(uint32 anim_id);
-        void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
+        void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = WeaponAttackType::BaseAttack, bool extra = false);
 
-        void CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
+        void CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
         void HandleProcExtraAttackFor(Unit* victim);
 
-        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false);
+        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = WeaponAttackType::BaseAttack, bool crit = false);
         void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
@@ -1648,9 +1691,9 @@ class Unit : public WorldObject
         {
             switch (attacktype)
             {
-                case BASE_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
-                case OFF_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_OFFHAND);
-                case RANGED_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_RANGED);
+                case WeaponAttackType::BaseAttack: return !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_OFFHAND);
+                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_RANGED);
             }
             return true;
         }
@@ -1788,7 +1831,6 @@ class Unit : public WorldObject
         void SendMovementHover(bool apply);
         void SendMovementFeatherFall();
         void SendMovementWaterWalking();
-        void SendMovementGravityChange();
         void SendMovementCanFlyChange();
         void SendCanTurnWhileFalling(bool apply);
 
@@ -2223,10 +2265,10 @@ class Unit : public WorldObject
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage,WeaponAttackType attType, SpellInfo const *spellProto = NULL);
 
 
-        bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
+        bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         bool   isBlockCritical();
-        bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
-        float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
+        bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
+        float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         uint32 SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
         uint32 SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
 
@@ -2247,7 +2289,7 @@ class Unit : public WorldObject
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
                                                             // redefined in Creature
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, uint8 effIndex = MAX_SPELL_EFFECTS);
-        uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType=MAX_ATTACK);
+        uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType=WeaponAttackType::MaxAttack);
         void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo = nullptr);
         void CalcHealAbsorb(Unit* victim, const SpellInfo* spellProto, uint32 &healAmount, uint32 &absorb);
         bool IsSpellResisted(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo);
@@ -2478,7 +2520,7 @@ class Unit : public WorldObject
 
         bool m_AutoRepeatFirstCast;
 
-        uint32 m_attackTimer[MAX_ATTACK];
+        uint32 m_attackTimer[WeaponAttackType::MaxAttack];
 
         float m_createStats[MAX_STATS];
 
@@ -2525,7 +2567,7 @@ class Unit : public WorldObject
         DmgTakenList m_dmgTaken;
 
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
-        float m_weaponDamage[MAX_ATTACK][2];
+        float m_weaponDamage[WeaponAttackType::MaxAttack][2];
         bool m_canModifyStats;
         VisibleAuraMap m_visibleAuras;
 

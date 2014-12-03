@@ -214,7 +214,7 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
 _creatureToMoveLock(false), _gameObjectsToMoveLock(false), i_mapEntry(sMapStore.LookupEntry(id)),
 i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
-m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()), _transportsGameObjectUpdateIter(_transportsGameObject.end()),
+m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsGameObjectUpdateIter(_transportsGameObject.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry), i_scriptLock(false)
 {
     m_parentMap = (_parent ? _parent : this);
@@ -2758,18 +2758,11 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                                 sLog->outError(LOG_FILTER_MAPS, "GroupBind save NULL");
                             return false;
                         }
+
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter
                         if (groupBind->perm)
-                        {
-                            WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 10);
-                            data << uint32(60000);
-                            data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
-                            data << uint8(0);
-                            data << uint8(0); // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-                            player->GetSession()->SendPacket(&data);
                             player->SetPendingBind(mapSave->GetInstanceId(), 60000);
-                        }
                     }
                 }
                 else

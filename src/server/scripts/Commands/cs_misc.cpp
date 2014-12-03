@@ -2325,7 +2325,7 @@ class misc_commandscript : public CommandScript
             SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
             if (Unit::IsDamageReducedByArmor(schoolmask))
-                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, BASE_ATTACK);
+                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, WeaponAttackType::BaseAttack);
 
             char* spellStr = strtok((char*)NULL, " ");
 
@@ -2638,15 +2638,9 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            /// - Send the message
-            // Use SendAreaTriggerMessage for fastest delivery.
-            player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
-            player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
-
             // Confirmation message
             std::string nameLink = handler->GetNameLink(player);
             handler->PSendSysMessage(LANG_SENDMESSAGE, nameLink.c_str(), msgStr);
-
             return true;
         }
 

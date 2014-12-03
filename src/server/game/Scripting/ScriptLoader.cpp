@@ -803,10 +803,12 @@ void AddSC_timeless_isle();
 // Draenor
 void AddSC_tanaan_jungle();
 /* Skyreach Dungeon */
+void AddSC_instance_Skyreach();
 void AddSC_mob_instance_skyreach();
 void AddSC_spell_instance_skyreach();
 void AddSC_boss_ranjit();
 void AddSC_boss_Araknath();
+void AddSC_boss_Rukhran();
 
 // battlegrounds
 void AddSC_BattlegroundDGScripts();
@@ -1653,10 +1655,12 @@ void AddDraenorScripts()
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
     /* Instance Skyreach*/
+    AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();
     AddSC_spell_instance_skyreach();
     AddSC_boss_ranjit();
     AddSC_boss_Araknath();
+    AddSC_boss_Rukhran();
 #endif
 }
 

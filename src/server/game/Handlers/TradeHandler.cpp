@@ -488,7 +488,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
             {
                 sLog->outCommand(m_Player->GetSession()->GetAccountId(), "", m_Player->GetGUIDLow(), m_Player->GetName(),
                                 l_Trader->GetSession()->GetAccountId(), "", l_Trader->GetGUIDLow(), l_Trader->GetName(),
-                                "GM %s (Account: %u) give money (Amount: %u) to player: %s (Account: %u)",
+                                "GM %s (Account: %u) give money (Amount: %lu) to player: %s (Account: %u)",
                                 m_Player->GetName(), m_Player->GetSession()->GetAccountId(),
                                 l_MyTrade->GetMoney(),
                                 l_Trader->GetName(), l_Trader->GetSession()->GetAccountId());
@@ -497,7 +497,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
             {
                 sLog->outCommand(l_Trader->GetSession()->GetAccountId(), "", l_Trader->GetGUIDLow(), l_Trader->GetName(),
                                 m_Player->GetSession()->GetAccountId(), "", m_Player->GetGUIDLow(), m_Player->GetName(),
-                                "GM %s (Account: %u) give money (Amount: %u) to player: %s (Account: %u)",
+                                "GM %s (Account: %u) give money (Amount: %lu) to player: %s (Account: %u)",
                                 l_Trader->GetName(), l_Trader->GetSession()->GetAccountId(),
                                 l_HisTrade->GetMoney(),
                                 m_Player->GetName(), m_Player->GetSession()->GetAccountId());

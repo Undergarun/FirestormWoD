@@ -316,7 +316,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     stmt->setUInt8(0, PET_SLOT_ACTUAL_PET_SLOT);
     stmt->setUInt32(1, GetAccountId());
 
-    _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
+    m_CharEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
@@ -990,7 +990,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
     PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHARACTER_SPELL);
     l_Stmt->setUInt32(0, GetAccountId());
 
-    _accountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
+    m_AccountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
@@ -1123,10 +1123,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         pCurrChar->SetRank(0);
         pCurrChar->SetGuildLevel(0);
     }
-
-    l_Data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    l_Data << uint64(0);
-    SendPacket(&l_Data);
 
     l_Data.Initialize(SMSG_HOTFIX_NOTIFY_BLOB);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
@@ -1341,6 +1337,16 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     pCurrChar->StopCastingBindSight();
     pCurrChar->StopCastingCharm();
     pCurrChar->RemoveAurasByType(SPELL_AURA_BIND_SIGHT);
+
+    /// - Vote bonus
+    if (HaveVoteRemainingTime())
+    {
+        AuraPtr l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
+        if (l_VoteAura)
+            l_VoteAura->SetDuration(GetVoteRemainingTime() + 60 * IN_MILLISECONDS);
+    }
+    else
+        pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
@@ -2786,7 +2792,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     }
 
     std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    WorldPacket data(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 10);
     data.WriteBits(name->size(), 6);
     data.WriteBit(0); // unk
     data.WriteString(name->c_str());
@@ -2818,10 +2824,10 @@ void WorldSession::HandleReorderCharacters(WorldPacket& p_Packet)
     CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
-void WorldSession::HandleSuspendToken(WorldPacket& recvData)
+void WorldSession::HandleSuspendToken(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SUSPEND_TOKEN");
-    uint32 token = recvData.read<uint32>();
+    uint32 l_Token = p_RecvData.read<uint32>();
 
-    GetPlayer()->SendResumeToken(token);
+    m_Player->m_tokenCounter = l_Token;
+    GetPlayer()->SendResumeToken(l_Token);
 }

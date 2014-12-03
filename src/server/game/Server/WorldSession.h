@@ -166,6 +166,9 @@ enum DB2Types : uint32
     DB2_REPLY_ITEM_EXTENDED_COST              = 0xBB858355,           // hash of ItemExtendedCost.db2
 };
 
+#define VOTE_BUFF           176151
+#define VOTE_SYNC_TIMER     600000      ///< 10 mins
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -242,7 +245,7 @@ class CharacterCreateInfo
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime);
         ~WorldSession();
 
         uint64 GetWoWAccountGUID()
@@ -273,7 +276,6 @@ class WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData = 0, uint64 p_ResultGuid = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
@@ -283,7 +285,7 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         bool IsPremium() const { return _ispremium; }
-        uint8 getPremiumType() const { return _premiumType; }
+        uint8 getPremiumType() const { return m_PremiumType; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return m_Player; }
         std::string GetPlayerName(bool simple = true) const;
@@ -455,6 +457,12 @@ class WorldSession
         }
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vote
+        //////////////////////////////////////////////////////////////////////////
+        bool HaveVoteRemainingTime() const { return m_VoteRemainingTime != 0; }
+        uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
 
     public:                                                 // opcodes handlers
 
@@ -795,7 +803,6 @@ class WorldSession
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
-        void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
@@ -873,7 +880,6 @@ class WorldSession
         void HandleWargameQueryOpcode(WorldPacket& p_RecvData);
 
         void HandleReportPvPAFK(WorldPacket& recvData);
-        void HandleRequestRatedBgInfo(WorldPacket & recvData);
         void HandleRequestPvpOptions(WorldPacket& recvData);
         void HandleRequestPvpReward(WorldPacket& recvData);
         void HandleRequestRatedBgStats(WorldPacket& recvData);
@@ -932,19 +938,6 @@ class WorldSession
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
-
-        // Arena Team
-        void HandleInspectArenaTeamsOpcode(WorldPacket& recvData);
-        void HandleArenaTeamQueryOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRosterOpcode(WorldPacket& recvData);
-        void HandleArenaTeamInviteOpcode(WorldPacket& recvData);
-        void HandleArenaTeamAcceptOpcode(WorldPacket& recvData);
-        void HandleArenaTeamCreateOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDeclineOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRemoveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDisbandOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaderOpcode(WorldPacket& recvData);
 
         void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData);
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
@@ -1024,7 +1017,6 @@ class WorldSession
         void HandleSetLootSpecialization(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleTradeInfo (WorldPacket& recvData);
         void HandleSaveCUFProfiles(WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
@@ -1111,9 +1103,11 @@ class WorldSession
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
-        PreparedQueryResultFuture _charEnumCallback;
-        PreparedQueryResultFuture _addIgnoreCallback;
-        PreparedQueryResultFuture _accountSpellCallback;
+        QueryCallback<QueryResult, bool, true> m_VoteTimeCallback;
+
+        PreparedQueryResultFuture m_CharEnumCallback;
+        PreparedQueryResultFuture m_AddIgnoreCallback;
+        PreparedQueryResultFuture m_AccountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
@@ -1148,8 +1142,19 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Premium
+        //////////////////////////////////////////////////////////////////////////
         bool _ispremium;
-        uint8 _premiumType;
+        uint8 m_PremiumType;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vote
+        //////////////////////////////////////////////////////////////////////////
+        uint32 m_VoteRemainingTime;
+        uint32 m_VoteTimePassed;
+        uint32 m_VoteSyncTimer;
 
         typedef std::list<AddonInfo> AddonsList;
 
