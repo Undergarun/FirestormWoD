@@ -276,7 +276,6 @@ class WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData = 0, uint64 p_ResultGuid = 0);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
@@ -804,7 +803,6 @@ class WorldSession
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
-        void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
@@ -942,19 +940,6 @@ class WorldSession
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
 
-        // Arena Team
-        void HandleInspectArenaTeamsOpcode(WorldPacket& recvData);
-        void HandleArenaTeamQueryOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRosterOpcode(WorldPacket& recvData);
-        void HandleArenaTeamInviteOpcode(WorldPacket& recvData);
-        void HandleArenaTeamAcceptOpcode(WorldPacket& recvData);
-        void HandleArenaTeamCreateOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDeclineOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamRemoveOpcode(WorldPacket& recvData);
-        void HandleArenaTeamDisbandOpcode(WorldPacket& recvData);
-        void HandleArenaTeamLeaderOpcode(WorldPacket& recvData);
-
         void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData);
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
         void HandleCancelMountAuraOpcode(WorldPacket& recvData);
@@ -1033,7 +1018,6 @@ class WorldSession
         void HandleSetLootSpecialization(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleTradeInfo (WorldPacket& recvData);
         void HandleSaveCUFProfiles(WorldPacket& recvData);
         void HandleSpellClick(WorldPacket& recvData);
         void HandleMirrorImageDataRequest(WorldPacket& recvData);

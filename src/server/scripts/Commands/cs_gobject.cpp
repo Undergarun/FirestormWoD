@@ -692,10 +692,11 @@ class gobject_commandscript : public CommandScript
                 object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
             else if (objectType == 4)
             {
-                WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
-                data << object->GetGUID();
-                data << (uint32)(objectState);
-                object->SendMessageToSet(&data, true);
+                WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+                l_Data.appendPackGUID(object->GetGUID());
+                l_Data << (uint32)(objectState);
+                l_Data.WriteBit(objectState != 0);
+                object->SendMessageToSet(&l_Data, true);
             }
             handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
             return true;

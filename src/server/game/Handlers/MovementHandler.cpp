@@ -548,12 +548,11 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     m_Player->m_movementInfo = mi;
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*p_RecvData*/)
 {
-    WorldPacket data(SMSG_MOUNT_SPECIAL_ANIM, 8);
-    data << uint64(GetPlayer()->GetGUID());
-
-    GetPlayer()->SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_SPECIAL_MOUNT_ANIM, 8);
+    l_Data.appendPackGUID(m_Player->GetGUID());
+    GetPlayer()->SendMessageToSet(&l_Data, false);
 }
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)

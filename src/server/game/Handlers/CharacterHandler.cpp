@@ -1124,10 +1124,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         pCurrChar->SetGuildLevel(0);
     }
 
-    l_Data.Initialize(SMSG_LEARNED_DANCE_MOVES, 4+4);
-    l_Data << uint64(0);
-    SendPacket(&l_Data);
-
     l_Data.Initialize(SMSG_HOTFIX_NOTIFY_BLOB);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
 
@@ -2796,7 +2792,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     }
 
     std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    WorldPacket data(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 10);
     data.WriteBits(name->size(), 6);
     data.WriteBit(0); // unk
     data.WriteString(name->c_str());
@@ -2828,10 +2824,10 @@ void WorldSession::HandleReorderCharacters(WorldPacket& p_Packet)
     CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
-void WorldSession::HandleSuspendToken(WorldPacket& recvData)
+void WorldSession::HandleSuspendToken(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SUSPEND_TOKEN");
-    uint32 token = recvData.read<uint32>();
+    uint32 l_Token = p_RecvData.read<uint32>();
 
-    GetPlayer()->SendResumeToken(token);
+    m_Player->m_tokenCounter = l_Token;
+    GetPlayer()->SendResumeToken(l_Token);
 }

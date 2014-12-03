@@ -767,11 +767,11 @@ void WorldSession::SendNotification(const char *format, ...)
         va_end(ap);
 
         size_t len = strlen(szStr);
-        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + len);
+        l_Data.WriteBits(len, 12);
+        l_Data.FlushBits();
+        l_Data.append(szStr, len);
+        SendPacket(&l_Data);
     }
 }
 
@@ -788,11 +788,11 @@ void WorldSession::SendNotification(uint32 string_id, ...)
         va_end(ap);
 
         size_t len = strlen(szStr);
-        WorldPacket data(SMSG_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + len);
+        l_Data.WriteBits(len, 12);
+        l_Data.FlushBits();
+        l_Data.append(szStr, len);
+        SendPacket(&l_Data);
     }
 }
 

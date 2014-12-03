@@ -154,11 +154,11 @@ public:
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += args;
 
-        WorldPacket data(SMSG_NOTIFICATION, 2 + str.length());
-        data.WriteBits(str.length(), 12);
-        data.FlushBits();
-        data.WriteString(str);
-        sWorld->SendGlobalMessage(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + str.length());
+        l_Data.WriteBits(str.length(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(str);
+        sWorld->SendGlobalMessage(&l_Data);
 
         return true;
     }
@@ -171,11 +171,11 @@ public:
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
         str += args;
 
-        WorldPacket data(SMSG_NOTIFICATION, 2 + str.length());
-        data.WriteBits(str.length(), 12);
-        data.FlushBits();
-        data.WriteString(str);
-        sWorld->SendGlobalGMMessage(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + str.length());
+        l_Data.WriteBits(str.length(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(str);
+        sWorld->SendGlobalGMMessage(&l_Data);
 
         return true;
     }

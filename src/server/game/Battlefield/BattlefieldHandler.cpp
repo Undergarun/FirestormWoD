@@ -242,18 +242,8 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
 void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_INFO");
-
     uint8 unk;
     recvData >> unk;
-
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleRequestRatedBgInfo: get unk = %u", unk);
-
-    /// @Todo: perfome research in this case
-    WorldPacket data(SMSG_RATED_BG_STATS, 72);
-    for (int32 i = 0; i < 18; ++i)
-        data << uint32(0);
-    SendPacket(&data);
 }
 
 void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
