@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUES (56835, 'spell_dk_reaping');
