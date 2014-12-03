@@ -2980,6 +2980,14 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             if (SpellIconID == 45)
                 return true;
             break;
+        case SPELLFAMILY_WARLOCK:
+            switch (Id)
+            {
+                case 111400: // Burning Rush
+                    return true;
+                default:
+                    break;
+            }
         case SPELLFAMILY_PRIEST:
             switch (Id)
             {
