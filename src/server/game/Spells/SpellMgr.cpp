@@ -3769,12 +3769,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88611: // Smoke Bomb (triggered)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 break;
-            case 145109:// Ysera's Gift (caster)
-            case 145110:// Ysera's Gift (ally)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->Effects[0].BasePoints = 5;
-                spellInfo->MaxAffectedTargets = 1;
-                break;
             case 128997:// Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
