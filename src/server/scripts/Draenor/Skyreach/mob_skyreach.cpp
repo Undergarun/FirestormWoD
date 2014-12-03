@@ -14,6 +14,87 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
+        class mob_GrandDefenseConstruct : public CreatureScript
+        {
+        public:
+            // Entry: 76145
+            mob_GrandDefenseConstruct()
+                : CreatureScript("mob_GrandDefenseConstruct")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Smash = 152998,
+                Burn = 153001,
+            };
+
+            enum class Events : uint32
+            {
+                Smash = 1,
+                Burn = 2,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_GrandDefenseConstructAI(creature);
+            }
+
+            struct mob_GrandDefenseConstructAI : public ScriptedAI
+            {
+                mob_GrandDefenseConstructAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                    m_events.ScheduleEvent(uint32(Events::Smash), urand(5000, 7000));
+                    m_events.ScheduleEvent(uint32(Events::Burn), urand(10000, 12000));
+                }
+
+                void JustDied(Unit*)
+                {
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::Smash):
+                        m_events.ScheduleEvent(uint32(Events::Smash), 16000);
+                        me->CastSpell(me->getVictim(), uint32(Spells::Smash));
+                        break;
+                    case uint32(Events::Burn):
+                        m_events.ScheduleEvent(uint32(Events::Burn), 18000);
+                        me->CastSpell(me->getVictim(), uint32(Spells::Burn));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
         class mob_YoungKaliri : public CreatureScript
         {
         public:
@@ -1610,4 +1691,5 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_DefenseConstruct();
     new MS::InstanceSkyreach::mob_RadiantSupernova();
     new MS::InstanceSkyreach::mob_YoungKaliri();
+    new MS::InstanceSkyreach::mob_GrandDefenseConstruct();
 }
