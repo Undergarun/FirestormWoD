@@ -48,6 +48,9 @@ namespace MS
                 std::set<uint64> m_SolarFlaresGuid;
                 uint64 m_CacheOfArakoanTreasuresGuid;
 
+                // Wind maze zone.
+                std::map<uint64, uint32> m_PlayerGuidToBlockId;
+
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
                     m_BeginningTime(0),
@@ -63,7 +66,8 @@ namespace MS
                     m_PileOfAshesGuid(),
                     m_SolarFlaresGuid(),
                     m_CacheOfArakoanTreasuresGuid(0),
-                    m_SolarConstructorEnergizerGuid(0)
+                    m_SolarConstructorEnergizerGuid(0),
+                    m_PlayerGuidToBlockId()
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
@@ -109,6 +113,8 @@ namespace MS
                     case MobEntries::SOLAR_FLARE:
                         m_SolarFlaresGuid.insert(p_Creature->GetGUID());
                         break;
+                    case MobEntries::GrandDefenseConstruct:
+                    case MobEntries::RadiantSupernova:
                     case MobEntries::AirFamiliar:
                         p_Creature->setFaction(16);
                         break;
@@ -378,6 +384,7 @@ namespace MS
                     if (!p_Player->IsInWorld())
                         return;
 
+                    m_PlayerGuidToBlockId[p_Player->GetGUID()] = 0;
                     m_CanUpdate = true;
                 }
 
@@ -387,6 +394,55 @@ namespace MS
                         return;
 
                     m_BeginningTime += p_Diff;
+
+                    // We check here if a player is in the WindMaze zone.
+                    Map::PlayerList const &l_PlayerList = instance->GetPlayers();
+                    if (!l_PlayerList.isEmpty())
+                    {
+                        for (Map::PlayerList::const_iterator i = l_PlayerList.begin(); i != l_PlayerList.end(); ++i)
+                        {
+                            Player* l_Plr = i->getSource();
+                            if (!l_Plr)
+                                continue;
+
+                            // Is he in WindMaze zone ?
+                            if (IsPointInBlock(Blocks::ConvexHull, *l_Plr))
+                            {
+                                bool l_IsInBlock = false;
+                                for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                                {
+                                    if (IsPointInBlock(i, *l_Plr))
+                                    {
+                                        m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
+                                        l_IsInBlock = true;
+                                        break;
+                                    }
+                                }
+
+                                // If the player is in one of the blocks and if it doesn't have the Wind aura, add it.
+                                if (l_IsInBlock)
+                                {
+                                    Position l_ForceDir = CalculateForceVectorFromBlockId(m_PlayerGuidToBlockId[l_Plr->GetGUID()]);
+                                    if (!l_Plr->HasAura(RandomSpells::Wind))
+                                    {
+                                        l_Plr->AddAura(RandomSpells::Wind, l_Plr);
+                                        // Apply force.
+                                    }
+                                    else
+                                    {
+                                        // Remove old force.
+                                        // Add new force.
+                                    }
+                                }
+                                // Otherwise remove it if it has the Wind aura.
+                                else if (l_Plr->HasAura(RandomSpells::Wind))
+                                    l_Plr->RemoveAura(RandomSpells::Wind);
+                            }
+                            // If player is out of the WindMaze zone and has the aura, remove it.
+                            else if (l_Plr->HasAura(RandomSpells::Wind))
+                                l_Plr->RemoveAura(RandomSpells::Wind);
+                        }
+                    }
 
                     if (m_SelectedSolarConstructorGuid)
                     {
@@ -443,4 +499,3 @@ void AddSC_instance_Skyreach()
 {
     new MS::InstanceSkyreach::instance_Skyreach();
 }
-

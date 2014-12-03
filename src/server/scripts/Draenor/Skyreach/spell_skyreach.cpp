@@ -4,6 +4,85 @@
 
 namespace MS
 {
+    // AreaTriggers for spells: 152973
+    class AreaTrigger_ProtectiveBarrier : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            ProtectiveBarrier = 152975,
+            ProtectiveBarrier_at = 152973,
+        };
+
+        std::forward_list<uint64> m_Targets;
+
+    public:
+        AreaTrigger_ProtectiveBarrier()
+            : MS::AreaTriggerEntityScript("at_ProtectiveBarrier"),
+            m_Targets()
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_ProtectiveBarrier();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_Targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
+                        l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
+                }
+            }
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 30.0f;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                {
+                    if (l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_Targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit
+                    || l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius
+                    || l_Unit->HasAura(uint32(Spells::ProtectiveBarrier))
+                    || l_Unit->HasAura(uint32(Spells::ProtectiveBarrier_at)))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::ProtectiveBarrier), true);
+                m_Targets.emplace_front(l_Unit->GetGUID());
+            }
+        }
+    };
+
     // AreaTriggers for spells: 154110
     class AreaTrigger_Smash : public MS::AreaTriggerEntityScript
     {
@@ -49,7 +128,7 @@ namespace MS
 
             for (auto l_Target : l_TargetList)
             {
-                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && InstanceSkyreach::DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
                 {
                     if (p_AreaTrigger->GetCaster())
                         p_AreaTrigger->GetCaster()->CastSpell(l_Target, uint32(Spells::SMASH_DMG), true);
@@ -1304,6 +1383,7 @@ void AddSC_spell_instance_skyreach()
     new MS::spell_SolarStorm();
     new MS::AreaTrigger_SolarStorm();
     new MS::spell_FlashBang();
+    new MS::AreaTrigger_ProtectiveBarrier();
 
     // Boss Ranjit.
     new MS::AreaTrigger_WindWall();

@@ -779,3 +779,5 @@ update creature_template set unit_class=4 where entry=76143;
 UPDATE creature_template SET modelid2=0 WHERE modelid2=46710;
 UPDATE creature_template SET modelid3=0 WHERE modelid3=46710;
 UPDATE creature_template SET modelid4=0 WHERE modelid4=46710;
+
+UPDATE creature_template SET minlevel=99 AND maxlevel=101 WHERE entry=76145;

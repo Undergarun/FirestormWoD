@@ -14,6 +14,264 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
+        class mob_RadiantSupernova : public CreatureScript
+        {
+        public:
+            // Entry: 79463
+            mob_RadiantSupernova()
+                : CreatureScript("mob_RadiantSupernova")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                SolarWrath = 157020,
+                SolarDetonation = 160303,
+            };
+
+            enum class Events : uint32
+            {
+                SolarWrath = 1,
+                SolarDetonation = 2,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_RadiantSupernovaAI(creature);
+            }
+
+            struct mob_RadiantSupernovaAI : public ScriptedAI
+            {
+                mob_RadiantSupernovaAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                    m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1000, 2000));
+                    m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::SolarWrath):
+                        m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1500, 2500));
+                        me->CastSpell(me->getVictim(), uint32(Spells::SolarWrath));
+                        break;
+                    case uint32(Events::SolarDetonation):
+                        m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
+
+                        InstanceSkyreach::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                            p_Me->CastSpell(p_Plr, uint32(Spells::SolarDetonation));
+                        });
+                        break;
+                    default:
+                        break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
+        class mob_DefenseConstruct : public CreatureScript
+        {
+        public:
+            // Entry: 76087
+            mob_DefenseConstruct()
+                : CreatureScript("mob_DefenseConstruct")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Submerge = 169084,
+                ProtectiveBarrier = 152973,
+                SelfDestruct = 158644,
+            };
+
+            enum class Events : uint32
+            {
+                ProtectiveBarrier = 2,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_DefenseConstructAI(creature);
+            }
+
+            struct mob_DefenseConstructAI : public ScriptedAI
+            {
+                mob_DefenseConstructAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+
+                    me->AddAura(uint32(Spells::Submerge), me);
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                    me->RemoveAura(uint32(Spells::Submerge));
+                    m_events.ScheduleEvent(uint32(Events::ProtectiveBarrier), urand(5000, 7000));
+                }
+
+                void JustDied(Unit*)
+                {
+                    me->CastSpell(me, InstanceSkyreach::RandomSpells::DespawnAreaTriggers, true);
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    if (me->GetHealthPct() < 10.f)
+                    {
+                        me->CastSpell(me, uint32(Spells::SelfDestruct));
+                        return;
+                    }
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::ProtectiveBarrier):
+                        me->CastSpell(me, uint32(Spells::ProtectiveBarrier));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
+        class mob_SolarMagnifier : public CreatureScript
+        {
+        public:
+            // Entry: 77559
+            mob_SolarMagnifier()
+                : CreatureScript("mob_SolarMagnifier")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Submerge = 169084,
+                Empower = 152917,
+                SolarPulse = 174489,
+                SelfDestruct = 158644,
+            };
+
+            enum class Events : uint32
+            {
+                Submerge = 1,
+                Empower = 2,
+                SolarPulse = 3,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_SolarMagnifierAI(creature);
+            }
+
+            struct mob_SolarMagnifierAI : public ScriptedAI
+            {
+                mob_SolarMagnifierAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+
+                    me->AddAura(uint32(Spells::Submerge), me);
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                    me->RemoveAura(uint32(Spells::Submerge));
+                    m_events.ScheduleEvent(uint32(Events::Empower), urand(4000, 5000));
+                    m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(1500, 2000));
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    if (me->GetHealthPct() < 10.f)
+                    {
+                        me->CastSpell(me, uint32(Spells::SelfDestruct));
+                        return;
+                    }
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::Empower):
+                        m_events.ScheduleEvent(uint32(Events::Empower), urand(6000, 8000));
+
+                        if (Unit* l_Friend = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 10.0f))
+                            me->CastSpell(l_Friend, uint32(Spells::Empower));
+                        break;
+                    case uint32(Events::SolarPulse):
+                        m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(2000, 3000));
+
+                        if (Unit* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 20.0f))
+                            me->CastSpell(l_Plr, uint32(Spells::SolarPulse));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
         class mob_DreadRavenHatchling : public CreatureScript
         {
         public:
@@ -1248,4 +1506,7 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_AdornedBladetalon();
     new MS::InstanceSkyreach::mob_SkyreachSunTalon();
     new MS::InstanceSkyreach::mob_DreadRavenHatchling();
+    new MS::InstanceSkyreach::mob_SolarMagnifier();
+    new MS::InstanceSkyreach::mob_DefenseConstruct();
+    new MS::InstanceSkyreach::mob_RadiantSupernova();
 }

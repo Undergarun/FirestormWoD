@@ -4140,6 +4140,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 152973: // Protective Barrier (Skyreach)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 156634: // Four winds (Skyreach)
             case 156636: // Four winds (Skyreach)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;

@@ -106,6 +106,8 @@ namespace MS
 
                     DoScriptText(int32(Texts::JUST_DIED), me);
 
+                    me->CastSpell(me, InstanceSkyreach::RandomSpells::DespawnAreaTriggers, true);
+
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
