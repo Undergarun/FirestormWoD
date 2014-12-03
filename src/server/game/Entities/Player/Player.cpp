@@ -30053,6 +30053,12 @@ void Player::SetEmoteState(uint32 anim_id)
 
 void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude)
 {
+    if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x"UI64FMTD" AreaTrigger entry not found in DBC)", p_Source);
+        return;
+    }
+
     if (p_Apply)
     {
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
@@ -30068,7 +30074,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
-        l_Data.WriteBits(1, 2);                         ///< Force type, still one yet
+        l_Data.WriteBits(0, 2);                         ///< Force type, still one yet
         l_Data.FlushBits();
 
         GetSession()->SendPacket(&l_Data);
@@ -30098,6 +30104,12 @@ void Player::RemoveAllMovementForces()
 
 bool Player::HasMovementForce(uint64 p_Source)
 {
+    if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x"UI64FMTD" AreaTrigger entry not found in DBC)", p_Source);
+        return false;
+    }
+
     return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
 }
 

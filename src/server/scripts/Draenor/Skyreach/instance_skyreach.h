@@ -193,7 +193,7 @@ namespace MS
             // Inner blocks.
             { 22, 25, 27, 28 }, // 13
             { 21, 22, 28, 29 }, // 14
-            { 21, 29, 30, 18 }, // 15
+            { 18, 21, 29, 30 }, // 15
             { 17, 18, 30, 31 }, // 16
             { 14, 17, 31, 32 }, // 17
             { 13, 14, 32, 33 }, // 18
@@ -201,42 +201,53 @@ namespace MS
             { 9, 10, 34, 35 },  // 20
             { 6, 9, 35, 36 },   // 21
             { 5, 6, 36, 37 },   // 22
-            { 39, 5, 37, 39},   // 23
-            { 40, 38, 42, 41},  // 24
+            { 39, 5, 37, 38 },   // 23
+            { 41, 40, 38, 42 },  // 24
             // Center block.
             { 42, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26}, // 25
             // Second stair.
-            { 44, 41, 42, 43},  // 26
+            { 43, 44, 41, 42 },  // 26
             // Convex hull.
             { 0, 46, 45, 43, 44, 1 } // 27
         };
 
-        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId)
+        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
         {
             assert(p_BlockId != Blocks::ConvexHull);
 
             Position l_ForceDir;
+            p_Magnitude = 3;
             // Special case because of a lot of vertices.
-            if (Blocks::Center)
+            if (Blocks::Center == p_BlockId)
             {
-                l_ForceDir = k_WindMazeVertices[26] - k_WindMazeVertices[36];
+                l_ForceDir = k_WindMazeVertices[26] - k_WindMazeVertices[38];
+                l_ForceDir.m_positionZ = 0;
                 normalizeXY(l_ForceDir);
+                p_Magnitude = 11;
+                l_ForceDir.m_positionX *= p_Magnitude;
+                l_ForceDir.m_positionY *= p_Magnitude;
                 return l_ForceDir;
             }
 
             // Special case because of a lot of vertices.
-            if (Blocks::Intermediate)
+            if (Blocks::Intermediate == p_BlockId)
             {
                 l_ForceDir = k_WindMazeVertices[24] - k_WindMazeVertices[22];
+                l_ForceDir.m_positionZ = 0;
                 normalizeXY(l_ForceDir);
+                l_ForceDir.m_positionX *= p_Magnitude;
+                l_ForceDir.m_positionY *= p_Magnitude;
                 return l_ForceDir;
             }
 
             std::vector<uint32> l_BlockIndices = k_WindMazeIndices[p_BlockId];
             assert(l_BlockIndices.size() == 4);
 
-            l_ForceDir = ((k_WindMazeVertices[3] - k_WindMazeVertices[0]) + (k_WindMazeVertices[2] - k_WindMazeVertices[1])) / 2.f;
+            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.f;
+            l_ForceDir.m_positionZ = 0;
             normalizeXY(l_ForceDir);
+            l_ForceDir.m_positionX *= p_Magnitude;
+            l_ForceDir.m_positionY *= p_Magnitude;
             return l_ForceDir;
         }
 

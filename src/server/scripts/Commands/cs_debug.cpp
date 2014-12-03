@@ -469,7 +469,8 @@ class debug_commandscript : public CommandScript
 
             float force = float(atoi(param));
 
-            handler->GetSession()->GetPlayer()->SendApplyMovementForce(handler->GetSession()->GetPlayer()->GetGUID(), apply, pos, force);
+            uint64 l_FakeGuid = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER);
+            handler->GetSession()->GetPlayer()->SendApplyMovementForce(l_FakeGuid, apply, pos, force);
 
             return true;
         }

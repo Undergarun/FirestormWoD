@@ -1,4 +1,5 @@
 #include "instance_skyreach.h"
+#include "ObjectAccessor.h"
 
 namespace MS
 {
@@ -50,6 +51,7 @@ namespace MS
 
                 // Wind maze zone.
                 std::map<uint64, uint32> m_PlayerGuidToBlockId;
+                std::vector<uint64> m_WindMazeBlockGuids;
 
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
@@ -67,10 +69,14 @@ namespace MS
                     m_SolarFlaresGuid(),
                     m_CacheOfArakoanTreasuresGuid(0),
                     m_SolarConstructorEnergizerGuid(0),
-                    m_PlayerGuidToBlockId()
+                    m_PlayerGuidToBlockId(),
+                    m_WindMazeBlockGuids()
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
+
+                    for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                        m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
                 }
 
                 void OnCreatureCreate(Creature* p_Creature)
@@ -409,11 +415,11 @@ namespace MS
                             if (IsPointInBlock(Blocks::ConvexHull, *l_Plr))
                             {
                                 bool l_IsInBlock = false;
-                                for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                                uint32 i = Blocks::FirstStair;
+                                for (; i <= Blocks::SecondStair; i++)
                                 {
                                     if (IsPointInBlock(i, *l_Plr))
                                     {
-                                        m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
                                         l_IsInBlock = true;
                                         break;
                                     }
@@ -422,25 +428,40 @@ namespace MS
                                 // If the player is in one of the blocks and if it doesn't have the Wind aura, add it.
                                 if (l_IsInBlock)
                                 {
-                                    Position l_ForceDir = CalculateForceVectorFromBlockId(m_PlayerGuidToBlockId[l_Plr->GetGUID()]);
+                                    float l_Magnitude = 1;
+                                    Position l_ForceDir = CalculateForceVectorFromBlockId(i, l_Magnitude);
                                     if (!l_Plr->HasAura(RandomSpells::Wind))
                                     {
                                         l_Plr->AddAura(RandomSpells::Wind, l_Plr);
                                         // Apply force.
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[i], true, l_ForceDir, l_Magnitude);
                                     }
-                                    else
+                                    else if (i != m_PlayerGuidToBlockId[l_Plr->GetGUID()])
                                     {
                                         // Remove old force.
                                         // Add new force.
+                                        if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                            l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, l_ForceDir, l_Magnitude);
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[i], true, l_ForceDir, l_Magnitude);
                                     }
+
+                                    m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
                                 }
                                 // Otherwise remove it if it has the Wind aura.
                                 else if (l_Plr->HasAura(RandomSpells::Wind))
+                                {
+                                    if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, Position(), 1.0f);
                                     l_Plr->RemoveAura(RandomSpells::Wind);
+                                }
                             }
                             // If player is out of the WindMaze zone and has the aura, remove it.
                             else if (l_Plr->HasAura(RandomSpells::Wind))
+                            {
+                                if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                    l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, Position(), 1.0f);
                                 l_Plr->RemoveAura(RandomSpells::Wind);
+                            }
                         }
                     }
 
