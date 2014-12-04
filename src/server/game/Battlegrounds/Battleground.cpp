@@ -133,7 +133,6 @@ Battleground::Battleground()
     m_ResetStatTimer    = 0;
     m_ValidStartPositionTimer = 0;
     m_Events            = 0;
-    m_IsRated           = false;
     m_IsRatedBg         = false;
     m_BuffChange        = false;
     m_IsRandom          = false;
@@ -226,6 +225,32 @@ Battleground::~Battleground()
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
+}
+void Battleground::InitGUID()
+{
+    BattlegroundQueueType l_QueueType = BattlegroundQueueType::Battleground;
+
+    if (isArena())
+    {
+        if (IsSkirmish())
+            l_QueueType = BattlegroundQueueType::ArenaSkirmish;
+        else
+            l_QueueType = BattlegroundQueueType::Arena;
+    }
+
+    /// - Missing
+    //if (isWorldPvP())
+    //    l_QueueType = BattlegroundQueueType::WorldPvP;
+
+    /// - Missing
+    //if (isWarGame())
+    //    l_QueueType = BattlegroundQueueType::WarGame;
+
+    if ((!isArena() && sBattlegroundMgr->isTesting())
+        || (isArena() && sBattlegroundMgr->isArenaTesting()))
+        l_QueueType = BattlegroundQueueType::Cheat;
+
+    m_Guid = MAKE_NEW_GUID((m_TypeID & 0xFFFF) | (uint8(l_QueueType) & 0xF) << 16 , 0, 0x01F1);
 }
 
 void Battleground::Update(uint32 diff)
@@ -531,9 +556,9 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-                    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+                    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType(), IsSkirmish());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType());
+                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     player->GetSession()->SendPacket(&status);
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
@@ -788,7 +813,7 @@ void Battleground::EndBattleground(uint32 winner)
     }
 
     // arena rating calculation
-    if (isArena() && isRated())
+    if (isArena() && !IsSkirmish())
     {
         uint8 slot = Arena::GetSlotByType(GetArenaType());
 
@@ -829,7 +854,7 @@ void Battleground::EndBattleground(uint32 winner)
         if (itr->second.OfflineRemoveTime)
         {
             //if rated arena match - make member lost!
-            if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
+            if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
             {
                 if (team == winner)
                     winner_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, Arena::GetSlotByType(GetArenaType()), winner_matchmaker_change);
@@ -848,7 +873,7 @@ void Battleground::EndBattleground(uint32 winner)
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         // Last standing - Rated 5v5 arena & be solely alive player
-        if (team == winner && isArena() && isRated() && GetArenaType() == ArenaType::Arena5v5 && aliveWinners == 1 && player->isAlive())
+        if (team == winner && isArena() && !IsSkirmish() && GetArenaType() == ArenaType::Arena5v5 && aliveWinners == 1 && player->isAlive())
             player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
 
         if (!player->isAlive())
@@ -864,7 +889,7 @@ void Battleground::EndBattleground(uint32 winner)
         }
 
         // per player calculation, achievements
-        if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
+        if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
             uint8 slot = Arena::GetSlotByType(GetArenaType());
             if (team == winner)
@@ -948,7 +973,7 @@ void Battleground::EndBattleground(uint32 winner)
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
                         guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
-                        if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team)
+                        if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team)
                             guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, NULL, player);
                     }
             }
@@ -967,9 +992,9 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildPvpLogDataPacket(&data, this);
         player->GetSession()->SendPacket(&data);
 
-        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType(), IsSkirmish());
         if (isArena())
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType());
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType(), IsSkirmish());
         else
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
         player->GetSession()->SendPacket(&data);
@@ -1033,7 +1058,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
     BattlegroundTypeId bgTypeId = GetTypeID();
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType(), IsSkirmish());
 
     if (participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
@@ -1058,7 +1083,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 player->ResummonPetTemporaryUnSummonedIfAny();
                 player->SummonLastSummonedBattlePet();
 
-                if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+                if (!IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
                 {
                     //left a rated match while the encounter was in progress, consider as loser
                     Group* winner_group = GetBgRaid(GetOtherTeam(team));
@@ -1084,7 +1109,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             if (SendPacket)
             {
                 WorldPacket data;
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0);
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0, IsSkirmish());
                 player->GetSession()->SendPacket(&data);
             }
 
@@ -1094,7 +1119,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         else
         // removing offline participant
         {
-            if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+            if (!IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
             {
                 //left a rated match while the encounter was in progress, consider as loser
                 Group* others_group = GetBgRaid(GetOtherTeam(team));
@@ -1156,7 +1181,6 @@ void Battleground::Reset()
     SetRemainingTime(0);
     SetLastResurrectTime(0);
     SetArenaType(0);
-    SetRated(false);
 
     m_Events = 0;
 
@@ -1188,8 +1212,6 @@ void Battleground::StartBattleground()
     // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
     // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
     sBattlegroundMgr->AddBattleground(GetInstanceID(), GetTypeID(), this);
-    //if (m_IsRated)
-    //    sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
 
 void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint32 p_Team)
@@ -1238,13 +1260,13 @@ void Battleground::AddPlayer(Player* player)
     SendPacketToTeam(team, &data, player, false);
 
     // BG Status packet
-    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType(), IsSkirmish());
     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         if (isArena())
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType());
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType(), IsSkirmish());
         else
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(m_TypeID), GetElapsedTime(), GetArenaType());
         player->GetSession()->SendPacket(&data);
@@ -1972,14 +1994,14 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
         return;
 
     WorldPacket data;
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType(), IsSkirmish());
 
     BlockMovement(player);
 
     sBattlegroundMgr->BuildPvpLogDataPacket(&data, this);
     player->GetSession()->SendPacket(&data);
 
-    sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
+    sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType(), IsSkirmish());
     player->GetSession()->SendPacket(&data);
 }
 
