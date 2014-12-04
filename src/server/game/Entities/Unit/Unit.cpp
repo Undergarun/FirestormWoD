@@ -16136,7 +16136,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
     if (powerId == POWER_ENERGY)
     {
-        if (ToPet() && ToPet()->IsWarlockPet())
+        if (IsWarlockPet())
             return 0;
 
         switch (GetEntry())
@@ -16347,7 +16347,7 @@ int32 Unit::GetCreatePowers(Powers power) const
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
-            return ((isPet() && GetEntry() == 416 || GetEntry() == 417 || GetEntry() == 1860 || GetEntry() == 1863 || GetEntry() == 17252) ? 200 : 100);
+            return IsWarlockPet() ? 200 : 100;
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:
@@ -17655,6 +17655,25 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, std::list<AuraAppli
 SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
 {
     return SPELL_SCHOOL_MASK_NORMAL;
+}
+
+bool Unit::IsWarlockPet() const
+{
+    uint32 l_Entry = GetEntry();
+    return l_Entry == ENTRY_INFERNAL ||
+        l_Entry == ENTRY_ABYSSAL ||
+        l_Entry == ENTRY_IMP ||
+        l_Entry == ENTRY_FEL_IMP ||
+        l_Entry == ENTRY_VOIDWALKER ||
+        l_Entry == ENTRY_VOIDLORD ||
+        l_Entry == ENTRY_SUCCUBUS ||
+        l_Entry == ENTRY_SHIVARRA ||
+        l_Entry == ENTRY_FELHUNTER ||
+        l_Entry == ENTRY_OBSERVER ||
+        l_Entry == ENTRY_FELGUARD ||
+        l_Entry == ENTRY_WRATHGUARD ||
+        l_Entry == ENTRY_DOOMGUARD ||
+        l_Entry == ENTRY_TERRORGUARD;
 }
 
 Player* Unit::GetSpellModOwner() const

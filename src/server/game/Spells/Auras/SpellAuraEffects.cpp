@@ -458,7 +458,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_399
     &AuraEffect::HandleAuraModSkillValue,                         //400 SPELL_AURA_MOD_SKILL_VALUE
     &AuraEffect::HandleNULL,                                      //401 SPELL_AURA_401
-    &AuraEffect::HandleNULL,                                      //402 SPELL_AURA_402
+    &AuraEffect::HandleAuraSetPowerType,                          //402 SPELL_AURA_SET_POWER_TYPE
     &AuraEffect::HandleChangeSpellVisualEffect,                   //403 SPELL_AURA_CHANGE_VISUAL_EFFECT
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT
     &AuraEffect::HandleIncreaseHasteFromItemsByPct,               //405 SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT
@@ -8782,4 +8782,21 @@ void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode
     AreaTrigger* l_AreaTrigger = new AreaTrigger;
     if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, 0, l_Position, l_Position))
         delete l_AreaTrigger;
+}
+
+void AuraEffect::HandleAuraSetPowerType(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target == nullptr || l_Target->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    PowerDisplayEntry const* l_PowerDisplay = sPowerDisplayStore.LookupEntry(GetMiscValue());
+    if (l_PowerDisplay == nullptr)
+        return;
+
+    Powers l_Power = Powers(l_PowerDisplay->ActualType);
+    l_Target->setPowerType(l_Power);
 }

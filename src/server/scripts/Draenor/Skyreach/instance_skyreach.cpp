@@ -307,22 +307,22 @@ namespace MS
 
                 uint32 GetData(uint32 p_Type)
                 {
-                    switch (p_Type)
+                    /*switch (p_Type)
                     {
                     default:
                         break;
-                    }
+                    }*/
 
                     return 0;
                 }
 
                 uint64 GetData64(uint32 p_Type)
                 {
-                    switch (p_Type)
+                    /*switch (p_Type)
                     {
                     default:
                         return 0;
-                    }
+                    }*/
                 }
 
                 void SetData64(uint32 p_Type, uint64 p_Data)

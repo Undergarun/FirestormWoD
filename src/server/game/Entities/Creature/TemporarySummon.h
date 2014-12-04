@@ -85,7 +85,6 @@ class Minion : public TempSummon
         bool IsPetGhoul() const {return GetEntry() == ENTRY_GHOUL;} // Ghoul may be guardian or pet
         bool IsPetGargoyle() const { return GetEntry() == ENTRY_GARGOYLE; }
         bool IsTreant() const { return GetEntry() == ENTRY_TREANT_GUARDIAN || GetEntry() == ENTRY_TREANT_FERAL || GetEntry() == ENTRY_TREANT_BALANCE || GetEntry() == ENTRY_TREANT_RESTO; }
-        bool IsWarlockPet() const;
         bool IsGuardianPet() const;
     protected:
         Unit* const m_owner;
