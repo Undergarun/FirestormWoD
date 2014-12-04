@@ -19894,6 +19894,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
 
+    Garrison * l_Garrison = new Garrison(this);
+
+    if (l_Garrison->Load())
+        m_Garrison = l_Garrison;
+    else
+        delete l_Garrison;
+
     return true;
 }
 
@@ -25638,13 +25645,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
         AddAura(116023, this);
 
-    Garrison * l_Garrison = new Garrison(this);
-
-    if (l_Garrison->Load())
-        m_Garrison = l_Garrison;
-    else
-        delete l_Garrison;
-
     /// Fix ghost group leader flag
     RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
@@ -25652,6 +25652,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetSession()->HandleLfgGetStatus(l_NullPacket);
 
     SendToyBox();
+
+    /// Force map shift update
+    if (GetMapId() == GARRISON_BASE_MAP && m_Garrison)
+    {
+        phaseMgr.Update();
+        phaseMgr.ForceMapShiftUpdate();
+    }
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -28465,34 +28472,6 @@ void Player::SetMap(Map* map)
 {
     Unit::SetMap(map);
     m_mapRef.link(map, this);
-
-    /// Garrison base map pet level map shift
-    if (ToPlayer() && ToPlayer()->GetGarrison() && map->GetId() == GARRISON_BASE_MAP)
-    {
-        uint32 l_GarrisonMapID = ToPlayer()->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
-
-        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-
-        l_Data << uint32(l_GarrisonMapID);                          ///< uint32
-        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
-        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
-        l_Data << uint32(21);                                       ///< Reason
-
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
-
-        l_Data.Initialize(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-
-        l_Data << uint32(map->GetId());                             ///< uint32
-        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
-        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
-        l_Data << uint32(21);                                       ///< Reason
-
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
-    }
 }
 
 void Player::_LoadGlyphs(PreparedQueryResult result)

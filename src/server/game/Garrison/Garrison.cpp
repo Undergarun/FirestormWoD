@@ -482,7 +482,7 @@ const GarrSiteLevelEntry * Garrison::GetGarrisonSiteLevelEntry()
 GarrisonFactionIndex Garrison::GetGarrisonFactionIndex()
 {
     assert(m_Owner);
-    
+
     switch (m_Owner->GetTeam())
     {
         case ALLIANCE:
@@ -1930,7 +1930,7 @@ void Garrison::UninitPlots()
 {
     for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
     {
-        GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(l_It->second);
+        GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
 
         if (l_Gob)
         {
@@ -1944,7 +1944,7 @@ void Garrison::UninitPlots()
 
     for (std::map<uint32, uint64>::iterator l_It = m_PlotsGob.begin(); l_It != m_PlotsGob.end(); ++l_It)
     {
-        GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(l_It->second);
+        GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
 
         if (l_Gob)
         {
@@ -1960,7 +1960,7 @@ void Garrison::UninitPlots()
     {
         for (uint32 l_Y = 0; l_Y < l_It->second.size(); ++l_Y)
         {
-            GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(l_It->second[l_Y]);
+            GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second[l_Y]);
 
             if (l_Gob)
             {
@@ -1987,7 +1987,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
     
     if (m_PlotsGob[p_PlotInstanceID] != 0)
     {
-        GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsGob[p_PlotInstanceID]);
+        GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsGob[p_PlotInstanceID]);
 
         if (l_Gob)
         {
@@ -2084,7 +2084,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
             {
                 for (uint32 l_I = 0; l_I < m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].size(); ++l_I)
                 {
-                    GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsBuildingCosmeticGobs[p_PlotInstanceID][l_I]);
+                    GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsBuildingCosmeticGobs[p_PlotInstanceID][l_I]);
 
                     if (l_Gob)
                     {
@@ -2136,7 +2136,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
             }
             else if (m_PlotsActivateGob[p_PlotInstanceID] != 0)
             {
-                GameObject * l_Gob = sObjectAccessor->GetGameObjects().at(m_PlotsActivateGob[p_PlotInstanceID]);
+                GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsActivateGob[p_PlotInstanceID]);
 
                 if (l_Gob)
                 {

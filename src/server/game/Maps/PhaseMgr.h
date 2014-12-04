@@ -137,6 +137,7 @@ public:
     void NotifyStoresReloaded() { Recalculate(); Update(); }
 
     void Update();
+    void ForceMapShiftUpdate();
 
     // Aura phase effects
     void RegisterPhasingAuraEffect(AuraEffect const* auraEffect);
