@@ -9657,6 +9657,9 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     ClearComboPoints();
     m_Duel->opponent->ClearComboPoints();
 
+    SendClearLossOfControl();
+    m_Duel->opponent->SendClearLossOfControl();
+
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
         m_Duel->opponent->RewardHonor(NULL, 1, amount);

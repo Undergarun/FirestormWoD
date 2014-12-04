@@ -1396,6 +1396,25 @@ float const g_BaseEnemyDodgeChance[STATS_CHANCE_SIZE] =
     0.0f
 };
 
+enum LossOfControlType
+{
+    TypeNone            = 0,
+    TypePossess         = 1,
+    TypeConfuse         = 2,
+    TypeCharm           = 3,
+    TypeFear            = 4,
+    TypeStun            = 5,
+    TypePacify          = 6,
+    TypeRoot            = 7,
+    TypeSilence         = 8,
+    TypePacifySilence   = 9,
+    TypeDisarm          = 10,
+    TypeSchoolInterrupt = 11,
+    TypeStunMechanic    = 12,
+    TypeFearMechanic    = 13,
+    TypeSilenceHarmful  = 14
+};
+
 class Unit : public WorldObject
 {
     public:
@@ -2360,7 +2379,12 @@ class Unit : public WorldObject
         }
 
         void SetControlled(bool apply, UnitState state);
-        void SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index);
+
+        /// Control Alert
+        void SendLossOfControlAuraUpdate(AuraApplication const* p_AurApp, Mechanics p_Mechanic, SpellEffIndex p_EffIndex, LossOfControlType p_Type);
+        void SendClearLossOfControl();
+        void SendAddLossOfControl(AuraApplication const* p_AurApp, Mechanics p_Mechanic, LossOfControlType p_Type);
+        void SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfControlType p_Type);
 
         ///----------Pet responses methods-----------------
         void SendPetCastFail(uint32 spellid, SpellCastResult msg);

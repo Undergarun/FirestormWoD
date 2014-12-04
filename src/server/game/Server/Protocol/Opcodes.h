@@ -186,10 +186,10 @@ enum Opcodes
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0D3F,   ///< 6.0.3 19116
 
         /// Control Alert
-        SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0000,   ///< 6.0.3 19116
-        SMSG_ADD_LOSS_OF_CONTROL                    = 0x0000,   ///< 6.0.3 19116
-        SMSG_CLEAR_LOSS_OF_CONTROL                  = 0x0000,   ///< 6.0.3 19116
-        SMSG_REMOVE_LOSS_OF_CONTROL                 = 0x0000,   ///< 6.0.3 19116
+        SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
+        SMSG_ADD_LOSS_OF_CONTROL                    = 0x02F4,   ///< 6.0.3 19116 (not seen on retail)
+        SMSG_CLEAR_LOSS_OF_CONTROL                  = 0x1D20,   ///< 6.0.3 19116 (not seen on retail)
+        SMSG_REMOVE_LOSS_OF_CONTROL                 = 0x0307,   ///< 6.0.3 19116 (not seen on retail)
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x0B10,   ///< 6.0.3 19116
