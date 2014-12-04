@@ -323,6 +323,8 @@ namespace MS
                     default:
                         return 0;
                     }*/
+
+                    return 0;
                 }
 
                 void SetData64(uint32 p_Type, uint64 p_Data)
