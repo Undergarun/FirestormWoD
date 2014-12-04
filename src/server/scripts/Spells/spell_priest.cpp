@@ -1878,24 +1878,26 @@ class spell_pri_psychic_horror : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->ToPlayer() && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            int32 currentPower = caster->GetPower(POWER_SHADOW_ORB);
-                            caster->ModifyPower(POWER_SHADOW_ORB, -currentPower);
+                            int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
+                            if (l_CurrentPowerUsed > 3) // Maximum 3 Shadow Orb can be consumed
+                                l_CurrentPowerUsed = 3;
+                            l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
 
                             // +1s per Shadow Orb consumed
-                            if (AuraPtr psychicHorror = target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
+                            if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
-                                int32 maxDuration = psychicHorror->GetMaxDuration();
-                                int32 newDuration = maxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + currentPower * IN_MILLISECONDS;
-                                psychicHorror->SetDuration(newDuration);
+                                int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
+                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                l_PsychicHorror->SetDuration(l_NewDuration);
 
-                                if (newDuration > maxDuration)
-                                    psychicHorror->SetMaxDuration(newDuration);
+                                if (l_NewDuration > l_MaxDuration)
+                                    l_PsychicHorror->SetMaxDuration(l_NewDuration);
                             }
                         }
                     }
