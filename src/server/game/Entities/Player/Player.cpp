@@ -9368,22 +9368,28 @@ void Player::UpdateArea(uint32 newArea)
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
 
-            uint32 l_DraenorBaseMap_Zone;
-            uint32 l_DraenorBaseMap_Area;
+            if (!l_Map)
+                l_Map = sMapMgr->CreateBaseMap(GARRISON_BASE_MAP);
 
-            l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-
-            const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
-
-            if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+            if (l_Map)
             {
-                m_Garrison->OnPlayerLeave();
-                SwitchToPhasedMap(GARRISON_BASE_MAP);
-            }
-            else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
-            {
-                SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
-                m_Garrison->OnPlayerEnter();
+                uint32 l_DraenorBaseMap_Zone;
+                uint32 l_DraenorBaseMap_Area;
+
+                l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
+
+                const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+
+                if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+                {
+                    m_Garrison->OnPlayerLeave();
+                    SwitchToPhasedMap(GARRISON_BASE_MAP);
+                }
+                else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+                {
+                    SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
+                    m_Garrison->OnPlayerEnter();
+                }
             }
         }
     }
