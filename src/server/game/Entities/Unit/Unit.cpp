@@ -20661,36 +20661,45 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
         }
         case FORM_AQUA:
+        {
             // Glyph of the Orca
             if (HasAura(114333))
                 return 4591;
-            break;
+        }
         case FORM_GHOSTWOLF:
+        {
             // Glyph of the Spectral Wolf
             if (HasAura(58135))
                 return 30162;
-            break;
+        }
+        case FORM_METAMORPHOSIS:
+        {
+            // Glyph of Metamorphosis
+            //if (HasAura(159680))
+            //    return 0;
+            return 39261;
+        }
         default:
             break;
     }
 
     uint32 modelid = 0;
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->modelID_A)
+    if (formEntry && formEntry->m_CreatureDisplayID[0])
     {
         // Take the alliance modelid as default
         if (GetTypeId() != TYPEID_PLAYER)
-            return formEntry->modelID_A;
+            return formEntry->m_CreatureDisplayID[0];
         else
         {
             if (Player::TeamForRace(getRace()) == ALLIANCE)
-                modelid = formEntry->modelID_A;
+                modelid = formEntry->m_CreatureDisplayID[0];
             else
-                modelid = formEntry->modelID_H;
+                modelid = formEntry->m_CreatureDisplayID[1];
 
             // If the player is horde but there are no values for the horde modelid - take the alliance modelid
             if (!modelid && Player::TeamForRace(getRace()) == HORDE)
-                modelid = formEntry->modelID_A;
+                modelid = formEntry->m_CreatureDisplayID[0];
         }
     }
 

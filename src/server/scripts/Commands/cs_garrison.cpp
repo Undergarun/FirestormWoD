@@ -143,12 +143,29 @@ class garrison_commandscript : public CommandScript
 
             if (p_Args != 0)
             {
-                uint32 l_FollowerID = atoi(p_Args);
+                std::string l_Args = p_Args;
 
-                if (!l_FollowerID)
-                    return false;
+                if (l_Args == "all")
+                {
+                    for (uint32 l_I = 0; l_I < sGarrFollowerStore.GetNumRows(); ++l_I)
+                    {
+                        const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(l_I);
 
-                return l_TargetPlayer->GetGarrison()->AddFollower(l_FollowerID);
+                        if (l_Entry)
+                            l_TargetPlayer->GetGarrison()->AddFollower(l_Entry->ID);
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    uint32 l_FollowerID = atoi(p_Args);
+
+                    if (!l_FollowerID)
+                        return false;
+
+                    return l_TargetPlayer->GetGarrison()->AddFollower(l_FollowerID);
+                }
             }
 
             return false;
@@ -167,12 +184,29 @@ class garrison_commandscript : public CommandScript
 
             if (p_Args != 0)
             {
-                uint32 l_MissionID = atoi(p_Args);
+                std::string l_Args = p_Args;
 
-                if (!l_MissionID)
-                    return false;
+                if (l_Args == "all")
+                {
+                    for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
+                    {
+                        const GarrMissionEntry * l_Entry = sGarrMissionStore.LookupEntry(l_I);
 
-                return l_TargetPlayer->GetGarrison()->AddMission(l_MissionID);
+                        if (l_Entry)
+                            l_TargetPlayer->GetGarrison()->AddMission(l_Entry->MissionRecID);
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    uint32 l_MissionID = atoi(p_Args);
+
+                    if (!l_MissionID)
+                        return false;
+
+                    return l_TargetPlayer->GetGarrison()->AddMission(l_MissionID);
+                }
             }
 
             return false;
