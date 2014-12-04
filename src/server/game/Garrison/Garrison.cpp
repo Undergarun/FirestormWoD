@@ -137,6 +137,9 @@ Garrison::Garrison(Player * p_Owner)
     m_GarrisonLevelID   = 0;
     m_GarrisonSiteID    = 0;
 
+    m_NumFollowerActivation                = 1;
+    m_NumFollowerActivationRegenTimestamp  = time(0);
+
     /// Select Garrison site ID
     switch (GetGarrisonFactionIndex())
     {
@@ -212,6 +215,9 @@ bool Garrison::Load()
             for (Tokenizer::const_iterator l_It = l_Specializations.begin(); l_It != l_Specializations.end(); ++l_It)
                 m_KnownSpecializations.push_back(atol(*l_It));
         }
+
+        m_NumFollowerActivation                = l_Fields[4].GetUInt32();
+        m_NumFollowerActivationRegenTimestamp  = l_Fields[5].GetUInt32();
 
         l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
         l_Stmt->setUInt32(0, m_ID);
@@ -301,6 +307,8 @@ bool Garrison::Load()
                         l_Follower.Abilities.push_back(atol(*l_It));
                 }
 
+                l_Follower.Flags = l_Fields[10].GetUInt32();
+
                 m_Followers.push_back(l_Follower);
             } while (l_Result->NextRow());
         }
@@ -331,6 +339,8 @@ void Garrison::Save()
     l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
     l_Stmt->setString(l_Index++, l_KnownBluePrintsStr.str());
     l_Stmt->setString(l_Index++, l_KnownSpecializationsStr.str());
+    l_Stmt->setUInt32(l_Index++, m_NumFollowerActivation);
+    l_Stmt->setUInt32(l_Index++, m_NumFollowerActivationRegenTimestamp);
     l_Stmt->setUInt32(l_Index++, m_ID);
 
     CharacterDatabase.AsyncQuery(l_Stmt);
@@ -398,6 +408,7 @@ void Garrison::Save()
         l_Stmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
         l_Stmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
         l_Stmt->setString(l_Index++, l_Abilities.str());
+        l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
 
         l_Stmt->setUInt32(l_Index++, m_Followers[l_I].DB_ID);
         l_Stmt->setUInt32(l_Index++, m_ID);
@@ -433,6 +444,7 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 /// Update the garrison
 void Garrison::Update()
 {
+    /// Update building in construction
     for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
     {
         GarrisonBuilding * l_Building = &m_Buildings[l_I];
@@ -444,6 +456,18 @@ void Garrison::Update()
             /// Nothing more needed, client auto deduce notification
             UpdatePlot(l_Building->PlotInstanceID);
         }
+    }
+
+    /// Update follower activation cost
+    if (m_NumFollowerActivation < GARRISON_FOLLOWER_ACTIVATION_MAX_STACK && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
+    {
+        m_NumFollowerActivation++;
+        m_NumFollowerActivationRegenTimestamp = time(0);
+
+        WorldPacket l_Data(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT, 4);
+        l_Data << uint32(GetNumFollowerActivationsRemaining());
+
+        m_Owner->SendDirectMessage(&l_Data);
     }
 }
 
@@ -670,6 +694,9 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         return;
     }
 
+    if (GetActivatedFollowerCount() > m_Stat_MaxActiveFollower)
+        return;
+
     const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
     if (!m_Owner->HasCurrency(GARRISON_CURRENCY_ID, l_MissionTemplate->GarrisonCurrencyStartCost))
@@ -705,6 +732,10 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
             StartMissionFailed();
             return;
         }
+
+        /// Should not happen
+        if (l_It->Flags & GARRISON_FOLLOWER_FLAG_INACTIVE)
+            return;
 
         uint32 l_FollowerItemLevel = (l_It->ItemLevelWeapon + l_It->ItemLevelArmor) / 2;
 
@@ -1541,6 +1572,77 @@ bool Garrison::AddFollower(uint32 p_FollowerID)
 
     return true;
 }
+/// Change follower activation state
+void Garrison::ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active)
+{
+    GarrisonFollower * l_Follower = nullptr;
+
+    if (p_Active)
+    {
+        if (!m_Owner->HasEnoughMoney((uint64)GARRISON_FOLLOWER_ACTIVATION_COST))
+            return;
+
+        if (GetNumFollowerActivationsRemaining() < 1)
+            return;
+
+        auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerDBID](const GarrisonFollower & p_Follower) { return p_Follower.DB_ID == p_FollowerDBID; });
+
+        if (l_It != m_Followers.end())
+        {
+            m_Owner->ModifyMoney(-GARRISON_FOLLOWER_ACTIVATION_COST);
+
+            m_NumFollowerActivation--;
+            m_NumFollowerActivationRegenTimestamp = time(0);
+
+            l_It->Flags = l_It->Flags & ~GARRISON_FOLLOWER_FLAG_INACTIVE;
+            l_Follower = &(*l_It);
+
+            WorldPacket l_Data(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT, 4);
+            l_Data << uint32(GetNumFollowerActivationsRemaining());
+
+            m_Owner->SendDirectMessage(&l_Data);
+        }
+    }
+    else
+    {
+        if (!m_Owner->HasEnoughMoney((uint64)GARRISON_FOLLOWER_ACTIVATION_COST))
+            return;
+
+        auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerDBID](const GarrisonFollower & p_Follower) { return p_Follower.DB_ID == p_FollowerDBID; });
+
+        if (l_It != m_Followers.end())
+        {
+            m_Owner->ModifyMoney(-GARRISON_FOLLOWER_ACTIVATION_COST);
+
+            l_It->Flags |= GARRISON_FOLLOWER_FLAG_INACTIVE;
+            l_Follower = &(*l_It);
+        }
+
+        l_Follower = &*l_It;
+    }
+
+    if (!l_Follower)
+        return;
+
+    WorldPacket l_Update(SMSG_GARRISON_UPDATE_FOLLOWER, 500);
+    l_Update << uint64(l_Follower->DB_ID);
+    l_Update << uint32(l_Follower->FollowerID);
+    l_Update << uint32(l_Follower->Quality);
+    l_Update << uint32(l_Follower->Level);
+    l_Update << uint32(l_Follower->ItemLevelWeapon);
+    l_Update << uint32(l_Follower->ItemLevelArmor);
+    l_Update << uint32(l_Follower->XP);
+    l_Update << uint32(l_Follower->CurrentBuildingID);
+    l_Update << uint32(l_Follower->CurrentMissionID);
+
+    l_Update << uint32(l_Follower->Abilities.size());
+    l_Update << uint32(l_Follower->Flags);
+
+    for (uint32 l_Y = 0; l_Y < l_Follower->Abilities.size(); ++l_Y)
+        l_Update << int32(l_Follower->Abilities[l_Y]);
+
+    m_Owner->SendDirectMessage(&l_Update);
+}
 /// Get followers
 std::vector<GarrisonFollower> Garrison::GetFollowers()
 {
@@ -1559,6 +1661,24 @@ GarrisonFollower Garrison::GetFollower(uint32 p_FollowerID)
     l_FailResult.FollowerID = 0;
 
     return l_FailResult;
+}
+/// Get activated followers count
+uint32 Garrison::GetActivatedFollowerCount()
+{
+    uint32 l_ActivatedFollowerCount = 0;
+
+    for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
+    {
+        if ((m_Followers[l_I].Flags & GARRISON_FOLLOWER_FLAG_INACTIVE) == 0)
+            l_ActivatedFollowerCount++;
+    }
+
+    return l_ActivatedFollowerCount;
+}
+/// Get num follower activation remaining
+uint32 Garrison::GetNumFollowerActivationsRemaining()
+{
+    return m_NumFollowerActivation;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1733,6 +1853,7 @@ void Garrison::ActivateBuilding(uint32 p_PlotInstanceID)
     l_Packet << uint32(p_PlotInstanceID);
     m_Owner->SendDirectMessage(&l_Packet);
 
+    UpdateStats();
 }
 /// Activate building
 void Garrison::ActivateBuilding()
@@ -1880,6 +2001,7 @@ void Garrison::Init()
 {
     InitDataForLevel();
     InitPlots();
+    UpdateStats();
 }
 /// Init data for level
 void Garrison::InitDataForLevel()
@@ -2146,4 +2268,13 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
             }
         }
     }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Update garrison stats
+void Garrison::UpdateStats()
+{
+    m_Stat_MaxActiveFollower = GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW;
 }

@@ -883,6 +883,8 @@ enum Opcodes
         SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0544,   ///< 6.0.3 19116
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
+        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0D92,   ///< 6.0.3 19116
+        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x11C1,   ///< 6.0.3 19116
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0973,   ///< 6.0.3 19116
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x0D01,   ///< 6.0.3 19116
         SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0D54,   ///< 6.0.3 19116
@@ -933,6 +935,7 @@ enum Opcodes
     CMSG_GARRISON_SET_FOLLOWER_ITEM_LEVEL_CHEAT             = 0x0000,
     CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0000,
     CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x0000,
+    CMSG_GARRISON_CHANGE_FOLLOWER_ACTIVATION_STATE          = 0x03BC,   ///< 6.0.3 19116
     CMSG_SHOW_GARRISON_TRANSFER                             = 0x0000,
     CMSG_GARRISON_ADD_UNIQUE_FOLLOWER_CHEAT                 = 0x0000,
     CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT                     = 0x0000,

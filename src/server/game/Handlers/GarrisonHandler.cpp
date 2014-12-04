@@ -31,7 +31,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteID);          ///< Site ID
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);     ///< Site Level ID
-    l_Infos << int32(1);                                                        ///< Unk
+    l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
     
     l_Infos << uint32(l_Buildings.size());
     l_Infos << uint32(l_Plots.size());
@@ -39,7 +39,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     l_Infos << uint32(l_Missions.size());
     l_Infos << uint32(l_CompletedMission.size());
 
-    l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
+    l_Infos << int32(l_Garrison->GetNumFollowerActivationsRemaining());
 
     for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
     {
@@ -76,7 +76,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         l_Infos << uint32(l_Followers[l_I].CurrentMissionID);
 
         l_Infos << uint32(l_Followers[l_I].Abilities.size());
-        l_Infos << uint32(0);       ///< Unk
+        l_Infos << uint32(l_Followers[l_I].Flags);
 
         for (uint32 l_Y = 0; l_Y < l_Followers[l_I].Abilities.size(); ++l_Y)
             l_Infos << int32(l_Followers[l_I].Abilities[l_Y]);
@@ -108,8 +108,8 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     SendPacket(&l_Infos);
 
-    std::vector<int32> l_KnownBlueprints = l_Garrison->GetKnownBlueprints();
-    std::vector<int32> l_KnownSpecializations = l_Garrison->GetKnownSpecializations();
+    std::vector<int32> l_KnownBlueprints        = l_Garrison->GetKnownBlueprints();
+    std::vector<int32> l_KnownSpecializations   = l_Garrison->GetKnownSpecializations();
 
     WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 200);
 
@@ -372,6 +372,21 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     }
     
     l_Garrison->CompleteMission(l_MissionID);
+}
+void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64  l_FollowerDBID  = 0;
+    bool    l_Desactivate   = false;
+
+    p_RecvData >> l_FollowerDBID;
+    l_Desactivate = p_RecvData.ReadBit();
+
+    l_Garrison->ChangeFollowerActivationState(l_FollowerDBID, !l_Desactivate);
 }
 
 //////////////////////////////////////////////////////////////////////////
