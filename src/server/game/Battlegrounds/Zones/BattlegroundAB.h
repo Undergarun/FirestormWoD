@@ -65,58 +65,42 @@ const uint32 BG_AB_OP_NODEICONS[5]  =    {1842, 1846, 1845, 1844, 1843};
 /* Note: code uses that these IDs follow each other */
 enum BG_AB_NodeObjectId
 {
-    BG_AB_OBJECTID_NODE_BANNER_0    = 180087,       // Stables banner
-    BG_AB_OBJECTID_NODE_BANNER_1    = 180088,       // Blacksmith banner
-    BG_AB_OBJECTID_NODE_BANNER_2    = 180089,       // Farm banner
-    BG_AB_OBJECTID_NODE_BANNER_3    = 180090,       // Lumber mill banner
-    BG_AB_OBJECTID_NODE_BANNER_4    = 180091        // Gold mine banner
+    BG_AB_OBJECTID_NODE_BANNER_0    = 227420,       ///< Stables banner
+    BG_AB_OBJECTID_NODE_BANNER_1    = 227522,       ///< Blacksmith banner
+    BG_AB_OBJECTID_NODE_BANNER_2    = 227536,       ///< Farm banner
+    BG_AB_OBJECTID_NODE_BANNER_3    = 227544,       ///< Lumber mill banner
+    BG_AB_OBJECTID_NODE_BANNER_4    = 227538        ///< Gold mine banner
 };
 
 enum BG_AB_ObjectType
 {
-    // for all 5 node points 8*5=40 objects
-    BG_AB_OBJECT_BANNER_NEUTRAL          = 0,
-    BG_AB_OBJECT_BANNER_CONT_A           = 1,
-    BG_AB_OBJECT_BANNER_CONT_H           = 2,
-    BG_AB_OBJECT_BANNER_ALLY             = 3,
-    BG_AB_OBJECT_BANNER_HORDE            = 4,
-    BG_AB_OBJECT_AURA_ALLY               = 5,
-    BG_AB_OBJECT_AURA_HORDE              = 6,
-    BG_AB_OBJECT_AURA_CONTESTED          = 7,
+    // for all 5 node points 1*5=5 (lol) objects
+    BG_AB_OBJECT_BANNER          = 0,
     //gates
-    BG_AB_OBJECT_GATE_A                  = 40,
-    BG_AB_OBJECT_GATE_H                  = 41,
+    BG_AB_OBJECT_GATE_A                  = 5,
+    BG_AB_OBJECT_GATE_H                  = 6,
     //buffs
-    BG_AB_OBJECT_SPEEDBUFF_STABLES       = 42,
-    BG_AB_OBJECT_REGENBUFF_STABLES       = 43,
-    BG_AB_OBJECT_BERSERKBUFF_STABLES     = 44,
-    BG_AB_OBJECT_SPEEDBUFF_BLACKSMITH    = 45,
-    BG_AB_OBJECT_REGENBUFF_BLACKSMITH    = 46,
-    BG_AB_OBJECT_BERSERKBUFF_BLACKSMITH  = 47,
-    BG_AB_OBJECT_SPEEDBUFF_FARM          = 48,
-    BG_AB_OBJECT_REGENBUFF_FARM          = 49,
-    BG_AB_OBJECT_BERSERKBUFF_FARM        = 50,
-    BG_AB_OBJECT_SPEEDBUFF_LUMBER_MILL   = 51,
-    BG_AB_OBJECT_REGENBUFF_LUMBER_MILL   = 52,
-    BG_AB_OBJECT_BERSERKBUFF_LUMBER_MILL = 53,
-    BG_AB_OBJECT_SPEEDBUFF_GOLD_MINE     = 54,
-    BG_AB_OBJECT_REGENBUFF_GOLD_MINE     = 55,
-    BG_AB_OBJECT_BERSERKBUFF_GOLD_MINE   = 56,
-    BG_AB_OBJECT_MAX                     = 57,
+    BG_AB_OBJECT_SPEEDBUFF_STABLES       = 7,
+    BG_AB_OBJECT_REGENBUFF_STABLES       = 8,
+    BG_AB_OBJECT_BERSERKBUFF_STABLES     = 9,
+    BG_AB_OBJECT_SPEEDBUFF_BLACKSMITH    = 10,
+    BG_AB_OBJECT_REGENBUFF_BLACKSMITH    = 11,
+    BG_AB_OBJECT_BERSERKBUFF_BLACKSMITH  = 12,
+    BG_AB_OBJECT_SPEEDBUFF_FARM          = 13,
+    BG_AB_OBJECT_REGENBUFF_FARM          = 14,
+    BG_AB_OBJECT_BERSERKBUFF_FARM        = 15,
+    BG_AB_OBJECT_SPEEDBUFF_LUMBER_MILL   = 16,
+    BG_AB_OBJECT_REGENBUFF_LUMBER_MILL   = 17,
+    BG_AB_OBJECT_BERSERKBUFF_LUMBER_MILL = 18,
+    BG_AB_OBJECT_SPEEDBUFF_GOLD_MINE     = 19,
+    BG_AB_OBJECT_REGENBUFF_GOLD_MINE     = 20,
+    BG_AB_OBJECT_BERSERKBUFF_GOLD_MINE   = 21,
+    BG_AB_OBJECT_MAX                     = 22,
 };
 
 /* Object id templates from DB */
 enum BG_AB_ObjectTypes
 {
-    BG_AB_OBJECTID_BANNER_A             = 180058,
-    BG_AB_OBJECTID_BANNER_CONT_A        = 180059,
-    BG_AB_OBJECTID_BANNER_H             = 180060,
-    BG_AB_OBJECTID_BANNER_CONT_H        = 180061,
-
-    BG_AB_OBJECTID_AURA_A               = 180100,
-    BG_AB_OBJECTID_AURA_H               = 180101,
-    BG_AB_OBJECTID_AURA_C               = 180102,
-
     BG_AB_OBJECTID_GATE_A               = 180255,
     BG_AB_OBJECTID_GATE_H               = 180256
 };
@@ -158,6 +142,24 @@ enum BG_AB_NodeStatus
     BG_AB_NODE_TYPE_OCCUPIED            = 3,
     BG_AB_NODE_STATUS_ALLY_OCCUPIED     = 3,
     BG_AB_NODE_STATUS_HORDE_OCCUPIED    = 4
+};
+
+enum class ArathiBannerSpellVisual : uint32
+{
+    Neutral           = 42975,
+    HordeContested    = 42976,
+    AllianceContested = 42978,
+    HordeOccupied     = 42979,
+    AllianceOccupied  = 42980
+};
+
+enum class ArathiBannerWorldState : uint8
+{
+    Neutral           = 0,
+    HordeContested    = 2,
+    AllianceContested = 3,
+    HordeOccupied     = 4,
+    AllianceOccupied  = 5
 };
 
 enum BG_AB_Sounds
@@ -229,13 +231,6 @@ const float BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT][4] =
     {714.61f, 646.15f, -10.87f, 4.34f}                      // horde starting base
 };
 
-struct BG_AB_BannerTimer
-{
-    uint32      timer;
-    uint8       type;
-    uint8       teamIndex;
-};
-
 class BattlegroundABScore : public BattlegroundScore
 {
     public:
@@ -275,8 +270,7 @@ class BattlegroundAB : public Battleground
     private:
         virtual void PostUpdateImpl(uint32 diff);
         /* Gameobject spawning/despawning */
-        void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
-        void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
+        void _ChangeBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _SendNodeUpdate(uint8 node);
 
         /* Creature spawning/despawning */
@@ -292,17 +286,19 @@ class BattlegroundAB : public Battleground
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8               m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
-        BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
-        uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
-        bool                m_IsInformedNearVictory;
-        uint32              m_HonorTics;
-        uint32              m_ReputationTics;
+
+        ArathiBannerWorldState m_BannerWorldState[BG_AB_DYNAMIC_NODES_COUNT];
+        uint8                  m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
+        uint8                  m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        uint32                 m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
+        uint32                 m_lastTick[BG_TEAMS_COUNT];
+        uint32                 m_HonorScoreTics[BG_TEAMS_COUNT];
+        uint32                 m_ReputationScoreTics[BG_TEAMS_COUNT];
+        bool                   m_IsInformedNearVictory;
+        uint32                 m_HonorTics;
+        uint32                 m_ReputationTics;
+
         // need for achievements
-        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                   m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
 };
 #endif
