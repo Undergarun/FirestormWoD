@@ -100,7 +100,7 @@ enum GILNEAS_BG_Timers
 
 enum GILNEAS_BG_Score
 {
-    GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE    = 1400, // Guessed - Fix me
+    GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE    = 1200,
     GILNEAS_BG_MAX_TEAM_SCORE                = 1500
 };
 
