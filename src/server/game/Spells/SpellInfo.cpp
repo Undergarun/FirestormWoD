@@ -1154,7 +1154,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
             OverrideSpellList.push_back(specializationInfo->LearnSpell);
     }
 
-    talentId = 0;
+    m_TalentIDs.clear();
 
     ExplicitTargetMask = _GetExplicitTargetMask();
     ChainEntry = NULL;

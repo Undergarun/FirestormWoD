@@ -1431,9 +1431,29 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
     for (auto l_Talent : *l_Player->GetTalentMap(l_Player->GetActiveSpec()))
     {
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Talent.first);
-        if (l_SpellInfo && l_SpellInfo->talentId)
+        if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
         {
-            l_Data << uint16(l_SpellInfo->talentId);
+            uint32 l_SpecID = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            uint16 l_Talent = 0;
+
+            for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
+            {
+                if (TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID))
+                {
+                    if (l_TalentEntry->SpecID == l_SpecID)
+                    {
+                        l_Talent = l_TalentID;
+                        break;
+                    }
+
+                    l_Talent = l_TalentID;
+                }
+            }
+
+            if (!l_Talent)
+                continue;
+
+            l_Data << uint16(l_Talent);
             ++l_TalentCount;
         }
     }
