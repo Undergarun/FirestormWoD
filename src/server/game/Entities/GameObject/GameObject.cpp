@@ -1701,6 +1701,7 @@ void GameObject::Use(Unit* p_User)
             break;
         }
 
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:                 // 42
         case GAMEOBJECT_TYPE_FLAGSTAND:                     // 24
         {
             if (p_User->GetTypeId() != TYPEID_PLAYER)

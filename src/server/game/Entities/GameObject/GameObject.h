@@ -542,6 +542,8 @@ struct GameObjectTemplate
                 return fishinghole.lockId;
             case GAMEOBJECT_TYPE_FLAGDROP:
                 return flagdrop.lockId;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:
+                return capturePoint.LockId;
             default:
                 return 0;
         }

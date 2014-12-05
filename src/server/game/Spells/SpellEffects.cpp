@@ -3011,7 +3011,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
-            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK) ||
+            (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
