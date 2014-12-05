@@ -221,41 +221,6 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         }
 };
 
-// Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
-// Glyph of Siphon Life - 56218
-class spell_warl_siphon_life : public SpellScriptLoader
-{
-    public:
-        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
-
-        class spell_warl_siphon_life_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    {
-                        int32 healAmount = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount() / 1000);
-                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), healAmount, false);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_siphon_life_AuraScript();
-        }
-};
-
 const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
 const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
@@ -1852,42 +1817,6 @@ class spell_warl_soul_swap : public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 172 and Corruption - 146739
-// Nightfall - 108558
-class spell_warl_nightfall : public SpellScriptLoader
-{
-    public:
-        spell_warl_nightfall() : SpellScriptLoader("spell_warl_nightfall") { }
-
-        class spell_warl_nightfall_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_nightfall_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(WARLOCK_NIGHTFALL))
-                        if (roll_chance_i(aurEff->GetBaseAmount() / 1000))
-                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * caster->GetPowerCoeff(POWER_SOUL_SHARDS));
-
-                    if (AuraPtr glyphSiphonOfLife = caster->GetAura(WARLOCK_GLYPH_OF_SIPHON_LIFE, caster->GetGUID()))
-                        caster->HealBySpell(caster, glyphSiphonOfLife->GetSpellInfo(), caster->CountPctFromMaxHealth(glyphSiphonOfLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000), false);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_nightfall_AuraScript();
-        }
-};
-
 enum DrainSoulSpells
 {
     SPELL_WARL_IMPROVED_DRAIN_SOUL = 157077
@@ -2736,7 +2665,6 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
-    new spell_warl_siphon_life();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_health_funnel();
@@ -2770,7 +2698,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_leap();
     new spell_warl_soul_swap_soulburn();
     new spell_warl_soul_swap();
-    new spell_warl_nightfall();
     new spell_warl_drain_soul();
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();
