@@ -419,11 +419,11 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
         return;
 
     uint8 node = GILNEAS_BG_NODE_LIGHTHOUSE;
-    GameObject* object=GetBgMap()->GetGameObject(BgObjects[node*8+5]);
+    GameObject* object = GetBgMap()->GetGameObject(BgObjects[node * 8 + GILNEAS_BG_OBJECT_AURA_CONTESTED]);
     while ((node < GILNEAS_BG_DYNAMIC_NODES_COUNT) && ((!object) || (!source->IsWithinDistInMap(object, 10))))
     {
         ++node;
-        object=GetBgMap()->GetGameObject(BgObjects[node*8+GILNEAS_BG_OBJECT_AURA_CONTESTED]);
+        object=GetBgMap()->GetGameObject(BgObjects[node * 8 + GILNEAS_BG_OBJECT_AURA_CONTESTED]);
     }
 
     if (node == GILNEAS_BG_DYNAMIC_NODES_COUNT)
