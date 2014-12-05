@@ -17477,11 +17477,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 ModifyMoney(-int64(l_Objective.Amount));
                 break;
             }
-            case QUEST_OBJECTIVE_TYPE_NPC:
-            {
-                KilledMonsterCredit(l_Objective.ObjectID);
-                break;
-            }
             default:
                 break;
         }
