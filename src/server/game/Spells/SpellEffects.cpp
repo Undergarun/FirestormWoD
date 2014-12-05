@@ -7845,11 +7845,11 @@ void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
         for (uint32 l_TalentID : spell->m_TalentIDs)
         {
             TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (!l_TalentEntry || l_TalentID != m_glyphIndex)
+            if (l_TalentEntry && l_TalentID == m_glyphIndex)
                 l_Continue = true;
         }
 
-        if (l_Continue)
+        if (!l_Continue)
             continue;
 
         plr->removeSpell(itr.first, true);
