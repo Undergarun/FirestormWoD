@@ -1824,9 +1824,12 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Player = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        _player->CastSpell(_player, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
+                    {
+                        l_Player->CastSpell(l_Player, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                    }
             }
 
             void Register()
