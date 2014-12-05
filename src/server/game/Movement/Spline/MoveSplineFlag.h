@@ -53,17 +53,17 @@ namespace Movement
             TransportExit       = 0x00010000,
             Unknown3            = 0x00020000,           // NOT VERIFIED
             Unknown4            = 0x00040000,           // NOT VERIFIED
-            OrientationInversed = 0x00080000,
-            SmoothGroundPath    = 0x00100000,
-            Walkmode            = 0x00200000,
-            UncompressedPath    = 0x00400000,
+            OrientationInversed = 0x00080000,           // good
+            SmoothGroundPath    = 0x00100000,           // good
+            Walkmode            = 0x00200000,           // good
+            UncompressedPath    = 0x00400000,           // good
             Unknown6            = 0x00800000,           // NOT VERIFIED
-            Animation           = 0x01000000,           // Plays animation after some time passed
-            Parabolic           = 0x02000000,           // Affects elevation computation, can't be combined with Falling flag
-            Final_Point         = 0x04000000,
-            Final_Target        = 0x08000000,
-            Final_Angle         = 0x10000000,
-            Unknown7            = 0x20000000,           // NOT VERIFIED
+            Unknown7            = 0x01000000,           // NOT VERIFIED
+            Animation           = 0x02000000,           // Plays animation after some time passed
+            Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
+            Final_Point         = 0x08000000,
+            Final_Target        = 0x10000000,
+            Final_Angle         = 0x20000000,
             Unknown8            = 0x40000000,           // NOT VERIFIED
             Unknown9            = 0x80000000,           // NOT VERIFIED
 
@@ -134,12 +134,12 @@ namespace Movement
         bool walkmode            : 1;
         bool uncompressedPath    : 1;
         bool unknown6            : 1;
+        bool unknown7            : 1;
         bool animation           : 1;
         bool parabolic           : 1;
         bool final_point         : 1;
         bool final_target        : 1;
         bool final_angle         : 1;
-        bool unknown7            : 1;
         bool unknown8            : 1;
         bool unknown9            : 1;
     };
