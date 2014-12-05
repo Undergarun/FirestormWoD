@@ -126,7 +126,9 @@ enum PriestSpells
     PRIEST_SPELL_SAVING_GRACE                       = 155274,
     PRIEST_SPELL_CLARITY_OF_POWER                   = 155246,
     PRIEST_SPELL_SPIRIT_SHELL_AURA                  = 109964,
-    PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908
+    PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908,
+    PRIEST_SPELL_HALO_AREA_DAMAGE                   = 120644,
+    PRIEST_SPELL_HALO_AREA_HEAL                     = 120517
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -926,25 +928,25 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (GetSpellInfo()->Id == PRIEST_SPELL_POWER_WORD_SHIELD)
                     {
-                        if (Unit* target = GetHitUnit())
+                        if (Unit* l_Target = GetHitUnit())
                         {
-                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
-                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
+                            if (l_Target != nullptr && l_Target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
+                                l_Target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
                         }
                     }
                     else
                     {
-                        if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
-                            _player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
+                        if (l_Player != nullptr && l_Player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
+                            l_Player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
 
-                        if (Unit* target = GetHitUnit())
+                        if (Unit* l_Target = GetHitUnit())
                         {
-                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
-                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
+                            if (l_Target != nullptr && l_Target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
+                                l_Target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
                         }
                     }
                 }
@@ -959,35 +961,6 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_divine_insight_discipline_SpellScript();
-        }
-
-        class spell_pri_divine_insight_discipline_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_divine_insight_discipline_AuraScript);
-
-            void Trigger(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
-            {
-                Unit* l_Target = GetTarget();
-                if (p_DmgInfo.GetAttacker() == l_Target
-                    || (p_DmgInfo.GetSpellInfo() &&  p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id))
-                    return;
-
-                if (AuraEffectPtr l_ReflectiveShield = l_Target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
-                {
-                    int32 l_BasePoint = CalculatePct(p_AbsorbAmount, l_ReflectiveShield->GetAmount());
-                    l_Target->CastCustomSpell(p_DmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_BasePoint, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_divine_insight_discipline_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_divine_insight_discipline_AuraScript();
         }
 };
 
@@ -1042,8 +1015,32 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
             }
 
+            void Trigger(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount) // Case of GLYPH_OF_REFLECTIVE_SHIELD
+            {
+                if (Unit* l_Target = GetTarget())
+                    if (Unit *l_Attacker = p_DmgInfo.GetAttacker())
+                    {
+                        if (l_Target == nullptr || l_Attacker == nullptr)
+                            return;
+                        if (l_Target->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
+                            if (Unit *l_Attacker = p_DmgInfo.GetAttacker())
+                            {
+                                if (l_Attacker == l_Target
+                                    || (p_DmgInfo.GetSpellInfo() && p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id))
+                                    return;
+
+                                if (AuraEffectPtr l_ReflectiveShield = l_Target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
+                                {
+                                    int32 l_BasePoint = CalculatePct(p_AbsorbAmount, l_ReflectiveShield->GetAmount());
+                                    l_Target->CastCustomSpell(l_Attacker, PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_BasePoint, NULL, NULL, true);
+                                }
+                            }
+                    }
+            }
+
             void Register()
             {
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
@@ -1708,26 +1705,24 @@ class spell_pri_halo_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_halo_heal_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 heal = GetHitHeal();
-                        heal += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier);
-                        float Distance = _player->GetDistance(target);
-                        float pct = Distance / 25.0f;
-                        heal = int32(heal * pct);
+                if (Unit* l_Player = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        if (l_Target->IsFriendlyTo(l_Player))
+                        {
+                            int32 l_Heal = GetHitHeal();
 
-                        SetHitHeal(heal);
-                    }
-                }
+                            if (l_Player->GetDistance(l_Target) < 25.0f)
+                                l_Heal = (l_Player->GetDistance(l_Target) / 25.0f) * GetHitHeal();
+
+                            SetHitHeal(l_Heal);
+                        }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_halo_heal_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -1742,7 +1737,7 @@ enum Halo_Spell
     PRIEST_SPELL_HALO_DAMAGE = 120696
 };
 
-// Halo (shadow) - 120517
+// Halo Damage (shadow) - 120696
 class spell_pri_halo_damage : public SpellScriptLoader
 {
     public:
@@ -1752,42 +1747,24 @@ class spell_pri_halo_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_halo_damage_SpellScript);
 
-            void HandleDamage(SpellEffIndex eff)
+            void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 damage = GetHitDamage();
-                        damage += int32(_player->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * sSpellMgr->GetSpellInfo(PRIEST_SPELL_HALO_DAMAGE)->Effects[EFFECT_0].AttackPowerMultiplier);
-
-                        float Distance = _player->GetDistance(target);
-                        float pct = Distance / 25.0f;
-                        damage = int32(damage * pct);
-
-                        SetHitDamage(damage);
-                    }
-                }
-            }
-
-            void HandleScript(SpellEffIndex eff)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpellInfo()->Id == 120517)
-                            _player->CastSpell(target, PRIEST_SPELL_HALO_HEAL_SHADOW, true);
-                        else
-                            _player->CastSpell(target, PRIEST_SPELL_HALO_HEAL_HOLY, true);
-                    }
-                }
+                if (Unit* l_Player = GetCaster()->ToPlayer())
+                    if (Unit*   l_Target = GetHitUnit())
+                        if (!l_Target->IsFriendlyTo(l_Player))
+                        {
+                            int32 l_Damage = GetHitDamage();
+                            
+                            if (l_Player->GetDistance(l_Target) < 25.0f)
+                                l_Damage = (l_Player->GetDistance(l_Target) / 25.0f) * GetHitDamage();
+                            
+                            SetHitDamage(l_Damage);
+                        }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_damage_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnHit += SpellHitFn(spell_pri_halo_damage_SpellScript::HandleOnHit);
             }
         };
 
@@ -1795,6 +1772,64 @@ class spell_pri_halo_damage : public SpellScriptLoader
         {
             return new spell_pri_halo_damage_SpellScript;
         }
+};
+
+// Halo - 120644 (damage)
+// Halo - 120517 (heal)
+class spell_pri_halo : public SpellScriptLoader
+{
+public:
+    spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
+
+    class spell_pri_halo_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_halo_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Player = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    std::list<Creature*> l_TempListCreature;
+                    std::list<Player*> l_TempListPlayer;
+
+                    AreaTrigger* l_Area = l_Player->GetAreaTrigger(GetSpellInfo()->Id);
+
+                    if (l_Area)
+                    {
+                        l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
+                        for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
+                        {
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                        }
+
+                        l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
+                        for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
+                        {
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && (*i)->IsHostileTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
+                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                        }
+                    }
+                }
+            }
+        }
+
+    void Register()
+    {
+        OnHit += SpellHitFn(spell_pri_halo_SpellScript::HandleOnHit);
+    }
+};
+
+SpellScript* GetSpellScript() const
+{
+    return new spell_pri_halo_SpellScript;
+}
 };
 
 // Leap of Faith - 73325
@@ -1809,7 +1844,7 @@ class spell_pri_leap_of_faith : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* _player = GetCaster())
                     if (Unit* target = GetHitUnit())
                         target->CastSpell(_player, PRIEST_LEAP_OF_FAITH_JUMP, true);
             }
@@ -1843,24 +1878,26 @@ class spell_pri_psychic_horror : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->ToPlayer() && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            int32 currentPower = caster->GetPower(POWER_SHADOW_ORB);
-                            caster->ModifyPower(POWER_SHADOW_ORB, -currentPower);
+                            int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
+                            if (l_CurrentPowerUsed > 3) // Maximum 3 Shadow Orb can be consumed
+                                l_CurrentPowerUsed = 3;
+                            l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
 
                             // +1s per Shadow Orb consumed
-                            if (AuraPtr psychicHorror = target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
+                            if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
-                                int32 maxDuration = psychicHorror->GetMaxDuration();
-                                int32 newDuration = maxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + currentPower * IN_MILLISECONDS;
-                                psychicHorror->SetDuration(newDuration);
+                                int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
+                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                l_PsychicHorror->SetDuration(l_NewDuration);
 
-                                if (newDuration > maxDuration)
-                                    psychicHorror->SetMaxDuration(newDuration);
+                                if (l_NewDuration > l_MaxDuration)
+                                    l_PsychicHorror->SetMaxDuration(l_NewDuration);
                             }
                         }
                     }
@@ -2070,7 +2107,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
             {
                 if (GetCaster())
                 {
-                    GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
+                    GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id,  GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
 
                     // From Darkness, Comes Light
                     if (GetCaster()->HasAura(PRIEST_SURGE_OF_LIGHT_AURA))
@@ -2442,9 +2479,9 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-            if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
-            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
-                l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
         }
 
         void Register()
@@ -2459,9 +2496,39 @@ public:
     }
 };
 
+// Angelic Feather - 121536
+class spell_pri_angelic_feather : public SpellScriptLoader
+{
+public:
+    spell_pri_angelic_feather() : SpellScriptLoader("spell_pri_angelic_feather") {}
+
+    class spell_pri_angelic_feather_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_angelic_feather_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit *l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, 158624, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pri_angelic_feather_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_angelic_feather_SpellScript();
+    }
+};
+
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
     new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
@@ -2504,6 +2571,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_second();
     new spell_pri_cascade_trigger();
     new spell_pri_cascade_first();
+    new spell_pri_halo();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
     new spell_pri_leap_of_faith();

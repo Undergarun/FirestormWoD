@@ -1,0 +1,2 @@
+ALTER TABLE `character_garrison_follower` ADD COLUMN `flags` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `abilities`,    CHANGE `current_building_id` `current_building_id` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
+ALTER TABLE `character_garrison`          ADD COLUMN `num_follower_activation` INT(10) UNSIGNED DEFAULT '1' NOT NULL AFTER `specializations`,     ADD COLUMN `num_follower_activation_regen_timestamp` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `num_follower_activation`;

@@ -501,17 +501,30 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         // Item - Paladin PvP Set Holy 4P Bonus
-                        if (caster->HasAura(PALADIN_ITEM_PVP_HOLY_4P_BONUS))
-                            caster->CastSpell(caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                        if (l_Caster->HasAura(PALADIN_ITEM_PVP_HOLY_4P_BONUS))
+                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                    }
+                }
+            }
 
-                        if (caster->HasAura(PALADIN_SPELL_TOWER_OF_RADIANCE))
-                            if (target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, caster->GetGUID()))
-                                caster->EnergizeBySpell(caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, 1, POWER_HOLY_POWER);
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetExplTargetUnit())
+                    {
+                        if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
+                        {
+                            if (GetSpellInfo()->Id == 19750)
+                                l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(20), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                            else
+                                l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(10), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                        }
                     }
                 }
             }
@@ -519,6 +532,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_pal_tower_of_radiance_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_pal_tower_of_radiance_SpellScript::HandleAfterCast);
             }
         };
 
@@ -1763,14 +1777,20 @@ public:
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
-                    if (GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
+                {
+                    if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                {
                     if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                {
                     if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_LIGHT_OF_DAWN)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                }
             }
         }
 

@@ -205,8 +205,22 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_RATED_10_VS_10 = 17,
     BATTLEGROUND_QUEUE_RATED_15_VS_15 = 18,
     BATTLEGROUND_QUEUE_RATED_25_VS_25 = 19,
+    BATTLEGROUND_QUEUE_SKIRMISH_2V2   = 20,
+    BATTLEGROUND_QUEUE_SKIRMISH_3V3   = 21,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
+
+/// - See Blizzard_PVPUI.lua, ARENA_DATA array
+/// - Last update : 6.0.3 19116
+enum class SkirmishTypeId : uint8
+{
+    Skrimish2v2 = 4,
+    Skrimish3v3 = 5
+};
+
+#define SKIRMISH_MAX 2
+
+const SkirmishTypeId g_SkirmishTypes[SKIRMISH_MAX] = { SkirmishTypeId::Skrimish2v2, SkirmishTypeId::Skrimish3v3 };
 
 enum ScoreType
 {
@@ -401,14 +415,16 @@ class Battleground
         uint8 GetWinner() const             { return m_Winner; }
         uint32 GetHolidayId() const         { return m_holiday; }
         uint32 GetScriptId() const          { return ScriptId; }
+        bool IsRandom() const               { return m_IsRandom; }
+        bool IsRatedBG() const              { return m_IsRatedBg; }
+        bool IsSkirmish() const             { return m_IsSkirmish; }
+
         uint32 GetBonusHonorFromKill(uint32 kills) const;
-        bool IsRandom() const { return m_IsRandom; }
-        bool IsRatedBG() const { return m_IsRatedBg; }
 
         // Set methods:
         void SetName(char const* Name)      { m_Name = Name; }
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
-        void InitGUID() {m_Guid = MAKE_NEW_GUID(m_TypeID, 0, 0x01F1); }
+        void InitGUID();
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
         void SetBracket(PvPDifficultyEntry const* bracketEntry);
@@ -421,7 +437,6 @@ class Battleground
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
         void SetLevelRange(uint32 min, uint32 max) { m_LevelMin = min; m_LevelMax = max; }
-        void SetRated(bool state)           { m_IsRated = state; }
         void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetArenaorBGType(bool _isArena) { m_IsArena = _isArena; }
         void SetWinner(uint8 winner)        { m_Winner = winner; }
@@ -445,15 +460,16 @@ class Battleground
         void DecreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? --m_InvitedAlliance : --m_InvitedHorde; }
         void IncreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
 
-        void SetRandom(bool isRandom) { m_IsRandom = isRandom; }
-        void SetRatedBG(bool isRatedBg) { m_IsRatedBg = isRatedBg; }
+        void SetRandom(bool isRandom)       { m_IsRandom = isRandom; }
+        void SetRatedBG(bool isRatedBg)     { m_IsRatedBg = isRatedBg; }
+        void SetSkirmish(bool p_IsSkirmish) { m_IsSkirmish = p_IsSkirmish; }
+
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
-        bool isRated() const        { return m_IsRated; }
 
         typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
@@ -701,9 +717,9 @@ class Battleground
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
         bool   m_IsArena;
+        bool   m_IsSkirmish;
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
         int32  m_StartDelayTime;
-        bool   m_IsRated;                                   // is this battle rated?
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;

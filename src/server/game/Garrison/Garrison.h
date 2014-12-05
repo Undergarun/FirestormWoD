@@ -95,10 +95,13 @@ extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_
 extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
-#define GARRISON_BASE_MAP 1116
-#define GARRISON_PLOT_INSTANCE_COUNT 40
-#define GARRISON_CURRENCY_ID 824
-#define GARRISON_MAX_FOLLOWER_LEVEL 100
+#define GARRISON_BASE_MAP                       1116
+#define GARRISON_PLOT_INSTANCE_COUNT            40
+#define GARRISON_CURRENCY_ID                    824
+#define GARRISON_MAX_FOLLOWER_LEVEL             100
+#define GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW      20
+#define GARRISON_FOLLOWER_ACTIVATION_COST       2500000
+#define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
 
 struct GarrisonPlotInstanceInfoLocation
 {
@@ -120,6 +123,12 @@ struct GarrisonMission
     GarrisonMissionState State;
 };
 
+enum GarrisonFollowerFlags
+{
+    GARRISON_FOLLOWER_FLAG_EXHAUSTED    = 0x2,
+    GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4,
+};
+
 struct GarrisonFollower
 {
     uint32 DB_ID;
@@ -131,6 +140,7 @@ struct GarrisonFollower
     uint32 XP;
     uint32 CurrentBuildingID;
     uint32 CurrentMissionID;
+    uint32 Flags;
 
     std::vector<uint32> Abilities;
 };
@@ -225,10 +235,16 @@ class Garrison
 
         /// Add follower
         bool AddFollower(uint32 p_FollowerID);
+        /// Change follower activation state
+        void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
         /// Get followers
         std::vector<GarrisonFollower> GetFollowers();
         /// Get follower
         GarrisonFollower GetFollower(uint32 p_FollowerID);
+        /// Get activated followers count
+        uint32 GetActivatedFollowerCount();
+        /// Get num follower activation remaining
+        uint32 GetNumFollowerActivationsRemaining();
 
         /// Can build building X at slot instance Y
         bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
@@ -275,12 +291,17 @@ class Garrison
         /// Update plot gameobject
         void UpdatePlot(uint32 p_PlotInstanceID);
 
+        /// Update garrison stats
+        void UpdateStats();
+
     private:
         Player *    m_Owner;            ///< Garrison owner
         uint32      m_ID;               ///< Garrison DB ID
         uint32      m_GarrisonLevel;    ///< Garrison level
         uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
         uint32      m_GarrisonSiteID;   ///< Garrison site ID
+        uint32      m_NumFollowerActivation;
+        uint32      m_NumFollowerActivationRegenTimestamp;
 
         uint64      m_LastUsedActivationGameObject;
 
@@ -294,6 +315,9 @@ class Garrison
         std::map<uint32, uint64>                m_PlotsGob;
         std::map<uint32, uint64>                m_PlotsActivateGob;
         std::map<uint32, std::vector<uint64>>   m_PlotsBuildingCosmeticGobs;
+
+        uint32 m_Stat_MaxActiveFollower;
+
 };
 
 

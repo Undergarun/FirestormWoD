@@ -95,17 +95,17 @@ class BattlegroundMgr
         void BuildStatusFailedPacket(WorldPacket* p_Data, Battleground * p_BG, Player* p_Player, uint32 p_QueueSlot, GroupJoinBattlegroundResult p_Result);
         void BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value);
         void BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg);
-        void BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, Player * pPlayer, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint8 uiFrame = 1);
+        void BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, Player * pPlayer, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, bool isSkirmish = false);
         void SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid);
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
         Battleground* GetBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId); //there must be uint32 because MAX_BATTLEGROUND_TYPE_ID means unknown
 
-        Battleground* GetBattlegroundTemplate(BattlegroundTypeId bgTypeId);
-        Battleground* CreateNewBattleground(BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated);
+        Battleground* GetBattlegroundTemplate(BattlegroundTypeId p_BgTypeId);
+        Battleground* CreateNewBattleground(BattlegroundTypeId p_BgTypeId, PvPDifficultyEntry const* p_BracketEntry, uint8 p_ArenaType, bool p_IsSkirmish = false);
 
-        uint32 CreateBattleground(CreateBattlegroundData& data);
+        uint32 CreateBattleground(CreateBattlegroundData& p_Data);
 
         void AddBattleground(uint32 InstanceID, BattlegroundTypeId bgTypeId, Battleground* BG) { m_Battlegrounds[bgTypeId][InstanceID] = BG; };
         void RemoveBattleground(uint32 instanceID, BattlegroundTypeId bgTypeId) { m_Battlegrounds[bgTypeId].erase(instanceID); }
@@ -147,9 +147,10 @@ class BattlegroundMgr
 
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
         static bool IsBattlegroundType(BattlegroundTypeId bgTypeId) { return !IsArenaType(bgTypeId); }
-        static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType);
+        static bool IsSkirmishQueue(BattlegroundQueueTypeId p_bgQueueTypeId) { return (p_bgQueueTypeId == BATTLEGROUND_QUEUE_SKIRMISH_2V2 || p_bgQueueTypeId == BATTLEGROUND_QUEUE_SKIRMISH_3V3); }
+        static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish = false);
         static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
-        static uint8 BGArenaType(BattlegroundQueueTypeId bgQueueTypeId);
+        static uint8 BGArenaType(BattlegroundQueueTypeId p_bgQueueTypeId);
 
         static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId);
         static BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
