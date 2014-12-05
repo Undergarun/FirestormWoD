@@ -50,6 +50,7 @@ enum HunterSpells
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
     HUNTER_SPELL_KILL_COMMAND                       = 34026,
     HUNTER_SPELL_KILL_COMMAND_TRIGGER               = 83381,
+    HUNTER_SPELL_SPIRIT_BOND                        = 118694,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
     HUNTER_SPELL_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724,
@@ -394,7 +395,6 @@ class spell_hun_spirit_bond : public SpellScriptLoader
             {
                 if (!GetTarget())
                     return;
-
                 if (Player* player = GetTarget()->ToPlayer())
                     if (Pet* pet = player->GetPet())
                         pet->CastSpell(pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
@@ -410,6 +410,35 @@ class spell_hun_spirit_bond : public SpellScriptLoader
         {
             return new spell_hun_spirit_bond_AuraScript();
         }
+};
+
+// Spirit Bond - 109212
+class spell_hun_spirit_bond_apply : public SpellScriptLoader
+{
+public:
+    spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
+
+    class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Player = GetCaster())
+                l_Player->CastSpell(GetCaster(), HUNTER_SPELL_SPIRIT_BOND, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_spirit_bond_apply_SpellScript();
+    }
+  
 };
 
 // Glyph of Aspect of the Beast - 125042
@@ -2388,6 +2417,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_spirit_bond_apply();
     new spell_hun_kill_shot();
     new spell_hun_hunters_mark();
     new spell_hun_fireworks();
