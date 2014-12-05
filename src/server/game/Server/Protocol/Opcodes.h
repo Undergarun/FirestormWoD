@@ -1367,8 +1367,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_BATTLEMASTER_JOIN                      = 0x0D2E,   ///< 6.0.3 19116
     CMSG_BATTLEMASTER_JOIN_ARENA                = 0x0DAE,   ///< 6.0.3 19116
-    CMSG_BATTLEMASTER_JOIN_ARENA_SKIRMISH       = 0x09EB,   ///< 6.0.3 19116 (unused)
-    CMSG_BATTLEMASTER_JOIN_RATED                = 0x0000,
+    CMSG_BATTLEMASTER_JOIN_ARENA_SKIRMISH       = 0x09EB,   ///< 6.0.3 19116
+    CMSG_JOIN_RATED_BATTLEGROUND                = 0x065A,   ///< 6.0.3 19116
     CMSG_BATTLEFIELD_PORT                       = 0x11EB,   ///< 6.0.3 19116
     CMSG_REQUEST_BATTLEFIELD_STATUS             = 0x0320,   ///< 6.0.3 19116
     CMSG_BATTLEFIELD_REQUEST_SCORE_DATA         = 0x08B5,   ///< 6.0.3 19116

@@ -373,6 +373,8 @@ class debug_commandscript : public CommandScript
                 {
                     personalRating += groupMember->GetArenaPersonalRating(SLOT_RBG);
                     matchmakerRating += groupMember->GetArenaMatchMakerRating(SLOT_RBG);
+
+                    ++playerDivider;
                 }
             }
 
@@ -392,12 +394,12 @@ class debug_commandscript : public CommandScript
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
 
-            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10);
+            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 2);
             if (!err)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
 
-                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, false, false, personalRating, matchmakerRating);
+                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
             }
 
