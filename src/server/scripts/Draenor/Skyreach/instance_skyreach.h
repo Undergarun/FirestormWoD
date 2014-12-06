@@ -48,19 +48,21 @@ namespace MS
             ENERGIZE_VISUAL_3 = 154177,
             DespawnAreaTriggers = 115905,
             Wind = 170818,
+            LensFlare = 154034,
         };
 
         enum GameObjectEntries
         {
-            DOOR_RANJIT_ENTRANCE        = 234311,
-            DOOR_RANJIT_EXIT            = 234310,
-            DOOR_ARAKNATH_ENTRANCE_1    = 234314,
-            DOOR_ARAKNATH_ENTRANCE_2    = 234315,
-            DOOR_ARAKNATH_EXIT_1        = 234312,
-            DOOR_ARAKNATH_EXIT_2        = 234313,
+            DOOR_RANJIT_ENTRANCE = 234311,
+            DOOR_RANJIT_EXIT = 234310,
+            DOOR_ARAKNATH_ENTRANCE_1 = 234314,
+            DOOR_ARAKNATH_ENTRANCE_2 = 234315,
+            DOOR_ARAKNATH_EXIT_1 = 234312,
+            DOOR_ARAKNATH_EXIT_2 = 234313,
             CACHE_OF_ARAKKOAN_TREASURES = 234164,
-            DOOR_RUKHRAN_EXIT           = 234316,
-            DOOR_RUKHRAN_ENTRANCE       = 229038,
+            DOOR_RUKHRAN_ENTRANCE = 229038,
+            DOOR_RUKHRAN_EXIT = 234316,
+            DOOR_HIGH_SAVE_VIRYX_ENTRANCE= 235994,
         };
 
         enum BossEntries
@@ -68,6 +70,7 @@ namespace MS
             RANJIT = 86238,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
+            HIGH_SAGE_VIRYX = 86241,
         };
 
         enum MobEntries
@@ -87,6 +90,9 @@ namespace MS
             DreadRavenHatchling = 76253,
             RadiantSupernova = 79463,
             GrandDefenseConstruct = 76145,
+            SolarZealot = 76267,
+            AraokkoaMagnifyingConstructA = 76286,
+            ArakkoaMagnifyingGlassFocus = 76083,
         };
 
         enum Data
@@ -94,12 +100,14 @@ namespace MS
             Ranjit,
             Araknath,
             Rukhran,
+            HighSageViryx,
             SkyreachArcanologist,
             SkyreachArcanologistIsDead,
             SkyreachArcanologistReset,
             AraknathSolarConstructorActivation,
             SkyreachRavenWhispererIsDead,
             SolarFlareDying,
+            StartingLensFlare,
         };
 
         static const Position k_WindMazeVertices[47] =

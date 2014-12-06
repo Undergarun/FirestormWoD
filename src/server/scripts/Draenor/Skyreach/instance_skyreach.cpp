@@ -12,15 +12,16 @@ namespace MS
 
         static const DoorData k_DoorData[] =
         {
-            { DOOR_RANJIT_ENTRANCE,     Data::Ranjit,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_RANJIT_EXIT,         Data::Ranjit,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_ARAKNATH_ENTRANCE_1, Data::Araknath, DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_ARAKNATH_ENTRANCE_2, Data::Araknath, DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_ARAKNATH_EXIT_1,     Data::Araknath, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_ARAKNATH_EXIT_2,     Data::Araknath, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_RUKHRAN_ENTRANCE,    Data::Rukhran,  DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_RUKHRAN_EXIT,        Data::Rukhran,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { 0,                        0,              DOOR_TYPE_ROOM,     0 }  // EOF
+            { DOOR_RANJIT_ENTRANCE,             Data::Ranjit,           DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_RANJIT_EXIT,                 Data::Ranjit,           DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_ARAKNATH_ENTRANCE_1,         Data::Araknath,         DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_ARAKNATH_ENTRANCE_2,         Data::Araknath,         DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_ARAKNATH_EXIT_1,             Data::Araknath,         DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_ARAKNATH_EXIT_2,             Data::Araknath,         DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_RUKHRAN_ENTRANCE,            Data::Rukhran,          DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_RUKHRAN_EXIT,                Data::Rukhran,          DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_HIGH_SAVE_VIRYX_ENTRANCE,    Data::HighSageViryx,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { 0,                                0,                      DOOR_TYPE_ROOM,     0 }  // EOF
         };
 
         class instance_Skyreach : public InstanceMapScript
@@ -53,6 +54,9 @@ namespace MS
                 std::map<uint64, uint32> m_PlayerGuidToBlockId;
                 std::vector<uint64> m_WindMazeBlockGuids;
 
+                // High Sage Viryx.
+                std::vector<uint64> m_MagnifyingGlassFocusGuids;
+
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
                     m_BeginningTime(0),
@@ -70,7 +74,8 @@ namespace MS
                     m_CacheOfArakoanTreasuresGuid(0),
                     m_SolarConstructorEnergizerGuid(0),
                     m_PlayerGuidToBlockId(),
-                    m_WindMazeBlockGuids()
+                    m_WindMazeBlockGuids(),
+                    m_MagnifyingGlassFocusGuids()
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
@@ -136,6 +141,14 @@ namespace MS
                         p_Creature->setFaction(16);
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
+                    case MobEntries::SolarZealot:
+                        p_Creature->setFaction(16);
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
+                        break;
                     case MobEntries::DreadRavenHatchling:
                         p_Creature->setFaction(16);
                         break;
@@ -152,6 +165,21 @@ namespace MS
                         p_Creature->SetCanFly(true);
                         p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         p_Creature->SetReactState(REACT_PASSIVE);
+                        break;
+                    case MobEntries::AraokkoaMagnifyingConstructA:
+                        m_MagnifyingGlassFocusGuids.push_back(p_Creature->GetGUID());
+                        p_Creature->setFaction(16);
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
+                        break;
+                    case MobEntries::ArakkoaMagnifyingGlassFocus:
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->SetCanFly(false);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetDisableGravity(false);
                         break;
                     default:
                         break;
@@ -170,6 +198,7 @@ namespace MS
                     case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
                     case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
                     case GameObjectEntries::DOOR_RUKHRAN_EXIT:
+                    case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
                         AddDoor(p_Gameobject, true);
                         break;
                     case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
@@ -314,6 +343,15 @@ namespace MS
 
                             m_SelectedSolarConstructorGuid = 0;
                         }
+                    case Data::StartingLensFlare:
+                    {
+                        auto l_Itr = m_MagnifyingGlassFocusGuids.begin();
+                        std::advance(l_Itr, m_MagnifyingGlassFocusGuids.size() - 1);
+
+                        if (Creature* l_Creature = sObjectAccessor->FindCreature(*l_Itr))
+                            l_Creature->CastSpell(l_Creature, uint32(RandomSpells::LensFlare), true);
+
+                    } break;
                     default:
                         break;
                     }

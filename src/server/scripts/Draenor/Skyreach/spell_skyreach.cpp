@@ -4,6 +4,119 @@
 
 namespace MS
 {
+    // Summon Cast Down - 165845
+    class spell_CastDown : public SpellScriptLoader
+    {
+    public:
+        spell_CastDown()
+            : SpellScriptLoader("spell_CastDown")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            CastDown = 153955,
+        };
+
+        class spell_CastDownSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_CastDownSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetCaster() && GetHitUnit())
+                {
+                    GetHitUnit()->CastSpell(GetHitUnit(), uint32(Spells::CastDown), true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_CastDownSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_CastDownSpellScript();
+        }
+    };
+
+    // AreaTriggers for spells: 154044
+    class AreaTrigger_LensFlare : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            LensFlare_Dmg = 154043,
+        };
+
+        std::forward_list<uint64> m_Targets;
+
+    public:
+        AreaTrigger_LensFlare()
+            : MS::AreaTriggerEntityScript("at_LensFlare"),
+            m_Targets()
+        {
+            }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_LensFlare();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_Targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
+                        l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                }
+            }
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 4.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                {
+                    if (l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_Targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit || l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius || l_Unit->HasAura(uint32(Spells::LensFlare_Dmg)))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::LensFlare_Dmg), true);
+                m_Targets.emplace_front(l_Unit->GetGUID());
+            }
+        }
+    };
+
     // AreaTriggers for spells: 152973
     class AreaTrigger_ProtectiveBarrier : public MS::AreaTriggerEntityScript
     {
@@ -106,9 +219,6 @@ namespace MS
 
         void OnCreate(AreaTrigger* p_AreaTrigger)
         {
-            //Unit* l_Caster = p_AreaTrigger->GetCaster();
-            //if (l_Caster && p_AreaTrigger->GetSpellId() == uint32(Spells::SMASH))
-            //    l_Caster->CastSpell(l_Caster, uint32(Spells::SMASH_2), true);
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -1400,4 +1510,8 @@ void AddSC_spell_instance_skyreach()
     // Boss Rukhran.
     new MS::spell_SummonSolarFlare();
     new MS::spell_Sunstrike();
+
+    // Boss High Save Viryx.
+    new MS::AreaTrigger_LensFlare();
+    new MS::spell_CastDown();
 }

@@ -809,6 +809,7 @@ void AddSC_spell_instance_skyreach();
 void AddSC_boss_ranjit();
 void AddSC_boss_Araknath();
 void AddSC_boss_Rukhran();
+void AddSC_boss_HighSaveViryx();
 
 // battlegrounds
 void AddSC_BattlegroundDGScripts();
@@ -1661,6 +1662,7 @@ void AddDraenorScripts()
     AddSC_boss_ranjit();
     AddSC_boss_Araknath();
     AddSC_boss_Rukhran();
+    AddSC_boss_HighSaveViryx();
 #endif
 }
 

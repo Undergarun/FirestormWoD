@@ -19,6 +19,7 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_ranjit.cpp
   Draenor/Skyreach/boss_araknath.cpp
   Draenor/Skyreach/boss_rukhran.cpp
+  Draenor/Skyreach/boss_high_sage_viryx.cpp
 )
 
 message("  -> Prepared: Draenor")
