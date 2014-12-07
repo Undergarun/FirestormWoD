@@ -48,19 +48,21 @@ namespace MS
             ENERGIZE_VISUAL_3 = 154177,
             DespawnAreaTriggers = 115905,
             Wind = 170818,
+            LensFlare = 154034,
         };
 
         enum GameObjectEntries
         {
-            DOOR_RANJIT_ENTRANCE        = 234311,
-            DOOR_RANJIT_EXIT            = 234310,
-            DOOR_ARAKNATH_ENTRANCE_1    = 234314,
-            DOOR_ARAKNATH_ENTRANCE_2    = 234315,
-            DOOR_ARAKNATH_EXIT_1        = 234312,
-            DOOR_ARAKNATH_EXIT_2        = 234313,
+            DOOR_RANJIT_ENTRANCE = 234311,
+            DOOR_RANJIT_EXIT = 234310,
+            DOOR_ARAKNATH_ENTRANCE_1 = 234314,
+            DOOR_ARAKNATH_ENTRANCE_2 = 234315,
+            DOOR_ARAKNATH_EXIT_1 = 234312,
+            DOOR_ARAKNATH_EXIT_2 = 234313,
             CACHE_OF_ARAKKOAN_TREASURES = 234164,
-            DOOR_RUKHRAN_EXIT           = 234316,
-            DOOR_RUKHRAN_ENTRANCE       = 229038,
+            DOOR_RUKHRAN_ENTRANCE = 229038,
+            DOOR_RUKHRAN_EXIT = 234316,
+            DOOR_HIGH_SAVE_VIRYX_ENTRANCE= 235994,
         };
 
         enum BossEntries
@@ -68,13 +70,14 @@ namespace MS
             RANJIT = 86238,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
+            HIGH_SAGE_VIRYX = 86241,
         };
 
         enum MobEntries
         {
             SKYREACH_ARCANALOGIST = 76376,
             SKYREACH_SOLAR_CONSTRUCTOR = 76142,
-            YOUNG_KALIRI = 76121,
+            YoungKaliri = 76121,
             SKYREACH_RAVEN_WHISPERER = 76154,
             SOLAR_FLARE = 76227,
             PILE_OF_ASHES = 79505,
@@ -87,6 +90,9 @@ namespace MS
             DreadRavenHatchling = 76253,
             RadiantSupernova = 79463,
             GrandDefenseConstruct = 76145,
+            SolarZealot = 76267,
+            AraokkoaMagnifyingConstructA = 76286,
+            ArakkoaMagnifyingGlassFocus = 76083,
         };
 
         enum Data
@@ -94,12 +100,14 @@ namespace MS
             Ranjit,
             Araknath,
             Rukhran,
+            HighSageViryx,
             SkyreachArcanologist,
             SkyreachArcanologistIsDead,
             SkyreachArcanologistReset,
             AraknathSolarConstructorActivation,
             SkyreachRavenWhispererIsDead,
             SolarFlareDying,
+            StartingLensFlare,
         };
 
         static const Position k_WindMazeVertices[47] =
@@ -193,7 +201,7 @@ namespace MS
             // Inner blocks.
             { 22, 25, 27, 28 }, // 13
             { 21, 22, 28, 29 }, // 14
-            { 21, 29, 30, 18 }, // 15
+            { 18, 21, 29, 30 }, // 15
             { 17, 18, 30, 31 }, // 16
             { 14, 17, 31, 32 }, // 17
             { 13, 14, 32, 33 }, // 18
@@ -201,42 +209,53 @@ namespace MS
             { 9, 10, 34, 35 },  // 20
             { 6, 9, 35, 36 },   // 21
             { 5, 6, 36, 37 },   // 22
-            { 39, 5, 37, 39},   // 23
-            { 40, 38, 42, 41},  // 24
+            { 39, 5, 37, 38 },   // 23
+            { 41, 40, 38, 42 },  // 24
             // Center block.
             { 42, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26}, // 25
             // Second stair.
-            { 44, 41, 42, 43},  // 26
+            { 43, 44, 41, 42 },  // 26
             // Convex hull.
             { 0, 46, 45, 43, 44, 1 } // 27
         };
 
-        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId)
+        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
         {
             assert(p_BlockId != Blocks::ConvexHull);
 
             Position l_ForceDir;
+            p_Magnitude = 3;
             // Special case because of a lot of vertices.
-            if (Blocks::Center)
+            if (Blocks::Center == p_BlockId)
             {
-                l_ForceDir = k_WindMazeVertices[26] - k_WindMazeVertices[36];
+                l_ForceDir = k_WindMazeVertices[26] - k_WindMazeVertices[38];
+                l_ForceDir.m_positionZ = 0;
                 normalizeXY(l_ForceDir);
+                p_Magnitude = 11;
+                l_ForceDir.m_positionX *= p_Magnitude;
+                l_ForceDir.m_positionY *= p_Magnitude;
                 return l_ForceDir;
             }
 
             // Special case because of a lot of vertices.
-            if (Blocks::Intermediate)
+            if (Blocks::Intermediate == p_BlockId)
             {
                 l_ForceDir = k_WindMazeVertices[24] - k_WindMazeVertices[22];
+                l_ForceDir.m_positionZ = 0;
                 normalizeXY(l_ForceDir);
+                l_ForceDir.m_positionX *= p_Magnitude;
+                l_ForceDir.m_positionY *= p_Magnitude;
                 return l_ForceDir;
             }
 
             std::vector<uint32> l_BlockIndices = k_WindMazeIndices[p_BlockId];
             assert(l_BlockIndices.size() == 4);
 
-            l_ForceDir = ((k_WindMazeVertices[3] - k_WindMazeVertices[0]) + (k_WindMazeVertices[2] - k_WindMazeVertices[1])) / 2.f;
+            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.f;
+            l_ForceDir.m_positionZ = 0;
             normalizeXY(l_ForceDir);
+            l_ForceDir.m_positionX *= p_Magnitude;
+            l_ForceDir.m_positionY *= p_Magnitude;
             return l_ForceDir;
         }
 

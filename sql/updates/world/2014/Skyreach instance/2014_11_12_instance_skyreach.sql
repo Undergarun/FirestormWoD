@@ -780,4 +780,7 @@ UPDATE creature_template SET modelid2=0 WHERE modelid2=46710;
 UPDATE creature_template SET modelid3=0 WHERE modelid3=46710;
 UPDATE creature_template SET modelid4=0 WHERE modelid4=46710;
 
-UPDATE creature_template SET minlevel=99 AND maxlevel=101 WHERE entry=76145;
+UPDATE creature_template SET minlevel=99 , maxlevel=101 WHERE entry=76145;
+
+INSERT INTO creature (id, map, position_x, position_y, position_z, orientation, spawnMask, npcflag) VALUES(12999, 1209, 1068.836, 1802.591, 262.7, 69.43208, 6, 0);
+update creature_template set flags_extra=128 where entry=76083;

@@ -58,3 +58,5 @@ update areatrigger_template set ScriptName='at_SolarStorm' where spell_id=159221
 
 update areatrigger_template set ScriptName='at_Smash' where spell_id=154110;
 update areatrigger_template set ScriptName='at_Smash' where spell_id=154113;
+
+update areatrigger_template set ScriptName='at_LensFlare' where spell_id=154044;

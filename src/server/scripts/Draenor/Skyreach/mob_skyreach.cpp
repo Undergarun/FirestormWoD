@@ -14,6 +14,189 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
+        class mob_GrandDefenseConstruct : public CreatureScript
+        {
+        public:
+            // Entry: 76145
+            mob_GrandDefenseConstruct()
+                : CreatureScript("mob_GrandDefenseConstruct")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Smash = 152998,
+                Burn = 153001,
+            };
+
+            enum class Events : uint32
+            {
+                Smash = 1,
+                Burn = 2,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_GrandDefenseConstructAI(creature);
+            }
+
+            struct mob_GrandDefenseConstructAI : public ScriptedAI
+            {
+                mob_GrandDefenseConstructAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                    m_events.ScheduleEvent(uint32(Events::Smash), urand(5000, 7000));
+                    m_events.ScheduleEvent(uint32(Events::Burn), urand(10000, 12000));
+                }
+
+                void JustDied(Unit*)
+                {
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::Smash):
+                        m_events.ScheduleEvent(uint32(Events::Smash), 16000);
+                        me->CastSpell(me->getVictim(), uint32(Spells::Smash));
+                        break;
+                    case uint32(Events::Burn):
+                        m_events.ScheduleEvent(uint32(Events::Burn), 18000);
+                        me->CastSpell(me->getVictim(), uint32(Spells::Burn));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
+        class mob_YoungKaliri : public CreatureScript
+        {
+        public:
+            // Entry: 76121
+            mob_YoungKaliri()
+                : CreatureScript("mob_YoungKaliri")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Pierce = 153563,
+            };
+
+            enum class Events : uint32
+            {
+                Pierce = 1,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_YoungKaliriAI(creature);
+            }
+
+            struct mob_YoungKaliriAI : public ScriptedAI
+            {
+                mob_YoungKaliriAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events(),
+                    m_Pos(),
+                    m_Home(),
+                    m_TargetGuid(0)
+                {
+                    me->GetPosition(&m_Pos);
+                    me->GetPosition(&m_Home);
+                    me->SetSpeed(MOVE_FLIGHT, 5.f);
+                    m_Pos.m_positionX += 13.0f * cos(me->GetOrientation());
+                    m_Pos.m_positionY += 13.0f * sin(me->GetOrientation());
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                    m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                }
+
+                void MovementInform(uint32 p_TypeId, uint32 p_PointId)
+                {
+                    switch (p_PointId)
+                    {
+                    case 0:
+                        me->SetSpeed(MOVE_FLIGHT, 1.f);
+                        me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
+                        if (Player* l_Plr = sObjectAccessor->GetPlayer(*me, m_TargetGuid))
+                            me->CastSpell(l_Plr, uint32(Spells::Pierce));
+                        m_TargetGuid = 0;
+                        break;
+                    case 1:
+                        me->SetSpeed(MOVE_FLIGHT, 5.f);
+                        me->SetOrientation(m_Home.GetOrientation());
+                        m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                        break;
+                    }
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    m_events.Update(diff);
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::Pierce):
+                        if (Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f))
+                        {
+                            if (me->isInFront(l_Plr, M_PI / 6))
+                            {
+                                m_TargetGuid = l_Plr->GetGUID();
+                                me->GetMotionMaster()->MovePoint(0, m_Pos);
+                            }
+                            else
+                                m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                        }
+                        else
+                            m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+                Position m_Pos;
+                Position m_Home;
+                uint64 m_TargetGuid;
+            };
+        };
+
         class mob_RadiantSupernova : public CreatureScript
         {
         public:
@@ -1509,4 +1692,6 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_SolarMagnifier();
     new MS::InstanceSkyreach::mob_DefenseConstruct();
     new MS::InstanceSkyreach::mob_RadiantSupernova();
+    new MS::InstanceSkyreach::mob_YoungKaliri();
+    new MS::InstanceSkyreach::mob_GrandDefenseConstruct();
 }

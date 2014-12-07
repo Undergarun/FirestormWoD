@@ -1,4 +1,5 @@
 #include "instance_skyreach.h"
+#include "ObjectAccessor.h"
 
 namespace MS
 {
@@ -11,15 +12,16 @@ namespace MS
 
         static const DoorData k_DoorData[] =
         {
-            { DOOR_RANJIT_ENTRANCE,     Data::Ranjit,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_RANJIT_EXIT,         Data::Ranjit,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_ARAKNATH_ENTRANCE_1, Data::Araknath, DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_ARAKNATH_ENTRANCE_2, Data::Araknath, DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_ARAKNATH_EXIT_1,     Data::Araknath, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_ARAKNATH_EXIT_2,     Data::Araknath, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_RUKHRAN_ENTRANCE,    Data::Rukhran,  DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_RUKHRAN_EXIT,        Data::Rukhran,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { 0,                        0,              DOOR_TYPE_ROOM,     0 }  // EOF
+            { DOOR_RANJIT_ENTRANCE,             Data::Ranjit,           DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_RANJIT_EXIT,                 Data::Ranjit,           DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_ARAKNATH_ENTRANCE_1,         Data::Araknath,         DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_ARAKNATH_ENTRANCE_2,         Data::Araknath,         DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_ARAKNATH_EXIT_1,             Data::Araknath,         DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_ARAKNATH_EXIT_2,             Data::Araknath,         DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_RUKHRAN_ENTRANCE,            Data::Rukhran,          DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_RUKHRAN_EXIT,                Data::Rukhran,          DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_HIGH_SAVE_VIRYX_ENTRANCE,    Data::HighSageViryx,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { 0,                                0,                      DOOR_TYPE_ROOM,     0 }  // EOF
         };
 
         class instance_Skyreach : public InstanceMapScript
@@ -50,6 +52,10 @@ namespace MS
 
                 // Wind maze zone.
                 std::map<uint64, uint32> m_PlayerGuidToBlockId;
+                std::vector<uint64> m_WindMazeBlockGuids;
+
+                // High Sage Viryx.
+                std::vector<uint64> m_MagnifyingGlassFocusGuids;
 
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
@@ -67,10 +73,15 @@ namespace MS
                     m_SolarFlaresGuid(),
                     m_CacheOfArakoanTreasuresGuid(0),
                     m_SolarConstructorEnergizerGuid(0),
-                    m_PlayerGuidToBlockId()
+                    m_PlayerGuidToBlockId(),
+                    m_WindMazeBlockGuids(),
+                    m_MagnifyingGlassFocusGuids()
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
+
+                    for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                        m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
                 }
 
                 void OnCreatureCreate(Creature* p_Creature)
@@ -98,7 +109,15 @@ namespace MS
                     case MobEntries::SKYREACH_RAVEN_WHISPERER:
                         m_SkyreachRavenWhispererGuid = p_Creature->GetGUID();
                         break;
-                    case MobEntries::YOUNG_KALIRI:
+                    case MobEntries::YoungKaliri:
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->setFaction(16);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        break;
                     case MobEntries::Kaliri:
                     case MobEntries::Kaliri2:
                         // Setting fly.
@@ -122,6 +141,14 @@ namespace MS
                         p_Creature->setFaction(16);
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
+                    case MobEntries::SolarZealot:
+                        p_Creature->setFaction(16);
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
+                        break;
                     case MobEntries::DreadRavenHatchling:
                         p_Creature->setFaction(16);
                         break;
@@ -138,6 +165,22 @@ namespace MS
                         p_Creature->SetCanFly(true);
                         p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         p_Creature->SetReactState(REACT_PASSIVE);
+                        break;
+                    case MobEntries::AraokkoaMagnifyingConstructA:
+                        m_MagnifyingGlassFocusGuids.push_back(p_Creature->GetGUID());
+                        p_Creature->setFaction(16);
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
+                        break;
+                    case MobEntries::ArakkoaMagnifyingGlassFocus:
+                        p_Creature->SetDisplayId(17519);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->SetCanFly(false);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetDisableGravity(false);
                         break;
                     default:
                         break;
@@ -156,6 +199,7 @@ namespace MS
                     case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
                     case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
                     case GameObjectEntries::DOOR_RUKHRAN_EXIT:
+                    case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
                         AddDoor(p_Gameobject, true);
                         break;
                     case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
@@ -300,6 +344,15 @@ namespace MS
 
                             m_SelectedSolarConstructorGuid = 0;
                         }
+                    case Data::StartingLensFlare:
+                    {
+                        auto l_Itr = m_MagnifyingGlassFocusGuids.begin();
+                        std::advance(l_Itr, m_MagnifyingGlassFocusGuids.size() - 1);
+
+                        if (Creature* l_Creature = sObjectAccessor->FindCreature(*l_Itr))
+                            l_Creature->CastSpell(l_Creature, uint32(RandomSpells::LensFlare), true);
+
+                    } break;
                     default:
                         break;
                     }
@@ -409,11 +462,11 @@ namespace MS
                             if (IsPointInBlock(Blocks::ConvexHull, *l_Plr))
                             {
                                 bool l_IsInBlock = false;
-                                for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                                uint32 i = Blocks::FirstStair;
+                                for (; i <= Blocks::SecondStair; i++)
                                 {
                                     if (IsPointInBlock(i, *l_Plr))
                                     {
-                                        m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
                                         l_IsInBlock = true;
                                         break;
                                     }
@@ -422,25 +475,40 @@ namespace MS
                                 // If the player is in one of the blocks and if it doesn't have the Wind aura, add it.
                                 if (l_IsInBlock)
                                 {
-                                    Position l_ForceDir = CalculateForceVectorFromBlockId(m_PlayerGuidToBlockId[l_Plr->GetGUID()]);
+                                    float l_Magnitude = 1;
+                                    Position l_ForceDir = CalculateForceVectorFromBlockId(i, l_Magnitude);
                                     if (!l_Plr->HasAura(RandomSpells::Wind))
                                     {
                                         l_Plr->AddAura(RandomSpells::Wind, l_Plr);
                                         // Apply force.
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[i], true, l_ForceDir, l_Magnitude);
                                     }
-                                    else
+                                    else if (i != m_PlayerGuidToBlockId[l_Plr->GetGUID()])
                                     {
                                         // Remove old force.
                                         // Add new force.
+                                        if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                            l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, l_ForceDir, l_Magnitude);
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[i], true, l_ForceDir, l_Magnitude);
                                     }
+
+                                    m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
                                 }
                                 // Otherwise remove it if it has the Wind aura.
                                 else if (l_Plr->HasAura(RandomSpells::Wind))
+                                {
+                                    if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, Position(), 1.0f);
                                     l_Plr->RemoveAura(RandomSpells::Wind);
+                                }
                             }
                             // If player is out of the WindMaze zone and has the aura, remove it.
                             else if (l_Plr->HasAura(RandomSpells::Wind))
+                            {
+                                if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                    l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, Position(), 1.0f);
                                 l_Plr->RemoveAura(RandomSpells::Wind);
+                            }
                         }
                     }
 
