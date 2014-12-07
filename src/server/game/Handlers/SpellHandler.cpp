@@ -624,16 +624,28 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     if (caster->GetTypeId() == TYPEID_PLAYER &&
-        !caster->ToPlayer()->HasActiveSpell(l_SpellID) &&
-         l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
-         l_SpellID != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(l_TargetGUID)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+        !caster->ToPlayer()->HasActiveSpell(spellId) && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) &&
+        spellId != 101603 && // Hack for Throw Totem, Echo of Baine
+        spellId != 1843 && !spellInfo->IsRaidMarker()) // Hack for disarm. Client sends the spell instead of gameobjectuse.
     {
-        // not have spell in spellbook
-        // cheater? kick? ban?
-        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell() && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS))
+        // GameObject Use
+        if (IS_GAMEOBJECT_GUID(l_TargetGUID))
         {
-            p_RecvPacket.rfinish(); // prevent spam at ignore packet
-            return;
+            if (!spellInfo->HasEffect(SPELL_EFFECT_OPEN_LOCK))
+            {
+                p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
+        }
+        else
+        {
+            // not have spell in spellbook
+            // cheater? kick? ban?
+            if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+            {
+                p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
         }
     }
 
