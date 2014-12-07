@@ -692,7 +692,7 @@ bool PetLoginQueryHolder::Initialize()
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_battlePetMgr(this), m_archaeologyMgr(this)
+Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -1088,7 +1088,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (!IsValidGender(createInfo->Gender))
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%hu) - refusing to do so",
+        sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%hhu) - refusing to do so",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
         return false;
     }
@@ -2033,11 +2033,11 @@ void Player::Update(uint32 p_time)
             // default combat reach 10
             // TODO add weapon, skill check
 
-            if (isAttackReady(BASE_ATTACK))
+            if (isAttackReady(WeaponAttackType::BaseAttack))
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                 {
-                    setAttackTimer(BASE_ATTACK, 100);
+                    setAttackTimer(WeaponAttackType::BaseAttack, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
                     {
                         SendAttackSwingError(ATTACKSWINGERR_NOT_IN_RANGE);
@@ -2047,7 +2047,7 @@ void Player::Update(uint32 p_time)
                 //120 degrees of radiant range
                 else if (!HasInArc(2*M_PI/3, victim))
                 {
-                    setAttackTimer(BASE_ATTACK, 100);
+                    setAttackTimer(WeaponAttackType::BaseAttack, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
                     {
                         SendAttackSwingError(ATTACKSWINGERR_BAD_FACING);
@@ -2060,14 +2060,14 @@ void Player::Update(uint32 p_time)
 
                     // prevent base and off attack in same time, delay attack at 0.2 sec
                     if (haveOffhandWeapon())
-                        if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
-                            setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
+                        if (getAttackTimer(WeaponAttackType::OffAttack) < ATTACK_DISPLAY_DELAY)
+                            setAttackTimer(WeaponAttackType::OffAttack, ATTACK_DISPLAY_DELAY);
 
                     // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
                     if (!HasAura(121471) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
-                        AttackerStateUpdate(victim, BASE_ATTACK);
-                        resetAttackTimer(BASE_ATTACK);
+                        AttackerStateUpdate(victim, WeaponAttackType::BaseAttack);
+                        resetAttackTimer(WeaponAttackType::BaseAttack);
                     }
                     else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
@@ -2079,7 +2079,7 @@ void Player::Update(uint32 p_time)
                         for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
                         {
                             CastSpell(victim, (*i)->GetTriggerSpell(), true);
-                            resetAttackTimer(BASE_ATTACK);
+                            resetAttackTimer(WeaponAttackType::BaseAttack);
                             break;
                         }
                     }
@@ -2090,7 +2090,7 @@ void Player::Update(uint32 p_time)
                             return;
 
                         CastSpell(victim, 121473, true);
-                        resetAttackTimer(BASE_ATTACK);
+                        resetAttackTimer(WeaponAttackType::BaseAttack);
                     }
                     else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
@@ -2098,28 +2098,28 @@ void Player::Update(uint32 p_time)
                             return;
 
                         CastSpell(victim, 140308, true); // Shadow Shuriken Toss
-                        resetAttackTimer(BASE_ATTACK);
+                        resetAttackTimer(WeaponAttackType::BaseAttack);
                     }
                 }
             }
 
-            if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
+            if (haveOffhandWeapon() && isAttackReady(WeaponAttackType::OffAttack))
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
-                    setAttackTimer(OFF_ATTACK, 100);
+                    setAttackTimer(WeaponAttackType::OffAttack, 100);
                 else if (!HasInArc(2*M_PI/3, victim))
-                    setAttackTimer(OFF_ATTACK, 100);
+                    setAttackTimer(WeaponAttackType::OffAttack, 100);
                 else
                 {
                     // prevent base and off attack in same time, delay attack at 0.2 sec
-                    if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
-                        setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
+                    if (getAttackTimer(WeaponAttackType::BaseAttack) < ATTACK_DISPLAY_DELAY)
+                        setAttackTimer(WeaponAttackType::BaseAttack, ATTACK_DISPLAY_DELAY);
 
                     // do attack if player doesn't have Shadow Blades or SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL
                     if (!HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     {
-                        AttackerStateUpdate(victim, OFF_ATTACK);
-                        resetAttackTimer(OFF_ATTACK);
+                        AttackerStateUpdate(victim, WeaponAttackType::OffAttack);
+                        resetAttackTimer(WeaponAttackType::OffAttack);
                     }
                     else if (HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL) && IsWithinLOSInMap(victim))
                     {
@@ -2131,7 +2131,7 @@ void Player::Update(uint32 p_time)
                         for (AuraEffectList::const_iterator i = mOverrideAutoAttacks.begin(); i != mOverrideAutoAttacks.end(); ++i)
                         {
                             CastSpell(victim, (*i)->GetMiscValue(), true);
-                            resetAttackTimer(OFF_ATTACK);
+                            resetAttackTimer(WeaponAttackType::OffAttack);
                             break;
                         }
                     }
@@ -4437,9 +4437,14 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     // Set new PCT MoP field to 1.0f to get correct client tooltip
     SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS, 1.0f);
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
     SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
+
+    for (uint8 l_WeaponAttackType = WeaponAttackType::BaseAttack; l_WeaponAttackType < WeaponAttackType::MaxAttack; l_WeaponAttackType++)
+    {
+        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS       + l_WeaponAttackType, 1.0f);
+        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + l_WeaponAttackType, 1.0f);
+    }
 
     //reset attack power, damage and attack speed fields
     SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, 2000.0f);
@@ -7180,7 +7185,7 @@ void Player::LeaveLFGChannel()
 
 void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, float amount, bool apply)
 {
-    if (modGroup >= BASEMOD_END || modType >= MOD_END)
+    if (modGroup >= BASEMOD_END || modType >= MOD_END) // @todo Comparison of constant 2 with expression of type 'BaseModType' is always false
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "ERROR in HandleBaseModValue(): non existed BaseModGroup of wrong BaseModType!");
         return;
@@ -7201,16 +7206,16 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
 
     switch (modGroup)
     {
-        case CRIT_PERCENTAGE:              UpdateCritPercentage(BASE_ATTACK);                          break;
-        case RANGED_CRIT_PERCENTAGE:       UpdateCritPercentage(RANGED_ATTACK);                        break;
-        case OFFHAND_CRIT_PERCENTAGE:      UpdateCritPercentage(OFF_ATTACK);                           break;
+        case CRIT_PERCENTAGE:              UpdateCritPercentage(WeaponAttackType::BaseAttack);                          break;
+        case RANGED_CRIT_PERCENTAGE:       UpdateCritPercentage(WeaponAttackType::RangedAttack);                        break;
+        case OFFHAND_CRIT_PERCENTAGE:      UpdateCritPercentage(WeaponAttackType::OffAttack);                           break;
         default: break;
     }
 }
 
 float Player::GetBaseModValue(BaseModGroup modGroup, BaseModType modType) const
 {
-    if (modGroup >= BASEMOD_END || modType >= MOD_END)
+    if (modGroup >= BASEMOD_END || modType >= MOD_END) // @todo Comparison of constant 2 with expression of type 'BaseModType' is always false
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "trial to access non existed BaseModGroup or wrong BaseModType!");
         return 0.0f;
@@ -7267,11 +7272,11 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 {
     switch (attType)
     {
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
             return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
-        case RANGED_ATTACK:
+        case WeaponAttackType::RangedAttack:
             return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
         default:
             break;
@@ -7306,15 +7311,15 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
         case CR_HASTE_MELEE:
         {
             float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyAttackTimePercentMod(BASE_ATTACK, RatingChange, apply);
-            ApplyAttackTimePercentMod(OFF_ATTACK, RatingChange, apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, RatingChange, apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, RatingChange, apply);
             if (getClass() == CLASS_DEATH_KNIGHT)
                 UpdateAllRunesRegen();
             break;
         }
         case CR_HASTE_RANGED:
         {
-            ApplyAttackTimePercentMod(RANGED_ATTACK, value * GetRatingMultiplier(cr), apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, value * GetRatingMultiplier(cr), apply);
             break;
         }
         case CR_HASTE_SPELL:
@@ -7400,13 +7405,13 @@ void Player::UpdateRating(CombatRating p_CombatRating)
         case CR_CRIT_MELEE:
             if (affectStats)
             {
-                UpdateCritPercentage(BASE_ATTACK);
-                UpdateCritPercentage(OFF_ATTACK);
+                UpdateCritPercentage(WeaponAttackType::BaseAttack);
+                UpdateCritPercentage(WeaponAttackType::OffAttack);
             }
             break;
         case CR_CRIT_RANGED:
             if (affectStats)
-                UpdateCritPercentage(RANGED_ATTACK);
+                UpdateCritPercentage(WeaponAttackType::RangedAttack);
             break;
         case CR_CRIT_SPELL:
             if (affectStats)
@@ -7452,7 +7457,7 @@ void Player::UpdateAllRatings()
 
 void Player::SetRegularAttackTime()
 {
-    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
         if (tmpitem && !tmpitem->IsBroken())
@@ -9170,14 +9175,6 @@ uint32 Player::CalculateCurrencyWeekCap(uint32 id)
             break;
     }
 
-    /*if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
-    {
-        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-        packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1));
-        packet << uint32(currency->ID);
-        GetSession()->SendPacket(&packet);
-    }*/
-
     return cap;
 }
 
@@ -9363,22 +9360,28 @@ void Player::UpdateArea(uint32 newArea)
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
 
-            uint32 l_DraenorBaseMap_Zone;
-            uint32 l_DraenorBaseMap_Area;
+            if (!l_Map)
+                l_Map = sMapMgr->CreateBaseMap(GARRISON_BASE_MAP);
 
-            l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-
-            const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
-
-            if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+            if (l_Map)
             {
-                m_Garrison->OnPlayerLeave();
-                SwitchToPhasedMap(GARRISON_BASE_MAP);
-            }
-            else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
-            {
-                SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
-                m_Garrison->OnPlayerEnter();
+                uint32 l_DraenorBaseMap_Zone;
+                uint32 l_DraenorBaseMap_Area;
+
+                l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
+
+                const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+
+                if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+                {
+                    m_Garrison->OnPlayerLeave();
+                    SwitchToPhasedMap(GARRISON_BASE_MAP);
+                }
+                else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+                {
+                    SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
+                    m_Garrison->OnPlayerEnter();
+                }
             }
         }
     }
@@ -9691,7 +9694,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     if (proto->Socket[0].Color)                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
 
-    if (attacktype < MAX_ATTACK)
+    if (attacktype < WeaponAttackType::MaxAttack)
         _ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), apply);
 
     _ApplyItemBonuses(proto, slot, apply);
@@ -9927,16 +9930,16 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), applyStats);
     }
 
-    WeaponAttackType attType = BASE_ATTACK;
+    WeaponAttackType attType = WeaponAttackType::BaseAttack;
 
     if (slot == EQUIPMENT_SLOT_MAINHAND && (
         proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
         proto->InventoryType == INVTYPE_RANGEDRIGHT))
     {
-        attType = RANGED_ATTACK;
+        attType = WeaponAttackType::RangedAttack;
     }
     else if (slot == EQUIPMENT_SLOT_OFFHAND)
-        attType = OFF_ATTACK;
+        attType = WeaponAttackType::OffAttack;
 
     uint32 minDamage = 0;
     uint32 maxDamage = 0;
@@ -9950,17 +9953,17 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 
 void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage, uint32 maxDamage)
 {
-    WeaponAttackType attType = BASE_ATTACK;
+    WeaponAttackType attType = WeaponAttackType::BaseAttack;
 
     if (slot == EQUIPMENT_SLOT_MAINHAND && (
         proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
         proto->InventoryType == INVTYPE_RANGEDRIGHT))
     {
-        attType = RANGED_ATTACK;
+        attType = WeaponAttackType::RangedAttack;
     }
     else if (slot == EQUIPMENT_SLOT_OFFHAND)
     {
-        attType = OFF_ATTACK;
+        attType = WeaponAttackType::OffAttack;
     }
 
     if (!maxDamage && apply)
@@ -9979,11 +9982,11 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
         if (slot == EQUIPMENT_SLOT_MAINHAND && (
         proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
         proto->InventoryType == INVTYPE_RANGEDRIGHT))
-            SetAttackTime(RANGED_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
+            SetAttackTime(WeaponAttackType::RangedAttack, apply ? proto->Delay: BASE_ATTACK_TIME);
         else if (slot == EQUIPMENT_SLOT_MAINHAND)
-            SetAttackTime(BASE_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
+            SetAttackTime(WeaponAttackType::BaseAttack, apply ? proto->Delay: BASE_ATTACK_TIME);
         else if (slot == EQUIPMENT_SLOT_OFFHAND)
-            SetAttackTime(OFF_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
+            SetAttackTime(WeaponAttackType::OffAttack, apply ? proto->Delay: BASE_ATTACK_TIME);
     }
 
     if (CanModifyStats())
@@ -10020,9 +10023,9 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attac
     BaseModGroup mod = BASEMOD_END;
     switch (attackType)
     {
-        case BASE_ATTACK:   mod = CRIT_PERCENTAGE;        break;
-        case OFF_ATTACK:    mod = OFFHAND_CRIT_PERCENTAGE;break;
-        case RANGED_ATTACK: mod = RANGED_CRIT_PERCENTAGE; break;
+        case WeaponAttackType::BaseAttack:   mod = CRIT_PERCENTAGE;        break;
+        case WeaponAttackType::OffAttack:    mod = OFFHAND_CRIT_PERCENTAGE;break;
+        case WeaponAttackType::RangedAttack: mod = RANGED_CRIT_PERCENTAGE; break;
         default: return;
     }
 
@@ -10047,9 +10050,9 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
     UnitMods unitMod = UNIT_MOD_END;
     switch (attackType)
     {
-        case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
-        case OFF_ATTACK:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
-        case RANGED_ATTACK: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
+        case WeaponAttackType::BaseAttack:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
+        case WeaponAttackType::OffAttack:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
+        case WeaponAttackType::RangedAttack: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
         default: return;
     }
 
@@ -10094,8 +10097,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                         }
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == BASE_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
-                                attackType == OFF_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
+                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                             {
                                 CastSpell(this, 66192, true);
                                 RemoveAura(81333);
@@ -10108,8 +10111,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                             RemoveAura(81333);
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == BASE_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
-                                attackType == OFF_ATTACK && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
+                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                                 RemoveAura(66192);
                         }
                     }
@@ -10244,15 +10247,15 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
                         EquipmentSlots slot;
                         switch (attType)
                         {
-                            case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                            case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                            case RANGED_ATTACK: slot = EQUIPMENT_SLOT_MAINHAND;   break;
+                            case WeaponAttackType::BaseAttack:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                            case WeaponAttackType::OffAttack:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                            case WeaponAttackType::RangedAttack: slot = EQUIPMENT_SLOT_MAINHAND;   break;
                             default: slot = EQUIPMENT_SLOT_END; break;
                         }
                         if (slot != i)
                             continue;
                         // Check if item is useable (forms or disarm)
-                        if (attType == BASE_ATTACK)
+                        if (attType == WeaponAttackType::BaseAttack)
                             if (!IsUseEquipedWeapon(true) && !IsInFeralForm())
                                 continue;
                     }
@@ -10509,7 +10512,7 @@ void Player::_RemoveAllItemMods()
                 continue;
 
             uint32 attacktype = Player::GetAttackBySlot(i);
-            if (attacktype < MAX_ATTACK)
+            if (attacktype < WeaponAttackType::MaxAttack)
                 _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), false);
 
             _ApplyItemBonuses(proto, i, false);
@@ -10535,7 +10538,7 @@ void Player::_ApplyAllItemMods()
                 continue;
 
             uint32 attacktype = Player::GetAttackBySlot(i);
-            if (attacktype < MAX_ATTACK)
+            if (attacktype < WeaponAttackType::MaxAttack)
                 _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), true);
 
             _ApplyItemBonuses(proto, i, true);
@@ -11865,14 +11868,14 @@ void Player::SetSheath(SheathState sheathed)
             SetVirtualItemSlot(2, NULL);
             break;
         case SHEATH_STATE_MELEE:                            // prepared melee weapon
-            SetVirtualItemSlot(0, GetWeaponForAttack(BASE_ATTACK, true));
-            SetVirtualItemSlot(1, GetWeaponForAttack(OFF_ATTACK, true));
+            SetVirtualItemSlot(0, GetWeaponForAttack(WeaponAttackType::BaseAttack, true));
+            SetVirtualItemSlot(1, GetWeaponForAttack(WeaponAttackType::OffAttack, true));
             SetVirtualItemSlot(2, NULL);
             break;
         case SHEATH_STATE_RANGED:                           // prepared ranged weapon
             SetVirtualItemSlot(0, NULL);
             SetVirtualItemSlot(1, NULL);
-            SetVirtualItemSlot(2, GetWeaponForAttack(RANGED_ATTACK, true));
+            SetVirtualItemSlot(2, GetWeaponForAttack(WeaponAttackType::RangedAttack, true));
             break;
         default:
             SetVirtualItemSlot(0, NULL);
@@ -12431,9 +12434,9 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     uint8 slot;
     switch (attackType)
     {
-        case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-        case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-        case RANGED_ATTACK: slot = EQUIPMENT_SLOT_MAINHAND;   break;
+        case WeaponAttackType::BaseAttack:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+        case WeaponAttackType::OffAttack:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+        case WeaponAttackType::RangedAttack: slot = EQUIPMENT_SLOT_MAINHAND;   break;
         default: return NULL;
     }
 
@@ -12477,9 +12480,9 @@ uint8 Player::GetAttackBySlot(uint8 slot)
 {
     switch (slot)
     {
-        case EQUIPMENT_SLOT_MAINHAND: return BASE_ATTACK;
-        case EQUIPMENT_SLOT_OFFHAND:  return OFF_ATTACK;
-        default:                      return MAX_ATTACK;
+        case EQUIPMENT_SLOT_MAINHAND: return WeaponAttackType::BaseAttack;
+        case EQUIPMENT_SLOT_OFFHAND:  return WeaponAttackType::OffAttack;
+        default:                      return WeaponAttackType::MaxAttack;
     }
 }
 
@@ -19174,7 +19177,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     uint8 Gender = fields[5].GetUInt8();
     if (!IsValidGender(Gender))
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Player (GUID: %u) has wrong gender (%hu), can't be loaded.", guid, Gender);
+        sLog->outError(LOG_FILTER_PLAYER, "Player (GUID: %u) has wrong gender (%hhu), can't be loaded.", guid, Gender);
         return false;
     }
 
@@ -19339,7 +19342,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
+            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
             AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID();
@@ -19888,6 +19891,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     ReloadPetBattles();
 
     _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
+
+    Garrison * l_Garrison = new Garrison(this);
+
+    if (l_Garrison->Load())
+        m_Garrison = l_Garrison;
+    else
+        delete l_Garrison;
 
     return true;
 }
@@ -22426,7 +22436,7 @@ void Player::outDebugValues() const
     sLog->outDebug(LOG_FILTER_UNITS, "MIN_DAMAGE is: \t\t%f\tMAX_DAMAGE is: \t\t%f", GetFloatValue(UNIT_FIELD_MIN_DAMAGE), GetFloatValue(UNIT_FIELD_MAX_DAMAGE));
     sLog->outDebug(LOG_FILTER_UNITS, "MIN_OFFHAND_DAMAGE is: \t%f\tMAX_OFFHAND_DAMAGE is: \t%f", GetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE), GetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE));
     sLog->outDebug(LOG_FILTER_UNITS, "MIN_RANGED_DAMAGE is: \t%f\tMAX_RANGED_DAMAGE is: \t%f", GetFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE), GetFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE));
-    sLog->outDebug(LOG_FILTER_UNITS, "ATTACK_TIME is: \t%u\t\tRANGE_ATTACK_TIME is: \t%u", GetAttackTime(BASE_ATTACK), GetAttackTime(RANGED_ATTACK));
+    sLog->outDebug(LOG_FILTER_UNITS, "ATTACK_TIME is: \t%u\t\tRANGE_ATTACK_TIME is: \t%u", GetAttackTime(WeaponAttackType::BaseAttack), GetAttackTime(WeaponAttackType::RangedAttack));
 }
 
 /*********************************************************/
@@ -23991,9 +24001,9 @@ void Player::InitDataForForm(bool reapplyMods)
     SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
     if (ssEntry && ssEntry->attackSpeed)
     {
-        SetAttackTime(BASE_ATTACK, ssEntry->attackSpeed);
-        SetAttackTime(OFF_ATTACK, ssEntry->attackSpeed);
-        SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
+        SetAttackTime(WeaponAttackType::BaseAttack, ssEntry->attackSpeed);
+        SetAttackTime(WeaponAttackType::OffAttack, ssEntry->attackSpeed);
+        SetAttackTime(WeaponAttackType::RangedAttack, BASE_ATTACK_TIME);
     }
     else
         SetRegularAttackTime();
@@ -24643,7 +24653,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
         // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
         if (rec <= 0 && catrec <= 0 && (cat == 76 || (spellInfo->IsAutoRepeatRangedSpell() && spellInfo->Id != 75)))
-            rec = GetAttackTime(RANGED_ATTACK);
+            rec = GetAttackTime(WeaponAttackType::RangedAttack);
 
         // Now we have cooldown data (if found any), time to apply mods
         if (rec > 0)
@@ -25633,13 +25643,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
         AddAura(116023, this);
 
-    Garrison * l_Garrison = new Garrison(this);
-
-    if (l_Garrison->Load())
-        m_Garrison = l_Garrison;
-    else
-        delete l_Garrison;
-
     /// Fix ghost group leader flag
     RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
@@ -25647,6 +25650,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetSession()->HandleLfgGetStatus(l_NullPacket);
 
     SendToyBox();
+
+    /// Force map shift update
+    if (GetMapId() == GARRISON_BASE_MAP && m_Garrison)
+    {
+        phaseMgr.Update();
+        phaseMgr.ForceMapShiftUpdate();
+    }
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -28460,34 +28470,6 @@ void Player::SetMap(Map* map)
 {
     Unit::SetMap(map);
     m_mapRef.link(map, this);
-
-    /// Garrison base map pet level map shift
-    if (ToPlayer() && ToPlayer()->GetGarrison() && map->GetId() == GARRISON_BASE_MAP)
-    {
-        uint32 l_GarrisonMapID = ToPlayer()->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
-
-        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-
-        l_Data << uint32(l_GarrisonMapID);                          ///< uint32
-        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
-        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
-        l_Data << uint32(21);                                       ///< Reason
-
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
-
-        l_Data.Initialize(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-
-        l_Data << uint32(map->GetId());                             ///< uint32
-        l_Data << float(m_teleport_dest.GetPositionX());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionY());            ///< float
-        l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
-        l_Data << float(m_teleport_dest.GetOrientation());          ///< float
-        l_Data << uint32(21);                                       ///< Reason
-
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
-    }
 }
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
@@ -29367,7 +29349,7 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
 {
     int8 slot = GetNextVoidStorageFreeSlot();
 
-    if (slot >= VOID_STORAGE_MAX_SLOT)
+    if (slot >= VOID_STORAGE_MAX_SLOT)  // @todo : Comparison of constant 160 with expression of type 'int8' (aka 'signed char') is always false
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return 255;

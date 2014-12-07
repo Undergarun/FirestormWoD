@@ -80,7 +80,8 @@ enum DeathKnightSpells
     DK_SPELL_RUNIC_CORRUPTION                   = 51460,
     DK_SPELL_DEATH_PACT                         = 48743,
     DK_SPELL_ICY_TOUCH                          = 45477,
-    DK_SPELL_CHILBLAINS_TRIGGER                 = 50435
+    DK_SPELL_CHILBLAINS_TRIGGER                 = 50435,
+    DK_SPELL_REAPING                            = 56835
 };
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
@@ -128,7 +129,7 @@ class spell_dk_death_barrier : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    amount += caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
+                    amount += caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f;
                     amount = int32(caster->SpellDamageBonusDone(GetUnitOwner(), sSpellMgr->GetSpellInfo(DK_SPELL_DEATH_COIL_DAMAGE), amount, aurEff->GetEffIndex(), SPELL_DIRECT_DAMAGE));
                 }
             }
@@ -1387,53 +1388,57 @@ class spell_dk_blood_boil : public SpellScriptLoader
             int32 m_FrostFever  = 0;
             int32 m_BloodPlague = 0;
 
-            void HandleTargets(std::list<WorldObject*>& targets)
+            void HandleBeforeCast()
             {
-                for (WorldObject* l_Object : targets)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    Unit* l_Target = l_Object->ToUnit();
-
-                    if (!l_Target)
-                        continue;
-
-                    if (AuraPtr l_auraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
+                    if (Player* l_Player = l_Caster->ToPlayer())
                     {
-                        if (l_auraBloodPlague->GetDuration() > m_BloodPlague)
-                            m_BloodPlague = l_auraBloodPlague->GetDuration();
+                        if (Unit* l_Target = l_Player->GetSelectedUnit())
+                        {
+                            if (!l_Player->IsValidAttackTarget(l_Target))
+                                return;
+
+                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                                m_BloodPlague = l_AuraBloodPlague->GetDuration();
+
+                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
+                                m_FrostFever = l_AuraFrostFever->GetDuration();
+                        }
                     }
-
-
-                   if (AuraPtr l_auraIceFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
-                   {
-                       if (l_auraIceFever->GetDuration() > m_BloodPlague)
-                           m_FrostFever = l_auraIceFever->GetDuration();
-                   }
                 }
             }
 
-            void HandleOnHit()
+            void HandleHitTarget(SpellEffIndex /* effIndex */)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        // Add diseases on all targets
-                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE)->GetDuration() < m_FrostFever) && m_FrostFever > 0)
-                            l_Player->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
-
-                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE)->GetDuration() < m_FrostFever) && m_BloodPlague > 0)
-                            l_Player->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
-
-                        l_Player->CastSpell(l_Player, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
-
-                        // Refresh diseases
-                        if (l_Player->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                        if ((!l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID())->GetDuration() < m_FrostFever) && m_FrostFever > 0)
                         {
-                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE))
-                                l_AuraBloodPlague->RefreshDuration();
-                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER))
-                                l_AuraFrostFever->RefreshDuration();
+                            l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
+                            {
+                                // Don't Refresh diseases
+                                if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                                    l_AuraFrostFever->SetDuration(m_FrostFever);
+                            }
                         }
+
+                        // Blood plague
+                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID())->GetDuration() < m_BloodPlague) && m_BloodPlague > 0)
+                        {
+                            l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
+                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                            {
+                                // Don't Refresh diseases
+                                if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                                    l_AuraBloodPlague->SetDuration(m_BloodPlague);
+                            }
+                        }
+
+                        l_Caster->CastSpell(l_Caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
                     }
                 }
             }
@@ -1449,8 +1454,8 @@ class spell_dk_blood_boil : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_blood_boil_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnHit += SpellHitFn(spell_dk_blood_boil_SpellScript::HandleOnHit);
+                BeforeCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleBeforeCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_blood_boil_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleAfterCast);
             }
         };
@@ -1458,6 +1463,37 @@ class spell_dk_blood_boil : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_blood_boil_SpellScript();
+        }
+};
+
+// Reaping - 56835
+class spell_dk_reaping : public SpellScriptLoader
+{
+    public:
+        spell_dk_reaping() : SpellScriptLoader("spell_dk_reaping") { }
+
+        class spell_dk_reaping_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_reaping_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->RemoveRunesBySpell(DK_SPELL_REAPING);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_reaping_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_reaping_AuraScript();
         }
 };
 
@@ -1920,6 +1956,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_necrotic_plague_aura();
     new spell_dk_death_pact();
     new spell_dk_chilblains_aura();
+    new spell_dk_reaping();
 
     /// Player script
     new PlayerScript_Blood_Tap();

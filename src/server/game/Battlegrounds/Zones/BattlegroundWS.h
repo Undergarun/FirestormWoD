@@ -222,7 +222,7 @@ class BattlegroundWS : public Battleground
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 _minutesElapsed;
+        uint32 m_EndTimestamp;
 
         virtual void PostUpdateImpl(uint32 diff);
 };

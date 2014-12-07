@@ -240,12 +240,6 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
     reportedPlayer->ReportedAfkBy(m_Player);
 }
 
-void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
-{
-    uint8 unk;
-    recvData >> unk;
-}
-
 void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
@@ -263,28 +257,24 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
 
 void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
-
     m_Player->SendPvpRewards();
 }
 
 void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_STATS");
-
-    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
+    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, 29);
 
     for (int i = 0; i < MAX_PVP_SLOT; i++)
     {
-        data << uint32(m_Player->GetArenaPersonalRating(i));    ///< current rating
-        data << uint32(0);                                      ///< Ranking
-        data << uint32(m_Player->GetSeasonGames(i));            ///< games of season
-        data << uint32(m_Player->GetSeasonWins(i));             ///< games of season
-        data << uint32(m_Player->GetWeekGames(i));              ///< games of week
-        data << uint32(m_Player->GetWeekWins(i));               ///< won games of week
-        data << uint32(m_Player->GetBestRatingOfWeek(i));       ///< best rating of week
-        data << uint32(m_Player->GetBestRatingOfSeason(i));     ///< best rating of season
+        l_Data << uint32(m_Player->GetArenaPersonalRating(i));    ///< current rating
+        l_Data << uint32(0);                                      ///< Ranking
+        l_Data << uint32(m_Player->GetSeasonGames(i));            ///< games of season
+        l_Data << uint32(m_Player->GetSeasonWins(i));             ///< games of season
+        l_Data << uint32(m_Player->GetWeekGames(i));              ///< games of week
+        l_Data << uint32(m_Player->GetWeekWins(i));               ///< won games of week
+        l_Data << uint32(m_Player->GetBestRatingOfWeek(i));       ///< best rating of week
+        l_Data << uint32(m_Player->GetBestRatingOfSeason(i));     ///< best rating of season
     }
 
-    SendPacket(&data);
+    SendPacket(&l_Data);
 }

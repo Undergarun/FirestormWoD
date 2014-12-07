@@ -1579,14 +1579,11 @@ struct SpellShapeshiftFormEntry
     uint32  ID;                                             // 0        m_ID
     //uint32    m_BonusActionBar;                           // 1        m_BonusActionBar
     //char*     m_NameLang;                                 // 2        m_NameLang
-    uint32  m_Flags;                                          // 3      m_Flags
+    uint32  m_Flags;                                        // 3        m_Flags
     int32   creatureType;                                   // 4        m_CreatureType
     //uint32    m_AttackIconID;                             // 5        m_AttackIconID
     uint32  attackSpeed;                                    // 6        m_CombatRoundTime
-    uint32  modelID_A;                                      // 7        m_CreatureDisplayID
-    uint32  modelID_H;                                      // 8        m_CreatureDisplayID
-    //uint32    m_CreatureDisplayID;                        // 9        m_CreatureDisplayID
-    //uint32    m_CreatureDisplayID;                        // 10       m_CreatureDisplayID
+    uint32  m_CreatureDisplayID[4];                         // 7-10     m_CreatureDisplayID (0 - Alliance, 1 - Horde)
     uint32  stanceSpell[MAX_SHAPESHIFT_SPELLS];             // 11-18    m_PresetSpellID
     //uint32    m_MountTypeID;                              // 19       m_MountTypeID
     //uint32    m_ExitSoundEntriesID;                       // 20       m_ExitSoundEntriesID

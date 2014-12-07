@@ -32,7 +32,7 @@ inline float GetAge(uint64 p_T) { return float(time(NULL) - p_T) / DAY; }
 GmTicket::GmTicket() { }
 
 GmTicket::GmTicket(Player* p_Player, WorldPacket& p_RecvData) : m_CreateTime(time(NULL)), m_LastModifiedTime(time(NULL)), m_ClosedBy(0), m_AssignedTo(0), m_Completed(false),
-m_EscalatedStatus(TICKET_UNASSIGNED), m_NeedResponse(false), m_HaveTicket(false), m_Viewed(false)
+m_EscalatedStatus(TICKET_UNASSIGNED), m_NeedResponse(false), m_Viewed(false), m_HaveTicket(false)
 {
     m_ID = sTicketMgr->GenerateTicketId();
     m_PlayerName = p_Player->GetName();

@@ -642,13 +642,13 @@ public:
 
             switch (uiId)
             {
-                case 10:
-                    me->GetMotionMaster()->MoveJump(1227.11f, 3489.73f, 100.37f, 10, 20, 11);
+                case 1:
+                    me->GetMotionMaster()->MoveJump(1227.11f, 3489.73f, 100.37f, 10, 20, 10.0f, 2);
                     break;
-                case 11:
-                    me->GetMotionMaster()->MoveJump(1236.68f, 3456.68f, 102.58f, 10, 20, 12);
+                case 2:
+                    me->GetMotionMaster()->MoveJump(1236.68f, 3456.68f, 102.58f, 10, 20, 10.0f, 3);
                     break;
-                case 12:
+                case 3:
                     Start(false, true);
                     break;
                 default:
@@ -670,7 +670,7 @@ public:
                 {
                     me->MonsterYell("Follow me!", LANG_UNIVERSAL, 0);
                     IntroTimer = 0;
-                    me->GetMotionMaster()->MoveJump(1216.78f, 3499.44f, 91.15f, 10, 20, 10);
+                    me->GetMotionMaster()->MoveJump(1216.78f, 3499.44f, 91.15f, 10, 20, 10.0f, 1);
                 }
                 else
                     IntroTimer -= diff;
@@ -698,7 +698,7 @@ public:
     {
         if (quest->GetQuestId() == 29414) // La voie des tushui
             if (Creature* tempSummon = creature->SummonCreature(56661, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID()))
-                tempSummon->SetPhaseMask(1, true);
+                tempSummon->SetPhaseMask(65535, true);
 
         return true;
     }
@@ -958,7 +958,7 @@ public:
         void EnterCombat(Unit* unit)
         {
             events.ScheduleEvent(1, 3000);
-            events.ScheduleEvent(2, 5000);
+            events.ScheduleEvent(2, 7000);
         }
         
         void UpdateAI(const uint32 diff)
@@ -1803,22 +1803,6 @@ class mob_brewer_lin : public CreatureScript
         };
 };
 
-class mob_jaomin_ro : public CreatureScript
-{
-    public:
-        mob_jaomin_ro() : CreatureScript("mob_jaomin_ro") { }
-
-        bool OnGossipHello(Player*player , Creature*creature)
-        {
-            if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
-            {
-                creature->GetAI()->Reset();
-            }
-
-            return true;
-        }
-};
-
 void AddSC_WanderingIsland_North()
 {
     new mob_master_shang_xi();
@@ -1826,7 +1810,6 @@ void AddSC_WanderingIsland_North()
     new mob_training_target();
     new mob_tushui_trainee();
     new mob_huojin_trainee();
-//    new mob_jaomin_ro();
     new boss_jaomin_ro();
     new mob_attacker_dimwind();
     new mob_min_dimwind();

@@ -659,8 +659,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     //////////////////////////////////////////////////////////////////////////
     PREPARE_STATEMENT(CHAR_INS_GARRISON,        "INSERT INTO character_garrison(character_guid, level) VALUES (?, ?)", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_GARRISON_DB_ID,  "SELECT id FROM character_garrison WHERE character_guid = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON,        "SELECT id, level, blue_recipes, specializations FROM character_garrison WHERE character_guid = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_UPD_GARRISON,        "UPDATE character_garrison SET level = ?, blue_recipes = ?, specializations = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON,        "SELECT id, level, blue_recipes, specializations, num_follower_activation, num_follower_activation_regen_timestamp FROM character_garrison WHERE character_guid = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON,        "UPDATE character_garrison SET level = ?, blue_recipes = ?, specializations = ?, num_follower_activation = ?, num_follower_activation_regen_timestamp = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON,        "DELETE FROM character_garrison WHERE character_guid = ?", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_INS_GARRISON_BUILDING,       "INSERT INTO character_garrison_building(garrison_id, plot_instance_id, building_id) VALUES (?, ?, ?)", CONNECTION_SYNCH);
@@ -679,8 +679,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     
     PREPARE_STATEMENT(CHAR_INS_GARRISON_FOLLOWER,        "INSERT INTO character_garrison_follower(garrison_id, follower_id) VALUES (?, ?)", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER_DB_ID,  "SELECT id FROM character_garrison_follower WHERE garrison_id = ? AND follower_id = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER,        "SELECT id, follower_id, level, xp, quality, item_level_armor, item_level_weapon, current_mission_id, current_building_id, abilities FROM character_garrison_follower WHERE garrison_id = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET follower_id = ?, level = ?, xp = ?, quality = ?, item_level_armor = ?, item_level_weapon = ?, current_mission_id = ?, current_building_id = ?, abilities = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_FOLLOWER,        "SELECT id, follower_id, level, xp, quality, item_level_armor, item_level_weapon, current_mission_id, current_building_id, abilities, flags FROM character_garrison_follower WHERE garrison_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_GARRISON_FOLLOWER,        "UPDATE character_garrison_follower SET follower_id = ?, level = ?, xp = ?, quality = ?, item_level_armor = ?, item_level_weapon = ?, current_mission_id = ?, current_building_id = ?, abilities = ?, flags = ? WHERE id = ? AND garrison_id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
 

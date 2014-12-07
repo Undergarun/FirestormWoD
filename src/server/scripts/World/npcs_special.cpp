@@ -1671,7 +1671,7 @@ class npc_snake_trap : public CreatureScript
                     {
                         if (!(rand() % 5))
                         {
-                            me->setAttackTimer(BASE_ATTACK, (rand() % 10) * 100);
+                            me->setAttackTimer(WeaponAttackType::BaseAttack, (rand() % 10) * 100);
                             SpellTimer = (rand() % 10) * 100;
                             AttackStart(who);
                         }
@@ -1875,7 +1875,7 @@ class npc_mirror_image : public CreatureScript
                 // Clone Me!
                 owner->CastSpell(me, 45204, true);
 
-                for (int attackType = 0; attackType < MAX_ATTACK; attackType++)
+                for (int attackType = 0; attackType < WeaponAttackType::MaxAttack; attackType++)
                 {
                     me->SetBaseWeaponDamage((WeaponAttackType)attackType, MAXDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)attackType, MAXDAMAGE));
                     me->SetBaseWeaponDamage((WeaponAttackType)attackType, MINDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)attackType, MINDAMAGE));
@@ -4709,8 +4709,8 @@ class npc_void_tendrils : public CreatureScript
                     me->SetMaxHealth(owner->CountPctFromMaxHealth(20));
                     me->SetHealth(me->GetMaxHealth());
                     // Set no damage
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0.0f);
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
 
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
                 }
@@ -4788,8 +4788,8 @@ class npc_psyfiend : public CreatureScript
                     me->SetMaxHealth(owner->GetMaxHealth() / 2);
                     me->SetHealth(me->GetMaxHealth());
                     // Set no damage
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0.0f);
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
 
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
                 }
@@ -4879,8 +4879,8 @@ class npc_spectral_guise : public CreatureScript
                                         creature->Attack(me, true);
 
                     // Set no damage
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0.0f);
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
 
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
                 }
@@ -5143,24 +5143,24 @@ class npc_monk_spirit : public CreatureScript
                     case NPC_STORM_SPIRIT:
                         me->CastSpell(me, visualMorph[0], true);
                         SetEquipmentSlots(false, EQUIP_STORM_TWO_HANDS, EQUIP_STORM_TWO_HANDS, EQUIP_NO_CHANGE);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2);
+                        me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE));
+                        me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE));
+                        me->SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::OffAttack, MINDAMAGE) / 2);
+                        me->SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::OffAttack, MAXDAMAGE) / 2);
                         break;
                     case NPC_EARTH_SPIRIT:
                         me->CastSpell(me, visualMorph[1], true);
                         SetEquipmentSlots(false, EQUIP_EARTH_STAFF, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
+                        me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE));
+                        me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE));
                         break;
                     case NPC_FIRE_SPIRIT:
                         me->CastSpell(me, visualMorph[2], true);
                         SetEquipmentSlots(false, EQUIP_FIRE_TWO_HANDS, EQUIP_FIRE_TWO_HANDS, EQUIP_NO_CHANGE);
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE));
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2);
-                        me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, owner->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2);
+                        me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE));
+                        me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE));
+                        me->SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::OffAttack, MINDAMAGE) / 2);
+                        me->SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, owner->GetWeaponDamageRange(WeaponAttackType::OffAttack, MAXDAMAGE) / 2);
                         break;
                 }
             }

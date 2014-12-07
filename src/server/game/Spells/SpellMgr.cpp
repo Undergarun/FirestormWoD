@@ -3569,6 +3569,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 165376:// Enlightenment
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+            case 156989:// Liadrin's Righteousness
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_MELEE_HASTE;
             case 139834:// Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
@@ -3768,12 +3770,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 88611: // Smoke Bomb (triggered)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
-                break;
-            case 145109:// Ysera's Gift (caster)
-            case 145110:// Ysera's Gift (ally)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->Effects[0].BasePoints = 5;
-                spellInfo->MaxAffectedTargets = 1;
                 break;
             case 128997:// Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;

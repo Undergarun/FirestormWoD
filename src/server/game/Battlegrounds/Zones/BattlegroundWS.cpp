@@ -55,6 +55,7 @@ BattlegroundWS::BattlegroundWS()
     _flagSpellForceTimer = 0;
     _bothFlagsKept = false;
     _flagDebuffState = 0;
+    m_EndTimestamp   = 0;
 }
 
 BattlegroundWS::~BattlegroundWS()
@@ -65,7 +66,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (GetElapsedTime() >= 27*MINUTE*IN_MILLISECONDS)
+        if (GetElapsedTime() >= 25*MINUTE*IN_MILLISECONDS)
         {
             if (GetTeamScore(ALLIANCE) == 0)
             {
@@ -82,12 +83,6 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
                 EndBattleground(HORDE);
             else
                 EndBattleground(ALLIANCE);
-        }
-        // first update needed after 1 minute of game already in progress
-        else if (GetElapsedTime() > uint32(_minutesElapsed * MINUTE * IN_MILLISECONDS) +  3 * MINUTE * IN_MILLISECONDS)
-        {
-            ++_minutesElapsed;
-            UpdateWorldState(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
         }
 
         if (_flagState[BG_TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN)
@@ -184,30 +179,35 @@ void BattlegroundWS::StartingEventCloseDoors()
         DoorClose(i);
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
     }
+
     for (uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
-
-    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
-    UpdateWorldState(BG_WS_STATE_TIMER, 25);
 }
 
 void BattlegroundWS::StartingEventOpenDoors()
 {
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_A_6; ++i)
         DoorOpen(i);
+
     for (uint32 i = BG_WS_OBJECT_DOOR_H_1; i <= BG_WS_OBJECT_DOOR_H_4; ++i)
         DoorOpen(i);
 
     for (uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
-    SpawnBGObject(BG_WS_OBJECT_DOOR_A_5, RESPAWN_ONE_DAY);
-    SpawnBGObject(BG_WS_OBJECT_DOOR_A_6, RESPAWN_ONE_DAY);
-    SpawnBGObject(BG_WS_OBJECT_DOOR_H_3, RESPAWN_ONE_DAY);
-    SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
+    DelObject(BG_WS_OBJECT_DOOR_A_5);
+    DelObject(BG_WS_OBJECT_DOOR_A_6);
+    DelObject(BG_WS_OBJECT_DOOR_H_3);
+    DelObject(BG_WS_OBJECT_DOOR_H_4);
 
     // players joining later are not eligibles
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
+
+    // Send start timer
+    m_EndTimestamp = time(nullptr) + 1500;
+
+    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
+    UpdateWorldState(BG_WS_STATE_TIMER, m_EndTimestamp);
 }
 
 void BattlegroundWS::AddPlayer(Player* player)
@@ -731,7 +731,6 @@ void BattlegroundWS::Reset()
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
 
     // For WorldState
-    _minutesElapsed = 0;
     _lastFlagCaptureTeam = 0;
 }
 
@@ -829,7 +828,7 @@ void BattlegroundWS::FillInitialWorldStates(ByteBuffer& data)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(1);
-        data << uint32(BG_WS_STATE_TIMER) << uint32(25-_minutesElapsed);
+        data << uint32(BG_WS_STATE_TIMER) << uint32(m_EndTimestamp);
     }
     else
         data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(0);

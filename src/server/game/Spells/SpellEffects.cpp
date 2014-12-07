@@ -416,130 +416,130 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         {
         case SPELLFAMILY_GENERIC:
         {
-            // Meteor like spells (divided damage to targets)
-            if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
-            {
-                uint32 count = 0;
-                for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                    if (ihit->effectMask & (1 << effIndex))
-                        ++count;
 
-                damage /= count;                    // divide to all targets
-            }
+                                    // Meteor like spells (divided damage to targets)
+                                    if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
+                                    {
+                                        uint32 count = 0;
+                                        for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                                        if (ihit->effectMask & (1 << effIndex))
+                                            ++count;
 
-            switch (m_spellInfo->Id)                     // better way to check unknown
-            {
-            case 109721: // Lightning Strike, Vial of Shadows (lfr)
-                damage += int32(0.266f * m_caster->GetTotalAttackPowerValue(m_caster->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK));
-                break;
-            case 107994: // Lightning Strike, Vial of Shadows (normal)
-                damage += int32(0.3f * m_caster->GetTotalAttackPowerValue(m_caster->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK));
-                break;
-            case 109724: // Lightning Strike, Vial of Shadows (heroic)
-                damage += int32(0.339f * m_caster->GetTotalAttackPowerValue(m_caster->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK));
-                break;
-                // Detonate Mana, Tyrande's Favorite Doll
-            case 92601:
-                if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
-                    damage = aurEff->GetAmount();
-                break;
-                // Consumption
-            case 28865:
-                damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY ? 2750 : 4250);
-                break;
-                // percent from health with min
-            case 25599:                             // Thundercrash
-            {
-                damage = unitTarget->GetHealth() / 2;
-                if (damage < 200)
-                    damage = 200;
-                break;
-            }
-            // arcane charge. must only affect demons (also undead?)
-            case 45072:
-            {
-                if (unitTarget->GetCreatureType() != CREATURE_TYPE_DEMON
-                    && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                    return;
-                break;
-            }
-            // Gargoyle Strike
-            case 51963:
-            {
-                // about +4 base spell dmg per level
-                damage = (m_caster->getLevel() - 60) * 4 + 60;
-                break;
-            }
-            case 123199:// Toss Explosive Barrel
-                if (unitTarget->GetTypeId() == TYPEID_PLAYER ||
-                    (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->GetOwner() && unitTarget->GetOwner()->ToPlayer()))
-                    return;
-                break;
-            }
-            break;
+                                        damage /= count;                    // divide to all targets
+                                    }
+
+                                    switch (m_spellInfo->Id)                     // better way to check unknown
+                                    {
+                                    case 109721: // Lightning Strike, Vial of Shadows (lfr)
+                                        damage += int32(0.266f * m_caster->GetTotalAttackPowerValue(m_caster->getClass() == CLASS_HUNTER ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack));
+                                        break;
+                                    case 107994: // Lightning Strike, Vial of Shadows (normal)
+                                        damage += int32(0.3f * m_caster->GetTotalAttackPowerValue(m_caster->getClass() == CLASS_HUNTER ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack));
+                                        break;
+                                    case 109724: // Lightning Strike, Vial of Shadows (heroic)
+                                        damage += int32(0.339f * m_caster->GetTotalAttackPowerValue(m_caster->getClass() == CLASS_HUNTER ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack));
+                                        break;
+                                        // Detonate Mana, Tyrande's Favorite Doll
+                                    case 92601:
+                                        if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
+                                            damage = aurEff->GetAmount();
+                                        break;
+                                        // Consumption
+                                    case 28865:
+                                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY ? 2750 : 4250);
+                                        break;
+                                        // percent from health with min
+                                    case 25599:                             // Thundercrash
+                                    {
+                                                                                damage = unitTarget->GetHealth() / 2;
+                                                                                if (damage < 200)
+                                                                                    damage = 200;
+                                                                                break;
+                                    }
+                                        // arcane charge. must only affect demons (also undead?)
+                                    case 45072:
+                                    {
+                                                  if (unitTarget->GetCreatureType() != CREATURE_TYPE_DEMON
+                                                      && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
+                                                      return;
+                                                  break;
+                                    }
+                                        // Gargoyle Strike
+                                    case 51963:
+                                    {
+                                                  // about +4 base spell dmg per level
+                                                  damage = (m_caster->getLevel() - 60) * 4 + 60;
+                                                  break;
+                                    }
+                                    case 123199:// Toss Explosive Barrel
+                                        if (unitTarget->GetTypeId() == TYPEID_PLAYER ||
+                                            (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->GetOwner() && unitTarget->GetOwner()->ToPlayer()))
+                                            return;
+                                        break;
+                                    }
+                                    break;
         }
         case SPELLFAMILY_WARRIOR:
         {
-            switch (m_spellInfo->Id)
-            {
-            case 34428: // Victory Rush
-            {
-                if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                    damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 67.2f);
-                else
-                    damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 56.0f);
+                                    switch (m_spellInfo->Id)
+                                    {
+                                    case 34428: // Victory Rush
+                                    {
+                                                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                                                        damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 67.2f);
+                                                    else
+                                                        damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 56.0f);
 
+                                                    break;
+                                    }
+                                    case 46968: // Shockwave
+                                    {
+                                                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                                                        break;
 
-                break;
-            }
-            case 46968: // Shockwave
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
+                                                    int32 pct = 0;
 
-                int32 pct = 0;
+                                                    switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
+                                                    {
+                                                    case SPEC_WARRIOR_ARMS:
+                                                        pct = 90;
+                                                        break;
+                                                    case SPEC_WARRIOR_FURY:
+                                                    case SPEC_WARRIOR_PROTECTION:
+                                                        pct = 75;
+                                                        break;
+                                                    default:
+                                                        break;
+                                                    }
 
-                switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                {
-                case SPEC_WARRIOR_ARMS:
-                    pct = 90;
-                    break;
-                case SPEC_WARRIOR_FURY:
-                case SPEC_WARRIOR_PROTECTION:
-                    pct = 75;
-                    break;
-                default:
-                    break;
-                }
+                                                    damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), pct));
 
-                damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
+                                                    break;
+                                    }
+                                    case 103840:// Impending Victory
+                                    {
+                                                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                                                        damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 70.0f);
+                                                    else
+                                                        damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 56.0f);
 
-                break;
-            }
-            case 103840:// Impending Victory
-            {
-                if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                    damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 70.0f);
-                else
-                    damage = CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 56.0f);
+                                                    // Impending Victory heals you for 10% of your maximum health
+                                                    m_caster->CastSpell(m_caster, 118340, true);
 
-                // Impending Victory heals you for 10% of your maximum health
-                m_caster->CastSpell(m_caster, 118340, true);
+                                                    break;
+                                    }
+                                    case 118000:// Dragon Roar
+                                    {
+                                                    if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                                                        damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 168);
+                                                    else
+                                                        damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 140);
 
-                break;
-            }
-            case 118000:// Dragon Roar
-            {
-                if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                    damage += CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 168);
-                else
-                    damage += CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), 140);
+                                                    break;
+                                    }
+                                    }
 
-                break;
-            }
-            }
-
-            break;
+                                    break;
         }
         case SPELLFAMILY_PALADIN:
         {
@@ -641,7 +641,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                damage += int32(0.196f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * m_caster->ToPlayer()->GetComboPoints());
+                damage += int32(0.196f * m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * m_caster->ToPlayer()->GetComboPoints());
 
                 // converts each extra point of energy ( up to 25 energy ) into additional damage
                 int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
@@ -676,7 +676,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                     {
-                        float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
                         switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
                         {
@@ -704,7 +704,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                     {
-                        float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
                         if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
                             || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
@@ -722,7 +722,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     uint8 combo = player->GetComboPoints();
 
-                    float ap = player->GetTotalAttackPowerValue(BASE_ATTACK);
+                    float ap = player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
                     if (combo)
                     {
@@ -746,7 +746,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (roll_chance_i(aur->GetAmount()))
                     {
-                        for (uint8 i = BASE_ATTACK; i < MAX_ATTACK; ++i)
+                        for (uint8 i = WeaponAttackType::BaseAttack; i < WeaponAttackType::MaxAttack; ++i)
                             m_caster->ToPlayer()->CastItemCombatSpell(unitTarget, WeaponAttackType(i), PROC_FLAG_TAKEN_DAMAGE, PROC_EX_NORMAL_HIT);
                     }
                 }
@@ -763,7 +763,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                     {
-                        float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
                         if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
                             || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
@@ -794,7 +794,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
                 if (m_caster->GetOwner())
                 {
-                    damage += int32(m_caster->GetOwner()->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.2544f);
+                    damage += int32(m_caster->GetOwner()->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.2544f);
 
                     // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
                     if (m_caster->GetPower(POWER_FOCUS) + 25 > 50)
@@ -1239,13 +1239,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, 115635, true); // Death Barrier
                 else
                 {
-                    int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f) * 3.5f;
+                    int32 bp = (damage + m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f) * 3.5f;
                     m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
                 }
             }
             else
             {
-                int32 bp = damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
+                int32 bp = damage + m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f;
                 m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
             }
 
@@ -2221,8 +2221,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             if (!m_owner)
                 return;
 
-            addhealth += int32(m_owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.35f * 0.5f);
-
+            addhealth += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f);
             break;
         }
         case 114163:// Eternal Flame
@@ -3012,7 +3011,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
-            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK) ||
+            (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
@@ -3789,7 +3789,7 @@ void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
     unitTarget->SetCanDualWield(true);
 
     if (unitTarget->GetTypeId() == TYPEID_UNIT)
-        unitTarget->ToCreature()->UpdateDamagePhysical(OFF_ATTACK);
+        unitTarget->ToCreature()->UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
 void Spell::EffectPull(SpellEffIndex effIndex)
@@ -4552,7 +4552,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
         default: break;
         }
-        spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)));
+        spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack)));
     }
     case SPELLFAMILY_DEATHKNIGHT:
     {
@@ -4627,9 +4627,9 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         switch (m_attackType)
         {
         default:
-        case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
-        case OFF_ATTACK:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
-        case RANGED_ATTACK: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
+        case WeaponAttackType::BaseAttack:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
+        case WeaponAttackType::OffAttack:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
+        case WeaponAttackType::RangedAttack: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
         }
 
         float weapon_total_pct = 1.0f;
@@ -7983,7 +7983,7 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
     float minDamage = 0;
     float maxDamage = 0;
     bool dualwield = false;
-    int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+    int32 AP = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
     if (Player* plr = caster->ToPlayer())
     {
@@ -8001,8 +8001,8 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
             minDamage += mainItem->GetTemplate()->DamageMin;
             maxDamage += mainItem->GetTemplate()->DamageMax;
 
-            minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
-            maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+            minDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
+            maxDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
         }
 
         // Off Hand
@@ -8011,8 +8011,8 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
             minDamage += offItem->GetTemplate()->DamageMin / 2.0f;
             maxDamage += offItem->GetTemplate()->DamageMax / 2.0f;
 
-            minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
-            maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+            minDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
+            maxDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
         }
 
         // DualWield coefficient
@@ -8039,22 +8039,22 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
 
         if (dualwield)
         {
-            minDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-            minDamage += caster->GetWeaponDamageRange(OFF_ATTACK, MINDAMAGE) / 2;
-            maxDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
-            maxDamage += caster->GetWeaponDamageRange(OFF_ATTACK, MAXDAMAGE) / 2;
+            minDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
+            minDamage += caster->GetWeaponDamageRange(WeaponAttackType::OffAttack, MINDAMAGE) / 2;
+            maxDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
+            maxDamage += caster->GetWeaponDamageRange(WeaponAttackType::OffAttack, MAXDAMAGE) / 2;
 
             minDamage *= 0.898882275f;
             maxDamage *= 0.898882275f;
         }
         else
         {
-            minDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-            maxDamage += caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+            minDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
+            maxDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
         }
 
-        minDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
-        maxDamage /= float(m_caster->GetAttackTime(BASE_ATTACK) / 1000.0f);
+        minDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
+        maxDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
 
         minDamage += float(AP / APmultiplier);
         maxDamage += float(AP / APmultiplier);

@@ -106,7 +106,7 @@ static bool procPrepared = InitTriggerAuraData();
 
 DamageInfo::DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType)
 : m_attacker(_attacker), m_victim(_victim), m_damage(_damage), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask),
-m_damageType(_damageType), m_attackType(BASE_ATTACK)
+m_damageType(_damageType), m_attackType(WeaponAttackType::BaseAttack)
 {
     m_absorb = 0;
     m_resist = 0;
@@ -177,10 +177,10 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     , m_vehicle(NULL)
     , m_vehicleKit(NULL)
     , m_unitTypeMask(UNIT_MASK_NONE)
-    , m_HostileRefManager(this)
-    , _lastDamagedTime(0)
     , m_disableHealthRegen(false)
     , m_disableEnterEvadeMode(false)
+    , m_HostileRefManager(this)
+    , _lastDamagedTime(0)
 
 {
 #ifdef _MSC_VER
@@ -191,12 +191,12 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_updateFlag = UPDATEFLAG_HAS_MOVEMENT_UPDATE;
 
-    m_attackTimer[BASE_ATTACK] = 0;
-    m_attackTimer[OFF_ATTACK] = 0;
-    m_attackTimer[RANGED_ATTACK] = 0;
-    m_modAttackSpeedPct[BASE_ATTACK] = 1.0f;
-    m_modAttackSpeedPct[OFF_ATTACK] = 1.0f;
-    m_modAttackSpeedPct[RANGED_ATTACK] = 1.0f;
+    m_attackTimer[WeaponAttackType::BaseAttack] = 0;
+    m_attackTimer[WeaponAttackType::OffAttack] = 0;
+    m_attackTimer[WeaponAttackType::RangedAttack] = 0;
+    m_modAttackSpeedPct[WeaponAttackType::BaseAttack] = 1.0f;
+    m_modAttackSpeedPct[WeaponAttackType::OffAttack] = 1.0f;
+    m_modAttackSpeedPct[WeaponAttackType::RangedAttack] = 1.0f;
 
     m_extraAttacks = 0;
     insightCount = 0;
@@ -237,7 +237,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
                                                             // implement 50% base damage from offhand
     m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
 
-    for (uint8 i = 0; i < MAX_ATTACK; ++i)
+    for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         m_weaponDamage[i][MINDAMAGE] = 0.f;
         m_weaponDamage[i][MAXDAMAGE] = 0.f;
@@ -455,12 +455,12 @@ void Unit::Update(uint32 p_time)
     }
 
     // not implemented before 3.0.2
-    if (uint32 base_att = getAttackTimer(BASE_ATTACK))
-        setAttackTimer(BASE_ATTACK, (p_time >= base_att ? 0 : base_att - p_time));
-    if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
-        setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time));
-    if (uint32 off_att = getAttackTimer(OFF_ATTACK))
-        setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time));
+    if (uint32 base_att = getAttackTimer(WeaponAttackType::BaseAttack))
+        setAttackTimer(WeaponAttackType::BaseAttack, (p_time >= base_att ? 0 : base_att - p_time));
+    if (uint32 ranged_att = getAttackTimer(WeaponAttackType::RangedAttack))
+        setAttackTimer(WeaponAttackType::RangedAttack, (p_time >= ranged_att ? 0 : ranged_att - p_time));
+    if (uint32 off_att = getAttackTimer(WeaponAttackType::OffAttack))
+        setAttackTimer(WeaponAttackType::OffAttack, (p_time >= off_att ? 0 : off_att - p_time));
 
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
@@ -479,7 +479,7 @@ void Unit::Update(uint32 p_time)
 bool Unit::haveOffhandWeapon() const
 {
     if (GetTypeId() == TYPEID_PLAYER)
-        return ToPlayer()->GetWeaponForAttack(OFF_ATTACK, true);
+        return ToPlayer()->GetWeaponForAttack(WeaponAttackType::OffAttack, true);
     else
         return m_canDualWield;
 }
@@ -927,9 +927,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         switch (cleanDamage->attackType)
         {
-            case OFF_ATTACK:
+            case WeaponAttackType::OffAttack:
                 rage /= 2;
-            case BASE_ATTACK:
+            case WeaponAttackType::BaseAttack:
                 RewardRage(rage, true);
                 break;
             default:
@@ -1439,7 +1439,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
                 // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
                 float critPctDamageMod = 0.0f;
-                if (attackType == RANGED_ATTACK)
+                if (attackType == WeaponAttackType::RangedAttack)
                     critPctDamageMod += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
                 else
                     critPctDamageMod += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
@@ -1516,7 +1516,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
         return;
 
     // Call default DealDamage
-    CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, BASE_ATTACK, MELEE_HIT_NORMAL);
+    CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
     DealDamage(victim, damageInfo->damage, &cleanDamage, SPELL_DIRECT_DAMAGE, SpellSchoolMask(damageInfo->schoolMask), spellProto, durabilityLoss);
 }
 
@@ -1549,11 +1549,11 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // Select HitInfo/procAttacker/procVictim flag based on attack type
     switch (attackType)
     {
-        case BASE_ATTACK:
+        case WeaponAttackType::BaseAttack:
             damageInfo->procAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_MAINHAND_ATTACK;
             damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
             break;
-        case OFF_ATTACK:
+        case WeaponAttackType::OffAttack:
             damageInfo->procAttacker = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK;
             damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
             damageInfo->HitInfo      = HITINFO_OFFHAND;
@@ -1632,7 +1632,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             damageInfo->damage += damageInfo->damage;
             float mod = 0.0f;
             // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
-            if (damageInfo->attackType == RANGED_ATTACK)
+            if (damageInfo->attackType == WeaponAttackType::RangedAttack)
                 mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
             else
                 mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
@@ -1721,7 +1721,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damageInfo->damage = 0;
 
     // only for normal weapon damage
-    if (damageInfo->attackType == BASE_ATTACK || damageInfo->attackType == OFF_ATTACK)
+    if (damageInfo->attackType == WeaponAttackType::BaseAttack || damageInfo->attackType == WeaponAttackType::OffAttack)
     {
         // Custom MoP Script - Blood Horror - 111397
         if (victim->HasAura(111397))
@@ -1755,31 +1755,31 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     if (damageInfo->TargetState == VICTIMSTATE_PARRY)
     {
         // Get attack timers
-        float offtime  = float(victim->getAttackTimer(OFF_ATTACK));
-        float basetime = float(victim->getAttackTimer(BASE_ATTACK));
+        float offtime  = float(victim->getAttackTimer(WeaponAttackType::OffAttack));
+        float basetime = float(victim->getAttackTimer(WeaponAttackType::BaseAttack));
         // Reduce attack time
         if (victim->haveOffhandWeapon() && offtime < basetime)
         {
-            float percent20 = victim->GetAttackTime(OFF_ATTACK) * 0.20f;
+            float percent20 = victim->GetAttackTime(WeaponAttackType::OffAttack) * 0.20f;
             float percent60 = 3.0f * percent20;
             if (offtime > percent20 && offtime <= percent60)
-                victim->setAttackTimer(OFF_ATTACK, uint32(percent20));
+                victim->setAttackTimer(WeaponAttackType::OffAttack, uint32(percent20));
             else if (offtime > percent60)
             {
                 offtime -= 2.0f * percent20;
-                victim->setAttackTimer(OFF_ATTACK, uint32(offtime));
+                victim->setAttackTimer(WeaponAttackType::OffAttack, uint32(offtime));
             }
         }
         else
         {
-            float percent20 = victim->GetAttackTime(BASE_ATTACK) * 0.20f;
+            float percent20 = victim->GetAttackTime(WeaponAttackType::BaseAttack) * 0.20f;
             float percent60 = 3.0f * percent20;
             if (basetime > percent20 && basetime <= percent60)
-                victim->setAttackTimer(BASE_ATTACK, uint32(percent20));
+                victim->setAttackTimer(WeaponAttackType::BaseAttack, uint32(percent20));
             else if (basetime > percent60)
             {
                 basetime -= 2.0f * percent20;
-                victim->setAttackTimer(BASE_ATTACK, uint32(basetime));
+                victim->setAttackTimer(WeaponAttackType::BaseAttack, uint32(basetime));
             }
         }
     }
@@ -2254,7 +2254,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
             SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
 
-            CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+            CleanDamage cleanDamage = CleanDamage(splitted, 0, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
             DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellInfo(), false);
         }
     }
@@ -2358,17 +2358,17 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
         return;
 
     if (!IsAIEnabled || !GetMap()->Instanceable())
-        if ((attType == BASE_ATTACK || attType == OFF_ATTACK) && !IsWithinLOSInMap(victim))
+        if ((attType == WeaponAttackType::BaseAttack || attType == WeaponAttackType::OffAttack) && !IsWithinLOSInMap(victim))
             return;
 
     CombatStart(victim);
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MELEE_ATTACK);
 
-    if (attType != BASE_ATTACK && attType != OFF_ATTACK)
+    if (attType != WeaponAttackType::BaseAttack && attType != WeaponAttackType::OffAttack)
         return;                                             // ignore ranged case
 
     // melee attack spell casted at main hand attack only - no normal melee dmg dealt
-    if (attType == BASE_ATTACK && m_currentSpells[CURRENT_MELEE_SPELL] && !extra)
+    if (attType == WeaponAttackType::BaseAttack && m_currentSpells[CURRENT_MELEE_SPELL] && !extra)
         m_currentSpells[CURRENT_MELEE_SPELL]->cast();
     else
     {
@@ -2407,7 +2407,7 @@ void Unit::HandleProcExtraAttackFor(Unit* victim)
 {
     while (m_extraAttacks)
     {
-        AttackerStateUpdate(victim, BASE_ATTACK, true);
+        AttackerStateUpdate(victim, WeaponAttackType::BaseAttack, true);
         --m_extraAttacks;
     }
 }
@@ -2524,7 +2524,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     }
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
-    if (attType != RANGED_ATTACK && (GetTypeId() == TYPEID_PLAYER || ToCreature()->isPet()) &&
+    if (attType != WeaponAttackType::RangedAttack && (GetTypeId() == TYPEID_PLAYER || ToCreature()->isPet()) &&
         victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 2))
     {
         // Anytime a character makes a melee attack on a level ?? boss
@@ -2567,15 +2567,15 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
     {
         switch (attType)
         {
-            case RANGED_ATTACK:
+            case WeaponAttackType::RangedAttack:
                 min_damage = GetFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE);
                 max_damage = GetFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE);
                 break;
-            case BASE_ATTACK:
+            case WeaponAttackType::BaseAttack:
                 min_damage = GetFloatValue(UNIT_FIELD_MIN_DAMAGE);
                 max_damage = GetFloatValue(UNIT_FIELD_MAX_DAMAGE);
                 break;
-            case OFF_ATTACK:
+            case WeaponAttackType::OffAttack:
                 min_damage = GetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE);
                 max_damage = GetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE);
                 break;
@@ -2703,12 +2703,12 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT || spell->IsInterruptSpell())
         return SPELL_MISS_NONE;
 
-    WeaponAttackType attType = BASE_ATTACK;
+    WeaponAttackType attType = WeaponAttackType::BaseAttack;
 
     // Check damage class instead of attack type to correctly handle judgements
     // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
     if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
-        attType = RANGED_ATTACK;
+        attType = WeaponAttackType::RangedAttack;
 
     uint32 roll = urand(0, 10000);
 
@@ -2736,7 +2736,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         return SPELL_MISS_NONE;
 
     // Ranged attacks can only miss, resist and deflect
-    if (attType == RANGED_ATTACK)
+    if (attType == WeaponAttackType::RangedAttack)
     {
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
@@ -2956,7 +2956,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
                 victim->RemoveAura(89523);
 
             // Start triggers for remove charges if need (trigger only for victim, and mark as active spell)
-            ProcDamageAndSpell(victim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, 0, BASE_ATTACK, spell);
+            ProcDamageAndSpell(victim, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, 0, WeaponAttackType::BaseAttack, spell);
             return SPELL_MISS_REFLECT;
         }
     }
@@ -3031,9 +3031,9 @@ float Unit::GetUnitParryChance(Unit const* p_Attacker) const
     {
         if (l_Player->CanParry())
         {
-            Item* l_Item = l_Player->GetWeaponForAttack(BASE_ATTACK, true);
+            Item* l_Item = l_Player->GetWeaponForAttack(WeaponAttackType::BaseAttack, true);
             if (!l_Item)
-                l_Item = l_Player->GetWeaponForAttack(OFF_ATTACK, true);
+                l_Item = l_Player->GetWeaponForAttack(WeaponAttackType::OffAttack, true);
 
             if (l_Item)
                 l_Chance = GetFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE);
@@ -3071,7 +3071,7 @@ float Unit::GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType p
         l_Chance += g_BaseMissChancePhysical[l_LevelDiff];
     }
 
-    if (p_AttType == RANGED_ATTACK)
+    if (p_AttType == WeaponAttackType::RangedAttack)
         l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
     else
         l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
@@ -3139,13 +3139,13 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
     {
         switch (attackType)
         {
-            case BASE_ATTACK:
+            case WeaponAttackType::BaseAttack:
                 crit = GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
                 break;
-            case OFF_ATTACK:
+            case WeaponAttackType::OffAttack:
                 crit = GetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE);
                 break;
-            case RANGED_ATTACK:
+            case WeaponAttackType::RangedAttack:
                 crit = GetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
                 break;
                 // Just for good manner
@@ -3162,7 +3162,7 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
     }
 
     // flat aura mods
-    if (attackType == RANGED_ATTACK)
+    if (attackType == WeaponAttackType::RangedAttack)
         crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
     else
         crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
@@ -3250,12 +3250,12 @@ void Unit::_UpdateAutoRepeatSpell()
     }
 
     // apply delay (Auto Shot - 75 not affected)
-    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
-        setAttackTimer(RANGED_ATTACK, 500);
+    if (m_AutoRepeatFirstCast && getAttackTimer(WeaponAttackType::RangedAttack) < 500 && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
+        setAttackTimer(WeaponAttackType::RangedAttack, 500);
     m_AutoRepeatFirstCast = false;
 
     // castroutine
-    if (isAttackReady(RANGED_ATTACK))
+    if (isAttackReady(WeaponAttackType::RangedAttack))
     {
         // Check if able to cast
         if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckCast(true) != SPELL_CAST_OK)
@@ -3269,7 +3269,7 @@ void Unit::_UpdateAutoRepeatSpell()
         spell->prepare(&(m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_targets));
 
         // all went good, reset attack
-        resetAttackTimer(RANGED_ATTACK);
+        resetAttackTimer(WeaponAttackType::RangedAttack);
     }
 }
 
@@ -5744,7 +5744,7 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
 
 bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo(); //@todo hasteSpell is unused variable
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -8035,7 +8035,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 71433;  // default main hand attack
                     // roll if offhand
                     if (Player const* player = ToPlayer())
-                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
+                    if (player->GetWeaponForAttack(WeaponAttackType::OffAttack, true) && urand(0, 1))
                         triggered_spell_id = 71434;
                     target = victim;
                     break;
@@ -8123,7 +8123,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (GetTypeId() == TYPEID_PLAYER)
                     {
-                        int32 bp = std::max<int32>(int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), 20)),
+                        int32 bp = std::max<int32>(int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 20)),
                                                             CalculatePct(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL), 30));
 
                         if (!procSpell || (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK) || (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK))
@@ -8177,7 +8177,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         if (Player* m_owner = owner->ToPlayer())
                         {
                             int32 coeff = isGuardian() ? 0 : 20;
-                            int32 value = std::max<int32>(int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), 20)),
+                            int32 value = std::max<int32>(int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 20)),
                                                                 CalculatePct(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL), 30));
                             int32 bp = CalculatePct(value, coeff);
 
@@ -10128,7 +10128,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 if (!roll_chance_i(20))
                     return false;
 
-            float offHandSpeed = GetAttackTime(OFF_ATTACK) / IN_MILLISECONDS;
+            float offHandSpeed = GetAttackTime(WeaponAttackType::OffAttack) / IN_MILLISECONDS;
 
             if (!procSpell && (procFlags & PROC_FLAG_DONE_OFFHAND_ATTACK))
                 if (!roll_chance_f(20.0f * offHandSpeed / 1.4f))
@@ -10175,7 +10175,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         {
             uint32 health = CountPctFromMaxHealth(2);
 
-            if (damage < 0 && damage < health && !(procFlags & PROC_FLAG_KILL))
+            if (damage < 0 && damage < health && !(procFlags & PROC_FLAG_KILL)) //@todo Comparison of unsigned expression < 0 is always false
                 return false;
 
             break;
@@ -10449,7 +10449,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         // Savage Defense
         case 62606:
         {
-            basepoints0 = CalculatePct(triggerAmount, GetTotalAttackPowerValue(BASE_ATTACK));
+            basepoints0 = CalculatePct(triggerAmount, GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
             break;
         }
         // Culling the Herd
@@ -10941,7 +10941,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     // delay offhand weapon attack to next attack time
     if (haveOffhandWeapon())
-        resetAttackTimer(OFF_ATTACK);
+        resetAttackTimer(WeaponAttackType::OffAttack);
 
     if (meleeAttack)
         SendMeleeAttackStart(victim);
@@ -12226,8 +12226,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
             {
-                WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? RANGED_ATTACK : BASE_ATTACK;
-                float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+                WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
+                float APbonus = float(victim->GetTotalAuraModifier(attType == WeaponAttackType::BaseAttack ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
                 APbonus += GetTotalAttackPowerValue(attType);
                 DoneTotal += int32(bonus->ap_dot_bonus * stack * ApCoeffMod * APbonus);
             }
@@ -12237,8 +12237,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
             {
-                WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? RANGED_ATTACK : BASE_ATTACK;
-                float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+                WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
+                float APbonus = float(victim->GetTotalAuraModifier(attType == WeaponAttackType::BaseAttack ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
                 APbonus += GetTotalAttackPowerValue(attType);
                 DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
             }
@@ -12597,14 +12597,14 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
         AuraEffectList const& mDamageDonebyAP = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER);
         for (AuraEffectList::const_iterator i =mDamageDonebyAP.begin(); i != mDamageDonebyAP.end(); ++i)
             if ((*i)->GetMiscValue() & p_SchoolMask)
-                l_DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
+                l_DoneAdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
         AuraEffectList const& mOverrideSpellpower = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
         for (AuraEffectList::const_iterator i = mOverrideSpellpower.begin(); i != mOverrideSpellpower.end(); ++i)
         {
             if (((*i)->GetMiscValue() & p_SchoolMask))
             {
-                int32 attackPower = GetTotalAttackPowerValue(BASE_ATTACK);
+                int32 attackPower = GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                 l_DoneAdvertisedBenefit = (*i)->GetAmount() * attackPower / 100;
             }
         }
@@ -13025,13 +13025,13 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
                 DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack));
         }
         else
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(BASE_ATTACK));
+                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
         }
     }
     else
@@ -13259,7 +13259,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
         AuraEffectList const& mHealingDonebyAP = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER);
         for (AuraEffectList::const_iterator i = mHealingDonebyAP.begin(); i != mHealingDonebyAP.end(); ++i)
             if ((*i)->GetMiscValue() & schoolMask)
-                AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
+                AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
         // Apply Versatility healing bonus
         AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY) / 100);
@@ -13444,7 +13444,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // ..done (base at attack power for marked target and base at attack power for creature type)
     int32 APbonus = 0;
 
-    if (attType == RANGED_ATTACK)
+    if (attType == WeaponAttackType::RangedAttack)
     {
         APbonus += victim->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
 
@@ -13494,16 +13494,16 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Bladestorm - 46924
     // Increase damage by 60% in Arms spec
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(46924) && attType == BASE_ATTACK)
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(46924) && attType == WeaponAttackType::BaseAttack)
         AddPct(DoneTotalMod, 60);
 
     // Sword of Light - 53503
     // Increase damage dealt by two handed weapons by 30%
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == BASE_ATTACK)
+    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == WeaponAttackType::BaseAttack)
         AddPct(DoneTotalMod, 30);
 
     // 76856 - Mastery : Unshackled Fury
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY && HasAura(76856) && HasAura(13046) && attType == BASE_ATTACK)
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY && HasAura(76856) && HasAura(13046) && attType == WeaponAttackType::BaseAttack)
         AddPct(DoneTotalMod, 11);
 
     // Apply Power PvP damage bonus
@@ -13533,13 +13533,13 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     }
 
     // Sudden Death - 29725
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == BASE_ATTACK || attType == OFF_ATTACK || spellProto))
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == WeaponAttackType::BaseAttack || attType == WeaponAttackType::OffAttack || spellProto))
         if (roll_chance_i(10))
             CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
 
     // Custom MoP Script
     // 76659 - Mastery : Wild Quiver, can't proc from Scatter Shot
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(76659) && attType == RANGED_ATTACK && spellProto->Id != 76663 && spellProto->Id != 19503)
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(76659) && attType == WeaponAttackType::RangedAttack && spellProto->Id != 76663 && spellProto->Id != 19503)
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
@@ -13619,7 +13619,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 76806 - Mastery : Main Gauche
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == BASE_ATTACK && !spellProto)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack && !spellProto)
     {
         if (HasAura(76806))
         {
@@ -13762,7 +13762,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         if ((*i)->GetMiscValue() & GetMeleeDamageSchoolMask())
             TakenFlatBenefit += (*i)->GetAmount();
 
-    if (attType != RANGED_ATTACK)
+    if (attType != WeaponAttackType::RangedAttack)
         TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN);
     else
         TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN);
@@ -13820,7 +13820,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         }
     }
 
-    if (attType != RANGED_ATTACK)
+    if (attType != WeaponAttackType::RangedAttack)
     {
         AuraEffectList const& mModMeleeDamageTakenPercent = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
         for (AuraEffectList::const_iterator i = mModMeleeDamageTakenPercent.begin(); i != mModMeleeDamageTakenPercent.end(); ++i)
@@ -13937,10 +13937,10 @@ float Unit::GetWeaponProcChance() const
 {
     // normalized proc chance for weapon attack speed
     // (odd formula...)
-    if (isAttackReady(BASE_ATTACK))
-        return (GetAttackTime(BASE_ATTACK) * 1.8f / 1000.0f);
-    else if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
-        return (GetAttackTime(OFF_ATTACK) * 1.6f / 1000.0f);
+    if (isAttackReady(WeaponAttackType::BaseAttack))
+        return (GetAttackTime(WeaponAttackType::BaseAttack) * 1.8f / 1000.0f);
+    else if (haveOffhandWeapon() && isAttackReady(WeaponAttackType::OffAttack))
+        return (GetAttackTime(WeaponAttackType::OffAttack) * 1.6f / 1000.0f);
     return 0;
 }
 
@@ -15632,7 +15632,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
             castTime = int32(float(castTime) * owner->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
     }
     else if (spellProto->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
-        castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
+        castTime = int32(float(castTime) * m_modAttackSpeedPct[WeaponAttackType::RangedAttack]);
     else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
 }
@@ -15883,13 +15883,13 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             UpdateAttackPowerAndDamage(true);
             break;
         case UNIT_MOD_DAMAGE_MAINHAND:
-            UpdateDamagePhysical(BASE_ATTACK);
+            UpdateDamagePhysical(WeaponAttackType::BaseAttack);
             break;
         case UNIT_MOD_DAMAGE_OFFHAND:
-            UpdateDamagePhysical(OFF_ATTACK);
+            UpdateDamagePhysical(WeaponAttackType::OffAttack);
             break;
         case UNIT_MOD_DAMAGE_RANGED:
-            UpdateDamagePhysical(RANGED_ATTACK);
+            UpdateDamagePhysical(WeaponAttackType::RangedAttack);
             break;
         default:
             break;
@@ -16014,7 +16014,7 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
 
 float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
-    if (attType == RANGED_ATTACK)
+    if (attType == WeaponAttackType::RangedAttack)
     {
         int32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER);
         if (ap < 0)
@@ -16032,7 +16032,7 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 
 float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) const
 {
-    if (attType == OFF_ATTACK && !haveOffhandWeapon())
+    if (attType == WeaponAttackType::OffAttack && !haveOffhandWeapon())
         return 0.0f;
 
     return m_weaponDamage[attType][type];
@@ -17061,7 +17061,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     // Leader of the Pack
-    if (target && GetTypeId() == TYPEID_PLAYER && (procExtra & PROC_EX_CRITICAL_HIT) && HasAura(17007) && (attType == BASE_ATTACK || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
+    if (target && GetTypeId() == TYPEID_PLAYER && (procExtra & PROC_EX_CRITICAL_HIT) && HasAura(17007) && (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
         if (!ToPlayer()->HasSpellCooldown(34299))
         {
@@ -17547,9 +17547,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             {
                 if (target)
                 {
-                    if (attType == BASE_ATTACK)
+                    if (attType == WeaponAttackType::BaseAttack)
                         CastSpell(target, 120274, true); // extra attack for MainHand
-                    else if (attType == OFF_ATTACK)
+                    else if (attType == WeaponAttackType::OffAttack)
                         CastSpell(target, 120278, true); // extra attack for OffHand
                 }
             }
@@ -18349,9 +18349,9 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
         if (spellProto->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
             Item* item = NULL;
-            if (attType == BASE_ATTACK)
+            if (attType == WeaponAttackType::BaseAttack)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-            else if (attType == OFF_ATTACK)
+            else if (attType == WeaponAttackType::OffAttack)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
             if (player->IsInFeralForm())
@@ -18612,7 +18612,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
     if (l_KilledVictim->GetCreatureType() != CREATURE_TYPE_CRITTER)
     {
         if (l_KilledVictim->GetEntry() != 19833 && l_KilledVictim->GetEntry() != 19921) // snake trap can't trigger PROC_FLAG_KILL
-            ProcDamageAndSpell(l_KilledVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0, 0, BASE_ATTACK, p_SpellProto ? p_SpellProto : NULL, NULL);
+            ProcDamageAndSpell(l_KilledVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0, 0, WeaponAttackType::BaseAttack, p_SpellProto ? p_SpellProto : NULL, NULL);
     }
 
     if (l_KilledVictim->ToCreature() && GetTypeId() == TYPEID_PLAYER)
@@ -18624,7 +18624,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
     }
 
     /// Proc auras on death - must be before aura/combat remove
-    l_KilledVictim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, 0, BASE_ATTACK, p_SpellProto ? p_SpellProto : NULL);
+    l_KilledVictim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, 0, WeaponAttackType::BaseAttack, p_SpellProto ? p_SpellProto : NULL);
 
     /// update get killing blow achievements, must be done before setDeathState to be able to require auras on target
     /// and before Spirit of Redemption as it also removes auras
@@ -19698,7 +19698,7 @@ float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell,
     }
 
     // Increase hit chance from attacker auras and attacker ratings
-    if (p_AttType == RANGED_ATTACK)
+    if (p_AttType == WeaponAttackType::RangedAttack)
         l_HitChance += m_modRangedHitChance;
     else
         l_HitChance += m_modMeleeHitChance;
@@ -19950,9 +19950,14 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 return 38150;
 
             bool kingOfTheJungle = HasAura(102543);
+            bool clawsOfShirvallah = HasAura(171745); // Claws of Shirvallah
+
             // Based on Hair color
             if (getRace() == RACE_NIGHTELF)
             {
+                if (clawsOfShirvallah)
+                    return 55887; // Panther
+
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
                 switch (hairColor)
                 {
@@ -19998,6 +20003,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
             else if (getRace() == RACE_TROLL)
             {
+                if (clawsOfShirvallah)
+                    return 55889; // Tiger
+
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
                 switch (hairColor)
                 {
@@ -20045,6 +20053,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
             else if (getRace() == RACE_WORGEN)
             {
+                if (clawsOfShirvallah)
+                    return 55888; // Snowleopard
+
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
                 // Male
@@ -20140,6 +20151,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Based on Skin color
             else if (getRace() == RACE_TAUREN)
             {
+                if (clawsOfShirvallah)
+                    return 55886; // Lion
+
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
@@ -20647,36 +20661,45 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
         }
         case FORM_AQUA:
+        {
             // Glyph of the Orca
             if (HasAura(114333))
                 return 4591;
-            break;
+        }
         case FORM_GHOSTWOLF:
+        {
             // Glyph of the Spectral Wolf
             if (HasAura(58135))
                 return 30162;
-            break;
+        }
+        case FORM_METAMORPHOSIS:
+        {
+            // Glyph of Metamorphosis
+            //if (HasAura(159680))
+            //    return 0;
+            return 39261;
+        }
         default:
             break;
     }
 
     uint32 modelid = 0;
     SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
-    if (formEntry && formEntry->modelID_A)
+    if (formEntry && formEntry->m_CreatureDisplayID[0])
     {
         // Take the alliance modelid as default
         if (GetTypeId() != TYPEID_PLAYER)
-            return formEntry->modelID_A;
+            return formEntry->m_CreatureDisplayID[0];
         else
         {
             if (Player::TeamForRace(getRace()) == ALLIANCE)
-                modelid = formEntry->modelID_A;
+                modelid = formEntry->m_CreatureDisplayID[0];
             else
-                modelid = formEntry->modelID_H;
+                modelid = formEntry->m_CreatureDisplayID[1];
 
             // If the player is horde but there are no values for the horde modelid - take the alliance modelid
             if (!modelid && Player::TeamForRace(getRace()) == HORDE)
-                modelid = formEntry->modelID_A;
+                modelid = formEntry->m_CreatureDisplayID[0];
         }
     }
 

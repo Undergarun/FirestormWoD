@@ -96,9 +96,10 @@ bool SummonList::HasEntry(uint32 entry)
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     me(creature),
     IsFleeing(false),
+    summons(creature),
     _evadeCheckCooldown(2500),
-    _isCombatMovementAllowed(true),
-    summons(creature)
+    _isCombatMovementAllowed(true)
+
 {
     _isHeroic = me->GetMap()->IsHeroic();
     _difficulty = Difficulty(me->GetMap()->GetSpawnMode());

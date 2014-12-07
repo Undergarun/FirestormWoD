@@ -276,7 +276,7 @@ class WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData = 0, uint64 p_ResultGuid = 0);
-        void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps);
+        void SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
 
@@ -875,12 +875,12 @@ class WorldSession
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
         void HandleLeaveBattlefieldOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
+        void HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_RecvData);
         void HandleBattlemasterJoinRated(WorldPacket& recvData);
         void HandleBattleFieldRequestScoreData(WorldPacket & p_Packet);
         void HandleWargameQueryOpcode(WorldPacket& p_RecvData);
 
         void HandleReportPvPAFK(WorldPacket& recvData);
-        void HandleRequestRatedBgInfo(WorldPacket & recvData);
         void HandleRequestPvpOptions(WorldPacket& recvData);
         void HandleRequestPvpReward(WorldPacket& recvData);
         void HandleRequestRatedBgStats(WorldPacket& recvData);
@@ -1065,6 +1065,7 @@ class WorldSession
         void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);

@@ -813,8 +813,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
     if (l_HasItemBonus)
     {
         p_RecvPacket.read_skip<uint8>();        ///< Context
-
-        uint32 l_Count = p_RecvPacket.read<uint32>();
+        uint32 l_Count = ExtractBitMaskBitCount(p_RecvPacket.read<uint32>());
 
         for (uint32 l_I = 0; l_I < l_Count;  l_I++)
             p_RecvPacket.read_skip<uint32>();   ///< Bonus ID

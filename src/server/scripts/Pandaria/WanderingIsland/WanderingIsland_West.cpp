@@ -66,11 +66,15 @@ public:
         {
         }
 
+        uint32 l_CheckTimer;
+        uint32 l_TalkRefill;
         bool hasSaid1;
 
         void Reset()
         {
             hasSaid1 = false;
+            l_CheckTimer = 1500;
+            l_TalkRefill = 30000;
         }
 
         void DoAction (uint8 action)
@@ -89,14 +93,37 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            std::list<Player*> playerList;
-            GetPlayerListInGrid(playerList, me, 7.0f);
-            for (auto player: playerList)
+
+            if (l_CheckTimer)
             {
-                if (player->GetQuestStatus(29423) == QUEST_STATUS_COMPLETE)
+                if (l_CheckTimer <= diff)
                 {
-                    DoAction(ACTION_TALK);
+                    std::list<Player*> l_PlayerList;
+                    GetPlayerListInGrid(l_PlayerList, me, 15.0f);
+
+                    for (Player* l_Player : l_PlayerList)
+                    {
+                        if (l_Player->GetQuestStatus(29775) == QUEST_STATUS_INCOMPLETE && l_Player->GetQuestObjectiveCounter(276326) < 1)
+                            l_Player->KilledMonsterCredit(59497);
+                        else if (l_Player->GetQuestStatus(29423) == QUEST_STATUS_COMPLETE)
+                            DoAction(ACTION_TALK);
+                    }
+
+                    l_CheckTimer = 1500;
                 }
+                else
+                    l_CheckTimer -= diff;
+            }
+
+            if (l_TalkRefill)
+            {
+                if (l_TalkRefill <= diff)
+                {
+                    hasSaid1 = false;
+                    l_TalkRefill = 30000;
+                }
+                else
+                    l_TalkRefill -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -1017,6 +1044,39 @@ public:
     }
 };
 
+class mob_guardian_of_the_elders : public CreatureScript
+{
+    public:
+        mob_guardian_of_the_elders() : CreatureScript("mob_guardian_of_the_elders") { }
+
+        struct mob_guardian_of_the_eldersAI : public ScriptedAI
+        {
+            mob_guardian_of_the_eldersAI(Creature* creature) : ScriptedAI(creature)
+            {
+                playerGuid = 0;
+            }
+
+            uint64 playerGuid;
+
+            void JustDied(Unit* p_Killer)
+            {
+                if (p_Killer->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                std::list<GameObject*> l_GobList;
+                GetGameObjectListWithEntryInGrid(l_GobList, me, 209922, 20.0f);
+
+                for (GameObject* l_Gob : l_GobList)
+                    l_Gob->UseDoorOrButton(me->GetRespawnTime());
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_guardian_of_the_eldersAI(creature);
+        }
+};
+
 class gob_defaced_scroll_of_wisdom : public GameObjectScript
 {
 public:
@@ -1054,6 +1114,7 @@ public:
 
 void AddSC_WanderingIsland_West()
 {
+    new mob_guardian_of_the_elders();
     new mob_master_shang_xi_temple();
     new npc_wind_vehicle();
     new AreaTrigger_at_wind_temple_entrance();

@@ -1,4 +1,4 @@
-Delete from game_telete where id between 1527 and 1795;
+Delete from game_tele where id between 1527 and 1795;
 
 
 INSERT INTO `game_tele` (`position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`)
@@ -119,7 +119,7 @@ VALUES
 (-649.922,-5122.19,2.05599,88.8125,870,'CelestialCourt2'),
 (-1094.34,-5228.37,28.8199,171.14,870,'FirewalkerRuins'),
 (-743.733,-5729.62,53.9663,102.645,870,'Firewalker\'sPathLower'),
-(-448.035,-5550.97,91.5088,110.407,870,'Firewalker\'sPathUpper')
+(-448.035,-5550.97,91.5088,110.407,870,'Firewalker\'sPathUpper'),
 (7924.26,5665.54,114.164,5.68335,1116,'Throm\'var'),
 (7267.63,5215.44,129.552,315.258,1116,'BladespireOasis'),
 (5846.94,6085.94,110.459,38.3918,1116,'FrostwolfCamp'),

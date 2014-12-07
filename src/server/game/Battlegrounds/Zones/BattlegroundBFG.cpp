@@ -55,10 +55,13 @@ BattlegroundBFG::BattlegroundBFG()
     BgObjects.resize(GILNEAS_BG_OBJECT_MAX);
     BgCreatures.resize(GILNEAS_BG_ALL_NODES_COUNT + 3); // +3 for aura triggers
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_BFG_START_TWO_MINUTES;
+    StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_BG_BFG_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_BFG_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_BFG_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_BFG_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_BFG_HAS_BEGUN;
+
+    for (int l_I = 0; l_I < GILNEAS_BG_DYNAMIC_NODES_COUNT; l_I++)
+        m_BannerWorldState[l_I] = BattleForGilneasWorldState::Neutral;
 }
 
 BattlegroundBFG::~BattlegroundBFG() { }
@@ -72,17 +75,6 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
 
     for (int node = 0; node < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++node)
     {
-        // 3 sec delay to spawn new a banner.
-        if (m_BannerTimers[node].timer)
-        {
-            if (m_BannerTimers[node].timer > diff)
-                m_BannerTimers[node].timer -= diff;
-            else
-            {
-                m_BannerTimers[node].timer = 0;
-                _CreateBanner(node, m_BannerTimers[node].type, m_BannerTimers[node].teamIndex, false);
-            }
-        }
         // 1-minute cap timer on each node from a contested state.
         if (m_NodeTimers[node])
         {
@@ -97,11 +89,8 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
                 m_prevNodes[node] = m_Nodes[node];
                 m_Nodes[node] += 2;
 
-                // burn current contested banner
-                _DelBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex);
-
                 // create new occupied banner
-                _CreateBanner(node, GILNEAS_BG_NODE_TYPE_OCCUPIED, teamIndex, true);
+                _ChangeBanner(node, GILNEAS_BG_NODE_TYPE_OCCUPIED, teamIndex);
                 _SendNodeUpdate(node);
                 _NodeOccupied(node, (teamIndex == 0) ? ALLIANCE:HORDE);
 
@@ -191,8 +180,9 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
 void BattlegroundBFG::StartingEventCloseDoors()
 {
     // Remove banners, auras and buffs
-    for (int object = GILNEAS_BG_OBJECT_BANNER_NEUTRAL; object < GILNEAS_BG_DYNAMIC_NODES_COUNT * 8; ++object)
+    for (int object = GILNEAS_BG_OBJECT_BANNER_NEUTRAL; object < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++object)
         SpawnBGObject(object, RESPAWN_ONE_DAY);
+
     for (int i = 0; i < GILNEAS_BG_DYNAMIC_NODES_COUNT * 3; ++i)
         SpawnBGObject(GILNEAS_BG_OBJECT_SPEEDBUFF_LIGHTHOUSE + i, RESPAWN_ONE_DAY);
 
@@ -207,13 +197,19 @@ void BattlegroundBFG::StartingEventCloseDoors()
 
 void BattlegroundBFG::StartingEventOpenDoors()
 {
-    for (int banner = GILNEAS_BG_OBJECT_BANNER_NEUTRAL, i = 0; i < 3; banner += 8, ++i)
-        SpawnBGObject(banner, RESPAWN_IMMEDIATELY);
+    for (int i = GILNEAS_BG_OBJECT_BANNER_NEUTRAL; i < 3; ++i)
+    {
+        SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+        if (GameObject* l_Banner = GetBGObject(i))
+             l_Banner->SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, (uint32)BattleForGilneasBannerSpellVisual::Neutral);
+    }
+
     for (int i = 0; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
     {
         uint8 buff = urand(0, 2);
         SpawnBGObject(GILNEAS_BG_OBJECT_SPEEDBUFF_LIGHTHOUSE + buff + i * 3, RESPAWN_IMMEDIATELY);
     }
+
     DoorOpen(GILNEAS_BG_OBJECT_GATE_A_1);
     DoorOpen(GILNEAS_BG_OBJECT_GATE_H_1);
 
@@ -240,41 +236,54 @@ void BattlegroundBFG::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
         return;
 }
 
-void BattlegroundBFG::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay)
+void BattlegroundBFG::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex)
 {
-    // Just put it into the queue
-    if (delay)
-    {
-        m_BannerTimers[node].timer       = 2000;
-        m_BannerTimers[node].type        = type;
-        m_BannerTimers[node].teamIndex   = teamIndex;
+    GameObject* l_Banner = GetBGObject(node);
+    if (l_Banner == nullptr)
         return;
+
+    BattleForGilneasWorldState l_WorldStateValue = BattleForGilneasWorldState::Neutral;
+
+    uint32 l_SpellVisualId = (uint32)BattleForGilneasBannerSpellVisual::Neutral;
+
+    if (type == GILNEAS_BG_NODE_TYPE_CONTESTED)
+    {
+        if (teamIndex == 1)
+        {
+            l_SpellVisualId = (uint32)BattleForGilneasBannerSpellVisual::HordeContested;
+            l_WorldStateValue = BattleForGilneasWorldState::HordeContested;
+        }
+        else
+        {
+            l_SpellVisualId = (uint32)BattleForGilneasBannerSpellVisual::AllianceContested;
+            l_WorldStateValue = BattleForGilneasWorldState::AllianceContested;
+        }
+
     }
 
-    uint8 object = node*8 + type + teamIndex;
+    if (type == GILNEAS_BG_NODE_TYPE_OCCUPIED)
+    {
+        if (teamIndex == 1)
+        {
+            l_SpellVisualId = (uint32)BattleForGilneasBannerSpellVisual::HordeOccupied;
+            l_WorldStateValue = BattleForGilneasWorldState::HordeOccupied;
+        }
+        else
+        {
+            l_SpellVisualId = (uint32)BattleForGilneasBannerSpellVisual::AllianceOccupied;
+            l_WorldStateValue = BattleForGilneasWorldState::AllianceOccupied;
+        }
+    }
 
-    SpawnBGObject(object, RESPAWN_IMMEDIATELY);
 
-    // Handle banner and auras
-    if (!type)
-        return;
+    // Update the visual of the banner
+    l_Banner->SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, l_SpellVisualId);
 
-    object = node * 8 + ((type == GILNEAS_BG_NODE_TYPE_OCCUPIED) ? (3 + teamIndex) : 7);
-    SpawnBGObject(object, RESPAWN_IMMEDIATELY);
+    // Update the worldstate
+    m_BannerWorldState[node] = l_WorldStateValue;
+    UpdateWorldState(l_Banner->GetGOInfo()->capturePoint.WorldState, (uint8)l_WorldStateValue);
 }
 
-void BattlegroundBFG::_DelBanner(uint8 node, uint8 type, uint8 teamIndex)
-{
-    uint8 object = node*8 + type + teamIndex;
-    SpawnBGObject(object, RESPAWN_ONE_DAY);
-
-    // Handle banner and auras
-    if (!type)
-        return;
-
-    object = node * 8 + ((type == GILNEAS_BG_NODE_TYPE_OCCUPIED) ? (3 + teamIndex) : 7);
-    SpawnBGObject(object, RESPAWN_ONE_DAY);
-}
 
 int32 BattlegroundBFG::_GetNodeNameId(uint8 node)
 {
@@ -318,6 +327,16 @@ void BattlegroundBFG::FillInitialWorldStates(ByteBuffer& data)
     data << uint32(GILNEAS_BG_OP_RESOURCES_HORDE)    << uint32(m_TeamScores[BG_TEAM_HORDE]);
     data << uint32(GILNEAS_BG_OP_RESOURCES_MAX)      << uint32(GILNEAS_BG_MAX_TEAM_SCORE);
     data << uint32(GILNEAS_BG_OP_RESOURCES_WARNING)  << uint32(GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE);
+
+    // Banner world states
+    for (int obj = GILNEAS_BG_NODE_LIGHTHOUSE; obj < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++obj)
+    {
+        GameObject* l_Banner = GetBGObject(obj);
+        if (l_Banner == nullptr)
+            continue;
+
+        data << uint32(l_Banner->GetGOInfo()->capturePoint.WorldState) << uint32(m_BannerWorldState[obj]);
+    }
 
     // other unknown
     //data << uint32(0x745) << uint32(0x2);           // 37 1861 unk
@@ -419,11 +438,11 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
         return;
 
     uint8 node = GILNEAS_BG_NODE_LIGHTHOUSE;
-    GameObject* object=GetBgMap()->GetGameObject(BgObjects[node*8+5]);
+    GameObject* object = GetBgMap()->GetGameObject(BgObjects[node]);
     while ((node < GILNEAS_BG_DYNAMIC_NODES_COUNT) && ((!object) || (!source->IsWithinDistInMap(object, 10))))
     {
         ++node;
-        object=GetBgMap()->GetGameObject(BgObjects[node*8+GILNEAS_BG_OBJECT_AURA_CONTESTED]);
+        object=GetBgMap()->GetGameObject(BgObjects[node]);
     }
 
     if (node == GILNEAS_BG_DYNAMIC_NODES_COUNT)
@@ -447,11 +466,8 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
 
-        // burn current neutral banner
-        _DelBanner(node, GILNEAS_BG_NODE_TYPE_NEUTRAL, 0);
-
         // create new contested banner
-        _CreateBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex, true);
+        _ChangeBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex);
         _SendNodeUpdate(node);
         m_NodeTimers[node] = GILNEAS_BG_FLAG_CAPTURING_TIME;
 
@@ -473,11 +489,8 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + GILNEAS_BG_NODE_TYPE_CONTESTED;
 
-            // burn current contested banner
-            _DelBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, !teamIndex);
-
             // create new contested banner
-            _CreateBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex, true);
+            _ChangeBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = GILNEAS_BG_FLAG_CAPTURING_TIME;
 
@@ -494,11 +507,8 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + GILNEAS_BG_NODE_TYPE_OCCUPIED;
 
-            // burn current contested banner
-            _DelBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, !teamIndex);
-
             // create new occupied banner
-            _CreateBanner(node, GILNEAS_BG_NODE_TYPE_OCCUPIED, teamIndex, true);
+            _ChangeBanner(node, GILNEAS_BG_NODE_TYPE_OCCUPIED, teamIndex);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = 0;
             _NodeOccupied(node, (teamIndex == BG_TEAM_ALLIANCE) ? ALLIANCE:HORDE);
@@ -518,11 +528,8 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + GILNEAS_BG_NODE_TYPE_CONTESTED;
 
-        // burn current occupied banner
-        _DelBanner(node, GILNEAS_BG_NODE_TYPE_OCCUPIED, !teamIndex);
-
         // create new contested banner
-        _CreateBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex, true);
+        _ChangeBanner(node, GILNEAS_BG_NODE_TYPE_CONTESTED, teamIndex);
         _SendNodeUpdate(node);
         _NodeDeOccupied(node);
         m_NodeTimers[node] = GILNEAS_BG_FLAG_CAPTURING_TIME;
@@ -550,20 +557,12 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
 
 bool BattlegroundBFG::SetupBattleground()
 {
-    for (int i = 0; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
+    if (!AddObject(GILNEAS_BG_OBJECT_BANNER_NEUTRAL, GILNEAS_BG_OBJECTID_NODE_BANNER_0,  GILNEAS_BG_NodePositions[0][0], GILNEAS_BG_NodePositions[0][1], GILNEAS_BG_NodePositions[0][2], GILNEAS_BG_NodePositions[0][3], 0, 0, sin(GILNEAS_BG_NodePositions[0][3] / 2), cos(GILNEAS_BG_NodePositions[0][3] / 2), RESPAWN_ONE_DAY)
+        || !AddObject(GILNEAS_BG_OBJECT_BANNER_NEUTRAL + 1, GILNEAS_BG_OBJECTID_NODE_BANNER_1, GILNEAS_BG_NodePositions[1][0], GILNEAS_BG_NodePositions[1][1], GILNEAS_BG_NodePositions[1][2], GILNEAS_BG_NodePositions[1][3], 0, 0, sin(GILNEAS_BG_NodePositions[1][3] / 2), cos(GILNEAS_BG_NodePositions[1][3] / 2), RESPAWN_ONE_DAY)
+        || !AddObject(GILNEAS_BG_OBJECT_BANNER_NEUTRAL + 2, GILNEAS_BG_OBJECTID_NODE_BANNER_2, GILNEAS_BG_NodePositions[2][0], GILNEAS_BG_NodePositions[2][1], GILNEAS_BG_NodePositions[2][2], GILNEAS_BG_NodePositions[2][3], 0, 0, sin(GILNEAS_BG_NodePositions[2][3] / 2), cos(GILNEAS_BG_NodePositions[2][3] / 2), RESPAWN_ONE_DAY))
     {
-        if (!AddObject(GILNEAS_BG_OBJECT_BANNER_NEUTRAL + 8*i, GILNEAS_BG_OBJECTID_NODE_BANNER_0 + i, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_BANNER_CONT_A + 8*i, GILNEAS_BG_OBJECTID_BANNER_CONT_A, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_BANNER_CONT_H + 8*i, GILNEAS_BG_OBJECTID_BANNER_CONT_H, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_BANNER_ALLY + 8*i, GILNEAS_BG_OBJECTID_BANNER_A, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_BANNER_HORDE + 8*i, GILNEAS_BG_OBJECTID_BANNER_H, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_AURA_ALLY + 8*i, GILNEAS_BG_OBJECTID_AURA_A, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_AURA_HORDE + 8*i, GILNEAS_BG_OBJECTID_AURA_H, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(GILNEAS_BG_OBJECT_AURA_CONTESTED + 8*i, GILNEAS_BG_OBJECTID_AURA_C, GILNEAS_BG_NodePositions[i][0], GILNEAS_BG_NodePositions[i][1], GILNEAS_BG_NodePositions[i][2], GILNEAS_BG_NodePositions[i][3], 0, 0, sin(GILNEAS_BG_NodePositions[i][3]/2), cos(GILNEAS_BG_NodePositions[i][3]/2), RESPAWN_ONE_DAY))
-        {
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "BattleForGilneas: Can't Create Some Object");
-            return false;
-        }
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattleForGilneas: Can't Create Some Object");
+        return false;
     }
 
     if (!AddObject(GILNEAS_BG_OBJECT_GATE_A_1, GILNEAS_BG_OBJECTID_GATE_A_1, GILNEAS_BG_DoorPositions[0][0], GILNEAS_BG_DoorPositions[0][1], GILNEAS_BG_DoorPositions[0][2], GILNEAS_BG_DoorPositions[0][3], GILNEAS_BG_DoorPositions[0][4], GILNEAS_BG_DoorPositions[0][5], GILNEAS_BG_DoorPositions[0][6], GILNEAS_BG_DoorPositions[0][7], RESPAWN_IMMEDIATELY)
@@ -610,7 +609,6 @@ void BattlegroundBFG::Reset()
         m_Nodes[i]       = 0;
         m_prevNodes[i]   = 0;
         m_NodeTimers[i]  = 0;
-        m_BannerTimers[i].timer = 0;
     }
 
     for (uint8 i = 0; i < GILNEAS_BG_ALL_NODES_COUNT + 3; ++i)// +3 for aura triggers

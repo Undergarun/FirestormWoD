@@ -40,6 +40,7 @@ class gobject_commandscript : public CommandScript
                 { "phase",          SEC_GAMEMASTER,     false, &HandleGameObjectSetPhaseCommand,  "", NULL },
                 { "state",          SEC_GAMEMASTER,     false, &HandleGameObjectSetStateCommand,  "", NULL },
                 { "flags",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFlagsCommand,  "", NULL },
+                { "field",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFieldCommand, "", NULL },
                 { NULL,             0,                  false, NULL,                              "", NULL }
             };
             static ChatCommand gobjectGetCommandTable[] =
@@ -728,6 +729,41 @@ class gobject_commandscript : public CommandScript
 
             l_GameObject->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, l_Flags);
             p_Handler->PSendSysMessage("Set gobject flags %d", l_Flags);
+            return true;
+        }
+
+        static bool HandleGameObjectSetFieldCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
+            if (!l_GuidLow)
+                return false;
+
+            GameObject* l_GameObject = NULL;
+
+            if (GameObjectData const* l_GameObjectData = sObjectMgr->GetGOData(l_GuidLow))
+                l_GameObject = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GameObjectData->id);
+
+            if (!l_GameObject)
+            {
+                p_Handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_Field = strtok(NULL, " ");
+            if (!l_Field)
+                return false;
+
+            uint32 l_IntField = atoi(l_Field);
+
+            char* l_Value = strtok(NULL, " ");
+            if (!l_Value)
+                return false;
+
+            uint32 l_Val = atoi(l_Value);
+
+            l_GameObject->SetUInt32Value(l_IntField, l_Val);
+            p_Handler->PSendSysMessage("Set gobject field %d value %d", l_IntField, l_Val);
             return true;
         }
 

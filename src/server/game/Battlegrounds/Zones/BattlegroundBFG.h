@@ -36,7 +36,7 @@ enum GILNEAS_BG_WorldStates
     GILNEAS_BG_OP_RESOURCES_ALLY             = 1776,
     GILNEAS_BG_OP_RESOURCES_HORDE            = 1777,
     GILNEAS_BG_OP_RESOURCES_MAX              = 1780,
-    GILNEAS_BG_OP_RESOURCES_WARNING          = 1955
+    GILNEAS_BG_OP_RESOURCES_WARNING          = 1955,
 };
 
 const uint32 GILNEAS_BG_OP_NODESTATES[3] = { 1767, 1772, 1782 };
@@ -44,49 +44,33 @@ const uint32 GILNEAS_BG_OP_NODEICONS[3]  = { 1842, 1845, 1846 };
 
 enum GILNEAS_BG_NodeObjectId
 {
-    GILNEAS_BG_OBJECTID_NODE_BANNER_0    = 208779,       // Lighthouse banner
-    GILNEAS_BG_OBJECTID_NODE_BANNER_1    = 208780,       // Waterworks banner
-    GILNEAS_BG_OBJECTID_NODE_BANNER_2    = 208781,       // Mines banner
+    GILNEAS_BG_OBJECTID_NODE_BANNER_0    = 228050,       // Lighthouse banner
+    GILNEAS_BG_OBJECTID_NODE_BANNER_1    = 228052,       // Waterworks banner
+    GILNEAS_BG_OBJECTID_NODE_BANNER_2    = 228053,       // Mines banner
 };
 
 enum GILNEAS_BG_ObjectType
 {
     GILNEAS_BG_OBJECT_BANNER_NEUTRAL          = 0,
-    GILNEAS_BG_OBJECT_BANNER_CONT_A           = 1,
-    GILNEAS_BG_OBJECT_BANNER_CONT_H           = 2,
-    GILNEAS_BG_OBJECT_BANNER_ALLY             = 3,
-    GILNEAS_BG_OBJECT_BANNER_HORDE            = 4,
-    GILNEAS_BG_OBJECT_AURA_ALLY               = 5,
-    GILNEAS_BG_OBJECT_AURA_HORDE              = 6,
-    GILNEAS_BG_OBJECT_AURA_CONTESTED          = 7,
-    GILNEAS_BG_OBJECT_GATE_A_1                = 24,
-    GILNEAS_BG_OBJECT_GATE_A_2                = 25,
-    GILNEAS_BG_OBJECT_GATE_H_1                = 26,
-    GILNEAS_BG_OBJECT_GATE_H_2                = 27,
+    GILNEAS_BG_OBJECT_GATE_A_1                = 5,
+    GILNEAS_BG_OBJECT_GATE_A_2                = 6,
+    GILNEAS_BG_OBJECT_GATE_H_1                = 7,
+    GILNEAS_BG_OBJECT_GATE_H_2                = 8,
     //buffs
-    GILNEAS_BG_OBJECT_SPEEDBUFF_LIGHTHOUSE    = 28,
-    GILNEAS_BG_OBJECT_REGENBUFF_LIGHTHOUSE    = 29,
-    GILNEAS_BG_OBJECT_BERSERKBUFF_LIGHTHOUSE  = 30,
-    GILNEAS_BG_OBJECT_SPEEDBUFF_WATERWORKS    = 31,
-    GILNEAS_BG_OBJECT_REGENBUFF_WATERWORKS    = 32,
-    GILNEAS_BG_OBJECT_BERSERKBUFF_WATERWORKS  = 33,
-    GILNEAS_BG_OBJECT_SPEEDBUFF_MINE          = 34,
-    GILNEAS_BG_OBJECT_REGENBUFF_MINE          = 35,
-    GILNEAS_BG_OBJECT_BERSERKBUFF_MINE        = 36,
-    GILNEAS_BG_OBJECT_MAX                     = 37,
+    GILNEAS_BG_OBJECT_SPEEDBUFF_LIGHTHOUSE    = 9,
+    GILNEAS_BG_OBJECT_REGENBUFF_LIGHTHOUSE    = 10,
+    GILNEAS_BG_OBJECT_BERSERKBUFF_LIGHTHOUSE  = 11,
+    GILNEAS_BG_OBJECT_SPEEDBUFF_WATERWORKS    = 12,
+    GILNEAS_BG_OBJECT_REGENBUFF_WATERWORKS    = 13,
+    GILNEAS_BG_OBJECT_BERSERKBUFF_WATERWORKS  = 14,
+    GILNEAS_BG_OBJECT_SPEEDBUFF_MINE          = 15,
+    GILNEAS_BG_OBJECT_REGENBUFF_MINE          = 16,
+    GILNEAS_BG_OBJECT_BERSERKBUFF_MINE        = 17,
+    GILNEAS_BG_OBJECT_MAX                     = 18,
 };
 
 enum GILNEAS_BG_ObjectTypes
 {
-    GILNEAS_BG_OBJECTID_BANNER_A             = 180058,
-    GILNEAS_BG_OBJECTID_BANNER_CONT_A        = 180059,
-    GILNEAS_BG_OBJECTID_BANNER_H             = 180060,
-    GILNEAS_BG_OBJECTID_BANNER_CONT_H        = 180061,
-
-    GILNEAS_BG_OBJECTID_AURA_A               = 180100,
-    GILNEAS_BG_OBJECTID_AURA_H               = 180101,
-    GILNEAS_BG_OBJECTID_AURA_C               = 180102,
-
     GILNEAS_BG_OBJECTID_GATE_A_1             = 207177,
     GILNEAS_BG_OBJECTID_GATE_A_2             = 180322,
     GILNEAS_BG_OBJECTID_GATE_H_1             = 207178,
@@ -100,7 +84,7 @@ enum GILNEAS_BG_Timers
 
 enum GILNEAS_BG_Score
 {
-    GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE    = 1400, // Guessed - Fix me
+    GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE    = 1200,
     GILNEAS_BG_MAX_TEAM_SCORE                = 1500
 };
 
@@ -146,6 +130,24 @@ enum GILNEAS_BG_Objectives
     BG_OBJECTIVE_DEFEND_BASE            = 371
 };
 
+enum class BattleForGilneasBannerSpellVisual : uint32
+{
+    Neutral            = 42975,
+    HordeContested     = 42976,
+    AllianceContested  = 42978,
+    HordeOccupied      = 42979,
+    AllianceOccupied   = 42980
+};
+
+enum class BattleForGilneasWorldState : uint8
+{
+    Neutral           = 0,
+    HordeContested    = 2,
+    AllianceContested = 3,
+    HordeOccupied     = 4,
+    AllianceOccupied  = 5
+};
+
 /* Holiday/Reg Honor/Rep gains */
 #define GILNEAS_BG_NotBGWeekendHonorTicks   330
 #define GILNEAS_BG_BGWeekendHonorTicks      200
@@ -157,8 +159,8 @@ enum GILNEAS_BG_Objectives
 const float GILNEAS_BG_NodePositions[GILNEAS_BG_DYNAMIC_NODES_COUNT][4] =
 {
     { 1057.790f, 1278.285f, 3.1500f, 1.945662f },        // Lighthouse
-    { 1251.010f, 958.2685f, 5.6000f, 5.892280f },        // Waterworks
-    { 980.0446f, 948.7411f, 12.650f, 5.904071f },        // Mine
+    { 980.0446f, 948.7411f, 12.650f, 5.904071f },        // Waterworks
+    { 1251.010f, 958.2685f, 5.6000f, 5.892280f },        // Mine
 };
 
 // x, y, z, o, rot0, rot1, rot2, rot3
@@ -190,13 +192,6 @@ const float GILNEAS_BG_BuffPositions[GILNEAS_BG_DYNAMIC_NODES_COUNT][4] =
     { 1063.57f, 1313.42f, 4.91f, 4.14f },        // Lighthouse
     { 961.830f, 977.03f, 14.15f, 4.55f },        // Waterworks
     { 1193.09f, 1017.46f, 7.98f, 0.24f },        // Mine
-};
-
-struct GILNEAS_BG_BannerTimer
-{
-    uint32 timer;
-    uint8  type;
-    uint8  teamIndex;
 };
 
 class BattlegroundBFGScore : public BattlegroundScore
@@ -240,10 +235,10 @@ class BattlegroundBFG : public Battleground
 
     private:
         virtual void PostUpdateImpl(uint32 diff);
+
         /* GameObject spawning/removing */
         void _SendNodeUpdate(uint8 node);
-        void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
-        void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
+        void _ChangeBanner(uint8 node, uint8 type, uint8 teamIndex);
 
         /* Creature spawning/removing */
         // TODO: need to get the peons spawns scripted
@@ -259,19 +254,22 @@ class BattlegroundBFG : public Battleground
          *  3: ally occupied
          *  4: horde occupied
          */
-        uint8               m_Nodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
-        GILNEAS_BG_BannerTimer   m_BannerTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
 
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTicks[BG_TEAMS_COUNT];
-        uint32              m_ReputationScoreTicks[BG_TEAMS_COUNT];
 
-        bool                m_IsInformedNearVictory;
-        uint32              m_HonorTicks;
-        uint32              m_ReputationTicks;
-        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        BattleForGilneasWorldState m_BannerWorldState[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+
+        uint8                      m_Nodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+        uint8                      m_prevNodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+        uint32                     m_NodeTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
+
+        uint32                     m_lastTick[BG_TEAMS_COUNT];
+        uint32                     m_HonorScoreTicks[BG_TEAMS_COUNT];
+        uint32                     m_ReputationScoreTicks[BG_TEAMS_COUNT];
+
+        bool                       m_IsInformedNearVictory;
+        uint32                     m_HonorTicks;
+        uint32                     m_ReputationTicks;
+        bool                       m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
 };
 
 #endif

@@ -803,13 +803,12 @@ namespace JadeCore
     class GameObjectWithDbGUIDCheck
     {
         public:
-            GameObjectWithDbGUIDCheck(WorldObject const& obj, uint32 db_guid) : i_obj(obj), i_db_guid(db_guid) {}
+            GameObjectWithDbGUIDCheck(WorldObject const& obj, uint32 db_guid) : i_db_guid(db_guid) {}
             bool operator()(GameObject const* go) const
             {
                 return go->GetDBTableGUIDLow() == i_db_guid;
             }
         private:
-            WorldObject const& i_obj;
             uint32 i_db_guid;
     };
 
@@ -937,13 +936,12 @@ namespace JadeCore
     class CreatureWithDbGUIDCheck
     {
         public:
-            CreatureWithDbGUIDCheck(WorldObject const* obj, uint32 lowguid) : i_obj(obj), i_lowguid(lowguid) {}
+            CreatureWithDbGUIDCheck(WorldObject const* obj, uint32 lowguid) : i_lowguid(lowguid) {}
             bool operator()(Creature* u)
             {
                 return u->GetDBTableGUIDLow() == i_lowguid;
             }
         private:
-            WorldObject const* i_obj;
             uint32 i_lowguid;
     };
 
@@ -1485,6 +1483,22 @@ namespace JadeCore
             float m_fRange;
     };
 
+    class AllCreaturesInRange
+    {
+    public:
+        AllCreaturesInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
+        bool operator() (Unit* unit)
+        {
+            if (m_pObject->IsWithinDist(unit, m_fRange, false))
+                return true;
+
+            return false;
+        }
+
+    private:
+        const WorldObject* m_pObject;
+        float m_fRange;
+    };
 
     class AllDeadCreaturesInRange
     {
