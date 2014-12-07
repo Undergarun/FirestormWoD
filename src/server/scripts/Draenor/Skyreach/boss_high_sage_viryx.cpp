@@ -17,6 +17,7 @@ namespace MS
             enum class Spells : uint32
             {
                 Shielding = 158641,
+                Submerged = 154163,
             };
 
             enum class Events : uint32
@@ -44,7 +45,8 @@ namespace MS
 
                 void EnterCombat(Unit* who)
                 {
-                    m_events.ScheduleEvent(uint32(Events::Shielding), urand(1000, 2000));
+                    me->RemoveAura(uint32(Spells::Submerged));
+                    m_events.ScheduleEvent(uint32(Events::Shielding), 5000);
                 }
 
                 void UpdateAI(const uint32 diff)
@@ -201,15 +203,15 @@ namespace MS
             {
                 mob_ArakkoaMagnifyingGlassFocusI(Creature* creature) : ScriptedAI(creature)
                 {
-                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.5f);
-                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
-                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.5f);
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.9f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.9f);
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.9f);
                 }
 
                 void Reset()
                 {
                     events.Reset();
-                    events.ScheduleEvent(uint32(Events::LensFlare), 500);
+                    events.ScheduleEvent(uint32(Events::LensFlare), 100);
 
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(Data::StartingLensFlare, 0);
@@ -239,6 +241,7 @@ namespace MS
             };
         };
 
+        // FIXME: Adds and solar zealot should spawn differently.
         class boss_HighSageViryx : public CreatureScript
         {
         public:
@@ -263,13 +266,14 @@ namespace MS
 
             enum class Texts : int32
             {
-                COMBAT_START = -1603202,
-                JUST_DIED = -1603203,
-                FOUR_WINDS_1 = -1603204,
-                FOUR_WINDS_2 = -1603205,
-                KILL_PLAYER_1 = -1603206,
-                KILL_PLAYER_2 = -1603207,
-                VICTORY = -1603208
+                CombatStart = -1603209,
+                JustDied = -1603210,
+                SpellCastDown = -1603211,
+                SpellCallAdds = -1603212,
+                SpellLensFlare  = -1603216,
+                KilledUnitA = -1603213,
+                KilledUnitB = -1603214,
+                Victory = -1603215,
             };
 
             enum class Events : uint32
@@ -302,6 +306,7 @@ namespace MS
                 {
                     _JustReachedHome();
 
+                    DoScriptText(int32(Texts::Victory), me);
                     if (instance)
                     {
                         instance->SetBossState(Data::HighSageViryx, FAIL);
@@ -315,18 +320,24 @@ namespace MS
 
                     me->CastSpell(me, InstanceSkyreach::RandomSpells::DespawnAreaTriggers, true);
 
+                    DoScriptText(int32(Texts::JustDied), me);
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 void KilledUnit(Unit* /*victim*/)
                 {
+                    if (urand(0, 1))
+                        DoScriptText(int32(Texts::KilledUnitA), me);
+                    else
+                        DoScriptText(int32(Texts::KilledUnitB), me);
                 }
 
                 void EnterCombat(Unit* who)
                 {
                     _EnterCombat();
 
+                    DoScriptText(int32(Texts::CombatStart), me);
                     events.ScheduleEvent(uint32(Events::SolarBurst), 5000);
                     events.ScheduleEvent(uint32(Events::CastDown), 11000);
                     events.ScheduleEvent(uint32(Events::LensFlare), 27000);
@@ -351,11 +362,17 @@ namespace MS
                     case uint32(Events::CastDown):
                         events.ScheduleEvent(uint32(Events::CastDown), 35000);
                         if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerExcludedTank(me, 80.0f))
+                        {
+                            DoScriptText(int32(Texts::SpellCastDown), me);
                             me->CastSpell(l_Plr, uint32(Spells::CastDown));
+                        }
                         break;
                     case uint32(Events::LensFlare):
                         if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        {
                             l_Plr->CastSpell(l_Plr, uint32(Spells::LensFlare), true);
+                            DoScriptText(int32(Texts::SpellLensFlare), me);
+                        }
                         events.ScheduleEvent(uint32(Events::LensFlare), 27000);
                         break;
                     case uint32(Events::SolarBurst):
@@ -363,6 +380,7 @@ namespace MS
                         events.ScheduleEvent(uint32(Events::SolarBurst), 21000);
                         break;
                     case uint32(Events::CallAdds):
+                        DoScriptText(int32(Texts::SpellCallAdds), me);
                         me->CastSpell(me, uint32(Spells::CallAdds), false);
                         events.ScheduleEvent(uint32(Events::CallAdds), 50000);
                         break;

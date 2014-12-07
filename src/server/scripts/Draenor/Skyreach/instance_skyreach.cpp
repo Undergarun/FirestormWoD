@@ -176,6 +176,7 @@ namespace MS
                         p_Creature->DisableEvadeMode();
                         break;
                     case MobEntries::ArakkoaMagnifyingGlassFocus:
+                        p_Creature->SetDisplayId(17519);
                         p_Creature->SetReactState(REACT_PASSIVE);
                         p_Creature->SetCanFly(false);
                         p_Creature->DisableEvadeMode();

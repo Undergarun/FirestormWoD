@@ -43,6 +43,7 @@ INSERT INTO spell_script_names VALUES ('160066', 'spell_FlashBang');
 INSERT INTO spell_script_names VALUES ('154159', 'spell_VisualEnergize');
 INSERT INTO spell_script_names VALUES ('154177', 'spell_VisualEnergize2');
 INSERT INTO spell_script_names VALUES ('165845', 'spell_CastDown');
+INSERT INTO spell_script_names VALUES ('159381', 'spell_Quills');
 
 
 update creature_template set modelid1=61365 where entry=76119;

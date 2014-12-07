@@ -150,8 +150,8 @@ namespace MS
                     switch (p_PointId)
                     {
                     case 0:
-                        me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
                         me->SetSpeed(MOVE_FLIGHT, 1.f);
+                        me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
                         if (Player* l_Plr = sObjectAccessor->GetPlayer(*me, m_TargetGuid))
                             me->CastSpell(l_Plr, uint32(Spells::Pierce));
                         m_TargetGuid = 0;

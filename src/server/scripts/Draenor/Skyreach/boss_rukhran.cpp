@@ -237,15 +237,19 @@ namespace MS
             enum class Spells : uint32
             {
                 PIERCE_ARMOR = 153794,
-                SCREECH = 153898,
+                SCREECH = 153896,
+                SCREECH_DMG = 153898,
                 WEAK = 160149,
                 SUMMON_SOLAR_FLARE = 153810,
+                QUILLS = 159382,
+                QUILLS_DMG = 159381,
             };
 
             enum class Events : uint32
             {
-                PIERCE_ARMOR_OR_SCREECH = 1,    // Every 11 to 12 seconds.
+                PIERCE_ARMOR = 1,    // Every 11 to 12 seconds.
                 SUMMON_SOLAR_FLARE = 2,         // Every 15 to 16 seconds.
+                QUILLS = 3,
             };
 
             CreatureAI* GetAI(Creature* creature) const
@@ -363,11 +367,22 @@ namespace MS
                 {
                     _EnterCombat();
 
-                    events.ScheduleEvent(uint32(Events::PIERCE_ARMOR_OR_SCREECH), 6000);
+                    events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), 6000);
                     events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), 10000);
+
+                    if (instance && IsHeroic())
+                        events.ScheduleEvent(uint32(Events::QUILLS), 60000);
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                }
+
+                void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
+                {
+                    if ((p_SpellInfo->Id == uint32(Spells::SCREECH_DMG) || p_SpellInfo->Id == uint32(Spells::QUILLS_DMG)) && p_Target)
+                    {
+                        me->CastSpell(p_Target, uint32(Spells::WEAK), false);
+                    }
                 }
 
                 void UpdateAI(const uint32 diff)
@@ -385,7 +400,28 @@ namespace MS
                     events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
+                    {
+                        // Are we casting Screech ?
+                        if (me->HasAura(uint32(Spells::SCREECH)))
+                        {
+                            // Should we stop ?
+                            Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f);
+                            if (l_Plr && l_Plr->IsWithinMeleeRange(me))
+                                me->CastStop();
+                        }
                         return;
+                    }
+
+                    // We check if someone is in melee range.
+                    if (!me->IsWithinMeleeRange(me->getVictim()))
+                    {
+                        Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f);
+                        if (!l_Plr || !l_Plr->IsWithinMeleeRange(me))
+                        {
+                            // We can't, so we cast Screech and Weak.
+                            me->CastSpell(me, uint32(Spells::SCREECH));
+                        }
+                    }
 
                     switch (events.ExecuteEvent())
                     {
@@ -399,27 +435,17 @@ namespace MS
                             me->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), false);
                         }
                         break;
-                    case uint32(Events::PIERCE_ARMOR_OR_SCREECH):
+                    case uint32(Events::PIERCE_ARMOR):
+                        events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), urand(10500, 13000));
                         // We want to cast PierceArmor on the closest ennemy.
-                        if (me->getVictim()->GetExactDist2d(me) < 30.0f)
-                        {
-                            events.ScheduleEvent(uint32(Events::PIERCE_ARMOR_OR_SCREECH), urand(10500, 13000));
+                        if (me->getVictim()->IsWithinMeleeRange(me))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
-                        }
-                        else if (Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 30.0f))
-                        {
+                        else if (Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.f))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
-                            events.ScheduleEvent(uint32(Events::PIERCE_ARMOR_OR_SCREECH), urand(10500, 13000));
-                        }
-                        else
-                        {
-                            events.ScheduleEvent(uint32(Events::PIERCE_ARMOR_OR_SCREECH), urand(2000, 3000));
-                            // We can't, so we cast Screech and Weak.
-                            me->CastSpell(me, uint32(Spells::SCREECH));
-                            InstanceSkyreach::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
-                                p_Me->CastSpell(p_Plr, uint32(Spells::WEAK), true);
-                            });
-                        }
+                        break;
+                    case uint32(Events::QUILLS):
+                        events.ScheduleEvent(uint32(Events::QUILLS), 60000);
+                        me->CastSpell(me, uint32(Spells::QUILLS));
                         break;
                     default:
                         break;
