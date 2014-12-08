@@ -2899,6 +2899,64 @@ public:
     }
 };
 
+enum SpellsFerociousBite
+{
+    SPELL_DRUID_RAKE = 1822,
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
+};
+
+// Ferocious Bite - 22568
+class spell_dru_ferocious_bite : public SpellScriptLoader
+{
+public:
+    spell_dru_ferocious_bite() : SpellScriptLoader("spell_dru_ferocious_bite") { }
+
+    class spell_dru_ferocious_bite_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_ferocious_bite_SpellScript);
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+            int32 l_Damage = GetHitDamage();
+
+            if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Caster->ToPlayer()->GetComboPoints();
+
+            // converts each extra point of energy ( up to 25 energy ) into additional damage
+            int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+            // 25 energy = 100% more damage
+            AddPct(l_Damage, l_EnergyConsumed * 4);
+
+            SetHitDamage(l_Damage);
+
+            // Glyph of Ferocious Bite
+            if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
+            {
+                int32 l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() / 10) * (l_EnergyConsumed / 10);
+                l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL, &l_HealPct, 0, 0, true);
+            }
+
+            // if target is under 25% of life, also reset rake duration
+            if (l_Target && l_Target->GetHealthPct() <= 25.0f)
+                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE))
+                    l_Rake->RefreshDuration();
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_ferocious_bite_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -2952,4 +3010,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_leader_of_the_pack_critical();
     new spell_dru_rake();
     new spell_dru_shred();
+    new spell_dru_ferocious_bite();
 }
