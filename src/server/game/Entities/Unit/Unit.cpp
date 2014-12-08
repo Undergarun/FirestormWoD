@@ -181,7 +181,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     , m_disableEnterEvadeMode(false)
     , m_HostileRefManager(this)
     , _lastDamagedTime(0)
-
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -16136,7 +16135,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
     if (powerId == POWER_ENERGY)
     {
-        if (ToPet() && ToPet()->IsWarlockPet())
+        if (IsWarlockPet())
             return 0;
 
         switch (GetEntry())
@@ -16348,7 +16347,7 @@ int32 Unit::GetCreatePowers(Powers power) const
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
-            return ((isPet() && GetEntry() == 416 || GetEntry() == 417 || GetEntry() == 1860 || GetEntry() == 1863 || GetEntry() == 17252) ? 200 : 100);
+            return IsWarlockPet() ? 200 : 100;
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:
@@ -17658,6 +17657,25 @@ SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
     return SPELL_SCHOOL_MASK_NORMAL;
 }
 
+bool Unit::IsWarlockPet() const
+{
+    uint32 l_Entry = GetEntry();
+    return l_Entry == ENTRY_INFERNAL ||
+        l_Entry == ENTRY_ABYSSAL ||
+        l_Entry == ENTRY_IMP ||
+        l_Entry == ENTRY_FEL_IMP ||
+        l_Entry == ENTRY_VOIDWALKER ||
+        l_Entry == ENTRY_VOIDLORD ||
+        l_Entry == ENTRY_SUCCUBUS ||
+        l_Entry == ENTRY_SHIVARRA ||
+        l_Entry == ENTRY_FELHUNTER ||
+        l_Entry == ENTRY_OBSERVER ||
+        l_Entry == ENTRY_FELGUARD ||
+        l_Entry == ENTRY_WRATHGUARD ||
+        l_Entry == ENTRY_DOOMGUARD ||
+        l_Entry == ENTRY_TERRORGUARD;
+}
+
 Player* Unit::GetSpellModOwner() const
 {
     if (GetTypeId() == TYPEID_PLAYER)
@@ -18441,6 +18459,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffectPtr triggeredByAura)
     return true;
 
 }
+
 bool Unit::HandleAuraRaidProcFromCharge(AuraEffectPtr triggeredByAura)
 {
     // aura can be deleted at casts
@@ -18711,6 +18730,8 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             l_PlayerVictim->CombatStopWithPets(true);
             l_PlayerVictim->DuelComplete(DUEL_INTERRUPTED);
         }
+
+        l_PlayerVictim->SendClearLossOfControl();
     }
     /// Creature died
     else
@@ -18921,21 +18942,63 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
-void Unit::SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index)
+/// Control Alert
+void Unit::SendLossOfControlAuraUpdate(AuraApplication const* p_AurApp, Mechanics p_Mechanic, SpellEffIndex p_EffIndex, LossOfControlType p_Type)
 {
-    if (!ToPlayer())
+    if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
+    WorldPacket l_Data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
+    l_Data << uint32(1);
+    l_Data << uint8(p_AurApp->GetSlot());
+    l_Data << uint8(p_EffIndex);
+    l_Data << uint8(p_Type);
+    l_Data << uint8(p_Mechanic);
+    ToPlayer()->GetSession()->SendPacket(&l_Data);
+}
 
-    data.WriteBits(1, 22);
-    data.WriteBits(mechanic, 8);
-    data.WriteBits(mechanic, 8);
-    data.FlushBits();
-    data << uint8(aurApp->GetSlot());
-    data << uint8(index);
+void Unit::SendClearLossOfControl()
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return;
 
-    ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPacket l_Data(SMSG_CLEAR_LOSS_OF_CONTROL);
+    ToPlayer()->GetSession()->SendPacket(&l_Data);
+}
+
+void Unit::SendAddLossOfControl(AuraApplication const* p_AurApp, Mechanics p_Mechanic, LossOfControlType p_Type)
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    AuraPtr l_Aura = p_AurApp->GetBase();
+    if (l_Aura == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_ADD_LOSS_OF_CONTROL);
+    l_Data << uint8(p_Type);
+    l_Data << uint8(p_Mechanic);
+    l_Data << int32(l_Aura->GetSpellInfo()->Id);
+    l_Data.appendPackGUID(l_Aura->GetCasterGUID());
+    l_Data << uint32(l_Aura->GetDuration());
+    l_Data << uint32(0);    ///< DurationRemainingLockoutSchoolMask
+    ToPlayer()->GetSession()->SendPacket(&l_Data);
+}
+
+void Unit::SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfControlType p_Type)
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    AuraPtr l_Aura = p_AurApp->GetBase();
+    if (l_Aura == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_REMOVE_LOSS_OF_CONTROL);
+    l_Data << uint8(p_Type);
+    l_Data << int32(l_Aura->GetSpellInfo()->Id);
+    l_Data.appendPackGUID(l_Aura->GetCasterGUID());
+    ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
 void Unit::SendMoveRoot(uint32 value)

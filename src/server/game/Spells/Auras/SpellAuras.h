@@ -99,7 +99,9 @@ class Aura : public std::enable_shared_from_this<Aura>
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
-        uint32 GetId() const{ return GetSpellInfo()->Id; }
+        uint32 GetId() const { return m_spellInfo->Id; }
+
+        void FillMechanicAndControlTypes(Mechanics& p_Mechanics, LossOfControlType& p_Type, SpellEffIndex& p_EffIndex);
 
         uint64 GetCastItemGUID() const { return m_castItemGuid; }
         uint64 GetCasterGUID() const { return m_casterGuid; }

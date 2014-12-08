@@ -3210,7 +3210,7 @@ void SpellMgr::LoadSpellInfoStore()
 
         SpellInfo * l_SpellInfo = mSpellInfoMap[NONE_DIFFICULTY][l_TalentEntry->SpellID];
         if (l_SpellInfo)
-            l_SpellInfo->talentId = l_TalentEntry->Id;
+            l_SpellInfo->m_TalentIDs.push_back(l_TalentEntry->Id);
 
         /// Load talents override spell
         if (l_TalentEntry->OverridesSpellID)

@@ -360,16 +360,18 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         sObjectMgr->AddCreatureToGrid(obj->guid, data);
 
         // Spawn if necessary (loaded grids only)
-        Map* map = sMapMgr->CreateBaseMap(data->mapid);
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
+        if (Map* l_Map = sMapMgr->CreateBaseMap(data->mapid))
         {
-            Creature* creature = new Creature;
-            //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
-            if (!creature->LoadCreatureFromDB(obj->guid, map))
+            // We use spawn coords to spawn
+            if (!l_Map->Instanceable() && l_Map->IsGridLoaded(data->posX, data->posY))
             {
-                delete creature;
-                return;
+                Creature* creature = new Creature;
+                //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
+                if (!creature->LoadCreatureFromDB(obj->guid, l_Map))
+                {
+                    delete creature;
+                    return;
+                }
             }
         }
     }

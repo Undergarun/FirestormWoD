@@ -428,7 +428,7 @@ public:
     std::list<uint32> OverrideSpellList;
 
     // TalentInfo
-    uint32 talentId;
+    std::list<uint32> m_TalentIDs;
 
     // Difficulty
     uint32 DifficultyID;

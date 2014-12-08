@@ -323,14 +323,18 @@ class boss_chogall : public CreatureScript
                 events.ScheduleEvent(EVENT_CONVERSION, urand(12000, 15000));
                 events.ScheduleEvent(EVENT_FURY_OF_CHOGALL, 40000);
                 Talk(SAY_AGGRO);
-                instance->SetBossState(DATA_CHOGALL, IN_PROGRESS);
+
+                if (instance)
+                    instance->SetBossState(DATA_CHOGALL, IN_PROGRESS);
             }
 
             void JustReachedHome()
             {
                 _JustReachedHome();
                 Talk(SAY_WIPE);
-                instance->SetBossState(DATA_CHOGALL, FAIL);
+
+                if (instance)
+                    instance->SetBossState(DATA_CHOGALL, FAIL);
             }
 
             void JustDied(Unit* killer)
