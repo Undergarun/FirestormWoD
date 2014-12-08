@@ -112,6 +112,7 @@ class debug_commandscript : public CommandScript
                 { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
                 { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
+                { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2221,6 +2222,19 @@ class debug_commandscript : public CommandScript
            for (int i = 0; i < 10; i++)
             if (proto->ItemStat[i].ItemStatType != -1)
                 handler->PSendSysMessage("Stat(%i): %i", proto->ItemStat[i].ItemStatType, proto->CalculateStatScaling(i, ilvl));
+            return true;
+        }
+
+        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+            if (l_Battleground == nullptr)
+            {
+                p_Handler->PSendSysMessage("You're not in battleground !");
+                return false;
+            }
+
+            l_Battleground->FastStart();
             return true;
         }
 };

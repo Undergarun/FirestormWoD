@@ -661,6 +661,9 @@ class Battleground
 
         virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
 
+        /// - Debug only
+        void FastStart() { m_StartDelayTime = 0; }
+
     protected:
         void BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team);
 
