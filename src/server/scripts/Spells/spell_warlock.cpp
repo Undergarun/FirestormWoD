@@ -1993,6 +1993,7 @@ class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
 
 enum EmberTapSpells
 {
+    SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
     SPELL_WARL_SEARING_FLAMES = 174848
 };
 // Ember Tap - 114635
@@ -2027,6 +2028,9 @@ class spell_warl_ember_tap : public SpellScriptLoader
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
                         l_Player->ModifyPower(POWER_BURNING_EMBERS, 5 * l_Player->GetPowerCoeff(POWER_BURNING_EMBERS));
                     }
+
+                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
+                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints);
 
                     SetHitHeal(healAmount);
                 }
