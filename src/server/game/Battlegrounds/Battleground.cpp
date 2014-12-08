@@ -2131,8 +2131,8 @@ void Battleground::SendFlagsPositions()
         l_Data.appendPackGUID(l_Itr->GetGUID());
         l_Data << float(l_Itr->GetPositionX());
         l_Data << float(l_Itr->GetPositionY());
-        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FLAG_ICON_ALLIANCE : FLAG_ICON_HORDE);
-        l_Data << uint8(l_Itr->GetBGTeam());
+        l_Data << uint8(1);
+        l_Data << uint8(0);
     }
 
     SendPacketToAll(&l_Data);
