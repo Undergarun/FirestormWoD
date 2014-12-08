@@ -129,6 +129,9 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
