@@ -2025,7 +2025,7 @@ class spell_warl_ember_tap : public SpellScriptLoader
 
                         // ManaCost == 0, wrong way to retrieve cost ?
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
+                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5 * l_Player->GetPowerCoeff(POWER_BURNING_EMBERS));
                     }
 
                     SetHitHeal(healAmount);
@@ -2151,6 +2151,11 @@ class spell_warl_shadowburn : public SpellScriptLoader
         }
 };
 
+enum BurningEmbersSpells
+{
+    SPELL_WARL_CHARRED_REMAINS = 157696
+};
+
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 // Burning Embers generate
@@ -2165,16 +2170,21 @@ class spell_warl_burning_embers : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpell()->IsCritForTarget(target))
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
-                        else
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 1 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (!l_Target)
+                    return;
+
+                int32 l_BurningEmbersNumber = 1;
+
+                if (GetSpell()->IsCritForTarget(l_Target))
+                    l_BurningEmbersNumber *= 2;
+
+                if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
+                    l_BurningEmbersNumber *= l_CharredRemains->GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100;
+
+                l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersNumber * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
             }
 
             void Register()
