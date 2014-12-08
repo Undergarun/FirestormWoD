@@ -647,6 +647,19 @@ struct GarrFollowerLevelXPEntry
     uint32 RequiredExperience;                          // 2
 };
 
+struct GarrSpecializationEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Unk1;                                        // 1
+    uint32 Unk2;                                        // 2
+    uint32 Unk3;                                        // 3
+    uint32 Unk4;                                        // 4
+    float  BasePoint;                                   // 5
+    uint32 Unk6;                                        // 6
+    char * Name;                                        // 7
+    char * Description;                                 // 8
+};
+
 #define MAX_BATTLEPET_PROPERTIES 6
 
 // BattlePetAbility.dbc

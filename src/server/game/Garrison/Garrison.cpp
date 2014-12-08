@@ -2276,5 +2276,37 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 /// Update garrison stats
 void Garrison::UpdateStats()
 {
-    m_Stat_MaxActiveFollower = GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW;
+    uint32 l_BonusMaxActiveFollower = 0;
+
+    /// Some of const values used here are unknown
+    /// See GetFollowerSoftCap in client for more details
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        const GarrBuildingEntry * l_Building = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+
+        if (!l_Building)
+            continue;
+
+        if (l_Building->Unk3 != 8)
+            continue;
+
+        l_BonusMaxActiveFollower = l_Building->Unk7;
+
+        for (uint32 l_Y = 0; l_Y < sGarrSpecializationStore.GetNumRows(); ++l_Y)
+        {
+            const GarrSpecializationEntry * l_Specialization = sGarrSpecializationStore.LookupEntry(l_Y);
+
+            if (!l_Specialization)
+                continue;
+
+            if (   l_Specialization->Unk2 == l_Building->Unk3
+                && l_Specialization->Unk4 <= l_Building->BuildingLevel
+                && l_Specialization->Unk3 == 10)
+            {
+                l_BonusMaxActiveFollower += floor(l_Specialization->BasePoint);
+            }
+        }
+    }
+
+    m_Stat_MaxActiveFollower = l_BonusMaxActiveFollower + GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW;
 }
