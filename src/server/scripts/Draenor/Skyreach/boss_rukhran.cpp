@@ -271,6 +271,9 @@ namespace MS
                     me->SetDisableGravity(true);
                     me->SetCanFly(true);
                     me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                    me->setPowerType(Powers::POWER_ENERGY);
+                    me->SetMaxPower(Powers::POWER_ENERGY, 100);
+                    me->SetPower(Powers::POWER_ENERGY, 100);
                 }
 
                 void Reset()
@@ -381,7 +384,7 @@ namespace MS
                 {
                     if ((p_SpellInfo->Id == uint32(Spells::SCREECH_DMG) || p_SpellInfo->Id == uint32(Spells::QUILLS_DMG)) && p_Target)
                     {
-                        me->CastSpell(p_Target, uint32(Spells::WEAK), false);
+                        me->AddAura(uint32(Spells::WEAK), p_Target);
                     }
                 }
 
@@ -402,12 +405,15 @@ namespace MS
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                     {
                         // Are we casting Screech ?
-                        if (me->HasAura(uint32(Spells::SCREECH)))
+                        if (Spell* l_Spell = me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         {
-                            // Should we stop ?
-                            Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f);
-                            if (l_Plr && l_Plr->IsWithinMeleeRange(me))
-                                me->CastStop();
+                            if (l_Spell->GetSpellInfo()->Id == uint32(Spells::SCREECH))
+                            {
+                                // Should we stop ?
+                                Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f);
+                                if (l_Plr && l_Plr->IsWithinMeleeRange(me))
+                                    me->CastStop();
+                            }
                         }
                         return;
                     }
@@ -419,7 +425,8 @@ namespace MS
                         if (!l_Plr || !l_Plr->IsWithinMeleeRange(me))
                         {
                             // We can't, so we cast Screech and Weak.
-                            me->CastSpell(me, uint32(Spells::SCREECH));
+                            if (!me->HasAura(uint32(Spells::SCREECH)))
+                                me->CastSpell(me, uint32(Spells::SCREECH));
                         }
                     }
 

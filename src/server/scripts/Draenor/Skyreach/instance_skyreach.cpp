@@ -310,6 +310,9 @@ namespace MS
                     case Data::AraknathSolarConstructorActivation:
                         if (p_Data)
                         {
+                            if (m_SolarConstructorsGuid.empty())
+                                break;
+
                             auto l_RandUnit = m_SolarConstructorsGuid.begin();
                             std::advance(l_RandUnit, urand(0, m_SolarConstructorsGuid.size() - 1));
                             m_SelectedSolarConstructorGuid = *l_RandUnit;
@@ -346,6 +349,9 @@ namespace MS
                         }
                     case Data::StartingLensFlare:
                     {
+                        if (m_MagnifyingGlassFocusGuids.empty())
+                            break;
+
                         auto l_Itr = m_MagnifyingGlassFocusGuids.begin();
                         std::advance(l_Itr, m_MagnifyingGlassFocusGuids.size() - 1);
 

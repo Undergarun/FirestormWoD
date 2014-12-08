@@ -4,58 +4,6 @@
 
 namespace MS
 {
-    // Quills - 159381
-    class spell_Quills : public SpellScriptLoader
-    {
-    public:
-        spell_Quills()
-            : SpellScriptLoader("spell_Quills")
-        {
-        }
-
-        class spell_QuillsSpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_QuillsSpellScript);
-
-            void CheckTarget(std::list<WorldObject*>& unitList)
-            {
-                static const Position k_PosCollisions[3] =
-                {
-                    { 936.20f, 1870.282f, 213.86f },    // Left pos.
-                    { 951.69f, 1884.65f, 213.86f },      // Right pos.
-                    { 918.91f, 1913.45f, 216.86f },     // Rukhran position.
-                };
-
-                Unit* l_Caster = GetCaster();
-
-                // Check if we are behind the big block.
-                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
-                    auto l_IsToTheRightFromRef = [](Position const& p_Ref, Position const& p_Point) -> bool {
-                        return p_Point.m_positionX * p_Ref.m_positionY - p_Point.m_positionY * p_Ref.m_positionX > 0;
-                    };
-
-                    Position l_v1 = k_PosCollisions[0] - k_PosCollisions[2];
-                    Position l_v2 = k_PosCollisions[1] - k_PosCollisions[2];
-                    Position l_v3 = *p_Obj - k_PosCollisions[2];
-
-                    return !(l_IsToTheRightFromRef(l_v1, l_v3) && !l_IsToTheRightFromRef(l_v2, l_v3) && p_Obj->GetExactDist2d(l_Caster) > 18.0f);
-                });
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_QuillsSpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_QuillsSpellScript::CheckTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_QuillsSpellScript::CheckTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_QuillsSpellScript();
-        }
-    };
-
     // Summon Cast Down - 165845
     class spell_CastDown : public SpellScriptLoader
     {
@@ -1562,7 +1510,6 @@ void AddSC_spell_instance_skyreach()
     // Boss Rukhran.
     new MS::spell_SummonSolarFlare();
     new MS::spell_Sunstrike();
-    new MS::spell_Quills();
 
     // Boss High Save Viryx.
     new MS::AreaTrigger_LensFlare();

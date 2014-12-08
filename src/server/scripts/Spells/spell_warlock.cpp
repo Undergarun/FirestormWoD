@@ -1991,6 +1991,10 @@ class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
         }
 };
 
+enum EmberTapSpells
+{
+    SPELL_WARL_SEARING_FLAMES = 174848
+};
 // Ember Tap - 114635
 class spell_warl_ember_tap : public SpellScriptLoader
 {
@@ -2006,14 +2010,23 @@ class spell_warl_ember_tap : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    float Mastery = 3.0f * _player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
+                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
                     float pct = 0.15f * (1 + Mastery);
 
-                    int32 healAmount = int32(_player->GetMaxHealth() * pct);
-                    healAmount = _player->SpellHealingBonusDone(_player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
-                    healAmount = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), healAmount, HEAL);
+                    int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
+                    healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
+                    healAmount = l_Player->SpellHealingBonusTaken(l_Player, GetSpellInfo(), healAmount, HEAL);
+
+                    if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
+                    {
+                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        // ManaCost == 0, wrong way to retrieve cost ?
+                        //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
+                    }
 
                     SetHitHeal(healAmount);
                 }
@@ -2179,6 +2192,7 @@ class spell_warl_burning_embers : public SpellScriptLoader
 enum SpellsDrainLife
 {
     SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
+    SPELL_WARL_HARVEST_LIFE = 108371,
     SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
 };
 
@@ -2196,12 +2210,15 @@ class spell_warl_drain_life : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints / 10;
+                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
 
                     if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
+                        l_Pct += l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct);
+                    if (AuraPtr l_HarvestLife = l_Caster->GetAura(SPELL_WARL_HARVEST_LIFE))
+                        l_Pct = l_HarvestLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct / GetSpellInfo()->GetDuration());
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
                 }
             }
@@ -2333,17 +2350,14 @@ class spell_warl_fear : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
-                        {
-                            _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5 * IN_MILLISECONDS);
-                        }
+                        if (l_Player->HasAura(WARLOCK_GLYPH_OF_FEAR))
+                            l_Player->CastSpell(l_Target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
                         else
-                            _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);
+                            l_Player->CastSpell(l_Target, WARLOCK_FEAR_EFFECT, true);
                     }
                 }
             }
