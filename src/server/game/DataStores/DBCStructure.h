@@ -1172,6 +1172,16 @@ struct NameGenEntry
     uint32  gender;                                         // 3        m_Sex
 };
 
+struct PowerDisplayEntry
+{
+    uint32 ID;                                              // 0
+    uint32 ActualType;                                      // 1
+    char*  GlobalStringBaseTag;                             // 2
+    uint8  Red;                                             // 3
+    uint8  Green;                                           // 4
+    uint8  Blue;                                            // 5
+};
+
 struct PvPDifficultyEntry
 {
     //uint32    id;                                         // 0        m_ID

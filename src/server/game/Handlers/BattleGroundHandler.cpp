@@ -285,7 +285,7 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
         l_Data.appendPackGUID(l_Itr->GetGUID());
         l_Data << float(l_Itr->GetPositionX());
         l_Data << float(l_Itr->GetPositionY());
-        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FLAG_ICON_ALLIANCE : FLAG_ICON_HORDE);
+        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FlagIcon::Alliance : FlagIcon::Horde);
         l_Data << uint8(l_Itr->GetBGTeam());
     }
 

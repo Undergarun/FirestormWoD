@@ -405,7 +405,7 @@ namespace MS
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS) && p_me->getVictim() != i->getSource() &&
+                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS) &&
                     p_me->GetExactDist2d(i->getSource()) < p_range && i->getSource()->isAlive())
                     temp.push_back(i->getSource());
             }

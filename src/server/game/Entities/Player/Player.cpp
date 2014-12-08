@@ -9655,6 +9655,9 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     ClearComboPoints();
     m_Duel->opponent->ClearComboPoints();
 
+    SendClearLossOfControl();
+    m_Duel->opponent->SendClearLossOfControl();
+
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
         m_Duel->opponent->RewardHonor(NULL, 1, amount);
@@ -28160,8 +28163,27 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
         {
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo((*itr).first);
 
-            if (l_SpellInfo && l_SpellInfo->talentId)
-                l_Talents << uint16(l_SpellInfo->talentId);
+            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
+            {
+                uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
+                uint16 l_Talent = 0;
+
+                for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
+                {
+                    if (TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID))
+                    {
+                        if (l_TalentEntry->SpecID == l_SpecID)
+                        {
+                            l_Talent = l_TalentID;
+                            break;
+                        }
+
+                        l_Talent = l_TalentID;
+                    }
+                }
+
+                l_Talents << uint16(l_Talent);
+            }
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));
@@ -30037,7 +30059,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
 {
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x"UI64FMTD" AreaTrigger entry not found in DBC)", p_Source);
+        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return;
     }
 
@@ -30088,7 +30110,7 @@ bool Player::HasMovementForce(uint64 p_Source)
 {
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x"UI64FMTD" AreaTrigger entry not found in DBC)", p_Source);
+        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return false;
     }
 

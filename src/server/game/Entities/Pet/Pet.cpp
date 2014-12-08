@@ -912,6 +912,9 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     UpdateAllStats();
 
+    if (IsWarlockPet())
+        CastSpell(this, 123746, true);  ///< Fel Energy
+
     return true;
 }
 

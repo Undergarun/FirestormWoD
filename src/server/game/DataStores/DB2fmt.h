@@ -66,6 +66,7 @@ const char GarrMechanicEntryfmt[] = "nif";
 const char GarrMissionXEncouterEntryfmt[] = "nii";
 const char GarrEncouterXMechanicEntryfmt[] = "nii";
 const char GarrFollowerLevelXPEntryfmt[] = "nii";
+const char GarrSpecializationEntryfmt[] = "niiiifiss";
 
 const char BattlePetAbilityfmt[] = "niiiiiss";
 const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";

@@ -636,32 +636,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
 
                 break;
-            case 22568: // Ferocious Bite
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                damage += int32(0.196f * m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * m_caster->ToPlayer()->GetComboPoints());
-
-                // converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
-                // 25 energy = 100% more damage
-                AddPct(damage, energy * 4);
-
-                // if target is under 25% of life, also reset rake duration
-                if (unitTarget->GetHealthPct() <= 25.0f)
-                    if (AuraPtr aura = unitTarget->GetAura(1822))
-                        aura->RefreshDuration();
-
-                // Glyph of Ferocious Bite
-                if (m_caster->HasAura(67598))
-                {
-                    int32 heal_pct = int32((25 + energy) / 10);
-                    m_caster->CastCustomSpell(m_caster, 101024, &heal_pct, 0, 0, true);
-                }
-
-                break;
-            }
             default:
                 break;
             }
@@ -7842,11 +7816,15 @@ void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
         if (!spell)
             continue;
 
-        TalentEntry const* talent = sTalentStore.LookupEntry(spell->talentId);
-        if (!talent)
-            continue;
+        bool l_Continue = false;
+        for (uint32 l_TalentID : spell->m_TalentIDs)
+        {
+            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
+            if (l_TalentEntry && l_TalentID == m_glyphIndex)
+                l_Continue = true;
+        }
 
-        if (spell->talentId != m_glyphIndex)
+        if (!l_Continue)
             continue;
 
         plr->removeSpell(itr.first, true);
