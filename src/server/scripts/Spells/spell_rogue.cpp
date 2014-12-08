@@ -79,7 +79,8 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
     ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806,
     ROGUE_SPELL_KIDNEY_SHOT                     = 408,
-    ROGUE_SPELL_REVEALING_STRIKE                = 84617
+    ROGUE_SPELL_REVEALING_STRIKE                = 84617,
+    ROGUE_SPELL_BURST_OF_SPEED                  = 137573
 };
 
 // Killing Spree - 51690
@@ -1511,36 +1512,65 @@ class spell_rog_stealth : public SpellScriptLoader
 };
 
 // Shadow Focus - 108209
-class spell_shadow_focus : public SpellScriptLoader
+class spell_rog_shadow_focus : public SpellScriptLoader
 {
 public:
-    spell_shadow_focus() : SpellScriptLoader("spell_shadow_focus") { }
+    spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
 
-    class spell_shadow_focus_SpellScript : public SpellScript
+    class spell_rog_shadow_focus_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shadow_focus_SpellScript);
+        PrepareSpellScript(spell_rog_shadow_focus_SpellScript);
 
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_AURA, true);
+                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_shadow_focus_SpellScript::HandleOnHit);
+            OnHit += SpellHitFn(spell_rog_shadow_focus_SpellScript::HandleOnHit);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_shadow_focus_SpellScript();
+        return new spell_rog_shadow_focus_SpellScript();
+    }
+};
+
+// Burst of Speed - 108212
+class spell_rog_burst_of_speed : public SpellScriptLoader
+{
+public:
+    spell_rog_burst_of_speed() : SpellScriptLoader("spell_rog_burst_of_speed") { }
+
+    class spell_rog_burst_of_speed_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_burst_of_speed_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_BURST_OF_SPEED, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_burst_of_speed_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_burst_of_speed_SpellScript();
     }
 };
 
 void AddSC_rogue_spell_scripts()
 {
-    new spell_shadow_focus();
+    new spell_rog_burst_of_speed();
+    new spell_rog_shadow_focus();
     new spell_rog_killing_spree();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
