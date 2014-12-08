@@ -220,9 +220,15 @@ class BattlegroundTP : public Battleground
         int32 m_FlagSpellForceTimer;
         bool m_BothFlagsKept;
         uint8 m_FlagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 m_minutesElapsed;
+        uint32 m_EndTimestamp;
 
         virtual void PostUpdateImpl(uint32 diff);
+        uint64 GetFlagPickerGUID(int32 team) const
+        {
+            if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
+                return _flagKeepers[team];
+            return 0;
+        };
 };
 
 #endif
