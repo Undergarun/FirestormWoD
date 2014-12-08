@@ -82,7 +82,8 @@ enum RogueSpells
     ROGUE_SPELL_REVEALING_STRIKE                = 84617,
     ROGUE_SPELL_BURST_OF_SPEED                  = 137573,
     ROGUE_SPELL_INTERNAL_BLEEDING               = 154953,
-    ROGUE_SPELL_INTERNAL_BLEEDING_AURA          = 154904
+    ROGUE_SPELL_INTERNAL_BLEEDING_AURA          = 154904,
+    ROGUE_SPELL_SMOKE_BOMB                      = 88611
 };
 
 // Killing Spree - 51690
@@ -1600,8 +1601,41 @@ public:
     }
 };
 
+// Smoke Bomb - 76577
+class spell_rog_smoke_bomb: public SpellScriptLoader
+{
+public:
+    spell_rog_smoke_bomb() : SpellScriptLoader("spell_rog_smoke_bomb") { }
+
+    class spell_rog_smoke_bomb_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_smoke_bomb_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                AreaTrigger* l_Area = l_Caster->GetAreaTrigger(GetSpellInfo()->Id);
+                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), ROGUE_SPELL_SMOKE_BOMB, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_smoke_bomb_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_smoke_bomb_SpellScript();
+    }
+};
+
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
     new spell_rog_shadow_focus();
