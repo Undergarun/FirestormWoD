@@ -6978,7 +6978,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
 SpellCastResult Spell::CheckPetCast(Unit* target)
 {
-    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))              //prevent spellcast interruption by another spellcast
+    // Prevent spellcast interruption by another spellcast
+    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+        return SPELL_FAILED_SPELL_IN_PROGRESS;
+
+    // Prevent using of ability if is already casting an ability that has aura type SPELL_AURA_ALLOW_ONLY_ABILITY
+    if (m_caster->HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
         return SPELL_FAILED_SPELL_IN_PROGRESS;
 
     // dead owner (pets still alive when owners ressed?)

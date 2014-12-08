@@ -115,6 +115,7 @@ const char MovieEntryfmt[]                    = "nxxxx";
 const char MountCapabilityfmt[]               = "niiiiiii";
 const char MountTypefmt[]                     = "niiiiiiiiiiiiiiiiiiiiiiii";
 const char NameGenfmt[]                       = "dsii";
+const char PowerDisplayfmt[]                  = "nisbbb";
 const char PvPDifficultyfmt[]                 = "diiii";
 const char QuestSortEntryfmt[]                = "nx";
 const char QuestXPfmt[]                       = "niiiiiiiiii";

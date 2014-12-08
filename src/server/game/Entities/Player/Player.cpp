@@ -9655,6 +9655,9 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     ClearComboPoints();
     m_Duel->opponent->ClearComboPoints();
 
+    SendClearLossOfControl();
+    m_Duel->opponent->SendClearLossOfControl();
+
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
         m_Duel->opponent->RewardHonor(NULL, 1, amount);
@@ -28160,8 +28163,27 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
         {
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo((*itr).first);
 
-            if (l_SpellInfo && l_SpellInfo->talentId)
-                l_Talents << uint16(l_SpellInfo->talentId);
+            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
+            {
+                uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
+                uint16 l_Talent = 0;
+
+                for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
+                {
+                    if (TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID))
+                    {
+                        if (l_TalentEntry->SpecID == l_SpecID)
+                        {
+                            l_Talent = l_TalentID;
+                            break;
+                        }
+
+                        l_Talent = l_TalentID;
+                    }
+                }
+
+                l_Talents << uint16(l_Talent);
+            }
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));

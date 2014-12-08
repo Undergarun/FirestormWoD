@@ -312,11 +312,6 @@ bool Minion::IsGuardianPet() const
     return isPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);
 }
 
-bool Minion::IsWarlockPet() const
-{
-    return isPet() && (GetEntry() == ENTRY_INFERNAL || GetEntry() == ENTRY_IMP || GetEntry() == ENTRY_VOIDWALKER || GetEntry() == ENTRY_SUCCUBUS || GetEntry() == ENTRY_FELHUNTER || GetEntry() == ENTRY_FELGUARD);
-}
-
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
 , m_bonusSpellDamage(0)
 {
