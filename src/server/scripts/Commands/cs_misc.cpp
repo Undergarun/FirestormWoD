@@ -486,6 +486,7 @@ class misc_commandscript : public CommandScript
             if (argstr == "all")
             {
                 target->RemoveAllAuras();
+                target->SendClearLossOfControl();
                 return true;
             }
 

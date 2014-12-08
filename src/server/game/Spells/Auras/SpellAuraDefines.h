@@ -460,7 +460,7 @@ enum AuraType
     SPELL_AURA_399                                          = 399,  // 5.0.5 unk aura
     SPELL_AURA_MOD_SKILL_VALUE                              = 400,  // SPELL_AURA_MOD_SKILL_VALUE
     SPELL_AURA_401                                          = 401,  // 5.0.5 Cart Control Capture Point Unit (East / North / South)
-    SPELL_AURA_402                                          = 402,  // 5.0.5 unk aura
+    SPELL_AURA_SET_POWER_TYPE                               = 402,  // SPELL_AURA_SET_POWER_TYPE
     SPELL_AURA_CHANGE_VISUAL_EFFECT                         = 403,  // SPELL_AURA_CHANGE_VISUAL_EFFECT
     SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT               = 404,  // Sets attack power equal to % of spellpower, discarding all other bonuses (from gear and buffs)
     SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT             = 405,  // SPELL_AURA_INCREASE_STATS_FROM_ITEMS_BY_PCT

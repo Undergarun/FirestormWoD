@@ -324,7 +324,7 @@ class boss_feludius : public CreatureScript
 
             void Reset()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _Reset();
@@ -340,7 +340,7 @@ class boss_feludius : public CreatureScript
 
             void JustReachedHome()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _JustReachedHome();
@@ -348,15 +348,28 @@ class boss_feludius : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                    if (!_ignacious->isInCombat())
-                        _ignacious->SetInCombatWithZone();
-                if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                    if (!_arion->isInCombat())
-                        _arion->SetInCombatWithZone();
-                if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                    if (!_terrastra->isInCombat())
-                        _terrastra->SetInCombatWithZone();
+                if (instance)
+                {
+                    if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                    {
+                        if (!_ignacious->isInCombat())
+                            _ignacious->SetInCombatWithZone();
+                    }
+
+                    if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                    {
+                        if (!_arion->isInCombat())
+                            _arion->SetInCombatWithZone();
+                    }
+
+                    if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                    {
+                        if (!_terrastra->isInCombat())
+                            _terrastra->SetInCombatWithZone();
+                    }
+
+                    instance->SetBossState(DATA_COUNCIL, IN_PROGRESS);
+                }
 
                 DoCast(me, SPELL_WATER_BOMB_AURA, true);
                 events.ScheduleEvent(EVENT_HEART_OF_ICE, urand(10000, 22000));
@@ -364,7 +377,6 @@ class boss_feludius : public CreatureScript
                 events.ScheduleEvent(EVENT_WATER_BOMB, urand(19000, 33000));
                 //Talk(SAY_FELUDIUS_AGGRO);
                 events.ScheduleEvent(EVENT_FELUDIUS_INTRO, 1000);
-                instance->SetBossState(DATA_COUNCIL, IN_PROGRESS);
                 DoZoneInCombat();
             }
 
@@ -415,17 +427,20 @@ class boss_feludius : public CreatureScript
                         councilPos[2].GetPositionY(),
                         councilPos[2].GetPositionZ(),
                         0.0f);
-                    if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                    if (instance)
                     {
-                        _arion->AI()->DoAction(ACTION_PHASE_2);
-                        _arion->SetReactState(REACT_AGGRESSIVE);
-                        _arion->NearTeleportTo(
-                        groundPos[0].GetPositionX(),
-                        groundPos[0].GetPositionY(),
-                        groundPos[0].GetPositionZ(),
-                        0.0f);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            _arion->AI()->AttackStart(target);
+                        if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                        {
+                            _arion->AI()->DoAction(ACTION_PHASE_2);
+                            _arion->SetReactState(REACT_AGGRESSIVE);
+                            _arion->NearTeleportTo(
+                                groundPos[0].GetPositionX(),
+                                groundPos[0].GetPositionY(),
+                                groundPos[0].GetPositionZ(),
+                                0.0f);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                _arion->AI()->AttackStart(target);
+                        }
                     }
                     break;
                 case ACTION_PHASE_3:
@@ -447,8 +462,12 @@ class boss_feludius : public CreatureScript
                 if (me->HealthBelowPct(25) && !bPhaseTwo)
                 {
                     DoAction(ACTION_PHASE_2);
-                    if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                        _ignacious->AI()->DoAction(ACTION_PHASE_2);    
+
+                    if (instance)
+                    {
+                        if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                            _ignacious->AI()->DoAction(ACTION_PHASE_2);
+                    } 
                     return;
                 }
                     
@@ -543,7 +562,7 @@ class boss_ignacious : public CreatureScript
 
             void Reset()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _Reset();
@@ -559,7 +578,7 @@ class boss_ignacious : public CreatureScript
 
             void JustReachedHome()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _JustReachedHome();
@@ -567,15 +586,26 @@ class boss_ignacious : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
-                    if (!_feludius->isInCombat())
-                        _feludius->SetInCombatWithZone();
-                if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                    if (!_arion->isInCombat())
-                        _arion->SetInCombatWithZone();
-                if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                    if (!_terrastra->isInCombat())
-                        _terrastra->SetInCombatWithZone();
+                if (instance)
+                {
+                    if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                    {
+                        if (!_feludius->isInCombat())
+                            _feludius->SetInCombatWithZone();
+                    }
+
+                    if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                    {
+                        if (!_arion->isInCombat())
+                            _arion->SetInCombatWithZone();
+                    }
+
+                    if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                    {
+                        if (!_terrastra->isInCombat())
+                            _terrastra->SetInCombatWithZone();
+                    }
+                }
 
                 events.ScheduleEvent(EVENT_BURNING_BLOOD, urand(10000, 22000));
                 events.ScheduleEvent(EVENT_FLAME_TORRENT, urand(15000, 30000));
@@ -633,17 +663,21 @@ class boss_ignacious : public CreatureScript
                         councilPos[3].GetPositionY(),
                         councilPos[3].GetPositionZ(),
                         0.0f);
-                    if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+
+                    if (instance)
                     {
-                        _terrastra->AI()->DoAction(ACTION_PHASE_2);
-                        _terrastra->SetReactState(REACT_AGGRESSIVE);
-                        _terrastra->NearTeleportTo(
-                        groundPos[1].GetPositionX(),
-                        groundPos[1].GetPositionY(),
-                        groundPos[1].GetPositionZ(),
-                        0.0f);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            _terrastra->AI()->AttackStart(target);
+                        if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                        {
+                            _terrastra->AI()->DoAction(ACTION_PHASE_2);
+                            _terrastra->SetReactState(REACT_AGGRESSIVE);
+                            _terrastra->NearTeleportTo(
+                                groundPos[1].GetPositionX(),
+                                groundPos[1].GetPositionY(),
+                                groundPos[1].GetPositionZ(),
+                                0.0f);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                _terrastra->AI()->AttackStart(target);
+                        }
                     }
                     break;
                 case ACTION_PHASE_3:
@@ -667,26 +701,31 @@ class boss_ignacious : public CreatureScript
                         {
                             uint32 _health;
                             _health = 0;
-                            if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+
+                            if (instance)
                             {
-                                _feludius->SetVisible(false);
-                                _health += _feludius->GetHealth();
+                                if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                                {
+                                    _feludius->SetVisible(false);
+                                    _health += _feludius->GetHealth();
+                                }
+                                if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                                {
+                                    _arion->SetVisible(false);
+                                    _health += _arion->GetHealth();
+                                }
+                                if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                                {
+                                    _terrastra->SetVisible(false);
+                                    _health += _terrastra->GetHealth();
+                                }
+                                if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                                {
+                                    _ignacious->SetVisible(false);
+                                    _health += _ignacious->GetHealth();
+                                }
                             }
-                            if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                            {
-                                _arion->SetVisible(false);
-                                _health += _arion->GetHealth();
-                            }
-                            if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                            {
-                                _terrastra->SetVisible(false);
-                                _health += _terrastra->GetHealth();
-                            }
-                            if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                            {
-                                _ignacious->SetVisible(false);
-                                _health += _ignacious->GetHealth();
-                            }
+
                             if (Creature* _monstrocity = me->SummonCreature(NPC_MONSTROSITY, groundPos[6]))
                             {
                                 _monstrocity->SetHealth(_health);
@@ -714,8 +753,12 @@ class boss_ignacious : public CreatureScript
                 if (me->HealthBelowPct(25) && !bPhaseTwo)
                 {
                     DoAction(ACTION_PHASE_2);
-                    if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
-                        _feludius->AI()->DoAction(ACTION_PHASE_2);
+
+                    if (instance)
+                    {
+                        if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                            _feludius->AI()->DoAction(ACTION_PHASE_2);
+                    }
                     return;
                 }
 
@@ -820,7 +863,7 @@ class boss_arion : public CreatureScript
 
             void Reset()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _Reset();
@@ -837,7 +880,7 @@ class boss_arion : public CreatureScript
 
             void JustReachedHome()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _JustReachedHome();
@@ -921,12 +964,16 @@ class boss_arion : public CreatureScript
                 {
                     DoCast(me, SPELL_ELEMENTAL_STATIS);
                     DoAction(ACTION_PHASE_3);
-                    if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                        _terrastra->AI()->DoAction(ACTION_PHASE_3);
-                    if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
-                        _feludius->AI()->DoAction(ACTION_PHASE_3);
-                    if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                        _ignacious->AI()->DoAction(ACTION_PHASE_3);
+
+                    if (instance)
+                    {
+                        if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                            _terrastra->AI()->DoAction(ACTION_PHASE_3);
+                        if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                            _feludius->AI()->DoAction(ACTION_PHASE_3);
+                        if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                            _ignacious->AI()->DoAction(ACTION_PHASE_3);
+                    }
                     return;
                 }
 
@@ -970,8 +1017,12 @@ class boss_arion : public CreatureScript
                         break;
                     case EVENT_THUNDERSHOCK:
                         DoCast(me, SPELL_THUNDERSHOCK);
-                        if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                            _terrastra->AI()->DoAction(ACTION_QUAKE);
+
+                        if (instance)
+                        {
+                            if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                                _terrastra->AI()->DoAction(ACTION_QUAKE);
+                        }
                         break;
                     }
                 }
@@ -1013,7 +1064,7 @@ class boss_terrastra: public CreatureScript
             bool bPhaseThree;
             void Reset()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _Reset();
@@ -1030,7 +1081,7 @@ class boss_terrastra: public CreatureScript
 
             void JustReachedHome()
             {
-                if (instance->GetBossState(DATA_COUNCIL) == DONE)
+                if (instance && instance->GetBossState(DATA_COUNCIL) == DONE)
                     me->DespawnOrUnsummon();
 
                 _JustReachedHome();
@@ -1103,12 +1154,16 @@ class boss_terrastra: public CreatureScript
                 {
                     DoCast(me, SPELL_ELEMENTAL_STATIS);
                     DoAction(ACTION_PHASE_3);
-                    if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                        _arion->AI()->DoAction(ACTION_PHASE_3);
-                    if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
-                        _feludius->AI()->DoAction(ACTION_PHASE_3);
-                    if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                        _ignacious->AI()->DoAction(ACTION_PHASE_3);
+
+                    if (instance)
+                    {
+                        if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                            _arion->AI()->DoAction(ACTION_PHASE_3);
+                        if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                            _feludius->AI()->DoAction(ACTION_PHASE_3);
+                        if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                            _ignacious->AI()->DoAction(ACTION_PHASE_3);
+                    }
                     return;
                 }
 
@@ -1144,8 +1199,12 @@ class boss_terrastra: public CreatureScript
                     case EVENT_QUAKE:
                         Talk(SAY_TERRASTRA_SPELL);
                         DoCast(me, SPELL_QUAKE);
-                        if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                            _arion->AI()->DoAction(ACTION_THUNDERSHOCK);
+
+                        if (instance)
+                        {
+                            if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                                _arion->AI()->DoAction(ACTION_THUNDERSHOCK);
+                        }
                         break;
                     }
                 }
@@ -1225,51 +1284,60 @@ class boss_elementium_monstrosity : public CreatureScript
                 _JustDied();
                 summons.DespawnAll();
                 Talk(SAY_MONSTROSITY_DEATH);
-                if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+
+                if (instance)
                 {
-                    _feludius->SetVisible(true);
-                    _feludius->AI()->EnterEvadeMode();
-                                    }
-                if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                {
-                    _arion->SetVisible(true);
-                    _arion->AI()->EnterEvadeMode();
-                }
-                if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                {
-                    _terrastra->SetVisible(true);
-                    _terrastra->AI()->EnterEvadeMode();
-                }
-                if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                {
-                    _ignacious->SetVisible(true);
-                    _ignacious->AI()->EnterEvadeMode();
+                    if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                    {
+                        _feludius->SetVisible(true);
+                        _feludius->AI()->EnterEvadeMode();
+                    }
+                    if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                    {
+                        _arion->SetVisible(true);
+                        _arion->AI()->EnterEvadeMode();
+                    }
+                    if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                    {
+                        _terrastra->SetVisible(true);
+                        _terrastra->AI()->EnterEvadeMode();
+                    }
+                    if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                    {
+                        _ignacious->SetVisible(true);
+                        _ignacious->AI()->EnterEvadeMode();
+                    }
                 }
             }
 
             void EnterEvadeMode()
             {
                 summons.DespawnAll();
-                if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+
+                if (instance)
                 {
-                    _feludius->SetVisible(true);
-                    _feludius->AI()->EnterEvadeMode();
+                    if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FELUDIUS)))
+                    {
+                        _feludius->SetVisible(true);
+                        _feludius->AI()->EnterEvadeMode();
+                    }
+                    if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
+                    {
+                        _arion->SetVisible(true);
+                        _arion->AI()->EnterEvadeMode();
+                    }
+                    if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
+                    {
+                        _terrastra->SetVisible(true);
+                        _terrastra->AI()->EnterEvadeMode();
+                    }
+                    if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
+                    {
+                        _ignacious->SetVisible(true);
+                        _ignacious->AI()->EnterEvadeMode();
+                    }
                 }
-                if (Creature* _arion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ARION)))
-                {
-                    _arion->SetVisible(true);
-                    _arion->AI()->EnterEvadeMode();
-                }
-                if (Creature* _terrastra = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TERRASTRA)))
-                {
-                    _terrastra->SetVisible(true);
-                    _terrastra->AI()->EnterEvadeMode();
-                }
-                if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_IGNACIOUS)))
-                {
-                    _ignacious->SetVisible(true);
-                    _ignacious->AI()->EnterEvadeMode();
-                }
+
                 _EnterEvadeMode();
                 me->DespawnOrUnsummon();
             }

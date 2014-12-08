@@ -123,6 +123,9 @@ void Player::ApplySpellPowerBonus(int32 amount, bool apply)
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
+
+    if (Pet* l_Pet = GetPet())
+        l_Pet->UpdateAttackPowerAndDamage();
 }
 
 void Player::UpdateSpellDamageAndHealingBonus()
@@ -1296,7 +1299,7 @@ bool Guardian::UpdateStats(Stats p_Stat)
             break;
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
-            if (l_Owner->getClass() == CLASS_MAGE)
+            if (l_Owner->getClass() == CLASS_MAGE || l_Owner->getClass() == CLASS_WARLOCK)
                 UpdateAttackPowerAndDamage();
             break;
         case STAT_SPIRIT:

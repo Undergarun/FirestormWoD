@@ -788,7 +788,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
             if (l_MoveTemplate.m_path_size != 0)
             {
-                *p_Data << uint32(l_AreaTrigger->GetDuration());                                          ///< Time To Target
+                *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_MoveTemplate.m_path_size);                             ///< Path node count
                 for (uint32 l_I = 0; l_I < l_MoveTemplate.m_path_size; l_I++)
