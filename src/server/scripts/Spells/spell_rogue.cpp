@@ -1510,8 +1510,37 @@ class spell_rog_stealth : public SpellScriptLoader
     }
 };
 
+// Shadow Focus - 108209
+class spell_shadow_focus : public SpellScriptLoader
+{
+public:
+    spell_shadow_focus() : SpellScriptLoader("spell_shadow_focus") { }
+
+    class spell_shadow_focus_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_shadow_focus_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_AURA, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_shadow_focus_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_shadow_focus_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_shadow_focus();
     new spell_rog_killing_spree();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
