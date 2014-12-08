@@ -20729,12 +20729,14 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Glyph of the Orca
             if (HasAura(114333))
                 return 4591;
+            break;
         }
         case FORM_GHOSTWOLF:
         {
             // Glyph of the Spectral Wolf
             if (HasAura(58135))
                 return 30162;
+            break;
         }
         case FORM_METAMORPHOSIS:
         {
