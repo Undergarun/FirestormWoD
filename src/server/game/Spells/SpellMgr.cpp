@@ -4130,16 +4130,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
-            case 152973: // Protective Barrier (Skyreach)
+            case 156791:// Call Adds
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);    ///< 100yards
+                break;
+            case 152973:// Protective Barrier (Skyreach)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 156634: // Four winds (Skyreach)
-            case 156636: // Four winds (Skyreach)
+            case 156634:// Four winds (Skyreach)
+            case 156636:// Four winds (Skyreach)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 166623: // Four winds (Skyreach)
-            case 166664: // Four winds (Skyreach)
+            case 166623:// Four winds (Skyreach)
+            case 166664:// Four winds (Skyreach)
             {
                  spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                  spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
@@ -4149,12 +4152,12 @@ void SpellMgr::LoadSpellCustomAttr()
                  spellInfo->DurationEntry = durationIndex;
             }
             break;
-            case 159226: // Solar storm (Skyreach)
-            case 153759: // WindWalls (Skyreach)
-            case 153139: // Four winds (Skyreach)
-            case 158441: // Solar Zone (Skyreach)
-            case 153907: // Dervish (Skyreach)
-            case 156841: // Storm (Skyreach)
+            case 159226:// Solar storm (Skyreach)
+            case 153759:// WindWalls (Skyreach)
+            case 153139:// Four winds (Skyreach)
+            case 158441:// Solar Zone (Skyreach)
+            case 153907:// Dervish (Skyreach)
+            case 156841:// Storm (Skyreach)
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
