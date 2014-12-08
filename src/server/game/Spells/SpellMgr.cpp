@@ -3760,6 +3760,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119539: // Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
+            case 76671: // Mastery: Divine Bulwark
+                spellInfo->Effects[4].BasePoints = 8;
+                break;
             case 32409: // Shadow Word: Death (triggered)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
                 spellInfo->Effects[0].ApplyAuraName = 0;

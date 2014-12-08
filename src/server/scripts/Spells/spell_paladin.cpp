@@ -1197,9 +1197,9 @@ class spell_pal_word_of_glory : public SpellScriptLoader
                             l_Power = 2;
 
                         if (l_Target->IsFriendlyTo(l_Player))
-                        l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                            l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
                         else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                        l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
+                            l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
                         if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY))
                         {
