@@ -80,7 +80,9 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806,
     ROGUE_SPELL_KIDNEY_SHOT                     = 408,
     ROGUE_SPELL_REVEALING_STRIKE                = 84617,
-    ROGUE_SPELL_BURST_OF_SPEED                  = 137573
+    ROGUE_SPELL_BURST_OF_SPEED                  = 137573,
+    ROGUE_SPELL_INTERNAL_BLEEDING               = 154953,
+    ROGUE_SPELL_INTERNAL_BLEEDING_AURA          = 154904
 };
 
 // Killing Spree - 51690
@@ -1567,8 +1569,40 @@ public:
     }
 };
 
+// Call by Kidney Shot 408
+// Internal Bleeding - 154904
+class spell_rog_internal_bleeding : public SpellScriptLoader
+{
+public:
+    spell_rog_internal_bleeding() : SpellScriptLoader("spell_rog_internal_bleeding") { }
+
+    class spell_rog_internal_bleeding_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_internal_bleeding_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
+                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_internal_bleeding_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_internal_bleeding_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
     new spell_rog_shadow_focus();
     new spell_rog_killing_spree();
