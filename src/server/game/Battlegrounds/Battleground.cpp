@@ -2119,20 +2119,19 @@ void Battleground::SendFlagsPositions()
         ++l_Count;
     }
 
-    if (!l_Count)
-        return;
-
     WorldPacket l_Data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
 
     l_Data << uint32(l_Count);
+
+    uint8 l_ArenaSlot = 1;  ///< Used to show UI frame of who is flag picker (1 - 5)
 
     for (auto l_Itr : l_Players)
     {
         l_Data.appendPackGUID(l_Itr->GetGUID());
         l_Data << float(l_Itr->GetPositionX());
         l_Data << float(l_Itr->GetPositionY());
-        l_Data << uint8(1);
-        l_Data << uint8(0);
+        l_Data << uint8(l_Itr->GetTeamId() == TeamId::TEAM_HORDE ? FlagIcon::Alliance : FlagIcon::Horde);
+        l_Data << uint8(l_ArenaSlot++);
     }
 
     SendPacketToAll(&l_Data);

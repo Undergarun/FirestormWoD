@@ -161,10 +161,12 @@ enum BattlegroundStatus
     STATUS_WAIT_LEAVE   = 4                                 // means some faction has won BG and it is ending
 };
 
+/// - See CGBattlefieldInfo::s_flagTokens
 enum class FlagIcon : uint8
 {
-    Alliance  = 1,
-    Horde     = 2,
+    None      = 0,              ///< ""
+    Horde     = 1,              ///< "HordeFlag"
+    Alliance  = 2               ///< "AllianceFlag"
 };
 
 struct BattlegroundPlayer
