@@ -197,7 +197,7 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
         }
 };
 
-// Hammer of Wrath - 24275 - 158392
+// Hammer of Wrath - 24275 - 158392 - 157496
 class spell_pal_hammer_of_wrath : public SpellScriptLoader
 {
 public:
