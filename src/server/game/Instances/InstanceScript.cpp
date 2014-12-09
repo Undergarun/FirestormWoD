@@ -762,7 +762,7 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
         return;
 
     uint32 l_Times[eChallengeMedals::MedalTypeGold];
-    MapChallengeModeHotfix* l_ChallengeHotfix = sObjectMgr->GetMapChallengeModeHotfix(l_ChallengeEntry->m_ID);
+    MapChallengeModeHotfix* l_ChallengeHotfix = sObjectMgr->GetMapChallengeModeHotfix(l_ChallengeEntry->ID);
     if (l_ChallengeHotfix != nullptr)
     {
         l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeHotfix->m_BronzeTime;
