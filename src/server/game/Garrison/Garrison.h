@@ -89,12 +89,18 @@ enum GarrisonAbilityEffectTargetMask
     GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
 };
 
+enum GarrisonWorldState
+{
+    GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
+};
+
 extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
+#define GARRISON_MAX_LEVEL                      3
 #define GARRISON_BASE_MAP                       1116
 #define GARRISON_PLOT_INSTANCE_COUNT            40
 #define GARRISON_CURRENCY_ID                    824
@@ -102,6 +108,9 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW      20
 #define GARRISON_FOLLOWER_ACTIVATION_COST       2500000
 #define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
+#define GARRISON_CACHE_MAX_CURRENCY             500
+#define GARRISON_CACHE_MIN_CURRENCY             5
+#define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
 
 struct GarrisonPlotInstanceInfoLocation
 {
@@ -112,6 +121,16 @@ struct GarrisonPlotInstanceInfoLocation
 };
 
 extern GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT];
+
+struct GarrisonCacheInfoLocation
+{
+    uint32 SiteLevelID;
+    float X, Y, Z;
+    float O;
+};
+
+extern GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL];
+extern uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3];
 
 struct GarrisonMission
 {
@@ -177,6 +196,9 @@ class Garrison
 
         /// Update the garrison
         void Update();
+
+        /// Reward garrison cache content
+        void RewardGarrisonCache();
 
         /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
         void OnPlayerEnter();
@@ -302,8 +324,12 @@ class Garrison
         uint32      m_GarrisonSiteID;   ///< Garrison site ID
         uint32      m_NumFollowerActivation;
         uint32      m_NumFollowerActivationRegenTimestamp;
+        uint32      m_CacheLastUsage;
 
         uint64      m_LastUsedActivationGameObject;
+        uint64      m_CacheGameObjectGUID;
+
+        uint32      m_CacheLastTokenAmount;
 
         std::vector<GarrisonPlotInstanceInfoLocation>   m_Plots;
         std::vector<GarrisonMission>                    m_Missions;

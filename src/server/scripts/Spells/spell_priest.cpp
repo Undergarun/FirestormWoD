@@ -932,25 +932,8 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (GetSpellInfo()->Id == PRIEST_SPELL_POWER_WORD_SHIELD)
-                    {
-                        if (Unit* l_Target = GetHitUnit())
-                        {
-                            if (l_Target != nullptr && l_Target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
-                                l_Target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
-                        }
-                    }
-                    else
-                    {
-                        if (l_Player != nullptr && l_Player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
-                            l_Player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
-
-                        if (Unit* l_Target = GetHitUnit())
-                        {
-                            if (l_Target != nullptr && l_Target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
-                                l_Target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
-                        }
-                    }
+                    if (l_Player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
+                        l_Player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
                 }
             }
 

@@ -16450,16 +16450,17 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
+void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
 {
     ItemTemplate const* l_ItemTpl = sObjectMgr->GetItemTemplate(p_Entry);
-    if (!l_ItemTpl && p_Entry)
+
+    if (!l_ItemTpl && p_Entry && p_Type == TOAST_TYPE_NEW_ITEM)
         return;
 
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
 
     l_Data << uint32(p_Count);
-    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
+    l_Data << uint8(p_Method);
 
     l_Data.WriteBit(p_BonusRoll);
     l_Data.WriteBits(p_Type, 2);
@@ -16479,8 +16480,6 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
-//
-//         l_Data << uint32(445);                      // ReforgeID
     }
 
     if (p_Type == TOAST_TYPE_NEW_CURRENCY)
@@ -19769,6 +19768,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadChargesCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS));
+    _LoadCompletedChallenges(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -25667,6 +25667,9 @@ void Player::SendInitialPacketsAfterAddToMap()
         phaseMgr.Update();
         phaseMgr.ForceMapShiftUpdate();
     }
+
+    if (m_Garrison && GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)
+        m_Garrison->OnPlayerEnter();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -25693,29 +25696,29 @@ void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time)
+void Player::SendRaidInstanceMessage(uint32 p_MapID, Difficulty p_Difficulty, uint32 p_Time)
 {
-    // type of warning, based on the time remaining until reset
-    uint32 type;
-    if (time > 3600)
-        type = RAID_INSTANCE_WELCOME;
-    else if (time > 900 && time <= 3600)
-        type = RAID_INSTANCE_WARNING_HOURS;
-    else if (time > 300 && time <= 900)
-        type = RAID_INSTANCE_WARNING_MIN;
+    // Type of warning, based on the time remaining until reset
+    uint32 l_Type;
+    if (p_Time > 3600)
+        l_Type = RAID_INSTANCE_WELCOME;
+    else if (p_Time > 900 && p_Time <= 3600)
+        l_Type = RAID_INSTANCE_WARNING_HOURS;
+    else if (p_Time > 300 && p_Time <= 900)
+        l_Type = RAID_INSTANCE_WARNING_MIN;
     else
-        type = RAID_INSTANCE_WARNING_MIN_SOON;
+        l_Type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4 + 4 + 4 + 4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                         // difficulty
-    data << uint32(time);
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 * 3 + 1);
+    l_Data << uint8(l_Type);
+    l_Data << uint32(p_MapID);
+    l_Data << uint32(p_Difficulty);
+    l_Data << int32(p_Time);
 
-    data.WriteBit(0);                                   // is locked
-    data.WriteBit(0);                                   // is extended, ignored if prev field is 0
-    data.FlushBits();
-    GetSession()->SendPacket(&data);
+    l_Data.WriteBit(0);                                   // is locked
+    l_Data.WriteBit(0);                                   // is extended, ignored if prev field is 0
+    l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::ApplyEquipCooldown(Item* p_Item)
@@ -30942,17 +30945,21 @@ bool Player::CanUseCharge(uint32 p_SpellID) const
         return true;
 
     uint32 l_Count = 0;
+    bool l_IsModified = false;
     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
     Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
     {
         if (l_SpellInfo != nullptr && (*l_Iter)->GetSpellInfo()->SpellFamilyFlags & l_SpellInfo->SpellFamilyFlags)
+        {
             ++l_Count;
+            l_IsModified = true;
+        }
     }
 
     // If spell is not modified, we should assume
     // that spell doesn't use charges yet
-    if (!l_Count)
+    if (!l_Count && l_IsModified)
         return true;
 
     if (l_Charges.m_ConsumedCharges >= l_Charges.m_MaxCharges)
@@ -30984,6 +30991,7 @@ void Player::UpdateCharges(uint32 const p_Time)
 
                 l_Charges->m_Changed = true;
                 l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin() + l_Count);
+                --l_Charges->m_ConsumedCharges;
                 continue;
             }
             else
@@ -31002,7 +31010,7 @@ void Player::UpdateCharges(uint32 const p_Time)
     }
 }
 
-void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket /*= true*/)
+void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket /*= false*/)
 {
     if (m_SpellChargesMap.find(p_SpellID) == m_SpellChargesMap.end())
     {
@@ -31026,5 +31034,45 @@ ChargesData* Player::GetChargesData(uint32 p_SpellID)
         return &m_SpellChargesMap[p_SpellID];
 
     return nullptr;
+}
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+/// ChallengesMode
+void Player::_LoadCompletedChallenges(PreparedQueryResult& p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        CompletedChallenge l_Challenge;
+
+        Field* l_Field = p_Result->Fetch();
+        uint32 l_MapID = l_Field[0].GetUInt32();
+        l_Challenge.m_BestTime = l_Field[1].GetUInt32();
+        l_Challenge.m_LastTime = l_Field[2].GetUInt32();
+        l_Challenge.m_BestMedal = l_Field[3].GetUInt8();
+        l_Challenge.m_BestMedalDate = l_Field[4].GetUInt32();
+
+        m_CompletedChallenges.insert(std::make_pair(l_MapID, l_Challenge));
+    }
+    while (p_Result->NextRow());
+}
+
+bool Player::HasChallengeCompleted(uint32 p_MapID) const
+{
+    if (m_CompletedChallenges.find(p_MapID) == m_CompletedChallenges.end())
+        return false;
+
+    return true;
+}
+
+CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
+{
+    if (m_CompletedChallenges.find(p_MapID) == m_CompletedChallenges.end())
+        return nullptr;
+
+    return &m_CompletedChallenges[p_MapID];
 }
 //////////////////////////////////////////////////////////////////////////

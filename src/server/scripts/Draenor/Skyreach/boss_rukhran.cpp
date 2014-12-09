@@ -299,6 +299,8 @@ namespace MS
                         if (l_SolarFlare->ToCreature())
                             l_SolarFlare->ToCreature()->DespawnOrUnsummon();
                     }
+
+                    me->CastStop();
                 }
 
                 void MovementInform(uint32 p_Type, uint32 p_Id)

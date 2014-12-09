@@ -113,6 +113,7 @@ class debug_commandscript : public CommandScript
                 { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
+                { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -122,6 +123,28 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugCriteriaCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrType = strtok((char*)p_Args, " ");
+            uint32 l_Type = uint32(atoi(l_StrType));
+
+            char* l_StrMisc1 = strtok(NULL, " ");
+            uint32 l_Misc1 = l_StrMisc1 ? uint32(atoi(l_StrMisc1)) : 0;
+
+            char* l_StrMisc2 = strtok(NULL, " ");
+            uint32 l_Misc2 = l_StrMisc2 ? uint32(atoi(l_StrMisc2)) : 0;
+
+            p_Handler->GetSession()->GetPlayer()->UpdateAchievementCriteria(AchievementCriteriaTypes(l_Type), l_Misc1, l_Misc2);
+            return true;
         }
 
         static bool HandleDebugClearSpellCharges(ChatHandler* handler, char const* args)

@@ -84,6 +84,8 @@ class boss_warlord_zaela : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
 
                 m_Events.Reset();
+
+                _Reset();
             }
 
             void KilledUnit(Unit* p_Who)
@@ -92,10 +94,12 @@ class boss_warlord_zaela : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
+                _EnterCombat();
             }
 
             void JustDied(Unit* p_Killer)
             {
+                _JustDied();
             }
 
             void MoveInLineOfSight(Unit* p_Who)
