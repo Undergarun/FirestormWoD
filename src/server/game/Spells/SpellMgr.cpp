@@ -3596,6 +3596,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 76808:// Mastery: Executioner
+                spellInfo->Effects[0].BasePoints = 24;
+                spellInfo->Effects[1].BasePoints = 24;
+                spellInfo->Effects[2].BasePoints = 24;
+                break;
             case 136467:// Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
