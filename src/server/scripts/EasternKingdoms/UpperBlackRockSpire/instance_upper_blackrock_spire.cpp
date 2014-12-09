@@ -227,6 +227,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
 
                 ++m_CreatureKilled;
                 SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_ENNEMIES, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
+                if (m_CreatureKilled >= SCENARIO_UBRS_KILLS)
+                    m_ConditionCompleted = true;
             }
 
             void Update(uint32 p_Diff)

@@ -32,6 +32,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     instance = p_Map;
     completedEncounters = 0;
     m_ChallengeStarted = false;
+    m_ConditionCompleted = false;
     m_StartChallengeTime = 0;
     m_ChallengeDoorGuid = 0;
     m_ChallengeTime = 0;
@@ -271,7 +272,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             UpdateMinionState(*i, state);
 
         ///< End of challenge
-        if (id == (bosses.size() - 1) && instance->IsChallengeMode() && m_ChallengeStarted)
+        if (id == (bosses.size() - 1) && instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
         {
             m_ChallengeStarted = false;
 
@@ -760,19 +761,34 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
     if (l_ChallengeEntry == nullptr)
         return;
 
+    uint32 l_Times[eChallengeMedals::MedalTypeGold];
+    MapChallengeModeHotfix* l_ChallengeHotfix = sObjectMgr->GetMapChallengeModeHotfix(l_ChallengeEntry->m_ID);
+    if (l_ChallengeHotfix != nullptr)
+    {
+        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeHotfix->m_BronzeTime;
+        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeHotfix->m_SilverTime;
+        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeHotfix->m_GoldTime;
+    }
+    else
+    {
+        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
+        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
+        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
+    }
+
     ///< Downgrade Medal if needed
     switch (m_MedalType)
     {
         case eChallengeMedals::MedalTypeGold:
-            if (m_ChallengeTime > l_ChallengeEntry->GoldTime)
+            if (m_ChallengeTime > l_Times[eChallengeMedals::MedalTypeGold - 1])
                 --m_MedalType;
             break;
         case eChallengeMedals::MedalTypeSilver:
-            if (m_ChallengeTime > l_ChallengeEntry->SilverTime)
+            if (m_ChallengeTime > l_Times[eChallengeMedals::MedalTypeSilver - 1])
                 --m_MedalType;
             break;
         case eChallengeMedals::MedalTypeBronze:
-            if (m_ChallengeTime > l_ChallengeEntry->BronzeTime)
+            if (m_ChallengeTime > l_Times[eChallengeMedals::MedalTypeBronze - 1])
                 --m_MedalType;
             break;
         default:
