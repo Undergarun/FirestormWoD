@@ -9,3 +9,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_internal_bleedi
 INSERT INTO `spell_script_names` VALUES (408, 'spell_rog_internal_bleeding');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_smoke_bomb';
 INSERT INTO `spell_script_names` VALUES (76577, 'spell_rog_smoke_bomb');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_fan_of_knives';
+INSERT INTO `spell_script_names` VALUES (51723, 'spell_rog_fan_of_knives');

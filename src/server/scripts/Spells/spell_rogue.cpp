@@ -1632,9 +1632,38 @@ public:
     }
 };
 
+// Fan of Knives - 51723
+class spell_rog_fan_of_knives : public SpellScriptLoader
+{
+public:
+    spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
+
+    class spell_rog_fan_of_knives_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, l_Player->GetPower(POWER_COMBO_POINT) + 1, POWER_COMBO_POINT);
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_rog_fan_of_knives_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_fan_of_knives_SpellScript();
+    }
+};
+
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_fan_of_knives();
     new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
