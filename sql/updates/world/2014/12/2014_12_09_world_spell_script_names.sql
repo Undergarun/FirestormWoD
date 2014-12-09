@@ -15,3 +15,5 @@ INSERT INTO `spell_script_names` VALUES (133, 'spell_mage_unstable_magic');
 INSERT INTO `spell_script_names` VALUES (116, 'spell_mage_unstable_magic');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_ice_lance';
 INSERT INTO `spell_script_names` VALUES (30455, 'spell_mage_ice_lance');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warr_execute';
+INSERT INTO `spell_script_names` VALUES (163201, 'spell_warr_execute');

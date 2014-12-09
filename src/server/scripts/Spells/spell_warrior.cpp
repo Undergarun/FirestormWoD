@@ -1375,6 +1375,39 @@ public:
     }
 };
 
+// Execute - 163201
+class spell_warr_execute : public SpellScriptLoader
+{
+public:
+    spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
+
+    class spell_warr_execute_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_execute_SpellScript);
+
+        void HandleOnHit()
+        {
+            int32 l_Damage = GetHitDamage();
+
+            // converts each extra rage (up to 30 rage) into additional damage
+            int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            // 30 rage = 320% more damage
+            AddPct(l_Damage, float(l_RageConsumed * (320.0f / GetSpellInfo()->Effects[EFFECT_2].BasePoints)));
+
+            SetHitDamage(l_Damage);
+        }
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_execute_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1410,4 +1443,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_gag_order();
     new spell_warr_shield_barrier();
     new spell_warr_anger_management();
+    new spell_warr_execute();
 }
