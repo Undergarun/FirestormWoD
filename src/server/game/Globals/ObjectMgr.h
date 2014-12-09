@@ -680,6 +680,65 @@ struct GuildChallengeReward
     uint32 Gold2;
 };
 
+struct RealmCompletedChallenge
+{
+    struct ChallengeMember
+    {
+        ChallengeMember()
+        {
+            m_Guid = 0;
+            m_SpecID = 0;
+        }
+
+        uint64 m_Guid;
+        uint32 m_SpecID;
+    };
+
+    RealmCompletedChallenge()
+    {
+        memset(this, 0, sizeof (RealmCompletedChallenge));
+    }
+
+    uint32 m_GuildID;
+    uint32 m_AttemptID;
+    uint32 m_CompletionTime;
+    uint32 m_CompletionDate;
+    uint8 m_MedalEarned;
+    uint8 m_MembersCount;
+
+    ChallengeMember m_Members[5];
+};
+
+struct ChallengeReward
+{
+    ChallengeReward()
+    {
+        memset(this, 0, sizeof (ChallengeReward));
+    }
+
+    uint32 m_MapID;
+    uint32 m_MoneyReward[4];
+};
+
+struct MapChallengeModeHotfix
+{
+    MapChallengeModeHotfix()
+    {
+        memset(this, 0, sizeof (MapChallengeModeHotfix));
+    }
+
+    uint32 m_ID;
+    uint32 m_MapID;
+    uint32 m_Field2;
+    uint32 m_Field3;
+    uint32 m_Field4;
+    uint32 m_BronzeTime;
+    uint32 m_SilverTime;
+    uint32 m_GoldTime;
+    uint32 m_Field8;
+    uint32 m_Field9;
+};
+
 struct HotfixInfo
 {
     uint32 Type;
@@ -733,6 +792,10 @@ struct GarrisonPlotBuildingContent
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
+typedef std::map<uint32, RealmCompletedChallenge> GroupsCompletedChallengesMap;
+typedef std::map<uint32, RealmCompletedChallenge> GuildsCompletedChallengesMap;
+typedef std::map<uint32, ChallengeReward> ChallengeRewardsMap;
+typedef std::map<uint32, MapChallengeModeHotfix> MapChallengeModeHotfixes;
 typedef std::map<uint32, bool> UpdateSkipData;
 
 typedef std::vector<ResearchLootEntry> ResearchLootVector;
@@ -1101,7 +1164,48 @@ class ObjectMgr
         void LoadResearchSiteZones();
         void LoadResearchSiteLoot();
 
-        void LoadCharacterTempalteData();
+        void LoadCharacterTemplateData();
+        void LoadRealmCompletedChallenges();
+        void LoadChallengeRewards();
+        void LoadMapChallengeModeHotfixes();
+
+        RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
+        {
+            if (m_GroupsCompletedChallenges.find(p_MapID) == m_GroupsCompletedChallenges.end())
+                return nullptr;
+
+            return &m_GroupsCompletedChallenges[p_MapID];
+        }
+
+        RealmCompletedChallenge* GetGuildCompletedChallengeForMap(uint32 p_MapID)
+        {
+            if (m_GuildsCompletedChallenges.find(p_MapID) == m_GuildsCompletedChallenges.end())
+                return nullptr;
+
+            return &m_GuildsCompletedChallenges[p_MapID];
+        }
+
+        ChallengeRewardsMap GetChallengeRewards() const
+        {
+            return m_ChallengeRewardsMap;
+        }
+
+        ChallengeReward* GetChallengeRewardsForMap(uint32 p_MapID)
+        {
+            if (m_ChallengeRewardsMap.find(p_MapID) == m_ChallengeRewardsMap.end())
+                return nullptr;
+
+            return &m_ChallengeRewardsMap[p_MapID];
+        }
+
+        MapChallengeModeHotfix* GetMapChallengeModeHotfix(uint32 p_ID)
+        {
+            if (m_MapChallengeModeHotfixes.find(p_ID) == m_MapChallengeModeHotfixes.end())
+                return nullptr;
+
+            return &m_MapChallengeModeHotfixes[p_ID];
+        }
+
         BattlePetTemplate const* GetBattlePetTemplate(uint32 species) const
         {
             BattlePetTemplateContainer::const_iterator itr = _battlePetTemplateStore.find(species);
@@ -1626,6 +1730,11 @@ class ObjectMgr
         };
         HotfixData _hotfixData;
         GuildChallengeRewardData _challengeRewardData;
+
+        GroupsCompletedChallengesMap m_GroupsCompletedChallenges;
+        GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
+        ChallengeRewardsMap m_ChallengeRewardsMap;
+        MapChallengeModeHotfixes m_MapChallengeModeHotfixes;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

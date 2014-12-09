@@ -60,6 +60,7 @@ BattlegroundTP::BattlegroundTP()
     m_BothFlagsKept = true;
     m_FlagDebuffState = 0;
     m_FlagSpellForceTimer = 0;
+    m_EndTimestamp = 0;
 }
 
 BattlegroundTP::~BattlegroundTP() {}
@@ -68,7 +69,7 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (GetElapsedTime() >= 25*MINUTE*IN_MILLISECONDS)
+        if (GetElapsedTime() >= 25 * MINUTE * IN_MILLISECONDS)
         {
             if (GetTeamScore(ALLIANCE) == 0)
             {
@@ -88,11 +89,6 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
                 EndBattleground(HORDE);
             else
                 EndBattleground(ALLIANCE);
-        }
-        else if (GetElapsedTime() > uint32(m_minutesElapsed * MINUTE * IN_MILLISECONDS))
-        {
-            ++m_minutesElapsed;
-            UpdateWorldState(BG_TP_STATE_TIMER, 28 - m_minutesElapsed);
         }
 
         if (m_FlagState[TEAM_ALLIANCE] == BG_TP_FLAG_STATE_WAIT_RESPAWN)
@@ -188,9 +184,6 @@ void BattlegroundTP::StartingEventCloseDoors()
 
     for (uint32 i = BG_TP_OBJECT_A_FLAG; i <= BG_TP_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
-
-    UpdateWorldState(BG_TP_STATE_TIMER_ACTIVE, 1);
-    UpdateWorldState(BG_TP_STATE_TIMER, 25);
 }
 
 void BattlegroundTP::StartingEventOpenDoors()
@@ -209,6 +202,12 @@ void BattlegroundTP::StartingEventOpenDoors()
 
     // players joining later are not eligible
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, TP_EVENT_START_BATTLE);
+
+    // Send start timer
+    m_EndTimestamp = time(nullptr) + 1500;
+
+    UpdateWorldState(BG_TP_STATE_TIMER_ACTIVE, 1);
+    UpdateWorldState(BG_TP_STATE_TIMER, m_EndTimestamp);
 }
 
 void BattlegroundTP::AddPlayer(Player *player)
@@ -775,7 +774,6 @@ void BattlegroundTP::Reset()
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
     // For WorldState
-    m_minutesElapsed                    = 0;
     m_LastFlagCaptureTeam               = 0;
 
     /* Spirit nodes is static at this BG and then not required deleting at BG reset.
@@ -902,7 +900,7 @@ void BattlegroundTP::FillInitialWorldStates(ByteBuffer& data)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         data << uint32(BG_TP_STATE_TIMER_ACTIVE) << uint32(1);
-        data << uint32(BG_TP_STATE_TIMER) << uint32(25-m_minutesElapsed);
+        data << uint32(BG_TP_STATE_TIMER) << uint32(m_EndTimestamp);
     }
     else
         data << uint32(BG_TP_STATE_TIMER_ACTIVE) << uint32(0);

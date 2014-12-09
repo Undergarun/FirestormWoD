@@ -116,6 +116,14 @@ enum WorldDatabaseStatements
     WORLD_DEL_DISABLES,
     WORLD_SEL_BLACKMARKET_TEMPLATE,
 
+    //////////////////////////////////////////////////////////////////////////
+    /// ChallengesMode
+    WORLD_INS_GROUP_CHALLENGE,
+    WORLD_INS_GUILD_CHALLENGE,
+    WORLD_DEL_GROUP_CHALLENGE,
+    WORLD_DEL_GUILD_CHALLENGE,
+    //////////////////////////////////////////////////////////////////////////
+
     MAX_WORLDDATABASE_STATEMENTS,
 };
 

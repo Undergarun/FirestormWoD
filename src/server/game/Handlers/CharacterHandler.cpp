@@ -250,6 +250,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_COMPLETED_CHALLENGES);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES, l_Statement);
+
     return l_Result;
 }
 
@@ -1124,8 +1128,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         pCurrChar->SetGuildLevel(0);
     }
 
-    l_Data.Initialize(SMSG_HOTFIX_NOTIFY_BLOB);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
+    l_Data.Initialize(SMSG_HOTFIX_NOTIFY_BLOB, 4 + hotfix.size() * 12);
 
     l_Data << uint32(hotfix.size());
 

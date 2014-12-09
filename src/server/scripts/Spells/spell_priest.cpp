@@ -128,7 +128,9 @@ enum PriestSpells
     PRIEST_SPELL_SPIRIT_SHELL_AURA                  = 109964,
     PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908,
     PRIEST_SPELL_HALO_AREA_DAMAGE                   = 120644,
-    PRIEST_SPELL_HALO_AREA_HEAL                     = 120517
+    PRIEST_SPELL_HALO_AREA_HEAL                     = 120517,
+    PRIEST_SPELL_INSANITY_AURA                      = 139139,
+    PRIEST_SPELL_INSANITY                           = 132573
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -930,25 +932,8 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (GetSpellInfo()->Id == PRIEST_SPELL_POWER_WORD_SHIELD)
-                    {
-                        if (Unit* l_Target = GetHitUnit())
-                        {
-                            if (l_Target != nullptr && l_Target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
-                                l_Target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
-                        }
-                    }
-                    else
-                    {
-                        if (l_Player != nullptr && l_Player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
-                            l_Player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
-
-                        if (Unit* l_Target = GetHitUnit())
-                        {
-                            if (l_Target != nullptr && l_Target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
-                                l_Target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
-                        }
-                    }
+                    if (l_Player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
+                        l_Player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
                 }
             }
 
@@ -2525,6 +2510,19 @@ public:
     }
 };
 
+// Insanity - 132573
+class PlayerScript_insanity : public PlayerScript
+{
+public:
+    PlayerScript_insanity() :PlayerScript("PlayerScript_insanity") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_PRIEST && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW && p_Power == POWER_SHADOW_ORB)
+            if (p_Value > 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA) && roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_INSANITY_AURA)->Effects[EFFECT_0].BasePoints))
+                p_Player->CastSpell(p_Player, PRIEST_SPELL_INSANITY, true);
+    }
+};
 
 void AddSC_priest_spell_scripts()
 {
@@ -2587,4 +2585,5 @@ void AddSC_priest_spell_scripts()
 
     // Player Script
     new PlayerScript_Shadow_Orb();
+    new PlayerScript_insanity();
 }

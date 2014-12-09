@@ -79,7 +79,11 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
     ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806,
     ROGUE_SPELL_KIDNEY_SHOT                     = 408,
-    ROGUE_SPELL_REVEALING_STRIKE                = 84617
+    ROGUE_SPELL_REVEALING_STRIKE                = 84617,
+    ROGUE_SPELL_BURST_OF_SPEED                  = 137573,
+    ROGUE_SPELL_INTERNAL_BLEEDING               = 154953,
+    ROGUE_SPELL_INTERNAL_BLEEDING_AURA          = 154904,
+    ROGUE_SPELL_SMOKE_BOMB                      = 88611
 };
 
 // Killing Spree - 51690
@@ -1510,8 +1514,160 @@ class spell_rog_stealth : public SpellScriptLoader
     }
 };
 
+// Shadow Focus - 108209
+class spell_rog_shadow_focus : public SpellScriptLoader
+{
+public:
+    spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
+
+    class spell_rog_shadow_focus_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_shadow_focus_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_shadow_focus_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_shadow_focus_SpellScript();
+    }
+};
+
+// Burst of Speed - 108212
+class spell_rog_burst_of_speed : public SpellScriptLoader
+{
+public:
+    spell_rog_burst_of_speed() : SpellScriptLoader("spell_rog_burst_of_speed") { }
+
+    class spell_rog_burst_of_speed_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_burst_of_speed_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_BURST_OF_SPEED, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_burst_of_speed_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_burst_of_speed_SpellScript();
+    }
+};
+
+// Call by Kidney Shot 408
+// Internal Bleeding - 154904
+class spell_rog_internal_bleeding : public SpellScriptLoader
+{
+public:
+    spell_rog_internal_bleeding() : SpellScriptLoader("spell_rog_internal_bleeding") { }
+
+    class spell_rog_internal_bleeding_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_internal_bleeding_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
+                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_internal_bleeding_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_internal_bleeding_SpellScript();
+    }
+};
+
+// Smoke Bomb - 76577
+class spell_rog_smoke_bomb: public SpellScriptLoader
+{
+public:
+    spell_rog_smoke_bomb() : SpellScriptLoader("spell_rog_smoke_bomb") { }
+
+    class spell_rog_smoke_bomb_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_smoke_bomb_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                AreaTrigger* l_Area = l_Caster->GetAreaTrigger(GetSpellInfo()->Id);
+                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), ROGUE_SPELL_SMOKE_BOMB, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_smoke_bomb_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_smoke_bomb_SpellScript();
+    }
+};
+
+// Fan of Knives - 51723
+class spell_rog_fan_of_knives : public SpellScriptLoader
+{
+public:
+    spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
+
+    class spell_rog_fan_of_knives_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, l_Player->GetPower(POWER_COMBO_POINT) + 1, POWER_COMBO_POINT);
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_rog_fan_of_knives_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_fan_of_knives_SpellScript();
+    }
+};
+
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_fan_of_knives();
+    new spell_rog_smoke_bomb();
+    new spell_rog_internal_bleeding();
+    new spell_rog_burst_of_speed();
+    new spell_rog_shadow_focus();
     new spell_rog_killing_spree();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();

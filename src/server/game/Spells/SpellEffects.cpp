@@ -636,32 +636,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
 
                 break;
-            case 22568: // Ferocious Bite
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                damage += int32(0.196f * m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * m_caster->ToPlayer()->GetComboPoints());
-
-                // converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
-                // 25 energy = 100% more damage
-                AddPct(damage, energy * 4);
-
-                // if target is under 25% of life, also reset rake duration
-                if (unitTarget->GetHealthPct() <= 25.0f)
-                    if (AuraPtr aura = unitTarget->GetAura(1822))
-                        aura->RefreshDuration();
-
-                // Glyph of Ferocious Bite
-                if (m_caster->HasAura(67598))
-                {
-                    int32 heal_pct = int32((25 + energy) / 10);
-                    m_caster->CastCustomSpell(m_caster, 101024, &heal_pct, 0, 0, true);
-                }
-
-                break;
-            }
             default:
                 break;
             }
@@ -3007,7 +2981,6 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         if (goInfo->type == GAMEOBJECT_TYPE_GOOBER && player->GetGarrison())
             player->GetGarrison()->SetLastUsedActivationGameObject(gameObjTarget->GetGUID());
-
 
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
@@ -8250,7 +8223,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
         l_Player->IncreaseBonusRollFails();
         l_Player->ModifyMoney(l_GoldAmount);
-        l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+        l_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_MONEY, true, false);
 
         WorldPacket l_Data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
         l_Data << uint32(l_GoldAmount);
@@ -8265,7 +8238,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         if (roll_chance_i(l_DropChance))
         {
             l_Player->AddItem(l_Items[0], 1);
-            l_Player->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, false, false);
+            l_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
             l_Player->ResetBonusRollFails();
         }
         else
@@ -8273,7 +8246,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
             l_Player->IncreaseBonusRollFails();
             l_Player->ModifyMoney(l_GoldAmount);
-            l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+            l_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_MONEY, true, false);
 
             WorldPacket l_Data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             l_Data << uint32(l_GoldAmount);

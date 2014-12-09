@@ -18778,6 +18778,11 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
                     if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_CreditedPlayer);
                 }
+                else if (l_InstanceMap->IsChallengeMode())
+                {
+                    if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
+                        l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
+                }
                 else
                 {
                     /// the reset time is set but not added to the scheduler
@@ -20729,12 +20734,14 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Glyph of the Orca
             if (HasAura(114333))
                 return 4591;
+            break;
         }
         case FORM_GHOSTWOLF:
         {
             // Glyph of the Spectral Wolf
             if (HasAura(58135))
                 return 30162;
+            break;
         }
         case FORM_METAMORPHOSIS:
         {

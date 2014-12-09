@@ -2957,7 +2957,7 @@ void InstanceMap::UnloadAll()
 void InstanceMap::SendResetWarnings(uint32 timeLeft) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        itr->getSource()->SendInstanceResetWarning(GetId(), itr->getSource()->GetDifficulty(IsRaid()), timeLeft);
+        itr->getSource()->SendRaidInstanceMessage(GetId(), itr->getSource()->GetDifficulty(IsRaid()), timeLeft);
 }
 
 void InstanceMap::SetResetSchedule(bool on)

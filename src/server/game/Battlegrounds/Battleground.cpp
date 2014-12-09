@@ -1874,7 +1874,7 @@ void Battleground::SendCountdownTimer()
 
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            player->SendBattlegroundTimer(countdownSec, GetMaxCountdownTimer());
+            player->SendStartTimer(countdownSec, GetMaxCountdownTimer(), PVP_TIMER);
 }
 
 void Battleground::EndNow()
@@ -2104,35 +2104,52 @@ void Battleground::RewardXPAtKill(Player* killer, Player* victim)
 
 void Battleground::SendFlagsPositions()
 {
-    uint32 l_Count = 0;
     std::list<Player*> l_Players;
 
-    if (Player* plr = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_ALLIANCE)))
+    // Alliance
+    std::set<uint64> l_AllianceFlagPickers = GetFlagPickersGUID(TEAM_ALLIANCE);
+    std::for_each(l_AllianceFlagPickers.begin(), l_AllianceFlagPickers.end(), [&l_Players](uint64 p_PickerGuid)
     {
-        l_Players.push_back(plr);
-        ++l_Count;
-    }
+        Player* l_Player = ObjectAccessor::FindPlayer(p_PickerGuid);
+        if (l_Player != nullptr)
+            l_Players.push_back(l_Player);
+    });
 
-    if (Player* plr = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_HORDE)))
+    std::set<uint64> l_HordeFlagPickers = GetFlagPickersGUID(TEAM_HORDE);
+    std::for_each(l_HordeFlagPickers.begin(), l_HordeFlagPickers.end(), [&l_Players](uint64 p_PickerGuid)
     {
-        l_Players.push_back(plr);
-        ++l_Count;
-    }
-
-    if (!l_Count)
-        return;
+        Player* l_Player = ObjectAccessor::FindPlayer(p_PickerGuid);
+        if (l_Player != nullptr)
+            l_Players.push_back(l_Player);
+    });
 
     WorldPacket l_Data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
 
-    l_Data << uint32(l_Count);
+    l_Data << uint32(l_Players.size());
+
+    uint8 l_ArenaSlot = 1;  ///< Used to show UI frame of who is flag picker (1 - 5)
 
     for (auto l_Itr : l_Players)
     {
         l_Data.appendPackGUID(l_Itr->GetGUID());
         l_Data << float(l_Itr->GetPositionX());
         l_Data << float(l_Itr->GetPositionY());
-        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FLAG_ICON_ALLIANCE : FLAG_ICON_HORDE);
-        l_Data << uint8(l_Itr->GetBGTeam());
+
+        FlagIcon l_FlagIcon = FlagIcon::None;
+        switch (GetTypeID())
+        {
+            /// - In Kotmogu Temple, each faction have theirs own flags, they didn't steal the other faction flag
+            case BattlegroundTypeId::BATTLEGROUND_KT:
+                l_FlagIcon = l_Itr->GetTeamId() == TeamId::TEAM_HORDE ? FlagIcon::Horde : FlagIcon::Alliance;
+                break;
+            /// - In all others bg with flags, each faction must steal the flag
+            default:
+                l_FlagIcon = l_Itr->GetTeamId() == TeamId::TEAM_HORDE ? FlagIcon::Alliance : FlagIcon::Horde;
+                break;
+        }
+
+        l_Data << uint8(l_FlagIcon);
+        l_Data << uint8(l_ArenaSlot++);
     }
 
     SendPacketToAll(&l_Data);

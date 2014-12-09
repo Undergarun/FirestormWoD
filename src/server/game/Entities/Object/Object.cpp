@@ -3156,12 +3156,12 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-void Player::SendBattlegroundTimer(uint32 p_TimeRemaining, uint32 p_TotalTime)
+void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)
 {
     WorldPacket l_Data(SMSG_START_TIMER, 12);
-    l_Data << uint32(p_TimeRemaining);
-    l_Data << uint32(p_TotalTime);
-    l_Data << uint32(PVP_TIMER);
+    l_Data << uint32(p_Time);
+    l_Data << uint32(p_MaxTime);
+    l_Data << uint32(p_Type);
     SendDirectMessage(&l_Data);
 }
 

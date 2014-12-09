@@ -1991,6 +1991,11 @@ class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
         }
 };
 
+enum EmberTapSpells
+{
+    SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
+    SPELL_WARL_SEARING_FLAMES = 174848
+};
 // Ember Tap - 114635
 class spell_warl_ember_tap : public SpellScriptLoader
 {
@@ -2006,14 +2011,26 @@ class spell_warl_ember_tap : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    float Mastery = 3.0f * _player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
+                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
                     float pct = 0.15f * (1 + Mastery);
 
-                    int32 healAmount = int32(_player->GetMaxHealth() * pct);
-                    healAmount = _player->SpellHealingBonusDone(_player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
-                    healAmount = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), healAmount, HEAL);
+                    int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
+                    healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
+                    healAmount = l_Player->SpellHealingBonusTaken(l_Player, GetSpellInfo(), healAmount, HEAL);
+
+                    if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
+                    {
+                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        // ManaCost == 0, wrong way to retrieve cost ?
+                        //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5 * l_Player->GetPowerCoeff(POWER_BURNING_EMBERS));
+                    }
+
+                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
+                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints);
 
                     SetHitHeal(healAmount);
                 }
@@ -2138,6 +2155,11 @@ class spell_warl_shadowburn : public SpellScriptLoader
         }
 };
 
+enum BurningEmbersSpells
+{
+    SPELL_WARL_CHARRED_REMAINS = 157696
+};
+
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 // Burning Embers generate
@@ -2152,16 +2174,21 @@ class spell_warl_burning_embers : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpell()->IsCritForTarget(target))
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
-                        else
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 1 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (!l_Target)
+                    return;
+
+                int32 l_BurningEmbersNumber = 1;
+
+                if (GetSpell()->IsCritForTarget(l_Target))
+                    l_BurningEmbersNumber *= 2;
+
+                if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
+                    l_BurningEmbersNumber *= l_CharredRemains->GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100;
+
+                l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersNumber * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
             }
 
             void Register()
@@ -2179,6 +2206,7 @@ class spell_warl_burning_embers : public SpellScriptLoader
 enum SpellsDrainLife
 {
     SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
+    SPELL_WARL_HARVEST_LIFE = 108371,
     SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
 };
 
@@ -2196,12 +2224,15 @@ class spell_warl_drain_life : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints / 10;
+                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
 
                     if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
+                        l_Pct += l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct);
+                    if (AuraPtr l_HarvestLife = l_Caster->GetAura(SPELL_WARL_HARVEST_LIFE))
+                        l_Pct = l_HarvestLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct / GetSpellInfo()->GetDuration());
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
                 }
             }
@@ -2333,17 +2364,14 @@ class spell_warl_fear : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
-                        {
-                            _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5 * IN_MILLISECONDS);
-                        }
+                        if (l_Player->HasAura(WARLOCK_GLYPH_OF_FEAR))
+                            l_Player->CastSpell(l_Target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
                         else
-                            _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);
+                            l_Player->CastSpell(l_Target, WARLOCK_FEAR_EFFECT, true);
                     }
                 }
             }

@@ -51,6 +51,7 @@ extern DB2Storage <SpellMiscEntry>                  sSpellMiscStore;
 extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
+extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -73,6 +74,7 @@ extern DB2Storage <GarrMechanicEntry>               sGarrMechanicStore;
 extern DB2Storage <GarrMissionXEncouterEntry>       sGarrMissionXEncouterStore;
 extern DB2Storage <GarrEncouterXMechanicEntry>      sGarrEncouterXMechanicStore;
 extern DB2Storage <GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore;
+extern DB2Storage <GarrSpecializationEntry>         sGarrSpecializationStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet

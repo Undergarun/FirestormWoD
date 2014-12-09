@@ -254,44 +254,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, l_BGQueueTypeID, l_BGTypeID, l_BracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
-{
-    Battleground* l_BG = m_Player->GetBattleground();
-
-    if (!l_BG)                                                 // can't be received if player not in battleground
-        return;
-
-    uint32 l_Count = 0;
-    std::list<Player*> l_Players;
-
-    if (Player* plr = ObjectAccessor::FindPlayer(l_BG->GetFlagPickerGUID(TEAM_ALLIANCE)))
-    {
-        l_Players.push_back(plr);
-        ++l_Count;
-    }
-
-    if (Player* plr = ObjectAccessor::FindPlayer(l_BG->GetFlagPickerGUID(TEAM_HORDE)))
-    {
-        l_Players.push_back(plr);
-        ++l_Count;
-    }
-
-    WorldPacket l_Data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
-
-    l_Data << uint32(l_Count);
-
-    for (auto l_Itr : l_Players)
-    {
-        l_Data.appendPackGUID(l_Itr->GetGUID());
-        l_Data << float(l_Itr->GetPositionX());
-        l_Data << float(l_Itr->GetPositionY());
-        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FLAG_ICON_ALLIANCE : FLAG_ICON_HORDE);
-        l_Data << uint8(l_Itr->GetBGTeam());
-    }
-
-    SendPacket(&l_Data);
-}
-
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");

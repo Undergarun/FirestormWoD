@@ -3749,6 +3749,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118592:// Spinning Crane Kick
                 spellInfo->Effects[0].BasePoints = urand(180, 230);
                 break;
+            case 165381: // Righteous Vengeance
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MASTERY;
+                break;
             case 48505: // Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -3756,6 +3759,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 119539: // Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
+                break;
+            case 76671: // Mastery: Divine Bulwark
+                spellInfo->Effects[4].BasePoints = 8;
+                break;
+            case 139139: //Insanity
+                spellInfo->ProcChance = 0;
                 break;
             case 32409: // Shadow Word: Death (triggered)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;

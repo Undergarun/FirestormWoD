@@ -50,6 +50,7 @@ DB2Storage <SpellMiscEntry>                 sSpellMiscStore(SpellMiscEntryfmt);
 DB2Storage <SpellPowerEntry>                sSpellPowerStore(SpellPowerEntryfmt);
 DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfmt);
 DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
+DB2Storage <MapChallengeModeEntry>          sMapChallengeModeStore(MapChallengeModeEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -72,6 +73,7 @@ DB2Storage <GarrMechanicEntry>              sGarrMechanicStore(GarrMechanicEntry
 DB2Storage <GarrMissionXEncouterEntry>      sGarrMissionXEncouterStore(GarrMissionXEncouterEntryfmt);
 DB2Storage <GarrEncouterXMechanicEntry>     sGarrEncouterXMechanicStore(GarrEncouterXMechanicEntryfmt);
 DB2Storage <GarrFollowerLevelXPEntry>       sGarrFollowerLevelXPStore(GarrFollowerLevelXPEntryfmt);
+DB2Storage <GarrSpecializationEntry>        sGarrSpecializationStore(GarrSpecializationEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
@@ -181,6 +183,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sSpellPowerStore,                db2Path, "SpellPower.db2");
     LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2");
     LoadDB2(bad_db2_files, sSpellClassOptionsStore,         db2Path, "SpellClassOptions.db2");
+    LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Garrison DB2
@@ -203,6 +206,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrMissionXEncouterStore,      db2Path, "GarrMissionXEncounter.db2");
     LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2");
     LoadDB2(bad_db2_files, sGarrFollowerLevelXPStore,       db2Path, "GarrFollowerLevelXP.db2");
+    LoadDB2(bad_db2_files, sGarrSpecializationStore,        db2Path, "GarrSpecialization.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet
