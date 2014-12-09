@@ -1314,6 +1314,59 @@ class spell_warr_shield_barrier : public SpellScriptLoader
         }
 };
 
+enum AngerManagementSpells
+{
+    SPELL_WARR_ANGER_MANAGEMENT = 152278,
+};
+
+#define REDUCED_SPELLS_ID_MAX 13
+uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
+{
+    107574, // Avatar
+    12292,  // Bloodbath
+    46924,  // Bladestorm
+    107570, // Storm Bolt
+    46968,  // Shockwave
+    118000, // Dragon Roar
+    114192, // Mocking Banner
+    6544,   // Heroic Leap
+    871,    // Shield Wall
+    1160,   // Demoralizing Shout
+    12975,  // Last Stand
+    1719,   // Recklessness
+    118038, // Die by the Sword
+};
+
+class spell_warr_anger_management : public PlayerScript
+{
+public:
+    spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
+
+    uint16 m_RageSpend = 0;
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE)
+            return;
+
+        // Only get spended rage
+        if (p_Value > 0)
+            return;
+
+        m_RageSpend += -p_Value / p_Player->GetPowerCoeff(POWER_RAGE);
+        if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
+        {
+            for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
+            {
+                if (p_Player->HasSpellCooldown(g_ReducedSpellsId[l_I]))
+                    p_Player->ReduceSpellCooldown(g_ReducedSpellsId[l_I], 1 * IN_MILLISECONDS);
+            }
+
+            m_RageSpend = 0;
+        }
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1348,4 +1401,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_intervene();
     new spell_warr_glyph_of_gag_order();
     new spell_warr_shield_barrier();
+    new spell_warr_anger_management();
 }
