@@ -89,7 +89,9 @@ enum MageSpells
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE             = 157977,
     SPELL_MAGE_ARCANE_POWER                      = 12042,
-    SPELL_MAGE_OVERPOWERED                       = 155147
+    SPELL_MAGE_OVERPOWERED                       = 155147,
+    SPELL_MAGE_ICY_VEINS                         = 12472,
+    SPELL_MAGE_THERMAL_VOID                      = 155149
 };
 
 
@@ -348,7 +350,7 @@ class spell_mage_arcane_missile : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                     if (l_Caster->HasAura(SPELL_MAGE_OVERPOWERED))
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
-                            l_Aura->SetDuration(l_Aura->GetMaxDuration() + 2 * IN_MILLISECONDS);
+                            l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
             }
 
             void Register()
@@ -1453,8 +1455,39 @@ public:
     }
 };
 
+// Ice Lance - 30455
+class spell_mage_ice_lance : public SpellScriptLoader
+{
+public:
+    spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
+
+    class spell_mage_ice_lance_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_ice_lance_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MAGE_THERMAL_VOID))
+                    if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
+                        l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_ice_lance_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_ice_lance();
     new spell_mage_unstable_magic();
     new spell_mage_greater_invisibility_removed();
     new spell_mage_greater_invisibility_triggered();
