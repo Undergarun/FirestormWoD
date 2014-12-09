@@ -130,7 +130,7 @@ struct GarrisonCacheInfoLocation
 };
 
 extern GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL];
-extern uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * GARRISON_FACTION_COUNT];
+extern uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3];
 
 struct GarrisonMission
 {
