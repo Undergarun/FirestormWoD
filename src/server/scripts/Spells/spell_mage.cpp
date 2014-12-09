@@ -87,7 +87,9 @@ enum MageSpells
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FROSTBOLT                         = 116,
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
-    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE             = 157977
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE             = 157977,
+    SPELL_MAGE_ARCANE_POWER                      = 12042,
+    SPELL_MAGE_OVERPOWERED                       = 155147
 };
 
 
@@ -335,6 +337,29 @@ class spell_mage_arcane_missile : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_mage_arcane_missile_AuraScript();
+        }
+
+        class spell_mage_arcane_missile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(SPELL_MAGE_OVERPOWERED))
+                        if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
+                            l_Aura->SetDuration(l_Aura->GetMaxDuration() + 2 * IN_MILLISECONDS);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_arcane_missile_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_arcane_missile_SpellScript();
         }
 };
 
