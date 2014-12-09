@@ -7,3 +7,5 @@ INSERT INTO `spell_script_names` VALUES (26679, 'spell_rog_retenless_strikes');
 INSERT INTO `spell_script_names` VALUES (1943, 'spell_rog_retenless_strikes');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_retenless_strikes_proc';
 INSERT INTO `spell_script_names` VALUES (14181, 'spell_rog_retenless_strikes_proc');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_combo_point_delayed';
+INSERT INTO `spell_script_names` VALUES (139569, 'spell_rog_combo_point_delayed');
