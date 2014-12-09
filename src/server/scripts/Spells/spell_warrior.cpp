@@ -40,7 +40,7 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOOD_AND_THUNDER             = 84615,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
     WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
-    WARRIOR_SPELL_RALLYING_CRY                  = 122507,
+    WARRIOR_SPELL_RALLYING_CRY                  = 97463,
     WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE        = 58368,
     WARRIOR_SPELL_SWORD_AND_BOARD               = 50227,
     WARRIOR_SPELL_SHIELD_SLAM                   = 23922,
@@ -708,16 +708,24 @@ class spell_warr_rallying_cry : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    _player->CastSpell(_player, WARRIOR_SPELL_RALLYING_CRY, true);
+                    int32 l_Bp0 = 0;
+                    std::list<Unit*> l_MemberList;
 
-                    std::list<Unit*> memberList;
-                    _player->GetPartyMembers(memberList);
+                    l_Player->GetPartyMembers(l_MemberList);
 
-                    for (auto itr : memberList)
-                    if (itr->IsWithinDistInMap(_player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend))
-                            _player->CastSpell(itr, WARRIOR_SPELL_RALLYING_CRY, true);
+                    for (auto l_Itr : l_MemberList)
+                    {
+                        if (l_Itr->IsWithinDistInMap(l_Player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend))
+                        {
+                            l_Bp0 = CalculatePct(l_Itr->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                            l_Player->CastCustomSpell(l_Itr, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
+                        }
+                    }
+
+                    l_Bp0 = CalculatePct(l_Player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    l_Player->CastCustomSpell(l_Player, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
                 }
             }
 

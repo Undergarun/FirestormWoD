@@ -5076,11 +5076,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 12975:// Last Stand
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
-            case 122507:// Rallying Cry
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
-                break;
             case 117828:// Backdraft
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
                 spellInfo->Effects[0].MiscValue = SPELLMOD_CASTING_TIME;
