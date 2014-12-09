@@ -3252,7 +3252,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool CanUseCharge(uint32 p_SpellID) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = true);
+        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = false);
         ChargesData* GetChargesData(uint32 p_SpellID);
         //////////////////////////////////////////////////////////////////////////
 

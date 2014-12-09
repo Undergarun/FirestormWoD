@@ -30946,17 +30946,21 @@ bool Player::CanUseCharge(uint32 p_SpellID) const
         return true;
 
     uint32 l_Count = 0;
+    bool l_IsModified = false;
     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
     Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
     {
         if (l_SpellInfo != nullptr && (*l_Iter)->GetSpellInfo()->SpellFamilyFlags & l_SpellInfo->SpellFamilyFlags)
+        {
             ++l_Count;
+            l_IsModified = true;
+        }
     }
 
     // If spell is not modified, we should assume
     // that spell doesn't use charges yet
-    if (!l_Count)
+    if (!l_Count && l_IsModified)
         return true;
 
     if (l_Charges.m_ConsumedCharges >= l_Charges.m_MaxCharges)
@@ -30988,6 +30992,7 @@ void Player::UpdateCharges(uint32 const p_Time)
 
                 l_Charges->m_Changed = true;
                 l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin() + l_Count);
+                --l_Charges->m_ConsumedCharges;
                 continue;
             }
             else
@@ -31006,7 +31011,7 @@ void Player::UpdateCharges(uint32 const p_Time)
     }
 }
 
-void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket /*= true*/)
+void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket /*= false*/)
 {
     if (m_SpellChargesMap.find(p_SpellID) == m_SpellChargesMap.end())
     {
