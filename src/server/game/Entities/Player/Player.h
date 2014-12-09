@@ -80,6 +80,21 @@ enum ToastTypes
     TOAST_TYPE_MONEY        = 2,
     TOAST_TYPE_NEW_ITEM     = 3,
 };
+/// 6.0.3 19116
+enum DisplayToastMethod
+{
+    DISPLAY_TOAST_METHOD_UNK1                               = 0x0,
+    DISPLAY_TOAST_METHOD_LOOT                               = 0x1,
+    DISPLAY_TOAST_METHOD_PET_BATTLE_LOOT                    = 0x2,
+    DISPLAY_TOAST_METHOD_UNK2                               = 0x3,
+    DISPLAY_TOAST_METHOD_GARRISON_MISSION_BONUS_ROLL_LOOT_1 = 0x4,
+    DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_1               = 0x5,
+    DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_2               = 0x6,
+    DISPLAY_TOAST_METHOD_UNK3                               = 0x7,
+    DISPLAY_TOAST_METHOD_GARRISON_MISSION_BONUS_ROLL_LOOT_2 = 0x8,
+    DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST             = 0x9,
+    DISPLAY_TOAST_METHOD_GARRISON_CACHE                     = 0xA,
+};
 
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
@@ -1719,7 +1734,7 @@ class Player : public Unit, public GridObject<Player>
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();
-        void SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed);
+        void SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed);
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 

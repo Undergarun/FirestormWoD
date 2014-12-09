@@ -16450,7 +16450,7 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
+void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
 {
     ItemTemplate const* l_ItemTpl = sObjectMgr->GetItemTemplate(p_Entry);
 
@@ -16460,7 +16460,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
 
     l_Data << uint32(p_Count);
-    l_Data << uint8(1);                             // 1: Loot, 2: BattlePet loot
+    l_Data << uint8(p_Method);
 
     l_Data.WriteBit(p_BonusRoll);
     l_Data.WriteBits(p_Type, 2);

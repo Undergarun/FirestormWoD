@@ -2982,7 +2982,6 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         if (goInfo->type == GAMEOBJECT_TYPE_GOOBER && player->GetGarrison())
             player->GetGarrison()->SetLastUsedActivationGameObject(gameObjTarget->GetGUID());
 
-
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK) ||
@@ -8224,7 +8223,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
         l_Player->IncreaseBonusRollFails();
         l_Player->ModifyMoney(l_GoldAmount);
-        l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+        l_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_MONEY, true, false);
 
         WorldPacket l_Data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
         l_Data << uint32(l_GoldAmount);
@@ -8239,7 +8238,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         if (roll_chance_i(l_DropChance))
         {
             l_Player->AddItem(l_Items[0], 1);
-            l_Player->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, false, false);
+            l_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
             l_Player->ResetBonusRollFails();
         }
         else
@@ -8247,7 +8246,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
             l_Player->IncreaseBonusRollFails();
             l_Player->ModifyMoney(l_GoldAmount);
-            l_Player->SendDisplayToast(0, l_GoldAmount, TOAST_TYPE_MONEY, true, false);
+            l_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_MONEY, true, false);
 
             WorldPacket l_Data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             l_Data << uint32(l_GoldAmount);
