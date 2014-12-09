@@ -4380,6 +4380,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88852: // Tower of Radiance
                 spellInfo->Effects[0].Effect = 0;
                 break;
+            case 703: // Garrote
+                spellInfo->ProcChance = 100;
+                break;
             case 24275: // Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
