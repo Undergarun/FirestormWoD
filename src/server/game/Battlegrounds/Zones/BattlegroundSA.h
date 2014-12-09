@@ -41,8 +41,8 @@ enum BG_SA_WorldSafeLocs
 
 static const float g_BG_SA_AttackerPosition[2][4] =
 {
-    { 2682.936f, -830.368f, 15.0f, 2.895f },
-    { 2577.003f, 980.261f, 15.0f, 0.807f }
+    { 2682.936f, -830.368f, 30.0f, 2.895f },
+    { 2577.003f, 980.261f, 30.0f, 0.807f }
 };
 
 enum BG_SA_Status
@@ -85,16 +85,13 @@ enum BG_SA_EventIdGate
 
 enum BG_SA_Timers
 {
-    BG_SA_BOAT_START    =  60 * IN_MILLISECONDS,
+    BG_SA_BOAT_START    =  30 * IN_MILLISECONDS,
     BG_SA_WARMUPLENGTH  = 120 * IN_MILLISECONDS,
     BG_SA_ROUNDLENGTH   = 600 * IN_MILLISECONDS
 };
 
 enum BG_SA_WorldStates
 {
-    BG_SA_TIMER_MINS                = 3559,
-    BG_SA_TIMER_SEC_TENS            = 3560,
-    BG_SA_TIMER_SEC_DECS            = 3561,
     BG_SA_ALLY_ATTACKS              = 4352,
     BG_SA_HORDE_ATTACKS             = 4353,
     BG_SA_PURPLE_GATEWS             = 3614,
@@ -117,6 +114,7 @@ enum BG_SA_WorldStates
     BG_SA_CENTER_GY_HORDE           = 3634,
     BG_SA_BONUS_TIMER               = 0xdf3,
     BG_SA_ENABLE_TIMER              = 3564,
+    BG_SA_TIMER                     = 3557,
 };
 
 enum npc
@@ -615,6 +613,8 @@ class BattlegroundSA : public Battleground
         /// Respawn dead demolisher
         void UpdateDemolisherSpawns();
 
+        /// Timestamp of the end of the current round
+        uint32 m_EndTimestamp;
         /// Totale elapsed time of current round
         uint32 TotalTime;
         /// Max time of round
