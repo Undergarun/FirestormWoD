@@ -4,6 +4,43 @@
 
 namespace MS
 {
+    // Summon Quills - 159381
+    class spell_Quills : public SpellScriptLoader
+    {
+    public:
+        spell_Quills()
+            : SpellScriptLoader("spell_Quills")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            Quills = 156742,
+        };
+
+        class spell_QuillsSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_QuillsSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster)
+                    l_Caster->CastSpell(l_Caster, uint32(Spells::Quills), true);
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_QuillsSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_QuillsSpellScript();
+        }
+    };
+
     // Summon Cast Down - 165845
     class spell_CastDown : public SpellScriptLoader
     {
@@ -113,6 +150,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::LensFlare_Dmg), true);
                 m_Targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
         }
     };
@@ -727,6 +772,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::FOUR_WINDS_DMG), true);
                 m_targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
 
             // Update rotation.
@@ -933,6 +986,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::WINDWALL_DMG), true);
                 m_targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
 
             // Update rotation.
@@ -1074,6 +1135,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::SPINNING_BLADE_DMG), true);
                 m_targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
         }
     };
@@ -1510,6 +1579,7 @@ void AddSC_spell_instance_skyreach()
     // Boss Rukhran.
     new MS::spell_SummonSolarFlare();
     new MS::spell_Sunstrike();
+    new MS::spell_Quills();
 
     // Boss High Save Viryx.
     new MS::AreaTrigger_LensFlare();

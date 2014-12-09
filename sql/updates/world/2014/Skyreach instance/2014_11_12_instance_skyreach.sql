@@ -784,3 +784,51 @@ UPDATE creature_template SET minlevel=99 , maxlevel=101 WHERE entry=76145;
 
 INSERT INTO creature (id, map, position_x, position_y, position_z, orientation, spawnMask, npcflag) VALUES(12999, 1209, 1068.836, 1802.591, 262.7, 69.43208, 6, 0);
 update creature_template set flags_extra=128 where entry=76083;
+
+INSERT INTO gossip_menu VALUES ('16675', '24565');
+INSERT INTO npc_text VALUES ('24565', 'Well done, $N. Allow me to return you safely to the surface.', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+INSERT INTO npc_text VALUES ('24221', 'Well done, $N. Allow me to return you safely to the surface.', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+
+update creature set MovementType = 1, spawndist = 5 where id = 81081; 
+-- Bytes2 is 0, 1, 2 only 
+UPDATE  creature_template_addon SET bytes2 = 2  WHERE bytes2 > 3;
+
+-- Delete gameobject whit same id on same xyz
+DELETE n1 FROM gameobject n1, gameobject n2 WHERE n1.guid > n2.guid AND n1.id = n2.id AND n1.position_x = n2.position_x AND n1.position_y = n2.position_y AND n1.position_z = n2.position_z;
+
+-- Default data
+UPDATE creature_template SET faction = 35 WHERE faction = 0;
+UPDATE creature_template SET unit_class = 1 WHERE unit_class = 0;
+UPDATE gameobject SET `spawntimesecs` = 120 WHERE spawntimesecs = 0 AND map = 1116;
+UPDATE creature SET spawndist = 7.76 WHERE movementtype = 1 AND spawndist = 0;
+UPDATE creature SET movementtype= 1 WHERE  spawndist != 0;
+UPDATE creature SET movementtype= 0 WHERE  spawndist = 0;
+
+-- Set correct equipment
+UPDATE `creature`, `creature_equip_template`
+SET `creature`.`equipment_id` = `creature_equip_template`.`id`
+WHERE `creature`.`id` = `creature_equip_template`.`entry`;
+
+-- update inhabitype pour les hover
+UPDATE creature_template SET inhabitType = `InhabitType` | 4 WHERE entry IN (SELECT c.entry FROM creature_template_addon c WHERE (c.bytes1 & 33554432 ) !=0 );
+
+-- set move creature server controled
+UPDATE creature a SET a.spawndist = 10, a.movementType = 1 WHERE a.id IN (SELECT c.entry FROM creature_template c WHERE (c.unit_flags & 1 ) !=0 ) AND map= 1116;
+
+-- retirer les flags disarm
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`-0x00200000 WHERE unit_flags&0x00200000;
+
+UPDATE creature  SET spawndist = 10, movementType = 1 WHERE id IN (81081,81080); 
+update creature_template_addon set bytes1 = 33554432 where entry = 81088; -- permetd e faire voler les arakkoa cosmetic 
+REPLACE INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras)
+VALUES
+   (12106537, 810880, 0, 33554432, 1, 0, NULL); 
+   
+   
+UPDATE access_requirement SET level_min=96 WHERE mapId=1209 AND difficulty=1;
+UPDATE access_requirement SET level_min=100 WHERE mapId=1209 AND difficulty=2;
+
+UPDATE areatrigger_teleport SET target_position_x=1232.45996094,
+				target_position_y=1743.70996094,
+				target_position_z=177.169006348,
+				target_orientation=331.58 WHERE id=10157;

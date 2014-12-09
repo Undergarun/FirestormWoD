@@ -29,6 +29,8 @@ update creature_template set ScriptName='boss_HighSageViryx' where entry=76266;
 update creature_template set ScriptName='mob_SolarZealot' where entry=76267;
 update creature_template set ScriptName='mob_ArakkoaMagnifyingGlassFocus' where entry=76083;
 update creature_template set ScriptName='mob_SkyreachShieldConstruct' where entry=76292;
+update creature_template set ScriptName='npc_GossipIntroOutro' where entry=84782;
+update creature_template set ScriptName='npc_GossipIntroOutro' where entry=82376;
 
 INSERT INTO spell_script_names VALUES ('154140', 'spell_Energize');
 INSERT INTO spell_script_names VALUES ('153544', 'spell_SpinningBlade');
@@ -43,6 +45,7 @@ INSERT INTO spell_script_names VALUES ('160066', 'spell_FlashBang');
 INSERT INTO spell_script_names VALUES ('154159', 'spell_VisualEnergize');
 INSERT INTO spell_script_names VALUES ('154177', 'spell_VisualEnergize2');
 INSERT INTO spell_script_names VALUES ('165845', 'spell_CastDown');
+INSERT INTO spell_script_names VALUES ('159381', 'spell_Quills');
 
 
 update creature_template set modelid1=61365 where entry=76119;

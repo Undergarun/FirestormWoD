@@ -128,29 +128,31 @@ GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT
 
 GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
 {
-    /// SiteLevelID         X          Y         Z         O
+    /// SiteLevelID         X          Y          Z         O
     /// Horde Level 1
-    {     258,             0.f,       0.f,      0.f,      0.f        },
+    {     258,             0.f,       0.f,       0.f,      0.f        },
     /// Horde level 2
-    {     445,             0.f,       0.f,      0.f,      0.f        },
+    {     445,             0.f,       0.f,       0.f,      0.f        },
     /// Horde level 3
-    {     259,             0.f,       0.f,      0.f,      0.f        },
+    {     259,          5592.272,  4589.9390f, 136.66830f, 5.858787f  },
     /// Alliance Level 1
-    {       5,          1893.729f,  208.8733f, 77.06371f, 1.685312f  },
+    {       5,          1893.729f,  208.8733f,  77.06371f, 1.685312f  },
     /// Alliance Level 2
-    {     444,             0.f,       0.f,      0.f,      0.f        },
+    {     444,             0.f,       0.f,       0.f,      0.f        },
     /// Alliance Level 3
-    {       6,             0.f,       0.f,      0.f,      0.f        },
+    {       6,             0.f,       0.f,       0.f,      0.f        },
 };
 
-uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * GARRISON_FACTION_COUNT] =
+uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
 {
     /// Horde
-    237720,         ///< Normal @TODO find correct entry
-    237720,         ///< Full
+    237191,         ///< Normal
+    237720,         ///< Hefty
+    237722,         ///< Full
     /// Alliance
     236916,         ///< Normal
-    236916          ///< Full @TODO find correct entry
+    237723,         ///< Hefty
+    237724,         ///< Full
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -526,7 +528,8 @@ void Garrison::Update()
                 delete l_Cache;
             }
 
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + (l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY)];
+            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
 
             if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
             {
@@ -540,7 +543,8 @@ void Garrison::Update()
 
         if (!m_CacheGameObjectGUID && l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
         {
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + (l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY)];
+            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
 
             if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
             {
