@@ -16453,7 +16453,8 @@ void Player::SendItemDurations()
 void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
 {
     ItemTemplate const* l_ItemTpl = sObjectMgr->GetItemTemplate(p_Entry);
-    if (!l_ItemTpl && p_Entry)
+
+    if (!l_ItemTpl && p_Entry && p_Type == TOAST_TYPE_NEW_ITEM)
         return;
 
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
@@ -16479,8 +16480,6 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, ToastTypes p_Type,
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
-//
-//         l_Data << uint32(445);                      // ReforgeID
     }
 
     if (p_Type == TOAST_TYPE_NEW_CURRENCY)

@@ -72,12 +72,13 @@ typedef std::deque<Mail*> PlayerMails;
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
+/// 6.0.3 19116
 enum ToastTypes
 {
-    TOAST_TYPE_NONE,
-    TOAST_TYPE_NEW_CURRENCY,
-    TOAST_TYPE_NEW_ITEM,
-    TOAST_TYPE_MONEY
+    TOAST_TYPE_NONE         = 0,
+    TOAST_TYPE_NEW_CURRENCY = 1,
+    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_NEW_ITEM     = 3,
 };
 
 // Note: SPELLMOD_* values is aura types in fact
