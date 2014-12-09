@@ -132,50 +132,79 @@ struct MinionInfo
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 
+struct BossScenarios
+{
+    BossScenarios()
+    {
+        m_BossID = 0;
+        m_ScenarioID = 0;
+    }
+
+    BossScenarios(uint32 p_ID, uint32 p_Scenario)
+    {
+        m_BossID = p_ID;
+        m_ScenarioID = p_Scenario;
+    }
+
+    uint32 m_BossID;
+    uint32 m_ScenarioID;
+};
+
+#define GOB_CHALLENGE_START_DOOR 211989
+
+enum eChallengeMedals
+{
+    MedalTypeNone,
+    MedalTypeBronze,
+    MedalTypeSilver,
+    MedalTypeGold,
+    MaxMedalType
+};
+
 class InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) {}
+        explicit InstanceScript(Map* p_Map);
 
         virtual ~InstanceScript() {}
 
         Map* instance;
 
-        //On creation, NOT load.
+        // On creation, NOT load.
         virtual void Initialize() {}
 
-        //On load
+        // On load
         virtual void Load(char const* data) { LoadBossState(data); }
 
-        //When save is needed, this function generates the data
+        // When save is needed, this function generates the data
         virtual std::string GetSaveData() { return GetBossSaveData(); }
 
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) {}
 
-        //Used by the map's CanEnter function.
-        //This is to prevent players from entering during boss encounters.
+        // Used by the map's CanEnter function.
+        // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
-        //Called when a player begins to enter the instance.
+        // Called when a player begins to enter the instance.
         virtual void BeforePlayerEnter(Player* /*player*/) {}
 
-        //Called when a player successfully enters the instance.
-        virtual void OnPlayerEnter(Player* /*player*/) {}
+        // Called when a player successfully enters the instance.
+        virtual void OnPlayerEnter(Player* p_Player);
 
-        //Handle open / close objects
-        //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
-        //use HandleGameObject(GUID, boolen, NULL); in any other script
+        // Handle open / close objects
+        // use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
+        // use HandleGameObject(GUID, boolen, NULL); in any other script
         void HandleGameObject(uint64 guid, bool open, GameObject* go = NULL);
 
-        //change active state of doors or buttons
+        // change active state of doors or buttons
         void DoUseDoorOrButton(uint64 guid, uint32 withRestoreTime = 0, bool useAlternativeState = false);
 
-        //Respawns a GO having negative spawntimesecs in gameobject-table
+        // Respawns a GO having negative spawntimesecs in gameobject-table
         void DoRespawnGameObject(uint64 guid, uint32 timeToDespawn = MINUTE);
 
-        //sends world state update to all players in instance
+        // sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
 
         // Send Notify to all players in instance
@@ -236,14 +265,14 @@ class InstanceScript : public ZoneScript
 
         struct CriteriaProgressData
         {
-            CriteriaProgressData(uint32 p_ID, uint64 p_Quantity, uint64 p_Guid, uint32 p_Date, uint32 p_StartTime, uint32 p_CreateTime, uint8 p_Flags)
+            CriteriaProgressData(uint32 p_ID, uint64 p_Quantity, uint64 p_Guid, uint32 p_Date, uint32 p_StartTime, uint8 p_Flags)
             {
                 m_ID                = p_ID;
                 m_Quantity          = p_Quantity;
                 m_Guid              = p_Guid;
                 m_Date              = p_Date;
                 m_TimeFromStart     = p_StartTime;
-                m_TimeFromCreate    = p_CreateTime;
+                m_TimeFromCreate    = p_StartTime;
                 m_Flags             = p_Flags;
             }
 
@@ -361,6 +390,37 @@ class InstanceScript : public ZoneScript
         void SendScenarioProgressUpdate(CriteriaProgressData p_Data, Player* p_Player = nullptr);
         void BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaProgressData p_CriteriaProgress);
 
+        //////////////////////////////////////////////////////////////////////////
+        /// ChallengesMode
+        void SendChallengeModeStart();
+        void SendChallengeStartTimer(uint32 p_Time);
+        void SendChallengeStartElapsedTimer(uint32 p_TimerID, uint32 p_Time);
+        void SendChallengeStopElapsedTimer(uint32 p_TimerID, bool p_KeepTimer = false);
+        void SetChallengeModeStarted();
+        bool IsChallengeModeStarted() const { return m_ChallengeStarted; }
+        void ScheduleChallengeStartup(uint32 p_Diff);
+        void ScheduleChallengeTimeUpdate(uint32 p_Diff);
+        void ScheduleBeginningTimeUpdate(uint32 p_Diff);
+        void SendChallengeNewPlayerRecord();
+        void SendChallengeModeComplete(uint32 p_Money);
+        void SaveChallengeDatasIfNeeded();
+        void SaveNewGroupChallenge(uint32 p_GuildID = 0);
+        uint32 RewardChallengers();
+
+        bool   m_ChallengeStarted;
+        uint32 m_StartChallengeTime;
+        uint64 m_ChallengeDoorGuid;
+        uint32 m_ChallengeTime;
+        uint8  m_MedalType;
+        uint64 m_InstanceGuid;
+        uint32 m_BeginningTime;
+        uint32 m_ScenarioID;
+        uint8  m_ScenarioStep;
+        //////////////////////////////////////////////////////////////////////////
+
+        // Called when a creature is killed by a player
+        virtual void OnCreatureKilled(Creature* p_Creature, Player* p_Player) { }
+
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();
 
@@ -369,8 +429,9 @@ class InstanceScript : public ZoneScript
         void UpdatePhasing();
 
     protected:
-        void SetBossNumber(uint32 number) { bosses.resize(number); }
+        void SetBossNumber(uint32 p_Number);
         void LoadDoorData(DoorData const* data);
+        void LoadScenariosInfos(BossScenarios const* p_Scenarios, uint32 p_ScenarioID);
         void LoadMinionData(MinionData const* data);
 
         void AddDoor(GameObject* door, bool add);
@@ -383,6 +444,7 @@ class InstanceScript : public ZoneScript
         std::string GetBossSaveData();
     private:
         std::vector<BossInfo> bosses;
+        std::vector<BossScenarios> m_BossesScenarios;
         DoorInfoMap doors;
         MinionInfoMap minions;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets

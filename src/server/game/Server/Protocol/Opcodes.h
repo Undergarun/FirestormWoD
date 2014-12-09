@@ -483,6 +483,12 @@ enum Opcodes
 
         /// Challenges
         SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x07AA, ///< 6.0.3 19116
+        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x0135, ///< 6.0.3 19116 (NYI)
+        SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x13A3, ///< 6.0.3 19116
+        SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0904, ///< 6.0.3 19116
+        SMSG_CHALLENGE_MODE_START                               = 0x1221, ///< 6.0.3 19116
+        SMSG_CHALLENGE_MODE_COMPLETE                            = 0x1B31, ///< 6.0.3 19116
+        SMSG_CHALLENGE_MOD_REWARDS                              = 0x1CC9, ///< 6.0.3 19116 (NYI)
 
         /// BlackMarket
         SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x0A05, ///< 6.0.3 19116
@@ -753,7 +759,7 @@ enum Opcodes
         SMSG_CLEAR_SPELL_CHARGES                    = 0x1AA1,   ///< 6.0.3 19116
         SMSG_SET_FLAT_SPELL_MODIFIER                = 0x1884,   ///< 6.0.3 19116
         SMSG_SET_PCT_SPELL_MODIFIER                 = 0x113C,   ///< 6.0.3 19116
-        SMSG_SET_SPELL_CHARGES                      = 0x18AB,   ///< 6.0.3 19116 (unused)
+        SMSG_SET_SPELL_CHARGES                      = 0x18AB,   ///< 6.0.3 19116
         SMSG_LEARNED_SPELL                          = 0x08AB,   ///< 6.0.3 19116
         SMSG_UNLEARNED_SPELLS                       = 0x0B3B,   ///< 6.0.3 19116
 
@@ -1556,7 +1562,6 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_CALENDAR_ADD_EVENT                         = 0x09A3,    ///< 6.0.3 19116
     CMSG_CALENDAR_COMPLAIN                          = 0x0D19,    ///< 6.0.3 19116
-    CMSG_CALENDAR_CONTEXT_EVENT_SIGNUP              = 0x0BAA,    ///< 6.0.3 19116
     CMSG_CALENDAR_COPY_EVENT                        = 0x0317,    ///< 6.0.3 19116
     CMSG_CALENDAR_EVENT_INVITE                      = 0x010E,    ///< 6.0.3 19116
     CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x118C,    ///< 6.0.3 19116
@@ -1732,11 +1737,7 @@ enum Opcodes
     SMSG_CANCEL_SCENE                                   = 0x0000,
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                     = 0x0000,
     SMSG_CANCEL_SPELL_VISUAL                            = 0x0000,
-    SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT            = 0x0000,
-    SMSG_CHALLENGE_MODE_ALL_MAP_STATS                   = 0x0000,
-    SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD               = 0x0000,
-    SMSG_CHALLENGE_MODE_COMPLETE                        = 0x0000,
     SMSG_CLEAR_ITEM_CHALLENGE_MODE_DATA                 = 0x0000,
     SMSG_CONSOLE_WRITE                                  = 0x0000,
     SMSG_DISPLAY_PROMOTION                              = 0x0000,

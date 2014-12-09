@@ -2052,10 +2052,19 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Wild BattlePet pools...");
     sWildBattlePetMgr->Load();
 
-    uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character template data...");
+    sObjectMgr->LoadCharacterTemplateData();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Character Template data");
-    sObjectMgr->LoadCharacterTempalteData();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading realm completed challenges...");
+    sObjectMgr->LoadRealmCompletedChallenges();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading challenge mode rewards...");
+    sObjectMgr->LoadChallengeRewards();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
+    sObjectMgr->LoadMapChallengeModeHotfixes();
+
+    uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();

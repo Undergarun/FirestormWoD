@@ -1874,7 +1874,7 @@ void Battleground::SendCountdownTimer()
 
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            player->SendBattlegroundTimer(countdownSec, GetMaxCountdownTimer());
+            player->SendStartTimer(countdownSec, GetMaxCountdownTimer(), PVP_TIMER);
 }
 
 void Battleground::EndNow()
