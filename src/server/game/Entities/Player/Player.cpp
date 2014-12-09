@@ -25667,6 +25667,9 @@ void Player::SendInitialPacketsAfterAddToMap()
         phaseMgr.Update();
         phaseMgr.ForceMapShiftUpdate();
     }
+
+    if (m_Garrison && GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)
+        m_Garrison->OnPlayerEnter();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
