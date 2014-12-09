@@ -19764,6 +19764,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadChargesCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS));
+    _LoadCompletedChallenges(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -25681,29 +25682,29 @@ void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time)
+void Player::SendRaidInstanceMessage(uint32 p_MapID, Difficulty p_Difficulty, uint32 p_Time)
 {
-    // type of warning, based on the time remaining until reset
-    uint32 type;
-    if (time > 3600)
-        type = RAID_INSTANCE_WELCOME;
-    else if (time > 900 && time <= 3600)
-        type = RAID_INSTANCE_WARNING_HOURS;
-    else if (time > 300 && time <= 900)
-        type = RAID_INSTANCE_WARNING_MIN;
+    // Type of warning, based on the time remaining until reset
+    uint32 l_Type;
+    if (p_Time > 3600)
+        l_Type = RAID_INSTANCE_WELCOME;
+    else if (p_Time > 900 && p_Time <= 3600)
+        l_Type = RAID_INSTANCE_WARNING_HOURS;
+    else if (p_Time > 300 && p_Time <= 900)
+        l_Type = RAID_INSTANCE_WARNING_MIN;
     else
-        type = RAID_INSTANCE_WARNING_MIN_SOON;
+        l_Type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4 + 4 + 4 + 4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                         // difficulty
-    data << uint32(time);
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 * 3 + 1);
+    l_Data << uint8(l_Type);
+    l_Data << uint32(p_MapID);
+    l_Data << uint32(p_Difficulty);
+    l_Data << int32(p_Time);
 
-    data.WriteBit(0);                                   // is locked
-    data.WriteBit(0);                                   // is extended, ignored if prev field is 0
-    data.FlushBits();
-    GetSession()->SendPacket(&data);
+    l_Data.WriteBit(0);                                   // is locked
+    l_Data.WriteBit(0);                                   // is extended, ignored if prev field is 0
+    l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::ApplyEquipCooldown(Item* p_Item)
@@ -31035,5 +31036,45 @@ ChargesData* Player::GetChargesData(uint32 p_SpellID)
         return &m_SpellChargesMap[p_SpellID];
 
     return nullptr;
+}
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+/// ChallengesMode
+void Player::_LoadCompletedChallenges(PreparedQueryResult& p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        CompletedChallenge l_Challenge;
+
+        Field* l_Field = p_Result->Fetch();
+        uint32 l_MapID = l_Field[0].GetUInt32();
+        l_Challenge.m_BestTime = l_Field[1].GetUInt32();
+        l_Challenge.m_LastTime = l_Field[2].GetUInt32();
+        l_Challenge.m_BestMedal = l_Field[3].GetUInt8();
+        l_Challenge.m_BestMedalDate = l_Field[4].GetUInt32();
+
+        m_CompletedChallenges.insert(std::make_pair(l_MapID, l_Challenge));
+    }
+    while (p_Result->NextRow());
+}
+
+bool Player::HasChallengeCompleted(uint32 p_MapID) const
+{
+    if (m_CompletedChallenges.find(p_MapID) == m_CompletedChallenges.end())
+        return false;
+
+    return true;
+}
+
+CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
+{
+    if (m_CompletedChallenges.find(p_MapID) == m_CompletedChallenges.end())
+        return nullptr;
+
+    return &m_CompletedChallenges[p_MapID];
 }
 //////////////////////////////////////////////////////////////////////////

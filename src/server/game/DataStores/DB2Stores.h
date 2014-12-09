@@ -51,6 +51,7 @@ extern DB2Storage <SpellMiscEntry>                  sSpellMiscStore;
 extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
+extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

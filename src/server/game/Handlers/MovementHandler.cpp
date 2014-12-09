@@ -169,7 +169,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
                     uint32 timeleft = uint32(timeReset - time(NULL));
-                    GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
+                    m_Player->SendRaidInstanceMessage(mEntry->MapID, diff, timeleft);
                 }
             }
         }
@@ -182,8 +182,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
-    GetPlayer()->UpdateZone(newzone, newarea);
+    m_Player->GetZoneAndAreaId(newzone, newarea);
+    m_Player->UpdateZone(newzone, newarea);
 
     for (uint8 i = 0; i < 9; ++i)
         GetPlayer()->UpdateSpeed(UnitMoveType(i), true);

@@ -1355,6 +1355,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             case ACHIEVEMENT_CRITERIA_TYPE_COOK_SOME_MEALS:
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON:
                 SetCriteriaProgress(l_AchievementCriteria, 1, p_ReferencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1808,6 +1809,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON:
             return l_Progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return l_Progress->counter >= (l_CriteriaTree->Amount * 75);
@@ -1831,7 +1833,6 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
-        case ACHIEVEMENT_CRITERIA_WIN_CHALLENGE_DUNGEON:
         case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:
@@ -2601,7 +2602,8 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_COOK_SOME_MEALS:
-            if (!p_MiscValue1)
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON:
+            if (!p_MiscValue1 || p_MiscValue1 != p_Criteria->ChallengeDungeon.MapID)
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
@@ -3258,12 +3260,9 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
             case CRITERIA_CONDITION_TARGET_IS_BATTLEPET_MASTER:         // 81
                 return false;
             case CRITERIA_CONDITION_NEED_CHALLENGE_MEDAL:               // 83
+                if (p_MiscValue2 >= l_ReqValue)
+                    return true;
                 return false;
-                /*
-                if (l_MedalID < l_ReqValue)
-                    return false;
-                break;
-                */
             case CRITERIA_CONDITION_BATTLEPET_MUST_BE_RARE:             // 89
                 if (!p_MiscValue2 || (p_MiscValue2 < (l_ReqValue - 7)))
                     return false;

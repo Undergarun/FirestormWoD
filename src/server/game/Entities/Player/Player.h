@@ -913,6 +913,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS            = 43,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
     PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS       = 45,
+    PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES    = 46,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1357,6 +1358,25 @@ struct ChargesData
 ///<            SpellID
 typedef std::map<uint32, ChargesData> SpellChargesMap;
 
+struct CompletedChallenge
+{
+    CompletedChallenge()
+    {
+        m_BestTime = 0;
+        m_LastTime = 0;
+        m_BestMedal = 0;
+        m_BestMedalDate = 0;
+    }
+
+    uint32 m_BestTime;
+    uint32 m_LastTime;
+    uint8 m_BestMedal; ///< 0 - None, 1 - Bronze, 2 - Silver, 3 - Gold
+    uint32 m_BestMedalDate;
+};
+
+///<             MapID
+typedef std::map<uint32, CompletedChallenge> CompletedChallengesMap;
+
 enum BattlegroundTimerTypes
 {
     PVP_TIMER,
@@ -1414,7 +1434,7 @@ class Player : public Unit, public GridObject<Player>
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0);
-        void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time);
+        void SendRaidInstanceMessage(uint32 mapid, Difficulty difficulty, uint32 time);
 
         bool CanInteractWithQuestGiver(Object* questGiver);
         Creature* GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask);
@@ -2352,7 +2372,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void FinishWeek();
 
-        void SendBattlegroundTimer(uint32 currentTime, uint32 maxTime);
+        void SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type);
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_LegacyRaidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -3254,6 +3274,15 @@ class Player : public Unit, public GridObject<Player>
         void UpdateCharges(uint32 const p_Time);
         void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = false);
         ChargesData* GetChargesData(uint32 p_SpellID);
+        //////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////
+        /// ChallengesMode
+        void _LoadCompletedChallenges(PreparedQueryResult& p_Result);
+        bool HasChallengeCompleted(uint32 p_MapID) const;
+        CompletedChallenge* GetCompletedChallenge(uint32 p_MapID);
+
+        CompletedChallengesMap m_CompletedChallenges;
         //////////////////////////////////////////////////////////////////////////
 
     protected:

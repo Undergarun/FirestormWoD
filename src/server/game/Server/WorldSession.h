@@ -158,12 +158,13 @@ enum CharterTypes
 
 enum DB2Types : uint32
 {
-    DB2_REPLY_SPARSE                          = 0x919BE54E,           // hash of item-sparse.db2
-    DB2_REPLY_ITEM                            = 0x50238EC2,           // hash of item.db2
-    DB2_REPLY_SCENE_SCRIPT                    = 0xD4B163CC,           // hash of ScreneScript.db2
-    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES    = 0x63B4C4BA,           // hash of BattlePetEffectProperties.db2
-    DB2_REPLY_BROADCAST_TEXT                  = 0x021826BB,           // hash of BroadcastText.db2
-    DB2_REPLY_ITEM_EXTENDED_COST              = 0xBB858355,           // hash of ItemExtendedCost.db2
+    DB2_REPLY_SPARSE                        = 0x919BE54E,   // Hash of item-sparse.db2
+    DB2_REPLY_ITEM                          = 0x50238EC2,   // Hash of item.db2
+    DB2_REPLY_SCENE_SCRIPT                  = 0xD4B163CC,   // Hash of ScreneScript.db2
+    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES  = 0x63B4C4BA,   // Hash of BattlePetEffectProperties.db2
+    DB2_REPLY_BROADCAST_TEXT                = 0x021826BB,   // Hash of BroadcastText.db2
+    DB2_REPLY_ITEM_EXTENDED_COST            = 0xBB858355,   // Hash of ItemExtendedCost.db2
+    DB2_REPLY_MAP_CHALLENGE_MODE            = 0x383B4C27    // Hash of MapChallengeMode.db2
 };
 
 #define VOTE_BUFF           176151
@@ -749,6 +750,7 @@ class WorldSession
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
         void SendItemDb2Reply(uint32 entry);
+        void SendMapChallengeModeDBReply(uint32 p_Entry);
         void SendItemSparseDb2Reply(uint32 entry);
         void SendBroadcastTextDb2Reply(uint32 entry);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
@@ -1099,6 +1101,13 @@ class WorldSession
         void HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData);
         void HandleSetFavoriteToyOpcode(WorldPacket& p_RecvData);
         void HandleUseToyOpcode(WorldPacket& p_RecvData);
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Challenges
+        //////////////////////////////////////////////////////////////////////////
+        void HandleGetChallengeModeRewards(WorldPacket& p_RecvData);
+        void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
+        void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
 
     private:
         void InitializeQueryCallbackParameters();

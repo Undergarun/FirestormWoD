@@ -50,6 +50,7 @@ DB2Storage <SpellMiscEntry>                 sSpellMiscStore(SpellMiscEntryfmt);
 DB2Storage <SpellPowerEntry>                sSpellPowerStore(SpellPowerEntryfmt);
 DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfmt);
 DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
+DB2Storage <MapChallengeModeEntry>          sMapChallengeModeStore(MapChallengeModeEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -181,6 +182,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sSpellPowerStore,                db2Path, "SpellPower.db2");
     LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2");
     LoadDB2(bad_db2_files, sSpellClassOptionsStore,         db2Path, "SpellClassOptions.db2");
+    LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Garrison DB2

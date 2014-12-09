@@ -44,6 +44,7 @@ const char SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
 const char SpellPowerEntryfmt[] = "nixiiiixxxffif";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
+const char MapChallengeModeEntryfmt[] = "nixxxiiixx";
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
