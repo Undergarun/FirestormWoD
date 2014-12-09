@@ -347,7 +347,14 @@ class BattlegroundEY : public Battleground
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const    { return m_FlagKeeper; }
+        uint64 GetFlagPickerGUID() const  { return m_FlagKeeper; }
+
+        std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
+        {
+            std::set<uint64> l_FlagPickers{ m_FlagKeeper };
+            return l_FlagPickers;
+        }
+
         void SetFlagPicker(uint64 guid)     { m_FlagKeeper = guid; }
         bool IsFlagPickedup() const         { return m_FlagKeeper != 0; }
         uint8 GetFlagState() const          { return m_FlagState; }

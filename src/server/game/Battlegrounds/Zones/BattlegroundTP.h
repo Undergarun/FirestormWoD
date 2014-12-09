@@ -223,12 +223,23 @@ class BattlegroundTP : public Battleground
         uint32 m_EndTimestamp;
 
         virtual void PostUpdateImpl(uint32 diff);
-        uint64 GetFlagPickerGUID(int32 team) const
+
+        uint64 GetFlagPickerGUID(int32 p_Team) const
         {
-            if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
-                return _flagKeepers[team];
-            return 0;
-        };
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return 0;
+
+            return _flagKeepers[p_Team];
+        }
+
+        std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
+        {
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return std::set<uint64>();
+
+            std::set<uint64> l_FlagPickers{ _flagKeepers[p_Team] };
+            return l_FlagPickers;
+        }
 };
 
 #endif

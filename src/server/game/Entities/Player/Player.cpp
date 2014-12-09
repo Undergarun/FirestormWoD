@@ -11763,6 +11763,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 l_Buffer << uint32(8955) << uint32(0);
             }
             break;
+        /// - Kotmogu Temple BG
+        case 6051:
+        {
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_KT)
+                bg->FillInitialWorldStates(l_Buffer);
+            break;
+        }
         default:
             l_Buffer << uint32(0x914) << uint32(0x0);           // 7
             l_Buffer << uint32(0x913) << uint32(0x0);           // 8

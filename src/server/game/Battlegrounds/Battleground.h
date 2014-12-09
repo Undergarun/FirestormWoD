@@ -659,7 +659,7 @@ class Battleground
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
-        virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
+        virtual std::set<uint64> const GetFlagPickersGUID(int32 /*team*/ = -1) const { return std::set<uint64>(); }
 
         /// - Debug only
         void FastStart() { m_StartDelayTime = 0; }
