@@ -546,8 +546,16 @@ class spell_mage_frostbolt : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_0].BasePoints))
+                        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+            }
+
             void Register()
             {
+                OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
             }
         };
