@@ -128,6 +128,17 @@ namespace MS
             SkyreachSilver = 8873,
         };
 
+        enum class ScenarioDatas : uint32
+        {
+            ScenarioId = 689,
+            ChallengeScenarioId = 423,
+            EnnemiesCriteriaId = 26796,
+            RanjitCriteriaId = 24709,
+            AraknathCriteriaId = 24451,
+            RukhranCriteriaId = 24452,
+            ViryxCriteriaId = 24453
+        };
+
         static const Position k_WindMazeVertices[47] =
         {
             // First block.

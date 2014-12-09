@@ -828,7 +828,7 @@ VALUES
 UPDATE access_requirement SET level_min=96 WHERE mapId=1209 AND difficulty=1;
 UPDATE access_requirement SET level_min=100 WHERE mapId=1209 AND difficulty=2;
 
-UPDATE areatrigger_teleport SET target_position_x=1229.583,
-				target_position_y=1745.922,
-				target_position_z=177.166,
-				target_orientation=0.13 WHERE id=10157;
+UPDATE areatrigger_teleport SET target_position_x=1232.45996094,
+				target_position_y=1743.70996094,
+				target_position_z=177.169006348,
+				target_orientation=331.58 WHERE id=10157;
