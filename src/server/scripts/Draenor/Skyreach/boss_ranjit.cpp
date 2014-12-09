@@ -33,6 +33,7 @@ namespace MS
                 FAN_OF_BLADES = 153757, // 2:43:34 - 2:43:50, every 16s.
                 // Piercing rush.
                 PIERCING_RUSH = 165731, // 2:43:29 - 2:43:44, every 15s.
+                LensFlare = 154029,
             };
 
             enum class Texts : int32
@@ -77,6 +78,8 @@ namespace MS
                     _Reset();
 
                     m_countWindwalls = 0;
+                    m_TriggerFourWinds[0] = 0;
+                    m_TriggerFourWinds[1] = 0;
 
                     if (!m_TriggerFourWinds[0])
                     {
@@ -154,6 +157,9 @@ namespace MS
                             DoScriptText(int32(Texts::FOUR_WINDS_1), me);
                         else
                             DoScriptText(int32(Texts::FOUR_WINDS_2), me);
+
+                        if (IsHeroic())
+                            events.ScheduleEvent(uint32(Events::LENS_FLARE), 14000);
                         break;
                     case uint32(Events::WINDWALL):
                         events.ScheduleEvent(uint32(Events::WINDWALL), urand(13000, 14000));
@@ -172,6 +178,10 @@ namespace MS
                         events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(13000, 16000));
                         if (Unit* l_Unit = InstanceSkyreach::SelectRandomPlayerExcludedTank(me, 40.0f))
                             me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
+                        break;
+                    case uint32(Events::LENS_FLARE):
+                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
+                            l_Plr->CastSpell(l_Plr, uint32(Spells::LensFlare), true);
                         break;
                     default:
                         break;

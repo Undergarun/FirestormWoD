@@ -67,7 +67,7 @@ namespace MS
 
         enum BossEntries
         {
-            RANJIT = 86238,
+            RANJIT = 75964,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
             HIGH_SAGE_VIRYX = 86241,
@@ -91,8 +91,9 @@ namespace MS
             RadiantSupernova = 79463,
             GrandDefenseConstruct = 76145,
             SolarZealot = 76267,
-            AraokkoaMagnifyingConstructA = 76286,
+            AraokkoaMagnifyingConstructA = 76285,
             ArakkoaMagnifyingGlassFocus = 76083,
+            ReshadOutro = 84782,
         };
 
         enum Data
@@ -108,6 +109,23 @@ namespace MS
             SkyreachRavenWhispererIsDead,
             SolarFlareDying,
             StartingLensFlare,
+            PlayerIsHittedByRanjitSpells,
+            MonomaniaAchievementFail,
+        };
+
+        enum class Achievements : uint32
+        {
+            HeroicSkyreach = 8844,
+            HeroicSkyreachGuildRun = 9372,
+            ISawSolis = 9035,
+            MagnifyEnhance = 9034,
+            Monomania = 9036,
+            ReadyForRaidingIV = 9033,
+            Skyreach = 8843,
+            SkyreachChallenger = 8871,
+            SkyreachBronze = 8872,
+            SkyreachGold = 8874,
+            SkyreachSilver = 8873,
         };
 
         static const Position k_WindMazeVertices[47] =

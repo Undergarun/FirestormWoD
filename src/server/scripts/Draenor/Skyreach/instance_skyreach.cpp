@@ -56,6 +56,11 @@ namespace MS
 
                 // High Sage Viryx.
                 std::vector<uint64> m_MagnifyingGlassFocusGuids;
+                uint64 m_ReshadOutroGuid;
+
+                // Achievements.
+                std::map<uint64, uint32> m_ReadyForRaidingIVAchievements;
+                bool m_HasFailedMonomaniaAchievement;
 
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
@@ -75,13 +80,17 @@ namespace MS
                     m_SolarConstructorEnergizerGuid(0),
                     m_PlayerGuidToBlockId(),
                     m_WindMazeBlockGuids(),
-                    m_MagnifyingGlassFocusGuids()
+                    m_MagnifyingGlassFocusGuids(),
+                    m_ReshadOutroGuid(0),
+                    m_HasFailedMonomaniaAchievement(false)
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData);
 
                     for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
                         m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
+
+                    instance->SetObjectVisibility(1000.f);
                 }
 
                 void OnCreatureCreate(Creature* p_Creature)
@@ -182,6 +191,20 @@ namespace MS
                         p_Creature->DisableEvadeMode();
                         p_Creature->SetDisableGravity(false);
                         break;
+                    case MobEntries::ReshadOutro:
+                        m_ReshadOutroGuid = p_Creature->GetGUID();
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+
+                        if (InstanceScript::GetBossState(Data::HighSageViryx) == EncounterState::DONE)
+                        {
+                            p_Creature->SetVisible(true);
+                            p_Creature->GetMotionMaster()->MovePoint(0, 1128.81f, 1814.251f, 262.171f);
+                        }
+                        else
+                            p_Creature->SetVisible(false);
+                        break;
                     default:
                         break;
                     }
@@ -219,30 +242,67 @@ namespace MS
                     switch (p_ID)
                     {
                     case Data::Ranjit:
+                        // Achievement handling.
+                        if (p_State == EncounterState::DONE && instance->IsHeroic())
+                        {
+                            AchievementEntry const* l_AE = sAchievementStore.LookupEntry(uint32(Achievements::ReadyForRaidingIV));
+                            if (!l_AE)
+                                break;
+
+                            for (auto l_Guid : m_ReadyForRaidingIVAchievements)
+                            {
+                                if (Player* l_Plr = sObjectAccessor->FindPlayer(l_Guid.first))
+                                {
+                                    if (l_Guid.second == 0)
+                                        l_Plr->CompletedAchievement(l_AE);
+                                }
+                            }
+                        }
                         break;
                     case Data::Araknath:
                         switch (p_State)
                         {
-                        case FAIL:
+                        case EncounterState::FAIL:
                             if (Creature* l_SkyreachArcanologist = sObjectAccessor->FindCreature(m_SkyreachArcanologistGuid))
                                 l_SkyreachArcanologist->Respawn();
+                            break;
+                        case EncounterState::DONE:
+                            if (instance->IsHeroic())
+                                DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
                             break;
                         }
                         break;
                     case Data::Rukhran:
                         switch (p_State)
                         {
-                        case DONE:
+                        case EncounterState::DONE:
                             if (GameObject* l_Gob = sObjectAccessor->FindGameObject(m_CacheOfArakoanTreasuresGuid))
                                 l_Gob->SetPhaseMask(1, true);
                             break;
-                        case FAIL:
+                        case EncounterState::FAIL:
                             if (Creature* l_SkyreachRavenWhisperer = sObjectAccessor->FindCreature(m_SkyreachRavenWhispererGuid))
                                 l_SkyreachRavenWhisperer->Respawn();
                             break;
                         }
                         break;
-                    case Data::SkyreachArcanologist:
+                    case Data::HighSageViryx:
+                        switch (p_State)
+                        {
+                        case EncounterState::DONE:
+                            if (Creature* l_Reshad = sObjectAccessor->FindCreature(m_ReshadOutroGuid))
+                            {
+                                l_Reshad->SetVisible(true);
+                                l_Reshad->GetMotionMaster()->MovePoint(0, 1128.81f, 1814.251f, 262.171f);
+                            }
+                            if (instance->IsHeroic())
+                                DoCompleteAchievement(uint32(Achievements::HeroicSkyreach));
+                            else
+                                DoCompleteAchievement(uint32(Achievements::Skyreach));
+
+                            if (instance->IsHeroic() && !m_HasFailedMonomaniaAchievement)
+                                DoCompleteAchievement(uint32(Achievements::Monomania));
+                            break;
+                        }
                         break;
                     default:
                         break;
@@ -359,31 +419,12 @@ namespace MS
                             l_Creature->CastSpell(l_Creature, uint32(RandomSpells::LensFlare), true);
 
                     } break;
+                    case Data::MonomaniaAchievementFail:
+                        m_HasFailedMonomaniaAchievement = true;
+                        break;
                     default:
                         break;
                     }
-                }
-
-                uint32 GetData(uint32 p_Type)
-                {
-                    /*switch (p_Type)
-                    {
-                    default:
-                        break;
-                    }*/
-
-                    return 0;
-                }
-
-                uint64 GetData64(uint32 p_Type)
-                {
-                    /*switch (p_Type)
-                    {
-                    default:
-                        return 0;
-                    }*/
-
-                    return 0;
                 }
 
                 void SetData64(uint32 p_Type, uint64 p_Data)
@@ -404,6 +445,7 @@ namespace MS
 
                         if (Unit* l_SolarFlareDying = sObjectAccessor->FindCreature(p_Data))
                         {
+                            uint32 l_SolarFlaresFormed = 0;
                             auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
                             for (auto l_Pile : l_Piles)
                             {
@@ -419,8 +461,12 @@ namespace MS
                                     TempSummon* l_Summon = l_Pile->SummonCreature(MobEntries::SOLAR_FLARE, l_Pos);
                                     m_SolarFlaresGuid.insert(l_Summon->GetGUID());
                                     l_Pile->ToCreature()->DespawnOrUnsummon(500);
+                                    ++l_SolarFlaresFormed;
                                 }
                             }
+
+                            if (l_SolarFlaresFormed >= 3)
+                                DoCompleteAchievement(uint32(Achievements::ISawSolis));
 
                             // We summon a new pile of ashes.
                             l_SolarFlareDying->CastSpell(l_SolarFlareDying, uint32(Spells::DORMANT), true);
@@ -437,6 +483,11 @@ namespace MS
                                 l_SolarFlareDying->ToCreature()->DespawnOrUnsummon(500);
                         }
                         break;
+                    case Data::PlayerIsHittedByRanjitSpells:
+                        if (!instance->IsHeroic())
+                            break;
+                        ++m_ReadyForRaidingIVAchievements[p_Data];
+                        break;
                     }
                 }
 
@@ -445,6 +496,7 @@ namespace MS
                     if (!p_Player->IsInWorld())
                         return;
 
+                    m_ReadyForRaidingIVAchievements[p_Player->GetGUID()] = 0;
                     m_PlayerGuidToBlockId[p_Player->GetGUID()] = 0;
                     m_CanUpdate = true;
                 }
@@ -520,6 +572,7 @@ namespace MS
                         }
                     }
 
+                    // Beam light intersection handler.
                     if (m_SelectedSolarConstructorGuid)
                     {
                         if (instance)

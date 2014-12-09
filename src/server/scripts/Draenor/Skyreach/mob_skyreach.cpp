@@ -14,6 +14,50 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
+        class npc_GossipIntroOutro : public CreatureScript
+        {
+        public:
+            npc_GossipIntroOutro() : CreatureScript("npc_GossipIntroOutro")
+            {
+            }
+
+            enum class Gossip : uint32
+            {
+                Confirmation = 1,
+                Teleport = 2,
+            };
+
+            enum class GossipMenu : uint32
+            {
+                Id = 86339,
+            };
+
+            bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+            {
+                player->PlayerTalkClass->ClearMenus();
+                switch (action)
+                {
+                case uint32(Gossip::Confirmation):
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Are you sure you wish to exit the dungeon?", GOSSIP_SENDER_MAIN, uint32(Gossip::Teleport));
+                    player->SEND_GOSSIP_MENU(uint32(GossipMenu::Id), creature->GetGUID());
+                    break;
+                case uint32(Gossip::Teleport):
+                    // Meeting stone of Skyreach.
+                    player->TeleportTo(1116, 57.110f, 2527.114f, 79.4f, 0.35f);
+                    break;
+                }
+                return true;
+            }
+
+            bool OnGossipHello(Player* player, Creature* creature)
+            {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Return me to the surface, friend.", GOSSIP_SENDER_MAIN, uint32(Gossip::Confirmation));
+                player->SEND_GOSSIP_MENU(uint32(GossipMenu::Id), creature->GetGUID());
+
+                return true;
+            }
+        };
+
         class mob_GrandDefenseConstruct : public CreatureScript
         {
         public:
@@ -61,6 +105,9 @@ namespace MS
 
                 void JustDied(Unit*)
                 {
+                    // Monomania Achievement.
+                    if (IsHeroic() && m_Instance)
+                        m_Instance->SetData(Data::MonomaniaAchievementFail, 0);
                 }
 
                 void UpdateAI(const uint32 diff)
@@ -1694,4 +1741,5 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_RadiantSupernova();
     new MS::InstanceSkyreach::mob_YoungKaliri();
     new MS::InstanceSkyreach::mob_GrandDefenseConstruct();
+    new MS::InstanceSkyreach::npc_GossipIntroOutro();
 }

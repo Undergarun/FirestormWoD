@@ -54,6 +54,9 @@ namespace MS
                 {
                     if (m_instance)
                         m_instance->SetData(Data::SkyreachArcanologistIsDead, 0);
+
+                    if (IsHeroic())
+                        m_instance->DoCompleteAchievement(uint32(InstanceSkyreach::Achievements::MagnifyEnhance));
                 }
 
                 void EnterCombat(Unit* who)
@@ -121,7 +124,8 @@ namespace MS
                 SMASH = 3,
                 BURST = 4,
                 ENERGIZE_START = 5,
-                ENERGIZE_STOP = 6
+                ENERGIZE_STOP = 6,
+                Reset = 7
             };
 
             ScriptedAI* GetAI(Creature* creature) const
@@ -144,8 +148,7 @@ namespace MS
                     me->AddAura(uint32(Spells::SUBMERGED), me);
                     me->SetReactState(REACT_PASSIVE);
 
-                    if (instance)
-                        instance->SetData(Data::AraknathSolarConstructorActivation, false);
+                    events.ScheduleEvent(uint32(Events::Reset), 100);
                 }
 
                 void JustDied(Unit* /*p_Killer*/)
@@ -192,6 +195,10 @@ namespace MS
 
                     switch (events.ExecuteEvent())
                     {
+                    case uint32(Events::Reset):
+                        if (instance)
+                            instance->SetData(Data::AraknathSolarConstructorActivation, false);
+                        break;
                     case uint32(Events::MELEE):
                         events.ScheduleEvent(uint32(Events::MELEE), 2000);
                         me->CastSpell(me->getVictim(), uint32(Spells::MELEE));
