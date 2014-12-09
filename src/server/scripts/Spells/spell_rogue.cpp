@@ -83,7 +83,9 @@ enum RogueSpells
     ROGUE_SPELL_BURST_OF_SPEED                  = 137573,
     ROGUE_SPELL_INTERNAL_BLEEDING               = 154953,
     ROGUE_SPELL_INTERNAL_BLEEDING_AURA          = 154904,
-    ROGUE_SPELL_SMOKE_BOMB                      = 88611
+    ROGUE_SPELL_SMOKE_BOMB                      = 88611,
+    ROGUE_SPELL_RELTENTLESS_STRIKES_AURA        = 58423,
+    ROGUE_SPELL_RELTENTLESS_STRIKES_PROC        = 14181
 };
 
 // Killing Spree - 51690
@@ -1660,9 +1662,71 @@ public:
     }
 };
 
+// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
+// Relentless Strikes - 58423
+class spell_rog_retenless_strikes : public SpellScriptLoader
+{
+public:
+    spell_rog_retenless_strikes() : SpellScriptLoader("spell_rog_retenless_strikes") { }
+
+    class spell_rog_retenless_strikes_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_retenless_strikes_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                if (l_Player->HasAura(ROGUE_SPELL_RELTENTLESS_STRIKES_AURA))
+                    if (roll_chance_i(20 * l_Player->GetPower(POWER_COMBO_POINT)))
+                        l_Player->CastSpell(l_Player, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_retenless_strikes_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_retenless_strikes_SpellScript();
+    }
+};
+
+// Relentless Strikes proc - 14181 
+class spell_rog_retenless_strikes_proc : public SpellScriptLoader
+{
+public:
+    spell_rog_retenless_strikes_proc() : SpellScriptLoader("spell_rog_retenless_strikes_proc") { }
+
+    class spell_rog_retenless_strikes_proc_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_retenless_strikes_proc_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_ENERGY);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_retenless_strikes_proc_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_retenless_strikes_proc_SpellScript();
+    }
+};
+
+
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_retenless_strikes_proc();
+    new spell_rog_retenless_strikes();
     new spell_rog_fan_of_knives();
     new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();
