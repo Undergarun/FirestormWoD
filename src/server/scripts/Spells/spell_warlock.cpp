@@ -2180,15 +2180,16 @@ class spell_warl_burning_embers : public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                int32 l_BurningEmbersNumber = 1;
+                // 10% of a Burning Embers
+                float l_BurningEmbersPct = 0.1f;
 
                 if (GetSpell()->IsCritForTarget(l_Target))
-                    l_BurningEmbersNumber *= 2;
+                    l_BurningEmbersPct *= 0.2f;
 
                 if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
-                    l_BurningEmbersNumber *= l_CharredRemains->GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100;
+                    AddPct(l_BurningEmbersPct, l_CharredRemains->GetEffect(EFFECT_1)->GetBaseAmount());
 
-                l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersNumber * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
+                l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersPct * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
             }
 
             void Register()
