@@ -2340,9 +2340,10 @@ public:
 
         void HandleOnHit()
         {
-            if (Unit* l_Caster = GetCaster())
-                if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(PRIEST_POWER_WORD_BARRIER_AREA_TRIGGER))
-                    l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
+            if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
+                if (l_SpellLoc->IsPositionValid())
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 145645, true);
         }
 
         void Register()
@@ -2493,9 +2494,9 @@ public:
 
         void HandleOnHit()
         {
-            if (Unit* l_Caster = GetCaster())
-                if (Unit *l_Target = GetHitUnit())
-                    l_Caster->CastSpell(l_Target, 158624, true);
+            if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 158624, true);
         }
 
         void Register()

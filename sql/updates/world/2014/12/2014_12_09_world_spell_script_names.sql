@@ -9,3 +9,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_retenless_strik
 INSERT INTO `spell_script_names` VALUES (14181, 'spell_rog_retenless_strikes_proc');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_combo_point_delayed';
 INSERT INTO `spell_script_names` VALUES (139569, 'spell_rog_combo_point_delayed');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_unstable_magic';
+INSERT INTO `spell_script_names` VALUES (30451, 'spell_mage_unstable_magic');
+INSERT INTO `spell_script_names` VALUES (133, 'spell_mage_unstable_magic');
+INSERT INTO `spell_script_names` VALUES (116, 'spell_mage_unstable_magic');
