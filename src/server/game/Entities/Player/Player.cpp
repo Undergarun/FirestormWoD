@@ -31061,7 +31061,7 @@ ChargesData* Player::GetChargesData(uint32 p_SpellID)
 
 //////////////////////////////////////////////////////////////////////////
 /// ChallengesMode
-void Player::_LoadCompletedChallenges(PreparedQueryResult& p_Result)
+void Player::_LoadCompletedChallenges(PreparedQueryResult p_Result)
 {
     if (!p_Result)
         return;
