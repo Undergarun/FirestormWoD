@@ -3245,7 +3245,7 @@ class npc_generic_harpoon_cannon : public CreatureScript
 };
 
 /*######
-## npc_experience
+## npc_choose_faction (unused)
 ######*/
 
 #define GOSSIP_CHOOSE_FACTION     "I would like to choose my faction"

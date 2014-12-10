@@ -43,6 +43,7 @@ EndScriptData */
 
 #define SPELL_WARLORDS_RAGE_PROC    36453
 
+// 17954
 class mob_naga_distiller : public CreatureScript
 {
 public:

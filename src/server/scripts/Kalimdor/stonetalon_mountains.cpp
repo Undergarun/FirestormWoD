@@ -37,6 +37,7 @@ enum Rein
     KOBOLD_SERVANT  =   42026
 };
 
+// 42023
 class npc_subjugator_devo : public CreatureScript
 {
 public:

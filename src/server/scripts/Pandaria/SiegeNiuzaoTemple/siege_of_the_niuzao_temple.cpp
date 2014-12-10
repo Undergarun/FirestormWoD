@@ -18,7 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "siege_of_the_niuzoa_temple.h"
+#include "siege_of_the_niuzao_temple.h"
 
 enum spells
 {
@@ -197,7 +197,7 @@ class spell_resin_weaving : public SpellScriptLoader
         }
 };
 
-void AddSC_siege_of_the_niuzoa_temple()
+void AddSC_siege_of_the_niuzao_temple()
 {
     new mob_sikthik_guardian();
     new mob_resin_flake();
