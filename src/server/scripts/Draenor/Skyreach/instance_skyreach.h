@@ -63,6 +63,7 @@ namespace MS
             DOOR_RUKHRAN_ENTRANCE = 229038,
             DOOR_RUKHRAN_EXIT = 234316,
             DOOR_HIGH_SAVE_VIRYX_ENTRANCE= 235994,
+            DOOR_CHALLENGE_ENTRANCE = 239409,
         };
 
         enum BossEntries
@@ -128,16 +129,20 @@ namespace MS
             SkyreachSilver = 8873,
         };
 
-        enum class ScenarioDatas : uint32
+        namespace ScenarioDatas
         {
-            ScenarioId = 689,
-            ChallengeScenarioId = 423,
-            EnnemiesCriteriaId = 26796,
-            RanjitCriteriaId = 24709,
-            AraknathCriteriaId = 24451,
-            RukhranCriteriaId = 24452,
-            ViryxCriteriaId = 24453
-        };
+            enum ScenarioDatas
+            {
+                MaxEnnemiesToKill = 46,
+                ScenarioId = 689,
+                ChallengeScenarioId = 423,
+                EnnemiesCriteriaId = 26796,
+                RanjitCriteriaId = 24709,
+                AraknathCriteriaId = 24451,
+                RukhranCriteriaId = 24452,
+                ViryxCriteriaId = 24453
+            };
+        }
 
         static const Position k_WindMazeVertices[47] =
         {

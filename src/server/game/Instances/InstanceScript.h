@@ -150,8 +150,6 @@ struct BossScenarios
     uint32 m_ScenarioID;
 };
 
-#define GOB_CHALLENGE_START_DOOR 211989
-
 enum eChallengeMedals
 {
     MedalTypeNone,

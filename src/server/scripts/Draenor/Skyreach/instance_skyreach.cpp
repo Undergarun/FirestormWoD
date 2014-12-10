@@ -24,6 +24,14 @@ namespace MS
             { 0,                                0,                      DOOR_TYPE_ROOM,     0 }  // EOF
         };
 
+        static const BossScenarios k_ScenarioData[] =
+        {
+            { Data::Ranjit,         ScenarioDatas::RanjitCriteriaId },
+            { Data::Araknath,       ScenarioDatas::AraknathCriteriaId },
+            { Data::Rukhran,        ScenarioDatas::RukhranCriteriaId },
+            { Data::HighSageViryx,  ScenarioDatas::ViryxCriteriaId },
+        };
+
         class instance_Skyreach : public InstanceMapScript
         {
         public:
@@ -62,6 +70,9 @@ namespace MS
                 std::map<uint64, uint32> m_ReadyForRaidingIVAchievements;
                 bool m_HasFailedMonomaniaAchievement;
 
+                // Scenario handling.
+                uint32 m_CreatureKilled;
+
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
                     m_BeginningTime(0),
@@ -82,10 +93,12 @@ namespace MS
                     m_WindMazeBlockGuids(),
                     m_MagnifyingGlassFocusGuids(),
                     m_ReshadOutroGuid(0),
-                    m_HasFailedMonomaniaAchievement(false)
+                    m_HasFailedMonomaniaAchievement(false),
+                    m_CreatureKilled(0)
                 {
                     SetBossNumber(MaxEncounter::Number);
-                    LoadDoorData(k_DoorData);
+                    LoadDoorData(k_DoorData); 
+                    LoadScenariosInfos(k_ScenarioData, p_Map->IsChallengeMode() ? ScenarioDatas::ChallengeScenarioId : ScenarioDatas::ScenarioId);
 
                     for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
                         m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
@@ -229,9 +242,27 @@ namespace MS
                         p_Gameobject->SetPhaseMask(0, true);
                         m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
                         break;
+                    case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
+                        m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                        break;
                     default:
                         break;
                     }
+                }
+
+                void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+                {
+                    if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
+                        return;
+
+                    if (p_Creature == nullptr)
+                        return;
+
+                    if (!p_Creature->isElite() || p_Creature->IsDungeonBoss())
+                        return;
+
+                    ++m_CreatureKilled;
+                    SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
                 }
 
                 bool SetBossState(uint32 p_ID, EncounterState p_State)
@@ -496,6 +527,8 @@ namespace MS
                     if (!p_Player->IsInWorld())
                         return;
 
+                    InstanceScript::OnPlayerEnter(p_Player);
+
                     m_ReadyForRaidingIVAchievements[p_Player->GetGUID()] = 0;
                     m_PlayerGuidToBlockId[p_Player->GetGUID()] = 0;
                     m_CanUpdate = true;
@@ -503,6 +536,10 @@ namespace MS
 
                 void Update(uint32 p_Diff)
                 {
+                    ScheduleBeginningTimeUpdate(p_Diff);
+                    ScheduleChallengeStartup(p_Diff);
+                    ScheduleChallengeTimeUpdate(p_Diff);
+
                     if (!m_CanUpdate)
                         return;
 
