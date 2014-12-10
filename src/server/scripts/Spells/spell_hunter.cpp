@@ -126,7 +126,8 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
     HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
     HUNTER_SPELL_FIREWORKS                          = 127933,
-    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851
+    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
+    HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447
 };
 
 // Called by Explosive Shot - 53301
@@ -1834,9 +1835,14 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                  if (Unit* target = GetHitUnit())
-                    caster->CastSpell(target, HUNTER_SPELL_CHIMERA_SHOT, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_CHIMERA_SHOT, true);
+
+                        if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT))
+                            l_Caster->SetHealth(l_Caster->GetHealth() + CalculatePct(l_Caster->GetMaxHealth(), sSpellMgr->GetSpellInfo(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT)->Effects[EFFECT_0].BasePoints));
+                    }
             }
 
             void Register()
