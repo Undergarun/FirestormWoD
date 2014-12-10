@@ -1996,7 +1996,7 @@ void Player::Update(uint32 p_time)
     {
         PreparedQueryResult l_Result;
         _petBattleJournalCallback.get(l_Result);
-        bool l_ResultRes = _LoadPetBattles(l_Result);
+        bool l_ResultRes = _LoadPetBattles(std::move(l_Result));
         _petBattleJournalCallback.cancel();
 
         if (!l_ResultRes)
@@ -18819,6 +18819,20 @@ bool Player::HasQuestForItem(uint32 itemid) const
     }
     return false;
 }
+bool Player::hasQuest(uint32 p_QuestID) const
+{
+    for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
+    {
+        uint32 l_QuestID = GetQuestSlotQuestId(l_I);
+        if (l_QuestID == 0)
+            continue;
+
+        if (l_QuestID == p_QuestID)
+            return true;
+    }
+
+    return false;
+}
 
 void Player::SendQuestComplete(Quest const* quest)
 {
@@ -30734,7 +30748,7 @@ uint32 Player::GetBattlePetCombatSize()
 }
 
 /// Load pet battle async callback
-bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
+bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
     m_BattlePets.clear();
 
@@ -31061,7 +31075,7 @@ ChargesData* Player::GetChargesData(uint32 p_SpellID)
 
 //////////////////////////////////////////////////////////////////////////
 /// ChallengesMode
-void Player::_LoadCompletedChallenges(PreparedQueryResult p_Result)
+void Player::_LoadCompletedChallenges(PreparedQueryResult&& p_Result)
 {
     if (!p_Result)
         return;

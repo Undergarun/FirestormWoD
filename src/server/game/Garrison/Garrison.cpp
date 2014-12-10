@@ -529,13 +529,14 @@ void Garrison::Update()
             }
 
             uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
             if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
             {
                 GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
                 GameObject * l_Gob = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
-
+                l_Gob->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278192461);
+                l_Gob->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 64);
                 if (l_Gob)
                     m_CacheGameObjectGUID = l_Gob->GetGUID();
             }
@@ -544,13 +545,14 @@ void Garrison::Update()
         if (!m_CacheGameObjectGUID && l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
         {
             uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
             if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
             {
                 GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
                 GameObject * l_Gob = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
-
+                l_Gob->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278192461);
+                l_Gob->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 64);
                 if (l_Gob)
                     m_CacheGameObjectGUID = l_Gob->GetGUID();
             }
@@ -570,6 +572,11 @@ void Garrison::Update()
 
         m_CacheGameObjectGUID = 0;
     }
+}
+/// Get garrison cache token count
+uint32 Garrison::GetGarrisonCacheTokenCount()
+{
+    return m_CacheLastTokenAmount;
 }
 
 //////////////////////////////////////////////////////////////////////////

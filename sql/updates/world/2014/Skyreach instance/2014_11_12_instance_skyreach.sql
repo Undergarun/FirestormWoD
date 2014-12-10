@@ -1,8 +1,6 @@
 INSERT INTO areatrigger_teleport VALUES ('10157', 'Skyreach - Entrance Teleport Target - Combat Hasn\'t Started', '1209', '1004.85', '1946.82', '268.06', '328.122');
 INSERT INTO instance_template VALUES ('1209', '1116', '', '0');
 
-REPLACE INTO gossip_menu (entry, text_id) VALUES(16675, 24221);
-REPLACE INTO gossip_menu_option (menu_id, id, option_icon, option_text, option_id, box_coded, box_money, box_text) VALUES(16675, 0, 0, "Return me to the surface, friend.", 0, 0, 0, "Are you sure you wish to exit the dungeon?");
 REPLACE INTO creature_model_info (modelid, bounding_radius, combat_reach, gender) VALUES(11686, 0.5, 1, 2);
 REPLACE INTO creature_model_info (modelid, bounding_radius, combat_reach, gender) VALUES(1987, 0.35, 0.5, 2);
 REPLACE INTO creature_model_info (modelid, bounding_radius, combat_reach, gender) VALUES(41204, 0.35, 0.35, 2);
@@ -827,6 +825,7 @@ VALUES
    
 UPDATE access_requirement SET level_min=96 WHERE mapId=1209 AND difficulty=1;
 UPDATE access_requirement SET level_min=100 WHERE mapId=1209 AND difficulty=2;
+UPDATE access_requirement SET level_min=100 WHERE mapId=1209 AND difficulty=8;
 
 UPDATE areatrigger_teleport SET target_position_x=1232.45996094,
 				target_position_y=1743.70996094,

@@ -191,7 +191,7 @@ class Garrison
         bool Load();
         /// Save this garrison to DB
         void Save();
-        /// Delete garisson
+        /// Delete garrison
         static void Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation);
 
         /// Update the garrison
@@ -199,6 +199,8 @@ class Garrison
 
         /// Reward garrison cache content
         void RewardGarrisonCache();
+        /// Get garrison cache token count
+        uint32 GetGarrisonCacheTokenCount();
 
         /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
         void OnPlayerEnter();

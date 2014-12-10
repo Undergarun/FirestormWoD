@@ -9,6 +9,7 @@ enum
 {
     SPELL_RELIEVED              = 162410,
     ACHIEVEMENT_STAYING_REGULAR = 8933,
+    QUEST_KEEPING_TOGETHER      = 35176,
 };
 
 /// Garrison cache generic script
@@ -25,7 +26,12 @@ class go_garrison_cache : public GameObjectScript
         bool OnGossipHello(Player * p_Player, GameObject * p_GameObject)
         {
             if (p_Player->GetGarrison())
+            {
                 p_Player->GetGarrison()->RewardGarrisonCache();
+
+                if (p_Player->hasQuest(QUEST_KEEPING_TOGETHER) && p_GameObject)
+                    p_Player->QuestObjectiveSatisfy(41327, 1, QUEST_OBJECTIVE_TYPE_UNK_14, p_GameObject->GetGUID());
+            }
 
             return false;
         }
