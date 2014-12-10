@@ -2285,7 +2285,7 @@ void ObjectMgr::LoadRealmCompletedChallenges()
     }
     while (l_Result->NextRow());
 
-    l_Result = WorldDatabase.Query("SELECT map_id, guild_id, attempt_id, completion_time, completion_date, medal_earned, guild_members, guild_1_guid, guild_1_spec, guild_2_guid, guild_2_spec, "
+    l_Result = CharacterDatabase.Query("SELECT map_id, guild_id, attempt_id, completion_time, completion_date, medal_earned, guild_members, guild_1_guid, guild_1_spec, guild_2_guid, guild_2_spec, "
                                    "guild_3_guid, guild_3_spec, guild_4_guid, guild_4_spec, guild_5_guid, guild_5_spec FROM guild_completed_challenges");
     if (!l_Result)
     {

@@ -923,6 +923,7 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
+
         l_Statement->setUInt32(0, l_MapID);
         CharacterDatabase.Execute(l_Statement);
 
