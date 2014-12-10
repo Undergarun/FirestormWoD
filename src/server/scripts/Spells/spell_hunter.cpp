@@ -128,7 +128,7 @@ enum HunterSpells
     HUNTER_SPELL_FIREWORKS                          = 127933,
     HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
     HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
-    HUNTER_SPELL_ARCANE_INTENSITY                   = 131564
+    HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564
 };
 
 // Called by Explosive Shot - 53301
@@ -368,7 +368,7 @@ class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->HasAura(HUNTER_SPELL_ARCANE_INTENSITY))
+                    if (l_Caster->HasAura(HUNTER_SPELL_ARCANE_INTENSITY_AURA))
                         l_Caster->CastSpell(l_Caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
             }
 

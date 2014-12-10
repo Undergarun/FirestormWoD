@@ -4366,6 +4366,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 48181: // Haunt - hotfix 5.4.2
                 spellInfo->Effects[3].BasePoints = 35;
                 break;
+            case 165378: // Lethal Shots
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+                break;
             case 16246: // Clearcasting - hotfix 5.4.2
                 spellInfo->Effects[1].BasePoints = 20;
                 break;
