@@ -147,6 +147,9 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
 
 void InstanceScript::UpdateDoorState(GameObject* door)
 {
+    if (!door)
+        return;
+
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
     if (lower == upper)
@@ -176,8 +179,12 @@ void InstanceScript::UpdateDoorState(GameObject* door)
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
 {
+    if (!door)
+        return;
+
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
+
     if (lower == upper)
         return;
 

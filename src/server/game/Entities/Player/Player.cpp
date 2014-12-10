@@ -6990,18 +6990,36 @@ void Player::RepopAtGraveyard()
         SpawnCorpseBones();
     }
 
-    WorldSafeLocsEntry const* ClosestGrave = NULL;
+    WorldSafeLocsEntry ClosestGrave;
 
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
-        ClosestGrave = bg->GetClosestGraveYard(this);
-
+        ClosestGrave = *bg->GetClosestGraveYard(this);
+    // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
+    else if (GetMap()->IsDungeon())
+    {
+        AreaTriggerStruct const* l_AreaTrigger = sObjectMgr->GetMapEntranceTrigger(GetMapId());
+        if (l_AreaTrigger)
+        {
+            ClosestGrave.ID = 1; // Fake of course.
+            ClosestGrave.x = l_AreaTrigger->target_X;
+            ClosestGrave.y = l_AreaTrigger->target_Y;
+            ClosestGrave.z = l_AreaTrigger->target_Z;
+            ClosestGrave.o = GetOrientation();
+            ClosestGrave.map_id = l_AreaTrigger->target_mapId;
+        }
+        else
+        {
+            sLog->outError(LOG_FILTER_PLAYER, "MapEntranceTrigger not found for map %u.", GetMapId());
+            assert(false);
+        }
+    }
     else
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
-            ClosestGrave = bf->GetClosestGraveYard(this);
+            ClosestGrave = *bf->GetClosestGraveYard(this);
         else
-            ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+            ClosestGrave = *sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
 
     // stop countdown until repop
@@ -7009,21 +7027,25 @@ void Player::RepopAtGraveyard()
 
     // if no grave found, stay at the current location
     // and don't show spirit healer location
-    if (ClosestGrave)
+    if (ClosestGrave.ID)
     {
-        TeleportTo(ClosestGrave->map_id, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, ClosestGrave->o);
+        TeleportTo(ClosestGrave.map_id, ClosestGrave.x, ClosestGrave.y, ClosestGrave.z, ClosestGrave.o);
         UpdateObjectVisibility();
 
         /// not send if alive, because it used in TeleportTo()
         if (isDead())
         {
             WorldPacket l_Data(SMSG_DEATH_RELEASE_LOC, 4 * 4);  // show spirit healer position on minimap
-            l_Data << ClosestGrave->map_id;
-            l_Data << ClosestGrave->x;
-            l_Data << ClosestGrave->y;
-            l_Data << ClosestGrave->z;
+            l_Data << ClosestGrave.map_id;
+            l_Data << ClosestGrave.x;
+            l_Data << ClosestGrave.y;
+            l_Data << ClosestGrave.z;
             GetSession()->SendPacket(&l_Data);
         }
+
+        // Since Wod, you are resurected in Dungeon with 100% life.
+        if (GetMap()->IsDungeon())
+            ResurrectPlayer(100.0f);
     }
     else if (GetPositionZ() < -500.0f)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
@@ -31039,7 +31061,7 @@ ChargesData* Player::GetChargesData(uint32 p_SpellID)
 
 //////////////////////////////////////////////////////////////////////////
 /// ChallengesMode
-void Player::_LoadCompletedChallenges(PreparedQueryResult& p_Result)
+void Player::_LoadCompletedChallenges(PreparedQueryResult p_Result)
 {
     if (!p_Result)
         return;

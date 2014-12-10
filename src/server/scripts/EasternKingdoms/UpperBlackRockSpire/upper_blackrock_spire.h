@@ -18,7 +18,7 @@
 */
 
 #ifndef UPPER_BLACKROCK_SPIRE_H
-#define UPPER_BLACKROCK_SPIRE_H
+# define UPPER_BLACKROCK_SPIRE_H
 
 enum eDatas
 {
@@ -86,7 +86,9 @@ enum eGameObjects
     GOB_KYRAK_EXIT_02           = 225944,
 
     GOB_THARBEK_SPAWN_DOOR      = 175185,
-    GOB_THARBEK_EXIT            = 164726
+    GOB_THARBEK_EXIT            = 164726,
+
+    GOB_CHALLENGE_START_DOOR    = 211989
 };
 
 enum eScenarioDatas
