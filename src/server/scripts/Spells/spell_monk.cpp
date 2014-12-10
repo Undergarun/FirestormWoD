@@ -3927,6 +3927,9 @@ public:
 
         void OnTick(constAuraEffectPtr aurEff)
         {
+            if (!GetCaster())
+                return;
+
             Player* l_Player = GetCaster()->ToPlayer();
             if (!l_Player)
                 return;
@@ -4001,6 +4004,9 @@ public:
 
         void OnTick(constAuraEffectPtr aurEff)
         {
+            if (!GetCaster())
+                return;
+
             Player* l_Player = GetCaster()->ToPlayer();
             if (!l_Player)
                 return;
