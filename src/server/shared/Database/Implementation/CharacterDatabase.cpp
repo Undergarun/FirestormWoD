@@ -715,5 +715,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_COMPLETED_CHALLENGES, "SELECT map_id, best_time, last_time, best_medal, best_medal_date FROM character_completed_challenges WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_COMPLETED_CHALLENGE, "INSERT INTO character_completed_challenges (guid, map_id, best_time, last_time, best_medal, best_medal_date) VALUE (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_COMPLETED_CHALLENGE, "UPDATE character_completed_challenges SET best_time = ?, last_time = ?, best_medal = ?, best_medal_date = ? WHERE guid = ? AND map_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_GROUP_CHALLENGE, "INSERT INTO group_completed_challenges VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_GUILD_CHALLENGE, "INSERT INTO guild_completed_challenges VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GROUP_CHALLENGE, "DELETE FROM group_completed_challenges WHERE map_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GUILD_CHALLENGE, "DELETE FROM guild_completed_challenges WHERE map_id = ? AND guild_id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 }

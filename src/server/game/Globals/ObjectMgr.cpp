@@ -2252,7 +2252,7 @@ void ObjectMgr::LoadRealmCompletedChallenges()
     uint32 l_OldMSTime = getMSTime();
     uint32 l_Count = 0;
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, attempt_id, completion_time, completion_date, medal_earned, group_members, group_1_guid, group_1_spec, group_2_guid, group_2_spec, "
+    QueryResult l_Result = CharacterDatabase.Query("SELECT map_id, attempt_id, completion_time, completion_date, medal_earned, group_members, group_1_guid, group_1_spec, group_2_guid, group_2_spec, "
                                                "group_3_guid, group_3_spec, group_4_guid, group_4_spec, group_5_guid, group_5_spec FROM group_completed_challenges");
     if (!l_Result)
     {

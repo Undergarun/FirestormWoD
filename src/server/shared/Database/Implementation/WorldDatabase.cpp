@@ -94,12 +94,4 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(WORLD_SEL_DISABLES, "SELECT entry FROM disables WHERE entry = ? AND sourceType = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(WORLD_DEL_DISABLES, "DELETE FROM disables WHERE entry = ? AND sourceType = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(WORLD_SEL_BLACKMARKET_TEMPLATE, "SELECT id, itemEntry, itemCount, seller, startBid, duration, chance FROM blackmarket_template;", CONNECTION_SYNCH);
-
-    //////////////////////////////////////////////////////////////////////////
-    /// ChallengesMode
-    PREPARE_STATEMENT(WORLD_INS_GROUP_CHALLENGE, "INSERT INTO group_completed_challenges VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(WORLD_INS_GUILD_CHALLENGE, "INSERT INTO guild_completed_challenges VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(WORLD_DEL_GROUP_CHALLENGE, "DELETE FROM group_completed_challenges WHERE map_id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(WORLD_DEL_GUILD_CHALLENGE, "DELETE FROM guild_completed_challenges WHERE map_id = ? AND guild_id = ?", CONNECTION_ASYNC);
-    //////////////////////////////////////////////////////////////////////////
 }
