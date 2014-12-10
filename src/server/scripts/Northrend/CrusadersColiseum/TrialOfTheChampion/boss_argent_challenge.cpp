@@ -629,6 +629,7 @@ public:
     }
 };
 
+// 35305
 class npc_argent_monk : public CreatureScript
 {
 public:

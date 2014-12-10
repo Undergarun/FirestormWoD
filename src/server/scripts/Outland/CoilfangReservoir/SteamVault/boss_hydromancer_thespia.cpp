@@ -148,6 +148,7 @@ public:
 
 };
 
+// 17917
 class mob_coilfang_waterelemental : public CreatureScript
 {
 public:
