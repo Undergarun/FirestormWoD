@@ -3596,6 +3596,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 76808:// Mastery: Executioner
+                spellInfo->Effects[0].BasePoints = 24;
+                spellInfo->Effects[1].BasePoints = 24;
+                spellInfo->Effects[2].BasePoints = 24;
+                break;
             case 136467:// Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4380,6 +4385,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88852: // Tower of Radiance
                 spellInfo->Effects[0].Effect = 0;
                 break;
+            case 703: // Garrote
+                spellInfo->ProcChance = 100;
+                break;
             case 24275: // Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
@@ -5067,11 +5075,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 12975:// Last Stand
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                break;
-            case 122507:// Rallying Cry
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
             case 117828:// Backdraft
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;

@@ -396,6 +396,7 @@ class InstanceScript : public ZoneScript
         void SendChallengeStopElapsedTimer(uint32 p_TimerID, bool p_KeepTimer = false);
         void SetChallengeModeStarted();
         bool IsChallengeModeStarted() const { return m_ChallengeStarted; }
+        bool IsConditionCompleted() const { return m_ConditionCompleted; }
         void ScheduleChallengeStartup(uint32 p_Diff);
         void ScheduleChallengeTimeUpdate(uint32 p_Diff);
         void ScheduleBeginningTimeUpdate(uint32 p_Diff);
@@ -406,6 +407,7 @@ class InstanceScript : public ZoneScript
         uint32 RewardChallengers();
 
         bool   m_ChallengeStarted;
+        bool   m_ConditionCompleted;
         uint32 m_StartChallengeTime;
         uint64 m_ChallengeDoorGuid;
         uint32 m_ChallengeTime;

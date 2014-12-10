@@ -32,6 +32,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     instance = p_Map;
     completedEncounters = 0;
     m_ChallengeStarted = false;
+    m_ConditionCompleted = false;
     m_StartChallengeTime = 0;
     m_ChallengeDoorGuid = 0;
     m_ChallengeTime = 0;
@@ -146,6 +147,9 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
 
 void InstanceScript::UpdateDoorState(GameObject* door)
 {
+    if (!door)
+        return;
+
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
     if (lower == upper)
@@ -175,8 +179,12 @@ void InstanceScript::UpdateDoorState(GameObject* door)
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
 {
+    if (!door)
+        return;
+
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
+
     if (lower == upper)
         return;
 
@@ -271,7 +279,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             UpdateMinionState(*i, state);
 
         ///< End of challenge
-        if (id == (bosses.size() - 1) && instance->IsChallengeMode() && m_ChallengeStarted)
+        if (id == (bosses.size() - 1) && instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
         {
             m_ChallengeStarted = false;
 
@@ -760,19 +768,34 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
     if (l_ChallengeEntry == nullptr)
         return;
 
+    uint32 l_Times[eChallengeMedals::MedalTypeGold];
+    MapChallengeModeHotfix* l_ChallengeHotfix = sObjectMgr->GetMapChallengeModeHotfix(l_ChallengeEntry->ID);
+    if (l_ChallengeHotfix != nullptr)
+    {
+        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeHotfix->m_BronzeTime;
+        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeHotfix->m_SilverTime;
+        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeHotfix->m_GoldTime;
+    }
+    else
+    {
+        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
+        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
+        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
+    }
+
     ///< Downgrade Medal if needed
     switch (m_MedalType)
     {
         case eChallengeMedals::MedalTypeGold:
-            if (m_ChallengeTime > l_ChallengeEntry->GoldTime)
+            if (m_ChallengeTime > l_Times[eChallengeMedals::MedalTypeGold - 1])
                 --m_MedalType;
             break;
         case eChallengeMedals::MedalTypeSilver:
-            if (m_ChallengeTime > l_ChallengeEntry->SilverTime)
+            if (m_ChallengeTime > l_Times[eChallengeMedals::MedalTypeSilver - 1])
                 --m_MedalType;
             break;
         case eChallengeMedals::MedalTypeBronze:
-            if (m_ChallengeTime > l_ChallengeEntry->BronzeTime)
+            if (m_ChallengeTime > l_Times[eChallengeMedals::MedalTypeBronze - 1])
                 --m_MedalType;
             break;
         default:
@@ -906,9 +929,10 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     ///< Check if update is needed
     else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
     {
-        PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WORLD_DEL_GROUP_CHALLENGE);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
+
         l_Statement->setUInt32(0, l_MapID);
-        WorldDatabase.Execute(l_Statement);
+        CharacterDatabase.Execute(l_Statement);
 
         SaveNewGroupChallenge();
     }
@@ -942,10 +966,10 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     {
         if (l_GuildGroup)
         {
-            PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WORLD_DEL_GUILD_CHALLENGE);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
             l_Statement->setUInt32(0, l_MapID);
             l_Statement->setUInt32(1, l_GuildID);
-            WorldDatabase.Execute(l_Statement);
+            CharacterDatabase.Execute(l_Statement);
 
             SaveNewGroupChallenge(l_GuildID);
         }
@@ -955,7 +979,7 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
 void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 {
     uint32 l_Index = 0;
-    PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(p_GuildID ? WORLD_INS_GUILD_CHALLENGE : WORLD_INS_GROUP_CHALLENGE);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(p_GuildID ? CHAR_INS_GUILD_CHALLENGE : CHAR_INS_GROUP_CHALLENGE);
     l_Statement->setUInt32(l_Index++, instance->GetId());
 
     if (p_GuildID)
@@ -987,7 +1011,7 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
         l_Statement->setUInt32(l_Index++, 0);
     }
 
-    WorldDatabase.Execute(l_Statement);
+    CharacterDatabase.Execute(l_Statement);
 }
 
 uint32 InstanceScript::RewardChallengers()

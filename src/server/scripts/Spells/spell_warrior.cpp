@@ -40,7 +40,7 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOOD_AND_THUNDER             = 84615,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
     WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
-    WARRIOR_SPELL_RALLYING_CRY                  = 122507,
+    WARRIOR_SPELL_RALLYING_CRY                  = 97463,
     WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE        = 58368,
     WARRIOR_SPELL_SWORD_AND_BOARD               = 50227,
     WARRIOR_SPELL_SHIELD_SLAM                   = 23922,
@@ -708,16 +708,24 @@ class spell_warr_rallying_cry : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    _player->CastSpell(_player, WARRIOR_SPELL_RALLYING_CRY, true);
+                    int32 l_Bp0 = 0;
+                    std::list<Unit*> l_MemberList;
 
-                    std::list<Unit*> memberList;
-                    _player->GetPartyMembers(memberList);
+                    l_Player->GetPartyMembers(l_MemberList);
 
-                    for (auto itr : memberList)
-                    if (itr->IsWithinDistInMap(_player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend))
-                            _player->CastSpell(itr, WARRIOR_SPELL_RALLYING_CRY, true);
+                    for (auto l_Itr : l_MemberList)
+                    {
+                        if (l_Itr->IsWithinDistInMap(l_Player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend))
+                        {
+                            l_Bp0 = CalculatePct(l_Itr->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                            l_Player->CastCustomSpell(l_Itr, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
+                        }
+                    }
+
+                    l_Bp0 = CalculatePct(l_Player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    l_Player->CastCustomSpell(l_Player, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
                 }
             }
 
@@ -1314,6 +1322,92 @@ class spell_warr_shield_barrier : public SpellScriptLoader
         }
 };
 
+enum AngerManagementSpells
+{
+    SPELL_WARR_ANGER_MANAGEMENT = 152278,
+};
+
+#define REDUCED_SPELLS_ID_MAX 13
+uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
+{
+    107574, // Avatar
+    12292,  // Bloodbath
+    46924,  // Bladestorm
+    107570, // Storm Bolt
+    46968,  // Shockwave
+    118000, // Dragon Roar
+    114192, // Mocking Banner
+    6544,   // Heroic Leap
+    871,    // Shield Wall
+    1160,   // Demoralizing Shout
+    12975,  // Last Stand
+    1719,   // Recklessness
+    118038, // Die by the Sword
+};
+
+class spell_warr_anger_management : public PlayerScript
+{
+public:
+    spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
+
+    uint16 m_RageSpend = 0;
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE)
+            return;
+
+        // Only get spended rage
+        if (p_Value > 0)
+            return;
+
+        m_RageSpend += -p_Value / p_Player->GetPowerCoeff(POWER_RAGE);
+        if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
+        {
+            for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
+            {
+                if (p_Player->HasSpellCooldown(g_ReducedSpellsId[l_I]))
+                    p_Player->ReduceSpellCooldown(g_ReducedSpellsId[l_I], 1 * IN_MILLISECONDS);
+            }
+
+            m_RageSpend = 0;
+        }
+    }
+};
+
+// Execute - 163201
+class spell_warr_execute : public SpellScriptLoader
+{
+public:
+    spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
+
+    class spell_warr_execute_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_execute_SpellScript);
+
+        void HandleOnHit()
+        {
+            int32 l_Damage = GetHitDamage();
+
+            // converts each extra rage (up to 30 rage) into additional damage
+            int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            // 30 rage = 320% more damage
+            AddPct(l_Damage, float(l_RageConsumed * (320.0f / GetSpellInfo()->Effects[EFFECT_2].BasePoints)));
+
+            SetHitDamage(l_Damage);
+        }
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_execute_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1348,4 +1442,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_intervene();
     new spell_warr_glyph_of_gag_order();
     new spell_warr_shield_barrier();
+    new spell_warr_anger_management();
+    new spell_warr_execute();
 }
