@@ -1265,7 +1265,7 @@ enum Opcodes
     CMSG_MOVE_START_BACKWARD                    = 0x0583,   ///< 6.0.3 19116
     CMSG_MOVE_START_STRAFE_LEFT                 = 0x0082,   ///< 6.0.3 19116
     CMSG_MOVE_START_STRAFE_RIGHT                = 0x1151,   ///< 6.0.3 19116
-    CMSG_MOVE_START_ASCEND                      = 0x0D51,   ///< 6.0.3 19116
+    CMSG_MOVE_START_ASCEND                      = 0x0D41,   ///< 6.0.3 19116
     CMSG_MOVE_START_DESCEND                     = 0x0B79,   ///< 6.0.3 19116
     CMSG_MOVE_START_PITCH_UP                    = 0x0151,   ///< 6.0.3 19116
     CMSG_MOVE_START_PITCH_DOWN                  = 0x1974,   ///< 6.0.3 19116
