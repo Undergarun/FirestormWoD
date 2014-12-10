@@ -2386,15 +2386,22 @@ public:
     {
         PrepareSpellScript(spell_hun_kill_shot_SpellScript);
 
-        void HandleAfterCast()
+        void HandleOnHit()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Target->GetHealth() <= GetHitDamage())
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                    }
         }
+
 
         void Register()
         {
-            AfterCast += SpellCastFn(spell_hun_kill_shot_SpellScript::HandleAfterCast);
+            OnHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleOnHit);
         }
     };
 
