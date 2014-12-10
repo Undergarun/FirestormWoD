@@ -1772,29 +1772,15 @@ class spell_hun_cobra_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_cobra_shot_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(_player, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
-
-                        if (AuraEffectPtr aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 16384, 0, 0, GetCaster()->GetGUID()))
-                        {
-                            AuraPtr serpentSting = aurEff->GetBase();
-                            serpentSting->SetDuration(serpentSting->GetDuration() + (GetSpellInfo()->Effects[EFFECT_2].BasePoints * 1000));
-
-                            if (serpentSting->GetMaxDuration() < serpentSting->GetDuration())
-                                serpentSting->SetMaxDuration(serpentSting->GetDuration());
-                        }
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnHit += SpellHitFn(spell_hun_cobra_shot_SpellScript::HandleOnHit);
             }
         };
 
