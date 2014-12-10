@@ -65,8 +65,6 @@ enum MonkSpells
     SPELL_MONK_TIGEREYE_BREW                    = 116740,
     SPELL_MONK_TIGEREYE_BREW_STACKS             = 125195,
     SPELL_MONK_SPEAR_HAND_STRIKE_SILENCE        = 116709,
-    SPELL_MONK_CHI_BURST_DAMAGE                 = 130651,
-    SPELL_MONK_CHI_BURST_HEAL                   = 130654,
     SPELL_MONK_ZEN_SPHERE_DAMAGE                = 124098,
     SPELL_MONK_ZEN_SPHERE_HEAL                  = 124081,
     SPELL_MONK_ZEN_SPHERE_DETONATE_HEAL         = 124101,
@@ -2685,6 +2683,14 @@ class spell_monk_zen_sphere : public SpellScriptLoader
         }
 };
 
+enum ChiBurstSpells
+{
+    SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    SPELL_MONK_STANCE_OF_THE_WISE_SERPENT = 115070,
+    SPELL_MONK_CHI_BURST_DAMAGE           = 148135,
+    SPELL_MONK_CHI_BURST_HEAL             = 130654,
+};
+
 // Chi Burst - 123986
 class spell_monk_chi_burst : public SpellScriptLoader
 {
@@ -2697,32 +2703,42 @@ class spell_monk_chi_burst : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        std::list<Unit*> tempUnitMap;
-                        _player->GetAttackableUnitListInRange(tempUnitMap, _player->GetDistance(target));
+                        std::list<Unit*> l_TempUnitMap;
+
+                        float l_DmgMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER) ? 1.2f : 1.0f;
+                        float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
+
+                        int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.036f;
+                        sLog->outError(LOG_FILTER_GENERAL, ">>>>  l_Damage %i", l_Damage);
+                        int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.00f;
 
                         // Chi Burst will always heal the Monk, but not heal twice if Monk targets himself
-                        if (target->GetGUID() != _player->GetGUID())
-                            _player->CastSpell(_player, SPELL_MONK_CHI_BURST_HEAL, true);
+                        if (l_Target->GetGUID() != l_Player->GetGUID())
+                            l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
 
-                        if (_player->IsValidAttackTarget(target))
-                            _player->CastSpell(target, SPELL_MONK_CHI_BURST_DAMAGE, true);
+                        if (l_Player->IsValidAttackTarget(l_Target))
+                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
                         else
-                            _player->CastSpell(target, SPELL_MONK_CHI_BURST_HEAL, true);
+                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
 
-                        for (auto itr : tempUnitMap)
+                        l_Player->GetAttackableUnitListInRange(l_TempUnitMap, l_Player->GetDistance(l_Target));
+                        for (auto l_Itr : l_TempUnitMap)
                         {
-                            if (itr->GetGUID() == _player->GetGUID())
+                            if (l_Itr->GetGUID() == l_Player->GetGUID())
                                 continue;
 
-                            if (!itr->IsInBetween(_player, target, 3.0f))
+                            if (!l_Itr->IsInBetween(l_Player, l_Target, 3.0f))
                                 continue;
 
-                            uint32 spell = _player->IsValidAttackTarget(itr) ? SPELL_MONK_CHI_BURST_DAMAGE : SPELL_MONK_CHI_BURST_HEAL;
-                            _player->CastSpell(itr, spell, true);
+                            if (l_Player->IsValidAttackTarget(l_Itr))
+                                l_Player->CastCustomSpell(l_Itr, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
+                            else
+                                l_Player->CastCustomSpell(l_Itr, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+
                         }
                     }
                 }
@@ -3892,7 +3908,7 @@ class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
 
 enum SpinningCraneKickSpells
 {
-    SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
     SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE = 107270,
     SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
     SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
