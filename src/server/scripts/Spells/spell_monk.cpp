@@ -4040,6 +4040,30 @@ public:
     }
 };
 
+enum SerenitySpells
+{
+    SPELL_MONK_SERENITY = 152173
+};
+
+// Serenity - 152173
+class spell_monk_serenity : public PlayerScript
+{
+public:
+    spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY))
+            return;
+
+        // Only get spended chi
+        if (p_Value > 0)
+            return;
+
+        p_Player->ModifyPower(POWER_CHI, -p_Value);
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_combo_breaker();
@@ -4109,6 +4133,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_tigereye_brew_stacks();
     new spell_monk_spinning_crane_kick();
     new spell_monk_rushing_jade_wind();
+    new spell_monk_serenity();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
