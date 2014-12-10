@@ -4360,8 +4360,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 100;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
                 break;
-            case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 35;
+            case 109260:// Aspect of the Iron Hawk
+                spellInfo->Effects[0].BasePoints = -10;
                 break;
             case 48181: // Haunt - hotfix 5.4.2
                 spellInfo->Effects[3].BasePoints = 35;

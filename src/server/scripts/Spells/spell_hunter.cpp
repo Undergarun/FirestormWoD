@@ -2390,7 +2390,7 @@ public:
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
                 if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->GetHealth() <= GetHitDamage())
+                    if (l_Target->GetHealth() <= uint32(GetHitDamage()))
                     {
                         if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                             l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
