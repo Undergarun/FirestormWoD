@@ -3294,7 +3294,7 @@ class Player : public Unit, public GridObject<Player>
 
         //////////////////////////////////////////////////////////////////////////
         /// ChallengesMode
-        void _LoadCompletedChallenges(PreparedQueryResult& p_Result);
+        void _LoadCompletedChallenges(PreparedQueryResult&& p_Result);
         bool HasChallengeCompleted(uint32 p_MapID) const;
         CompletedChallenge* GetCompletedChallenge(uint32 p_MapID);
 
@@ -3306,7 +3306,7 @@ class Player : public Unit, public GridObject<Player>
         void OnLeavePvPCombat();
 
         /// Load pet battle async callback
-        bool _LoadPetBattles(PreparedQueryResult & p_Result);
+        bool _LoadPetBattles(PreparedQueryResult&& p_Result);
 
         uint64 m_BattlePetSummon;
         uint32 m_LastSummonedBattlePet;

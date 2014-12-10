@@ -1996,7 +1996,7 @@ void Player::Update(uint32 p_time)
     {
         PreparedQueryResult l_Result;
         _petBattleJournalCallback.get(l_Result);
-        bool l_ResultRes = _LoadPetBattles(l_Result);
+        bool l_ResultRes = _LoadPetBattles(std::move(l_Result));
         _petBattleJournalCallback.cancel();
 
         if (!l_ResultRes)
@@ -30734,7 +30734,7 @@ uint32 Player::GetBattlePetCombatSize()
 }
 
 /// Load pet battle async callback
-bool Player::_LoadPetBattles(PreparedQueryResult & p_Result)
+bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
     m_BattlePets.clear();
 
@@ -31061,7 +31061,7 @@ ChargesData* Player::GetChargesData(uint32 p_SpellID)
 
 //////////////////////////////////////////////////////////////////////////
 /// ChallengesMode
-void Player::_LoadCompletedChallenges(PreparedQueryResult& p_Result)
+void Player::_LoadCompletedChallenges(PreparedQueryResult&& p_Result)
 {
     if (!p_Result)
         return;
