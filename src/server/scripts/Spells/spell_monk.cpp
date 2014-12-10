@@ -116,7 +116,6 @@ enum MonkSpells
     SPELL_MONK_CHI_BREW                         = 115399,
     SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636,
     SPELL_MONK_BREWMASTER_TRAINING              = 117967,
-    SPELL_MONK_POWER_GUARD                      = 118636,
     SPELL_MONK_STORM_EARTH_AND_FIRE             = 137639,
     SPELL_MONK_ZEN_MEDITATION                   = 115176,
     SPELL_MONK_ZEN_MEDITATION_AURA              = 131523,
@@ -1566,34 +1565,16 @@ class spell_monk_guard : public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_guard_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
-                if (!GetCaster())
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                Unit* caster = GetCaster();
-
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    amount += int32(caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.971f);
-
-                    if (caster->HasAura(ITEM_MONK_T14_TANK_4P))
-                        amount = int32(amount * 1.2f);
-
-                    if (caster->HasAura(SPELL_MONK_POWER_GUARD))
-                        amount = int32(amount * 1.15f);
-                }
-                // For Black Ox Statue
-                else if (Unit* player = GetCaster()->GetOwner())
-                {
-                    amount += int32(player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.971f);
-
-                    if (player->HasAura(ITEM_MONK_T14_TANK_4P))
-                        amount = int32(amount * 1.2f);
-
-                    if (player->HasAura(SPELL_MONK_POWER_GUARD))
-                        amount = int32(amount * 1.15f);
-                }
+                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                    p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 9);
+                else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
+                    p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 9);
             }
 
             void Register()
