@@ -857,34 +857,26 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster() || !GetTarget())
-                    return;
-
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->GetHealthPct() <= 20.0f)
-                        {
-                            if (plr->HasSpellCooldown(GetSpellInfo()->Id))
-                                plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        }
-                    }
-                }
-            }
-
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (Unit* target = GetTarget())
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+                if (Unit* l_Target = GetTarget())
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+            }
+
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
