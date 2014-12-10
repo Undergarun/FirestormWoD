@@ -529,7 +529,7 @@ void Garrison::Update()
             }
 
             uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
             if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
             {
@@ -544,7 +544,7 @@ void Garrison::Update()
         if (!m_CacheGameObjectGUID && l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
         {
             uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
             if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
             {
@@ -570,6 +570,11 @@ void Garrison::Update()
 
         m_CacheGameObjectGUID = 0;
     }
+}
+/// Get garrison cache token count
+uint32 Garrison::GetGarrisonCacheTokenCount()
+{
+    return m_CacheLastTokenAmount;
 }
 
 //////////////////////////////////////////////////////////////////////////
