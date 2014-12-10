@@ -3294,7 +3294,9 @@ class Player : public Unit, public GridObject<Player>
 
         //////////////////////////////////////////////////////////////////////////
         /// ChallengesMode
+
         void _LoadCompletedChallenges(PreparedQueryResult&& p_Result);
+
         bool HasChallengeCompleted(uint32 p_MapID) const;
         CompletedChallenge* GetCompletedChallenge(uint32 p_MapID);
 
