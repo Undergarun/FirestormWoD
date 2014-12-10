@@ -83,7 +83,15 @@ enum MageSpells
     SPELL_MAGE_MIRROR_IMAGE_LEFT                 = 58834,
     SPELL_MAGE_MIRROR_IMAGE_RIGHT                = 58833,
     SPELL_MAGE_MIRROR_IMAGE_FRONT                = 58831,
-
+    SPELL_MAGE_ARCANE_BLAST                      = 30451,
+    SPELL_MAGE_FIREBALL                          = 133,
+    SPELL_MAGE_FROSTBOLT                         = 116,
+    SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE             = 157977,
+    SPELL_MAGE_ARCANE_POWER                      = 12042,
+    SPELL_MAGE_OVERPOWERED                       = 155147,
+    SPELL_MAGE_ICY_VEINS                         = 12472,
+    SPELL_MAGE_THERMAL_VOID                      = 155149
 };
 
 
@@ -332,6 +340,29 @@ class spell_mage_arcane_missile : public SpellScriptLoader
         {
             return new spell_mage_arcane_missile_AuraScript();
         }
+
+        class spell_mage_arcane_missile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(SPELL_MAGE_OVERPOWERED))
+                        if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
+                            l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_arcane_missile_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_arcane_missile_SpellScript();
+        }
 };
 
 // Cauterize - 86949
@@ -546,8 +577,16 @@ class spell_mage_frostbolt : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_0].BasePoints))
+                        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+            }
+
             void Register()
             {
+                OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
             }
         };
@@ -763,7 +802,7 @@ class spell_mage_combustion : public SpellScriptLoader
                     {
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
-                        l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
+                        //l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
 
                         int32 combustionBp = 0;
 
@@ -1379,8 +1418,77 @@ class spell_mage_ice_barrier : public SpellScriptLoader
         }
 };
 
+// Call by Arcane Blast 30451 - Fireball 133 - Frostbolt 116
+// Unstable Magic - 157976
+class spell_mage_unstable_magic : public SpellScriptLoader
+{
+public:
+    spell_mage_unstable_magic() : SpellScriptLoader("spell_mage_unstable_magic") { }
+
+    class spell_mage_unstable_magic_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_unstable_magic_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MAGE_UNSTABLE_MAGIC))
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        int32 l_Damage = CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE)->Effects[EFFECT_0].BasePoints);
+                        if ((GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_0].BasePoints))
+                            || (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_2].BasePoints))
+                            || (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_1].BasePoints)))
+                            l_Caster->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE, NULL, &l_Damage, NULL, true);
+                    }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_mage_unstable_magic_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_unstable_magic_SpellScript();
+    }
+};
+
+// Ice Lance - 30455
+class spell_mage_ice_lance : public SpellScriptLoader
+{
+public:
+    spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
+
+    class spell_mage_ice_lance_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_ice_lance_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MAGE_THERMAL_VOID))
+                    if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
+                        l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_ice_lance_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_ice_lance();
+    new spell_mage_unstable_magic();
     new spell_mage_greater_invisibility_removed();
     new spell_mage_greater_invisibility_triggered();
     new spell_mage_glyph_of_slow();

@@ -194,6 +194,7 @@ public:
 #define MAX_REPAIR_RANGE            (13.0f)                 //we should be at least at this range for repair
 #define MIN_REPAIR_RANGE            (7.0f)                  //we can stop movement at this range to repair but not required
 
+// 17951
 class mob_steamrigger_mechanic : public CreatureScript
 {
 public:

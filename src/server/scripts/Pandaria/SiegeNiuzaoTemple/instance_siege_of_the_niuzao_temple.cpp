@@ -1,30 +1,30 @@
 /*
-    Dungeon : Stormstout Brewery 85-87
+    Dungeon : Siege of niuzao
     Instance General Script
 */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "siege_of_the_niuzoa_temple.h"
+#include "siege_of_the_niuzao_temple.h"
 
-class instance_siege_of_the_niuzoa_temple : public InstanceMapScript
+class instance_siege_of_the_niuzao_temple : public InstanceMapScript
 {
 public:
-    instance_siege_of_the_niuzoa_temple() : InstanceMapScript("instance_siege_of_the_niuzoa_temple", 1011) { }
+    instance_siege_of_the_niuzao_temple() : InstanceMapScript("instance_siege_of_the_niuzao_temple", 1011) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_siege_of_the_niuzoa_temple_InstanceMapScript(map);
+        return new instance_siege_of_the_niuzao_temple_InstanceMapScript(map);
     }
 
-    struct instance_siege_of_the_niuzoa_temple_InstanceMapScript : public InstanceScript
+    struct instance_siege_of_the_niuzao_temple_InstanceMapScript : public InstanceScript
     {
         uint64 jinbakGuid;
         uint64 vojakGuid;
         uint64 pavalakGuid;
         uint64 neronokGuid;
 
-        instance_siege_of_the_niuzoa_temple_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_siege_of_the_niuzao_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {}
 
         void Initialize()
@@ -82,7 +82,7 @@ public:
 
 };
 
-void AddSC_instance_siege_of_the_niuzoa_temple()
+void AddSC_instance_siege_of_the_niuzao_temple()
 {
-    new instance_siege_of_the_niuzoa_temple();
+    new instance_siege_of_the_niuzao_temple();
 }

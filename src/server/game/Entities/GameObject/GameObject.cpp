@@ -249,7 +249,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
             m_goValue->Building.Health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
             m_goValue->Building.MaxHealth = m_goValue->Building.Health;
-            SetGoAnimProgress(255);
+            SetGoHealth(255);
             SetUInt32Value(GAMEOBJECT_FIELD_PARENT_ROTATION, m_goInfo->building.destructibleData);
             break;
         case GAMEOBJECT_TYPE_TRANSPORT:
@@ -1997,7 +1997,7 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
         GetGOValue()->Building.Health += change;
 
     // Set the health bar, value = 255 * healthPct;
-    SetGoAnimProgress(GetGOValue()->Building.Health * 255 / GetGOValue()->Building.MaxHealth);
+    SetGoHealth(GetGOValue()->Building.Health * 255 / GetGOValue()->Building.MaxHealth);
 
     Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself(): NULL;
 
@@ -2007,8 +2007,8 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     {
         WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8 + 8 + 8 + 4 + 4);
         data.appendPackGUID(GetGUID());
-        data.appendPackGUID(attackerOrHealer->GetGUID());
         data.appendPackGUID(player->GetGUID());
+        data.appendPackGUID(attackerOrHealer->GetGUID());
         data << int32(-change);
         data << int32(spellId);
         player->GetSession()->SendPacket(&data);
@@ -2042,7 +2042,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (setHealth)
             {
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
-                SetGoAnimProgress(255);
+                SetGoHealth(255);
             }
             EnableCollision(true);
             break;
@@ -2070,7 +2070,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 // in this case current health is 0 anyway so just prevent crashing here
                 if (!maxHealth)
                     maxHealth = 1;
-                SetGoAnimProgress(m_goValue->Building.Health * 255 / maxHealth);
+                SetGoHealth(m_goValue->Building.Health * 255 / maxHealth);
             }
             break;
         }
@@ -2099,7 +2099,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (setHealth)
             {
                 m_goValue->Building.Health = 0;
-                SetGoAnimProgress(0);
+                SetGoHealth(0);
             }
             EnableCollision(false);
             break;
@@ -2119,7 +2119,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (setHealth)
             {
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
-                SetGoAnimProgress(255);
+                SetGoHealth(255);
             }
             EnableCollision(true);
             break;

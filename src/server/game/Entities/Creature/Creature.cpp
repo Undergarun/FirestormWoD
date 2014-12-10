@@ -1262,8 +1262,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     uint32 bg_minlevel = 0;
     uint32 bg_maxlevel = 0;
     uint32 bg_level = 0;
-    float bg_mindmg = 0;
-    float bg_maxdmg = 0;
+
     if (GetMap()->IsBattleground())
     {
         Battleground* bg = NULL;
@@ -1278,7 +1277,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
                 {
                     case CREATURE_ELITE_NORMAL:
                     {
-                        if (bg_minlevel < 90)
+                        if (bg_minlevel < 100)
                         {
                             if (IsVehicle())
                                 bg_level = bg_maxlevel;
@@ -1286,35 +1285,21 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
                                 bg_level = urand(bg_minlevel, bg_minlevel + 2);
                         }
                         else
-                            bg_level = 90;
-                        GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((CLASS_WARRIOR - 1) * GT_MAX_LEVEL + bg_level - 1);
-                        bg_mindmg = hp->ratio / 6;
-                        bg_maxdmg = hp->ratio / 5;
+                            bg_level = 100;
                         break;
                     }
                     case CREATURE_ELITE_ELITE:
                     case CREATURE_ELITE_RAREELITE:
                     {
-                        if (bg_minlevel < 90)
+                        if (bg_minlevel < 100)
                             bg_level = urand(bg_maxlevel - 2, bg_maxlevel);
                         else
-                            bg_level = 92;
-                        GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((CLASS_WARRIOR - 1) * GT_MAX_LEVEL + ((bg_level > 90) ? 90 : bg_level) - 1);
-                        if (GetEntry() == 34924 || GetEntry() == 34922) // IC Bosses, elite rank, but should have huge damage
-                        {
-                            bg_mindmg = hp->ratio * 1.1;
-                            bg_maxdmg = hp->ratio * 1.2;
-                        }
-                        bg_mindmg = hp->ratio / 3;
-                        bg_maxdmg = hp->ratio / 2;
+                            bg_level = 102;
                         break;
                     }
                     case CREATURE_ELITE_WORLDBOSS:
                     {
                         bg_level = bg_maxlevel + 3;
-                        GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((CLASS_WARRIOR - 1) * GT_MAX_LEVEL + ((bg_level > 90) ? 90 : bg_level) - 1);
-                        bg_mindmg = hp->ratio * 1.1f;
-                        bg_maxdmg = hp->ratio * 1.2f;
                         break;
                     }
                 }
@@ -1338,11 +1323,6 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     float healthmod = _GetHealthMod(rank);
 
     uint32 basehp = stats->GenerateHealth(cinfo);
-
-    // Harcode Ghoul HP (Guardian)
-    if (GetEntry() == ENTRY_GHOUL)
-        basehp /= 7;
-
     uint32 health = uint32(basehp * healthmod);
 
     SetCreateHealth(health);

@@ -18,7 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "siege_of_the_niuzoa_temple.h"
+#include "siege_of_the_niuzao_temple.h"
 
 enum eSpells
 {

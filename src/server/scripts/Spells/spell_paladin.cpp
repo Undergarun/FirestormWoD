@@ -1404,16 +1404,16 @@ class spell_pal_holy_shock_heal : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
-                {
-                    if (Unit* unitTarget = GetHitUnit())
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = -GetHitDamage();
-
-                        if (caster->HasAura(PALADIN_SPELL_DAYBREAK_PROC))
-                            unitTarget->CastCustomSpell(unitTarget, PALADIN_SPELL_DAYBREAK_HEAL, &damage, NULL, NULL, true, NULL, NULLAURA_EFFECT, caster->GetGUID());
+                        if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_PROC))
+                        {
+                            int32 l_Heal = GetHitHeal();
+                            l_Target->CastCustomSpell(l_Target, PALADIN_SPELL_DAYBREAK_HEAL, &l_Heal, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                            l_Caster->RemoveAura(PALADIN_SPELL_DAYBREAK_PROC);
+                        }
                     }
-                }
             }
 
             void Register()
