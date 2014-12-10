@@ -3184,6 +3184,12 @@ class spell_monk_elusive_brew : public SpellScriptLoader
         }
 };
 
+enum BreathOfFireSpells
+{
+    SPELL_MONK_GLYPH_OF_BREATH_OF_FIRE = 123394,
+    SPELL_MONK_IMPROVED_BREATH_OF_FIRE = 157362
+};
+
 // Breath of Fire - 115181
 class spell_monk_breath_of_fire : public SpellScriptLoader
 {
@@ -3196,23 +3202,19 @@ class spell_monk_breath_of_fire : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        if (Unit* target = GetHitUnit())
-                        {
-                            // if Dizzying Haze is on the target, they will burn for an additionnal damage over 8s
-                            if (target->HasAura(SPELL_MONK_DIZZYING_HAZE))
-                            {
-                                _player->CastSpell(target, SPELL_MONK_BREATH_OF_FIRE_DOT, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Target)
+                    return;
 
-                                // Glyph of Breath of Fire
-                                if (_player->HasAura(123394))
-                                    _player->CastSpell(target, SPELL_MONK_BREATH_OF_FIRE_CONFUSED, true);
-                            }
-                        }
-                    }
+                // if Dizzying Haze is on the target or has Improved Breath of Fire, they will burn for an additionnal damage over 8s
+                if (l_Target->HasAura(SPELL_MONK_DIZZYING_HAZE) || l_Caster->HasAura(SPELL_MONK_IMPROVED_BREATH_OF_FIRE))
+                {
+                    l_Caster->CastSpell(l_Target, SPELL_MONK_BREATH_OF_FIRE_DOT, true);
+
+                    // Glyph of Breath of Fire
+                    if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_BREATH_OF_FIRE))
+                        l_Caster->CastSpell(l_Target, SPELL_MONK_BREATH_OF_FIRE_CONFUSED, true);
                 }
             }
 
