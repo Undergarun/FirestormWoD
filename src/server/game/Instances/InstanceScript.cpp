@@ -922,9 +922,9 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     ///< Check if update is needed
     else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
     {
-        PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WORLD_DEL_GROUP_CHALLENGE);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(WORLD_DEL_GROUP_CHALLENGE);
         l_Statement->setUInt32(0, l_MapID);
-        WorldDatabase.Execute(l_Statement);
+        CharacterDatabase.Execute(l_Statement);
 
         SaveNewGroupChallenge();
     }
@@ -958,10 +958,10 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     {
         if (l_GuildGroup)
         {
-            PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WORLD_DEL_GUILD_CHALLENGE);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(WORLD_DEL_GUILD_CHALLENGE);
             l_Statement->setUInt32(0, l_MapID);
             l_Statement->setUInt32(1, l_GuildID);
-            WorldDatabase.Execute(l_Statement);
+            CharacterDatabase.Execute(l_Statement);
 
             SaveNewGroupChallenge(l_GuildID);
         }
@@ -971,7 +971,7 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
 void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 {
     uint32 l_Index = 0;
-    PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(p_GuildID ? WORLD_INS_GUILD_CHALLENGE : WORLD_INS_GROUP_CHALLENGE);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(p_GuildID ? WORLD_INS_GUILD_CHALLENGE : WORLD_INS_GROUP_CHALLENGE);
     l_Statement->setUInt32(l_Index++, instance->GetId());
 
     if (p_GuildID)
@@ -1003,7 +1003,7 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
         l_Statement->setUInt32(l_Index++, 0);
     }
 
-    WorldDatabase.Execute(l_Statement);
+    CharacterDatabase.Execute(l_Statement);
 }
 
 uint32 InstanceScript::RewardChallengers()
