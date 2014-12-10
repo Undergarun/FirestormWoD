@@ -1880,6 +1880,7 @@ class Player : public Unit, public GridObject<Player>
         void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
         bool HasQuestForItem(uint32 itemid) const;
         bool HasQuestForGO(uint32 GOId) const;
+        bool hasQuest(uint32 p_QuestID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
         void QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type = 0u, uint64 guid = 0u);

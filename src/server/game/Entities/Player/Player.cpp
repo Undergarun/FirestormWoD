@@ -18819,6 +18819,20 @@ bool Player::HasQuestForItem(uint32 itemid) const
     }
     return false;
 }
+bool Player::hasQuest(uint32 p_QuestID) const
+{
+    for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
+    {
+        uint32 l_QuestID = GetQuestSlotQuestId(l_I);
+        if (l_QuestID == 0)
+            continue;
+
+        if (l_QuestID == p_QuestID)
+            return true;
+    }
+
+    return false;
+}
 
 void Player::SendQuestComplete(Quest const* quest)
 {
