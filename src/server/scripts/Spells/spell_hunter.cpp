@@ -869,10 +869,13 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+                
+                if (!l_Caster)
+                    return;
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-                    if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (Player* l_Player = l_Caster->ToPlayer())
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                         l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
             }
