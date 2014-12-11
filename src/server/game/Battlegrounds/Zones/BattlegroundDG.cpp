@@ -235,7 +235,7 @@ void BattlegroundDG::PostUpdateImpl(uint32 p_Diff)
     }
 }
 
-void BattlegroundDG::FillInitialWorldStates(WorldPacket& p_Data)
+void BattlegroundDG::FillInitialWorldStates(ByteBuffer& p_Data)
 {
     for (uint8 l_Node = 0; l_Node < BG_DG_ALL_NODES_COUNT; ++l_Node)
     {
@@ -342,8 +342,6 @@ void BattlegroundDG::_UpdateTeamScore(int p_Team, int32 p_Value)
 
     if (m_TeamScores[p_Team] == BG_DG_MAX_VICTORY_POINTS)
     {
-        // UpdateWorldState(BG_WS_FLAG_UNK_ALLIANCE, 0);
-        // UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 0);
         UpdateWorldState(WORLDSTATE_DG_CART_STATE_ALLIANCE, 1);
         UpdateWorldState(WORLDSTATE_DG_CART_STATE_HORDE, 1);
         EndBattleground(p_Team);
@@ -869,6 +867,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* p_Player)
     {
         if (!IsHordeFlagPickedup())
             return;
+
         SetHordeFlagPicker(0);                              // must be before aura remove to prevent 2 events (drop+capture) at the same time
         // horde flag in base (but not respawned yet)
         _flagState[TEAM_HORDE] = BG_DG_CART_STATE_ON_BASE;
@@ -884,14 +883,18 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* p_Player)
     {
         if (!IsAllianceFlagPickedup())
             return;
+
         SetAllianceCartPicker(0);                           // must be before aura remove to prevent 2 events (drop+capture) at the same time
+
         // alliance flag in base (but not respawned yet)
         _flagState[TEAM_ALLIANCE] = BG_DG_CART_STATE_ON_BASE;
         _UpdateTeamScore(TEAM_HORDE, _flagGold[TEAM_ALLIANCE]);
         _flagGold[TEAM_ALLIANCE] = 0;
+
         // Drop Alliance Flag from Player
         p_Player->RemoveAurasDueToSpell(BG_DG_ALLIANCE_MINE_CART);
         p_Player->RemoveAurasDueToSpell(BG_DG_ALLIANCE_CART_HOLDER_AURA);
+
         PlaySoundToAll(BG_DG_SOUND_CART_CAPTURED_HORDE);
         SpawnBGObject(BG_DG_OBJECT_CART_ALLIANCE, RESPAWN_IMMEDIATELY);
     }
@@ -1081,6 +1084,7 @@ class spell_mine_cart : public SpellScriptLoader
                     l_Entry = 71073;
                 else if (GetSpellInfo()->Id == BG_DG_ALLIANCE_MINE_CART)
                     l_Entry = 71071;
+
                 if (l_Entry != 0)
                 {
                     std::list<Creature*> l_Carts;
@@ -1095,7 +1099,7 @@ class spell_mine_cart : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_mine_cart_AuraScript::HandleOnRemove, EFFECT_3, SPELL_AURA_LINKED_2, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_mine_cart_AuraScript::HandleOnRemove, EFFECT_4, SPELL_AURA_LINKED_2, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1118,7 +1122,10 @@ class npc_dg_cart : public CreatureScript
 
         struct npc_dg_cartAI : public ScriptedAI
         {
-            npc_dg_cartAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_dg_cartAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
 
             EventMap m_Events;
 
