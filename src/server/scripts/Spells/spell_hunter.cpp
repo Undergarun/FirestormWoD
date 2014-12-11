@@ -126,7 +126,9 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
     HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
     HUNTER_SPELL_FIREWORKS                          = 127933,
-    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851
+    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
+    HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
+    HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564
 };
 
 // Called by Explosive Shot - 53301
@@ -365,8 +367,9 @@ class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(HUNTER_SPELL_ARCANE_INTENSITY_AURA))
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
             }
 
             void Register()
@@ -857,34 +860,26 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster() || !GetTarget())
-                    return;
-
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->GetHealthPct() <= 20.0f)
-                        {
-                            if (plr->HasSpellCooldown(GetSpellInfo()->Id))
-                                plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        }
-                    }
-                }
-            }
-
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (Unit* target = GetTarget())
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+                if (Unit* l_Target = GetTarget())
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+            }
+
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1780,29 +1775,15 @@ class spell_hun_cobra_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_cobra_shot_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(_player, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
-
-                        if (AuraEffectPtr aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 16384, 0, 0, GetCaster()->GetGUID()))
-                        {
-                            AuraPtr serpentSting = aurEff->GetBase();
-                            serpentSting->SetDuration(serpentSting->GetDuration() + (GetSpellInfo()->Effects[EFFECT_2].BasePoints * 1000));
-
-                            if (serpentSting->GetMaxDuration() < serpentSting->GetDuration())
-                                serpentSting->SetMaxDuration(serpentSting->GetDuration());
-                        }
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnHit += SpellHitFn(spell_hun_cobra_shot_SpellScript::HandleOnHit);
             }
         };
 
@@ -1856,9 +1837,14 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                  if (Unit* target = GetHitUnit())
-                    caster->CastSpell(target, HUNTER_SPELL_CHIMERA_SHOT, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_CHIMERA_SHOT, true);
+
+                        if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT))
+                            l_Caster->SetHealth(l_Caster->GetHealth() + CalculatePct(l_Caster->GetMaxHealth(), sSpellMgr->GetSpellInfo(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT)->Effects[EFFECT_0].BasePoints));
+                    }
             }
 
             void Register()
@@ -2400,15 +2386,22 @@ public:
     {
         PrepareSpellScript(spell_hun_kill_shot_SpellScript);
 
-        void HandleAfterCast()
+        void HandleOnHit()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Target->GetHealth() <= uint32(GetHitDamage()))
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                    }
         }
+
 
         void Register()
         {
-            AfterCast += SpellCastFn(spell_hun_kill_shot_SpellScript::HandleAfterCast);
+            OnHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleOnHit);
         }
     };
 

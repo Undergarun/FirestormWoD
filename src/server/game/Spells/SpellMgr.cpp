@@ -4356,11 +4356,18 @@ void SpellMgr::LoadSpellCustomAttr()
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
                 spellInfo->Effects[2].Effect = 0;
                 break;
-            case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 35;
+            case 53490:  // Bullheaded 
+                spellInfo->ProcChance = 100;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
+                break;
+            case 109260:// Aspect of the Iron Hawk
+                spellInfo->Effects[0].BasePoints = -10;
                 break;
             case 48181: // Haunt - hotfix 5.4.2
                 spellInfo->Effects[3].BasePoints = 35;
+                break;
+            case 165378: // Lethal Shots
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
                 break;
             case 16246: // Clearcasting - hotfix 5.4.2
                 spellInfo->Effects[1].BasePoints = 20;
@@ -6112,7 +6119,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StackAmount = 2;
                 break;
             case 1543:  // Flare
-                spellInfo->Effects[0].TriggerSpell = 94528;
+                spellInfo->Effects[0].TriggerSpell = 109772;
+                spellInfo->ProcChance = 100;
                 break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             // @TODO: Remove this hack when we out S14
