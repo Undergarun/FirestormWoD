@@ -130,7 +130,8 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
     HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
     HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
-    HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720
+    HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
+    HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529
 };
 
 // Called by Explosive Shot - 53301
@@ -278,6 +279,34 @@ class spell_hun_glyph_of_aspects : public SpellScriptLoader
         }
 };
 
+// Glyph of animal bond - 20895
+class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
+{
+public:
+    spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
+
+    class spell_hun_glyph_of_animal_bond_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_glyph_of_animal_bond_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_glyph_of_animal_bond_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_glyph_of_animal_bond_SpellScript();
+    }
+};
+
 // Lock and Load - 56453
 class spell_hun_lock_and_load_proc : public SpellScriptLoader
 {
@@ -400,9 +429,9 @@ class spell_hun_spirit_bond : public SpellScriptLoader
             {
                 if (!GetTarget())
                     return;
-                if (Player* player = GetTarget()->ToPlayer())
-                    if (Pet* pet = player->GetPet())
-                        pet->CastSpell(pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->CastSpell(l_Pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
             }
 
             void Register()
@@ -2438,6 +2467,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_glyph_of_animal_bond();
     new spell_hun_spirit_bond_apply();
     new spell_hun_kill_shot();
     new spell_hun_hunters_mark();

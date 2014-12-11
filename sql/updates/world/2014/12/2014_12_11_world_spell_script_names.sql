@@ -10,3 +10,5 @@ INSERT INTO `spell_script_names` VALUES ('158392', 'spell_pal_hammer_of_wrath');
 INSERT INTO `spell_script_names` VALUES ('24275', 'spell_pal_hammer_of_wrath');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pri_shadow_word_pain';
 INSERT INTO `spell_script_names` VALUES ('589', 'spell_pri_shadow_word_pain');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hun_glyph_of_animal_bond';
+INSERT INTO `spell_script_names` VALUES ('20895', 'spell_hun_glyph_of_animal_bond');
