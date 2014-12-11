@@ -814,6 +814,7 @@ void AddSC_boss_Rukhran();
 void AddSC_boss_HighSaveViryx();
 
 // battlegrounds
+void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
 
 // outdoor pvp
@@ -1684,6 +1685,7 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+    AddSC_BattlegroundAVcripts();
     AddSC_BattlegroundDGScripts();
 #endif
 }
