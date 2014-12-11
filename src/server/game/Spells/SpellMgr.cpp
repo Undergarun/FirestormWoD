@@ -4369,6 +4369,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165378: // Lethal Shots
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
                 break;
+            case 109306: // Thrill of the Hunt
+                spellInfo->ProcChance = 0;
+                break;
             case 16246: // Clearcasting - hotfix 5.4.2
                 spellInfo->Effects[1].BasePoints = 20;
                 break;

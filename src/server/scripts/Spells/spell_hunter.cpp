@@ -128,7 +128,9 @@ enum HunterSpells
     HUNTER_SPELL_FIREWORKS                          = 127933,
     HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
     HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
-    HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564
+    HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
+    HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
+    HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720
 };
 
 // Called by Explosive Shot - 53301
@@ -2414,6 +2416,26 @@ public:
     }
 };
 
+// Thrill of the Hunt - 109396
+class PlayerScript_thrill_of_the_hunt : public PlayerScript
+{
+public:
+    PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_HUNTER && p_Power == POWER_FOCUS && p_Player->HasAura(HUNTER_SPELL_THRILL_OF_THE_HUNT) && p_Value < 0)
+        {
+            for (int8 i = 0; i < ((p_Value / 10) * -1); ++i)
+            {
+                if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
+                    p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
+            }
+        }
+    }
+};
+
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_spirit_bond_apply();
@@ -2464,4 +2486,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
     new spell_hun_tame_beast();
+
+    // Player Script
+    new PlayerScript_thrill_of_the_hunt();
 }
