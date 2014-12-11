@@ -6,6 +6,9 @@ DELETE FROM npc_spellclick_spells WHERE npc_entry IN (60283, 60309);
 INSERT INTO npc_spellclick_spells VALUES
 (60283, 124492, 1, 0),
 (60309, 124492, 1, 0);
+
+UPDATE creature_template SET vehicleId = 2119 WHERE entry IN(60378, 60379, 60380); -- mini-map icon
+
 UPDATE battleground_template SET MinLvl = 90, MaxLvl = 90, Weight = 12 WHERE id = 708;
 
 DELETE FROM waypoint_data WHERE id IN (60378, 60379, 60380, 603780, 6037800, 603800, 6038000);
