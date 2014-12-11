@@ -21,6 +21,12 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
   Draenor/Garrison/GarrisonGO.cpp
+  Draenor/BloodMaul\ Slag\ Mines/instance_bloodmaul.h
+  Draenor/BloodMaul\ Slag\ Mines/instance_bloodmaul.cpp
+  Draenor/BloodMaul\ Slag\ Mines/mob_bloodmaul.cpp
+  Draenor/BloodMaul\ Slag\ Mines/spell_bloodmaul.cpp
+  Draenor/BloodMaul\ Slag\ Mines/areatrigger_bloodmaul.cpp
+  Draenor/BloodMaul\ Slag\ Mines/boss_slave_watcher_crushto.cpp
 )
 
 message("  -> Prepared: Draenor")
