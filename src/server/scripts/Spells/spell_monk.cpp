@@ -607,6 +607,7 @@ class spell_monk_storm_earth_and_fire : public SpellScriptLoader
 
 // Called by Tiger Palm - 100787
 // Brewmaster Training (Tiger Palm part) - 117967
+/*
 class spell_monk_brewmaster_training_tiger_palm : public SpellScriptLoader
 {
     public:
@@ -641,7 +642,7 @@ class spell_monk_brewmaster_training_tiger_palm : public SpellScriptLoader
             return new spell_monk_brewmaster_training_tiger_palm_SpellScript();
         }
 };
-
+*/
 // Called by Jab - 100780 / 108557 / 115698 / 115687 / 115693 / 115695
 // Muscle Memory - 139598
 class spell_monk_muscle_memory : public SpellScriptLoader
@@ -4074,7 +4075,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_meditation();
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();
-    new spell_monk_brewmaster_training_tiger_palm();
+    // new spell_monk_brewmaster_training_tiger_palm();
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
