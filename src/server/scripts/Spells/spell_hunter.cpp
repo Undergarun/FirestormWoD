@@ -131,7 +131,9 @@ enum HunterSpells
     HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
     HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
     HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
-    HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529
+    HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
+    HUNTER_SPELL_MULTI_SHOT                         = 2643,
+    HUNTER_SPELL_BOMBARDMENT                        = 82921
 };
 
 // Called by Explosive Shot - 53301
@@ -2445,6 +2447,37 @@ public:
     }
 };
 
+//Bombardment - 35110 
+class spell_hun_bombardment : public SpellScriptLoader
+{
+public:
+    spell_hun_bombardment() : SpellScriptLoader("spell_hun_bombardment") { }
+
+    class spell_hun_bombardment_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_bombardment_AuraScript);
+
+        void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+            
+            if (Unit* l_Caster = GetCaster())
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == HUNTER_SPELL_MULTI_SHOT)
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_BOMBARDMENT, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_hun_bombardment_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_bombardment_AuraScript();
+    }
+};
+
 // Thrill of the Hunt - 109396
 class PlayerScript_thrill_of_the_hunt : public PlayerScript
 {
@@ -2464,9 +2497,9 @@ public:
     }
 };
 
-
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_bombardment();
     new spell_hun_glyph_of_animal_bond();
     new spell_hun_spirit_bond_apply();
     new spell_hun_kill_shot();

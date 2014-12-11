@@ -12,3 +12,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pri_shadow_word_pai
 INSERT INTO `spell_script_names` VALUES ('589', 'spell_pri_shadow_word_pain');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hun_glyph_of_animal_bond';
 INSERT INTO `spell_script_names` VALUES ('20895', 'spell_hun_glyph_of_animal_bond');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hun_bombardment';
+INSERT INTO `spell_script_names` VALUES ('35110', 'spell_hun_bombardment');
