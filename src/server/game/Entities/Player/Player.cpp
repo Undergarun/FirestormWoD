@@ -18966,15 +18966,48 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
 
-    WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT, (4*4+8));
-    data.appendPackGUID(p_ObjGUID);
-    data << uint32(p_Objective.ObjectID);
-    data << uint32(p_Quest->GetQuestId());
-    data << uint16(p_OldCount + p_AddCount);
-    data << uint16(p_Objective.Amount);
-    data << uint8(p_Objective.Type);
+    switch (p_Objective.Type)
+    {
+        case QUEST_OBJECTIVE_TYPE_UNK_14:
+        {
+            WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, (4 * 4 + 8));
+            data << uint32(p_Quest->GetQuestId());
+            data << uint32(p_Objective.ObjectID);
+            data << uint8(p_Objective.Type);
 
-    GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(&data);
+            break;
+        }
+
+        case QUEST_OBJECTIVE_TYPE_NPC:
+        case QUEST_OBJECTIVE_TYPE_ITEM:
+        case QUEST_OBJECTIVE_TYPE_GO:
+        case QUEST_OBJECTIVE_TYPE_NPC_INTERACT:
+        case QUEST_OBJECTIVE_TYPE_CURRENCY:
+        case QUEST_OBJECTIVE_TYPE_SPELL:
+        case QUEST_OBJECTIVE_TYPE_FACTION_REP:
+        case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
+        case QUEST_OBJECTIVE_TYPE_MONEY:
+        case QUEST_OBJECTIVE_TYPE_PLAYER:
+        case QUEST_OBJECTIVE_TYPE_DUMMY:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK2:
+        default:
+        {
+            WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT, (4 * 4 + 8));
+            data.appendPackGUID(p_ObjGUID);
+            data << uint32(p_Objective.ObjectID);
+            data << uint32(p_Quest->GetQuestId());
+            data << uint16(p_OldCount + p_AddCount);
+            data << uint16(p_Objective.Amount);
+            data << uint8(p_Objective.Type);
+
+            GetSession()->SendPacket(&data);
+            break;
+        }
+    }
 
     uint16 log_slot = FindQuestSlot(p_Quest->GetQuestId());
 
