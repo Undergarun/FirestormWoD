@@ -187,7 +187,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
         return;
     }
 
-    const StringTextData* pData = sScriptSystemMgr->GetTextData(iTextEntry);
+    const StringTextData* pData = sScriptSystemMgr->GetTextData(pSource->GetEntry(), iTextEntry);
 
     if (!pData)
     {
@@ -215,39 +215,39 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
 
     switch (pData->uiType)
     {
-        case CHAT_TYPE_SAY:
-            pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
-            break;
-        case CHAT_TYPE_YELL:
-            pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
-            break;
-        case CHAT_TYPE_TEXT_EMOTE:
-            pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0);
-            break;
-        case CHAT_TYPE_BOSS_EMOTE:
-            pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0, true);
-            break;
-        case CHAT_TYPE_WHISPER:
-        {
-            if (target && target->GetTypeId() == TYPEID_PLAYER)
-                pSource->MonsterWhisper(iTextEntry, target->GetGUID());
-            else
-                sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
+    case CHAT_TYPE_SAY:
+        pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+        break;
+    case CHAT_TYPE_YELL:
+        pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+        break;
+    case CHAT_TYPE_TEXT_EMOTE:
+        pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0);
+        break;
+    case CHAT_TYPE_BOSS_EMOTE:
+        pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0, true);
+        break;
+    case CHAT_TYPE_WHISPER:
+    {
+        if (target && target->GetTypeId() == TYPEID_PLAYER)
+            pSource->MonsterWhisper(iTextEntry, target->GetGUID());
+        else
+            sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
 
-            break;
-        }
-        case CHAT_TYPE_BOSS_WHISPER:
-        {
-            if (target && target->GetTypeId() == TYPEID_PLAYER)
-                pSource->MonsterWhisper(iTextEntry, target->GetGUID(), true);
-            else
-                sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
+        break;
+    }
+    case CHAT_TYPE_BOSS_WHISPER:
+    {
+        if (target && target->GetTypeId() == TYPEID_PLAYER)
+            pSource->MonsterWhisper(iTextEntry, target->GetGUID(), true);
+        else
+            sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
 
-            break;
-        }
-        case CHAT_TYPE_ZONE_YELL:
-            pSource->MonsterYellToZone(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
-            break;
+        break;
+    }
+    case CHAT_TYPE_ZONE_YELL:
+        pSource->MonsterYellToZone(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+        break;
     }
 }
 

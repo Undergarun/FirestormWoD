@@ -31,8 +31,8 @@ void SystemMgr::LoadScriptTexts()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Script Texts additional data...");
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1      2      3
-    QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM script_texts");
+    //                                                 0            1      2      3
+    QueryResult result = WorldDatabase.Query("SELECT   npc_entry, entry, sound, type, language, emote FROM script_texts");
 
     if (!result)
     {
@@ -47,11 +47,12 @@ void SystemMgr::LoadScriptTexts()
         Field* pFields = result->Fetch();
         StringTextData temp;
 
-        int32 iId           = pFields[0].GetInt32();
-        temp.uiSoundId     = pFields[1].GetUInt32();
-        temp.uiType        = pFields[2].GetUInt8();
-        temp.uiLanguage    = pFields[3].GetUInt8();
-        temp.uiEmote       = pFields[4].GetUInt16();
+        uint32 l_NpcEntry  = pFields[0].GetUInt32();
+        int32 iId          = pFields[1].GetInt32();
+        temp.uiSoundId     = pFields[2].GetUInt32();
+        temp.uiType        = pFields[3].GetUInt8();
+        temp.uiLanguage    = pFields[4].GetUInt8();
+        temp.uiEmote       = pFields[5].GetUInt16();
 
         if (iId >= 0)
         {
@@ -77,7 +78,7 @@ void SystemMgr::LoadScriptTexts()
         if (temp.uiType > CHAT_TYPE_ZONE_YELL)
             sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
 
-        m_mTextDataMap[iId] = temp;
+        m_mTextDataMap[l_NpcEntry][iId] = temp;
         ++uiCount;
     }
     while (result->NextRow());
@@ -137,7 +138,7 @@ void SystemMgr::LoadScriptTextsCustom()
         if (temp.uiType > CHAT_TYPE_ZONE_YELL)
             sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
 
-        m_mTextDataMap[iId] = temp;
+        m_mTextDataMap[CUSTOM_TEXT_ID][iId] = temp;
         ++uiCount;
     }
     while (result->NextRow());
