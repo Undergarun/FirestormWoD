@@ -326,7 +326,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(ByteBuffer& data)
             {
                 data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(50);
                 data << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT) << uint32(50);

@@ -17932,43 +17932,63 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/) const
 {
-    std::list<Unit*> targets;
+    std::list<Unit*> l_Targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
-    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
+    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, l_Targets, u_check);
     VisitNearbyObject(dist, searcher);
 
     // remove current target
     if (!p_ExcludeVictim)
+    {
         if (getVictim())
-            targets.remove(getVictim());
+            l_Targets.remove(getVictim());
+    }
 
     if (exclude)
-        targets.remove(exclude);
+        l_Targets.remove(exclude);
 
     // remove not LoS targets
-    for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
+    for (std::list<Unit*>::iterator tIter = l_Targets.begin(); tIter != l_Targets.end();)
     {
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
-            targets.erase(tIter++);
+            l_Targets.erase(tIter++);
         else
             ++tIter;
     }
 
     // no appropriate targets
-    if (targets.empty())
-        return NULL;
+    if (l_Targets.empty())
+        return nullptr;
 
     if (p_ExludeAuraID)
-        targets.remove_if(JadeCore::UnitAuraCheck(true, p_ExludeAuraID));
+        l_Targets.remove_if(JadeCore::UnitAuraCheck(true, p_ExludeAuraID));
 
     // no appropriate targets
-    if (targets.empty())
-        return NULL;
+    if (l_Targets.empty())
+        return nullptr;
+
+    if (p_Alive)
+    {
+        l_Targets.remove_if([this](Unit* p_Unit) -> bool
+        {
+            if (!p_Unit)
+                return true;
+
+            if (p_Unit->isAlive())
+                return false;
+
+            return true;
+        });
+    }
+
+    // no appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
 
     // select random
-    return JadeCore::Containers::SelectRandomContainerElement(targets);
+    return JadeCore::Containers::SelectRandomContainerElement(l_Targets);
 }
 
 Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const

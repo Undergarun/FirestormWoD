@@ -966,9 +966,32 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
         }
 };
 
+// Awbee - 86533
+class mob_awbee : public CreatureScript
+{
+    public:
+        mob_awbee() : CreatureScript("mob_awbee") { }
+
+        struct mob_awbeeAI : public ScriptedAI
+        {
+            mob_awbeeAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_awbeeAI(p_Creature);
+        }
+};
+
 void AddSC_boss_commander_tharbek()
 {
     new boss_commander_tharbek();
     new mob_ironbarb_skyreaver();
     new mob_imbued_iron_axe_stalker();
+    new mob_awbee();
 }

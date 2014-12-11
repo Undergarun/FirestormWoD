@@ -54,7 +54,7 @@ enum eActions
     ACTION_THARBEK_TALK_4
 };
 
-// Warlord Zaela - 77120
+///< Warlord Zaela - 77120
 class boss_warlord_zaela : public CreatureScript
 {
     public:
@@ -178,6 +178,8 @@ class boss_warlord_zaela : public CreatureScript
                     default:
                         break;
                 }*/
+
+                DoMeleeAttackIfReady();
             }
 
             void ScheduleFirstTalk(const uint32 p_Diff)

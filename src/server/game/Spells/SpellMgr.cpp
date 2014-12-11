@@ -3915,8 +3915,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 161288:// Vileblood Serum (DoT)
             case 161833:// Noxious Spit (DoT)
+            case 157420:// Fiery Trail (DoT)
+            case 155057:// Magma Pool (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 154996:// Engulfing Fire (searcher)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
                 break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;

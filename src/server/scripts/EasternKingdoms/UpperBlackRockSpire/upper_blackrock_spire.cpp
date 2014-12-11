@@ -20,6 +20,7 @@
 #include "ScriptPCH.h"
 #include "upper_blackrock_spire.h"
 #include "Language.h"
+#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -111,6 +112,7 @@ enum eEvents
 
 enum eActions
 {
+    ActionActivateLeeroyRes
 };
 
 enum eTalks
@@ -478,7 +480,7 @@ class mob_rune_glow : public CreatureScript
                 {
                     case EVENT_CHECK_ADDS:
                     {
-                        if (Unit* l_Creature = me->SelectNearbyAlly(me, 10.f))
+                        if (Unit* l_Creature = me->SelectNearbyTarget(me, 10.f))
                         {
                             m_Events.ScheduleEvent(EVENT_CHECK_ADDS, 1000);
                             break;
@@ -982,6 +984,481 @@ class mob_black_iron_siegebreaker : public CreatureScript
         }
 };
 
+// Black Iron Groundshaker - 76599
+class mob_black_iron_groundshaker : public CreatureScript
+{
+    public:
+        mob_black_iron_groundshaker() : CreatureScript("mob_black_iron_groundshaker") { }
+
+        struct mob_black_iron_groundshakerAI : public ScriptedAI
+        {
+            mob_black_iron_groundshakerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eEvents
+            {
+                EventIntimidatingRoar = 1,
+                EventEarthpounder
+            };
+
+            enum eSpells
+            {
+                SpellIntimidatingRoar   = 154827,
+                Earthpounder            = 154749
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 5000);
+                m_Events.ScheduleEvent(eEvents::EventEarthpounder, 12000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIntimidatingRoar:
+                        me->CastSpell(me, eSpells::SpellIntimidatingRoar, true);
+                        m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 20000);
+                        break;
+                    case eEvents::EventEarthpounder:
+                        me->CastSpell(me, eSpells::Earthpounder, false);
+                        m_Events.ScheduleEvent(eEvents::EventEarthpounder, 25000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_groundshakerAI(p_Creature);
+        }
+};
+
+// Black Iron Drake-Keeper - 76935
+class mob_black_iron_drakekeeper : public CreatureScript
+{
+    public:
+        mob_black_iron_drakekeeper() : CreatureScript("mob_black_iron_drakekeeper") { }
+
+        struct mob_black_iron_drakekeeperAI : public ScriptedAI
+        {
+            mob_black_iron_drakekeeperAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eEvents
+            {
+                EventFlameChain = 1
+            };
+
+            enum eSpells
+            {
+                SpellFlameChain = 155356
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(eEvents::EventFlameChain, urand(5000, 10000));
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventFlameChain:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::SpellFlameChain, false);
+                        m_Events.ScheduleEvent(eEvents::EventFlameChain, urand(15000, 20000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_drakekeeperAI(p_Creature);
+        }
+};
+
+// Emberscale Adolescent - 76696
+class mob_emberscale_adolescent : public CreatureScript
+{
+    public:
+        mob_emberscale_adolescent() : CreatureScript("mob_emberscale_adolescent") { }
+
+        struct mob_emberscale_adolescentAI : public ScriptedAI
+        {
+            mob_emberscale_adolescentAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                SpellCaptivityChains = 155136
+            };
+
+            void Reset()
+            {
+                if (me->HasAura(eSpells::SpellCaptivityChains))
+                {
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_emberscale_adolescentAI(p_Creature);
+        }
+};
+
+// Leeroy Jenkins - 77075
+class mob_leeroy_jenkins : public CreatureScript
+{
+    public:
+        mob_leeroy_jenkins() : CreatureScript("mob_leeroy_jenkins") { }
+
+        struct mob_leeroy_jenkinsAI : public ScriptedAI
+        {
+            mob_leeroy_jenkinsAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+                m_ChickenTime = 0;
+            }
+
+            enum eSpells
+            {
+                ClassSpecificRes    = 157175,
+                PermanentFeignDeath = 29266
+            };
+
+            enum eTalks
+            {
+                TalkWake1,
+                TalkWake2,
+                TalkWake3,
+                TalkWake4,
+                TalkWake5
+            };
+
+            enum eEvents
+            {
+                EventTalk1 = 1,
+                EventTalk2,
+                EventTalk3,
+                EventTalk4,
+                EventTalk5,
+                EventUpdateChicken,
+                EventChicken
+            };
+
+            EventMap m_Events;
+            EventMap m_TalkEvents;
+
+            uint32 m_ChickenTime;
+
+            InstanceScript* m_Instance;
+
+            void Reset()
+            {
+                m_Events.Reset();
+
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                ///< TEMP !
+                me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, eSpells::ClassSpecificRes);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case eActions::ActionActivateLeeroyRes:
+                        me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, eSpells::ClassSpecificRes);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            {
+                if (!p_SpellInfo->HasEffect(SPELL_EFFECT_RESURRECT) || !me->HasAura(eSpells::PermanentFeignDeath))
+                    return;
+
+                me->SetFullHealth();
+                me->RemoveAura(eSpells::PermanentFeignDeath);
+                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, 0);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+
+                m_TalkEvents.ScheduleEvent(eEvents::EventTalk1, 1000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                m_TalkEvents.Update(p_Diff);
+
+                switch (m_TalkEvents.ExecuteEvent())
+                {
+                    case eEvents::EventTalk1:
+                        Talk(eTalks::TalkWake1);
+                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk2, 8000);
+                        break;
+                    case eEvents::EventTalk2:
+                        Talk(eTalks::TalkWake2);
+                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk3, 13000);
+                        break;
+                    case eEvents::EventTalk3:
+                        Talk(eTalks::TalkWake3);
+                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk4, 9000);
+                        break;
+                    case eEvents::EventTalk4:
+                        Talk(eTalks::TalkWake4);
+                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk5, 10000);
+                        break;
+                    case eEvents::EventTalk5:
+                    {
+                        Talk(eTalks::TalkWake5);
+                        break;
+                        ///< Launch some moves
+                        m_ChickenTime = 900;
+                        m_TalkEvents.ScheduleEvent(eEvents::EventUpdateChicken, 1000);
+                        m_TalkEvents.ScheduleEvent(eEvents::EventChicken, 900000);
+
+                        if (m_Instance)
+                        {
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateEnableChicken, 1);
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateChickenTimer, 900);
+                        }
+
+                        break;
+                    }
+                    case eEvents::EventUpdateChicken:
+                    {
+                        if (m_ChickenTime)
+                        {
+                            --m_ChickenTime;
+                            m_TalkEvents.ScheduleEvent(eEvents::EventUpdateChicken, 1000);
+                        }
+
+                        if (m_Instance)
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateChickenTimer, m_ChickenTime);
+
+                        break;
+                    }
+                    case eEvents::EventChicken:
+                    {
+                        if (m_Instance)
+                        {
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateEnableChicken, 0);
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateChickenTimer, 0);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                /*switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }*/
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_leeroy_jenkinsAI(p_Creature);
+        }
+};
+
+// Son of the Beast - 77927
+class mob_son_of_the_beast : public CreatureScript
+{
+    public:
+        mob_son_of_the_beast() : CreatureScript("mob_son_of_the_beast") { }
+
+        struct mob_son_of_the_beastAI : public ScriptedAI
+        {
+            mob_son_of_the_beastAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            enum eEvents
+            {
+                EventFieryCharge = 1,
+                EventStopCharge,
+                EventFlameEruption,
+                EventTerrifyingRoar
+            };
+
+            enum eSpells
+            {
+                FieryCharge     = 157347,
+                FieryTrailAT    = 157364,
+                FlameEruption   = 157467,
+                TerrifyingRoar  = 157428
+            };
+
+            EventMap m_Events;
+
+            InstanceScript* m_Instance;
+
+            bool m_Charging;
+
+            void Reset()
+            {
+                m_Events.Reset();
+
+                m_Charging = false;
+
+                me->RemoveAllAreasTrigger();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(eEvents::EventFieryCharge, 8000);
+                m_Events.ScheduleEvent(eEvents::EventFlameEruption, 15000);
+                m_Events.ScheduleEvent(eEvents::EventTerrifyingRoar, 20000);
+            }
+
+            void JustDied(Unit* /*p_Killer*/)
+            {
+                me->RemoveAllAreasTrigger();
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (m_Charging)
+                    me->CastSpell(me, eSpells::FieryTrailAT, true);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventFieryCharge:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::FieryCharge, true);
+                        m_Events.ScheduleEvent(eEvents::EventFieryCharge, 8000);
+                        m_Events.ScheduleEvent(eEvents::EventStopCharge, 600);
+                        m_Charging = true;
+                        break;
+                    case eEvents::EventStopCharge:
+                        m_Charging = false;
+                        break;
+                    case eEvents::EventFlameEruption:
+                        me->CastSpell(me, eSpells::FlameEruption, true);
+                        m_Events.ScheduleEvent(eEvents::EventFlameEruption, 15000);
+                        break;
+                    case eEvents::EventTerrifyingRoar:
+                        me->CastSpell(me, eSpells::TerrifyingRoar, true);
+                        m_Events.ScheduleEvent(eEvents::EventTerrifyingRoar, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_son_of_the_beastAI(p_Creature);
+        }
+};
+
+// Fiery Trail - 157364
+class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
+{
+    public:
+        areatrigger_fiery_trail() : MS::AreaTriggerEntityScript("areatrigger_fiery_trail") { }
+
+        enum eSpells
+        {
+            FieryTrailDmg = 157420
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 3.0f;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetDistance(p_AreaTrigger) <= l_Radius)
+                    l_Unit->CastSpell(l_Unit, eSpells::FieryTrailDmg, true);
+            }
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new areatrigger_fiery_trail();
+        }
+};
+
 // Shrapnel Storm - 153942
 class spell_shrapnel_storm : public SpellScriptLoader
 {
@@ -1058,6 +1535,62 @@ class spell_eruption : public SpellScriptLoader
         }
 };
 
+// Class Specific Res - 157175
+class spell_class_specific_res : public SpellScriptLoader
+{
+    public:
+        spell_class_specific_res() : SpellScriptLoader("spell_class_specific_res") { }
+
+        class spell_class_specific_res_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_class_specific_res_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Leeroy = GetHitUnit())
+                    {
+                        ///< Only classes which can resurrect, can use this
+                        switch (l_Player->getClass())
+                        {
+                            case CLASS_WARRIOR:
+                            case CLASS_WARLOCK:
+                            case CLASS_DEATH_KNIGHT:
+                            case CLASS_ROGUE:
+                            case CLASS_HUNTER:
+                                return;
+                            default:
+                                break;
+                        }
+
+                        PlayerSpellMap l_Spells = l_Player->GetSpellMap();
+                        for (auto l_Spell : l_Spells)
+                        {
+                            if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Spell.first))
+                            {
+                                if (!l_SpellInfo->HasEffect(SPELL_EFFECT_RESURRECT))
+                                    continue;
+
+                                l_Player->CastSpell(l_Leeroy, l_SpellInfo->Id, false);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_class_specific_res_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_class_specific_res_SpellScript();
+        }
+};
+
 void AddSC_upper_blackrock_spire()
 {
     new mob_black_iron_grunt();
@@ -1074,6 +1607,13 @@ void AddSC_upper_blackrock_spire()
     new mob_black_iron_summoner();
     new mob_black_iron_elite();
     new mob_black_iron_siegebreaker();
+    new mob_black_iron_groundshaker();
+    new mob_black_iron_drakekeeper();
+    new mob_emberscale_adolescent();
+    new mob_leeroy_jenkins();
+    new mob_son_of_the_beast();
+    new areatrigger_fiery_trail();
     new spell_shrapnel_storm();
     new spell_eruption();
+    new spell_class_specific_res();
 }
