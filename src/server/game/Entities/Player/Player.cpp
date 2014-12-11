@@ -18745,7 +18745,7 @@ void Player::QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type, u
             {
                 uint32 currentCounter   = GetQuestObjectiveCounter(l_Objective.ID);
                 uint32 requiredCounter  = uint32(l_Objective.Amount);
-                uint32 addCounter       = currentCounter + amount > requiredCounter ? requiredCounter - currentCounter : amount;
+                uint32 addCounter       = currentCounter + amount > requiredCounter ? requiredCounter : currentCounter +amount;
 
                 m_questObjectiveStatus[l_Objective.ID] = addCounter;
                 m_QuestStatusSave[questId] = true;
