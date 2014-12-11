@@ -2606,7 +2606,6 @@ class spell_monk_chi_burst : public SpellScriptLoader
                         float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
 
                         int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.036f;
-                        sLog->outError(LOG_FILTER_GENERAL, ">>>>  l_Damage %i", l_Damage);
                         int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.00f;
 
                         // Chi Burst will always heal the Monk, but not heal twice if Monk targets himself
@@ -2614,9 +2613,9 @@ class spell_monk_chi_burst : public SpellScriptLoader
                             l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
 
                         if (l_Player->IsValidAttackTarget(l_Target))
-                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
+                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
                         else
-                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
 
                         l_Player->GetAttackableUnitListInRange(l_TempUnitMap, l_Player->GetDistance(l_Target));
                         for (auto l_Itr : l_TempUnitMap)
