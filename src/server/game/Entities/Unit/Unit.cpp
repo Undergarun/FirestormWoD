@@ -15811,6 +15811,39 @@ uint32 Unit::GetCreatureType() const
         return ToCreature()->GetCreatureTemplate()->type;
 }
 
+bool Unit::IsInDisallowedMountForm() const
+{
+    if (ShapeshiftForm l_Form = GetShapeshiftForm())
+    {
+        SpellShapeshiftFormEntry const* l_Shapeshift = sSpellShapeshiftFormStore.LookupEntry(l_Form);
+        if (!l_Shapeshift)
+            return true;
+
+        if (!(l_Shapeshift->m_Flags & 0x1))
+            return true;
+    }
+
+    if (GetDisplayId() == GetNativeDisplayId())
+        return false;
+
+    CreatureDisplayInfoEntry const* l_Display = sCreatureDisplayInfoStore.LookupEntry(GetDisplayId());
+    if (!l_Display)
+        return true;
+
+    CreatureDisplayInfoExtraEntry const* l_DisplayExtra = sCreatureDisplayInfoExtraStore.LookupEntry(l_Display->ExtendedDisplayInfoID);
+    if (!l_DisplayExtra)
+        return true;
+
+    CreatureModelDataEntry const* l_Model = sCreatureModelDataStore.LookupEntry(l_Display->ModelId);
+    ChrRacesEntry const* l_Race = sChrRacesStore.LookupEntry(l_DisplayExtra->DisplayRaceID);
+
+    if (l_Model && !(l_Model->Flags & 0x80))
+        if (l_Race && !(l_Race->Flags & 0x4))
+            return true;
+
+    return false;
+}
+
 /*#######################################
 ########                         ########
 ########       STAT SYSTEM       ########
