@@ -6859,21 +6859,22 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
 
     uint32 vehicleId = GetMiscValue();
 
+    if (target->GetVehicleKit())
+        target->RemoveVehicleKit();
+
     if (apply)
     {
         if (!target->CreateVehicleKit(vehicleId, 0))
             return;
     }
-    else if (target->GetVehicleKit())
-        target->RemoveVehicleKit();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
 
     WorldPacket l_Data(SMSG_SET_VEHICLE_REC_ID, target->GetPackGUID().size()+4);
     l_Data.appendPackGUID(target->GetGUID());
     l_Data << uint32(apply ? vehicleId : 0);
     target->SendMessageToSet(&l_Data, true);
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
 
     if (apply)
     {
