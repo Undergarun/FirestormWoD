@@ -839,7 +839,7 @@ namespace MS
                 };
                 if (GetCaster())
                 {
-                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
+                    std::list<Unit*> l_Target = ScriptUtils::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
                     if (l_Target.empty())
                         return;
 
@@ -1040,7 +1040,7 @@ namespace MS
                 if (GetCaster())
                 {
                     Unit* l_Target = nullptr;
-                    if (l_Target = InstanceSkyreach::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
+                    if (l_Target = ScriptUtils::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
                     {
                         uint32 l_Random = urand(0, 1);
                         if (l_Random == 0)

@@ -79,7 +79,7 @@ namespace MS
                     {
                     case uint32(Events::SOLAR_DETONATION):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(6500, 7500));
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 15.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 15.0f))
                             me->CastSpell(l_Plr, uint32(Spells::SOLAR_DETONATION));
                         break;
                     case uint32(Events::SOLAR_STORM):

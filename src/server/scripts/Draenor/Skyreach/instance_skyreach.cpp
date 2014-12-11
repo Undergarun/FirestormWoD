@@ -477,7 +477,7 @@ namespace MS
                         if (Unit* l_SolarFlareDying = sObjectAccessor->FindCreature(p_Data))
                         {
                             uint32 l_SolarFlaresFormed = 0;
-                            auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
+                            auto l_Piles = ScriptUtils::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
                             for (auto l_Pile : l_Piles)
                             {
                                 if (m_PileOfAshesGuid.find(l_Pile->GetGUID()) == m_PileOfAshesGuid.end())
