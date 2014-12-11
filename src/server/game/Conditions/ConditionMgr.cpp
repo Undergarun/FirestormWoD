@@ -59,9 +59,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 ASSERT(ConditionValue2);
                 bool checkBank = ConditionValue3 ? true : false;
                 condMeets = player->HasItemCount(ConditionValue1, ConditionValue2, checkBank);
-
-                if (NegativeCondition)
-                    condMeets = !condMeets;
             }
             break;
         }
