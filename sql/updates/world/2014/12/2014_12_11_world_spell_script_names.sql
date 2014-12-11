@@ -5,3 +5,6 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_monk_jab';
 INSERT INTO `spell_script_names` VALUES (100780, 'spell_monk_jab');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_monk_tiger_palm';
 INSERT INTO `spell_script_names` VALUES (100787, 'spell_monk_tiger_palm');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pal_hammer_of_wrath';
+INSERT INTO `spell_script_names` VALUES ('158392', 'spell_pal_hammer_of_wrath');
+INSERT INTO `spell_script_names` VALUES ('24275', 'spell_pal_hammer_of_wrath');
