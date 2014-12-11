@@ -728,53 +728,6 @@ class spell_monk_fists_of_fury_stun : public SpellScriptLoader
         }
 };
 
-// Expel Harm - 115072
-class spell_monk_expel_harm : public SpellScriptLoader
-{
-    public:
-        spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
-
-        class spell_monk_expel_harm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_expel_harm_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    std::list<Unit*> targetList;
-                    float radius = 10.0f;
-
-                    JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(_player, _player, radius);
-                    JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(_player, targetList, u_check);
-                    _player->VisitNearbyObject(radius, searcher);
-
-                    for (auto itr : targetList)
-                    {
-                        if (_player->IsValidAttackTarget(itr))
-                        {
-                            int32 bp = CalculatePct((-GetHitDamage()), 50);
-                            _player->CastCustomSpell(itr, 115129, &bp, NULL, NULL, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_expel_harm_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_expel_harm_SpellScript();
-        }
-};
-
 // Chi Wave (healing bolt) - 132464
 class spell_monk_chi_wave_healing_bolt : public SpellScriptLoader
 {
@@ -4267,6 +4220,95 @@ public:
     }
 };
 
+enum ExpelHarmSpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    SPELL_MONK_EXPEL_HARM_DAMAGE          = 115129
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278
+};
+
+// Expel Harm - 115072
+class spell_monk_expel_harm : public SpellScriptLoader
+{
+public:
+    spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
+
+    class spell_monk_expel_harm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_expel_harm_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
+            SetHitHeal(l_Heal);
+
+            float l_Radius = sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].RadiusEntry->radiusHostile;
+            std::list<Unit*> l_TargetList;
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(l_Player, l_Player, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(l_Player, l_TargetList, u_check);
+            l_Player->VisitNearbyObject(l_Radius, searcher);
+
+            for (auto l_Itr : l_TargetList)
+            {
+                if (l_Player->IsValidAttackTarget(l_Itr))
+                {
+                    int32 l_Bp0 = CalculatePct(l_Heal, sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].BasePoints);
+                    l_Player->CastCustomSpell(l_Itr, SPELL_MONK_EXPEL_HARM_DAMAGE, &l_Bp0, NULL, NULL, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_monk_expel_harm_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_expel_harm_SpellScript();
+    }
+};
+
 enum SerenitySpells
 {
     SPELL_MONK_SERENITY = 152173
@@ -4302,7 +4344,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
-    new spell_monk_expel_harm();
     new spell_monk_chi_wave_healing_bolt();
     new spell_monk_chi_wave_bolt();
     new spell_monk_chi_wave();
@@ -4349,7 +4390,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_soothing_mist();
     new spell_monk_disable();
     new spell_monk_zen_pilgrimage();
-    new spell_monk_blackout_kick();
     new spell_monk_legacy_of_the_emperor();
     new spell_monk_fortifying_brew();
     new spell_monk_touch_of_death();
@@ -4362,6 +4402,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_fists_of_fury();
     new spell_monk_jab();
     new spell_monk_tiger_palm();
+    new spell_monk_blackout_kick();
+    new spell_monk_expel_harm();
     new spell_monk_serenity();
 
     // Player Script
