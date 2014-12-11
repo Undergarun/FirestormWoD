@@ -8,3 +8,5 @@ INSERT INTO `spell_script_names` VALUES (100787, 'spell_monk_tiger_palm');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pal_hammer_of_wrath';
 INSERT INTO `spell_script_names` VALUES ('158392', 'spell_pal_hammer_of_wrath');
 INSERT INTO `spell_script_names` VALUES ('24275', 'spell_pal_hammer_of_wrath');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pri_shadow_word_pain';
+INSERT INTO `spell_script_names` VALUES ('589', 'spell_pri_shadow_word_pain');
