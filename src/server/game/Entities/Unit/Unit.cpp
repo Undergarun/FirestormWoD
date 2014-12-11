@@ -18773,15 +18773,13 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
 
             if (l_InstanceMap->IsDungeon() && l_CreditedPlayer)
             {
+                if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
+                    l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
+
                 if (l_InstanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_CreditedPlayer);
-                }
-                else if (l_InstanceMap->IsChallengeMode())
-                {
-                    if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
-                        l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
                 }
                 else
                 {
