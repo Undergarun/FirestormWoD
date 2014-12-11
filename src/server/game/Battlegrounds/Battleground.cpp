@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "GroupMgr.h"
 
 namespace JadeCore
 {
@@ -1377,6 +1378,9 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        group->SetLootMethod(LootMethod::FREE_FOR_ALL);
+
+        sGroupMgr->AddGroup(group);
     }
     else                                            // raid already exist
     {
