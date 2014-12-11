@@ -605,44 +605,6 @@ class spell_monk_storm_earth_and_fire : public SpellScriptLoader
         }
 };
 
-// Called by Tiger Palm - 100787
-// Brewmaster Training (Tiger Palm part) - 117967
-/*
-class spell_monk_brewmaster_training_tiger_palm : public SpellScriptLoader
-{
-    public:
-        spell_monk_brewmaster_training_tiger_palm() : SpellScriptLoader("spell_monk_brewmaster_training_tiger_palm") { }
-
-        class spell_monk_brewmaster_training_tiger_palm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_brewmaster_training_tiger_palm_SpellScript)
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (caster->HasAura(SPELL_MONK_BREWMASTER_TRAINING))
-                        {
-                            caster->CastSpell(caster, SPELL_MONK_POWER_GUARD, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_brewmaster_training_tiger_palm_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_brewmaster_training_tiger_palm_SpellScript();
-        }
-};
-*/
 // Called by Jab - 100780 / 108557 / 115698 / 115687 / 115693 / 115695
 // Muscle Memory - 139598
 class spell_monk_muscle_memory : public SpellScriptLoader
@@ -4075,7 +4037,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_meditation();
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();
-    // new spell_monk_brewmaster_training_tiger_palm();
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
