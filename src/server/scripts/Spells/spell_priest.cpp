@@ -132,7 +132,9 @@ enum PriestSpells
     PRIEST_SPELL_INSANITY_AURA                      = 139139,
     PRIEST_SPELL_INSANITY                           = 132573,
     PRIEST_SPELL_SHADOW_INSIGHT                     = 162452,
-    PRIEST_SPELL_SHADOW_INSIGHT_PROC                = 124430
+    PRIEST_SPELL_SHADOW_INSIGHT_PROC                = 124430,
+    PRIEST_GLYPH_OF_POWER_WORD_SHIELD               = 55672,
+    PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -1002,32 +1004,37 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
             }
 
-            void Trigger(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount) // Case of GLYPH_OF_REFLECTIVE_SHIELD
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
             {
-                if (Unit* l_Target = GetTarget())
-                    if (Unit *l_Attacker = p_DmgInfo.GetAttacker())
-                    {
-                        if (l_Target == nullptr || l_Attacker == nullptr)
-                            return;
-                        if (l_Target->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
-                            if (Unit *l_Attacker = p_DmgInfo.GetAttacker())
+                if (Unit* l_Owner = GetUnitOwner())
+                    if (Unit* l_Target = GetTarget())
+                        if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD))
+                        {
+                            int32 l_Heal = CalculatePct(p_AbsorbAmount, sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)->Effects[EFFECT_0].BasePoints);
+                            l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &l_Heal, NULL, NULL, true, NULL, p_AurEff);
+                        }
+                }
+
+            void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount) // Case of GLYPH_OF_REFLECTIVE_SHIELD
+            {
+                if (Unit* l_Owner = GetUnitOwner())
+                    if (Unit* l_Target = GetTarget())
+                        if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+                            if (l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
                             {
                                 if (l_Attacker == l_Target
                                     || (p_DmgInfo.GetSpellInfo() && p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id))
                                     return;
 
-                                if (AuraEffectPtr l_ReflectiveShield = l_Target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
-                                {
-                                    int32 l_BasePoint = CalculatePct(p_AbsorbAmount, l_ReflectiveShield->GetAmount());
-                                    l_Target->CastCustomSpell(l_Attacker, PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_BasePoint, NULL, NULL, true);
-                                }
+                                int32 l_Damage = CalculatePct(p_AbsorbAmount, sSpellMgr->GetSpellInfo(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)->Effects[EFFECT_0].BasePoints);
+                                l_Owner->CastCustomSpell(l_Attacker, PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true, NULL, p_AurEff);
                             }
-                    }
             }
 
             void Register()
             {
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
