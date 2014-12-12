@@ -4240,7 +4240,7 @@ public:
 
         void HandleOnHit()
         {
-            Player* l_Player = GetCaster()->ToPlayer();
+            Player* l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
             if (!l_Player)
                 return;
 
@@ -4280,7 +4280,14 @@ public:
             int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
             SetHitHeal(l_Heal);
 
-            float l_Radius = sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].RadiusEntry->radiusHostile;
+            float l_Radius = 10.0f;
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE);
+            if (l_SpellInfo != nullptr)
+            {
+                if (l_SpellInfo->Effects[EFFECT_0].RadiusEntry != nullptr)
+                    l_Radius = l_SpellInfo->Effects[EFFECT_0].RadiusEntry->radiusHostile;
+            }
+
             std::list<Unit*> l_TargetList;
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(l_Player, l_Player, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(l_Player, l_TargetList, u_check);
