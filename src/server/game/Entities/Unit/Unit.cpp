@@ -16272,7 +16272,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     if (!p_Regen || l_RegenDiff > 2000)
         SetInt32Value(UNIT_FIELD_POWER + l_PowerIndex, p_PowerValue);
 
-    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER && (!p_Regen || l_RegenDiff > 2000))
+    if (IsInWorld() && (!p_Regen || l_RegenDiff > 2000))
     {
         int l_PowerCount = 1;
 
