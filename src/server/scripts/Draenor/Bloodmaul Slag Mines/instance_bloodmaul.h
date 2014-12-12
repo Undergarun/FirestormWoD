@@ -50,7 +50,25 @@ namespace MS
             enum class Talks : uint32
             {
                 WarderAttack1 = 0,
+                WarderAttack2 = 1,
             };
+
+            namespace SlaverWatcherCrushto
+            {
+                enum class Texts : int32
+                {
+                    BloodmaulOgreMagesDied1 = 0,
+                    BloodmaulOgreMagesDied2 = 1,
+                    Aggro = 2,
+                    RaiseTheMiners = 3,
+                    Slay1 = 4,
+                    CrushingLeap = 5,
+                    Slay3 = 6,
+                    JustDied = 7,
+                    Slay2 = 8,
+                    EarthCrush = 9,
+                };
+            }
         }
     }
 }

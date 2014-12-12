@@ -35,6 +35,7 @@ namespace MS
                     std::list<uint64> m_CapturedMinerGuids;
                     uint32 m_OgreMageDeads;
                     std::list<uint64> m_NearestWarderGuids;
+                    uint64 m_slaveWatcherCrushtoGuid;
 
                     instance_BloodmaulInstanceMapScript(Map* p_Map)
                         : InstanceScript(p_Map),
@@ -44,7 +45,8 @@ namespace MS
                         m_NeutralMinerSpawnGuids(),
                         m_CapturedMinerGuids(),
                         m_OgreMageDeads(0),
-                        m_NearestWarderGuids()
+                        m_NearestWarderGuids(),
+                        m_slaveWatcherCrushtoGuid(0)
                     {
                         SetBossNumber(MaxEncounter::Number);
                         LoadDoorData(k_DoorData);
@@ -55,6 +57,9 @@ namespace MS
                     {
                         switch (p_Creature->GetEntry())
                         {
+                        case uint32(BossEntries::SlaveWatcherCrushto):
+                            m_slaveWatcherCrushtoGuid = p_Creature->GetGUID();
+                            break;
                         case uint32(MobEntries::MinesBat):
                             p_Creature->SetDisableGravity(true);
                             p_Creature->SetCanFly(true);
@@ -105,13 +110,32 @@ namespace MS
                                 std::advance(l_Itr, m_OgreMageDeads);
                                 if (Creature* l_Warder = sObjectAccessor->FindCreature(*l_Itr))
                                 {
-                                    l_Warder->GetMotionMaster()->MovePoint(0, *p_Player);
+                                    l_Warder->GetMotionMaster()->MoveChase(p_Player);
                                     l_Warder->Attack(p_Player, true);
 
-                                    if (l_Warder->GetAI())
-                                        l_Warder->GetAI()->Talk(uint32(Talks::WarderAttack1));
+                                    if (l_Warder->AI())
+                                    {
+                                        if (urand(0, 1))
+                                            l_Warder->AI()->Talk(uint32(Talks::WarderAttack1));
+                                        else
+                                            l_Warder->AI()->Talk(uint32(Talks::WarderAttack2));
+                                    }
                                 }
                                 ++m_OgreMageDeads;
+
+                                if (m_OgreMageDeads == 2)
+                                {
+                                    if (Creature* l_Boss = sObjectAccessor->FindCreature(m_slaveWatcherCrushtoGuid))
+                                    {
+                                        if (l_Boss->AI())
+                                        {
+                                            if (urand(0, 1))
+                                                l_Boss->AI()->Talk(uint32(SlaverWatcherCrushto::Texts::BloodmaulOgreMagesDied1));
+                                            else
+                                                l_Boss->AI()->Talk(uint32(SlaverWatcherCrushto::Texts::BloodmaulOgreMagesDied2));
+                                        }
+                                    }
+                                }
                             }
                             break;
                         }
@@ -145,6 +169,7 @@ namespace MS
                                         l_CapturedMiner->DespawnOrUnsummon();
                                 }
                                 m_CapturedMinerGuids.clear();
+                                m_OgreMageDeads = 0;
                             }
                             break;
                         }

@@ -32,15 +32,6 @@ namespace MS
                     WeakenedWill = 150811,
                 };
 
-                enum class Texts : int32
-                {
-                    COMBAT_START,
-                    JUST_DIED,
-                    KILL_PLAYER_1,
-                    KILL_PLAYER_2,
-                    VICTORY
-                };
-
                 enum class Events : uint32
                 {
                     EarthCrush = 1,
@@ -84,17 +75,34 @@ namespace MS
                     {
                         _JustDied();
 
+                        Talk(uint32(SlaverWatcherCrushto::Texts::JustDied));
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     }
 
                     void KilledUnit(Unit* /*victim*/)
                     {
+                        uint32 l_Urand = urand(0, 2);
+
+                        switch (l_Urand)
+                        {
+                        case 0:
+                            Talk(uint32(SlaverWatcherCrushto::Texts::Slay1));
+                            break;
+                        case 1:
+                            Talk(uint32(SlaverWatcherCrushto::Texts::Slay2));
+                            break;
+                        case 2:
+                            Talk(uint32(SlaverWatcherCrushto::Texts::Slay3));
+                            break;
+                        }
                     }
 
                     void EnterCombat(Unit* who)
                     {
                         _EnterCombat();
+
+                        Talk(uint32(SlaverWatcherCrushto::Texts::Aggro));
 
                         events.ScheduleEvent(uint32(Events::EarthCrush), 5000);
                         events.ScheduleEvent(uint32(Events::FerociousYell), 10000);
@@ -171,6 +179,8 @@ namespace MS
                                 // We launch foot kick.
                                 me->SetFacingToObject(l_Plr);
                                 me->CastSpell(l_Summon, uint32(Spells::EarthCrush3), false);
+
+                                Talk(uint32(SlaverWatcherCrushto::Texts::EarthCrush));
                             }
                             events.ScheduleEvent(uint32(Events::EarthCrush), urand(20000, 25000));
                             break;
@@ -179,6 +189,7 @@ namespace MS
                             events.ScheduleEvent(uint32(Events::FerociousYell), urand(10000, 12000));
                             break;
                         case uint32(Events::RaiseTheMiners):
+                            Talk(uint32(SlaverWatcherCrushto::Texts::RaiseTheMiners));
                             me->CastSpell(me, uint32(Spells::RaiseTheMiners));
                             events.ScheduleEvent(uint32(Events::RaiseTheMiners), urand(25000, 29000));
                             break;
@@ -189,6 +200,7 @@ namespace MS
                         case uint32(Events::CrushingLeap):
                             if (Player* l_Plr = ScriptUtils::SelectFarEnoughPlayerIncludedTank(me, 8.0f))
                             {
+                                Talk(uint32(SlaverWatcherCrushto::Texts::CrushingLeap));
                                 m_TargetGUID = l_Plr->GetGUID();
                                 me->CastSpell(l_Plr, uint32(Spells::CrushingLeap));
                             }
