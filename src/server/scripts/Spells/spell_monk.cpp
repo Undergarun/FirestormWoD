@@ -4417,6 +4417,41 @@ public:
     }
 };
 
+// Detox - 115450
+class spell_monk_detox : public SpellScriptLoader
+{
+public:
+    spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
+
+    class spell_monk_detox_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_detox_SpellScript);
+
+        void HandleDispel(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            if (!GetCaster())
+                return;
+
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (l_Player && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                return;
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_detox_SpellScript();
+    }
+};
+
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_combo_breaker();
@@ -4490,6 +4525,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_expel_harm();
     new spell_monk_hurricane_strike();
     new spell_monk_serenity();
+    new spell_monk_detox();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

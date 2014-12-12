@@ -3549,28 +3549,6 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     uint32 l_DispelType = m_spellInfo->Effects[p_EffectIndex].MiscValue;
     uint32 l_DispelMask = SpellInfo::GetDispelMask(DispelType(l_DispelType));
 
-    /// Before dispel
-    switch (m_spellInfo->Id)
-    {
-        /// Detox
-    case 115450:
-    {
-        if (p_EffectIndex > 1)
-        {
-            if (Player* l_Player = m_caster->ToPlayer())
-            {
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
-                    return;
-            }
-        }
-
-        break;
-    }
-
-    default:
-        break;
-    }
-
     /// Mass Dispel invisibility removal
     if (m_spellInfo->Id == 32592)
     {
