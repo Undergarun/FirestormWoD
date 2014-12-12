@@ -284,12 +284,12 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     if (!m_RagewingTimeAchiev)
                     {
                         m_RagewingWhelpsKilled = 0;
-                        m_RagewingTimeAchiev = 10000;
+                        m_RagewingTimeAchiev = time(NULL);
                     }
 
                     ++m_RagewingWhelpsKilled;
 
-                    if (m_RagewingWhelpsKilled >= 20 && m_RagewingTimeAchiev > 0)
+                    if (m_RagewingWhelpsKilled >= 20 && m_RagewingTimeAchiev > 0 && (m_RagewingTimeAchiev + 10) <= time(NULL))
                         DoCompleteAchievement(eAchievements::AchievementBridgeOverFire);
 
                     return;

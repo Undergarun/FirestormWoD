@@ -6201,6 +6201,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 106113:
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
+                default:
+                    break;
             }
         }
     }

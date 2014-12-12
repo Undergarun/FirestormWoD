@@ -77,7 +77,7 @@ enum eCreatures
 
     ///< Ragewing the Untamed
     NPC_RAGEWING_THE_UNTAMED    = 76585,
-    NPC_RAGEWING_WHELP          = 83745,
+    NPC_RAGEWING_WHELP          = 76801,
     NPC_FIRE_STORM_STALKER      = 76885,
     NPC_ENGULFING_FIRE_R_TO_L   = 76813,
     NPC_ENGULFING_FIRE_L_TO_R   = 76837,

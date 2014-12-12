@@ -75,7 +75,7 @@ enum eActions
 enum eBossDatas
 {
     MaxWaypoints    = 5,
-    MaxWhelps       = 8,
+    MaxWhelps       = 10,
     PhaseOne        = 0,
     PhaseTwo        = 1,
     PhaseThree      = 2
@@ -100,17 +100,20 @@ static Position const g_MoveToWhelpPhasePos[eBossDatas::MaxWaypoints] =
 };
 
 static Position const g_FireStalkerMovePos = { 38.162f, -406.093f, 110.723f, M_PI };
+static Position const g_ThirdPhasePos = { 33.923f, -405.560f, 110.721f, 1.583f };
 
 static Position const g_RagewingWhelpSpawnPos[eBossDatas::MaxWhelps] =
 {
-    { -18.905f, -416.084f, 139.246f, 5.700f },
-    { -15.370f, -391.475f, 145.659f, 5.962f },
-    { 2.31200f, -401.217f, 151.851f, 2.004f },
-    { -10.273f, -401.403f, 139.363f, 5.216f },
-    { 4.69483f, -417.452f, 142.201f, 0.705f },
-    { -8.1115f, -397.382f, 149.580f, 0.914f },
-    { -17.245f, -395.764f, 135.704f, 0.259f },
-    { 4.50460f, -404.144f, 145.945f, 2.956f }
+    { -52.239f, -419.966f, 137.595f, 0.139f },
+    { -16.603f, -409.372f, 124.173f, 1.313f },
+    { -57.336f, -423.489f, 137.599f, 0.211f },
+    { -42.015f, -419.237f, 137.760f, 0.509f },
+    { -57.155f, -423.623f, 137.572f, 0.138f },
+    { -9.5611f, -414.897f, 128.347f, 6.025f },
+    { -54.981f, -420.820f, 137.425f, 0.697f },
+    { -9.0763f, -412.107f, 130.861f, 0.317f },
+    { -48.719f, -419.111f, 137.576f, 0.076f },
+    { -49.062f, -415.890f, 137.723f, 5.538f }
 };
 
 ///< Ragewing the Untamed - 76585
@@ -155,12 +158,12 @@ class boss_ragewing_the_untamed : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->SetCanFly(true);
+                me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
 
                 me->RemoveAllAreasTrigger();
-            }
-
-            void KilledUnit(Unit* p_Who)
-            {
+                summons.DespawnAll();
             }
 
             void EnterCombat(Unit* /*p_Attacker*/)
@@ -172,7 +175,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventRippingClaw, 6000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage)
             {
                 if (m_Phase == eBossDatas::PhaseTwo)
                 {
@@ -185,26 +188,25 @@ class boss_ragewing_the_untamed : public CreatureScript
                 if (me->HealthBelowPctDamaged(m_FlyPhaseHealthPct, p_Damage))
                 {
                     if (m_Phase == eBossDatas::PhaseOne && (m_FlyPhaseHealthPct == 70.0f || m_FlyPhaseHealthPct == 40.0f))
+                    {
                         m_Phase = eBossDatas::PhaseTwo;
 
-                    if (m_FlyPhaseHealthPct == 70.0f)
-                    {
                         LaunchWhelpPhaseMoves();
-                        m_FlyPhaseHealthPct = 40.0f;
-                    }
-                    else
-                    {
-                        LaunchWhelpPhaseMoves();
-                        m_FlyPhaseHealthPct = 0.0f;
+
+                        if (m_FlyPhaseHealthPct == 70.0f)
+                            m_FlyPhaseHealthPct = 40.0f;
+                        else
+                            m_FlyPhaseHealthPct = 0.0f;
                     }
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
                 me->RemoveAllAreasTrigger();
+                summons.DespawnAll();
             }
 
             void DoAction(const int32 p_Action)
@@ -222,9 +224,16 @@ class boss_ragewing_the_untamed : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID)
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID)
             {
-                if (m_Phase == eBossDatas::PhaseThree || p_ID > eBossDatas::MaxWaypoints)
+                if (m_Phase == eBossDatas::PhaseThree)
+                {
+                    me->SetCanFly(false);
+                    me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
+                    return;
+                }
+
+                if (p_ID > eBossDatas::MaxWaypoints)
                     return;
 
                 ++m_Waypoint;
@@ -236,9 +245,11 @@ class boss_ragewing_the_untamed : public CreatureScript
                         m_Waypoint = 0;
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         return;
                     }
 
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     me->GetMotionMaster()->MovePoint(m_Waypoint, g_MoveToBridgePos[m_Waypoint]);
                 }
                 else
@@ -246,12 +257,14 @@ class boss_ragewing_the_untamed : public CreatureScript
                     if (m_Waypoint == eBossDatas::MaxWaypoints)
                     {
                         m_Waypoint = 0;
+                        m_FireStormCount = 6;
                         me->CastSpell(me, eSpells::SpellFireStormSearcher, true);
                         m_Events.ScheduleEvent(eEvents::EventFireStorm, 1000);
                         --m_FireStormCount;
                         return;
                     }
 
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     me->GetMotionMaster()->MovePoint(m_Waypoint, g_MoveToWhelpPhasePos[m_Waypoint]);
                 }
             }
@@ -301,18 +314,24 @@ class boss_ragewing_the_untamed : public CreatureScript
                 if (m_EngulfingFire)
                     UpdateOrientationIfNeeded();
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventEngulfingFire:
                     {
-                        if (m_Instance == nullptr)
+                        if (m_Instance == nullptr || m_Phase == eBossDatas::PhaseThree)
                             break;
 
+                        if (m_Phase == eBossDatas::PhaseTwo)
+                        {
+                            m_Events.ScheduleEvent(eEvents::EventEngulfingFire, 2000);
+                            break;
+                        }
+
                         bool l_Left = urand(0, 1);
-                        if (Creature* l_Tracker = Creature::GetCreature(*me, m_Instance->GetData64(l_Left ? NPC_ENGULFING_FIRE_L_TO_R : NPC_ENGULFING_FIRE_R_TO_L)))
+                        if (Creature* l_Tracker = Creature::GetCreature(*me, m_Instance->GetData64(l_Left ? eCreatures::NPC_ENGULFING_FIRE_L_TO_R : eCreatures::NPC_ENGULFING_FIRE_R_TO_L)))
                         {
                             m_EngulfingTargetGuid = l_Tracker->GetGUID();
                             me->CastSpell(l_Tracker, eSpells::SpellEngulfingFireSearcher, true);
@@ -322,14 +341,30 @@ class boss_ragewing_the_untamed : public CreatureScript
                         break;
                     }
                     case eEvents::EventMagmaSpit:
+                    {
+                        if (m_Phase == eBossDatas::PhaseTwo)
+                        {
+                            m_Events.ScheduleEvent(eEvents::EventMagmaSpit, 2000);
+                            break;
+                        }
+
                         me->CastSpell(me, eSpells::SpellMagmaSpitSearcher, false);
                         m_Events.ScheduleEvent(eEvents::EventMagmaSpit, 17000);
                         break;
+                    }
                     case eEvents::EventRippingClaw:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    {
+                        if (m_Phase == eBossDatas::PhaseTwo)
+                        {
+                            m_Events.ScheduleEvent(eEvents::EventRippingClaw, 2000);
+                            break;
+                        }
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::SpellRippingClaw, true);
                         m_Events.ScheduleEvent(eEvents::EventRippingClaw, 15000);
                         break;
+                    }
                     case eEvents::EventFireStorm:
                         --m_FireStormCount;
                         me->CastSpell(me, eSpells::SpellFireStormSearcher, true);
@@ -393,10 +428,11 @@ class boss_ragewing_the_untamed : public CreatureScript
             void LaunchWhelpPhaseMoves()
             {
                 me->CastSpell(me, eSpells::SpellSwirlingWinds, true);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->GetMotionMaster()->MovePoint(m_Waypoint, g_MoveToWhelpPhasePos[m_Waypoint]);
 
                 for (uint8 l_I = 0; l_I < eBossDatas::MaxWhelps; ++l_I)
-                    me->SummonCreature(NPC_RAGEWING_WHELP, g_RagewingWhelpSpawnPos[l_I]);
+                    me->SummonCreature(eCreatures::NPC_RAGEWING_WHELP, g_RagewingWhelpSpawnPos[l_I]);
             }
 
             void LaunchNormalPhaseMoves()
@@ -406,11 +442,17 @@ class boss_ragewing_the_untamed : public CreatureScript
                     m_Phase = eBossDatas::PhaseThree;
                     m_Events.CancelEvent(eEvents::EventEngulfingFire);
                     m_Events.ScheduleEvent(eEvents::EventBurningRage, 5000);
+
+                    me->RemoveAura(eSpells::SpellSwirlingWinds);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                    me->GetMotionMaster()->MovePoint(eBossDatas::MaxWaypoints + 1, g_ThirdPhasePos);
+                    return;
                 }
                 else
                     m_Phase = eBossDatas::PhaseOne;
 
                 me->RemoveAura(eSpells::SpellSwirlingWinds);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->GetMotionMaster()->MovePoint(eBossDatas::MaxWaypoints + 1, g_MoveToBridgePos[eBossDatas::MaxWaypoints - 1]);
             }
         };
@@ -646,7 +688,7 @@ class areatrigger_magma_spit : public MS::AreaTriggerEntityScript
             MagmaPool = 155057
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.0f;
@@ -668,6 +710,38 @@ class areatrigger_magma_spit : public MS::AreaTriggerEntityScript
         }
 };
 
+///< Fire Storm (Missile) - 155073
+class spell_fire_storm_missile : public SpellScriptLoader
+{
+    public:
+        spell_fire_storm_missile() : SpellScriptLoader("spell_fire_storm_missile") { }
+
+        class spell_fire_storm_missile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_fire_storm_missile_SpellScript);
+
+            void HandleOnHit()
+            {
+                ///< This spell needs a script cause of SpellInfo::NeedsToBeTriggeredByCaster
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Tracker = GetHitUnit())
+                        l_Caster->CastSpell(l_Tracker, eSpells::SpellFireStormDamage, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_fire_storm_missile_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_fire_storm_missile_SpellScript();
+        }
+};
+
 void AddSC_boss_ragewing_the_untamed()
 {
     new boss_ragewing_the_untamed();
@@ -676,4 +750,5 @@ void AddSC_boss_ragewing_the_untamed()
     new mob_engulfing_fire_stalker_l_to_r();
     new mob_ragewing_whelp();
     new areatrigger_magma_spit();
+    new spell_fire_storm_missile();
 }
