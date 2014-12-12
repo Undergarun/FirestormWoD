@@ -16166,51 +16166,40 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
 
 uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
-    if (powerId == POWER_ENERGY)
-    {
-        if (IsWarlockPet())
-            return 0;
+    uint32 l_PowerIndex = 0;
 
-        switch (GetEntry())
-        {
-            case 26125:
-            case 59915:
-            case 60043:
-            case 60047:
-            case 60051:
-            case 60999:
-            case 62442:
-            case 67977:
-            case 69131:
-            case 69134:
-            case 69078:
-            case 69132:
-            case 69017:
-            case 76143:
-                return 0;
-            default:
-                break;
-        }
+    // See CGUnit_C::GetPowerSlot
+    if (GetTypeId() != TYPEID_PLAYER)
+    {
+        Powers l_DisplayPower = getPowerType();
+        if (l_DisplayPower == powerId)
+            l_PowerIndex = 0;
+        else if (powerId == Powers::POWER_ALTERNATE_POWER)
+            l_PowerIndex = 1;
+        else if (powerId == Powers::POWER_COMBO_POINT)
+            l_PowerIndex = 2;
+        else
+            l_PowerIndex = Powers::MAX_POWERS;
+
+        return l_PowerIndex;
     }
 
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
+    ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(classId);
 
-    ASSERT(classEntry && "Class not found");
-
-    uint32 index = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    ASSERT(l_ClassEntry && "Class not found");
+    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
+        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        if (!l_PowerEntry)
             continue;
 
-        if (powerEntry->classId != classId)
+        if (l_PowerEntry->classId != classId)
             continue;
 
-        if (powerEntry->power == powerId)
-            return index;
+        if (l_PowerEntry->power == powerId)
+            return l_PowerIndex;
 
-        ++index;
+        ++l_PowerIndex;
     }
 
     // return invalid value - this class doesn't use this power
