@@ -4315,6 +4315,84 @@ public:
     }
 };
 
+enum HurricaneStrikeSpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE = 107270,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278
+    SPELL_MONK_HURRICANE_STRIKE_DAMAGE    = 158221
+};
+
+// Hurricane Strike - 152175
+class spell_monk_hurricane_strike : public SpellScriptLoader
+{
+public:
+    spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
+
+    class spell_monk_hurricane_strike_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_hurricane_strike_AuraScript);
+
+        void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
+        {
+            if (!GetCaster())
+                return;
+
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            int l_Bp0 = int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
+            l_Player->CastCustomSpell(l_Player, SPELL_MONK_HURRICANE_STRIKE_DAMAGE , &l_Bp0, NULL, NULL, true);
+        }
+        void Register()
+        {
+            OnEffectUpdate += AuraEffectUpdateFn(spell_monk_hurricane_strike_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_ALLOW_ONLY_ABILITY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_hurricane_strike_AuraScript();
+    }
+};
+
+
 enum SerenitySpells
 {
     SPELL_MONK_SERENITY = 152173
@@ -4410,6 +4488,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_tiger_palm();
     new spell_monk_blackout_kick();
     new spell_monk_expel_harm();
+    new spell_monk_hurricane_strike();
     new spell_monk_serenity();
 
     // Player Script
