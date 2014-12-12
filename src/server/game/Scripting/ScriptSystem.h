@@ -9,7 +9,6 @@
 #include <ace/Singleton.h>
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
-#define CUSTOM_TEXT_ID 0
 
 //TODO: find better namings and definitions.
 //N=Neutral, A=Alliance, H=Horde.
@@ -63,8 +62,7 @@ class SystemMgr
 
     public:
         //Maps and lists
-        typedef UNORDERED_MAP<int32, StringTextData> TextDataMap; // Second we bind script text entry to texts.
-        typedef UNORDERED_MAP<uint32, TextDataMap> ScriptTextMap; // First we bind npc_entry to group of script texts.
+        typedef UNORDERED_MAP<int32, StringTextData> TextDataMap;
         typedef UNORDERED_MAP<uint32, ScriptPointVector> PointMoveMap;
 
         //Database
@@ -73,19 +71,14 @@ class SystemMgr
         void LoadScriptWaypoints();
 
         //Retrive from storage
-        StringTextData const* GetTextData(uint32 p_NpcEntry, int32 p_TextId) const
+        StringTextData const* GetTextData(int32 textId) const
         {
-            ScriptTextMap::const_iterator l_Map = m_mTextDataMap.find(p_NpcEntry);
+            TextDataMap::const_iterator itr = m_mTextDataMap.find(textId);
 
-            if (l_Map == m_mTextDataMap.end())
-                return nullptr;
+            if (itr == m_mTextDataMap.end())
+                return NULL;
 
-            TextDataMap::const_iterator l_Itr = l_Map->second.find(p_TextId);
-
-            if (l_Itr == l_Map->second.end())
-                return nullptr;
-
-            return &l_Itr->second;
+            return &itr->second;
         }
 
         ScriptPointVector const& GetPointMoveList(uint32 creatureEntry) const
@@ -99,7 +92,7 @@ class SystemMgr
         }
 
     protected:
-        ScriptTextMap   m_mTextDataMap;                     //additional data for text strings
+        TextDataMap     m_mTextDataMap;                     //additional data for text strings
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
 
     private:
