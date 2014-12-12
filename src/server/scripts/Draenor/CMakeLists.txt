@@ -21,6 +21,10 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
   Draenor/Garrison/GarrisonGO.cpp
+  Draenor/Garrison/GarrisonNPC.cpp
+  Draenor/Garrison/GarrisonQuest.cpp
+  Draenor/Garrison/Garrison_A_1.cpp
+  Draenor/Garrison/Garrison_H_1.cpp
 )
 
 message("  -> Prepared: Draenor")

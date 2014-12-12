@@ -803,6 +803,10 @@ void AddSC_timeless_isle();
 // Draenor
 void AddSC_tanaan_jungle();
 void AddSC_Garrison_GO();
+void AddSC_Garrison_NPC();
+void AddSC_Garrison_Quest();
+void AddSC_Garrison_A1();
+void AddSC_Garrison_H1();
 
 /* Skyreach Dungeon */
 void AddSC_instance_Skyreach();
@@ -1659,6 +1663,10 @@ void AddDraenorScripts()
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
     AddSC_Garrison_GO();
+    AddSC_Garrison_NPC();
+    AddSC_Garrison_Quest();
+    AddSC_Garrison_A1();
+    AddSC_Garrison_H1();
     /* Instance Skyreach*/
     AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();
