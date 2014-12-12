@@ -5,3 +5,4 @@ UPDATE creature_template SET ScriptName='mob_BloodmaulOverseer' WHERE entry=7519
 UPDATE creature_template SET ScriptName='mob_BloodmaulWarder' WHERE entry=75210;
 UPDATE creature_template SET ScriptName='boss_SlaveWatcherCrushto' WHERE entry=74787;
 UPDATE creature_template SET ScriptName='mob_BloodmaulOgreMage' WHERE entry=75272;
+UPDATE creature_template SET ScriptName='mob_BloodmaulGeomancer' WHERE entry=75198;

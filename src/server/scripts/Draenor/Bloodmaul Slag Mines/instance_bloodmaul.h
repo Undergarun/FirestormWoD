@@ -46,6 +46,11 @@ namespace MS
                 RaiseTheMiners,
                 RaiseTheMinersChangeTarget,
             };
+
+            enum class Talks : uint32
+            {
+                WarderAttack1 = 0,
+            };
         }
     }
 }

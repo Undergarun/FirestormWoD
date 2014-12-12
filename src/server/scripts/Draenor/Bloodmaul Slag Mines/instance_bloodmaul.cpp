@@ -99,13 +99,19 @@ namespace MS
                             p_Creature->DespawnOrUnsummon();
                             break;
                         case uint32(MobEntries::BloodmaulOgreMage):
-                            if (m_OgreMageDeads++ == 1)
+                            if (!m_NearestWarderGuids.empty())
                             {
-                                for (auto l_Guid : m_NearestWarderGuids)
+                                auto l_Itr = std::begin(m_NearestWarderGuids);
+                                std::advance(l_Itr, m_OgreMageDeads);
+                                if (Creature* l_Warder = sObjectAccessor->FindCreature(*l_Itr))
                                 {
-                                    if (Creature* l_Warder = sObjectAccessor->FindCreature(l_Guid))
-                                        l_Warder->Attack(p_Player, true);
+                                    l_Warder->GetMotionMaster()->MovePoint(0, *p_Player);
+                                    l_Warder->Attack(p_Player, true);
+
+                                    if (l_Warder->GetAI())
+                                        l_Warder->GetAI()->Talk(uint32(Talks::WarderAttack1));
                                 }
+                                ++m_OgreMageDeads;
                             }
                             break;
                         }
