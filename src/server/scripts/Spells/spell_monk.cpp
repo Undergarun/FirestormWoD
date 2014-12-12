@@ -34,9 +34,6 @@ enum MonkSpells
     SPELL_MONK_LEGACY_OF_THE_EMPEROR            = 117667,
     SPELL_MONK_FORTIFYING_BREW                  = 120954,
     SPELL_MONK_PROVOKE                          = 118635,
-    SPELL_MONK_BLACKOUT_KICK_DOT                = 128531,
-    SPELL_MONK_BLACKOUT_KICK_HEAL               = 128591,
-    SPELL_MONK_SHUFFLE                          = 115307,
     SPELL_MONK_ZEN_PILGRIMAGE                   = 126892,
     SPELL_MONK_ZEN_PILGRIMAGE_RETURN            = 126895,
     SPELL_MONK_DISABLE_ROOT                     = 116706,
@@ -105,7 +102,6 @@ enum MonkSpells
     SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE       = 123231,
     SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE      = 123232,
     SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE      = 123234,
-    SPELL_MONK_GLYPH_OF_BLACKOUT_KICK           = 132005,
     SPELL_MONK_CHI_WAVE_HEAL                    = 132463,
     SPELL_MONK_CHI_WAVE_DAMAGE                  = 132467,
     SPELL_MONK_CHI_WAVE_HEALING_BOLT            = 132464,
@@ -729,53 +725,6 @@ class spell_monk_fists_of_fury_stun : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_fists_of_fury_stun_SpellScript();
-        }
-};
-
-// Expel Harm - 115072
-class spell_monk_expel_harm : public SpellScriptLoader
-{
-    public:
-        spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
-
-        class spell_monk_expel_harm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_expel_harm_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    std::list<Unit*> targetList;
-                    float radius = 10.0f;
-
-                    JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(_player, _player, radius);
-                    JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(_player, targetList, u_check);
-                    _player->VisitNearbyObject(radius, searcher);
-
-                    for (auto itr : targetList)
-                    {
-                        if (_player->IsValidAttackTarget(itr))
-                        {
-                            int32 bp = CalculatePct((-GetHitDamage()), 50);
-                            _player->CastCustomSpell(itr, 115129, &bp, NULL, NULL, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_expel_harm_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_expel_harm_SpellScript();
         }
 };
 
@@ -2657,7 +2606,6 @@ class spell_monk_chi_burst : public SpellScriptLoader
                         float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
 
                         int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.036f;
-                        sLog->outError(LOG_FILTER_GENERAL, ">>>>  l_Damage %i", l_Damage);
                         int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.00f;
 
                         // Chi Burst will always heal the Monk, but not heal twice if Monk targets himself
@@ -2665,9 +2613,9 @@ class spell_monk_chi_burst : public SpellScriptLoader
                             l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
 
                         if (l_Player->IsValidAttackTarget(l_Target))
-                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
+                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
                         else
-                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
 
                         l_Player->GetAttackableUnitListInRange(l_TempUnitMap, l_Player->GetDistance(l_Target));
                         for (auto l_Itr : l_TempUnitMap)
@@ -3459,75 +3407,6 @@ class spell_monk_zen_pilgrimage : public SpellScriptLoader
         }
 };
 
-// Blackout Kick - 100784
-class spell_monk_blackout_kick : public SpellScriptLoader
-{
-    public:
-        spell_monk_blackout_kick() : SpellScriptLoader("spell_monk_blackout_kick") { }
-
-        class spell_monk_blackout_kick_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
-
-            void HandleDamage(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        // Second effect by spec : Instant heal or DoT
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_WINDWALKER
-                            && caster->ToPlayer()->HasAura(128595))
-                        {
-                            // Your Blackout Kick always deals 20% additional damage over 4 sec regardless of positioning but you're unable to trigger the healing effect.
-                            if (caster->HasAura(SPELL_MONK_GLYPH_OF_BLACKOUT_KICK))
-                            {
-                                int32 bp = int32(GetHitDamage() * 0.2f) / 4;
-                                caster->CastCustomSpell(target, SPELL_MONK_BLACKOUT_KICK_DOT, &bp, NULL, NULL, true);
-                            }
-                            else
-                            {
-                                // If behind : 20% damage on DoT
-                                if (target->isInBack(caster))
-                                {
-                                    int32 bp = int32(GetHitDamage() * 0.2f) / 4;
-                                    caster->CastCustomSpell(target, SPELL_MONK_BLACKOUT_KICK_DOT, &bp, NULL, NULL, true);
-                                }
-                                // else : 20% damage on instant heal
-                                else
-                                {
-                                    int32 bp = int32(GetHitDamage() * 0.2f);
-                                    caster->CastCustomSpell(caster, SPELL_MONK_BLACKOUT_KICK_HEAL, &bp, NULL, NULL, true);
-                                }
-                            }
-                        }
-                        // Brewmaster : Training - you gain Shuffle, increasing parry chance and stagger amount by 20%
-                        else if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
-                        {
-                            if (AuraPtr shuffle = caster->GetAura(SPELL_MONK_SHUFFLE))
-                            {
-                                shuffle->SetMaxDuration(shuffle->GetMaxDuration() + 5000);
-                                shuffle->SetDuration(shuffle->GetDuration() + 5000);
-                            }
-                            else
-                                caster->CastSpell(caster, SPELL_MONK_SHUFFLE, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_blackout_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_blackout_kick_SpellScript();
-        }
-};
-
 // Provoke - 115546
 class spell_monk_provoke : public SpellScriptLoader
 {
@@ -3913,7 +3792,7 @@ public:
             float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
             float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 
-            int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / GetSpellInfo()->GetDuration());
+            int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
             l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE , &l_Bp0, NULL, NULL, true);
         }
         void Register()
@@ -3990,7 +3869,7 @@ public:
             float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
             float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 
-            int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / GetSpellInfo()->GetDuration() ;
+            int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
             l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE , &l_Bp0, NULL, NULL, true);
         }
         void Register()
@@ -4002,6 +3881,430 @@ public:
     AuraScript* GetAuraScript() const
     {
         return new spell_monk_rushing_jade_wind_AuraScript();
+    }
+};
+
+enum FistsOfFurySpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278
+};
+
+// Fists of Fury - 113656
+class spell_monk_fists_of_fury : public SpellScriptLoader
+{
+public:
+    spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
+
+    class spell_monk_fists_of_fury_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+        {
+            if (!GetCaster())
+                return;
+
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            p_Amount += ((5 * 5.875f * l_Low + 5 * 5.875f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+
+        }
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_fists_of_fury_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_fists_of_fury_AuraScript();
+    }
+};
+
+enum JabSpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278
+};
+
+// Jab - 100780
+class spell_monk_jab : public SpellScriptLoader
+{
+public:
+    spell_monk_jab() : SpellScriptLoader("spell_monk_jab") { }
+
+    class spell_monk_jab_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_jab_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            SetHitDamage(int32(frand(1.15f * l_Low, 1.15f * l_High)));
+        }
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_jab_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_jab_SpellScript();
+    }
+};
+
+enum TigerPalmSpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278
+};
+
+// Tiger Palm - 100787
+class spell_monk_tiger_palm : public SpellScriptLoader
+{
+public:
+    spell_monk_tiger_palm() : SpellScriptLoader("spell_monk_tiger_palm") { }
+
+    class spell_monk_tiger_palm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_tiger_palm_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            float l_Coeff = 3.0f;
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                l_Coeff = 6.0f;
+
+            SetHitDamage(int32(frand(l_Coeff * l_Low, l_Coeff * l_High)));
+        }
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_tiger_palm_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_tiger_palm_SpellScript();
+    }
+};
+
+enum BlackoutKickSpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278,
+    SPELL_MONK_SHUFFLE                    = 115307,
+    SPELL_MONK_BLACKOUT_KICK_DOT          = 128531,
+    SPELL_MONK_BLACKOUT_KICK_HEAL         = 128591,
+    SPELL_MONK_COMBAT_CONDITIONING        = 128595,
+};
+
+// Blackout Kick - 100784
+class spell_monk_blackout_kick : public SpellScriptLoader
+{
+public:
+    spell_monk_blackout_kick() : SpellScriptLoader("spell_monk_blackout_kick") { }
+
+    class spell_monk_blackout_kick_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            Unit* l_Target = GetHitUnit();
+            if (!l_Player || !l_Target)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            // Base damage
+            int32 l_Damage = GetHitDamage() + int32(frand(5.375f * l_Low, 5.375f * l_High));
+
+            // Add additionnal stuff depending on spec
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+            {
+                l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
+            }
+            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
+            {
+                if (l_Target->isInBack(l_Player))
+                {
+                    int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
+                        l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
+                    l_Bp0 /= 4;
+
+                    l_Player->CastCustomSpell(l_Target, SPELL_MONK_BLACKOUT_KICK_DOT, &l_Bp0, NULL, NULL, true);
+                }
+                else
+                {
+                    int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
+                        l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
+
+                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_BLACKOUT_KICK_HEAL, &l_Bp0, NULL, NULL, true);
+                }
+            }
+            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+            {
+                if (AuraPtr l_Shuffle = l_Player->GetAura(SPELL_MONK_SHUFFLE))
+                {
+                    l_Shuffle->SetMaxDuration(l_Shuffle->GetMaxDuration() + 5 * IN_MILLISECONDS);
+                    l_Shuffle->SetDuration(l_Shuffle->GetDuration() + 5 * IN_MILLISECONDS);
+                }
+                else
+                    l_Player->CastSpell(l_Player, SPELL_MONK_SHUFFLE, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_blackout_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_blackout_kick_SpellScript();
+    }
+};
+
+enum ExpelHarmSpells
+{
+    //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
+    SPELL_MONK_EXPEL_HARM_DAMAGE          = 115129
+    //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
+    //SPELL_MONK_MANA_MEDITATION            = 121278
+};
+
+// Expel Harm - 115072
+class spell_monk_expel_harm : public SpellScriptLoader
+{
+public:
+    spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
+
+    class spell_monk_expel_harm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_expel_harm_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            float l_MainWeaponMinDamage = 0.0f;
+            float l_MainWeaponMaxDamage = 0.0f;
+            float l_MainWeaponSpeed = 1.0f;
+            float l_OffhandWeaponMinDamage = 0.0f;
+            float l_OffhandWeaponMaxDamage = 0.0f;
+            float l_OffhandWeaponSpeed = 1.0f;
+
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
+                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
+                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+            }
+            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            {
+                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
+                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
+                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
+            }
+
+            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
+            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+
+            int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
+            SetHitHeal(l_Heal);
+
+            float l_Radius = sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].RadiusEntry->radiusHostile;
+            std::list<Unit*> l_TargetList;
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(l_Player, l_Player, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(l_Player, l_TargetList, u_check);
+            l_Player->VisitNearbyObject(l_Radius, searcher);
+
+            for (auto l_Itr : l_TargetList)
+            {
+                if (l_Player->IsValidAttackTarget(l_Itr))
+                {
+                    int32 l_Bp0 = CalculatePct(l_Heal, sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].BasePoints);
+                    l_Player->CastCustomSpell(l_Itr, SPELL_MONK_EXPEL_HARM_DAMAGE, &l_Bp0, NULL, NULL, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_monk_expel_harm_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_expel_harm_SpellScript();
     }
 };
 
@@ -4040,7 +4343,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
-    new spell_monk_expel_harm();
     new spell_monk_chi_wave_healing_bolt();
     new spell_monk_chi_wave_bolt();
     new spell_monk_chi_wave();
@@ -4087,7 +4389,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_soothing_mist();
     new spell_monk_disable();
     new spell_monk_zen_pilgrimage();
-    new spell_monk_blackout_kick();
     new spell_monk_legacy_of_the_emperor();
     new spell_monk_fortifying_brew();
     new spell_monk_touch_of_death();
@@ -4097,6 +4398,11 @@ void AddSC_monk_spell_scripts()
     new spell_monk_tigereye_brew_stacks();
     new spell_monk_spinning_crane_kick();
     new spell_monk_rushing_jade_wind();
+    new spell_monk_fists_of_fury();
+    new spell_monk_jab();
+    new spell_monk_tiger_palm();
+    new spell_monk_blackout_kick();
+    new spell_monk_expel_harm();
     new spell_monk_serenity();
 
     // Player Script

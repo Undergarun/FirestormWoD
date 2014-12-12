@@ -130,7 +130,9 @@ enum PriestSpells
     PRIEST_SPELL_HALO_AREA_DAMAGE                   = 120644,
     PRIEST_SPELL_HALO_AREA_HEAL                     = 120517,
     PRIEST_SPELL_INSANITY_AURA                      = 139139,
-    PRIEST_SPELL_INSANITY                           = 132573
+    PRIEST_SPELL_INSANITY                           = 132573,
+    PRIEST_SPELL_SHADOW_INSIGHT                     = 162452,
+    PRIEST_SPELL_SHADOW_INSIGHT_PROC                = 124430
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -1366,20 +1368,23 @@ class spell_pri_mind_spike : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
+                        if (l_Player->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
+                                l_Player->CastSpell(l_Player, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
                         // Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
-                        if (!_player->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                        if (!l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS))
                         {
                             // Mind Spike remove all DoT on the target's
-                            if (target->HasAura(PRIEST_SHADOW_WORD_PAIN, _player->GetGUID()))
-                                target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, _player->GetGUID());
-                            if (target->HasAura(PRIEST_DEVOURING_PLAGUE, _player->GetGUID()))
-                                target->RemoveAura(PRIEST_DEVOURING_PLAGUE, _player->GetGUID());
-                            if (target->HasAura(PRIEST_VAMPIRIC_TOUCH, _player->GetGUID()))
-                                target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, _player->GetGUID());
+                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Player->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Player->GetGUID());
+                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Player->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Player->GetGUID());
+                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Player->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Player->GetGUID());
                         }
                     }
                 }
@@ -2511,6 +2516,38 @@ public:
     }
 };
 
+// Shadow Word: Pain - 589
+class spell_pri_shadow_word_pain : public SpellScriptLoader
+{
+public:
+    spell_pri_shadow_word_pain() : SpellScriptLoader("spell_pri_shadow_word_pain") { }
+
+    class spell_pri_shadow_word_pain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_shadow_word_pain_AuraScript);
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit *l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_shadow_word_pain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_shadow_word_pain_AuraScript();
+    }
+};
+
 // Insanity - 132573
 class PlayerScript_insanity : public PlayerScript
 {
@@ -2527,6 +2564,7 @@ public:
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
     new spell_pri_surge_of_darkness();
