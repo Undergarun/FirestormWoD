@@ -4451,7 +4451,6 @@ public:
     }
 };
 
-
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_combo_breaker();
