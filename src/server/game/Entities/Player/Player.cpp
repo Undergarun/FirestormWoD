@@ -6996,7 +6996,7 @@ void Player::RepopAtGraveyard()
     if (Battleground* bg = GetBattleground())
         ClosestGrave = *bg->GetClosestGraveYard(this);
     // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
-    else if (GetMap() && GetMap()->IsDungeon())
+    else if (GetMap()->IsDungeon())
     {
         AreaTriggerStruct const* l_AreaTrigger = sObjectMgr->GetMapEntranceTrigger(GetMapId());
         if (l_AreaTrigger)
@@ -7029,10 +7029,6 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (ClosestGrave.ID)
     {
-        // Since Wod, you are resurected in Dungeon with 100% life.
-        if (GetMap() && GetMap()->IsDungeon())
-            ResurrectPlayer(100.0f);
-
         TeleportTo(ClosestGrave.map_id, ClosestGrave.x, ClosestGrave.y, ClosestGrave.z, ClosestGrave.o);
         UpdateObjectVisibility();
 
@@ -7046,6 +7042,10 @@ void Player::RepopAtGraveyard()
             l_Data << ClosestGrave.z;
             GetSession()->SendPacket(&l_Data);
         }
+
+        // Since Wod, you are resurected in Dungeon with 100% life.
+        if (GetMap()->IsDungeon())
+            ResurrectPlayer(100.0f);
     }
     else if (GetPositionZ() < -500.0f)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
