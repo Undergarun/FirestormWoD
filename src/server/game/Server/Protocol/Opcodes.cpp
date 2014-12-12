@@ -1331,7 +1331,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_PITCH,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_RUN_MODE,                               STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_WALK_MODE,                              STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_ACK,                               STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMoveTeleportAck            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_ACK,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMoveTeleportAck            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_CHNG_TRANSPORT,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
 
     /// Stop
