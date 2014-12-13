@@ -2644,8 +2644,8 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
-        void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
-        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
+        void _ApplyItemBonuses(Item const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
+        void _ApplyWeaponDamage(uint8 slot, Item const* item, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
@@ -3267,7 +3267,7 @@ class Player : public Unit, public GridObject<Player>
         }
         //////////////////////////////////////////////////////////////////////////
 
-        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
+        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
 
