@@ -2957,6 +2957,43 @@ public:
     }
 };
 
+// Frenzied Regeneration - 22842
+class spell_dru_frenzied_regeneration : public SpellScriptLoader
+{
+public:
+    spell_dru_frenzied_regeneration() : SpellScriptLoader("spell_dru_frenzied_regeneration") { }
+
+    class spell_dru_frenzied_regeneration_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_frenzied_regeneration_SpellScript)
+
+        SpellCastResult CheckCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster->GetPower(POWER_RAGE) < GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE))
+                return SPELL_FAILED_NO_POWER;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->ModifyPower(POWER_RAGE, -GetEffectValue() * GetCaster()->GetPowerCoeff(POWER_RAGE));
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_frenzied_regeneration_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -3011,4 +3048,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_rake();
     new spell_dru_shred();
     new spell_dru_ferocious_bite();
+    new spell_dru_frenzied_regeneration();
 }
