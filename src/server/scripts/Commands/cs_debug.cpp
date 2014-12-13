@@ -112,15 +112,10 @@ class debug_commandscript : public CommandScript
                 { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
                 { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
-<<<<<<< HEAD
-                { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
-                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL },
-
-=======
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
+                { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
->>>>>>> cc0cf3e99f58169c825c28312753b6956b039957
             };
             static ChatCommand commandTable[] =
             {
