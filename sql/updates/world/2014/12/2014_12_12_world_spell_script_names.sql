@@ -4,3 +4,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_monk_detox';
 INSERT INTO `spell_script_names` VALUES (115450, 'spell_monk_detox');
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_frenzied_regeneration';
 INSERT INTO `spell_script_names` VALUES (22842, 'spell_dru_frenzied_regeneration');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_pyroblast';
+INSERT INTO `spell_script_names` VALUES ('11366', 'spell_mage_pyroblast');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_frostfire_bolt';
+INSERT INTO `spell_script_names` VALUES ('44614', 'spell_mage_frostfire_bolt');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_blast_wave';
