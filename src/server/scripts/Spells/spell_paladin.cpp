@@ -121,7 +121,8 @@ enum PaladinSpells
     PALADIN_ENHANCED_HOLY_SHOCK_PROC            = 160002,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS       = 53600,
     PALADIN_SPELL_LIGHT_OF_DAWN                 = 85222,
-    PALADIN_SPELL_DIVINE_PURPOSE                = 86172
+    PALADIN_SPELL_DIVINE_PURPOSE                = 86172,
+    PALADIN_SPELL_HAMMER_OF_WRATH_POWER         = 141459
 };
 
 // Glyph of devotion aura - 146955
@@ -212,7 +213,7 @@ public:
             if (Player* l_Player = GetCaster()->ToPlayer())
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
                 {
-                    l_Player->SetPower(POWER_HOLY_POWER, l_Player->GetPower(POWER_HOLY_POWER) + 1);
+                    l_Player->CastSpell(l_Player, PALADIN_SPELL_HAMMER_OF_WRATH_POWER, true);
 
                     uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
                     uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, sSpellMgr->GetSpellInfo(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT)->Effects[EFFECT_0].BasePoints);
