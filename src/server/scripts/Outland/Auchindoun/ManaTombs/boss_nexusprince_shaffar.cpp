@@ -223,6 +223,7 @@ enum eEnums
     SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
 };
 
+// 18431
 class mob_ethereal_beacon : public CreatureScript
 {
 public:

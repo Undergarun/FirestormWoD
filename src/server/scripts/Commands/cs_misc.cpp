@@ -190,13 +190,13 @@ class misc_commandscript : public CommandScript
             switch (l_GroupSize)
             {
             case 2:
-                l_ArenaType = ARENA_TYPE_2v2;
+                l_ArenaType = ArenaType::Arena2v2;
                 break;
             case 3:
-                l_ArenaType = ARENA_TYPE_3v3;
+                l_ArenaType = ArenaType::Arena3v3;
                 break;
             case 5:
-                l_ArenaType = ARENA_TYPE_5v5;
+                l_ArenaType = ArenaType::Arena5v5;
                 break;
             default:
                 p_Handler->PSendSysMessage("Groups are invalid.");
@@ -216,7 +216,7 @@ class misc_commandscript : public CommandScript
                 return true;
             }
 
-            BattlegroundQueueTypeId l_BGQueueTypeID = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, l_ArenaType);
+            BattlegroundQueueTypeId l_BGQueueTypeID = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, l_ArenaType, true);
             PvPDifficultyEntry const* l_BracketEntry = GetBattlegroundBracketByLevel(l_BG->GetMapId(), 90);
             if (!l_BracketEntry)
             {
@@ -225,9 +225,8 @@ class misc_commandscript : public CommandScript
             }
 
             BattlegroundQueue& l_BGQueue = sBattlegroundMgr->m_BattlegroundQueues[l_BGQueueTypeID];
-            l_BG->SetRated(false);
 
-            GroupQueueInfo* l_GInfo = l_BGQueue.AddGroup(l_FirstLeader, l_FirstGroup, BATTLEGROUND_AA, l_BracketEntry, l_ArenaType, false, false, 0, 0);
+            GroupQueueInfo* l_GInfo = l_BGQueue.AddGroup(l_FirstLeader, l_FirstGroup, BATTLEGROUND_AA, l_BracketEntry, l_ArenaType, false, false, 0, 0, true);
             uint32 l_AverageTime = l_BGQueue.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->GetBracketId());
 
             for (GroupReference* l_Itr = l_FirstGroup->GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())
@@ -242,7 +241,7 @@ class misc_commandscript : public CommandScript
                 uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
                 // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType);
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
                 l_Member->GetSession()->SendPacket(&l_Data);
             }
 
@@ -261,7 +260,7 @@ class misc_commandscript : public CommandScript
                 uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
                 // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType);
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
                 l_Member->GetSession()->SendPacket(&l_Data);
             }
 
@@ -487,6 +486,7 @@ class misc_commandscript : public CommandScript
             if (argstr == "all")
             {
                 target->RemoveAllAuras();
+                target->SendClearLossOfControl();
                 return true;
             }
 
@@ -2325,7 +2325,7 @@ class misc_commandscript : public CommandScript
             SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
             if (Unit::IsDamageReducedByArmor(schoolmask))
-                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, BASE_ATTACK);
+                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, WeaponAttackType::BaseAttack);
 
             char* spellStr = strtok((char*)NULL, " ");
 
@@ -2638,15 +2638,9 @@ class misc_commandscript : public CommandScript
                 return false;
             }
 
-            /// - Send the message
-            // Use SendAreaTriggerMessage for fastest delivery.
-            player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
-            player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
-
             // Confirmation message
             std::string nameLink = handler->GetNameLink(player);
             handler->PSendSysMessage(LANG_SENDMESSAGE, nameLink.c_str(), msgStr);
-
             return true;
         }
 

@@ -243,7 +243,7 @@ struct ChrClassesEntry
 struct ChrRacesEntry
 {
     uint32  RaceID;                                         // 0        m_ID
-    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  Flags;                                          // 1        m_Flags
     uint32  FactionID;                                      // 2        m_FactionID
     //uint32    m_ExplorationSoundID;                       // 3        m_ExplorationSoundID
     uint32  model_m;                                        // 4        m_MaleDisplayId
@@ -334,7 +334,7 @@ struct CreatureDisplayInfoEntry
     uint32  Displayid;                                      // 0        m_ID
     uint32  ModelId;                                        // 1        m_ModelID
     //uint32    m_sounID;                                   // 2        m_SoundID
-    //uint32    m_extendedDisplayInfoID;                    // 3        m_ExtendedDisplayInfoID
+    uint32  ExtendedDisplayInfoID;                          // 3        m_ExtendedDisplayInfoID
     float   scale;                                          // 4        m_CreatureModelScale
     //uint32    m_creatureModelAlpha;                       // 5        m_CreatureModelAlpha
     //char*     m_textureName;                              // 6-8      m_TextureVariation[3]
@@ -350,6 +350,22 @@ struct CreatureDisplayInfoEntry
     //uint32    m_Flags;                                    // 18       m_Flags
     //int32     m_Gender;                                   // 19       m_Gender
     //uint32    m_StateSpellVisualKitID;                    // 20       m_StateSpellVisualKitID
+};
+
+struct CreatureDisplayInfoExtraEntry
+{
+    //uint32    ID;                                         // 0
+    uint32      DisplayRaceID;                              // 1
+    //uint32    DisplaySexID;                               // 2
+    //uint32    SkinID;                                     // 3
+    //uint32    FaceID;                                     // 4
+    //uint32    HairStyleID;                                // 5
+    //uint32    HairColorID;                                // 6
+    //uint32    FacialHairID;                               // 7
+    //uint32    NPCItemDisplay[11];                         // 8-18
+    //uint32    Flags;                                      // 19
+    //uint32    FileDataID;                                 // 20
+    //uint32    Unk;                                        // 21
 };
 
 struct CreatureFamilyEntry
@@ -370,7 +386,7 @@ struct CreatureFamilyEntry
 struct CreatureModelDataEntry
 {
     uint32  Id;                                             // 0        m_ID
-    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  Flags;                                          // 1        m_Flags
     //uint32    m_FileDataID;                               // 2        m_FileDataID
     //uint32    m_SizeClass;                                // 3        m_SizeClass
     //float     m_ModelScale;                               // 4        m_ModelScale
@@ -1172,6 +1188,16 @@ struct NameGenEntry
     uint32  gender;                                         // 3        m_Sex
 };
 
+struct PowerDisplayEntry
+{
+    uint32 ID;                                              // 0
+    uint32 ActualType;                                      // 1
+    char*  GlobalStringBaseTag;                             // 2
+    uint8  Red;                                             // 3
+    uint8  Green;                                           // 4
+    uint8  Blue;                                            // 5
+};
+
 struct PvPDifficultyEntry
 {
     //uint32    id;                                         // 0        m_ID
@@ -1579,14 +1605,11 @@ struct SpellShapeshiftFormEntry
     uint32  ID;                                             // 0        m_ID
     //uint32    m_BonusActionBar;                           // 1        m_BonusActionBar
     //char*     m_NameLang;                                 // 2        m_NameLang
-    uint32  m_Flags;                                          // 3      m_Flags
+    uint32  m_Flags;                                          // 3        m_Flags
     int32   creatureType;                                   // 4        m_CreatureType
     //uint32    m_AttackIconID;                             // 5        m_AttackIconID
     uint32  attackSpeed;                                    // 6        m_CombatRoundTime
-    uint32  modelID_A;                                      // 7        m_CreatureDisplayID
-    uint32  modelID_H;                                      // 8        m_CreatureDisplayID
-    //uint32    m_CreatureDisplayID;                        // 9        m_CreatureDisplayID
-    //uint32    m_CreatureDisplayID;                        // 10       m_CreatureDisplayID
+    uint32  m_CreatureDisplayID[4];                         // 7-10     m_CreatureDisplayID (0 - Alliance, 1 - Horde)
     uint32  stanceSpell[MAX_SHAPESHIFT_SPELLS];             // 11-18    m_PresetSpellID
     //uint32    m_MountTypeID;                              // 19       m_MountTypeID
     //uint32    m_ExitSoundEntriesID;                       // 20       m_ExitSoundEntriesID

@@ -35,8 +35,8 @@
 
 Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner, true),
 m_removed(false), m_owner(owner),
-m_petType(type), m_duration(0), m_specialization(0),
-m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
+m_petType(type), m_duration(0), m_auraRaidUpdateMask(0),
+m_loading(false), m_specialization(0), m_declinedname(NULL)
 {
     m_unitTypeMask |= UNIT_MASK_PET;
     if (type == HUNTER_PET)
@@ -851,9 +851,9 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, m_owner->GetArmor() * l_PetStat->m_ArmorCoef);
 
-    SetAttackTime(BASE_ATTACK,   l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
-    SetAttackTime(OFF_ATTACK,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
-    SetAttackTime(RANGED_ATTACK, l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
+    SetAttackTime(WeaponAttackType::BaseAttack,   l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
+    SetAttackTime(WeaponAttackType::OffAttack,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
+    SetAttackTime(WeaponAttackType::RangedAttack, l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
 
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED,                     1.0f);
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE,                       1.0f);
@@ -863,7 +863,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (l_PetType == HUNTER_PET)
     {
-        if (CreatureModelInfo const* l_CreatureModelInfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
+        if (sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
         {
             SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, m_owner->GetFloatValue(UNIT_FIELD_BOUNDING_RADIUS));
             SetFloatValue(UNIT_FIELD_COMBAT_REACH, m_owner->GetFloatValue(UNIT_FIELD_COMBAT_REACH));
@@ -904,13 +904,16 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     SetPower(l_PetPower, l_CreatePower);
 
     // Base physical damage are 0-1 for every pet since WoD
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 1);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 1);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 1);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 1);
 
     if (l_PetType == HUNTER_PET)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
+
+    if (IsWarlockPet())
+        CastSpell(this, 123746, true);  ///< Fel Energy
 
     return true;
 }

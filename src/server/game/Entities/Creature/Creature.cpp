@@ -405,9 +405,9 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, l_NpcFlag2);
     SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, l_CreatureTemplate->WorldEffectID);
 
-    SetAttackTime(BASE_ATTACK,  l_CreatureTemplate->baseattacktime);
-    SetAttackTime(OFF_ATTACK,   l_CreatureTemplate->baseattacktime);
-    SetAttackTime(RANGED_ATTACK, l_CreatureTemplate->rangeattacktime);
+    SetAttackTime(WeaponAttackType::BaseAttack,  l_CreatureTemplate->baseattacktime);
+    SetAttackTime(WeaponAttackType::OffAttack,   l_CreatureTemplate->baseattacktime);
+    SetAttackTime(WeaponAttackType::RangedAttack, l_CreatureTemplate->rangeattacktime);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, l_UnitFlags1);
     SetUInt32Value(UNIT_FIELD_FLAGS2, l_UnitFlags2);
@@ -1262,8 +1262,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     uint32 bg_minlevel = 0;
     uint32 bg_maxlevel = 0;
     uint32 bg_level = 0;
-    float bg_mindmg = 0;
-    float bg_maxdmg = 0;
+
     if (GetMap()->IsBattleground())
     {
         Battleground* bg = NULL;
@@ -1278,7 +1277,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
                 {
                     case CREATURE_ELITE_NORMAL:
                     {
-                        if (bg_minlevel < 90)
+                        if (bg_minlevel < 100)
                         {
                             if (IsVehicle())
                                 bg_level = bg_maxlevel;
@@ -1286,35 +1285,21 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
                                 bg_level = urand(bg_minlevel, bg_minlevel + 2);
                         }
                         else
-                            bg_level = 90;
-                        GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((CLASS_WARRIOR - 1) * GT_MAX_LEVEL + bg_level - 1);
-                        bg_mindmg = hp->ratio / 6;
-                        bg_maxdmg = hp->ratio / 5;
+                            bg_level = 100;
                         break;
                     }
                     case CREATURE_ELITE_ELITE:
                     case CREATURE_ELITE_RAREELITE:
                     {
-                        if (bg_minlevel < 90)
+                        if (bg_minlevel < 100)
                             bg_level = urand(bg_maxlevel - 2, bg_maxlevel);
                         else
-                            bg_level = 92;
-                        GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((CLASS_WARRIOR - 1) * GT_MAX_LEVEL + ((bg_level > 90) ? 90 : bg_level) - 1);
-                        if (GetEntry() == 34924 || GetEntry() == 34922) // IC Bosses, elite rank, but should have huge damage
-                        {
-                            bg_mindmg = hp->ratio * 1.1;
-                            bg_maxdmg = hp->ratio * 1.2;
-                        }
-                        bg_mindmg = hp->ratio / 3;
-                        bg_maxdmg = hp->ratio / 2;
+                            bg_level = 102;
                         break;
                     }
                     case CREATURE_ELITE_WORLDBOSS:
                     {
                         bg_level = bg_maxlevel + 3;
-                        GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.LookupEntry((CLASS_WARRIOR - 1) * GT_MAX_LEVEL + ((bg_level > 90) ? 90 : bg_level) - 1);
-                        bg_mindmg = hp->ratio * 1.1f;
-                        bg_maxdmg = hp->ratio * 1.2f;
                         break;
                     }
                 }
@@ -1338,11 +1323,6 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     float healthmod = _GetHealthMod(rank);
 
     uint32 basehp = stats->GenerateHealth(cinfo);
-
-    // Harcode Ghoul HP (Guardian)
-    if (GetEntry() == 26125)
-        basehp /= 7;
-
     uint32 health = uint32(basehp * healthmod);
 
     SetCreateHealth(health);
@@ -1381,14 +1361,14 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, weaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(RANGED_ATTACK, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(RANGED_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MINDAMAGE, weaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MAXDAMAGE, weaponBaseMaxDamage);
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);

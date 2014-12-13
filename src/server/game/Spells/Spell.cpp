@@ -519,28 +519,28 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     {
         case SPELL_DAMAGE_CLASS_MELEE:
             if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_REQ_OFFHAND)
-                m_attackType = OFF_ATTACK;
+                m_attackType = WeaponAttackType::OffAttack;
             else
-                m_attackType = BASE_ATTACK;
+                m_attackType = WeaponAttackType::BaseAttack;
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
-            m_attackType = m_spellInfo->IsRangedWeaponSpell() ? RANGED_ATTACK : BASE_ATTACK;
+            m_attackType = m_spellInfo->IsRangedWeaponSpell() ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
             break;
         default:
                                                             // Wands
             if (m_spellInfo->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG)
-                m_attackType = RANGED_ATTACK;
+                m_attackType = WeaponAttackType::RangedAttack;
             else
-                m_attackType = BASE_ATTACK;
+                m_attackType = WeaponAttackType::BaseAttack;
             break;
     }
 
     m_spellSchoolMask = info->GetSchoolMask();           // Can be override for some spell (wand shoot for example)
 
-    if (m_attackType == RANGED_ATTACK)
+    if (m_attackType == WeaponAttackType::RangedAttack)
         // wand case
         if ((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
-            if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
+            if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::RangedAttack))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->DamageType);
 
     if (originalCasterGUID)
@@ -2450,7 +2450,7 @@ void Spell::prepareDataForTriggerSystem(constAuraEffectPtr /*triggeredByAura*/)
     {
         case SPELL_DAMAGE_CLASS_MELEE:
             m_procAttacker = PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS;
-            if (m_attackType == OFF_ATTACK)
+            if (m_attackType == WeaponAttackType::OffAttack)
                 m_procAttacker |= PROC_FLAG_DONE_OFFHAND_ATTACK;
             else
                 m_procAttacker |= PROC_FLAG_DONE_MAINHAND_ATTACK;
@@ -2684,11 +2684,11 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         // process reflect removal (not delayed)
         if (!targetInfo.timeDelay)
         {
-            m_caster->ProcDamageAndSpell(target, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, 0, BASE_ATTACK, m_spellInfo);
+            m_caster->ProcDamageAndSpell(target, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, 0, WeaponAttackType::BaseAttack, m_spellInfo);
             if (m_spellInfo->Id == 2136) // hack to trigger impact in reflect
             {
                 m_caster->ProcDamageAndSpell(m_caster, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG,
-                    PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_NORMAL_HIT, 1, 0, BASE_ATTACK, m_spellInfo);
+                    PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_NORMAL_HIT, 1, 0, WeaponAttackType::BaseAttack, m_spellInfo);
             }
         }
         // Calculate reflected spell result on caster
@@ -4018,10 +4018,10 @@ void Spell::cast(bool skipCheck)
             }
             if (!found && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
             {
-                m_caster->resetAttackTimer(BASE_ATTACK);
+                m_caster->resetAttackTimer(WeaponAttackType::BaseAttack);
                 if (m_caster->haveOffhandWeapon())
-                    m_caster->resetAttackTimer(OFF_ATTACK);
-                m_caster->resetAttackTimer(RANGED_ATTACK);
+                    m_caster->resetAttackTimer(WeaponAttackType::OffAttack);
+                m_caster->resetAttackTimer(WeaponAttackType::RangedAttack);
             }
         }
 
@@ -4226,7 +4226,7 @@ void Spell::_handle_immediate_phase()
         Unit *target = NULL;
         if (procAttacker & PROC_FLAG_DONE_TRAP_ACTIVATION)
             target = m_targets.GetUnitTarget();
-        m_originalCaster->ProcDamageAndSpell(target, procAttacker, 0, m_procEx | PROC_EX_NORMAL_HIT, 0, 0, BASE_ATTACK, m_spellInfo, m_triggeredByAuraSpell);
+        m_originalCaster->ProcDamageAndSpell(target, procAttacker, 0, m_procEx | PROC_EX_NORMAL_HIT, 0, 0, WeaponAttackType::BaseAttack, m_spellInfo, m_triggeredByAuraSpell);
     }
 }
 
@@ -4424,10 +4424,10 @@ void Spell::finish(bool ok)
         }
         if (!found && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
         {
-            m_caster->resetAttackTimer(BASE_ATTACK);
+            m_caster->resetAttackTimer(WeaponAttackType::BaseAttack);
             if (m_caster->haveOffhandWeapon())
-                m_caster->resetAttackTimer(OFF_ATTACK);
-            m_caster->resetAttackTimer(RANGED_ATTACK);
+                m_caster->resetAttackTimer(WeaponAttackType::OffAttack);
+            m_caster->resetAttackTimer(WeaponAttackType::RangedAttack);
         }
     }
 
@@ -5609,9 +5609,9 @@ void Spell::TakePower()
 
 void Spell::TakeAmmo()
 {
-    if (m_attackType == RANGED_ATTACK && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_attackType == WeaponAttackType::RangedAttack && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
+        Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::RangedAttack);
 
         // wands don't have ammo
         if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
@@ -5740,6 +5740,15 @@ void Spell::TakeRunePower(bool didHit)
 
         switch (m_spellInfo->Id)
         {
+            case 45477: // Icy Touch
+            case 50842: // Blood Boil
+            case 85948: // Festering Strike
+            {
+                // Reaping
+                if (player->HasAura(56835))
+                    player->AddRuneBySpell(i, RUNE_DEATH, 56835);
+                break;
+            }
             case 49998: // Death Strike
             {
                 // Blood Rites
@@ -5785,6 +5794,15 @@ void Spell::TakeRunePower(bool didHit)
 
                 switch (m_spellInfo->Id)
                 {
+                    case 45477: // Icy Touch
+                    case 50842: // Blood Boil
+                    case 85948: // Festering Strike
+                    {
+                        // Reaping
+                        if (player->HasAura(56835))
+                            player->AddRuneBySpell(i, RUNE_DEATH, 56835);
+                        break;
+                    }
                     case 49998: // Death Strike
                     {
                         // Blood Rites
@@ -5876,7 +5894,7 @@ void Spell::HandleThreatSpells()
     if (SpellThreatEntry const* threatEntry = sSpellMgr->GetSpellThreatEntry(m_spellInfo->Id))
     {
         if (threatEntry->apPctMod != 0.0f)
-            threat += threatEntry->apPctMod * m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+            threat += threatEntry->apPctMod * m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
         threat += threatEntry->flatMod;
     }
@@ -6960,7 +6978,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
 SpellCastResult Spell::CheckPetCast(Unit* target)
 {
-    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))              //prevent spellcast interruption by another spellcast
+    // Prevent spellcast interruption by another spellcast
+    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+        return SPELL_FAILED_SPELL_IN_PROGRESS;
+
+    // Prevent using of ability if is already casting an ability that has aura type SPELL_AURA_ALLOW_ONLY_ABILITY
+    if (m_caster->HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
         return SPELL_FAILED_SPELL_IN_PROGRESS;
 
     // dead owner (pets still alive when owners ressed?)
@@ -7701,7 +7724,7 @@ SpellCastResult Spell::CheckItems()
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_TARGET_NOT_PLAYER;
 
-                if (m_attackType != RANGED_ATTACK)
+                if (m_attackType != WeaponAttackType::RangedAttack)
                     break;
 
                 Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType);
@@ -7754,7 +7777,7 @@ SpellCastResult Spell::CheckItems()
         // main hand weapon required
         if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_MAIN_HAND)
         {
-            Item* item = m_caster->ToPlayer()->GetWeaponForAttack(BASE_ATTACK);
+            Item* item = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::BaseAttack);
 
             // skip spell if no weapon in slot or broken
             if (!item || item->IsBroken())
@@ -7768,7 +7791,7 @@ SpellCastResult Spell::CheckItems()
         // offhand hand weapon required
         if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_REQ_OFFHAND)
         {
-            Item* item = m_caster->ToPlayer()->GetWeaponForAttack(OFF_ATTACK);
+            Item* item = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::OffAttack);
 
             // skip spell if no weapon in slot or broken
             if (!item || item->IsBroken())

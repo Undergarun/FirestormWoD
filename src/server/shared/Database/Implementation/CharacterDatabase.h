@@ -664,6 +664,17 @@ enum CharacterDatabaseStatements
     CHAR_DEL_CHARGES_COOLDOWN,
     //////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////
+    /// ChallengesMode
+    CHAR_SEL_COMPLETED_CHALLENGES,
+    CHAR_INS_COMPLETED_CHALLENGE,
+    CHAR_UPD_COMPLETED_CHALLENGE,
+    CHAR_INS_GROUP_CHALLENGE,
+    CHAR_INS_GUILD_CHALLENGE,
+    CHAR_DEL_GROUP_CHALLENGE,
+    CHAR_DEL_GUILD_CHALLENGE,
+    //////////////////////////////////////////////////////////////////////////
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

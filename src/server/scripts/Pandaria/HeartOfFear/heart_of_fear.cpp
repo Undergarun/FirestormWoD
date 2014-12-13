@@ -1435,6 +1435,8 @@ public:
         uint64 protectedAmberCallerGuid;
         InstanceScript* pInstance;
         bool inCombat;
+        bool isProtecting;
+
 
         void Reset()
         {
@@ -1443,6 +1445,7 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
             protectedAmberCallerGuid = 0;
             inCombat = false;
+            isProtecting = false;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1456,6 +1459,10 @@ public:
             if (!inCombat)
             {
                 events.ScheduleEvent(EVENT_CARAPACE, 2000);
+
+                if (isProtecting)
+                    return;
+
                 // Retreiving list of ambercallers (maximum: 2 if all is alright)
                 std::list<Creature*> amberCallerList;
                 GetCreatureListWithEntryInGrid(amberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
@@ -1493,6 +1500,7 @@ public:
                     if (amberCaller)
                     {
                         protectedAmberCallerGuid = amberCaller->GetGUID();
+                        isProtecting = true;
                         DoCast(amberCaller, SPELL_SWARMGUARDS_AEGIS);
                         amberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
                     }

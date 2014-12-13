@@ -89,16 +89,28 @@ enum GarrisonAbilityEffectTargetMask
     GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
 };
 
+enum GarrisonWorldState
+{
+    GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
+};
+
 extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
-#define GARRISON_BASE_MAP 1116
-#define GARRISON_PLOT_INSTANCE_COUNT 40
-#define GARRISON_CURRENCY_ID 824
-#define GARRISON_MAX_FOLLOWER_LEVEL 100
+#define GARRISON_MAX_LEVEL                      3
+#define GARRISON_BASE_MAP                       1116
+#define GARRISON_PLOT_INSTANCE_COUNT            40
+#define GARRISON_CURRENCY_ID                    824
+#define GARRISON_MAX_FOLLOWER_LEVEL             100
+#define GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW      20
+#define GARRISON_FOLLOWER_ACTIVATION_COST       2500000
+#define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
+#define GARRISON_CACHE_MAX_CURRENCY             500
+#define GARRISON_CACHE_MIN_CURRENCY             5
+#define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
 
 struct GarrisonPlotInstanceInfoLocation
 {
@@ -110,6 +122,16 @@ struct GarrisonPlotInstanceInfoLocation
 
 extern GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT];
 
+struct GarrisonCacheInfoLocation
+{
+    uint32 SiteLevelID;
+    float X, Y, Z;
+    float O;
+};
+
+extern GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL];
+extern uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3];
+
 struct GarrisonMission
 {
     uint32 DB_ID;
@@ -118,6 +140,12 @@ struct GarrisonMission
     uint32 OfferMaxDuration;
     uint32 StartTime;
     GarrisonMissionState State;
+};
+
+enum GarrisonFollowerFlags
+{
+    GARRISON_FOLLOWER_FLAG_EXHAUSTED    = 0x2,
+    GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4,
 };
 
 struct GarrisonFollower
@@ -131,6 +159,7 @@ struct GarrisonFollower
     uint32 XP;
     uint32 CurrentBuildingID;
     uint32 CurrentMissionID;
+    uint32 Flags;
 
     std::vector<uint32> Abilities;
 };
@@ -162,11 +191,16 @@ class Garrison
         bool Load();
         /// Save this garrison to DB
         void Save();
-        /// Delete garisson
+        /// Delete garrison
         static void Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation);
 
         /// Update the garrison
         void Update();
+
+        /// Reward garrison cache content
+        void RewardGarrisonCache();
+        /// Get garrison cache token count
+        uint32 GetGarrisonCacheTokenCount();
 
         /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
         void OnPlayerEnter();
@@ -225,10 +259,16 @@ class Garrison
 
         /// Add follower
         bool AddFollower(uint32 p_FollowerID);
+        /// Change follower activation state
+        void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
         /// Get followers
         std::vector<GarrisonFollower> GetFollowers();
         /// Get follower
         GarrisonFollower GetFollower(uint32 p_FollowerID);
+        /// Get activated followers count
+        uint32 GetActivatedFollowerCount();
+        /// Get num follower activation remaining
+        uint32 GetNumFollowerActivationsRemaining();
 
         /// Can build building X at slot instance Y
         bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
@@ -275,14 +315,23 @@ class Garrison
         /// Update plot gameobject
         void UpdatePlot(uint32 p_PlotInstanceID);
 
+        /// Update garrison stats
+        void UpdateStats();
+
     private:
         Player *    m_Owner;            ///< Garrison owner
         uint32      m_ID;               ///< Garrison DB ID
         uint32      m_GarrisonLevel;    ///< Garrison level
         uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
         uint32      m_GarrisonSiteID;   ///< Garrison site ID
+        uint32      m_NumFollowerActivation;
+        uint32      m_NumFollowerActivationRegenTimestamp;
+        uint32      m_CacheLastUsage;
 
         uint64      m_LastUsedActivationGameObject;
+        uint64      m_CacheGameObjectGUID;
+
+        uint32      m_CacheLastTokenAmount;
 
         std::vector<GarrisonPlotInstanceInfoLocation>   m_Plots;
         std::vector<GarrisonMission>                    m_Missions;
@@ -294,6 +343,9 @@ class Garrison
         std::map<uint32, uint64>                m_PlotsGob;
         std::map<uint32, uint64>                m_PlotsActivateGob;
         std::map<uint32, std::vector<uint64>>   m_PlotsBuildingCosmeticGobs;
+
+        uint32 m_Stat_MaxActiveFollower;
+
 };
 
 

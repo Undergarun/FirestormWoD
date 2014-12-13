@@ -263,7 +263,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1), _hiAreaTriggerGuid(1), _skipUpdateCount(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -2245,6 +2245,150 @@ void ObjectMgr::LoadItemLocales()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadRealmCompletedChallenges()
+{
+    uint32 l_OldMSTime = getMSTime();
+    uint32 l_Count = 0;
+
+    QueryResult l_Result = CharacterDatabase.Query("SELECT map_id, attempt_id, completion_time, completion_date, medal_earned, group_members, group_1_guid, group_1_spec, group_2_guid, group_2_spec, "
+                                               "group_3_guid, group_3_spec, group_4_guid, group_4_spec, group_5_guid, group_5_spec FROM group_completed_challenges");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group completed challenges. DB table `group_completed_challenges` is empty.");
+        return;
+    }
+
+    do
+    {
+        uint32 l_Index = 0;
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_MapID = l_Fields[l_Index++].GetUInt32();
+
+        RealmCompletedChallenge& l_RealmChallenge = m_GroupsCompletedChallenges[l_MapID];
+
+        l_RealmChallenge.m_GuildID = 0;
+        l_RealmChallenge.m_AttemptID = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_CompletionTime = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_CompletionDate = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_MedalEarned = l_Fields[l_Index++].GetUInt8();
+        l_RealmChallenge.m_MembersCount = l_Fields[l_Index++].GetUInt8();
+
+        for (uint8 l_I = 0; l_I < 5; ++l_I)
+        {
+            l_RealmChallenge.m_Members[l_I].m_Guid = MAKE_NEW_GUID(l_Fields[l_Index++].GetUInt32(), 0, HIGHGUID_PLAYER);
+            l_RealmChallenge.m_Members[l_I].m_SpecID = l_Fields[l_Index++].GetUInt32();
+        }
+
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    l_Result = CharacterDatabase.Query("SELECT map_id, guild_id, attempt_id, completion_time, completion_date, medal_earned, guild_members, guild_1_guid, guild_1_spec, guild_2_guid, guild_2_spec, "
+                                   "guild_3_guid, guild_3_spec, guild_4_guid, guild_4_spec, guild_5_guid, guild_5_spec FROM guild_completed_challenges");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild completed challenges. DB table `guild_completed_challenges` is empty.");
+        return;
+    }
+
+    do
+    {
+        uint32 l_Index = 0;
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_MapID = l_Fields[l_Index++].GetUInt32();
+
+        RealmCompletedChallenge& l_RealmChallenge = m_GuildsCompletedChallenges[l_MapID];
+
+        l_RealmChallenge.m_GuildID = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_AttemptID = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_CompletionTime = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_CompletionDate = l_Fields[l_Index++].GetUInt32();
+        l_RealmChallenge.m_MedalEarned = l_Fields[l_Index++].GetUInt8();
+        l_RealmChallenge.m_MembersCount = l_Fields[l_Index++].GetUInt8();
+
+        for (uint8 l_I = 0; l_I < 5; ++l_I)
+        {
+            l_RealmChallenge.m_Members[l_I].m_Guid = MAKE_NEW_GUID(l_Fields[l_Index++].GetUInt32(), 0, HIGHGUID_PLAYER);
+            l_RealmChallenge.m_Members[l_I].m_SpecID = l_Fields[l_Index++].GetUInt32();
+        }
+
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u realm completed challenges in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadChallengeRewards()
+{
+    uint32 l_OldMSTime = getMSTime();
+    uint32 l_Count = 0;
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money FROM challenge_mode_rewards");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 challenge rewards. DB table `challenge_mode_rewards` is empty.");
+        return;
+    }
+
+    do
+    {
+        uint32 l_Index = 0;
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_MapID = l_Fields[l_Index++].GetUInt32();
+
+        ChallengeReward& l_Rewards = m_ChallengeRewardsMap[l_MapID];
+
+        l_Rewards.m_MapID = l_MapID;
+
+        for (uint8 l_I = 0; l_I < 4; ++l_I)
+            l_Rewards.m_MoneyReward[l_I] = l_Fields[l_Index++].GetUInt32();
+
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u challenge mode rewards in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadMapChallengeModeHotfixes()
+{
+    uint32 l_OldMSTime = getMSTime();
+    uint32 l_Count = 0;
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, map_id, field2, field3, field4, bronze_time, silver_time, gold_time, field8, field9 FROM map_challenge_mode_hotfixes");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 map challenge mode hotfixes. DB table `map_challenge_mode_hotfixes` is empty.");
+        return;
+    }
+
+    do
+    {
+        uint32 l_Index = 0;
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_ID = l_Fields[l_Index++].GetUInt32();
+
+        MapChallengeModeHotfix& l_HotFix = m_MapChallengeModeHotfixes[l_ID];
+
+        l_HotFix.m_ID = l_ID;
+        l_HotFix.m_MapID = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_Field2 = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_Field3 = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_Field4 = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_BronzeTime = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_SilverTime = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_GoldTime = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_Field8 = l_Fields[l_Index++].GetUInt32();
+        l_HotFix.m_Field9 = l_Fields[l_Index++].GetUInt32();
+
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u map challenge mode hotfixes in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32 itemLevel, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32 delay, float statScalingFactor, uint32 inventoryType, uint32 flags2)
@@ -4471,7 +4615,7 @@ void ObjectMgr::LoadQuestDynamicRewards()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestLocales()
@@ -9004,7 +9148,7 @@ void ObjectMgr::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotfixDate) FROM hotfix_data");
+    QueryResult result = WorldDatabase.Query("SELECT entry, type, hotfixDate FROM hotfix_data");
 
     if (!result)
     {
@@ -9023,7 +9167,7 @@ void ObjectMgr::LoadHotfixData()
         HotfixInfo info;
         info.Entry = fields[0].GetUInt32();
         info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt64();
+        info.Timestamp = fields[2].GetUInt32();
         _hotfixData.push_back(info);
         ++count;
     }
@@ -9531,7 +9675,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
 }
 
 
-void ObjectMgr::LoadCharacterTempalteData()
+void ObjectMgr::LoadCharacterTemplateData()
 {
     if (!sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
     {

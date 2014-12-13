@@ -221,41 +221,6 @@ class spell_warl_haunt_dispel : public SpellScriptLoader
         }
 };
 
-// Called by Immolate - 348 ad Immolate (Fire and Brimstone) - 108686
-// Glyph of Siphon Life - 56218
-class spell_warl_siphon_life : public SpellScriptLoader
-{
-    public:
-        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
-
-        class spell_warl_siphon_life_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    {
-                        int32 healAmount = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount() / 1000);
-                        caster->HealBySpell(caster, sSpellMgr->GetSpellInfo(WARLOCK_GLYPH_OF_SIPHON_LIFE), healAmount, false);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_siphon_life_AuraScript();
-        }
-};
-
 const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
 const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
@@ -765,12 +730,17 @@ class spell_warl_agony : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (GetCaster())
+                    amount = GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * GetStackAmount();
+            }
+
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (GetCaster())
-                    if (GetTarget())
-                        if (AuraPtr agony = GetTarget()->GetAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                            agony->ModStackAmount(aurEff->GetBaseAmount());
+                    if (AuraPtr l_Agony = GetTarget()->GetAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        l_Agony->ModStackAmount(aurEff->GetBaseAmount());
             }
 
             bool CanRefreshProcDummy()
@@ -780,6 +750,7 @@ class spell_warl_agony : public SpellScriptLoader
 
             void Register()
             {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_agony_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
@@ -1846,42 +1817,6 @@ class spell_warl_soul_swap : public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 172 and Corruption - 146739
-// Nightfall - 108558
-class spell_warl_nightfall : public SpellScriptLoader
-{
-    public:
-        spell_warl_nightfall() : SpellScriptLoader("spell_warl_nightfall") { }
-
-        class spell_warl_nightfall_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_nightfall_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(WARLOCK_NIGHTFALL))
-                        if (roll_chance_i(aurEff->GetBaseAmount() / 1000))
-                            caster->SetPower(POWER_SOUL_SHARDS, caster->GetPower(POWER_SOUL_SHARDS) + 1 * caster->GetPowerCoeff(POWER_SOUL_SHARDS));
-
-                    if (AuraPtr glyphSiphonOfLife = caster->GetAura(WARLOCK_GLYPH_OF_SIPHON_LIFE, caster->GetGUID()))
-                        caster->HealBySpell(caster, glyphSiphonOfLife->GetSpellInfo(), caster->CountPctFromMaxHealth(glyphSiphonOfLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 1000), false);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_nightfall_AuraScript();
-        }
-};
-
 enum DrainSoulSpells
 {
     SPELL_WARL_IMPROVED_DRAIN_SOUL = 157077
@@ -2056,6 +1991,11 @@ class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
         }
 };
 
+enum EmberTapSpells
+{
+    SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
+    SPELL_WARL_SEARING_FLAMES = 174848
+};
 // Ember Tap - 114635
 class spell_warl_ember_tap : public SpellScriptLoader
 {
@@ -2071,14 +2011,26 @@ class spell_warl_ember_tap : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    float Mastery = 3.0f * _player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
+                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
                     float pct = 0.15f * (1 + Mastery);
 
-                    int32 healAmount = int32(_player->GetMaxHealth() * pct);
-                    healAmount = _player->SpellHealingBonusDone(_player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
-                    healAmount = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), healAmount, HEAL);
+                    int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
+                    healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
+                    healAmount = l_Player->SpellHealingBonusTaken(l_Player, GetSpellInfo(), healAmount, HEAL);
+
+                    if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
+                    {
+                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        // ManaCost == 0, wrong way to retrieve cost ?
+                        //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5 * l_Player->GetPowerCoeff(POWER_BURNING_EMBERS));
+                    }
+
+                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
+                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints);
 
                     SetHitHeal(healAmount);
                 }
@@ -2203,6 +2155,11 @@ class spell_warl_shadowburn : public SpellScriptLoader
         }
 };
 
+enum BurningEmbersSpells
+{
+    SPELL_WARL_CHARRED_REMAINS = 157696
+};
+
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 // Burning Embers generate
@@ -2217,16 +2174,22 @@ class spell_warl_burning_embers : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpell()->IsCritForTarget(target))
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
-                        else
-                            caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 1 * caster->GetPowerCoeff(POWER_BURNING_EMBERS));
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (!l_Target)
+                    return;
+
+                // 10% of a Burning Embers
+                float l_BurningEmbersPct = 0.1f;
+
+                if (GetSpell()->IsCritForTarget(l_Target))
+                    l_BurningEmbersPct *= 0.2f;
+
+                if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
+                    AddPct(l_BurningEmbersPct, l_CharredRemains->GetEffect(EFFECT_1)->GetBaseAmount());
+
+                l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersPct * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
             }
 
             void Register()
@@ -2244,6 +2207,7 @@ class spell_warl_burning_embers : public SpellScriptLoader
 enum SpellsDrainLife
 {
     SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
+    SPELL_WARL_HARVEST_LIFE = 108371,
     SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
 };
 
@@ -2261,12 +2225,15 @@ class spell_warl_drain_life : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints / 10;
+                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
 
                     if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Pct = l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
+                        l_Pct += l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct);
+                    if (AuraPtr l_HarvestLife = l_Caster->GetAura(SPELL_WARL_HARVEST_LIFE))
+                        l_Pct = l_HarvestLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct / GetSpellInfo()->GetDuration());
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
                 }
             }
@@ -2398,17 +2365,14 @@ class spell_warl_fear : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (_player->HasAura(WARLOCK_GLYPH_OF_FEAR))
-                        {
-                            _player->CastSpell(target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                            _player->AddSpellCooldown(WARLOCK_FEAR, 0, 5 * IN_MILLISECONDS);
-                        }
+                        if (l_Player->HasAura(WARLOCK_GLYPH_OF_FEAR))
+                            l_Player->CastSpell(l_Target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
                         else
-                            _player->CastSpell(target, WARLOCK_FEAR_EFFECT, true);
+                            l_Player->CastSpell(l_Target, WARLOCK_FEAR_EFFECT, true);
                     }
                 }
             }
@@ -2730,7 +2694,6 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
-    new spell_warl_siphon_life();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_health_funnel();
@@ -2764,7 +2727,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_leap();
     new spell_warl_soul_swap_soulburn();
     new spell_warl_soul_swap();
-    new spell_warl_nightfall();
     new spell_warl_drain_soul();
     new spell_warl_demonic_gateway();
     new spell_warl_rain_of_fire();

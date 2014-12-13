@@ -4,6 +4,531 @@
 
 namespace MS
 {
+    // Summon Quills - 159381
+    class spell_Quills : public SpellScriptLoader
+    {
+    public:
+        spell_Quills()
+            : SpellScriptLoader("spell_Quills")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            Quills = 156742,
+        };
+
+        class spell_QuillsSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_QuillsSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster)
+                    l_Caster->CastSpell(l_Caster, uint32(Spells::Quills), true);
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_QuillsSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_QuillsSpellScript();
+        }
+    };
+
+    // Summon Cast Down - 165845
+    class spell_CastDown : public SpellScriptLoader
+    {
+    public:
+        spell_CastDown()
+            : SpellScriptLoader("spell_CastDown")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            CastDown = 153955,
+        };
+
+        class spell_CastDownSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_CastDownSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetCaster() && GetHitUnit())
+                {
+                    GetHitUnit()->CastSpell(GetHitUnit(), uint32(Spells::CastDown), true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_CastDownSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_CastDownSpellScript();
+        }
+    };
+
+    // AreaTriggers for spells: 154044
+    class AreaTrigger_LensFlare : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            LensFlare_Dmg = 154043,
+        };
+
+        std::forward_list<uint64> m_Targets;
+
+    public:
+        AreaTrigger_LensFlare()
+            : MS::AreaTriggerEntityScript("at_LensFlare"),
+            m_Targets()
+        {
+            }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_LensFlare();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_Targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
+                        l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                }
+            }
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 4.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                {
+                    if (l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_Targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit || l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius || l_Unit->HasAura(uint32(Spells::LensFlare_Dmg)))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::LensFlare_Dmg), true);
+                m_Targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
+            }
+        }
+    };
+
+    // AreaTriggers for spells: 152973
+    class AreaTrigger_ProtectiveBarrier : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            ProtectiveBarrier = 152975,
+            ProtectiveBarrier_at = 152973,
+        };
+
+        std::forward_list<uint64> m_Targets;
+
+    public:
+        AreaTrigger_ProtectiveBarrier()
+            : MS::AreaTriggerEntityScript("at_ProtectiveBarrier"),
+            m_Targets()
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_ProtectiveBarrier();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            // If We are on the last tick.
+            if (p_AreaTrigger->GetDuration() < 100)
+            {
+                for (auto l_Guid : m_Targets)
+                {
+                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                    if (l_Target && l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
+                        l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
+                }
+            }
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 30.0f;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            std::forward_list<uint64> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) > l_Radius)
+                {
+                    if (l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
+                    {
+                        l_ToRemove.emplace_front(l_Guid);
+                        l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
+                    }
+                }
+            }
+
+            for (auto l_Guid : l_ToRemove)
+            {
+                m_Targets.remove(l_Guid);
+            }
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (!l_Unit
+                    || l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius
+                    || l_Unit->HasAura(uint32(Spells::ProtectiveBarrier))
+                    || l_Unit->HasAura(uint32(Spells::ProtectiveBarrier_at)))
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::ProtectiveBarrier), true);
+                m_Targets.emplace_front(l_Unit->GetGUID());
+            }
+        }
+    };
+
+    // AreaTriggers for spells: 154110
+    class AreaTrigger_Smash : public MS::AreaTriggerEntityScript
+    {
+        enum class Spells : uint32
+        {
+            SMASH = 154110,
+            SMASH_2 = 154113,
+            SMASH_DMG = 154132,
+        };
+
+    public:
+        AreaTrigger_Smash()
+            : MS::AreaTriggerEntityScript("at_Smash")
+        {
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_Smash();
+        }
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            static const float k_Radius = 10.0f;
+            static const float k_RadiusFromLine = 3.0f;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), k_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(k_Radius, l_Searcher);
+
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+            l_Pos.m_positionX += k_Radius * cos(p_AreaTrigger->GetOrientation());
+            l_Pos.m_positionY += k_Radius * sin(p_AreaTrigger->GetOrientation());
+
+            for (auto l_Target : l_TargetList)
+            {
+                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
+                {
+                    if (p_AreaTrigger->GetCaster())
+                        p_AreaTrigger->GetCaster()->CastSpell(l_Target, uint32(Spells::SMASH_DMG), true);
+                }
+            }
+        }
+    };
+
+    // Visual Energize - 154177
+    class spell_VisualEnergize2 : public SpellScriptLoader
+    {
+    public:
+        spell_VisualEnergize2()
+            : SpellScriptLoader("spell_VisualEnergize2")
+        {
+        }
+
+        class spell_VisualEnergize2SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_VisualEnergize2SpellScript);
+
+            void CheckTarget(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    if (!p_Obj->ToCreature())
+                        return true;
+
+                    if (l_Caster->GetEntry() == 77543)
+                        return p_Obj->ToCreature()->GetEntry() != 76367;
+                    else
+                        return p_Obj->ToCreature()->GetEntry() != 76142;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_VisualEnergize2SpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_VisualEnergize2SpellScript();
+        }
+    };
+
+    // Visual Energize - 154159
+    class spell_VisualEnergize : public SpellScriptLoader
+    {
+    public:
+        spell_VisualEnergize()
+            : SpellScriptLoader("spell_VisualEnergize")
+        {
+        }
+
+        class spell_VisualEnergizeSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_VisualEnergizeSpellScript);
+
+            void CheckTarget(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return !(p_Obj->ToCreature()
+                        && p_Obj->ToCreature()->GetEntry() == 76142
+                        && p_Obj->ToCreature()->GetCurrentSpell(CURRENT_CHANNELED_SPELL));
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_VisualEnergizeSpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_VisualEnergizeSpellScript();
+        }
+    };
+
+    // Flash Bang - 160066
+    class spell_FlashBang : public SpellScriptLoader
+    {
+    public:
+        spell_FlashBang()
+            : SpellScriptLoader("spell_FlashBang")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+        };
+
+        class spell_FlashBangSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_FlashBangSpellScript);
+
+            void CheckTarget(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return !p_Obj->isInFront(l_Caster);
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_FlashBangSpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_FlashBangSpellScript::CheckTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_FlashBangSpellScript::CheckTarget, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_FlashBangSpellScript();
+        }
+    };
+
+    // Sunstrike - 153828
+    class spell_Sunstrike : public SpellScriptLoader
+    {
+    public:
+        spell_Sunstrike()
+            : SpellScriptLoader("spell_Sunstrike")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+        };
+
+        class spell_SunstrikeSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_SunstrikeSpellScript);
+
+            void CheckTargetIn(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return p_Obj->GetExactDist2d(l_Caster) > 10.0f;
+                });
+            }
+
+            void CheckTargetOut(std::list<WorldObject*>& unitList)
+            {
+                Unit* l_Caster = GetCaster();
+                unitList.remove_if([l_Caster](WorldObject* p_Obj) {
+                    return p_Obj->GetExactDist2d(l_Caster) < 10.0f;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_SunstrikeSpellScript::CheckTargetIn, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_SunstrikeSpellScript::CheckTargetOut, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_SunstrikeSpellScript();
+        }
+    };
+
+    // Summon Solar Flare - 153827
+    class spell_SummonSolarFlare : public SpellScriptLoader
+    {
+    public:
+        spell_SummonSolarFlare()
+            : SpellScriptLoader("spell_SummonSolarFlare")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+        };
+
+        class spell_SummonSolarFlareSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_SummonSolarFlareSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetCaster())
+                {
+                    Position l_Position;
+                    GetSpell()->GetDestTarget()->GetPosition(&l_Position);
+                    GetCaster()->SummonCreature(InstanceSkyreach::MobEntries::SOLAR_FLARE, l_Position);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_SummonSolarFlareSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_SummonSolarFlareSpellScript();
+        }
+    };
+
+    // Energize 154140
+    class spell_Energize : public SpellScriptLoader
+    {
+    public:
+        spell_Energize()
+            : SpellScriptLoader("spell_Energize")
+        {
+        }
+
+        enum class Spells : uint32
+        {
+            ENERGIZE = 154139, // During 12 seconds, restart after 3 seconds.
+            ENERGIZE_HEAL = 154149,
+            ENERGIZE_DMG = 154150,
+            ENERGIZE_VISUAL_1 = 154179,
+        };
+
+        class spell_EnergizeSpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_EnergizeSpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, uint32(Spells::ENERGIZE_HEAL));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_EnergizeSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_EnergizeSpellScript();
+        }
+    };
+
     // AreaTriggers for spells: 159221
     class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
     {
@@ -247,6 +772,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::FOUR_WINDS_DMG), true);
                 m_targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
 
             // Update rotation.
@@ -306,7 +839,7 @@ namespace MS
                 };
                 if (GetCaster())
                 {
-                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), 76119, 40.0f);
+                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
                     if (l_Target.empty())
                         return;
 
@@ -453,6 +986,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::WINDWALL_DMG), true);
                 m_targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
 
             // Update rotation.
@@ -594,6 +1135,14 @@ namespace MS
 
                 p_AreaTrigger->GetCaster()->CastSpell(l_Unit, uint32(Spells::SPINNING_BLADE_DMG), true);
                 m_targets.emplace_front(l_Unit->GetGUID());
+
+                // Achievement handling.
+                if (Player* l_Plr = l_Unit->ToPlayer())
+                {
+                    // We check if the caster is Ranjit.
+                    if (p_AreaTrigger->GetInstanceScript() && p_AreaTrigger->GetCaster()->GetEntry() == InstanceSkyreach::BossEntries::RANJIT)
+                        p_AreaTrigger->GetInstanceScript()->SetData64(InstanceSkyreach::Data::PlayerIsHittedByRanjitSpells, l_Plr->GetGUID());
+                }
             }
         }
     };
@@ -1012,10 +1561,27 @@ void AddSC_spell_instance_skyreach()
     new MS::spell_BladeDance();
     new MS::spell_SolarStorm();
     new MS::AreaTrigger_SolarStorm();
+    new MS::spell_FlashBang();
+    new MS::AreaTrigger_ProtectiveBarrier();
 
     // Boss Ranjit.
     new MS::AreaTrigger_WindWall();
     new MS::spell_Windwall();
     new MS::spell_FourWind();
     new MS::AreaTrigger_FourWinds();
+
+    // Boss Araknath.
+    new MS::spell_Energize();
+    new MS::spell_VisualEnergize();
+    new MS::spell_VisualEnergize2();
+    new MS::AreaTrigger_Smash();
+
+    // Boss Rukhran.
+    new MS::spell_SummonSolarFlare();
+    new MS::spell_Sunstrike();
+    new MS::spell_Quills();
+
+    // Boss High Save Viryx.
+    new MS::AreaTrigger_LensFlare();
+    new MS::spell_CastDown();
 }

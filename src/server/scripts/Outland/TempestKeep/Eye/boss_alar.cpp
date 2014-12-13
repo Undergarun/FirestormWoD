@@ -444,7 +444,7 @@ class boss_alar : public CreatureScript
                         else
                         {
                             DoCast(me, SPELL_FLAME_BUFFET, true);
-                            me->setAttackTimer(BASE_ATTACK, 1500);
+                            me->setAttackTimer(WeaponAttackType::BaseAttack, 1500);
                         }
                     }
                 }

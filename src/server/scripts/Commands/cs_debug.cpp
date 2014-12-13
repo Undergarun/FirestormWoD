@@ -112,9 +112,15 @@ class debug_commandscript : public CommandScript
                 { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
                 { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
+<<<<<<< HEAD
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL },
 
+=======
+                { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
+                { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
+                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+>>>>>>> cc0cf3e99f58169c825c28312753b6956b039957
             };
             static ChatCommand commandTable[] =
             {
@@ -123,6 +129,28 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugCriteriaCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrType = strtok((char*)p_Args, " ");
+            uint32 l_Type = uint32(atoi(l_StrType));
+
+            char* l_StrMisc1 = strtok(NULL, " ");
+            uint32 l_Misc1 = l_StrMisc1 ? uint32(atoi(l_StrMisc1)) : 0;
+
+            char* l_StrMisc2 = strtok(NULL, " ");
+            uint32 l_Misc2 = l_StrMisc2 ? uint32(atoi(l_StrMisc2)) : 0;
+
+            p_Handler->GetSession()->GetPlayer()->UpdateAchievementCriteria(AchievementCriteriaTypes(l_Type), l_Misc1, l_Misc2);
+            return true;
         }
 
         static bool HandleDebugClearSpellCharges(ChatHandler* handler, char const* args)
@@ -375,6 +403,8 @@ class debug_commandscript : public CommandScript
                 {
                     personalRating += groupMember->GetArenaPersonalRating(SLOT_RBG);
                     matchmakerRating += groupMember->GetArenaMatchMakerRating(SLOT_RBG);
+
+                    ++playerDivider;
                 }
             }
 
@@ -394,12 +424,12 @@ class debug_commandscript : public CommandScript
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
 
-            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10, 10, true, 0);
+            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 2);
             if (!err)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
 
-                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, false, false, personalRating, matchmakerRating);
+                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
             }
 
@@ -471,7 +501,8 @@ class debug_commandscript : public CommandScript
 
             float force = float(atoi(param));
 
-            handler->GetSession()->GetPlayer()->SendApplyMovementForce(handler->GetSession()->GetPlayer()->GetGUID(), apply, pos, force);
+            uint64 l_FakeGuid = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER);
+            handler->GetSession()->GetPlayer()->SendApplyMovementForce(l_FakeGuid, apply, pos, force);
 
             return true;
         }
@@ -1684,13 +1715,14 @@ class debug_commandscript : public CommandScript
 
             std::set<uint32> terrainswap;
             std::set<uint32> phaseId;
+            std::set<uint32> inactiveTerrainSwap;
 
             terrainswap.insert((uint32)atoi(t));
 
             if (p)
                 phaseId.insert((uint32)atoi(p));
 
-            handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap);
+            handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, inactiveTerrainSwap);
             return true;
         }
 
@@ -2243,6 +2275,19 @@ class debug_commandscript : public CommandScript
 
             item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
             handler->SendSysMessage("Item sucesfully modified");
+            return true;
+        }
+
+        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+            if (l_Battleground == nullptr)
+            {
+                p_Handler->PSendSysMessage("You're not in battleground !");
+                return false;
+            }
+
+            l_Battleground->FastStart();
             return true;
         }
 };

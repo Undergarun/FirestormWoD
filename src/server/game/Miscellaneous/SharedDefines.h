@@ -4631,7 +4631,7 @@ enum BattlegroundTypeId
     // 441 = "Icecrown Citadel"
     // 443 = "The Ruby Sanctum"
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
-    BATTLEGROUND_KT                 = 699,  // Valley of Power
+    BATTLEGROUND_KT                 = 699,  // Kotmogu Temple
     BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
     BATTLEGROUND_SM                 = 708,  // Silvershard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena

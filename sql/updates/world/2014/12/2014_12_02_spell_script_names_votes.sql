@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '176151','spell_vote_buff'); 

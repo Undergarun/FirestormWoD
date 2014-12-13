@@ -39,9 +39,9 @@ enum ArenaTeamCommandTypes
 
 enum ArenaType
 {
-    ARENA_TYPE_2v2          = 2,
-    ARENA_TYPE_3v3          = 3,
-    ARENA_TYPE_5v5          = 5
+    Arena2v2  = 2,
+    Arena3v3  = 3,
+    Arena5v5  = 5
 };
 
 enum ArenaTeamCommandErrors
@@ -152,11 +152,11 @@ namespace Arena
         switch (slot)
         {
             case 0:
-                return ARENA_TYPE_2v2;
+                return ArenaType::Arena2v2;
             case 1:
-                return ARENA_TYPE_3v3;
+                return ArenaType::Arena3v3;
             case 2:
-                return ARENA_TYPE_5v5;
+                return ArenaType::Arena5v5;
             default:
                 break;
         }

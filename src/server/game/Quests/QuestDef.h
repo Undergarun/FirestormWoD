@@ -146,7 +146,7 @@ enum __QuestFlags
     QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER      = 0x00020000,
     QUEST_FLAGS_DISABLE_COMPLETION_TEXT      = 0x00040000,                // use Objective text as Complete text
     QUEST_FLAGS_AUTO_ACCEPT                  = 0x00080000,                // The client recognizes this flag as auto-accept. However, NONE of the current quests (3.3.5a) have this flag. Maybe blizz used to use it, or will use it in the future.
-    QUEST_FLAGS_AUTO_SUBMIT                  = 0x00100000,                // Quests with this flag player submit automatically by special button in player gui
+    QUEST_FLAGS_AUTO_SUBMIT                  = 0x00100000,                // Quests with this flag player submit automatically by special button in player gui, might not work properly atm
     QUEST_FLAGS_AUTO_TAKE                    = 0x00200000,                // Automatically suggestion of accepting quest. Not from npc.
     QUEST_FLAGS_UPDATE_PHASE_SHIFT           = 0x00400000,                // Not used currently
     QUEST_FLAGS_SOR_WHITE_LIST               = 0x00800000,                // Not used currently
@@ -217,7 +217,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER = 11,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE = 12,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP   = 13,
-    QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK1  = 14,
+    QUEST_OBJECTIVE_TYPE_UNK_14           = 14,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK2  = 15,
     QUEST_OBJECTIVE_TYPE_END
 };

@@ -309,70 +309,21 @@ void AuraApplication::ClientUpdate(bool p_Remove)
     _target->SendMessageToSet(&l_Data, true);
 
     AuraPtr l_AuraBase = GetBase();
-
-    if (!l_AuraBase)
+    if (l_AuraBase == nullptr || p_Remove)
         return;
 
     if (l_AuraBase->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
         return;
 
-    Mechanics l_Mechanic = MECHANIC_NONE;
+    Mechanics l_Mechanic = Mechanics::MECHANIC_NONE;
     SpellEffIndex l_EffectIndex = EFFECT_0;
+    LossOfControlType l_Type = LossOfControlType::TypeNone;
+    l_AuraBase->FillMechanicAndControlTypes(l_Mechanic, l_Type, l_EffectIndex);
 
-    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
-    {
-        if (constAuraEffectPtr l_Effect = l_AuraBase->GetEffect(l_I))
-        {
-            switch (l_Effect->GetAuraType())
-            {
-                case SPELL_AURA_MOD_CONFUSE:
-                    l_Mechanic = MECHANIC_DISORIENTED;
-                    break;
-
-                case SPELL_AURA_MOD_FEAR:
-                case SPELL_AURA_MOD_FEAR_2:
-                    l_Mechanic = MECHANIC_FEAR;
-                    break;
-
-                case SPELL_AURA_MOD_STUN:
-                    l_Mechanic = MECHANIC_STUN;
-                    break;
-
-                case SPELL_AURA_MOD_ROOT:
-                case SPELL_AURA_MOD_ROOT_2:
-                    l_Mechanic = MECHANIC_ROOT;
-                    break;
-
-                case SPELL_AURA_TRANSFORM:
-                    l_Mechanic = MECHANIC_POLYMORPH;
-                    break;
-
-                case SPELL_AURA_MOD_SILENCE:
-                    l_Mechanic = MECHANIC_SILENCE;
-                    break;
-
-                case SPELL_AURA_MOD_DISARM:
-                case SPELL_AURA_MOD_DISARM_OFFHAND:
-                case SPELL_AURA_MOD_DISARM_RANGED:
-                    l_Mechanic = MECHANIC_DISARM;
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (l_Mechanic != MECHANIC_NONE)
-            {
-                l_EffectIndex = SpellEffIndex(l_I);
-                break;
-            }
-        }
-    }
-
-    if (l_Mechanic == MECHANIC_NONE)
+    if (l_Type == LossOfControlType::TypeNone || l_Mechanic == Mechanics::MECHANIC_NONE)
         return;
 
-    _target->SendLossOfControl(this, l_Mechanic, l_EffectIndex);
+    _target->SendLossOfControlAuraUpdate(this, l_Mechanic, l_EffectIndex, l_Type);
 }
 
 void AuraApplication::SendFakeAuraUpdate(uint32 p_AuraId, bool p_Remove)
@@ -572,6 +523,135 @@ Aura::~Aura()
 
     ASSERT(m_applications.empty());
     _DeleteRemovedApplications();
+}
+
+void Aura::FillMechanicAndControlTypes(Mechanics& p_Mechanics, LossOfControlType& p_Type, SpellEffIndex& p_EffIndex)
+{
+    SpellInfo const* l_SpellInfo = GetSpellInfo();
+
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    {
+        switch (l_SpellInfo->Effects[l_I].Mechanic)
+        {
+            case Mechanics::MECHANIC_CHARM:
+                if (l_SpellInfo->Effects[l_I].ApplyAuraName == SPELL_AURA_MOD_POSSESS)
+                    p_Type = LossOfControlType::TypePossess;
+                else
+                    p_Type = LossOfControlType::TypeCharm;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_DISORIENTED:
+                p_Type = LossOfControlType::TypeConfuse;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_DISARM:
+                p_Type = LossOfControlType::TypeDisarm;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_FEAR:
+                p_Type = LossOfControlType::TypeFearMechanic;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_ROOT:
+                p_Type = LossOfControlType::TypeRoot;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_SILENCE:
+            case Mechanics::MECHANIC_POLYMORPH:
+            case Mechanics::MECHANIC_BANISH:
+                if (l_SpellInfo->Effects[l_I].ApplyAuraName != SPELL_AURA_MOD_PACIFY_SILENCE)
+                    p_Type = LossOfControlType::TypeSilence;
+                else
+                    p_Type = LossOfControlType::TypePacifySilence;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_SLEEP:
+            case Mechanics::MECHANIC_STUN:
+                p_Type = LossOfControlType::TypeStunMechanic;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_INTERRUPT:
+                p_Type = LossOfControlType::TypeSchoolInterrupt;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case Mechanics::MECHANIC_SAPPED:
+            case Mechanics::MECHANIC_HORROR:
+            case Mechanics::MECHANIC_FREEZE:
+                p_Type = LossOfControlType::TypeStun;
+                p_Mechanics = l_SpellInfo->Effects[l_I].Mechanic;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            default:
+                break;
+        }
+    }
+
+    ///< If nothing found, we must find default values depending on AuraType
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    {
+        switch (l_SpellInfo->Effects[l_I].ApplyAuraName)
+        {
+            case SPELL_AURA_MOD_ROOT:
+            case SPELL_AURA_MOD_ROOT_2:
+                p_Type = LossOfControlType::TypeRoot;
+                p_Mechanics = Mechanics::MECHANIC_ROOT;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_FEAR_2:
+                p_Type = LossOfControlType::TypeFearMechanic;
+                p_Mechanics = Mechanics::MECHANIC_FEAR;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_STUN:
+                p_Type = LossOfControlType::TypeStun;
+                p_Mechanics = Mechanics::MECHANIC_STUN;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_SILENCE:
+                p_Type = LossOfControlType::TypeSilence;
+                p_Mechanics = Mechanics::MECHANIC_SILENCE;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_PACIFY_SILENCE:
+                p_Type = LossOfControlType::TypePacifySilence;
+                p_Mechanics = Mechanics::MECHANIC_POLYMORPH;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_DISARM:
+            case SPELL_AURA_MOD_DISARM_OFFHAND:
+            case SPELL_AURA_MOD_DISARM_RANGED:
+                p_Type = LossOfControlType::TypeDisarm;
+                p_Mechanics = Mechanics::MECHANIC_DISARM;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_POSSESS:
+                p_Type = LossOfControlType::TypePossess;
+                p_Mechanics = Mechanics::MECHANIC_CHARM;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_CHARM:
+                p_Type = LossOfControlType::TypeCharm;
+                p_Mechanics = Mechanics::MECHANIC_CHARM;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            case SPELL_AURA_MOD_CONFUSE:
+                p_Type = LossOfControlType::TypeConfuse;
+                p_Mechanics = Mechanics::MECHANIC_DISORIENTED;
+                p_EffIndex = SpellEffIndex(l_I);
+                return;
+            default:
+                break;
+        }
+    }
 }
 
 Unit* Aura::GetCaster() const
@@ -1666,17 +1746,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         caster->CastCustomSpell(caster, 75999, &heal, NULL, NULL, true, NULL, GetEffect(0));
                     }
                 }
-                // Power Word: Shield
-                else if (m_spellInfo->Id == 17 && GetEffect(0))
-                {
-                    // Glyph of Power Word: Shield
-                    if (AuraEffectPtr glyph = caster->GetAuraEffect(55672, 0))
-                    {
-                        // instantly heal m_amount% of the absorb-value
-                        int32 heal = glyph->GetAmount() * GetEffect(0)->GetAmount()/100;
-                        caster->CastCustomSpell(GetUnitOwner(), 56160, &heal, NULL, NULL, true, 0, GetEffect(0));
-                    }
-                }
                 break;
             case SPELLFAMILY_PALADIN:
             {
@@ -2604,9 +2673,9 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
             {
                 WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
                 Item* item = NULL;
-                if (attType == BASE_ATTACK)
+                if (attType == WeaponAttackType::BaseAttack)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                else if (attType == OFF_ATTACK)
+                else if (attType == WeaponAttackType::OffAttack)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
                 if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))

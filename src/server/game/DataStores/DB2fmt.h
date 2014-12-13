@@ -44,6 +44,7 @@ const char SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
 const char SpellPowerEntryfmt[] = "nixiiiixxxffif";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
+const char MapChallengeModeEntryfmt[] = "nixxxiiixx";
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -66,6 +67,7 @@ const char GarrMechanicEntryfmt[] = "nif";
 const char GarrMissionXEncouterEntryfmt[] = "nii";
 const char GarrEncouterXMechanicEntryfmt[] = "nii";
 const char GarrFollowerLevelXPEntryfmt[] = "nii";
+const char GarrSpecializationEntryfmt[] = "niiiifiss";
 
 const char BattlePetAbilityfmt[] = "niiiiiss";
 const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";

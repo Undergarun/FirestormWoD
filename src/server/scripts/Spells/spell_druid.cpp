@@ -43,35 +43,39 @@ class spell_dru_yseras_gift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_yseras_gift_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (!l_Caster->IsFullHealth())
                 {
-                    if (!caster->IsFullHealth())
-                        caster->CastSpell(caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, true);
-                    else
+                    int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, &l_HealAmount, NULL, NULL, true);
+                }
+                else
+                {
+                    std::list<Unit*> l_Party;
+
+                    l_Caster->GetPartyMembers(l_Party);
+                    for (auto itr : l_Party)
                     {
-                        std::list<Unit*> party;
-                        caster->GetPartyMembers(party);
-
-                        if (party.empty())
-                            return;
-
-                        std::list<Unit*> tempList;
-                        for (auto itr : party)
-                        {
-                            if (itr->IsFullHealth() || itr->GetDistance(caster) >= 40.0f)
-                                continue;
-
-                            tempList.push_back(itr);
-                        }
-
-                        if (tempList.empty())
-                            return;
-
-                        tempList.sort(JadeCore::HealthPctOrderPred());
-                        caster->CastSpell(tempList.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, true);
+                        if (itr->IsFullHealth() || itr->GetDistance(l_Caster) >= 40.0f)
+                            l_Party.remove(itr);
                     }
+
+                    if (l_Party.empty())
+                        return;
+
+                    if (l_Party.size() > 1)
+                    {
+                        l_Party.sort(JadeCore::HealthPctOrderPred());
+                        l_Party.resize(1); // Just to be sure
+                    }
+
+                    int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
+                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
                 }
             }
 
@@ -509,7 +513,7 @@ class spell_dru_maul : public SpellScriptLoader
 
                         if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
                         {
-                            int32 bp = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.4f;
+                            int32 bp = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
 
                             caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
                             caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);
@@ -1008,7 +1012,7 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
         }
 };
 
-// Lifebloom - 33763 : Final heal
+// Lifebloom - 33763
 class spell_dru_lifebloom : public SpellScriptLoader
 {
     public:
@@ -1024,65 +1028,48 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (!GetCaster())
-                    return;
-
-                if (GetCaster()->ToPlayer()->HasSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL))
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
                 // final heal
-                int32 healAmount = aurEff->GetAmount();
+                int32 l_SpellPower = 0;
+                int32 l_HealAmount = 0;
 
-                if (Player* _plr = GetCaster()->ToPlayer())
-                {
-                    healAmount = _plr->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, aurEff->GetEffIndex(), HEAL);
-                    healAmount = GetTarget()->SpellHealingBonusTaken(_plr, GetSpellInfo(), healAmount, HEAL);
+                l_SpellPower = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_SpellPower, aurEff->GetEffIndex(), HEAL);
+                l_SpellPower = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_SpellPower, HEAL);
 
-                    // Increase final heal by 50%
-                    if (_plr->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
-                        AddPct(healAmount, 50);
+                l_HealAmount = l_SpellPower * sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL)->Effects[EFFECT_0].BonusMultiplier;
 
-                    GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
-
-                    _plr->AddSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, 0, 1 * IN_MILLISECONDS);
-
-                    return;
-                }
-
-                // Increase final heal by 50%
-                if (GetCaster()->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
-                    AddPct(healAmount, 50);
-
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
-                GetCaster()->ToPlayer()->AddSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, 0, 1 * IN_MILLISECONDS);
+                l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
-                if (Unit* target = GetUnitOwner())
+                if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                 {
-                    if (constAuraEffectPtr aurEff = GetEffect(EFFECT_1))
-                    {
-                        // final heal
-                        int32 healAmount = aurEff->GetAmount();
+                    Unit* l_Target = dispelInfo->GetDispeller();
+                    Unit* l_Caster = GetCaster();
+                    if (!l_Caster)
+                        return;
 
-                        if (Unit* caster = GetCaster())
-                        {
-                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, aurEff->GetEffIndex(), HEAL, dispelInfo->GetRemovedCharges());
-                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
+                    // final heal
+                    int32 l_SpellPower = 0;
+                    int32 l_HealAmount = 0;
 
-                            target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
+                    l_SpellPower = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_SpellPower, aurEff->GetEffIndex(), HEAL, dispelInfo->GetRemovedCharges());
+                    l_SpellPower = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_SpellPower, HEAL, dispelInfo->GetRemovedCharges());
 
-                            return;
-                        }
-                        target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
-                    }
+                    l_HealAmount = l_SpellPower * sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL)->Effects[EFFECT_0].BonusMultiplier;
+
+                    l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
                 }
             }
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
                 AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
             }
         };
@@ -2912,6 +2899,101 @@ public:
     }
 };
 
+enum SpellsFerociousBite
+{
+    SPELL_DRUID_RAKE = 1822,
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
+};
+
+// Ferocious Bite - 22568
+class spell_dru_ferocious_bite : public SpellScriptLoader
+{
+public:
+    spell_dru_ferocious_bite() : SpellScriptLoader("spell_dru_ferocious_bite") { }
+
+    class spell_dru_ferocious_bite_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_ferocious_bite_SpellScript);
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+            int32 l_Damage = GetHitDamage();
+
+            if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                l_Damage += l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Caster->ToPlayer()->GetComboPoints();
+
+            // converts each extra point of energy ( up to 25 energy ) into additional damage
+            int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+            // 25 energy = 100% more damage
+            AddPct(l_Damage, l_EnergyConsumed * 4);
+
+            SetHitDamage(l_Damage);
+
+            // Glyph of Ferocious Bite
+            if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
+            {
+                int32 l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() / 10) * (l_EnergyConsumed / 10);
+                l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL, &l_HealPct, 0, 0, true);
+            }
+
+            // if target is under 25% of life, also reset rake duration
+            if (l_Target && l_Target->GetHealthPct() <= 25.0f)
+                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE))
+                    l_Rake->RefreshDuration();
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_ferocious_bite_SpellScript();
+    }
+};
+
+// Frenzied Regeneration - 22842
+class spell_dru_frenzied_regeneration : public SpellScriptLoader
+{
+public:
+    spell_dru_frenzied_regeneration() : SpellScriptLoader("spell_dru_frenzied_regeneration") { }
+
+    class spell_dru_frenzied_regeneration_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_frenzied_regeneration_SpellScript)
+
+        SpellCastResult CheckCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster->GetPower(POWER_RAGE) < GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE))
+                return SPELL_FAILED_NO_POWER;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->ModifyPower(POWER_RAGE, -GetEffectValue() * GetCaster()->GetPowerCoeff(POWER_RAGE));
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_frenzied_regeneration_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -2965,4 +3047,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_leader_of_the_pack_critical();
     new spell_dru_rake();
     new spell_dru_shred();
+    new spell_dru_ferocious_bite();
+    new spell_dru_frenzied_regeneration();
 }

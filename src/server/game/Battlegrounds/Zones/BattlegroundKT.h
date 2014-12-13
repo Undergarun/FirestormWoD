@@ -28,7 +28,6 @@ enum BG_KT_NPC
 #define BG_KT_MAX_TEAM_SCORE        1500
 #define BG_KT_ORB_POINTS_MAX        1500
 #define BG_KT_POINTS_UPDATE_TIME    (8*IN_MILLISECONDS)
-#define BG_KT_TIME_LIMIT            (25*MINUTE*IN_MILLISECONDS)
 #define BG_KT_EVENT_START_BATTLE    8563
 
 enum BG_KT_Objects
@@ -75,10 +74,10 @@ enum BG_KT_Sound
 
 enum BG_KT_SpellId
 {
-    BG_KT_SPELL_ORB_PICKED_UP_1 = 121164,   // PURPLE
-    BG_KT_SPELL_ORB_PICKED_UP_2 = 121175,   // ORANGE
+    BG_KT_SPELL_ORB_PICKED_UP_1 = 121175,   // PURPLE
+    BG_KT_SPELL_ORB_PICKED_UP_2 = 121177,   // ORANGE
     BG_KT_SPELL_ORB_PICKED_UP_3 = 121176,   // GREEN
-    BG_KT_SPELL_ORB_PICKED_UP_4 = 121177,   // YELLOW
+    BG_KT_SPELL_ORB_PICKED_UP_4 = 121164,   // YELLOW
 
     BG_KT_SPELL_ORB_AURA_1      = 121219,   // PURPLE
     BG_KT_SPELL_ORB_AURA_2      = 121221,   // ORANGE
@@ -96,8 +95,6 @@ enum BG_KT_WorldStates
     BG_KT_ORB_POINTS_A          = 6303,
     BG_KT_ORB_POINTS_H          = 6304,
     BG_KT_ORB_STATE             = 6309,
-    BG_KT_TIME_ENABLED          = 4247,
-    BG_KT_TIME_REMAINING        = 4248
 };
 
 enum BG_KT_Graveyards
@@ -143,10 +140,10 @@ const float BG_KT_DoorPositions[2][4] =
 
 const float BG_KT_OrbPositions[MAX_ORBS][4] =
 {
-    {1716.78f, 1416.64f, 13.5709f, 1.57239f},
-    {1850.26f, 1416.77f, 13.5709f, 1.56061f},
-    {1850.29f, 1250.31f, 13.5708f, 4.70848f},
-    {1716.83f, 1249.93f, 13.5706f, 4.71397f}
+    {1850.26f, 1416.77f, 13.5709f, 1.56061f},   ///< PURPLE
+    {1850.29f, 1250.31f, 13.5708f, 4.70848f},   ///< ORANGE
+    {1716.78f, 1416.64f, 13.5709f, 1.57239f},   ///< GREEN
+    {1716.83f, 1249.93f, 13.5706f, 4.71397f}    ///< YELLOW
 };
 
 const float BG_KT_SpiritPositions[MAX_ORBS][4] =
@@ -155,7 +152,15 @@ const float BG_KT_SpiritPositions[MAX_ORBS][4] =
     {1672.40f, 1524.10f, 16.7387f, 6.032206f},
 };
 
-const uint32 BG_KT_ORBS_SPELLS[MAX_ORBS] =
+const static char* s_OrbColor[MAX_ORBS] =
+{
+    "00660099",   ///< PURPLE
+    "00ED7F10",   ///< ORANGE
+    "003A9D23",   ///< GREEN
+    "00318CE7"    ///< BLEU
+};
+
+const static uint32 BG_KT_ORBS_SPELLS[MAX_ORBS] =
 {
     BG_KT_SPELL_ORB_PICKED_UP_1,
     BG_KT_SPELL_ORB_PICKED_UP_2,
@@ -163,7 +168,7 @@ const uint32 BG_KT_ORBS_SPELLS[MAX_ORBS] =
     BG_KT_SPELL_ORB_PICKED_UP_4
 };
 
-const uint32 BG_KT_ORBS_AURA[MAX_ORBS] =
+const static uint32 BG_KT_ORBS_AURA[MAX_ORBS] =
 {
     BG_KT_SPELL_ORB_AURA_1,
     BG_KT_SPELL_ORB_AURA_2,
@@ -171,8 +176,16 @@ const uint32 BG_KT_ORBS_AURA[MAX_ORBS] =
     BG_KT_SPELL_ORB_AURA_4
 };
 
+const static uint32 s_OrbsWorldStates[MAX_ORBS] =
+{
+    6715,
+    6717,
+    6716,
+    6714
+};
+
 //tick point according to which zone
-const uint32 BG_KT_TickPoints[3] = { 1, 3, 5 };
+const static uint32 BG_KT_TickPoints[3] = { 1, 3, 5 };
 
 class BattlegroundKT : public Battleground
 {
@@ -202,12 +215,11 @@ class BattlegroundKT : public Battleground
         void Reset();
         virtual void EndBattleground(uint32 winner);
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        uint32 GetRemainingTimeInMinutes() { return m_EndTimer ? (m_EndTimer-1) / (MINUTE * IN_MILLISECONDS) + 1 : 0; }
 
         void UpdateOrbState(Team team, uint32 value);
         void UpdateTeamScore(Team team);
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        virtual void FillInitialWorldStates(ByteBuffer& data, uint32& count);
+        virtual void FillInitialWorldStates(ByteBuffer& p_Data);
 
         /* Scorekeeping */
         uint32 GetTeamScore(Team team) const            { return m_TeamScores[GetTeamIndexByTeamId(team)]; }
@@ -216,7 +228,32 @@ class BattlegroundKT : public Battleground
         void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
 
         void AccumulateScore(uint32 team, BG_KT_ZONE zone);
+        uint64 GetOrbKeeper(uint8 p_OrbIndex) const
+        {
+            if (p_OrbIndex < MAX_ORBS)
+                return m_OrbKeepers[p_OrbIndex];
+            return 0;
+        }
     private:
+
+        std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
+        {
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return std::set<uint64>();
+
+            std::set<uint64> l_FlagPickers;
+            for (int l_I = 0; l_I < MAX_ORBS; l_I++)
+            {
+                if (m_OrbKeepers[l_I] != 0)
+                {
+                    Player* l_Picker = ObjectAccessor::FindPlayer(m_OrbKeepers[l_I]);
+                    if (l_Picker != nullptr && l_Picker->GetTeamId() == p_Team)
+                        l_FlagPickers.insert(m_OrbKeepers[l_I]);
+                }
+            }
+
+            return l_FlagPickers;
+        }
 
         uint64 m_OrbKeepers[MAX_ORBS];
         std::map<uint64, BG_KT_ZONE> m_playersZone;
@@ -224,7 +261,6 @@ class BattlegroundKT : public Battleground
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;
-        uint32 m_EndTimer;
         uint32 m_UpdatePointsTimer;
         Team   m_LastCapturedOrbTeam;
 };

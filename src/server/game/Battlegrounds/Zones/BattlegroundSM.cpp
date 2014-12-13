@@ -1365,7 +1365,7 @@ void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p
     }
 }
 
-void BattlegroundSM::FillInitialWorldStates(WorldPacket& p_Data)
+void BattlegroundSM::FillInitialWorldStates(ByteBuffer& p_Data)
 {
     p_Data << uint32(SM_MINE_CARTS_DISPLAY) << uint32(DISPLAY_WORLDSTATE);
     p_Data << uint32(SM_ALLIANCE_RESOURCES) << uint32(m_TeamScores[TEAM_HORDE]);

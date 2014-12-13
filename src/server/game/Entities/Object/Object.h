@@ -475,6 +475,36 @@ struct Position
         return !(operator==(a));
     }
 
+    Position operator-(Position const& p_Rhs) const
+    {
+        Position l_Pos;
+        l_Pos.m_positionX = m_positionX - p_Rhs.m_positionX;
+        l_Pos.m_positionY = m_positionY - p_Rhs.m_positionY;
+        l_Pos.m_positionZ = m_positionZ - p_Rhs.m_positionZ;
+
+        return l_Pos;
+    }
+
+    Position operator+(Position const& p_Rhs) const
+    {
+        Position l_Pos;
+        l_Pos.m_positionX = m_positionX + p_Rhs.m_positionX;
+        l_Pos.m_positionY = m_positionY + p_Rhs.m_positionY;
+        l_Pos.m_positionZ = m_positionZ + p_Rhs.m_positionZ;
+
+        return l_Pos;
+    }
+
+    Position operator/(float p_Rhs) const
+    {
+        Position l_Pos;
+        l_Pos.m_positionX = m_positionX / p_Rhs;
+        l_Pos.m_positionY = m_positionY / p_Rhs;
+        l_Pos.m_positionZ = m_positionZ / p_Rhs;
+
+        return l_Pos;
+    }
+
     void Relocate(float x, float y)
         { m_positionX = x; m_positionY = y;}
     void Relocate(float x, float y, float z)
@@ -582,6 +612,34 @@ struct Position
         return o;
     }
 };
+
+static float dotProductXY(Position const& p_Pos1, Position const& p_Pos2)
+{
+    return p_Pos1.m_positionX * p_Pos2.m_positionX + p_Pos1.m_positionY * p_Pos2.m_positionY;
+}
+
+static Position& normalizeXY(Position& p_Pos)
+{
+    float l_Norme = std::sqrt(dotProductXY(p_Pos, p_Pos));
+    p_Pos.m_positionX /= l_Norme;
+    p_Pos.m_positionY /= l_Norme;
+
+    return p_Pos;
+}
+
+static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
+{
+    float l_x1 = p_PointLine1.GetPositionX();
+    float l_x2 = p_PointLine2.GetPositionX();
+    float l_y1 = p_PointLine1.GetPositionY();
+    float l_y2 = p_PointLine2.GetPositionY();
+
+    float l_dx = l_x2 - l_x1;
+    float l_dy = l_y2 - l_y1;
+
+    return std::abs(l_dy * p_Point3.GetPositionX() - l_dx * p_Point3.GetPositionY() - l_x1 * l_y2 + l_x2 * l_y1) / std::sqrt(l_dx * l_dx + l_dy * l_dy);
+}
+
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
@@ -975,6 +1033,7 @@ class WorldObject : public Object, public WorldLocation
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+        void GetCreatureListInGrid(std::list<Creature*>& lList, float fMaxSearchRange) const;
         void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
 
         void GetGameObjectListWithEntryInGridAppend(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;

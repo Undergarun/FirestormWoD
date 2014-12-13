@@ -1094,8 +1094,6 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_LISTEN_RANGE_YELL]      = ConfigMgr::GetFloatDefault("ListenRange.Yell", 300.0f);
 
     m_bool_configs[CONFIG_BATTLEGROUND_CAST_DESERTER]                = ConfigMgr::GetBoolDefault("Battleground.CastDeserter", true);
-    m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE]       = ConfigMgr::GetBoolDefault("Battleground.QueueAnnouncer.Enable", false);
-    m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY]   = ConfigMgr::GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
     m_int_configs[CONFIG_BATTLEGROUND_INVITATION_TYPE]               = ConfigMgr::GetIntDefault ("Battleground.InvitationType", 0);
     m_int_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]        = ConfigMgr::GetIntDefault ("Battleground.PrematureFinishTimer", 5 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = ConfigMgr::GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 5 * MINUTE * IN_MILLISECONDS);
@@ -2054,10 +2052,19 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Wild BattlePet pools...");
     sWildBattlePetMgr->Load();
 
-    uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character template data...");
+    sObjectMgr->LoadCharacterTemplateData();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Character Template data");
-    sObjectMgr->LoadCharacterTempalteData();
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading realm completed challenges...");
+    sObjectMgr->LoadRealmCompletedChallenges();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading challenge mode rewards...");
+    sObjectMgr->LoadChallengeRewards();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
+    sObjectMgr->LoadMapChallengeModeHotfixes();
+
+    uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();
@@ -3140,22 +3147,22 @@ void World::SendAutoBroadcast()
 
     else if (abcenter == 1)
     {
-        WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
-        data.WriteBits(msg.length(), 12);
-        data.FlushBits();
-        data.WriteString(msg);
-        sWorld->SendGlobalMessage(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
+        l_Data.WriteBits(msg.length(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(msg);
+        sWorld->SendGlobalMessage(&l_Data);
     }
 
     else if (abcenter == 2)
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
-        WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
-        data.WriteBits(msg.length(), 12);
-        data.FlushBits();
-        data.WriteString(msg);
-        sWorld->SendGlobalMessage(&data);
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
+        l_Data.WriteBits(msg.length(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(msg);
+        sWorld->SendGlobalMessage(&l_Data);
     }
 
     sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());

@@ -51,6 +51,7 @@ class boss_ragewing_the_untamed : public CreatureScript
 
             void Reset()
             {
+                _Reset();
             }
 
             void KilledUnit(Unit* p_Who)
@@ -59,10 +60,12 @@ class boss_ragewing_the_untamed : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
+                _EnterCombat();
             }
 
             void JustDied(Unit* p_Killer)
             {
+                _JustDied();
             }
 
             void DoAction(const int32 p_Action)

@@ -541,7 +541,7 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPacket& p_RecvData)
 
     Group * l_Group = GetPlayer()->GetGroup();
 
-    if (!l_Group || !l_Group->IsLeader(m_Player->GetGUID()) || (l_Master != 0 && !l_Group->IsMember(l_Master)))
+    if (!l_Group || !l_Group->IsLeader(m_Player->GetGUID()) || (l_Master != 0 && !l_Group->IsMember(l_Master)) || GetPlayer()->GetBattleground() != nullptr)
     {
         WorldPacket l_Response(SMSG_SET_LOOT_METHOD_FAILED, 0);
         SendPacket(&l_Response);
@@ -608,6 +608,9 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
 
     /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
+        return;
+
+    if (GetPlayer()->GetBattleground() != nullptr)
         return;
     /********************/
 
@@ -1509,20 +1512,16 @@ void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
     group->SendUpdate();
 }
 
-void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recvData)
+void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& p_RecvData)
 {
-    uint8 markerId = recvData.read<uint8>();
+    uint8 l_MarkerID = p_RecvData.read<uint8>();
 
-    Player* plr = GetPlayer();
-    if (!plr)
+    Group* l_Group = m_Player->GetGroup();
+    if (!l_Group)
         return;
 
-    Group* group = plr->GetGroup();
-    if (!group)
-        return;
-
-    if (markerId < 5)
-        group->RemoveRaidMarker(markerId);
+    if (l_MarkerID < 5)
+        l_Group->RemoveRaidMarker(l_MarkerID);
     else
-        group->RemoveAllRaidMarkers();
+        l_Group->RemoveAllRaidMarkers();
 }

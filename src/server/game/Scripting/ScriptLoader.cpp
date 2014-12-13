@@ -731,8 +731,8 @@ void AddSC_boss_gu_cloudstrike();
 void AddSC_boss_master_snowdrift();
 void AddSC_boss_sha_of_violence();
 void AddSC_boss_taran_zhu();
-void AddSC_instance_siege_of_the_niuzoa_temple();   // Siege of the Niuzoa Temple
-void AddSC_siege_of_the_niuzoa_temple();
+void AddSC_instance_siege_of_the_niuzao_temple();   // Siege of the niuzao Temple
+void AddSC_siege_of_the_niuzao_temple();
 void AddSC_boss_jinbak();
 void AddSC_instance_mogu_shan_vault();              // Mogu'Shan Vault
 void AddSC_mogu_shan_vault();
@@ -802,13 +802,19 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_Garrison_GO();
+
 /* Skyreach Dungeon */
+void AddSC_instance_Skyreach();
 void AddSC_mob_instance_skyreach();
 void AddSC_spell_instance_skyreach();
 void AddSC_boss_ranjit();
 void AddSC_boss_Araknath();
+void AddSC_boss_Rukhran();
+void AddSC_boss_HighSaveViryx();
 
 // battlegrounds
+void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
 
 // outdoor pvp
@@ -1577,8 +1583,8 @@ void AddPandarieScripts()
     AddSC_boss_master_snowdrift();
     AddSC_boss_sha_of_violence();
     AddSC_boss_taran_zhu();
-    AddSC_instance_siege_of_the_niuzoa_temple();    // Siege of the Niuzoa Temple
-    AddSC_siege_of_the_niuzoa_temple();
+    AddSC_instance_siege_of_the_niuzao_temple();    // Siege of the niuzao Temple
+    AddSC_siege_of_the_niuzao_temple();
     AddSC_boss_jinbak();
     AddSC_instance_mogu_shan_vault();               // Mogu'Shan Vault
     AddSC_mogu_shan_vault();
@@ -1652,11 +1658,15 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_Garrison_GO();
     /* Instance Skyreach*/
+    AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();
     AddSC_spell_instance_skyreach();
     AddSC_boss_ranjit();
     AddSC_boss_Araknath();
+    AddSC_boss_Rukhran();
+    AddSC_boss_HighSaveViryx();
 #endif
 }
 
@@ -1675,6 +1685,7 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+    AddSC_BattlegroundAVcripts();
     AddSC_BattlegroundDGScripts();
 #endif
 }

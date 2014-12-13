@@ -288,6 +288,7 @@ class boss_admiral_ripsnarl : public CreatureScript
         };
 };
 
+// 47626
 class npc_admiral_ripsnarl_vapor : public CreatureScript
 {
     public:

@@ -168,12 +168,23 @@ class BattlegroundWS : public Battleground
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID(int32 team) const
+        uint64 GetFlagPickerGUID(int32 p_Team) const
         {
-            if (team == BG_TEAM_ALLIANCE || team == BG_TEAM_HORDE)
-                return m_FlagKeepers[team];
-            return 0;
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return 0;
+
+            return m_FlagKeepers[p_Team];
         }
+
+        std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
+        {
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return std::set<uint64>();
+
+            std::set<uint64> l_FlagPickers{ m_FlagKeepers[p_Team] };
+            return l_FlagPickers;
+        }
+
         void SetAllianceFlagPicker(uint64 guid)     { m_FlagKeepers[BG_TEAM_ALLIANCE] = guid; }
         void SetHordeFlagPicker(uint64 guid)        { m_FlagKeepers[BG_TEAM_HORDE] = guid; }
         bool IsAllianceFlagPickedup() const         { return m_FlagKeepers[BG_TEAM_ALLIANCE] != 0; }
@@ -222,7 +233,7 @@ class BattlegroundWS : public Battleground
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 _minutesElapsed;
+        uint32 m_EndTimestamp;
 
         virtual void PostUpdateImpl(uint32 diff);
 };

@@ -3210,7 +3210,7 @@ void SpellMgr::LoadSpellInfoStore()
 
         SpellInfo * l_SpellInfo = mSpellInfoMap[NONE_DIFFICULTY][l_TalentEntry->SpellID];
         if (l_SpellInfo)
-            l_SpellInfo->talentId = l_TalentEntry->Id;
+            l_SpellInfo->m_TalentIDs.push_back(l_TalentEntry->Id);
 
         /// Load talents override spell
         if (l_TalentEntry->OverridesSpellID)
@@ -3445,22 +3445,21 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
-            case 45470:
+            case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
-            // Lava Surge
-            case 77756:
+            case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
-            // Magma Totem Passive
-            case 8188:
-            // Healing Streams
-            case 5672:
-            // Healing Tide
-            case 114941:
+            case 8188:  // Magma Totem Passive
+            case 5672:  // Healing Streams
+            case 114941:// Healing Tide
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[EFFECT_0].Amplitude = 2000;
+                break;
+            case 154150:// Energize
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 45477: // Icy touch
                 spellInfo->Effects[EFFECT_0].AttackPowerMultiplier = 0.319f;
@@ -3568,6 +3567,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 165376:// Enlightenment
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+            case 156989:// Liadrin's Righteousness
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_MELEE_HASTE;
             case 139834:// Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
@@ -3592,6 +3595,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 136917:// Biting Cold
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 76808:// Mastery: Executioner
+                spellInfo->Effects[0].BasePoints = 24;
+                spellInfo->Effects[1].BasePoints = 24;
+                spellInfo->Effects[2].BasePoints = 24;
                 break;
             case 136467:// Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -3746,6 +3754,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118592:// Spinning Crane Kick
                 spellInfo->Effects[0].BasePoints = urand(180, 230);
                 break;
+            case 165381: // Righteous Vengeance
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MASTERY;
+                break;
             case 48505: // Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -3753,6 +3764,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 119539: // Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
+                break;
+            case 76671: // Mastery: Divine Bulwark
+                spellInfo->Effects[4].BasePoints = 8;
+                break;
+            case 139139: //Insanity
+                spellInfo->ProcChance = 0;
                 break;
             case 32409: // Shadow Word: Death (triggered)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
@@ -3767,12 +3784,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 88611: // Smoke Bomb (triggered)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
-                break;
-            case 145109:// Ysera's Gift (caster)
-            case 145110:// Ysera's Gift (ally)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->Effects[0].BasePoints = 5;
-                spellInfo->MaxAffectedTargets = 1;
                 break;
             case 128997:// Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
@@ -4133,14 +4144,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
-            case 154179: // Energize (Skyreach)
-            case 156634: // Four winds (Skyreach)
-            case 156636: // Four winds (Skyreach)
+            case 156791:// Call Adds
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);    ///< 100yards
+                break;
+            case 152973:// Protective Barrier (Skyreach)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 156634:// Four winds (Skyreach)
+            case 156636:// Four winds (Skyreach)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
                 break;
-            case 166623: // Four winds (Skyreach)
-            case 166664: // Four winds (Skyreach)
+            case 166623:// Four winds (Skyreach)
+            case 166664:// Four winds (Skyreach)
             {
                  spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                  spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
@@ -4150,12 +4166,12 @@ void SpellMgr::LoadSpellCustomAttr()
                  spellInfo->DurationEntry = durationIndex;
             }
             break;
-            case 159226: // Solar storm (Skyreach)
-            case 153759: // WindWalls (Skyreach)
-            case 153139: // Four winds (Skyreach)
-            case 158441: // Solar Zone (Skyreach)
-            case 153907: // Dervish (Skyreach)
-            case 156841: // Storm (Skyreach)
+            case 159226:// Solar storm (Skyreach)
+            case 153759:// WindWalls (Skyreach)
+            case 153139:// Four winds (Skyreach)
+            case 158441:// Solar Zone (Skyreach)
+            case 153907:// Dervish (Skyreach)
+            case 156841:// Storm (Skyreach)
             case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
@@ -4340,11 +4356,30 @@ void SpellMgr::LoadSpellCustomAttr()
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
                 spellInfo->Effects[2].Effect = 0;
                 break;
-            case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 35;
+            case 53490:  // Bullheaded 
+                spellInfo->ProcChance = 100;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
+                break;
+            case 32645:  // Envenom
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[3].BasePoints = 30;
+                break;
+            case 109260:// Aspect of the Iron Hawk
+                spellInfo->Effects[0].BasePoints = -10;
                 break;
             case 48181: // Haunt - hotfix 5.4.2
                 spellInfo->Effects[3].BasePoints = 35;
+                break;
+            case 165378: // Lethal Shots
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+                break;
+            case 109306: // Thrill of the Hunt
+                spellInfo->ProcChance = 0;
+                break;
+            case 24529: // Glyph of Animal Bond
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_PET;
                 break;
             case 16246: // Clearcasting - hotfix 5.4.2
                 spellInfo->Effects[1].BasePoints = 20;
@@ -4368,6 +4403,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 88852: // Tower of Radiance
                 spellInfo->Effects[0].Effect = 0;
+                break;
+            case 703: // Garrote
+                spellInfo->ProcChance = 100;
                 break;
             case 24275: // Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
@@ -5056,11 +5094,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 12975:// Last Stand
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                break;
-            case 122507:// Rallying Cry
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
             case 117828:// Backdraft
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
@@ -6098,7 +6131,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StackAmount = 2;
                 break;
             case 1543:  // Flare
-                spellInfo->Effects[0].TriggerSpell = 94528;
+                spellInfo->Effects[0].TriggerSpell = 109772;
+                spellInfo->ProcChance = 100;
                 break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             // @TODO: Remove this hack when we out S14

@@ -993,6 +993,7 @@ namespace ItemSpecialization
         return l_ItemSpecStat;
     }
 
+    // @todo : since work on Scaling GetItemSpecStats and HasItemSpecStat have Unused function Warning
     static std::list<uint32> GetItemSpecStats(const ItemTemplate* p_ItemTemplate)
     {
         std::list<uint32> l_ItemSpecStats;

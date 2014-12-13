@@ -788,7 +788,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
             if (l_MoveTemplate.m_path_size != 0)
             {
-                *p_Data << uint32(l_AreaTrigger->GetDuration());                                          ///< Time To Target
+                *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_MoveTemplate.m_path_size);                             ///< Path node count
                 for (uint32 l_I = 0; l_I < l_MoveTemplate.m_path_size; l_I++)
@@ -1697,7 +1697,7 @@ void MovementInfo::Normalize()
 }
 
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
-m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
+ m_zoneScript(NULL), m_name(""), m_isActive(false), m_isWorldObject(isWorldObject),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
 m_phaseMask(PHASEMASK_NORMAL)
 {
@@ -2717,11 +2717,11 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
+void WorldObject::SendObjectDeSpawnAnim(uint64 p_Guid)
 {
-    WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
-    data << uint64(guid);
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 8);
+    l_Data.appendPackGUID(p_Guid);
+    SendMessageToSet(&l_Data, true);
 }
 
 void WorldObject::SetMap(Map* map)
@@ -3156,12 +3156,12 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-void Player::SendBattlegroundTimer(uint32 p_TimeRemaining, uint32 p_TotalTime)
+void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)
 {
     WorldPacket l_Data(SMSG_START_TIMER, 12);
-    l_Data << uint32(p_TimeRemaining);
-    l_Data << uint32(p_TotalTime);
-    l_Data << uint32(PVP_TIMER);
+    l_Data << uint32(p_Time);
+    l_Data << uint32(p_MaxTime);
+    l_Data << uint32(p_Type);
     SendDirectMessage(&l_Data);
 }
 
@@ -3298,6 +3298,19 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
     JadeCore::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
     JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange> searcher(this, creatureList, check);
     TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+
+    cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
+}
+
+void WorldObject::GetCreatureListInGrid(std::list<Creature*>& creatureList, float maxSearchRange) const
+{
+    CellCoord pair(JadeCore::ComputeCellCoord(this->GetPositionX(), this->GetPositionY()));
+    Cell cell(pair);
+    cell.SetNoCreate();
+
+    JadeCore::AllCreaturesInRange check(this, maxSearchRange);
+    JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(this, creatureList, check);
+    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> visitor(searcher);
 
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }

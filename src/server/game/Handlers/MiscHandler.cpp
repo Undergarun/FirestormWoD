@@ -754,7 +754,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
 
     l_Stmt->setString(0, l_IgnoreName);
 
-    _addIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
+    m_AddIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
@@ -934,23 +934,6 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
         return;
 
     GetPlayer()->ResurectUsingRequestData();
-}
-
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
-{
-    va_list ap;
-    char szStr [1024];
-    szStr[0] = '\0';
-
-    va_start(ap, Text);
-    vsnprintf(szStr, 1024, Text, ap);
-    va_end(ap);
-
-    uint32 length = strlen(szStr)+1;
-    WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4+length);
-    data << length;
-    data << szStr;
-    SendPacket(&data);
 }
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
@@ -1187,8 +1170,6 @@ void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
 
 int32 WorldSession::HandleEnableNagleAlgorithm()
 {
-    // Instructs the server we wish to receive few amounts of large packets (SMSG_MULTIPLE_PACKETS?)
-    // instead of large amount of small packets
     return 0;
 }
 
@@ -1450,9 +1431,29 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
     for (auto l_Talent : *l_Player->GetTalentMap(l_Player->GetActiveSpec()))
     {
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Talent.first);
-        if (l_SpellInfo && l_SpellInfo->talentId)
+        if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
         {
-            l_Data << uint16(l_SpellInfo->talentId);
+            uint32 l_SpecID = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            uint16 l_Talent = 0;
+
+            for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
+            {
+                if (TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID))
+                {
+                    if (l_TalentEntry->SpecID == l_SpecID)
+                    {
+                        l_Talent = l_TalentID;
+                        break;
+                    }
+
+                    l_Talent = l_TalentID;
+                }
+            }
+
+            if (!l_Talent)
+                continue;
+
+            l_Data << uint16(l_Talent);
             ++l_TalentCount;
         }
     }
@@ -1966,42 +1967,42 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps)
+void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
     ObjectGuid guid = m_Player->GetGUID();
     uint32 unkValue = 0;
     uint32 inactiveSwapsCount = 0;
 
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    data.appendPackGUID(m_Player->GetGUID());
+    WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
+    l_ShiftPacket.appendPackGUID(m_Player->GetGUID());
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
-    data << uint32(0x18); // flags, 0x18 most of time on retail sniff
-    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
-    data.appendPackGUID(0);
+    l_ShiftPacket << uint32(0x18);                          ///< flags, 0x18 most of time on retail sniff
+    l_ShiftPacket << uint32(p_PhaseIds.size());             ///< Phase.dbc ids
+    l_ShiftPacket.appendPackGUID(0);
     // Active terrain swaps, may switch with inactive terrain
 
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+    for (std::set<uint32>::const_iterator l_It = p_PhaseIds.begin(); l_It != p_PhaseIds.end(); ++l_It)
     {
-        data << uint16(1);
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
+        l_ShiftPacket << uint16(1);
+        l_ShiftPacket << uint16(*l_It); // Most of phase id on retail sniff have 0x8000 mask
     }
 
-    // Inactive terrain swaps, may switch with active terrain
-    data << inactiveSwapsCount;
-    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-    //data << uint16(0);
+    /// Inactive terrain swaps, may switch with active terrain
+    l_ShiftPacket << uint32(p_InactiveTerrainSwap.size() * 2);
+    for (std::set<uint32>::const_iterator l_It = p_InactiveTerrainSwap.begin(); l_It != p_InactiveTerrainSwap.end(); ++l_It)
+        l_ShiftPacket << uint16(*l_It);
 
     // WorldMapAreaId ?
-    data << unkValue;
+    l_ShiftPacket << unkValue;
     //for (uint32 i = 0; i < unkValue; i++)
         //data << uint16(0);
 
-    data << uint32(terrainswaps.size() * 2);
+    /// Active terrain swaps
+    l_ShiftPacket << uint32(p_TerrainSwaps.size() * 2);
+    for (std::set<uint32>::const_iterator l_It = p_TerrainSwaps.begin(); l_It != p_TerrainSwaps.end(); ++l_It)
+        l_ShiftPacket << uint16(*l_It);
 
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
-
-    SendPacket(&data);
+    SendPacket(&l_ShiftPacket);
 }
 
 // Battlefield and Battleground
@@ -2117,20 +2118,19 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
             case DB2_REPLY_ITEM:
                 SendItemDb2Reply(l_Entry);
                 break;
-
             case DB2_REPLY_SPARSE:
                 SendItemSparseDb2Reply(l_Entry);
                 break;
-
             case DB2_REPLY_BROADCAST_TEXT:
                 SendBroadcastTextDb2Reply(l_Entry);
                 break;
-
+            case DB2_REPLY_MAP_CHALLENGE_MODE:
+                SendMapChallengeModeDBReply(l_Entry);
+                break;
             // TODO
             case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:
             case DB2_REPLY_SCENE_SCRIPT:
                 break;
-
             default:
                 break;
         }
@@ -2261,75 +2261,6 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
         data << int32(-effect->GetAmount());
     }
 
-    SendPacket(&data);
-}
-
-// DEPRECATED ?
-void WorldSession::HandleTradeInfo(WorldPacket& recvPacket)
-{
-    uint8 bitOrder[8] = { 5, 4, 7, 1, 3, 6, 0, 2 };
-    uint8 byteOrder[8] = { 7, 3, 4, 6, 1, 5, 0, 2 };
-
-    uint32 skillId = recvPacket.read<uint32>();
-    uint32 spellId = recvPacket.read<uint32>();
-
-    ObjectGuid guid;
-
-    recvPacket.ReadBitInOrder(guid, bitOrder);
-    recvPacket.FlushBits();
-    recvPacket.ReadBytesSeq(guid, byteOrder);
-
-    Player* plr = sObjectAccessor->FindPlayer(guid);
-    if (!plr || !plr->HasSkill(skillId) || !plr->HasSpell(spellId))
-        return;
-
-    uint32 spellSkillCount = 0;
-    ByteBuffer buff(sizeof(uint32)*32);
-    for (auto itr : plr->GetSpellMap())
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
-            continue;
-
-        if (!spell->IsAbilityOfSkillType(skillId))
-            continue;
-
-        if (!(spell->Attributes & SPELL_ATTR0_TRADESPELL))
-            continue;
-
-        buff.append(itr.first);
-        ++spellSkillCount;
-    }
-    WorldPacket data(SMSG_TRADE_INFO);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBits(spellSkillCount, 22);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-    data.WriteBits(1, 22); // skill value count
-    data.WriteBits(1, 22); // skill id count
-    data.WriteBits(1, 22); // skill max value
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
-    data.FlushBits();
-
-    data << uint32(plr->GetSkillValue(skillId));
-    data.WriteByteSeq(guid[0]);
-    data << uint32(skillId);
-    data.WriteByteSeq(guid[1]);
-    data << uint32(spellId);
-
-    data.append(buff);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data << uint32(plr->GetMaxSkillValue(skillId));
     SendPacket(&data);
 }
 

@@ -203,7 +203,9 @@ namespace Movement
                 for (uint32 l_I = 0; l_I < p_Count; l_I++)
                 {
                     /// Add a salt in points because the client doesn't like to have 2 time the same points
-                    l_Data << (l_MoveSpline.spline.getPoint(l_I + 1).x + (float(l_I) / 1000.f)) << l_MoveSpline.spline.getPoint(l_I + 1).y << l_MoveSpline.spline.getPoint(l_I + 1).z;
+                    l_Data << (l_MoveSpline.spline.getPoint(l_I + 1).x + (float(l_I) / 1000.f))
+                        << l_MoveSpline.spline.getPoint(l_I + 1).y
+                        << l_MoveSpline.spline.getPoint(l_I + 1).z;
                 }
             }
             else

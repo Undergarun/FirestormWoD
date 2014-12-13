@@ -501,15 +501,11 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
     {
         case 95:
         case 2608:
-            if (Source->GetTeam() != ALLIANCE)
-                Source->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
-            else
+            if (Source->GetTeam() == ALLIANCE)
                 Source->LeaveBattleground();
             break;
         case 2606:
-            if (Source->GetTeam() != HORDE)
-                Source->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
-            else
+            if (Source->GetTeam() == HORDE)
                 Source->LeaveBattleground();
             break;
         case 3326:
@@ -778,6 +774,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
+
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
@@ -1544,4 +1541,45 @@ bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
     }
 
     return false;
+}
+
+
+#define REGZAR_TEXT_NEED " supplies are needed for the next upgrade!"
+#define REGZAR_TEXT_MAX "You're already at 1500 supplies!"
+
+class npc_regzar : public CreatureScript
+{
+public:
+    npc_regzar() : CreatureScript("npc_regzar") { }
+
+    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        Battleground* l_BattleGround = p_Player->GetBattleground();
+        if (l_BattleGround == nullptr || l_BattleGround->GetTypeID() != BattlegroundTypeId::BATTLEGROUND_AV)
+            return false;
+
+        BattlegroundAV* l_AlteracBG = (BattlegroundAV*)l_BattleGround;
+
+        int32 l_Ressource = l_AlteracBG->GetTeamQuestStatus(p_Player->GetTeamId(), 0);
+        if (l_Ressource >= 1500)
+            l_Ressource = -1;
+        else
+            l_Ressource = 500 - (l_Ressource % 500);
+
+        std::ostringstream l_Stream;
+
+        if (l_Ressource == -1)
+            l_Stream << REGZAR_TEXT_MAX;
+        else
+            l_Stream << l_Ressource << REGZAR_TEXT_NEED;
+
+        p_Creature->MonsterYell(l_Stream.str().c_str(), Language::LANG_ORCISH, 0);
+
+        return true;
+    }
+};
+
+void AddSC_BattlegroundAVcripts()
+{
+    new npc_regzar();
 }

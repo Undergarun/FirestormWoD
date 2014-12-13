@@ -1,8 +1,6 @@
 INSERT INTO areatrigger_teleport VALUES ('10157', 'Skyreach - Entrance Teleport Target - Combat Hasn\'t Started', '1209', '1004.85', '1946.82', '268.06', '328.122');
 INSERT INTO instance_template VALUES ('1209', '1116', '', '0');
 
-REPLACE INTO gossip_menu (entry, text_id) VALUES(16675, 24221);
-REPLACE INTO gossip_menu_option (menu_id, id, option_icon, option_text, option_id, box_coded, box_money, box_text) VALUES(16675, 0, 0, "Return me to the surface, friend.", 0, 0, 0, "Are you sure you wish to exit the dungeon?");
 REPLACE INTO creature_model_info (modelid, bounding_radius, combat_reach, gender) VALUES(11686, 0.5, 1, 2);
 REPLACE INTO creature_model_info (modelid, bounding_radius, combat_reach, gender) VALUES(1987, 0.35, 0.5, 2);
 REPLACE INTO creature_model_info (modelid, bounding_radius, combat_reach, gender) VALUES(41204, 0.35, 0.35, 2);
@@ -766,8 +764,90 @@ update creature_template set exp='5' where entry in (select c.id from creature c
 
 UPDATE creature_classlevelstats SET basehp5 = '52250' , basemana = '24394' WHERE LEVEL = '98' AND class = '8'; 
 
-update creature set spawnMask=6 where map=1209;
-update gameobject set spawnMask=6 where map=1209;
+update creature set spawnMask=262 where map=1209;
+update gameobject set spawnMask=262 where map=1209;
 
 update creature_template set unit_flags=33554432|unit_flags where entry=76142;
+
+delete from creature where id=79505 and map=1209;
 update creature_template_addon set auras='' where entry=76142;
+
+update creature_template set unit_class=4 where entry=76143;
+
+UPDATE creature_template SET modelid2=0 WHERE modelid2=46710;
+UPDATE creature_template SET modelid3=0 WHERE modelid3=46710;
+UPDATE creature_template SET modelid4=0 WHERE modelid4=46710;
+
+UPDATE creature_template SET minlevel=99 , maxlevel=101 WHERE entry=76145;
+
+INSERT INTO creature (id, map, position_x, position_y, position_z, orientation, spawnMask, npcflag) VALUES(12999, 1209, 1068.836, 1802.591, 262.7, 69.43208, 6, 0);
+update creature_template set flags_extra=128 where entry=76083;
+
+INSERT INTO gossip_menu VALUES ('16675', '24565');
+INSERT INTO npc_text VALUES ('24565', 'Well done, $N. Allow me to return you safely to the surface.', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+INSERT INTO npc_text VALUES ('24221', 'Well done, $N. Allow me to return you safely to the surface.', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+
+update creature set MovementType = 1, spawndist = 5 where id = 81081; 
+-- Bytes2 is 0, 1, 2 only 
+UPDATE  creature_template_addon SET bytes2 = 2  WHERE bytes2 > 3;
+
+-- Delete gameobject whit same id on same xyz
+DELETE n1 FROM gameobject n1, gameobject n2 WHERE n1.guid > n2.guid AND n1.id = n2.id AND n1.position_x = n2.position_x AND n1.position_y = n2.position_y AND n1.position_z = n2.position_z;
+
+-- Default data
+UPDATE creature_template SET faction = 35 WHERE faction = 0;
+UPDATE creature_template SET unit_class = 1 WHERE unit_class = 0;
+UPDATE gameobject SET `spawntimesecs` = 120 WHERE spawntimesecs = 0 AND map = 1116;
+UPDATE creature SET spawndist = 7.76 WHERE movementtype = 1 AND spawndist = 0;
+UPDATE creature SET movementtype= 1 WHERE  spawndist != 0;
+UPDATE creature SET movementtype= 0 WHERE  spawndist = 0;
+
+-- Set correct equipment
+UPDATE `creature`, `creature_equip_template`
+SET `creature`.`equipment_id` = `creature_equip_template`.`id`
+WHERE `creature`.`id` = `creature_equip_template`.`entry`;
+
+-- update inhabitype pour les hover
+UPDATE creature_template SET inhabitType = `InhabitType` | 4 WHERE entry IN (SELECT c.entry FROM creature_template_addon c WHERE (c.bytes1 & 33554432 ) !=0 );
+
+-- set move creature server controled
+UPDATE creature a SET a.spawndist = 10, a.movementType = 1 WHERE a.id IN (SELECT c.entry FROM creature_template c WHERE (c.unit_flags & 1 ) !=0 ) AND map= 1116;
+
+-- retirer les flags disarm
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`-0x00200000 WHERE unit_flags&0x00200000;
+
+UPDATE creature  SET spawndist = 10, movementType = 1 WHERE id IN (81081,81080); 
+update creature_template_addon set bytes1 = 33554432 where entry = 81088; -- permetd e faire voler les arakkoa cosmetic 
+REPLACE INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras)
+VALUES
+   (12106537, 810880, 0, 33554432, 1, 0, NULL); 
+   
+   
+UPDATE access_requirement SET level_min=96 WHERE mapId=1209 AND difficulty=1;
+UPDATE access_requirement SET level_min=100 WHERE mapId=1209 AND difficulty=2;
+UPDATE access_requirement SET level_min=100 WHERE mapId=1209 AND difficulty=8;
+
+UPDATE areatrigger_teleport SET target_position_x=1232.45996094,
+				target_position_y=1743.70996094,
+				target_position_z=177.169006348,
+				target_orientation=331.58 WHERE id=10157;
+				
+					DELETE FROM gameobject WHERE map = 1209 AND id IN (211674, 239409);
+INSERT INTO gameobject (id, map, position_x, position_y, position_z, orientation, spawnMask, animprogress, state) VALUES
+(211674, 1209, 1236.715, 1748.854, 177.1668, 5.129201, 256, 255, 1),
+(239409, 1209, 1245.932, 1753.62, 177.1652, 0.3931619, 256, 255, 1);DELETE FROM gameobject_template WHERE entry = 239409;
+INSERT INTO gameobject_template (entry, TYPE, displayId, NAME, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, data24, data25, data26, data27, data28, data29, data30, data31, data32, unkInt32, WDBVerified) VALUE
+(239409, 0, 11638, "Challenge Mode - Start Door (Line 2.6) [DNT]", "", "", "", 1375, 0, 2.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19243); 
+
+-- REPLACE INTO npc_text (ID, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(84184, "The Adherents will do their utmost to cast your corpses down to the forests below.  I can return you safely.", 0, 100, 0);
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(84184, "The Adherents will do their utmost to cast your corpses down to the forests below.  I can return you safely.", 0, 100, 0) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+-- REPLACE INTO npc_text (ID, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(86339, "Well done, $n. Allow me to return you safely to the surface.", 0, 100, 0);
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(86339, "Well done, $n. Allow me to return you safely to the surface.", 0, 100, 0) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16575, 86339);
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`) VALUES(16575, 0, 0, "Return me to the surface, friend.", 0, 0, 0, "Are you sure you wish to exit the dungeon?");
+update gossip_menu_option set npc_option_npcflag=1, option_id=1 where menu_id=16575;
+update creature_template set ScriptName='npc_GossipIntroOutro' where entry=84782;
+update creature_template set ScriptName='npc_GossipIntroOutro' where entry=82376;
+
+UPDATE creature_template SET gossip_menu_id=16575 WHERE entry=84782;
+UPDATE creature_template SET gossip_menu_id=16575 WHERE entry=82376;

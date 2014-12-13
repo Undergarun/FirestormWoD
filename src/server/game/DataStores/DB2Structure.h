@@ -202,6 +202,20 @@ struct ItemExtendedCostEntry
     //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
+struct MapChallengeModeEntry
+{
+    uint32 ID;                  // 0
+    uint32 MapID;               // 1
+    //uint32 Field2;            // 2
+    //uint32 Field3;            // 3
+    //uint32 Field4;            // 4
+    uint32 BronzeTime;          // 5
+    uint32 SilverTime;          // 6
+    uint32 GoldTime;            // 7
+    //uint32 Field8;            // 8
+    //uint32 Field9;            // 9
+};
+
 struct SceneScriptEntry
 {
     uint32 Entry;
@@ -645,6 +659,19 @@ struct GarrFollowerLevelXPEntry
     uint32 ID;                                          // 0
     uint32 Level;                                       // 1
     uint32 RequiredExperience;                          // 2
+};
+
+struct GarrSpecializationEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Unk1;                                        // 1
+    uint32 Unk2;                                        // 2
+    uint32 Unk3;                                        // 3
+    uint32 Unk4;                                        // 4
+    float  BasePoint;                                   // 5
+    uint32 Unk6;                                        // 6
+    char * Name;                                        // 7
+    char * Description;                                 // 8
 };
 
 #define MAX_BATTLEPET_PROPERTIES 6

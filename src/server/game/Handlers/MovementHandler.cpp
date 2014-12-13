@@ -169,7 +169,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
                     uint32 timeleft = uint32(timeReset - time(NULL));
-                    GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
+                    m_Player->SendRaidInstanceMessage(mEntry->MapID, diff, timeleft);
                 }
             }
         }
@@ -182,8 +182,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
-    GetPlayer()->UpdateZone(newzone, newarea);
+    m_Player->GetZoneAndAreaId(newzone, newarea);
+    m_Player->UpdateZone(newzone, newarea);
 
     for (uint8 i = 0; i < 9; ++i)
         GetPlayer()->UpdateSpeed(UnitMoveType(i), true);
@@ -548,12 +548,11 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     m_Player->m_movementInfo = mi;
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*p_RecvData*/)
 {
-    WorldPacket data(SMSG_MOUNT_SPECIAL_ANIM, 8);
-    data << uint64(GetPlayer()->GetGUID());
-
-    GetPlayer()->SendMessageToSet(&data, false);
+    WorldPacket l_Data(SMSG_SPECIAL_MOUNT_ANIM, 8);
+    l_Data.appendPackGUID(m_Player->GetGUID());
+    GetPlayer()->SendMessageToSet(&l_Data, false);
 }
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)

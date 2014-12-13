@@ -50,6 +50,7 @@ enum HunterSpells
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
     HUNTER_SPELL_KILL_COMMAND                       = 34026,
     HUNTER_SPELL_KILL_COMMAND_TRIGGER               = 83381,
+    HUNTER_SPELL_SPIRIT_BOND                        = 118694,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
     HUNTER_SPELL_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724,
@@ -125,7 +126,14 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_PACK                 = 13159,
     HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
     HUNTER_SPELL_FIREWORKS                          = 127933,
-    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851
+    HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
+    HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
+    HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
+    HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
+    HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
+    HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
+    HUNTER_SPELL_MULTI_SHOT                         = 2643,
+    HUNTER_SPELL_BOMBARDMENT                        = 82921
 };
 
 // Called by Explosive Shot - 53301
@@ -273,6 +281,34 @@ class spell_hun_glyph_of_aspects : public SpellScriptLoader
         }
 };
 
+// Glyph of animal bond - 20895
+class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
+{
+public:
+    spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
+
+    class spell_hun_glyph_of_animal_bond_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_glyph_of_animal_bond_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_glyph_of_animal_bond_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_glyph_of_animal_bond_SpellScript();
+    }
+};
+
 // Lock and Load - 56453
 class spell_hun_lock_and_load_proc : public SpellScriptLoader
 {
@@ -364,8 +400,9 @@ class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(HUNTER_SPELL_ARCANE_INTENSITY_AURA))
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_ARCANE_INTENSITY, true);
             }
 
             void Register()
@@ -394,10 +431,9 @@ class spell_hun_spirit_bond : public SpellScriptLoader
             {
                 if (!GetTarget())
                     return;
-
-                if (Player* player = GetTarget()->ToPlayer())
-                    if (Pet* pet = player->GetPet())
-                        pet->CastSpell(pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->CastSpell(l_Pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
             }
 
             void Register()
@@ -410,6 +446,35 @@ class spell_hun_spirit_bond : public SpellScriptLoader
         {
             return new spell_hun_spirit_bond_AuraScript();
         }
+};
+
+// Spirit Bond - 109212
+class spell_hun_spirit_bond_apply : public SpellScriptLoader
+{
+public:
+    spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
+
+    class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Player = GetCaster())
+                l_Player->CastSpell(GetCaster(), HUNTER_SPELL_SPIRIT_BOND, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_spirit_bond_apply_SpellScript();
+    }
+  
 };
 
 // Glyph of Aspect of the Beast - 125042
@@ -828,34 +893,29 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster() || !GetTarget())
-                    return;
-
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->GetHealthPct() <= 20.0f)
-                        {
-                            if (plr->HasSpellCooldown(GetSpellInfo()->Id))
-                                plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        }
-                    }
-                }
-            }
-
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (Unit* target = GetTarget())
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+                if (Unit* l_Target = GetTarget())
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+            }
+
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (!l_Caster)
+                    return;
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                    if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_hun_a_murder_of_crows_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1751,29 +1811,15 @@ class spell_hun_cobra_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_cobra_shot_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(_player, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
-
-                        if (AuraEffectPtr aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 16384, 0, 0, GetCaster()->GetGUID()))
-                        {
-                            AuraPtr serpentSting = aurEff->GetBase();
-                            serpentSting->SetDuration(serpentSting->GetDuration() + (GetSpellInfo()->Effects[EFFECT_2].BasePoints * 1000));
-
-                            if (serpentSting->GetMaxDuration() < serpentSting->GetDuration())
-                                serpentSting->SetMaxDuration(serpentSting->GetDuration());
-                        }
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnHit += SpellHitFn(spell_hun_cobra_shot_SpellScript::HandleOnHit);
             }
         };
 
@@ -1795,9 +1841,12 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Player = GetCaster())
                     if (Unit* target = GetHitUnit())
-                        _player->CastSpell(_player, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
+                    {
+                        l_Player->CastSpell(l_Player, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                    }
             }
 
             void Register()
@@ -1824,9 +1873,14 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                  if (Unit* target = GetHitUnit())
-                    caster->CastSpell(target, HUNTER_SPELL_CHIMERA_SHOT, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_CHIMERA_SHOT, true);
+
+                        if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT))
+                            l_Caster->SetHealth(l_Caster->GetHealth() + CalculatePct(l_Caster->GetMaxHealth(), sSpellMgr->GetSpellInfo(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT)->Effects[EFFECT_0].BasePoints));
+                    }
             }
 
             void Register()
@@ -2368,15 +2422,22 @@ public:
     {
         PrepareSpellScript(spell_hun_kill_shot_SpellScript);
 
-        void HandleAfterCast()
+        void HandleOnHit()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Target->GetHealth() <= uint32(GetHitDamage()))
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                    }
         }
+
 
         void Register()
         {
-            AfterCast += SpellCastFn(spell_hun_kill_shot_SpellScript::HandleAfterCast);
+            OnHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleOnHit);
         }
     };
 
@@ -2386,8 +2447,61 @@ public:
     }
 };
 
+//Bombardment - 35110 
+class spell_hun_bombardment : public SpellScriptLoader
+{
+public:
+    spell_hun_bombardment() : SpellScriptLoader("spell_hun_bombardment") { }
+
+    class spell_hun_bombardment_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_bombardment_AuraScript);
+
+        void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+            
+            if (Unit* l_Caster = GetCaster())
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == HUNTER_SPELL_MULTI_SHOT)
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_BOMBARDMENT, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_hun_bombardment_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_bombardment_AuraScript();
+    }
+};
+
+// Thrill of the Hunt - 109396
+class PlayerScript_thrill_of_the_hunt : public PlayerScript
+{
+public:
+    PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_HUNTER && p_Power == POWER_FOCUS && p_Player->HasAura(HUNTER_SPELL_THRILL_OF_THE_HUNT) && p_Value < 0)
+        {
+            for (int8 i = 0; i < ((p_Value / 10) * -1); ++i)
+            {
+                if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
+                    p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
+            }
+        }
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_bombardment();
+    new spell_hun_glyph_of_animal_bond();
+    new spell_hun_spirit_bond_apply();
     new spell_hun_kill_shot();
     new spell_hun_hunters_mark();
     new spell_hun_fireworks();
@@ -2435,4 +2549,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
     new spell_hun_tame_beast();
+
+    // Player Script
+    new PlayerScript_thrill_of_the_hunt();
 }

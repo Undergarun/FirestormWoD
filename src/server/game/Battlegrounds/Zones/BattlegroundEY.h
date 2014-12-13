@@ -31,10 +31,13 @@ enum BG_EY_Misc
 
 enum BG_EY_WorldStates
 {
-    EY_ALLIANCE_RESOURCES           = 2749,
-    EY_HORDE_RESOURCES              = 2750,
-    EY_ALLIANCE_BASE                = 2752,
-    EY_HORDE_BASE                   = 2753,
+    EY_ACTIVATE_ALLIANCE_RESOURCES  = 9808,
+    EY_ACTIVATE_HORDE_RESOURCES     = 9809,
+    EY_ALLIANCE_RESOURCES           = 1776,
+    EY_HORDE_RESOURCES              = 1777,
+    EY_MAX_RESOURCES                = 1780,
+    EY_ALLIANCE_BASE                = 1779,
+    EY_HORDE_BASE                   = 1778,
     DRAENEI_RUINS_HORDE_CONTROL     = 2733,
     DRAENEI_RUINS_ALLIANCE_CONTROL  = 2732,
     DRAENEI_RUINS_UNCONTROL         = 2731,
@@ -344,7 +347,14 @@ class BattlegroundEY : public Battleground
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const    { return m_FlagKeeper; }
+        uint64 GetFlagPickerGUID() const  { return m_FlagKeeper; }
+
+        std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
+        {
+            std::set<uint64> l_FlagPickers{ m_FlagKeeper };
+            return l_FlagPickers;
+        }
+
         void SetFlagPicker(uint64 guid)     { m_FlagKeeper = guid; }
         bool IsFlagPickedup() const         { return m_FlagKeeper != 0; }
         uint8 GetFlagState() const          { return m_FlagState; }

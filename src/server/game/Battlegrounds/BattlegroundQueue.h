@@ -42,8 +42,8 @@ struct GroupQueueInfo                                       // stores informatio
     std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
     uint32  Team;                                           // Player team (ALLIANCE/HORDE)
     BattlegroundTypeId BgTypeId;                            // battleground type id
-    bool    IsRated;                                        // rated
     bool    IsRatedBG;                                      // rated battleground
+    bool    IsSkirmish;                                     // skirmish arena
     uint8   ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
     uint32  JoinTime;                                       // time when group was added
     uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
@@ -64,6 +64,18 @@ enum BattlegroundQueueGroupTypes
 };
 #define BG_QUEUE_GROUP_TYPES_COUNT 4
 
+/// - See Script_GetBattlefieldStatus clientside (queueType)
+/// - Last update 6.0.3 19116
+enum class BattlegroundQueueType : uint8
+{
+    Battleground  = 0,
+    Arena         = 1,
+    WorldPvP      = 2,
+    WarGame       = 3,
+    Cheat         = 4,
+    ArenaSkirmish = 5
+};
+
 class Battleground;
 class BattlegroundQueue
 {
@@ -71,14 +83,14 @@ class BattlegroundQueue
         BattlegroundQueue();
         ~BattlegroundQueue();
 
-        void BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
+        void BattlegroundQueueUpdate(BattlegroundTypeId p_BgTypeId, BattlegroundBracketId p_BracketId, uint8 p_ArenaType = 0, uint32 p_MinRating = 0, bool p_IsSkirmish = false);
         void UpdateEvents(uint32 diff);
 
         void FillPlayersToBG(Battleground* bg, BattlegroundBracketId bracket_id);
         bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
         bool CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
-        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating);
+        GroupQueueInfo* AddGroup(Player* p_Leader, Group* p_Group, BattlegroundTypeId p_BgTypeId, PvPDifficultyEntry const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRatedBG, bool p_IsPremade, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish = false);
         void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
         bool IsPlayerInvited(uint64 pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(uint64 guid, GroupQueueInfo* ginfo);

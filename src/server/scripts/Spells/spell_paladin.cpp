@@ -121,7 +121,8 @@ enum PaladinSpells
     PALADIN_ENHANCED_HOLY_SHOCK_PROC            = 160002,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS       = 53600,
     PALADIN_SPELL_LIGHT_OF_DAWN                 = 85222,
-    PALADIN_SPELL_DIVINE_PURPOSE                = 86172
+    PALADIN_SPELL_DIVINE_PURPOSE                = 86172,
+    PALADIN_SPELL_HAMMER_OF_WRATH_POWER         = 141459
 };
 
 // Glyph of devotion aura - 146955
@@ -197,7 +198,7 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
         }
 };
 
-// Hammer of Wrath - 24275 - 158392
+// Hammer of Wrath - 24275 - 158392 - 157496
 class spell_pal_hammer_of_wrath : public SpellScriptLoader
 {
 public:
@@ -212,7 +213,7 @@ public:
             if (Player* l_Player = GetCaster()->ToPlayer())
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
                 {
-                    l_Player->SetPower(POWER_HOLY_POWER, l_Player->GetPower(POWER_HOLY_POWER) + 1);
+                    l_Player->CastSpell(l_Player, PALADIN_SPELL_HAMMER_OF_WRATH_POWER, true);
 
                     uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
                     uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, sSpellMgr->GetSpellInfo(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT)->Effects[EFFECT_0].BasePoints);
@@ -501,17 +502,30 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         // Item - Paladin PvP Set Holy 4P Bonus
-                        if (caster->HasAura(PALADIN_ITEM_PVP_HOLY_4P_BONUS))
-                            caster->CastSpell(caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                        if (l_Caster->HasAura(PALADIN_ITEM_PVP_HOLY_4P_BONUS))
+                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                    }
+                }
+            }
 
-                        if (caster->HasAura(PALADIN_SPELL_TOWER_OF_RADIANCE))
-                            if (target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, caster->GetGUID()))
-                                caster->EnergizeBySpell(caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, 1, POWER_HOLY_POWER);
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetExplTargetUnit())
+                    {
+                        if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
+                        {
+                            if (GetSpellInfo()->Id == 19750)
+                                l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(20), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                            else
+                                l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(10), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                        }
                     }
                 }
             }
@@ -519,6 +533,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_pal_tower_of_radiance_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_pal_tower_of_radiance_SpellScript::HandleAfterCast);
             }
         };
 
@@ -1183,9 +1198,9 @@ class spell_pal_word_of_glory : public SpellScriptLoader
                             l_Power = 2;
 
                         if (l_Target->IsFriendlyTo(l_Player))
-                        l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                            l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
                         else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                        l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
+                            l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
                         if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY))
                         {
@@ -1390,16 +1405,16 @@ class spell_pal_holy_shock_heal : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
-                {
-                    if (Unit* unitTarget = GetHitUnit())
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = -GetHitDamage();
-
-                        if (caster->HasAura(PALADIN_SPELL_DAYBREAK_PROC))
-                            unitTarget->CastCustomSpell(unitTarget, PALADIN_SPELL_DAYBREAK_HEAL, &damage, NULL, NULL, true, NULL, NULLAURA_EFFECT, caster->GetGUID());
+                        if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_PROC))
+                        {
+                            int32 l_Heal = GetHitHeal();
+                            l_Target->CastCustomSpell(l_Target, PALADIN_SPELL_DAYBREAK_HEAL, &l_Heal, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                            l_Caster->RemoveAura(PALADIN_SPELL_DAYBREAK_PROC);
+                        }
                     }
-                }
             }
 
             void Register()
@@ -1739,7 +1754,7 @@ public:
 
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {
-        if (p_Player->getClass() == CLASS_PALADIN && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
+        if (p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
             if (p_Value < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
                 p_Player->CastSpell(p_Player, PALADIN_SPELL_DIVINE_CRUSADER, true);
     }
@@ -1763,14 +1778,20 @@ public:
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
-                    if (GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
+                {
+                    if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                {
                     if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                {
                     if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_LIGHT_OF_DAWN)
                         l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                }
             }
         }
 
