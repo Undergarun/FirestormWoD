@@ -4360,6 +4360,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 100;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
                 break;
+            case 32645:  // Envenom
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[3].BasePoints = 30;
+                break;
             case 109260:// Aspect of the Iron Hawk
                 spellInfo->Effects[0].BasePoints = -10;
                 break;
