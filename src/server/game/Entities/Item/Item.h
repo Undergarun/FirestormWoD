@@ -422,6 +422,7 @@ class Item : public Object
         bool IsLegendaryCloak() const;
 
         bool AddItemBonus(uint32 p_ItemBonusId);
+        void AddItemBonuses(std::vector<uint32> const& p_ItemBonuses);
         bool HasItemBonus(uint32 p_ItemBonusId) const;
         bool RemoveItemBonus(uint32 p_ItemBonusId);
         void RemoveAllItemBonuses();

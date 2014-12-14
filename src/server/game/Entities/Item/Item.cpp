@@ -1982,6 +1982,14 @@ bool Item::AddItemBonus(uint32 p_ItemBonusId)
     return true;
 }
 
+void Item::AddItemBonuses(std::vector<uint32> const& p_ItemBonuses)
+{
+    if (!p_ItemBonuses.size())
+        return;
+
+    for (int i = 0; i < p_ItemBonuses.size(); i++)
+        AddItemBonus(p_ItemBonuses[i]);
+}
 
 bool Item::HasItemBonus(uint32 p_ItemBonusId) const
 {
