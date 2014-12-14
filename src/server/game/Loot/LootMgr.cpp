@@ -104,8 +104,8 @@ uint32 LootStore::LoadLootTable()
     // Clearing store (for reloading case)
     Clear();
 
-    //                                                  0     1            2               3         4         5             6
-    QueryResult result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount FROM %s", GetName());
+    //                                                  0     1            2               3         4         5             6           7
+    QueryResult result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount, itemBonuses FROM %s", GetName());
 
     if (!result)
         return 0;
@@ -124,6 +124,8 @@ uint32 LootStore::LoadLootTable()
         uint8  group               = fields[4].GetUInt8();
         int32  mincountOrRef       = fields[5].GetInt32();
         int32  maxcount            = fields[6].GetUInt8();
+        std::string bonuses        = fields[7].GetString();
+
 
         if (type == LOOT_ITEM_TYPE_ITEM && maxcount > std::numeric_limits<uint8>::max())
         {
@@ -137,7 +139,14 @@ uint32 LootStore::LoadLootTable()
             return false;
         }
 
-        LootStoreItem storeitem = LootStoreItem(item, type, chanceOrQuestChance, lootmode, group, mincountOrRef, maxcount);
+        std::vector<uint32> itemBonuses;
+        Tokenizer tokens(bonuses, ' ');
+        itemBonuses.resize(tokens.size());
+
+        for (uint32 i = 0; i < tokens.size(); ++i)
+            itemBonuses[i] = atoi(tokens[i]);
+
+        LootStoreItem storeitem = LootStoreItem(item, type, chanceOrQuestChance, lootmode, group, mincountOrRef, maxcount, itemBonuses);
 
         if (!storeitem.IsValid(*this, entry))            // Validity checks
             continue;
@@ -312,6 +321,18 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             return false;
         }
 
+        if (int size = itemBonuses.size())
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (!GetItemBonusesByID(itemBonuses[i]))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %d item %d: non existing item bonus %d - skipped", store.GetName(), entry, itemid, itemBonuses[i]);
+                    return false;
+                }
+            }
+        }
+
         if (chance == 0 && group == 0)                      // Zero chance is allowed for grouped entries only
         {
             sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %d item %d: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
@@ -355,6 +376,7 @@ LootItem::LootItem(LootStoreItem const& li)
     type        = li.type;
     conditions  = li.conditions;
     currency    = type == LOOT_ITEM_TYPE_CURRENCY;
+    itemBonuses = li.itemBonuses;
 
     if (currency)
     {
@@ -992,8 +1014,18 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
 
+                    l_ItemsDataBuffer.WriteBit(l_Loot.items[l_I].itemBonuses.size());
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+
+                    if (l_Loot.items[l_I].itemBonuses.size())
+                    {
+                        l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
+                        l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses.size());
+
+                        for (uint32 l_J = 0; l_J < l_Loot.items[l_I].itemBonuses.size(); l_J++)
+                            l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses[l_J]);
+                    }
+
                     l_ItemsDataBuffer.FlushBits();
 
                     ++l_ItemCount;
@@ -1028,8 +1060,18 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
 
+                    l_ItemsDataBuffer.WriteBit(l_Loot.items[l_I].itemBonuses.size());
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+
+                    if (l_Loot.items[l_I].itemBonuses.size())
+                    {
+                        l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
+                        l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses.size());
+
+                        for (uint32 l_J = 0; l_J < l_Loot.items[l_I].itemBonuses.size(); l_J++)
+                            l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses[l_J]);
+                    }
+
                     l_ItemsDataBuffer.FlushBits();
 
                     ++l_ItemCount;
@@ -1062,8 +1104,18 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
                     l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
 
+                    l_ItemsDataBuffer.WriteBit(l_Loot.items[l_I].itemBonuses.size());
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                    l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+
+                    if (l_Loot.items[l_I].itemBonuses.size())
+                    {
+                        l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
+                        l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses.size());
+
+                        for (uint32 l_J = 0; l_J < l_Loot.items[l_I].itemBonuses.size(); l_J++)
+                            l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses[l_J]);
+                    }
+
                     l_ItemsDataBuffer.FlushBits();
 
                     ++l_ItemCount;
@@ -1279,8 +1331,18 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer << uint32(item.randomSuffix);
                 l_ItemsDataBuffer << uint32(item.randomPropertyId);
 
+                l_ItemsDataBuffer.WriteBit(item.itemBonuses.size());
                 l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+
+                if (item.itemBonuses.size())
+                {
+                    l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
+                    l_ItemsDataBuffer << uint32(item.itemBonuses.size());
+
+                    for (uint32 l_J = 0; l_J < item.itemBonuses.size(); l_J++)
+                        l_ItemsDataBuffer << uint32(item.itemBonuses[l_J]);
+                }
+
                 l_ItemsDataBuffer.FlushBits();
 
                 ++l_ItemCount;
@@ -1315,8 +1377,18 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer << uint32(item.randomSuffix);
                 l_ItemsDataBuffer << uint32(item.randomPropertyId);
 
+                l_ItemsDataBuffer.WriteBit(item.itemBonuses.size());
                 l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+
+                if (item.itemBonuses.size())
+                {
+                    l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
+                    l_ItemsDataBuffer << uint32(item.itemBonuses.size());
+
+                    for (uint32 l_J = 0; l_J < item.itemBonuses.size(); l_J++)
+                        l_ItemsDataBuffer << uint32(item.itemBonuses[l_J]);
+                }
+
                 l_ItemsDataBuffer.FlushBits();
 
                 ++l_ItemCount;
@@ -1375,8 +1447,18 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer << uint32(item.randomSuffix);
                 l_ItemsDataBuffer << uint32(item.randomPropertyId);
 
+                l_ItemsDataBuffer.WriteBit(item.itemBonuses.size());
                 l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
+
+                if (item.itemBonuses.size())
+                {
+                    l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
+                    l_ItemsDataBuffer << uint32(item.itemBonuses.size());
+
+                    for (uint32 l_J = 0; l_J < item.itemBonuses.size(); l_J++)
+                        l_ItemsDataBuffer << uint32(item.itemBonuses[l_J]);
+                }
+
                 l_ItemsDataBuffer.FlushBits();
 
                 ++l_ItemCount;
