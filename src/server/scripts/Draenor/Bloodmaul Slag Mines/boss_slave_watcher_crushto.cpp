@@ -168,7 +168,7 @@ namespace MS
                                 Position l_Dir = *l_Plr - *me;
                                 normalizeXY(l_Dir);
 
-                                Position l_SummonPos = *me + (l_Dir * 2.0f);
+                                Position l_SummonPos = *me + (l_Dir * 4.0f);
                                 m_LastEarthCrushStalkerPosition = l_SummonPos;
 
                                 // We summon the rock.

@@ -37,6 +37,9 @@ namespace MS
                     std::list<uint64> m_NearestWarderGuids;
                     uint64 m_slaveWatcherCrushtoGuid;
 
+                    // Slagna.
+                    uint64 m_Slagna;
+
                     instance_BloodmaulInstanceMapScript(Map* p_Map)
                         : InstanceScript(p_Map),
                         m_BeginningTime(0),
@@ -46,7 +49,8 @@ namespace MS
                         m_CapturedMinerGuids(),
                         m_OgreMageDeads(0),
                         m_NearestWarderGuids(),
-                        m_slaveWatcherCrushtoGuid(0)
+                        m_slaveWatcherCrushtoGuid(0),
+                        m_Slagna(0)
                     {
                         SetBossNumber(MaxEncounter::Number);
                         LoadDoorData(k_DoorData);
@@ -79,8 +83,15 @@ namespace MS
                             static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.f };
 
                             if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
-                            m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
+                                m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
                         } break;
+                        case uint32(MobEntries::Slagna):
+                            m_Slagna = p_Creature->GetGUID();
+                            break;
+                        case uint32(MobEntries::MoltenEarthElemental):
+                            if (Unit* l_Unit = ScriptUtils::SelectNearestCreatureWithEntry(p_Creature, uint32(MobEntries::BloodmaulWarder), 50.0f))
+                                p_Creature->Attack(l_Unit, false);
+                            break;
                         default:
                             break;
                         }
@@ -114,17 +125,13 @@ namespace MS
                                     l_Warder->Attack(p_Player, true);
 
                                     if (l_Warder->AI())
-                                    {
-                                        if (urand(0, 1))
-                                            l_Warder->AI()->Talk(uint32(Talks::WarderAttack1));
-                                        else
-                                            l_Warder->AI()->Talk(uint32(Talks::WarderAttack2));
-                                    }
+                                        l_Warder->AI()->Talk(uint32(Talks::WarderAttack));
                                 }
                                 ++m_OgreMageDeads;
 
                                 if (m_OgreMageDeads == 2)
                                 {
+                                    m_OgreMageDeads = 0;
                                     if (Creature* l_Boss = sObjectAccessor->FindCreature(m_slaveWatcherCrushtoGuid))
                                     {
                                         if (l_Boss->AI())
@@ -171,6 +178,19 @@ namespace MS
                                 m_CapturedMinerGuids.clear();
                                 m_OgreMageDeads = 0;
                             }
+                            else if (p_State == EncounterState::DONE)
+                            {
+                                for (auto l_Guid : m_CapturedMinerGuids)
+                                {
+                                    if (Creature* l_CapturedMiner = sObjectAccessor->FindCreature(l_Guid))
+                                    {
+                                        if (l_CapturedMiner->AI())
+                                            l_CapturedMiner->AI()->Talk(uint32(Talks::CapturedMinerReleased));
+                                        l_CapturedMiner->CombatStop();
+                                        l_CapturedMiner->SetReactState(ReactStates::REACT_PASSIVE);
+                                    }
+                                }
+                            }
                             break;
                         }
 
@@ -191,16 +211,19 @@ namespace MS
                                     TempSummon* l_Summon = l_Spawn->SummonCreature(uint32(MobEntries::CapturedMiner1), l_Pos);
                                     l_Summon->SetHealth(l_Summon->GetMaxHealth() / 2.0f);
                                     if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(l_Summon, 80.0f, false))
-                                    {
-                                        Position l_TargetPos;
-                                        l_Plr->GetPosition(&l_TargetPos);
-                                        l_Summon->DisableEvadeMode();
-                                        l_Summon->getThreatManager().addThreat(l_Plr, 5000.0f);
-                                        l_Summon->GetMotionMaster()->MovePoint(0, l_TargetPos);
-                                        l_Summon->Attack(l_Plr, true);
-                                    }
+                                        l_Summon->GetMotionMaster()->MoveChase(l_Plr);
                                     m_CapturedMinerGuids.emplace_back(l_Summon->GetGUID());
                                 }
+                            }
+                            break;
+                        case uint32(Data::SpawnSlagna):
+                            if (Creature* l_Slagna = sObjectAccessor->FindCreature(m_Slagna))
+                            {
+                                static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f };
+                                instance->SummonCreature(uint32(MobEntries::Slagna), k_SpawnSlagna);
+
+                                if (l_Slagna->GetAI())
+                                    l_Slagna->GetAI()->SetData(uint32(Data::SpawnSlagna), 0);
                             }
                             break;
                         }
@@ -213,17 +236,10 @@ namespace MS
                         case uint32(Data::RaiseTheMinersChangeTarget):
                             if (Player* l_Plr = sObjectAccessor->FindPlayer(p_Data))
                             {
-                                Position l_TargetPos;
-                                l_Plr->GetPosition(&l_TargetPos);
                                 for (auto l_Guid : m_CapturedMinerGuids)
                                 {
                                     if (Creature* l_Summon = sObjectAccessor->FindCreature(l_Guid))
-                                    {
-                                        l_Summon->getThreatManager().resetAllAggro();
-                                        l_Summon->getThreatManager().addThreat(l_Plr, 5000.0f);
-                                        l_Summon->GetMotionMaster()->MovePoint(0, l_TargetPos);
-                                        l_Summon->Attack(l_Plr, true);
-                                    }
+                                        l_Summon->GetMotionMaster()->MoveChase(l_Plr);
                                 }
                             }
                             break;
@@ -257,6 +273,27 @@ namespace MS
                     return new instance_BloodmaulInstanceMapScript(p_Map);
                 }
             };
+
+            class AreaTrigger_at_SpawnSlagna : public AreaTriggerScript
+            {
+            public:
+
+                AreaTrigger_at_SpawnSlagna()
+                    : AreaTriggerScript("at_SpawnSlagna")
+                {
+                }
+
+                bool OnTrigger(Player* p_Player, AreaTriggerEntry const* /*trigger*/)
+                {
+                    if (p_Player->GetInstanceScript())
+                    {
+                        p_Player->GetInstanceScript()->SetData(uint32(Data::SpawnSlagna), 0);
+                        return true;
+                    }
+
+                    return false;
+                }
+            };
         }
     }
 }
@@ -264,4 +301,5 @@ namespace MS
 void AddSC_instance_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::instance_Bloodmaul();
+    new MS::Instances::Bloodmaul::AreaTrigger_at_SpawnSlagna();
 }

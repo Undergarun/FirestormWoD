@@ -6,6 +6,86 @@ namespace MS
     {
         namespace Bloodmaul
         {
+            // Lava splash - 152809
+            class spell_LavaSplash : public SpellScriptLoader
+            {
+            public:
+                spell_LavaSplash()
+                    : SpellScriptLoader("spell_LavaSplash")
+                {
+                }
+
+                enum class Spells : uint32
+                {
+                    LavaExplosion = 152832,
+                };
+
+                class spell_SpellScript : public SpellScript
+                {
+                    PrepareSpellScript(spell_SpellScript);
+
+                    void HandleDummy(SpellEffIndex /*effIndex*/)
+                    {
+                        Unit* l_Caster = GetCaster();
+                        Unit* l_Target = GetHitUnit();
+                        if (!l_Caster || !l_Target)
+                            return;
+
+                        l_Target->CastSpell(l_Target, uint32(Spells::LavaExplosion), true);
+                    }
+
+                    void Register()
+                    {
+                        OnEffectHitTarget += SpellEffectFn(spell_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                    }
+                };
+
+                SpellScript* GetSpellScript() const
+                {
+                    return new spell_SpellScript();
+                }
+            };
+
+            // Volcanic Eruption - 151698
+            class spell_VolcanicEruption : public SpellScriptLoader
+            {
+            public:
+                spell_VolcanicEruption()
+                    : SpellScriptLoader("spell_VolcanicEruption")
+                {
+                }
+
+                enum class Spells : uint32
+                {
+                    VolcanicEruption = 152499,
+                };
+
+                class spell_SpellScript : public SpellScript
+                {
+                    PrepareSpellScript(spell_SpellScript);
+
+                    void HandleDummy(SpellEffIndex /*effIndex*/)
+                    {
+                        Unit* l_Caster = GetCaster();
+                        if (!l_Caster)
+                            return;
+
+                        if (Unit* l_Unit = ScriptUtils::SelectRandomEnnemy(l_Caster, 30.0f))
+                            l_Caster->CastSpell(l_Unit, uint32(Spells::VolcanicEruption), true);
+                    }
+
+                    void Register()
+                    {
+                        OnEffectHit += SpellEffectFn(spell_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                    }
+                };
+
+                SpellScript* GetSpellScript() const
+                {
+                    return new spell_SpellScript();
+                }
+            };
+
             // Raise the miners - 150801
             class spell_RaiseTheMiners : public SpellScriptLoader
             {
@@ -170,4 +250,6 @@ void AddSC_spell_Bloodmaul()
     new MS::Instances::Bloodmaul::spell_SuppressionField();
     new MS::Instances::Bloodmaul::spell_FerociousYell();
     new MS::Instances::Bloodmaul::spell_RaiseTheMiners();
+    new MS::Instances::Bloodmaul::spell_VolcanicEruption();
+    new MS::Instances::Bloodmaul::spell_LavaSplash();
 }
