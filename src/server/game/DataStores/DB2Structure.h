@@ -52,6 +52,15 @@ struct ItemEntry
     uint32   unk;                                            // 8
 };
 
+struct ItemBonusEntry
+{
+    // ID;
+    uint32 Entry;
+    uint32 Type;
+    uint32 Value[2];
+    uint32 Index;
+};
+
 struct ItemCurrencyCostEntry
 {
     //uint32  Id;

@@ -26,6 +26,7 @@
 #include <list>
 
 extern DB2Storage <ItemEntry>                       sItemStore;
+extern DB2Storage <ItemBonusEntry>                  sItemStoreEntry;
 extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
@@ -95,7 +96,9 @@ SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
+extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 
+std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
 void LoadDB2Stores(const std::string& dataPath);
 
 struct TaxiPathNodePtr

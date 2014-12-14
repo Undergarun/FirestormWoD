@@ -36,6 +36,22 @@ struct ItemSetEffect
     SpellInfo const* spells[8];
 };
 
+#define MAX_ITEM_BONUS 5
+
+enum ItemBonusType
+{
+    ITEM_BONUS_MODIFY_ITEM_LEVEL    = 1,
+    ITEM_BONUS_ADD_STAT             = 2,
+    ITEM_BONUS_OVERRIDE_QUALITY     = 3,
+    ITEM_BONUS_MODIFY_SELLPRICE     = 4,
+    ITEM_BONUS_ITEM_SUFFIX          = 5,
+    ITEM_BONUS_ADD_SOCKET           = 6,
+    ITEM_BONUS_MODIFY_DIFFICULTY    = 7,
+    ITEM_BONUS_MODIFY_REQ_LEVEL     = 8,
+    ITEM_BONUS_UNK2                 = 9,
+    ITEM_BONUS_UNK3                 = 10
+};
+
 enum InventoryResult
 {
     EQUIP_ERR_OK                                           = 0,
@@ -313,7 +329,7 @@ class Item : public Object
         {
             m_text = text;
 
-            // Fix somes MySQL shits ...
+            // Fixes some MySQL shit ...
             if (m_text.size() < 2)
                 m_text = "";
 
@@ -404,6 +420,13 @@ class Item : public Object
         bool IsStuffItem() const;
         bool CanUpgrade() const;
         bool IsLegendaryCloak() const;
+
+        bool AddItemBonus(uint32 p_ItemBonusId);
+        bool HasItemBonus(uint32 p_ItemBonusId) const;
+        bool RemoveItemBonus(uint32 p_ItemBonusId);
+        void RemoveAllItemBonuses();
+        uint32 GetItemLevelBonusFromItemBonuses() const;
+        std::vector<uint32> const& GetAllItemBonuses() const;
 
     private:
         std::string m_text;

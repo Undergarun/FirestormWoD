@@ -6233,8 +6233,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                uint32 item_guidlow = itemFields[13].GetUInt32();
-                                uint32 item_template = itemFields[14].GetUInt32();
+                                uint32 item_guidlow = itemFields[14].GetUInt32();
+                                uint32 item_template = itemFields[15].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
@@ -9700,18 +9700,22 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     if (attacktype < WeaponAttackType::MaxAttack)
         _ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), apply);
 
-    _ApplyItemBonuses(proto, slot, apply);
+    _ApplyItemBonuses(item, slot, apply);
     ApplyItemEquipSpell(item, apply);
     ApplyEnchantment(item, apply);
 }
 
-void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel)
+void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 rescaleToItemLevel)
 {
-    if (slot >= INVENTORY_SLOT_BAG_END || !proto)
+    if (slot >= INVENTORY_SLOT_BAG_END || !item)
+        return;
+
+    ItemTemplate const* proto = item->GetTemplate();
+    if (!proto)
         return;
 
     if (!m_itemScale[slot] && apply)
-        m_itemScale[slot] = GetEquipItemLevelFor(proto);
+        m_itemScale[slot] = GetEquipItemLevelFor(proto, item);
 
     uint32 ilvl = m_itemScale[slot];
 
@@ -9951,11 +9955,12 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         proto->CalculateMinMaxDamageScaling(rescaleToItemLevel ? rescaleToItemLevel : ilvl, minDamage, maxDamage);
 
     if (CanUseAttackType(attType))
-        _ApplyWeaponDamage(slot, proto, apply, minDamage, maxDamage);
+        _ApplyWeaponDamage(slot, item, apply, minDamage, maxDamage);
 }
 
-void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage, uint32 maxDamage)
+void Player::_ApplyWeaponDamage(uint8 slot, Item const* item, bool apply, uint32 minDamage, uint32 maxDamage)
 {
+    ItemTemplate const* proto = item->GetTemplate();
     WeaponAttackType attType = WeaponAttackType::BaseAttack;
 
     if (slot == EQUIPMENT_SLOT_MAINHAND && (
@@ -9970,7 +9975,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
     }
 
     if (!maxDamage && apply)
-        proto->CalculateMinMaxDamageScaling(GetEquipItemLevelFor(proto), minDamage, maxDamage);
+        proto->CalculateMinMaxDamageScaling(GetEquipItemLevelFor(proto, item), minDamage, maxDamage);
 
     if (!minDamage && maxDamage && apply)
         minDamage = maxDamage;
@@ -10510,6 +10515,7 @@ void Player::_RemoveAllItemMods()
         {
             if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
+
             ItemTemplate const* proto = m_items[i]->GetTemplate();
             if (!proto)
                 continue;
@@ -10518,7 +10524,7 @@ void Player::_RemoveAllItemMods()
             if (attacktype < WeaponAttackType::MaxAttack)
                 _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), false);
 
-            _ApplyItemBonuses(proto, i, false);
+            _ApplyItemBonuses(m_items[i], i, false);
         }
     }
 
@@ -10544,7 +10550,7 @@ void Player::_ApplyAllItemMods()
             if (attacktype < WeaponAttackType::MaxAttack)
                 _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), true);
 
-            _ApplyItemBonuses(proto, i, true);
+            _ApplyItemBonuses(m_items[i], i, true);
         }
     }
 
@@ -20208,8 +20214,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[13].GetUInt32();
-                uint8  slot     = fields[14].GetUInt8();
+                uint32 bagGuid  = fields[14].GetUInt32();
+                uint8  slot     = fields[15].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -20372,8 +20378,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[15].GetUInt32();
-    uint32 itemEntry = fields[16].GetUInt32();
+    uint32 itemGuid  = fields[16].GetUInt32();
+    uint32 itemEntry = fields[17].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -20506,8 +20512,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[13].GetUInt32();
-        uint32 itemTemplate = fields[14].GetUInt32();
+        uint32 itemGuid = fields[14].GetUInt32();
+        uint32 itemTemplate = fields[15].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -29169,7 +29175,7 @@ uint32 Player::GetAverageItemLevelTotal()
             if (l_Item->IsSuitableForItemLevelCalulcation(true))
             {
                 int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
-                int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate()));
+                int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item));
 
                 if (slot != NULL_SLOT)
                 {
@@ -29199,7 +29205,7 @@ uint32 Player::GetAverageItemLevelTotal()
                     if (l_Item->IsSuitableForItemLevelCalulcation(true))
                     {
                         int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
-                        int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate()));
+                        int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item));
 
                         if (slot != NULL_SLOT)
                         {
@@ -30647,9 +30653,12 @@ Stats Player::GetPrimaryStat() const
  *
  */
 
-uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto) const
+uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     float ilvl = itemProto->ItemLevel;
+
+    if (item)
+        ilvl += item->GetItemLevelBonusFromItemBonuses();
 
     if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
         ilvl = itemProto->GetItemLevelForHeirloom(getLevel());
@@ -30674,9 +30683,10 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     ItemTemplate const* proto = item->GetTemplate();
 
     if(!proto)
+        return;
 
-    _ApplyItemBonuses(proto, slot, false, proto->ItemLevel);
-    _ApplyItemBonuses(proto, slot, true, ilvl);
+    _ApplyItemBonuses(item, slot, false, proto->ItemLevel);
+    _ApplyItemBonuses(item, slot, true, ilvl);
     m_itemScale[slot] = ilvl;
 }
 
@@ -30692,7 +30702,7 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
             if (l_Item->IsBroken() || !CanUseAttackType(GetAttackBySlot(l_I)))
                 continue;
 
-            uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate());
+            uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate(), m_items[l_I]);
             if (m_itemScale[l_I] != ilvl)
             {
                 RescaleItemTo(l_I, ilvl);
