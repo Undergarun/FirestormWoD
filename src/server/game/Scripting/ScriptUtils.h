@@ -90,6 +90,28 @@ namespace MS
             return l_Results;
         }
 
+        static Unit* SelectRandomEnnemy(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = p_Range;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_Me, p_Me, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
+            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
+
+            l_TargetList.remove_if([p_Me, p_Range, p_CheckLoS](Unit* p_Unit) {
+                return !(p_Unit && (p_Me->IsWithinLOSInMap(p_Unit) || !p_CheckLoS) &&
+                    p_Me->IsWithinDistInMap(p_Unit, p_Range) && p_Unit->isAlive() && p_Unit->GetGUID() != p_Me->GetGUID());
+            });
+            if (l_TargetList.empty())
+                return nullptr;
+
+            auto l_Itr = std::begin(l_TargetList);
+            std::advance(l_Itr, urand(0, l_TargetList.size() - 1));
+
+            return *l_Itr;
+        }
+
         static Unit* SelectNearestFriendExcluededMe(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
         {
             std::list<Unit*> l_TargetList;
