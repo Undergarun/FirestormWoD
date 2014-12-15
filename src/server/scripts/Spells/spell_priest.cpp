@@ -980,13 +980,12 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                         if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
                             for (std::map<Unit*, uint32>::iterator it = m_DmgByAttackerList.begin(); it != m_DmgByAttackerList.end(); ++it)
                             {
-                                if ((*it).first == l_Target)                                    
+                                if ((*it).first == l_Target)
                                     return;
 
                                 int32 l_Damage = CalculatePct((*it).second, sSpellMgr->GetSpellInfo(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)->Effects[EFFECT_0].BasePoints);
                                 l_Owner->CastCustomSpell((*it).first, PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true);
                             }
-
             }
 
             void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
