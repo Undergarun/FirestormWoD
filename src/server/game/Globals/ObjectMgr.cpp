@@ -531,7 +531,7 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
     uint32 l_OldMSTime = getMSTime();
 
     //                                                  0           1          2
-    QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, difficulty_entry FROM creature_template_difficulty");
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, CONVERT(difficulty, UNSIGNED), difficulty_entry FROM creature_template_difficulty");
 
     if (!l_Result)
     {
