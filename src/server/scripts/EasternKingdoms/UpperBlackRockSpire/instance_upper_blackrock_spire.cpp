@@ -278,30 +278,34 @@ class instance_upper_blackrock_spire : public InstanceMapScript
 
             void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
             {
-                ///< Kill 20 Ragewing Whelps in 10 seconds while fighting Ragewing the Untamed in Upper Blackrock Spire on Heroic difficulty.
-                if (p_Creature->GetEntry() == NPC_RAGEWING_WHELP && instance->IsHeroic() && GetBossState(DATA_RAGEWING_THE_UNTAMED) == IN_PROGRESS)
+                if (instance->IsHeroic())
                 {
-                    if (!m_RagewingTimeAchiev)
+                    ///< Kill 20 Ragewing Whelps in 10 seconds while fighting Ragewing the Untamed in Upper Blackrock Spire on Heroic difficulty.
+                    if (p_Creature->GetEntry() == NPC_RAGEWING_WHELP && GetBossState(DATA_RAGEWING_THE_UNTAMED) == IN_PROGRESS)
                     {
-                        m_RagewingWhelpsKilled = 0;
-                        m_RagewingTimeAchiev = time(NULL);
+                        if (!m_RagewingTimeAchiev)
+                        {
+                            m_RagewingWhelpsKilled = 0;
+                            m_RagewingTimeAchiev = time(NULL);
+                        }
+
+                        ++m_RagewingWhelpsKilled;
+
+                        if (m_RagewingWhelpsKilled >= 20 && m_RagewingTimeAchiev > 0 && (m_RagewingTimeAchiev + 10) <= time(NULL))
+                            DoCompleteAchievement(eAchievements::AchievementBridgeOverFire);
+
+                        return;
                     }
+                    ///< Kill 5 Emberscale Ironflight before defeating Warlord Zaela in Upper Blackrock Spire on Heroic difficulty.
+                    else if (p_Creature->GetEntry() == NPC_EMBERSCALE_IRONFLIGHT_2 && GetBossState(DATA_WARLORD_ZAELA) == IN_PROGRESS)
+                    {
+                        ++m_EmberscaleKilled;
 
-                    ++m_RagewingWhelpsKilled;
+                        if (m_EmberscaleKilled >= 5)
+                            DoCompleteAchievement(eAchievements::AchievementDragonmawDragonfall);
 
-                    if (m_RagewingWhelpsKilled >= 20 && m_RagewingTimeAchiev > 0 && (m_RagewingTimeAchiev + 10) <= time(NULL))
-                        DoCompleteAchievement(eAchievements::AchievementBridgeOverFire);
-
-                    return;
-                }
-                else if (p_Creature->GetEntry() == NPC_EMBERSCALE_IRONFLIGHT && instance->IsHeroic() && GetBossState(DATA_WARLORD_ZAELA) == IN_PROGRESS)
-                {
-                    ++m_EmberscaleKilled;
-
-                    if (m_EmberscaleKilled >= 5)
-                        DoCompleteAchievement(eAchievements::AchievementDragonmawDragonfall);
-
-                    return;
+                        return;
+                    }
                 }
 
                 if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= SCENARIO_UBRS_KILLS)

@@ -24,88 +24,88 @@
 
 enum eSpells
 {
-    // Black Iron Grunt
+    ///< Black Iron Grunt
     SPELL_DEVASTATE                 = 153832,
     SPELL_RALLYING_BANNER           = 153792,
-    // Black Iron Leadbelcher
+    ///< Black Iron Leadbelcher
     SPELL_INCENDIARY_SHELL          = 153981,
     SPELL_RIFLE_SHOT                = 153974,
-    // Sentry Cannon
+    ///< Sentry Cannon
     SPELL_CANNON_SHOT               = 154178,
     SPELL_SAFETY_PROTOCOLS          = 154894,
-    // Ragemaw Worg
+    ///< Ragemaw Worg
     SPELL_BLACKROCK_RABIES          = 154017,
     SPELL_FRANTIC_MAULING           = 154039,
-    // Black Iron Warcaster
+    ///< Black Iron Warcaster
     SPELL_BOLT_OF_STEEL             = 153642,
     SPELL_SHRAPNEL_STORM            = 153942,
     SPELL_SHRAPNEL_STORM_MISSILE    = 153941,
-    // Black Iron Alchemist
+    ///< Black Iron Alchemist
     SPELL_DEBILITATING_RAY          = 155505,
     SPELL_REJUVENATING_SERUM        = 155498,
-    // Drakonid Monstrosity
+    ///< Drakonid Monstrosity
     SPELL_ERUPTION                  = 155037,
-    // Black Iron Veteran
+    ///< Black Iron Veteran
     SPELL_SUNDER_ARMOR              = 155581,
     SPELL_SHIELD_SMASH              = 155575,
-    // Black Iron Dreadweaver
+    ///< Black Iron Dreadweaver
     SPELL_SHADOW_BOLT               = 155587,
     SPELL_SHADOW_BOLT_VOLLEY        = 155588,
     SPELL_VEIL_OF_SHADOW            = 155586,
-    // Black Iron Summoner
+    ///< Black Iron Summoner
     SPELL_FIREBALL                  = 155590,
     SPELL_FROST_NOVA                = 155589,
     SPELL_SUMMON_VETERAN            = 169151,
     SPELL_SUMMON_DREADWEAVER        = 169088,
-    // Black Iron Elite
+    ///< Black Iron Elite
     SPELL_BERSERKER_CHARGE          = 155584,
     SPELL_BESTIAL_ROAR              = 139385,
     SPELL_INTIMIDATING_SHOUT        = 167259,
-    // Black Iron Siegebreaker
+    ///< Black Iron Siegebreaker
     SPELL_SMASH                     = 155572,
     SPELL_FRENZY                    = 81173
 };
 
 enum eEvents
 {
-    // Black Iron Grunt
+    ///< Black Iron Grunt
     EVENT_DEVASTATE = 1,
     EVENT_RALLYING_BANNER,
-    // Black Iron Leadbelcher
+    ///< Black Iron Leadbelcher
     EVENT_INCENDIARY_SHELL,
     EVENT_RIFLE_SHOT,
-    // Sentry Cannon
+    ///< Sentry Cannon
     EVENT_CANNON_SHOT,
     EVENT_SAFETY_PROTOCOLS,
-    // Ragemaw Worg
+    ///< Ragemaw Worg
     EVENT_FRANTIC_MAULING,
-    // Black Iron Warcaster
+    ///< Black Iron Warcaster
     EVENT_BOLT_OF_STEEL,
     EVENT_SHRAPNEL_STORM,
-    // Rune Glow
+    ///< Rune Glow
     EVENT_CHECK_ADDS,
-    // Black Iron Alchemist
+    ///< Black Iron Alchemist
     EVENT_DEBILITATING_RAY,
     EVENT_REJUVENATING_SERUM,
-    // Drakonid Monstrosity
+    ///< Drakonid Monstrosity
     EVENT_ERUPTION,
-    // Black Iron Veteran
+    ///< Black Iron Veteran
     EVENT_SUNDER_ARMOR,
     EVENT_SHIELD_SMASH,
-    // Black Iron Dreadweaver
+    ///< Black Iron Dreadweaver
     EVENT_SHADOW_BOLT,
     EVENT_SHADOW_BOLT_VOLLEY,
     EVENT_VEIL_OF_SHADOW,
-    // Black Iron Summoner
+    ///< Black Iron Summoner
     EVENT_FIREBALL,
     EVENT_FROST_NOVA,
     EVENT_SUMMON_VETERAN,
     EVENT_SUMMON_DREADWEAVER,
-    // Black Iron Elite
+    ///< Black Iron Elite
     EVENT_BERSERKER_CHARGE,
     EVENT_BESTIAL_ROAR,
     EVENT_INTIMIDATING_SHOUT,
-    // Black Iron Siegebreaker
+    ///< Black Iron Siegebreaker
     EVENT_SMASH,
     EVENT_FRENZY
 };
@@ -117,11 +117,11 @@ enum eActions
 
 enum eTalks
 {
-    TALK_IRON_GRUNT_AGGRO,          // Iron Horde, we have unwanted visitors! -- Help! We have intruders!
-    TALK_IRON_GRUNT_NEAR_DEATH      // We need backup!
+    TALK_IRON_GRUNT_AGGRO,      ///< Iron Horde, we have unwanted visitors! -- Help! We have intruders!
+    TALK_IRON_GRUNT_NEAR_DEATH  ///< We need backup!
 };
 
-// Black Iron Grunt - 76179
+///< Black Iron Grunt - 76179
 class mob_black_iron_grunt : public CreatureScript
 {
     public:
@@ -202,7 +202,7 @@ class mob_black_iron_grunt : public CreatureScript
         }
 };
 
-// Black Iron Leadbelcher - 76157
+///< Black Iron Leadbelcher - 76157
 class mob_black_iron_leadbelcher : public CreatureScript
 {
     public:
@@ -263,7 +263,7 @@ class mob_black_iron_leadbelcher : public CreatureScript
         }
 };
 
-// Sentry Cannon - 76314
+///< Sentry Cannon - 76314
 class mob_sentry_cannon : public CreatureScript
 {
     public:
@@ -326,7 +326,7 @@ class mob_sentry_cannon : public CreatureScript
         }
 };
 
-// Ragemaw Worg - 76181
+///< Ragemaw Worg - 76181
 class mob_ragemaw_worg : public CreatureScript
 {
     public:
@@ -386,7 +386,7 @@ class mob_ragemaw_worg : public CreatureScript
         }
 };
 
-// Black Iron Warcaster - 76151
+///< Black Iron Warcaster - 76151
 class mob_black_iron_warcaster : public CreatureScript
 {
     public:
@@ -445,7 +445,7 @@ class mob_black_iron_warcaster : public CreatureScript
         }
 };
 
-// Rune Glow - 76396
+///< Rune Glow - 76396
 class mob_rune_glow : public CreatureScript
 {
     public:
@@ -503,7 +503,7 @@ class mob_rune_glow : public CreatureScript
         }
 };
 
-// Black Iron Alchemist - 76100
+///< Black Iron Alchemist - 76100
 class mob_black_iron_alchemist : public CreatureScript
 {
     public:
@@ -562,7 +562,7 @@ class mob_black_iron_alchemist : public CreatureScript
         }
 };
 
-// Black Iron Engineer - 76101
+///< Black Iron Engineer - 76101
 class mob_black_iron_engineer : public CreatureScript
 {
     public:
@@ -615,8 +615,8 @@ class mob_black_iron_engineer : public CreatureScript
         }
 };
 
-// Drakonid Monstrosity - 76018
-// Drakonid Monstrosity - 82556
+///< Drakonid Monstrosity - 76018
+///< Drakonid Monstrosity - 82556
 class mob_drakonid_monstrosity : public CreatureScript
 {
     public:
@@ -668,8 +668,8 @@ class mob_drakonid_monstrosity : public CreatureScript
         }
 };
 
-// Black Iron Veteran - 77034
-// Black Iron Veteran - 84462
+///< Black Iron Veteran - 77034
+///< Black Iron Veteran - 84462
 class mob_black_iron_veteran : public CreatureScript
 {
     public:
@@ -728,8 +728,8 @@ class mob_black_iron_veteran : public CreatureScript
         }
 };
 
-// Black Iron Dreadweaver - 77035
-// Black Iron Dreadweaver - 84475
+///< Black Iron Dreadweaver - 77035
+///< Black Iron Dreadweaver - 84475
 class mob_black_iron_dreadweaver : public CreatureScript
 {
     public:
@@ -793,7 +793,7 @@ class mob_black_iron_dreadweaver : public CreatureScript
         }
 };
 
-// Black Iron Summoner - 77036
+///< Black Iron Summoner - 77036
 class mob_black_iron_summoner : public CreatureScript
 {
     public:
@@ -863,7 +863,7 @@ class mob_black_iron_summoner : public CreatureScript
         }
 };
 
-// Black Iron Elite - 77037
+///< Black Iron Elite - 77037
 class mob_black_iron_elite : public CreatureScript
 {
     public:
@@ -926,7 +926,7 @@ class mob_black_iron_elite : public CreatureScript
         }
 };
 
-// Black Iron Siegebreaker - 77033
+///< Black Iron Siegebreaker - 77033
 class mob_black_iron_siegebreaker : public CreatureScript
 {
     public:
@@ -984,7 +984,7 @@ class mob_black_iron_siegebreaker : public CreatureScript
         }
 };
 
-// Black Iron Groundshaker - 76599
+///< Black Iron Groundshaker - 76599
 class mob_black_iron_groundshaker : public CreatureScript
 {
     public:
@@ -1053,7 +1053,7 @@ class mob_black_iron_groundshaker : public CreatureScript
         }
 };
 
-// Black Iron Drake-Keeper - 76935
+///< Black Iron Drake-Keeper - 76935
 class mob_black_iron_drakekeeper : public CreatureScript
 {
     public:
@@ -1116,7 +1116,7 @@ class mob_black_iron_drakekeeper : public CreatureScript
         }
 };
 
-// Emberscale Adolescent - 76696
+///< Emberscale Adolescent - 76696
 class mob_emberscale_adolescent : public CreatureScript
 {
     public:
@@ -1147,7 +1147,7 @@ class mob_emberscale_adolescent : public CreatureScript
         }
 };
 
-// Leeroy Jenkins - 77075
+///< Leeroy Jenkins - 77075
 class mob_leeroy_jenkins : public CreatureScript
 {
     public:
@@ -1161,13 +1161,13 @@ class mob_leeroy_jenkins : public CreatureScript
                 m_ChickenTime = 0;
             }
 
-            enum eSpells
+            enum Spells
             {
                 ClassSpecificRes    = 157175,
                 PermanentFeignDeath = 29266
             };
 
-            enum eTalks
+            enum Talks
             {
                 TalkWake1,
                 TalkWake2,
@@ -1176,7 +1176,7 @@ class mob_leeroy_jenkins : public CreatureScript
                 TalkWake5
             };
 
-            enum eEvents
+            enum Events
             {
                 EventTalk1 = 1,
                 EventTalk2,
@@ -1202,7 +1202,7 @@ class mob_leeroy_jenkins : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 ///< TEMP !
-                me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, eSpells::ClassSpecificRes);
+                me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, Spells::ClassSpecificRes);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             }
 
@@ -1211,7 +1211,7 @@ class mob_leeroy_jenkins : public CreatureScript
                 switch (p_Action)
                 {
                     case eActions::ActionActivateLeeroyRes:
-                        me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, eSpells::ClassSpecificRes);
+                        me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, Spells::ClassSpecificRes);
                         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         break;
                     default:
@@ -1221,17 +1221,17 @@ class mob_leeroy_jenkins : public CreatureScript
 
             void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
             {
-                if (!p_SpellInfo->HasEffect(SPELL_EFFECT_RESURRECT) || !me->HasAura(eSpells::PermanentFeignDeath))
+                if (!p_SpellInfo->HasEffect(SpellEffects::SPELL_EFFECT_RESURRECT) || !me->HasAura(Spells::PermanentFeignDeath))
                     return;
 
                 me->SetFullHealth();
-                me->RemoveAura(eSpells::PermanentFeignDeath);
+                me->RemoveAura(Spells::PermanentFeignDeath);
                 me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
                 me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, 0);
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
-                m_TalkEvents.ScheduleEvent(eEvents::EventTalk1, 1000);
+                m_TalkEvents.ScheduleEvent(Events::EventTalk1, 1000);
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -1240,30 +1240,30 @@ class mob_leeroy_jenkins : public CreatureScript
 
                 switch (m_TalkEvents.ExecuteEvent())
                 {
-                    case eEvents::EventTalk1:
-                        Talk(eTalks::TalkWake1);
-                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk2, 8000);
+                    case Events::EventTalk1:
+                        Talk(Talks::TalkWake1);
+                        m_TalkEvents.ScheduleEvent(Events::EventTalk2, 8000);
                         break;
-                    case eEvents::EventTalk2:
-                        Talk(eTalks::TalkWake2);
-                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk3, 13000);
+                    case Events::EventTalk2:
+                        Talk(Talks::TalkWake2);
+                        m_TalkEvents.ScheduleEvent(Events::EventTalk3, 13000);
                         break;
-                    case eEvents::EventTalk3:
-                        Talk(eTalks::TalkWake3);
-                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk4, 9000);
+                    case Events::EventTalk3:
+                        Talk(Talks::TalkWake3);
+                        m_TalkEvents.ScheduleEvent(Events::EventTalk4, 9000);
                         break;
-                    case eEvents::EventTalk4:
-                        Talk(eTalks::TalkWake4);
-                        m_TalkEvents.ScheduleEvent(eEvents::EventTalk5, 10000);
+                    case Events::EventTalk4:
+                        Talk(Talks::TalkWake4);
+                        m_TalkEvents.ScheduleEvent(Events::EventTalk5, 10000);
                         break;
-                    case eEvents::EventTalk5:
+                    case Events::EventTalk5:
                     {
-                        Talk(eTalks::TalkWake5);
+                        Talk(Talks::TalkWake5);
                         break;
                         ///< Launch some moves
                         m_ChickenTime = 900;
-                        m_TalkEvents.ScheduleEvent(eEvents::EventUpdateChicken, 1000);
-                        m_TalkEvents.ScheduleEvent(eEvents::EventChicken, 900000);
+                        m_TalkEvents.ScheduleEvent(Events::EventUpdateChicken, 1000);
+                        m_TalkEvents.ScheduleEvent(Events::EventChicken, 900000);
 
                         if (m_Instance)
                         {
@@ -1273,12 +1273,12 @@ class mob_leeroy_jenkins : public CreatureScript
 
                         break;
                     }
-                    case eEvents::EventUpdateChicken:
+                    case Events::EventUpdateChicken:
                     {
                         if (m_ChickenTime)
                         {
                             --m_ChickenTime;
-                            m_TalkEvents.ScheduleEvent(eEvents::EventUpdateChicken, 1000);
+                            m_TalkEvents.ScheduleEvent(Events::EventUpdateChicken, 1000);
                         }
 
                         if (m_Instance)
@@ -1286,7 +1286,7 @@ class mob_leeroy_jenkins : public CreatureScript
 
                         break;
                     }
-                    case eEvents::EventChicken:
+                    case Events::EventChicken:
                     {
                         if (m_Instance)
                         {
@@ -1323,7 +1323,7 @@ class mob_leeroy_jenkins : public CreatureScript
         }
 };
 
-// Son of the Beast - 77927
+///< Son of the Beast - 77927
 class mob_son_of_the_beast : public CreatureScript
 {
     public:
@@ -1336,7 +1336,7 @@ class mob_son_of_the_beast : public CreatureScript
                 m_Instance = p_Creature->GetInstanceScript();
             }
 
-            enum eEvents
+            enum Events
             {
                 EventFieryCharge = 1,
                 EventStopCharge,
@@ -1344,7 +1344,7 @@ class mob_son_of_the_beast : public CreatureScript
                 EventTerrifyingRoar
             };
 
-            enum eSpells
+            enum Spells
             {
                 FieryCharge     = 157347,
                 FieryTrailAT    = 157364,
@@ -1369,9 +1369,9 @@ class mob_son_of_the_beast : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/)
             {
-                m_Events.ScheduleEvent(eEvents::EventFieryCharge, 8000);
-                m_Events.ScheduleEvent(eEvents::EventFlameEruption, 15000);
-                m_Events.ScheduleEvent(eEvents::EventTerrifyingRoar, 20000);
+                m_Events.ScheduleEvent(Events::EventFieryCharge, 8000);
+                m_Events.ScheduleEvent(Events::EventFlameEruption, 15000);
+                m_Events.ScheduleEvent(Events::EventTerrifyingRoar, 20000);
             }
 
             void JustDied(Unit* /*p_Killer*/)
@@ -1382,7 +1382,7 @@ class mob_son_of_the_beast : public CreatureScript
             void UpdateAI(const uint32 p_Diff)
             {
                 if (m_Charging)
-                    me->CastSpell(me, eSpells::FieryTrailAT, true);
+                    me->CastSpell(me, Spells::FieryTrailAT, true);
 
                 if (!UpdateVictim())
                     return;
@@ -1394,23 +1394,23 @@ class mob_son_of_the_beast : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    case eEvents::EventFieryCharge:
+                    case Events::EventFieryCharge:
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::FieryCharge, true);
-                        m_Events.ScheduleEvent(eEvents::EventFieryCharge, 8000);
-                        m_Events.ScheduleEvent(eEvents::EventStopCharge, 600);
+                            me->CastSpell(l_Target, Spells::FieryCharge, true);
+                        m_Events.ScheduleEvent(Events::EventFieryCharge, 8000);
+                        m_Events.ScheduleEvent(Events::EventStopCharge, 600);
                         m_Charging = true;
                         break;
-                    case eEvents::EventStopCharge:
+                    case Events::EventStopCharge:
                         m_Charging = false;
                         break;
-                    case eEvents::EventFlameEruption:
-                        me->CastSpell(me, eSpells::FlameEruption, true);
-                        m_Events.ScheduleEvent(eEvents::EventFlameEruption, 15000);
+                    case Events::EventFlameEruption:
+                        me->CastSpell(me, Spells::FlameEruption, true);
+                        m_Events.ScheduleEvent(Events::EventFlameEruption, 15000);
                         break;
-                    case eEvents::EventTerrifyingRoar:
-                        me->CastSpell(me, eSpells::TerrifyingRoar, true);
-                        m_Events.ScheduleEvent(eEvents::EventTerrifyingRoar, 20000);
+                    case Events::EventTerrifyingRoar:
+                        me->CastSpell(me, Spells::TerrifyingRoar, true);
+                        m_Events.ScheduleEvent(Events::EventTerrifyingRoar, 20000);
                         break;
                     default:
                         break;
@@ -1426,7 +1426,290 @@ class mob_son_of_the_beast : public CreatureScript
         }
 };
 
-// Fiery Trail - 157364
+///< Black Iron Wyrmcaller - 80649
+class mob_black_iron_wyrmcaller : public CreatureScript
+{
+    public:
+        mob_black_iron_wyrmcaller() : CreatureScript("mob_black_iron_wyrmcaller") { }
+
+        struct mob_black_iron_wyrmcallerAI : public ScriptedAI
+        {
+            mob_black_iron_wyrmcallerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum Events
+            {
+                EventChainPull = 1,
+                EventDragonRoar,
+                EventWindfury
+            };
+
+            enum Spells
+            {
+                ChainPull       = 163007,
+                DragonRoar      = 163011,
+                WindfuryTotem   = 163061,
+                WindfurySpawn   = 163064,
+                Windfury        = 163065
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(Events::EventChainPull, 1000);
+                m_Events.ScheduleEvent(Events::EventDragonRoar, 8000);
+                m_Events.ScheduleEvent(Events::EventWindfury, 6000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case Events::EventChainPull:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, Spells::ChainPull, false);
+                        m_Events.ScheduleEvent(Events::EventChainPull, 10000);
+                        break;
+                    case Events::EventDragonRoar:
+                        me->CastSpell(me, Spells::DragonRoar, true);
+                        m_Events.ScheduleEvent(Events::EventDragonRoar, 15000);
+                        break;
+                    case Events::EventWindfury:
+                    {
+                        me->CastSpell(me, Spells::WindfuryTotem, true);
+                        me->CastSpell(me, Spells::Windfury, true);
+
+                        if (Creature* l_Totem = me->FindNearestCreature(NPC_WINDFURY_TOTEM, 10.0f))
+                            l_Totem->CastSpell(l_Totem, Spells::WindfurySpawn, true);
+
+                        m_Events.ScheduleEvent(Events::EventWindfury, 12000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_wyrmcallerAI(p_Creature);
+        }
+};
+
+///< Emberscale Ironflight - 77180
+class mob_emberscale_ironflight : public CreatureScript
+{
+    public:
+        mob_emberscale_ironflight() : CreatureScript("mob_emberscale_ironflight") { }
+
+        struct mob_emberscale_ironflightAI : public ScriptedAI
+        {
+            mob_emberscale_ironflightAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit()) { }
+
+            enum Events
+            {
+                EventFlameSpit = 1
+            };
+
+            enum Spells
+            {
+                FlameSpit = 162905
+            };
+
+            EventMap m_Events;
+            Vehicle* m_Vehicle;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(Events::EventFlameSpit, 5000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case Events::EventFlameSpit:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, Spells::FlameSpit, false);
+                        m_Events.ScheduleEvent(Events::EventFlameSpit, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_emberscale_ironflightAI(p_Creature);
+        }
+};
+
+///< Black Iron Flame Reaver - 80678
+class mob_black_iron_flame_reaver : public CreatureScript
+{
+    public:
+        mob_black_iron_flame_reaver() : CreatureScript("mob_black_iron_flame_reaver") { }
+
+        struct mob_black_iron_flame_reaverAI : public ScriptedAI
+        {
+            mob_black_iron_flame_reaverAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum Events
+            {
+                EventFlameShock = 1
+            };
+
+            enum Spells
+            {
+                FlameShock = 163057
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(Events::EventFlameShock, 5000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case Events::EventFlameShock:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, Spells::FlameShock, false);
+                        m_Events.ScheduleEvent(Events::EventFlameShock, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_flame_reaverAI(p_Creature);
+        }
+};
+
+///< Black Iron Rageguard - 82418
+class mob_black_iron_rageguard : public CreatureScript
+{
+    public:
+        mob_black_iron_rageguard() : CreatureScript("mob_black_iron_rageguard") { }
+
+        struct mob_black_iron_rageguardAI : public ScriptedAI
+        {
+            mob_black_iron_rageguardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum Events
+            {
+                EventShatteringSmash = 1,
+                EventShockwave
+            };
+
+            enum Spells
+            {
+                ShatteringSmash = 165944,
+                Shockwave       = 165954
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/)
+            {
+                m_Events.ScheduleEvent(Events::EventShatteringSmash, 5000);
+                m_Events.ScheduleEvent(Events::EventShockwave, 9000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case Events::EventShatteringSmash:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, Spells::ShatteringSmash, false);
+                        m_Events.ScheduleEvent(Events::EventShatteringSmash, 15000);
+                        break;
+                    case Events::EventShockwave:
+                        me->CastSpell(me, Spells::Shockwave, false);
+                        m_Events.ScheduleEvent(Events::EventShockwave, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_black_iron_rageguardAI(p_Creature);
+        }
+};
+
+///< Fiery Trail - 157364
 class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
 {
     public:
@@ -1459,7 +1742,7 @@ class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
         }
 };
 
-// Shrapnel Storm - 153942
+///< Shrapnel Storm - 153942
 class spell_shrapnel_storm : public SpellScriptLoader
 {
     public:
@@ -1490,7 +1773,7 @@ class spell_shrapnel_storm : public SpellScriptLoader
         }
 };
 
-// Eruption - 155037
+///< Eruption - 155037
 class spell_eruption : public SpellScriptLoader
 {
     public:
@@ -1535,7 +1818,7 @@ class spell_eruption : public SpellScriptLoader
         }
 };
 
-// Class Specific Res - 157175
+///< Class Specific Res - 157175
 class spell_class_specific_res : public SpellScriptLoader
 {
     public:
@@ -1612,6 +1895,10 @@ void AddSC_upper_blackrock_spire()
     new mob_emberscale_adolescent();
     new mob_leeroy_jenkins();
     new mob_son_of_the_beast();
+    new mob_black_iron_wyrmcaller();
+    new mob_emberscale_ironflight();
+    new mob_black_iron_flame_reaver();
+    new mob_black_iron_rageguard();
     new areatrigger_fiery_trail();
     new spell_shrapnel_storm();
     new spell_eruption();

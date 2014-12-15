@@ -284,6 +284,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                     {
                         if (p_Victim == nullptr)
                             break;
+                        me->MonsterTextEmote(LANG_ENGULFING_FIRE_RAGEWING, 0, true);
                         me->CastSpell(p_Victim, eSpells::SpellEngulfingFire, false);
                         break;
                     }
