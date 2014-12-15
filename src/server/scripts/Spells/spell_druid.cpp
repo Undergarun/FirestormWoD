@@ -2994,6 +2994,37 @@ public:
     }
 };
 
+// Rip - 1079
+class spell_dru_rip : public SpellScriptLoader
+{
+public:
+    spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+
+    class spell_dru_rip_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_rip_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER)
+                p_Amount *= l_Caster->ToPlayer()->GetComboPoints() * 8;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_rip_AuraScript();
+    }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -3049,4 +3080,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_shred();
     new spell_dru_ferocious_bite();
     new spell_dru_frenzied_regeneration();
+    new spell_dru_rip();
 }
