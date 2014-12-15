@@ -531,7 +531,7 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
     uint32 l_OldMSTime = getMSTime();
 
     //                                                  0           1          2
-    QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, difficulty_entry FROM creature_template_difficulty");
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, CONVERT(difficulty, UNSIGNED), difficulty_entry FROM creature_template_difficulty");
 
     if (!l_Result)
     {
@@ -546,10 +546,10 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
         Field * l_Fields = l_Result->Fetch();
 
         uint32 l_Entry = l_Fields[l_Index++].GetUInt32();
-        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32();
-        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32() - 1;
+        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32() - 1;
+        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32();
 
-        if (l_DifficultyIndex > MAX_DIFFICULTY)
+        if (l_DifficultyIndex >= MAX_DIFFICULTY)
             continue;
 
         CreatureTemplate& l_CreatureTemplate = _creatureTemplateStore[l_Entry];

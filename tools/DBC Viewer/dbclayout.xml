@@ -2199,16 +2199,16 @@
   </FriendshipReputation>
   <Item build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
+    <field type="int" name="ID" />
+    <field type="int" name="Class" />
+    <field type="int" name="SubClass" />
+    <field type="int" name="SoundOverrideSubclass" />
+    <field type="int" name="Material" />
+    <field type="int" name="InventoryType" />
+    <field type="int" name="Sheath" />
+    <field type="int" name="DisplayId" />
     <field type="int" name="field8" />
   </Item>
   <SpellCategory build="0">
@@ -3344,13 +3344,13 @@
   </ItemAppearance>
   <ItemBonus build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="ID" />
+    <field type="int" name="entry" />
+    <field type="int" name="type" />
+    <field type="int" name="Value1" />
+    <field type="int" name="Value2" />
     <field type="int" name="field5" />
   </ItemBonus>
   <ItemBonusTreeNode build="0">
@@ -3666,4 +3666,15 @@
     <field type="int" name="field7" />
     <field type="int" name="field8" />
   </WorldStateZoneSounds>
+  <ItemBonus build="19116">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="entry" />
+    <field type="int" name="type" />
+    <field type="int" name="Value1" />
+    <field type="int" name="Value2" />
+    <field type="int" name="index" />
+  </ItemBonus>
 </DBFilesClient>
