@@ -2153,12 +2153,13 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
     GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 42,
-    GAMEOBJECT_TYPE_TROPHY                 = 43,
-    GAMEOBJECT_TYPE_PHASEABLE_MO           = 44,
-    GAMEOBJECT_TYPE_SHIPMENT               = 45,
+    GAMEOBJECT_TYPE_PHASEABLE_MO           = 43,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 44,
+    GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46
 };
 
-#define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags

@@ -2942,17 +2942,17 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
 
         case GAMEOBJECT_TYPE_SPELL_FOCUS:
             // triggering linked GO
-            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrapId)
+            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrap)
                 gameObjTarget->TriggeringLinkedGameObject(trapEntry, m_caster);
             return;
 
         case GAMEOBJECT_TYPE_CHEST:
             // TODO: possible must be moved to loot release (in different from linked triggering)
-            if (gameObjTarget->GetGOInfo()->chest.eventId)
-                player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.eventId, player, gameObjTarget);
+            if (gameObjTarget->GetGOInfo()->chest.triggeredEvent)
+                player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.triggeredEvent, player, gameObjTarget);
 
             // triggering linked GO
-            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrapId)
+            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrap)
                 gameObjTarget->TriggeringLinkedGameObject(trapEntry, m_caster);
 
             // Don't return, let loots been taken
@@ -2988,7 +2988,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
-            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK) ||
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS) ||
             (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
