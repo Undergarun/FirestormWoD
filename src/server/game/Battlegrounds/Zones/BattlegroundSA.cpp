@@ -121,7 +121,7 @@ bool BattlegroundSA::ResetObjs()
     }
 
     /// - Boat related, doesn't work atm, we use TP
-    /*for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
         uint32 boatid = 0;
         switch (i)
@@ -140,7 +140,7 @@ bool BattlegroundSA::ResetObjs()
           BG_SA_ObjSpawnlocs[i][2],
           BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
-    }*/
+    }
 
     for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_LEFT_FLAGPOLE; i++)
     {
@@ -153,20 +153,20 @@ bool BattlegroundSA::ResetObjs()
 
     /// - Boat related, doesn't work atm, we use TP
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-    /*GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
+    GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
     GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
 
-    GetBGObject(BG_SA_BOAT_ONE)->SetGoState(GO_STATE_TRANSPORT_STOPPED);
-    GetBGObject(BG_SA_BOAT_TWO)->SetGoState(GO_STATE_TRANSPORT_STOPPED);
-
+    GetBGObject(BG_SA_BOAT_ONE)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+    GetBGObject(BG_SA_BOAT_TWO)->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+    /*
     GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278192920);
     GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278192920);
 
     GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
-    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
+    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);*/
 
     SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
-    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);*/
+    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
@@ -290,19 +290,13 @@ bool BattlegroundSA::ResetObjs()
 /// - Boat related, doesn't work atm, we use TP
 void BattlegroundSA::StartShips()
 {
-    /*if (ShipsStarted)
+    if (ShipsStarted)
         return;
 
-    if (GetMapId() == 607)
-    {
-        GetBGObject(BG_SA_BOAT_ONE)->m_goValue->Transport.PathProgress = 726084718*10;
-        GetBGObject(BG_SA_BOAT_TWO)->m_goValue->Transport.PathProgress = 726084718*10;
-    }
+    GetBGObject(BG_SA_BOAT_ONE)->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
+    GetBGObject(BG_SA_BOAT_TWO)->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
 
-    GetBGObject(BG_SA_BOAT_ONE)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
-    GetBGObject(BG_SA_BOAT_TWO)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
-
-    ShipsStarted = true;*/
+    ShipsStarted = true;
 }
 
 void BattlegroundSA::PostUpdateImpl(uint32 diff)
@@ -358,8 +352,8 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
         }
 
         /// - Boat related, doesn't work atm, we use TP
-        //if (TotalTime >= BG_SA_BOAT_START)
-        //    StartShips();
+        if (TotalTime >= BG_SA_BOAT_START)
+            StartShips();
         return;
     }
     else if (Status == BG_SA_SECOND_WARMUP)
@@ -408,7 +402,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             }
         }
         /// - Boat related, doesn't work atm, we use TP
-        //StartShips();
+        StartShips();
         return;
     }
     else if (GetStatus() == STATUS_IN_PROGRESS)

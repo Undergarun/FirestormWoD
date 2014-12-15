@@ -416,7 +416,7 @@ void GameObject::Update(uint32 diff)
                     }
                 }*/
 
-                if (!m_goValue->Transport.StopFrames->empty())
+                /*if (!m_goValue->Transport.StopFrames->empty())
                 {
                     uint32 visualStateBefore = (m_goValue->Transport.StateUpdateTimer / 20000) & 1;
                     m_goValue->Transport.StateUpdateTimer += diff;
@@ -428,7 +428,7 @@ void GameObject::Update(uint32 diff)
                         ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
                         ForceValuesUpdateAtIndex(GAMEOBJECT_BYTES_1);
                     }
-                }
+                }*/
             }
         }
     }
