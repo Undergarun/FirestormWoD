@@ -1956,6 +1956,17 @@ struct World_PVP_AreaEntry
 
 struct WorldSafeLocsEntry
 {
+    WorldSafeLocsEntry()
+        : ID(0),
+        map_id(0),
+        x(0),
+        y(0),
+        z(0),
+        o(0)
+    {
+
+    }
+
     uint32    ID;                                           // 0
     uint32    map_id;                                       // 1
     float     x;                                            // 2
