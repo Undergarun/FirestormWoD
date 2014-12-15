@@ -2923,7 +2923,7 @@ public:
             int32 l_Damage = GetHitDamage();
 
             if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                l_Damage += l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Caster->ToPlayer()->GetComboPoints();
+                l_Damage *= l_Caster->ToPlayer()->GetComboPoints() / 5;
 
             // converts each extra point of energy ( up to 25 energy ) into additional damage
             int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);

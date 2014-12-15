@@ -6143,6 +6143,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123011:
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+            // Ferocious Bite
+            case 22568:
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            // Shred
+            case 5221:
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
             default:
                 break;
         }
