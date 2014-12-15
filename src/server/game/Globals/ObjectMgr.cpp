@@ -546,10 +546,10 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
         Field * l_Fields = l_Result->Fetch();
 
         uint32 l_Entry = l_Fields[l_Index++].GetUInt32();
-        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32();
-        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32() - 1;
+        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32() - 1;
+        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32();
 
-        if (l_DifficultyIndex > MAX_DIFFICULTY)
+        if (l_DifficultyIndex >= MAX_DIFFICULTY)
             continue;
 
         CreatureTemplate& l_CreatureTemplate = _creatureTemplateStore[l_Entry];

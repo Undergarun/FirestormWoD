@@ -5,11 +5,13 @@ MySQL - 5.6.19-log
 */
 /*!40101 SET NAMES utf8 */;
 
-create table `creature_template_difficulty` (
-	`entry` mediumint (8),
-	`difficulty` char (90),
-	`difficulty_entry` mediumint (8)
-); 
+CREATE TABLE `creature_template_difficulty` (
+  `entry` mediumint(8) unsigned NOT NULL,
+  `difficulty` enum('NONE_DIFFICULTY','REGULAR_5_DIFFICULTY','HEROIC_5_DIFFICULTY','LEGACY_MAN10_DIFFICULTY','LEGACY_MAN25_DIFFICULTY','LEGACY_MAN10_HEROIC_DIFFICULTY','LEGACY_MAN25_HEROIC_DIFFICULTY','RAID_TOOL_DIFFICULTY','CHALLENGE_MODE_DIFFICULTY','MAN40_DIFFICULTY','DIFFICULTY_ENTRY_10','SCENARIO_HEROIC_DIFFICULTY','SCENARIO_DIFFICULTY','DIFFICULTY_ENTRY_13','NORMAL_DIFFICULTY','HEROIC_DIFFICULTY','MYTHIC_DIFFICULTY','DIFFICULTY_ENTRY_17','EVENT_0_DIFFICULTY','EVENT_1_DIFFICULTY','EVENT_SCENARIO') NOT NULL,
+  `difficulty_entry` mediumint(8) unsigned DEFAULT NULL,
+  PRIMARY KEY (`entry`,`difficulty`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 insert into `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) values('603','REGULAR_5_DIFFICULTY','100603');
 insert into `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) values('603','HEROIC_5_DIFFICULTY','200603');
 insert into `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) values('603','LEGACY_MAN25_DIFFICULTY','400603');
