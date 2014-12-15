@@ -18974,9 +18974,11 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
 
+    uint16 log_slot = FindQuestSlot(p_Quest->GetQuestId());
+
     switch (p_Objective.Type)
     {
-        case QUEST_OBJECTIVE_TYPE_UNK_14:
+        case QUEST_OBJECTIVE_TYPE_CRITERIA:
         {
             WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, (4 * 4 + 8));
             data << uint32(p_Quest->GetQuestId());
@@ -18984,6 +18986,10 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
             data << uint8(p_Objective.Type);
 
             GetSession()->SendPacket(&data);
+
+            if (log_slot < MAX_QUEST_LOG_SIZE)
+                SetQuestSlotState(log_slot, QUEST_STATE_OBJ_0_COMPLETE << p_Objective.Index);
+
             break;
         }
 
@@ -19013,15 +19019,12 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
             data << uint8(p_Objective.Type);
 
             GetSession()->SendPacket(&data);
+
+            if (log_slot < MAX_QUEST_LOG_SIZE)
+                SetQuestSlotCounter(log_slot, p_Objective.Index, GetQuestSlotCounter(log_slot, p_Objective.Index) + p_AddCount);
+
             break;
         }
-    }
-
-    uint16 log_slot = FindQuestSlot(p_Quest->GetQuestId());
-
-    if (log_slot < MAX_QUEST_LOG_SIZE)
-    {
-        SetQuestSlotCounter(log_slot, p_Objective.Index, GetQuestSlotCounter(log_slot, p_Objective.Index) + p_AddCount);
     }
 }
 
@@ -20766,6 +20769,9 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
 
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
+
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && objective->Amount == amount)
+                    SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
             }
