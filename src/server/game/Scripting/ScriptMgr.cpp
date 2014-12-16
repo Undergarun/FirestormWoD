@@ -998,6 +998,14 @@ void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
     tmpscript->OnUpdate(go, diff);
 }
 
+bool ScriptMgr::OnGameObjectElevatorCheck(GameObject const* p_GameObject) const
+{
+    ASSERT(p_GameObject);
+
+    GET_SCRIPT_RET(GameObjectScript, p_GameObject->GetScriptId(), tmpscript, true);
+    return tmpscript->OnGameObjectElevatorCheck(p_GameObject);
+}
+
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
 {
     ASSERT(caster);

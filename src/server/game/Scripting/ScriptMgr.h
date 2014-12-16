@@ -477,7 +477,10 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         virtual void OnLootStateChanged(GameObject* /*go*/, uint32 /*state*/, Unit* /*unit*/) { }
 
         // Called when the game object state is changed.
-        virtual void OnGameObjectStateChanged(GameObject* /*go*/, uint32 /*state*/) { }
+        virtual void OnGameObjectStateChanged(GameObject const* /*go*/, uint32 /*state*/) { }
+
+        // Called when server want to send elevator update, by default all gameobject type transport are elevator
+        virtual bool OnGameObjectElevatorCheck(GameObject const* /*go*/) const { return true; }
 
         // Called when a GameObjectAI object is needed for the gameobject.
         virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return NULL; }
@@ -948,6 +951,10 @@ class ScriptMgr
         void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit);
         void OnGameObjectStateChanged(GameObject* go, uint32 state);
         void OnGameObjectUpdate(GameObject* go, uint32 diff);
+
+        /// - Transport GO
+        bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const;
+
         GameObjectAI* GetGameObjectAI(GameObject* go);
 
     public:
