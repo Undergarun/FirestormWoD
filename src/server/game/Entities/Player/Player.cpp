@@ -24858,15 +24858,6 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             }
         }
     }
-
-    // TODO: is charge regen time affected by any mods?
-    SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
-    if (categories && categories->ChargesCategory != 0)
-    {
-        SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-        if (category && category->ChargeRegenTime != 0)
-            ConsumeCharge(spellInfo->Id, category);
-    }
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
