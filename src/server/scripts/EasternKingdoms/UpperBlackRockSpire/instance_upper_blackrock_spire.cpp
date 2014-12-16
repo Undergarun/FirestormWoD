@@ -68,6 +68,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 m_RightTrackerGuid          = 0;
                 m_WarlordZaelaGuid          = 0;
                 m_LeeroyJenkinsGuid         = 0;
+                m_SonOfBeastGuid            = 0;
                 m_CreatureKilled            = 0;
                 m_EmberscaleKilled          = 0;
                 m_RagewingWhelpsKilled      = 0;
@@ -90,6 +91,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             uint64 m_WarlordZaelaGuid;
 
             uint64 m_LeeroyJenkinsGuid;
+            uint64 m_SonOfBeastGuid;
 
             uint32 m_CreatureKilled;
 
@@ -122,6 +124,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                     case NPC_LEEROY_JENKINS:
                         m_LeeroyJenkinsGuid = p_Creature->GetGUID();
+                        break;
+                    case NPC_SON_OF_THE_BEAST:
+                        m_SonOfBeastGuid = p_Creature->GetGUID();
                         break;
                     default:
                         break;
@@ -271,6 +276,8 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         return m_WarlordZaelaGuid;
                     case GOB_THARBEK_SPAWN_DOOR:
                         return m_SpawnDoorGuid;
+                    case NPC_SON_OF_THE_BEAST:
+                        return m_SonOfBeastGuid;
                     default:
                         return 0;
                 }
