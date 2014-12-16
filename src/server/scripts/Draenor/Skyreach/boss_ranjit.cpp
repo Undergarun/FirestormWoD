@@ -175,7 +175,7 @@ namespace MS
                             events.ScheduleEvent(uint32(Events::LENS_FLARE), 14000);
                         break;
                     case uint32(Events::WINDWALL):
-                        events.ScheduleEvent(uint32(Events::WINDWALL), urand(13000, 14000));
+                        events.ScheduleEvent(uint32(Events::WINDWALL), urand(19000, 26000));
 
                         if (Unit* l_Unit = ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f))
                             me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
@@ -190,7 +190,7 @@ namespace MS
                     case uint32(Events::PIERCING_RUSH):
                         events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(13000, 16000));
                         if (Unit* l_Unit = ScriptUtils::SelectRandomPlayerExcludedTank(me, 40.0f))
-                            me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
+                            me->CastSpell(l_Unit, uint32(Spells::PIERCING_RUSH));
                         break;
                     case uint32(Events::LENS_FLARE):
                         if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 80.0f))

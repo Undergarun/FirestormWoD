@@ -121,6 +121,9 @@ namespace MS
                     case MobEntries::SKYREACH_ARCANALOGIST:
                         m_SkyreachArcanologistGuid = p_Creature->GetGUID();
                         break;
+                    case MobEntries::SkyreachDefenseConstruct:
+                        p_Creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
+                        break;
                     case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                         m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
                         p_Creature->RemoveAura(RandomSpells::SUBMERGED);

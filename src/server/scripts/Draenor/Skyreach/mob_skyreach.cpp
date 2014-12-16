@@ -464,7 +464,10 @@ namespace MS
                         m_events.ScheduleEvent(uint32(Events::Empower), urand(6000, 8000));
 
                         if (Unit* l_Friend = ScriptUtils::SelectNearestFriendExcluededMe(me, 10.0f))
-                            me->CastSpell(l_Friend, uint32(Spells::Empower));
+                        {
+                            if (l_Friend->GetEntry() != me->GetEntry())
+                                me->CastSpell(l_Friend, uint32(Spells::Empower));
+                        }
                         break;
                     case uint32(Events::SolarPulse):
                         m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(2000, 3000));

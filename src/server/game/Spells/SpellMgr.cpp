@@ -4163,6 +4163,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156791:// Call Adds
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);    ///< 100yards
                 break;
+            case 176544:// Fixate (Skyreach)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
             case 152973:// Protective Barrier (Skyreach)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;

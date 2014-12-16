@@ -97,6 +97,7 @@ namespace MS
             AraokkoaMagnifyingConstructA = 76285,
             ArakkoaMagnifyingGlassFocus = 76083,
             ReshadOutro = 84782,
+            SkyreachDefenseConstruct = 76292,
         };
 
         enum Data
