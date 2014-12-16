@@ -488,7 +488,12 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                             m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
                         }
                         if (creatureQGiver)
+                        {
                             creatureQGiver->AI()->sQuestReward(m_Player, quest, reward);
+
+                            sScriptMgr->OnQuestComplete(m_Player, (object->ToCreature()), quest);
+                            (object->ToCreature())->AI()->sQuestComplete(m_Player, quest);
+                        }
                     }
                     break;
                 }
