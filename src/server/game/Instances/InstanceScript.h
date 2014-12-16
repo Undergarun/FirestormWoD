@@ -389,6 +389,7 @@ class InstanceScript : public ZoneScript
         void SendScenarioState(ScenarioData p_Data, Player* p_Player = nullptr);
         void SendScenarioProgressUpdate(CriteriaProgressData p_Data, Player* p_Player = nullptr);
         void BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaProgressData p_CriteriaProgress);
+        void UpdateCriteriasAfterLoading();
 
         //////////////////////////////////////////////////////////////////////////
         /// ChallengesMode

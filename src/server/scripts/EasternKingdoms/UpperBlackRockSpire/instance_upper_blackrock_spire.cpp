@@ -336,6 +336,26 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 p_Buffer << uint32(eWorldStates::WorldStateEnableChicken) << uint32(0);
                 p_Buffer << uint32(eWorldStates::WorldStateChickenTimer) << uint32(0);
             }
+
+            ///< Must be overrided because of optional (runes) step...
+            void OnPlayerEnter(Player* p_Player)
+            {
+                SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
+
+                Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
+                if (m_ScenarioStep == 0 && m_RunesDisabled >= 5 && l_Orebender != nullptr)
+                {
+                    if (GameObject* l_PreDoor = GameObject::GetGameObject(*l_Orebender, m_PreOrebenderDoorGuid))
+                        l_PreDoor->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* l_Entrance = GameObject::GetGameObject(*l_Orebender, m_OrebenderEntranceGuid))
+                        l_Entrance->SetGoState(GO_STATE_ACTIVE);
+
+                    if (!instance->IsChallengeMode())
+                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                }
+
+                UpdateCriteriasAfterLoading();
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* p_Map) const

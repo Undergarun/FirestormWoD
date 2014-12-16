@@ -85,8 +85,11 @@ enum ePositions
     DATA_MOVE_LIGHT = 76464
 };
 
-// DATA_POS_NE
-Position const g_LightningFieldInitPos = { 161.228f, -276.8578f, 95.42406f, M_PI };
+Position const g_LightningFieldInitPos[2] =
+{
+    { 160.4088f, -276.8579f, 91.50262f, M_PI },     ///< DATA_POS_NE
+    { 127.9540f, -240.4484f, 91.45860f, 2 * M_PI }  ///< DATA_POS_SW
+};
 
 Position const g_LightningFieldMovePos[4] =
 {
@@ -280,8 +283,15 @@ class boss_orebender_gorashan : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_SHRAPNEL_NOVA, 15000);
                         break;
                     case EVENT_ELECTRIC_PULSE:
-                        me->SummonCreature(NPC_LIGHTNING_FIELD, g_LightningFieldInitPos);
+                    {
+                        for (uint8 l_I = 0; l_I < (IsHeroic() ? 2 : 1); ++l_I)
+                        {
+                            if (Creature* l_Lightning = me->SummonCreature(NPC_LIGHTNING_FIELD, g_LightningFieldInitPos[l_I]))
+                                l_Lightning->AI()->DoAction(l_I);
+                        }
+
                         break;
+                    }
                     case EVENT_LODESTONE_SPIKE:
                         me->CastSpell(me, SPELL_LODESTONE_SPIKE_DUMMY, false);
                         m_Events.ScheduleEvent(EVENT_LODESTONE_SPIKE, 30000);
@@ -505,6 +515,12 @@ class mob_lightning_field : public CreatureScript
             uint8 m_PositionID;
             EventMap m_Events;
 
+            enum Actions
+            {
+                SetPosToNE,
+                SetPosToSW
+            };
+
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
@@ -518,6 +534,21 @@ class mob_lightning_field : public CreatureScript
 
                 m_PositionID = DATA_POS_NE;
                 m_Events.ScheduleEvent(EVENT_MOVE_LIGHTNING, 1000);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case Actions::SetPosToNE:
+                        m_PositionID = DATA_POS_NE;
+                        break;
+                    case Actions::SetPosToSW:
+                        m_PositionID = DATA_POS_SW;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID)
