@@ -516,13 +516,18 @@ void Garrison::Update()
 
     uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
 
-    if (l_NumRessourceGenerated != m_CacheLastTokenAmount)
+    if (l_NumRessourceGenerated != m_CacheLastTokenAmount || ((l_NumRessourceGenerated == m_CacheLastTokenAmount) && !m_CacheGameObjectGUID))
     {
         m_CacheLastTokenAmount = l_NumRessourceGenerated;
         m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
 
-        if (l_NumRessourceGenerated == (GARRISON_CACHE_MAX_CURRENCY - 1))
+        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
         {
+            /// Get display ID
+            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
+            uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+
+            /// Destroy old cache if exist
             GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
             if (l_Cache)
@@ -532,36 +537,24 @@ void Garrison::Update()
                 delete l_Cache;
             }
 
-            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+            m_CacheGameObjectGUID = 0;
 
-            if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
+            /// Create new one
+            if (m_Owner->IsInGarrison())
             {
+                /// Extract new location
                 GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
-                GameObject * l_Gob = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
+                l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
 
-                if (l_Gob)
-                    m_CacheGameObjectGUID = l_Gob->GetGUID();
+                if (l_Cache)
+                    m_CacheGameObjectGUID = l_Cache->GetGUID();
             }
-        }
 
-        if (!m_CacheGameObjectGUID && l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
-        {
-            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
-
-            if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
-            {
-                GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
-                GameObject * l_Gob = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
-
-                if (l_Gob)
-                    m_CacheGameObjectGUID = l_Gob->GetGUID();
-            }
         }
     }
 
-    if (m_CacheGameObjectGUID && l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY)
+    if (m_CacheGameObjectGUID &&
+        ((l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY) || (l_GarrisonScript && !l_GarrisonScript->CanUseGarrisonCache(m_Owner))))
     {
         GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
