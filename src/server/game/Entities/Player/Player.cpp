@@ -18362,6 +18362,9 @@ void Player::RemoveActiveQuest(uint32 quest_id)
             for (QuestObjective l_Objective : l_Quest->QuestObjectives)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;
+
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+                    DestroyItemCount(l_Objective.ObjectID, GetItemCount(l_Objective.ObjectID), true);
             }
         }
 
