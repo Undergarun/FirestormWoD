@@ -532,11 +532,11 @@ enum AuraType
     SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X SPELL_AURA_MOD_VERSATILITY_PCT
     SPELL_AURA_472                                          = 472,  // 6.0.X
     SPELL_AURA_473                                          = 473,  // 6.0.X
-    SPELL_AURA_474                                          = 474,  // 6.0.X
-    SPELL_AURA_475                                          = 475,  // 6.0.X
+    SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
+    SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X SPELL_AURA_MOD_CURRENCY_GAIN_PCT
-    SPELL_AURA_477                                          = 477,  // 6.0.X
-    SPELL_AURA_478                                          = 478,  // 6.0.X
+    SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling aura (used in beta test)
+    SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
     TOTAL_AURAS                                             = 479   // 6.0.2
 };
 
