@@ -30,6 +30,9 @@
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
 {
+    if (!m_Player)
+        return;
+
     uint64 l_Guid = m_Player->GetGUID();
     uint32 l_Now = time(NULL);
 

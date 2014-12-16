@@ -1615,7 +1615,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_RSVP,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventRsvp           );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_SIGNUP,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventSignup         );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_EVENT_STATUS,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventStatus         );
-    DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_CALENDAR,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetCalendar         );
+    DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_CALENDAR,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,   &WorldSession::HandleCalendarGetCalendar         );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_EVENT,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetEvent            );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GET_NUM_PENDING,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGetNumPending       );
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GUILD_FILTER,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGuildFilter         );
