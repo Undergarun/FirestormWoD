@@ -32,6 +32,20 @@ update creature_template set ScriptName='mob_SkyreachShieldConstruct' where entr
 update creature_template set ScriptName='' where entry=84782;
 update creature_template set ScriptName='' where entry=82376;
 
+DELETE FROM spell_script_names WHERE spell_id IN (154140, 153544,
+                                                          156515,
+                                                          153581,
+                                                          153315,
+                                                          156793,
+                                                          159215,
+                                                          153827,
+                                                          153828,
+                                                          160066,
+                                                          154159,
+                                                          154177,
+                                                          165845,
+                                                          159381);
+														  
 INSERT INTO spell_script_names VALUES ('154140', 'spell_Energize');
 INSERT INTO spell_script_names VALUES ('153544', 'spell_SpinningBlade');
 INSERT INTO spell_script_names VALUES ('156515', 'spell_Storm');

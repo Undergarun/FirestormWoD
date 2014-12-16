@@ -120,9 +120,9 @@ namespace MS
                 mob_SolarZealotAI(Creature* creature) : ScriptedAI(creature),
                 m_Reset(false)
                 {
-                    me->SetSpeed(UnitMoveType::MOVE_WALK, 1.f);
-                    me->SetSpeed(UnitMoveType::MOVE_RUN, 1.f);
-                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.f);
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.5f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.5f);
                 }
 
                 void Reset()
@@ -295,6 +295,19 @@ namespace MS
                 {
                     if (instance)
                         instance->SetBossState(Data::HighSageViryx, TO_BE_DECIDED);
+
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }
 
                 void Reset()
@@ -361,7 +374,7 @@ namespace MS
                     {
                     case uint32(Events::CastDown):
                         events.ScheduleEvent(uint32(Events::CastDown), 35000);
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerExcludedTank(me, 80.0f))
+                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
                         {
                             DoScriptText(int32(Texts::SpellCastDown), me);
                             me->CastSpell(l_Plr, uint32(Spells::CastDown));
@@ -382,7 +395,7 @@ namespace MS
                     case uint32(Events::CallAdds):
                         DoScriptText(int32(Texts::SpellCallAdds), me);
                         me->CastSpell(me, uint32(Spells::CallAdds), false);
-                        events.ScheduleEvent(uint32(Events::CallAdds), 50000);
+                        events.ScheduleEvent(uint32(Events::CallAdds), 60000);
                         break;
                     default:
                         break;

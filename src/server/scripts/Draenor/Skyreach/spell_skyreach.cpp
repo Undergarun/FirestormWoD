@@ -103,15 +103,11 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
-                        l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
+                    l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
             }
         }
 
@@ -187,15 +183,11 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
-                        l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
+                    l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
             }
         }
 
@@ -553,15 +545,11 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
-                        l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                    l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
             }
         }
 
@@ -707,16 +695,12 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_targets)
             {
-                for (auto l_Guid : m_targets)
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::FOUR_WINDS_DMG)))
                 {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::FOUR_WINDS_DMG)))
-                    {
-                        l_Target->RemoveAura(uint32(Spells::FOUR_WINDS_DMG));
-                    }
+                    l_Target->RemoveAura(uint32(Spells::FOUR_WINDS_DMG));
                 }
             }
         }
@@ -734,7 +718,7 @@ namespace MS
                 0.014f,
                 0.014f
             };
-            static const float k_dist = 25.0f;
+            static const float k_dist = 45.0f;
 
             // Update targets.
             std::list<Unit*> l_TargetList;
@@ -916,16 +900,12 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_targets)
             {
-                for (auto l_Guid : m_targets)
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::WINDWALL_DMG)))
                 {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::WINDWALL_DMG)))
-                    {
-                        l_Target->RemoveAura(uint32(Spells::WINDWALL_DMG));
-                    }
+                    l_Target->RemoveAura(uint32(Spells::WINDWALL_DMG));
                 }
             }
         }
@@ -1086,16 +1066,12 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_targets)
             {
-                for (auto l_Guid : m_targets)
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::SPINNING_BLADE_DMG)))
                 {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::SPINNING_BLADE_DMG)))
-                    {
-                        l_Target->RemoveAura(uint32(Spells::SPINNING_BLADE_DMG));
-                    }
+                    l_Target->RemoveAura(uint32(Spells::SPINNING_BLADE_DMG));
                 }
             }
         }
@@ -1173,18 +1149,14 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL)))
-                        l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL));
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL)))
+                    l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL));
 
-                    if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG)))
-                        l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG));
-                }
+                if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG)))
+                    l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG));
             }
         }
 
@@ -1268,15 +1240,11 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::STORM_DMG)))
-                        l_Target->RemoveAura(uint32(Spells::STORM_DMG));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::STORM_DMG)))
+                    l_Target->RemoveAura(uint32(Spells::STORM_DMG));
             }
         }
 
@@ -1349,15 +1317,11 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::DERVISH_DMG)))
-                        l_Target->RemoveAura(uint32(Spells::DERVISH_DMG));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::DERVISH_DMG)))
+                    l_Target->RemoveAura(uint32(Spells::DERVISH_DMG));
             }
         }
 

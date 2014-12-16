@@ -138,8 +138,9 @@ namespace MS
                         p_Creature->SetReactState(REACT_PASSIVE);
                         p_Creature->setFaction(16);
                         p_Creature->DisableEvadeMode();
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
                         break;
+                    case MobEntries::Arakkoa:
                     case MobEntries::Kaliri:
                     case MobEntries::Kaliri2:
                         // Setting fly.
@@ -149,6 +150,7 @@ namespace MS
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::PILE_OF_ASHES:
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         m_PileOfAshesGuid.insert(p_Creature->GetGUID());
                         break;
                     case MobEntries::SOLAR_FLARE:
@@ -375,6 +377,9 @@ namespace MS
                             l_SolarConstructorEnergizer->CastStop();
                         break;
                     case Data::SkyreachArcanologistReset:
+                        if (GetBossState(Data::Araknath) == EncounterState::DONE)
+                            break;
+
                         if (Creature* l_Araknath = sObjectAccessor->FindCreature(m_AraknathGuid))
                         {
                             l_Araknath->getThreatManager().resetAllAggro();
