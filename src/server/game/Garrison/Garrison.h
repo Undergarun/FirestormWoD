@@ -179,6 +179,20 @@ struct GarrisonBuilding
 
 class Player;
 
+class GarrisonInstanceScriptBase
+{
+    public:
+        /// When the garrison owner started a quest
+        virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
+        /// When the garrison owner reward a quest
+        virtual void OnQuestReward(Player * p_Owner, const Quest * p_Quest) = 0;
+        /// Get phase mask
+        virtual uint32 GetPhaseMask(Player * p_Owner) = 0;
+
+        /// Owner can use the garrison cache ?
+        virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
+};
+
 class Garrison
 {
     public:
@@ -202,10 +216,17 @@ class Garrison
         /// Get garrison cache token count
         uint32 GetGarrisonCacheTokenCount();
 
+        /// Get garrison script
+        GarrisonInstanceScriptBase * GetGarrisonScript();
+
         /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
         void OnPlayerEnter();
         /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
         void OnPlayerLeave();
+        /// When the garrison owner started a quest
+        void OnQuestStarted(const Quest * p_Quest);
+        /// When the garrison owner reward a quest
+        void OnQuestReward(const Quest * p_Quest);
 
         /// set last used activation gameobject
         void SetLastUsedActivationGameObject(uint64 p_Guid);
@@ -301,6 +322,13 @@ class Garrison
         /// Get known specializations
         std::vector<int32> GetKnownSpecializations();
 
+    public:
+        /// Replace garrison script
+        void _SetGarrisonScript(GarrisonInstanceScriptBase * p_Script)
+        {
+            m_GarrisonScript = p_Script;
+        }
+
     private:
         /// Init
         void Init();
@@ -345,6 +373,8 @@ class Garrison
         std::map<uint32, std::vector<uint64>>   m_PlotsBuildingCosmeticGobs;
 
         uint32 m_Stat_MaxActiveFollower;
+
+        GarrisonInstanceScriptBase * m_GarrisonScript;
 
 };
 

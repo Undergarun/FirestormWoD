@@ -807,6 +807,7 @@ void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
 void AddSC_Garrison_A1();
 void AddSC_Garrison_H1();
+void AddSC_Garrison();
 
 /* Skyreach Dungeon */
 void AddSC_instance_Skyreach();
@@ -1667,6 +1668,7 @@ void AddDraenorScripts()
     AddSC_Garrison_Quest();
     AddSC_Garrison_A1();
     AddSC_Garrison_H1();
+    AddSC_Garrison();
     /* Instance Skyreach*/
     AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();

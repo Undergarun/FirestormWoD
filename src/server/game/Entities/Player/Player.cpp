@@ -17444,6 +17444,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     UpdateForQuestWorldObjects();
+
+    if (m_Garrison && IsInGarrison())
+        m_Garrison->OnQuestStarted(quest);
 }
 
 void Player::CompleteQuest(uint32 quest_id)

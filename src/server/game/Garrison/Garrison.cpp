@@ -174,6 +174,8 @@ Garrison::Garrison(Player * p_Owner)
 
     m_CacheLastTokenAmount = 0;
 
+    m_GarrisonScript = nullptr;
+
     /// Select Garrison site ID
     switch (GetGarrisonFactionIndex())
     {
@@ -480,6 +482,8 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 /// Update the garrison
 void Garrison::Update()
 {
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
     /// Update building in construction
     for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
     {
@@ -580,6 +584,15 @@ uint32 Garrison::GetGarrisonCacheTokenCount()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Get garrison script
+GarrisonInstanceScriptBase * Garrison::GetGarrisonScript()
+{
+    return m_GarrisonScript;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Reward garrison cache content
 void Garrison::RewardGarrisonCache()
 {
@@ -597,6 +610,11 @@ void Garrison::RewardGarrisonCache()
 void Garrison::OnPlayerEnter()
 {
     InitPlots();    ///< AKA update plots
+
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
 }
 /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
 void Garrison::OnPlayerLeave()
@@ -615,6 +633,34 @@ void Garrison::OnPlayerLeave()
         }
 
         m_CacheGameObjectGUID = 0;
+    }
+
+    m_Owner->SetPhaseMask(1, true);
+}
+/// When the garrison owner started a quest
+void Garrison::OnQuestStarted(const Quest * p_Quest)
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+    {
+        /// Broadcast event
+        l_GarrisonScript->OnQuestStarted(m_Owner, p_Quest);
+        /// Update phasing
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+    }
+}
+/// When the garrison owner reward a quest
+void Garrison::OnQuestReward(const Quest * p_Quest)
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+    {
+        /// Broadcast event
+        l_GarrisonScript->OnQuestReward(m_Owner, p_Quest);
+        /// Update phasing
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
     }
 }
 
