@@ -30204,7 +30204,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data.WriteBits(0, 2);                         ///< Force type, still one yet
         l_Data.FlushBits();
 
-        GetSession()->SendPacket(&l_Data);
+        SendMessageToSet(&l_Data, true);
 
         m_ActiveMovementForces.insert(p_Source);
     }
@@ -30215,7 +30215,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << uint32(0);              ///< Sequence Index
         l_Data.appendPackGUID(p_Source);  ///< Movement ForceID
 
-        GetSession()->SendPacket(&l_Data);
+        SendMessageToSet(&l_Data, true);
 
         m_ActiveMovementForces.erase(p_Source);
     }
