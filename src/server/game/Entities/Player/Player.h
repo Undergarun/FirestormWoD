@@ -1478,6 +1478,7 @@ class Player : public Unit, public GridObject<Player>
 
         Garrison * GetGarrison();
         void CreateGarrison();
+        bool IsInGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 

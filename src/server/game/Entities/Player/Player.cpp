@@ -2314,8 +2314,8 @@ void Player::Update(uint32 p_time)
 
     if (m_GarrisonUpdateTimer.Passed())
     {
-        if (GetGarrison())
-            GetGarrison()->Update();
+        if (m_Garrison)
+            m_Garrison->Update();
 
         m_GarrisonUpdateTimer.Reset();
     }
@@ -30654,6 +30654,16 @@ void Player::CreateGarrison()
 
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
+}
+bool Player::IsInGarrison()
+{
+    if (!m_Garrison)
+        return false;
+
+    if (GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)
+        return true;
+
+    return false;
 }
 
 Stats Player::GetPrimaryStat() const
