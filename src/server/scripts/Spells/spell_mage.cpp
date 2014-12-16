@@ -92,7 +92,9 @@ enum MageSpells
     SPELL_MAGE_OVERPOWERED                       = 155147,
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_THERMAL_VOID                      = 155149,
-    SPELL_MAGE_PYROBLAST_AURA                    = 159517
+    SPELL_MAGE_PYROBLAST_AURA                    = 159517,
+    SPELL_MAGE_KINDKING                          = 155148,
+    SPELL_MAGE_COMBUSTION                        = 11129
 };
 
 
@@ -1472,8 +1474,41 @@ public:
     }
 };
 
+// Call by Fireball 133 - FrostFire Bolt 44614 - Pyroblast 11366 - Inferno Blast 108853
+// Kindling - 5405
+class spell_mage_kindling : public SpellScriptLoader
+{
+public:
+    spell_mage_kindling() : SpellScriptLoader("spell_mage_kindling") { }
+
+    class spell_mage_kindling_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_kindling_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Unit = GetCaster())
+            if (l_Unit->HasAura(SPELL_MAGE_KINDKING))
+                    if (Player *l_Player = l_Unit->ToPlayer())
+                        if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                            l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDKING)->Effects[EFFECT_0].BasePoints);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_kindling_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
     new spell_mage_pyroblast();
     new spell_mage_ice_lance();

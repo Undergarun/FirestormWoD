@@ -2543,18 +2543,8 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-            if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(158624))
-                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 121557, true);
-          //  if (Unit* caster = GetCaster())
-            //    caster->CastSpell(caster, 158624, true);
-          /*  if (DynamicObject* dynObj = caster->GetDynObject(121536))
-            {
-                caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 158624, true);
-               // caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 121557, true);
-            }*/
-            /*if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
-                if (Unit* l_Caster = GetCaster())*/
-                //    l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 158624, true);
+                if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(158624))
+                    l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 121557, true);
         }
 
         void Register()
