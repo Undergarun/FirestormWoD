@@ -1977,7 +1977,7 @@ void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const 
     l_ShiftPacket.appendPackGUID(m_Player->GetGUID());
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     l_ShiftPacket << uint32(0x18);                          ///< flags, 0x18 most of time on retail sniff
-    l_ShiftPacket << uint32(p_PhaseIds.size() * 2);         ///< Phase.dbc ids
+    l_ShiftPacket << uint32(p_PhaseIds.size());             ///< Phase.dbc ids
     l_ShiftPacket.appendPackGUID(0);
     // Active terrain swaps, may switch with inactive terrain
 

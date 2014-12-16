@@ -27,6 +27,11 @@ set(scripts_STAT_SRCS
   Draenor/BloodMaul\ Slag\ Mines/spell_bloodmaul.cpp
   Draenor/BloodMaul\ Slag\ Mines/areatrigger_bloodmaul.cpp
   Draenor/BloodMaul\ Slag\ Mines/boss_slave_watcher_crushto.cpp
+  Draenor/Garrison/GarrisonNPC.cpp
+  Draenor/Garrison/GarrisonQuest.cpp
+  Draenor/Garrison/Garrison_A_1.cpp
+  Draenor/Garrison/Garrison_H_1.cpp
+  Draenor/Garrison/Garrison.cpp
 )
 
 message("  -> Prepared: Draenor")

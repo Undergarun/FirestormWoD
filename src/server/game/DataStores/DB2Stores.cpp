@@ -25,6 +25,7 @@
 #include <map>
 
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
+DB2Storage <ItemBonusEntry>                 sItemBonusStore(ItemBonusfmt);
 DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
@@ -95,6 +96,7 @@ TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 SpellTotemMap sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
+std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 typedef std::list<std::string> StoreProblemList1;
 
 uint32 DB2FilesCount = 0;
@@ -158,6 +160,7 @@ void LoadDB2Stores(const std::string& dataPath)
 
     LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");
     LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");
+    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2");
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");
     LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");
@@ -248,6 +251,22 @@ void LoadDB2Stores(const std::string& dataPath)
     {
         if (ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(l_I))
             sItemEffectsByItemID[l_Entry->ItemID].push_back(l_I);
+    }
+
+    for (uint32 l_I = 0; l_I < sItemBonusStore.GetNumRows(); l_I++)
+    {
+        ItemBonusEntry const* l_Entry = sItemBonusStore.LookupEntry(l_I);
+        if (!l_Entry)
+            continue;
+
+        if (!sItemBonusesByID[l_Entry->Entry].size())
+        {
+            sItemBonusesByID[l_Entry->Entry].resize(MAX_ITEM_BONUS);
+            for (int l_J = 0; l_J < MAX_ITEM_BONUS; l_J++)
+                sItemBonusesByID[l_Entry->Entry][l_J] = nullptr;
+        }
+
+        sItemBonusesByID[l_Entry->Entry][l_Entry->Index] = l_Entry;
     }
 
     // Initialize global taxinodes mask
@@ -362,4 +381,10 @@ void LoadDB2Stores(const std::string& dataPath)
     }
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
+}
+
+std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id)
+{
+    std::map<uint32, std::vector<ItemBonusEntry const*>>::const_iterator iter = sItemBonusesByID.find(Id);
+    return iter != sItemBonusesByID.end() ? &(iter->second) : nullptr;
 }

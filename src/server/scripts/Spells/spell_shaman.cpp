@@ -48,7 +48,6 @@ enum ShamanSpells
     SPELL_SHA_EARTHQUAKE_TICK               = 77478,
     SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN      = 77505,
     SPELL_SHA_ELEMENTAL_BLAST               = 117014,
-    SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS  = 118522,
     SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL = 118517,
     SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL  = 118515,
     SPELL_SHA_LAVA_LASH                     = 60103,
@@ -116,7 +115,13 @@ enum ShamanSpells
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION = 159105,
     SPELL_SHA_LAVA_LASH_SPREAD              = 105792,
     SPELL_SHA_LIQUID_MAGMA_DAMAGE           = 177601,
-    SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED        = 159642
+    SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED        = 159642,
+    SPELL_SHA_ELEMENTAL_BLAST_CRIT_BONUS    = 118522,
+    SPELL_SHA_ELEMENTAL_BLAST_HASTE_BONUS   = 173183,
+    SPELL_SHA_ELEMENTAL_BLAST_MASTERY_BONUS = 173184,
+    SPELL_SHA_ELEMENTAL_BLAST_MULTISTRIKE_BONUS = 173185,
+    SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS = 173186,
+    SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS  = 173187
 };
 
 // Totemic Projection - 108287
@@ -886,6 +891,7 @@ class spell_sha_healing_stream : public SpellScriptLoader
         }
 };
 
+
 // Elemental Blast - 117014
 class spell_sha_elemental_blast : public SpellScriptLoader
 {
@@ -917,6 +923,23 @@ class spell_sha_elemental_blast : public SpellScriptLoader
 
             void HandleOnHit()
             {
+                std::vector<uint32> l_SpellsToCast =
+                {
+                    SPELL_SHA_ELEMENTAL_BLAST_CRIT_BONUS,
+                    SPELL_SHA_ELEMENTAL_BLAST_HASTE_BONUS,
+                    SPELL_SHA_ELEMENTAL_BLAST_MASTERY_BONUS,
+                    SPELL_SHA_ELEMENTAL_BLAST_MULTISTRIKE_BONUS
+                };
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_ENHANCEMENT)
+                        l_SpellsToCast.push_back(SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS);
+                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION)
+                        l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS);
+                }
+
+                GetCaster()->CastSpell(GetCaster(), l_SpellsToCast[urand(0, l_SpellsToCast.size() - 1)], true);
             }
 
             void Register()

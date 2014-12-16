@@ -91,7 +91,8 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POWER                      = 12042,
     SPELL_MAGE_OVERPOWERED                       = 155147,
     SPELL_MAGE_ICY_VEINS                         = 12472,
-    SPELL_MAGE_THERMAL_VOID                      = 155149
+    SPELL_MAGE_THERMAL_VOID                      = 155149,
+    SPELL_MAGE_PYROBLAST_AURA                    = 159517
 };
 
 
@@ -466,42 +467,18 @@ class spell_mage_arcane_barrage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_barrage_SpellScript);
 
-            void HandleAfterHit()
+            void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        uint8 chargeCount = 0;
-                        int32 bp = 0;
-
-                        if (AuraPtr arcaneCharge = _player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
-                        {
-                            chargeCount = arcaneCharge->GetStackAmount();
-                            _player->RemoveAura(SPELL_MAGE_ARCANE_CHARGE);
-                        }
-
-                        if (chargeCount)
-                        {
-                            bp = GetHitDamage() / 2;
-
-                            std::list<Unit*> targetList;
-
-                            target->GetAttackableUnitListInRange(targetList, 10.0f);
-                            targetList.remove_if(CheckArcaneBarrageImpactPredicate(_player, target));
-
-                            JadeCore::Containers::RandomResizeList(targetList, chargeCount);
-
-                            for (auto itr : targetList)
-                                target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                        }
-                    }
-                }
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (Unit* l_Target = GetHitUnit())
+                        if (Unit* l_MainTarget = ObjectAccessor::FindUnit(l_Player->GetSelection()))
+                            if (l_Target != l_MainTarget)
+                                SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_mage_arcane_barrage_SpellScript::HandleAfterHit);
+                OnHit += SpellHitFn(spell_mage_arcane_barrage_SpellScript::HandleOnHit);
             }
         };
 
@@ -1310,54 +1287,6 @@ class spell_mage_living_bomb : public SpellScriptLoader
         }
 };
 
-// Blast Wave - 157981
-class spell_mage_blast_wave : public SpellScriptLoader
-{
-    public:
-        spell_mage_blast_wave() : SpellScriptLoader("spell_mage_blast_wave") { }
-
-        class spell_mage_blast_wave_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_blast_wave_SpellScript);
-
-            uint64 tar;
-
-            void HandleBeforeCast()
-            {
-                Unit* target = GetExplTargetUnit();
-                Unit* caster = GetCaster();
-
-                if (!caster || !target)
-                    return;
-
-                tar = target->GetGUID();
-            }
-
-            void HandleOnHit()
-            {
-                Unit* target = GetHitUnit();
-                Unit* caster = GetCaster();
-
-                if (!caster || !target || !tar)
-                    return;
-
-                if (target->GetGUID() == tar)
-                    SetHitDamage(GetHitDamage() * 2);
-            }
-
-            void Register()
-            {
-                BeforeCast += SpellCastFn(spell_mage_blast_wave_SpellScript::HandleBeforeCast);
-                OnHit += SpellHitFn(spell_mage_blast_wave_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_blast_wave_SpellScript();
-        }
-};
-
 // Mirror Image - 55342
 class spell_mage_mirror_image_summon : public SpellScriptLoader
 {
@@ -1485,8 +1414,68 @@ public:
     }
 };
 
+// Pyroblast - 11366
+class spell_mage_pyroblast : public SpellScriptLoader
+{
+public:
+    spell_mage_pyroblast() : SpellScriptLoader("spell_mage_pyroblast") { }
+
+    class spell_mage_pyroblast_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_pyroblast_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MAGE_PYROBLAST_AURA))
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_pyroblast_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_pyroblast_SpellScript();
+    }
+};
+
+// FrostFire bolt - 44614
+class spell_mage_frostfire_bolt : public SpellScriptLoader
+{
+public:
+    spell_mage_frostfire_bolt() : SpellScriptLoader("spell_mage_frostfire_bolt") { }
+
+    class spell_mage_frostfire_bolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_frostfire_bolt_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_frostfire_bolt_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_frostfire_bolt_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_frostfire_bolt();
+    new spell_mage_pyroblast();
     new spell_mage_ice_lance();
     new spell_mage_unstable_magic();
     new spell_mage_greater_invisibility_removed();
@@ -1515,7 +1504,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_incanters_absorbtion_absorb();
     new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_living_bomb();
-    new spell_mage_blast_wave();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();
 }

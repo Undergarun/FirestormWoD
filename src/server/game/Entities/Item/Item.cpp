@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
+#include "DB2Stores.h"
 
 // @issue : #260
 void AddItemsSetItem(Player* player, Item* item)
@@ -404,6 +405,18 @@ void Item::SaveToDB(SQLTransaction& trans)
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
             stmt->setUInt32(++index, GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
+
+            std::ostringstream ssBonuses;
+            std::vector<uint32> bonuses = GetAllItemBonuses();
+            for (uint8 i = 0; i < bonuses.size(); ++i)
+            {
+                if (!bonuses[i])
+                    continue;
+
+                ssBonuses << bonuses[i] << ' ';
+            }
+
+            stmt->setString(++index, ssBonuses.str());
             stmt->setUInt32(++index, 0/*GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)*/); // itemUpgrade Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
@@ -453,7 +466,7 @@ void Item::SaveToDB(SQLTransaction& trans)
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
     //                                              0                1          2       3        4        5         6               7              8            9            10          11         12
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, upgradeId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -507,14 +520,18 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
     }
 
-    // uint32 upgradeId = fields[9].GetUInt32(); @TODO: Remove this DB field
+    Tokenizer bonusTokens(fields[9].GetString(), ' ');
+        for (uint8 i = 0; i < bonusTokens.size(); ++i)
+            AddItemBonus(atoi(bonusTokens[i]));
+
+    // uint32 upgradeId = fields[10].GetUInt32(); @TODO: Remove this DB field
 
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
         UpdateItemSuffixFactor();
 
-    uint32 durability = fields[10].GetUInt16();
+    uint32 durability = fields[11].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
     // update max durability (and durability) if need
     SetUInt32Value(ITEM_FIELD_MAX_DURABILITY, proto->MaxDurability);
@@ -524,8 +541,8 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         need_save = true;
     }
 
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[11].GetUInt32());
-    SetText(fields[12].GetString());
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[12].GetUInt32());
+    SetText(fields[13].GetString());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -1879,15 +1896,14 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
         return Armor;
 
     uint32 quality = Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality;
-    uint32 inventoryType = InventoryType;
 
     if (Class != ITEM_CLASS_ARMOR || SubClass != ITEM_SUBCLASS_ARMOR_SHIELD)
     {
-        if (inventoryType == 1 || inventoryType == 5 || inventoryType == 3 || inventoryType == 7 || inventoryType == 8 || inventoryType == 9 || inventoryType == 10 || inventoryType == 6 || inventoryType == 16 || inventoryType == 20)
+        if (InventoryType == 1 || InventoryType == 5 || InventoryType == 3 || InventoryType == 7 || InventoryType == 8 || InventoryType == 9 || InventoryType == 10 || InventoryType == 6 || InventoryType == 16 || InventoryType == 20)
         {
             ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(ilvl);
             ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(ilvl);
-            ArmorLocationEntry const* armorLoc = sArmorLocationStore.LookupEntry(inventoryType == 20 ? 5 : inventoryType);
+            ArmorLocationEntry const* armorLoc = sArmorLocationStore.LookupEntry(InventoryType == 20 ? 5 : InventoryType);
 
             if (SubClass == 0 || SubClass > 4)
                 return 0.0f;
@@ -1952,4 +1968,84 @@ uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
 
     uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
     return ilvl ? ilvl : ItemLevel;
+}
+
+bool Item::AddItemBonus(uint32 p_ItemBonusId)
+{
+    if (!GetItemBonusesByID(p_ItemBonusId))
+        return false;
+
+    if (HasItemBonus(p_ItemBonusId))
+        return false;
+
+    SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, GetAllItemBonuses().size(), p_ItemBonusId);
+    return true;
+}
+
+void Item::AddItemBonuses(std::vector<uint32> const& p_ItemBonuses)
+{
+    if (!p_ItemBonuses.size())
+        return;
+
+    for (int i = 0; i < p_ItemBonuses.size(); i++)
+        AddItemBonus(p_ItemBonuses[i]);
+}
+
+bool Item::HasItemBonus(uint32 p_ItemBonusId) const
+{
+    std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+    for (auto& l_Bonus : l_BonusList)
+        if (l_Bonus == p_ItemBonusId)
+            return true;
+    return false;
+}
+
+bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
+{
+    std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+    for (uint32 i = 0; i < l_BonusList.size(); i++)
+    {
+        if (l_BonusList[i] == p_ItemBonusId)
+        {
+            SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Item::RemoveAllItemBonuses()
+{
+    std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+    for (auto& l_Bonus : l_BonusList)
+        RemoveItemBonus(l_Bonus);
+}
+
+std::vector<uint32> const& Item::GetAllItemBonuses() const
+{
+    return GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+}
+
+uint32 Item::GetItemLevelBonusFromItemBonuses() const
+{
+    uint32 itemLevel = 0;
+    for (auto l_Bonus : GetAllItemBonuses())
+    {
+        std::vector<ItemBonusEntry const*> const* l_ItemBonus = GetItemBonusesByID(l_Bonus);
+        if (!l_ItemBonus)
+            continue;
+
+        for (uint32 i = 0; i < l_ItemBonus->size(); i++)
+        {
+            ItemBonusEntry const* l_ItemSubBonus = (*l_ItemBonus)[i];
+            if (!l_ItemSubBonus)
+                break;
+
+            if (l_ItemSubBonus->Type == ITEM_BONUS_MODIFY_ITEM_LEVEL)
+                itemLevel += l_ItemSubBonus->Value[0];
+        }
+    }
+
+    return itemLevel;
 }

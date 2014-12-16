@@ -176,8 +176,8 @@ enum BG_DG_CartState
 
 enum BG_DG_Scores
 {
-    BG_DG_NEAR_VICTORY_POINTS   = 1400,
-    BG_DG_MAX_VICTORY_POINTS    = 1600
+    BG_DG_NEAR_VICTORY_POINTS   = 1200,
+    BG_DG_MAX_VICTORY_POINTS    = 1500
 };
 
 enum BG_DG_Nodes
@@ -304,7 +304,7 @@ class BattlegroundDG : public Battleground
         void EndBattleground(uint32 winner);
         void StartingEventOpenDoors();
         void StartingEventCloseDoors();
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(ByteBuffer& data);
         void PostUpdateImpl(uint32 diff);
         void HandleAreaTrigger(Player* player, uint32 trigger);
         bool CanSeeSpellClick(Player const* player, Unit const* clicked);

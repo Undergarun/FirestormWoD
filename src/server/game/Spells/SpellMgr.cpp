@@ -3660,6 +3660,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134030:// Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 break;
+            case 145645:
+                spellInfo->ProcChance = 100;
+                break;
             case 134476:// Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
@@ -3915,8 +3918,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 161288:// Vileblood Serum (DoT)
             case 161833:// Noxious Spit (DoT)
+            case 157420:// Fiery Trail (DoT)
+            case 155057:// Magma Pool (DoT)
+            case 166730:// Burning Bridge (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 154996:// Engulfing Fire (searcher)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 155721:// Black Iron Cyclone
+                spellInfo->Effects[0].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
                 break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4356,11 +4372,30 @@ void SpellMgr::LoadSpellCustomAttr()
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
                 spellInfo->Effects[2].Effect = 0;
                 break;
-            case 109260:// Aspect of the Iron Hawk - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 35;
+            case 53490:  // Bullheaded 
+                spellInfo->ProcChance = 100;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
+                break;
+            case 32645:  // Envenom
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[3].BasePoints = 30;
+                break;
+            case 109260:// Aspect of the Iron Hawk
+                spellInfo->Effects[0].BasePoints = -10;
                 break;
             case 48181: // Haunt - hotfix 5.4.2
                 spellInfo->Effects[3].BasePoints = 35;
+                break;
+            case 165378: // Lethal Shots
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+                break;
+            case 109306: // Thrill of the Hunt
+                spellInfo->ProcChance = 0;
+                break;
+            case 24529: // Glyph of Animal Bond
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_PET;
                 break;
             case 16246: // Clearcasting - hotfix 5.4.2
                 spellInfo->Effects[1].BasePoints = 20;
@@ -6112,7 +6147,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StackAmount = 2;
                 break;
             case 1543:  // Flare
-                spellInfo->Effects[0].TriggerSpell = 94528;
+                spellInfo->Effects[0].TriggerSpell = 109772;
+                spellInfo->ProcChance = 100;
                 break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             // @TODO: Remove this hack when we out S14
@@ -6122,6 +6158,14 @@ void SpellMgr::LoadSpellCustomAttr()
             // Terrorize Player (tsulong spell)
             case 123011:
                 spellInfo->MaxAffectedTargets = 1;
+                break;
+            // Ferocious Bite
+            case 22568:
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            // Shred
+            case 5221:
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             default:
                 break;
@@ -6194,6 +6238,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 106113:
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
+                    break;
+                default:
                     break;
             }
         }

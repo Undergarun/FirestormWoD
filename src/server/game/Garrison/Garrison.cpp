@@ -134,7 +134,7 @@ GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GA
     /// Horde level 2
     {     445,             0.f,       0.f,       0.f,      0.f        },
     /// Horde level 3
-    {     259,          5592.272,  4589.9390f, 136.66830f, 5.858787f  },
+    {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f },
     /// Alliance Level 1
     {       5,          1893.729f,  208.8733f,  77.06371f, 1.685312f  },
     /// Alliance Level 2
@@ -173,6 +173,8 @@ Garrison::Garrison(Player * p_Owner)
     m_CacheGameObjectGUID = 0;
 
     m_CacheLastTokenAmount = 0;
+
+    m_GarrisonScript = nullptr;
 
     /// Select Garrison site ID
     switch (GetGarrisonFactionIndex())
@@ -480,6 +482,8 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 /// Update the garrison
 void Garrison::Update()
 {
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
     /// Update building in construction
     for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
     {
@@ -512,13 +516,18 @@ void Garrison::Update()
 
     uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
 
-    if (l_NumRessourceGenerated != m_CacheLastTokenAmount)
+    if (l_NumRessourceGenerated != m_CacheLastTokenAmount || ((l_NumRessourceGenerated == m_CacheLastTokenAmount) && !m_CacheGameObjectGUID))
     {
         m_CacheLastTokenAmount = l_NumRessourceGenerated;
         m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
 
-        if (l_NumRessourceGenerated == (GARRISON_CACHE_MAX_CURRENCY - 1))
+        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
         {
+            /// Get display ID
+            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
+            uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+
+            /// Destroy old cache if exist
             GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
             if (l_Cache)
@@ -528,36 +537,24 @@ void Garrison::Update()
                 delete l_Cache;
             }
 
-            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
+            m_CacheGameObjectGUID = 0;
 
-            if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
+            /// Create new one
+            if (m_Owner->IsInGarrison())
             {
+                /// Extract new location
                 GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
-                GameObject * l_Gob = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
+                l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
 
-                if (l_Gob)
-                    m_CacheGameObjectGUID = l_Gob->GetGUID();
+                if (l_Cache)
+                    m_CacheGameObjectGUID = l_Cache->GetGUID();
             }
-        }
 
-        if (!m_CacheGameObjectGUID && l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
-        {
-            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_FACTION_COUNT) + l_DisplayIDOffset];
-
-            if (m_Owner->GetMapId() == GetGarrisonSiteLevelEntry()->MapID)
-            {
-                GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
-                GameObject * l_Gob = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
-
-                if (l_Gob)
-                    m_CacheGameObjectGUID = l_Gob->GetGUID();
-            }
         }
     }
 
-    if (m_CacheGameObjectGUID && l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY)
+    if (m_CacheGameObjectGUID &&
+        ((l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY) || (l_GarrisonScript && !l_GarrisonScript->CanUseGarrisonCache(m_Owner))))
     {
         GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
@@ -570,6 +567,20 @@ void Garrison::Update()
 
         m_CacheGameObjectGUID = 0;
     }
+}
+/// Get garrison cache token count
+uint32 Garrison::GetGarrisonCacheTokenCount()
+{
+    return m_CacheLastTokenAmount;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Get garrison script
+GarrisonInstanceScriptBase * Garrison::GetGarrisonScript()
+{
+    return m_GarrisonScript;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -592,6 +603,11 @@ void Garrison::RewardGarrisonCache()
 void Garrison::OnPlayerEnter()
 {
     InitPlots();    ///< AKA update plots
+
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
 }
 /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
 void Garrison::OnPlayerLeave()
@@ -610,6 +626,34 @@ void Garrison::OnPlayerLeave()
         }
 
         m_CacheGameObjectGUID = 0;
+    }
+
+    m_Owner->SetPhaseMask(1, true);
+}
+/// When the garrison owner started a quest
+void Garrison::OnQuestStarted(const Quest * p_Quest)
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+    {
+        /// Broadcast event
+        l_GarrisonScript->OnQuestStarted(m_Owner, p_Quest);
+        /// Update phasing
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+    }
+}
+/// When the garrison owner reward a quest
+void Garrison::OnQuestReward(const Quest * p_Quest)
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+    {
+        /// Broadcast event
+        l_GarrisonScript->OnQuestReward(m_Owner, p_Quest);
+        /// Update phasing
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
     }
 }
 
@@ -977,10 +1021,10 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
     if ((l_Mission->StartTime + (l_TravelDuration + l_MissionDuration)) > time(0))
         return;
 
-    uint32 l_ChestChance = GetMissionChestChance(p_MissionRecID);
+    uint32 l_ChestChance = GetMissionSuccessChance(p_MissionRecID);
 
     bool l_CanComplete = true;
-    bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance == ChestChance
+    bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
 
     l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 
@@ -1008,6 +1052,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
         std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_XP_GAIN, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
         std::vector<uint32> l_PassiveEffects         = GetBuildingsPassiveAbilityEffects();
 
+        /// Global XP Bonus modifier
         float l_XPModifier = 1.0f;
         for (uint32 l_I = 0; l_I < l_PartyXPModifiersEffect.size(); ++l_I)
         {
@@ -1029,6 +1074,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
             if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && (l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY || l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK))
                 l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
         }
+        /// ------------------------------------------
 
         float l_BonusXP = (l_XPModifier - 1.0f) * l_MissionTemplate->RewardFollowerExperience;
 
@@ -1036,6 +1082,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
         {
             float l_SecondXPModifier = 1.0f;
 
+            /// Personnal XP Bonus
             for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
             {
                 uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
@@ -1052,8 +1099,9 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
                 }
             }
 
-            l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_BonusXP;
+            l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
 
+            /// LevelUP Algo
             if (l_MissionFollowers[l_FollowerIt]->Level < GARRISON_MAX_FOLLOWER_LEVEL)
             {
                 const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
@@ -1201,7 +1249,7 @@ uint32 Garrison::GetMissionDuration(uint32 p_MissionRecID)
     return floorf(l_MissionDuration);
 }
 /// Get mission chest chance
-uint32 Garrison::GetMissionChestChance(uint32 p_MissionRecID)
+uint32 Garrison::GetMissionSuccessChance(uint32 p_MissionRecID)
 {
     const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 

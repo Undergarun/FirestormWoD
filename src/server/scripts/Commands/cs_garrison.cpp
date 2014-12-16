@@ -43,6 +43,7 @@ class garrison_commandscript : public CommandScript
                 { "plot",      SEC_GAMEMASTER,  true,   NULL, "", plotCommandTable      },
                 { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable  },
                 { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable   },
+                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo, "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -51,6 +52,26 @@ class garrison_commandscript : public CommandScript
                 { NULL,         0,              false, NULL, "", NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleGarrisonInfo(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            const GarrSiteLevelEntry * l_Entry = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry();
+
+            p_Handler->PSendSysMessage("Garrison info");
+            p_Handler->PSendSysMessage("Level : %u SiteLevelID : %u MapID : %u FactionID : %u", l_Entry->Level, l_Entry->SiteID, l_Entry->MapID, (uint32)l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex());
+            p_Handler->PSendSysMessage("Cache Resource : %u", l_TargetPlayer->GetGarrison()->GetGarrisonCacheTokenCount());
+
+            return false;
         }
 
         static bool HandleBlueprintLearnCommand(ChatHandler * p_Handler, char const* p_Args)

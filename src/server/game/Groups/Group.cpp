@@ -1802,8 +1802,8 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     uint64 l_LooterGUID = GetLooterGuid();
 
     bool l_HasJamCliPartyLFGInfo            = isLFGGroup();
-    bool l_HasJamCliPartyDifficultySettings = true;
-    bool l_HasJamCliPartyLootSettings       = true;
+    bool l_HasJamCliPartyDifficultySettings = !isBGGroup();
+    bool l_HasJamCliPartyLootSettings       = !isBGGroup();
 
     uint32 l_MemberCount = GetMembersCount();
 

@@ -114,6 +114,7 @@ class debug_commandscript : public CommandScript
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
+                { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -476,7 +477,7 @@ class debug_commandscript : public CommandScript
 
             Position pos;
             pos.m_positionX = float(atoi(param));
-            
+
             param = strtok(NULL, " ");
             if (!param)
                 return false;
@@ -2245,6 +2246,30 @@ class debug_commandscript : public CommandScript
            for (int i = 0; i < 10; i++)
             if (proto->ItemStat[i].ItemStatType != -1)
                 handler->PSendSysMessage("Stat(%i): %i", proto->ItemStat[i].ItemStatType, proto->CalculateStatScaling(i, ilvl));
+            return true;
+        }
+
+        static bool HandleDebugModItem(ChatHandler* handler, char const* args)
+        {
+            Player* player = handler->GetSession()->GetPlayer();
+            char* arg1 = strtok((char*)args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1)
+                return false;
+
+            if (!arg2)
+                return false;
+
+            int8 slot = atoi(arg1);
+            uint32 mod = atoi(arg2);
+            Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
+            if (!item)
+                return false;
+
+            item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
+            handler->SendSysMessage("Item sucesfully modified");
             return true;
         }
 

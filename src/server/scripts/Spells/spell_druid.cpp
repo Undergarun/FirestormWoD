@@ -2923,7 +2923,7 @@ public:
             int32 l_Damage = GetHitDamage();
 
             if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Caster->ToPlayer()->GetComboPoints();
+                l_Damage *= l_Caster->ToPlayer()->GetComboPoints() / 5;
 
             // converts each extra point of energy ( up to 25 energy ) into additional damage
             int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
@@ -2956,6 +2956,74 @@ public:
         return new spell_dru_ferocious_bite_SpellScript();
     }
 };
+
+// Frenzied Regeneration - 22842
+class spell_dru_frenzied_regeneration : public SpellScriptLoader
+{
+public:
+    spell_dru_frenzied_regeneration() : SpellScriptLoader("spell_dru_frenzied_regeneration") { }
+
+    class spell_dru_frenzied_regeneration_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_frenzied_regeneration_SpellScript)
+
+        SpellCastResult CheckCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster->GetPower(POWER_RAGE) < GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE))
+                return SPELL_FAILED_NO_POWER;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->ModifyPower(POWER_RAGE, -GetEffectValue() * GetCaster()->GetPowerCoeff(POWER_RAGE));
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_frenzied_regeneration_SpellScript();
+    }
+};
+
+// Rip - 1079
+class spell_dru_rip : public SpellScriptLoader
+{
+public:
+    spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+
+    class spell_dru_rip_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_rip_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER)
+                p_Amount *= l_Caster->ToPlayer()->GetComboPoints() * 8;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_rip_AuraScript();
+    }
+};
+
 
 void AddSC_druid_spell_scripts()
 {
@@ -3011,4 +3079,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_rake();
     new spell_dru_shred();
     new spell_dru_ferocious_bite();
+    new spell_dru_frenzied_regeneration();
+    new spell_dru_rip();
 }

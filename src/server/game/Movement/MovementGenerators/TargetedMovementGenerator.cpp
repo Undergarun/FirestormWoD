@@ -25,6 +25,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Player.h"
+#include "Spell.h"
 
 #include <cmath>
 
@@ -140,8 +141,25 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
     // prevent movement while casting spells with cast time or channel time
     if (owner.HasUnitState(UNIT_STATE_CASTING))
     {
-        if (!owner.IsStopped())
-            owner.StopMoving();
+        bool l_MustInterruptMove = false;
+        if (Spell* l_Spell = owner.GetCurrentSpell(CURRENT_GENERIC_SPELL))
+        {
+            if (l_Spell->m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
+                l_MustInterruptMove = true;
+        }
+
+        if (Spell* l_Spell = owner.GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+        {
+            if (l_Spell->m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
+                l_MustInterruptMove = true;
+        }
+
+        if (l_MustInterruptMove)
+        {
+            if (!owner.IsStopped())
+                owner.StopMoving();
+        }
+
         return true;
     }
 

@@ -916,6 +916,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     if (m_spellInfo->Id == 131474)
         m_caster->CastSpell(m_caster, 131476, true);
 
+    // Capture point
+    if ((m_spellInfo->Id == 97388 || m_spellInfo->Id == 97372) && m_caster->ToPlayer() && m_caster->ToPlayer()->GetBattleground())
+        m_caster->ToPlayer()->GetBattleground()->EventPlayerClickedOnFlag(m_caster->ToPlayer(), unitTarget);
+
     // selection by spell family
     switch (m_spellInfo->SpellFamilyName)
     {
@@ -3544,28 +3548,6 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     /// Create dispel mask by dispel type
     uint32 l_DispelType = m_spellInfo->Effects[p_EffectIndex].MiscValue;
     uint32 l_DispelMask = SpellInfo::GetDispelMask(DispelType(l_DispelType));
-
-    /// Before dispel
-    switch (m_spellInfo->Id)
-    {
-        /// Detox
-    case 115450:
-    {
-        if (p_EffectIndex > 1)
-        {
-            if (Player* l_Player = m_caster->ToPlayer())
-            {
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
-                    return;
-            }
-        }
-
-        break;
-    }
-
-    default:
-        break;
-    }
 
     /// Mass Dispel invisibility removal
     if (m_spellInfo->Id == 32592)

@@ -619,9 +619,20 @@ enum QuestSlotOffsets
 
 enum QuestSlotStateMask
 {
-    QUEST_STATE_NONE     = 0x0000,
-    QUEST_STATE_COMPLETE = 0x0001,
-    QUEST_STATE_FAIL     = 0x0002
+    QUEST_STATE_NONE            = 0x00000,
+    QUEST_STATE_COMPLETE        = 0x00001,
+    QUEST_STATE_FAIL            = 0x00002,
+    QUEST_STATE_OBJ_0_COMPLETE  = 0x00100,
+    QUEST_STATE_OBJ_1_COMPLETE  = 0x00200,
+    QUEST_STATE_OBJ_2_COMPLETE  = 0x00400,
+    QUEST_STATE_OBJ_3_COMPLETE  = 0x00800,
+    QUEST_STATE_OBJ_4_COMPLETE  = 0x01000,
+    QUEST_STATE_OBJ_5_COMPLETE  = 0x02000,
+    QUEST_STATE_OBJ_6_COMPLETE  = 0x04000,
+    QUEST_STATE_OBJ_7_COMPLETE  = 0x08000,
+    QUEST_STATE_OBJ_8_COMPLETE  = 0x10000,
+    QUEST_STATE_OBJ_9_COMPLETE  = 0x20000,
+    QUEST_STATE_OBJ_10_COMPLETE = 0x40000,
 };
 
 enum SkillUpdateState
@@ -1467,6 +1478,7 @@ class Player : public Unit, public GridObject<Player>
 
         Garrison * GetGarrison();
         void CreateGarrison();
+        bool IsInGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 
@@ -1880,6 +1892,7 @@ class Player : public Unit, public GridObject<Player>
         void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
         bool HasQuestForItem(uint32 itemid) const;
         bool HasQuestForGO(uint32 GOId) const;
+        bool hasQuest(uint32 p_QuestID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
         void QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type = 0u, uint64 guid = 0u);
@@ -2643,8 +2656,8 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
-        void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
-        void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
+        void _ApplyItemBonuses(Item const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
+        void _ApplyWeaponDamage(uint8 slot, Item const* item, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
@@ -3266,7 +3279,7 @@ class Player : public Unit, public GridObject<Player>
         }
         //////////////////////////////////////////////////////////////////////////
 
-        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto) const;
+        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
 

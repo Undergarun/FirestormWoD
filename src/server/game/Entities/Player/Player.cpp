@@ -2314,8 +2314,8 @@ void Player::Update(uint32 p_time)
 
     if (m_GarrisonUpdateTimer.Passed())
     {
-        if (GetGarrison())
-            GetGarrison()->Update();
+        if (m_Garrison)
+            m_Garrison->Update();
 
         m_GarrisonUpdateTimer.Reset();
     }
@@ -6233,8 +6233,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                uint32 item_guidlow = itemFields[13].GetUInt32();
-                                uint32 item_template = itemFields[14].GetUInt32();
+                                uint32 item_guidlow = itemFields[14].GetUInt32();
+                                uint32 item_template = itemFields[15].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
@@ -6992,9 +6992,13 @@ void Player::RepopAtGraveyard()
 
     WorldSafeLocsEntry ClosestGrave;
 
+    bool l_ClosestGraveFound = false;
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
+    {
+        l_ClosestGraveFound = true;
         ClosestGrave = *bg->GetClosestGraveYard(this);
+    }
     // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
     else if (GetMap()->IsDungeon())
     {
@@ -7007,14 +7011,16 @@ void Player::RepopAtGraveyard()
             ClosestGrave.z = l_AreaTrigger->target_Z;
             ClosestGrave.o = GetOrientation();
             ClosestGrave.map_id = l_AreaTrigger->target_mapId;
+
+            // Since Wod, you are resurected in Dungeon with 100% life.
+            ResurrectPlayer(100.0f);
+            l_ClosestGraveFound = true;
         }
         else
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "MapEntranceTrigger not found for map %u.", GetMapId());
-            assert(false);
-        }
+            sLog->outAshran("MapEntranceTrigger not found for map %u.", GetMapId());
     }
-    else
+    
+    if (!l_ClosestGraveFound)
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = *bf->GetClosestGraveYard(this);
@@ -7027,7 +7033,7 @@ void Player::RepopAtGraveyard()
 
     // if no grave found, stay at the current location
     // and don't show spirit healer location
-    if (ClosestGrave.ID)
+    if (ClosestGrave.ID != 0)
     {
         TeleportTo(ClosestGrave.map_id, ClosestGrave.x, ClosestGrave.y, ClosestGrave.z, ClosestGrave.o);
         UpdateObjectVisibility();
@@ -7042,10 +7048,6 @@ void Player::RepopAtGraveyard()
             l_Data << ClosestGrave.z;
             GetSession()->SendPacket(&l_Data);
         }
-
-        // Since Wod, you are resurected in Dungeon with 100% life.
-        if (GetMap()->IsDungeon())
-            ResurrectPlayer(100.0f);
     }
     else if (GetPositionZ() < -500.0f)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
@@ -9722,18 +9724,22 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     if (attacktype < WeaponAttackType::MaxAttack)
         _ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), apply);
 
-    _ApplyItemBonuses(proto, slot, apply);
+    _ApplyItemBonuses(item, slot, apply);
     ApplyItemEquipSpell(item, apply);
     ApplyEnchantment(item, apply);
 }
 
-void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel)
+void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 rescaleToItemLevel)
 {
-    if (slot >= INVENTORY_SLOT_BAG_END || !proto)
+    if (slot >= INVENTORY_SLOT_BAG_END || !item)
+        return;
+
+    ItemTemplate const* proto = item->GetTemplate();
+    if (!proto)
         return;
 
     if (!m_itemScale[slot] && apply)
-        m_itemScale[slot] = GetEquipItemLevelFor(proto);
+        m_itemScale[slot] = GetEquipItemLevelFor(proto, item);
 
     uint32 ilvl = m_itemScale[slot];
 
@@ -9973,11 +9979,12 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         proto->CalculateMinMaxDamageScaling(rescaleToItemLevel ? rescaleToItemLevel : ilvl, minDamage, maxDamage);
 
     if (CanUseAttackType(attType))
-        _ApplyWeaponDamage(slot, proto, apply, minDamage, maxDamage);
+        _ApplyWeaponDamage(slot, item, apply, minDamage, maxDamage);
 }
 
-void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool apply, uint32 minDamage, uint32 maxDamage)
+void Player::_ApplyWeaponDamage(uint8 slot, Item const* item, bool apply, uint32 minDamage, uint32 maxDamage)
 {
+    ItemTemplate const* proto = item->GetTemplate();
     WeaponAttackType attType = WeaponAttackType::BaseAttack;
 
     if (slot == EQUIPMENT_SLOT_MAINHAND && (
@@ -9992,7 +9999,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
     }
 
     if (!maxDamage && apply)
-        proto->CalculateMinMaxDamageScaling(GetEquipItemLevelFor(proto), minDamage, maxDamage);
+        proto->CalculateMinMaxDamageScaling(GetEquipItemLevelFor(proto, item), minDamage, maxDamage);
 
     if (!minDamage && maxDamage && apply)
         minDamage = maxDamage;
@@ -10532,6 +10539,7 @@ void Player::_RemoveAllItemMods()
         {
             if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
+
             ItemTemplate const* proto = m_items[i]->GetTemplate();
             if (!proto)
                 continue;
@@ -10540,7 +10548,7 @@ void Player::_RemoveAllItemMods()
             if (attacktype < WeaponAttackType::MaxAttack)
                 _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), false);
 
-            _ApplyItemBonuses(proto, i, false);
+            _ApplyItemBonuses(m_items[i], i, false);
         }
     }
 
@@ -10566,7 +10574,7 @@ void Player::_ApplyAllItemMods()
             if (attacktype < WeaponAttackType::MaxAttack)
                 _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), true);
 
-            _ApplyItemBonuses(proto, i, true);
+            _ApplyItemBonuses(m_items[i], i, true);
         }
     }
 
@@ -11791,6 +11799,17 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_KT)
                 bg->FillInitialWorldStates(l_Buffer);
             break;
+        }
+        ///< Upper Blackrock Spire
+        case 7307:
+        {
+            if (instance && mapid == 1358)
+                instance->FillInitialWorldStates(l_Buffer);
+            else
+            {
+                l_Buffer << uint32(9524) << uint32(0);              // WorldStateChickenTimer
+                l_Buffer << uint32(9523) << uint32(0);              // WorldStateEnableChicken
+            }
         }
         default:
             l_Buffer << uint32(0x914) << uint32(0x0);           // 7
@@ -17436,6 +17455,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     UpdateForQuestWorldObjects();
+
+    if (m_Garrison && IsInGarrison())
+        m_Garrison->OnQuestStarted(quest);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -18336,6 +18358,16 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         m_QuestStatus.erase(itr);
         m_QuestStatusSave[quest_id] = false;
 
+        const Quest * l_Quest = sObjectMgr->GetQuestTemplate(quest_id);
+
+        if (l_Quest)
+        {
+            for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+            {
+                m_questObjectiveStatus[l_Objective.ID] = 0;
+            }
+        }
+
         CheckSpellAreaOnQuestStatusChange(quest_id);
 
         PhaseUpdateData phaseUdateData;
@@ -18745,7 +18777,7 @@ void Player::QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type, u
             {
                 uint32 currentCounter   = GetQuestObjectiveCounter(l_Objective.ID);
                 uint32 requiredCounter  = uint32(l_Objective.Amount);
-                uint32 addCounter       = currentCounter + amount > requiredCounter ? requiredCounter - currentCounter : amount;
+                uint32 addCounter       = currentCounter + amount > requiredCounter ? requiredCounter : currentCounter +amount;
 
                 m_questObjectiveStatus[l_Objective.ID] = addCounter;
                 m_QuestStatusSave[questId] = true;
@@ -18817,6 +18849,20 @@ bool Player::HasQuestForItem(uint32 itemid) const
             }
         }
     }
+    return false;
+}
+bool Player::hasQuest(uint32 p_QuestID) const
+{
+    for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
+    {
+        uint32 l_QuestID = GetQuestSlotQuestId(l_I);
+        if (l_QuestID == 0)
+            continue;
+
+        if (l_QuestID == p_QuestID)
+            return true;
+    }
+
     return false;
 }
 
@@ -18952,21 +18998,57 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
 
-    WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT, (4*4+8));
-    data.appendPackGUID(p_ObjGUID);
-    data << uint32(p_Objective.ObjectID);
-    data << uint32(p_Quest->GetQuestId());
-    data << uint16(p_OldCount + p_AddCount);
-    data << uint16(p_Objective.Amount);
-    data << uint8(p_Objective.Type);
-
-    GetSession()->SendPacket(&data);
-
     uint16 log_slot = FindQuestSlot(p_Quest->GetQuestId());
 
-    if (log_slot < MAX_QUEST_LOG_SIZE)
+    switch (p_Objective.Type)
     {
-        SetQuestSlotCounter(log_slot, p_Objective.Index, GetQuestSlotCounter(log_slot, p_Objective.Index) + p_AddCount);
+        case QUEST_OBJECTIVE_TYPE_CRITERIA:
+        {
+            WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, (4 * 4 + 8));
+            data << uint32(p_Quest->GetQuestId());
+            data << uint32(p_Objective.ObjectID);
+            data << uint8(p_Objective.Type);
+
+            GetSession()->SendPacket(&data);
+
+            if (log_slot < MAX_QUEST_LOG_SIZE)
+                SetQuestSlotState(log_slot, QUEST_STATE_OBJ_0_COMPLETE << p_Objective.Index);
+
+            break;
+        }
+
+        case QUEST_OBJECTIVE_TYPE_NPC:
+        case QUEST_OBJECTIVE_TYPE_ITEM:
+        case QUEST_OBJECTIVE_TYPE_GO:
+        case QUEST_OBJECTIVE_TYPE_NPC_INTERACT:
+        case QUEST_OBJECTIVE_TYPE_CURRENCY:
+        case QUEST_OBJECTIVE_TYPE_SPELL:
+        case QUEST_OBJECTIVE_TYPE_FACTION_REP:
+        case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
+        case QUEST_OBJECTIVE_TYPE_MONEY:
+        case QUEST_OBJECTIVE_TYPE_PLAYER:
+        case QUEST_OBJECTIVE_TYPE_DUMMY:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP:
+        case QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK2:
+        default:
+        {
+            WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT, (4 * 4 + 8));
+            data.appendPackGUID(p_ObjGUID);
+            data << uint32(p_Objective.ObjectID);
+            data << uint32(p_Quest->GetQuestId());
+            data << uint16(p_OldCount + p_AddCount);
+            data << uint16(p_Objective.Amount);
+            data << uint8(p_Objective.Type);
+
+            GetSession()->SendPacket(&data);
+
+            if (log_slot < MAX_QUEST_LOG_SIZE)
+                SetQuestSlotCounter(log_slot, p_Objective.Index, GetQuestSlotCounter(log_slot, p_Objective.Index) + p_AddCount);
+
+            break;
+        }
     }
 }
 
@@ -20183,8 +20265,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[13].GetUInt32();
-                uint8  slot     = fields[14].GetUInt8();
+                uint32 bagGuid  = fields[14].GetUInt32();
+                uint8  slot     = fields[15].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -20347,8 +20429,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[15].GetUInt32();
-    uint32 itemEntry = fields[16].GetUInt32();
+    uint32 itemGuid  = fields[16].GetUInt32();
+    uint32 itemEntry = fields[17].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -20481,8 +20563,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[13].GetUInt32();
-        uint32 itemTemplate = fields[14].GetUInt32();
+        uint32 itemGuid = fields[14].GetUInt32();
+        uint32 itemTemplate = fields[15].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -20711,6 +20793,9 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
 
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
+
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && objective->Amount == amount)
+                    SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
             }
@@ -22759,6 +22844,10 @@ void Player::UpdateDuelFlag(time_t currTime)
 
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 1);
     m_Duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 2);
+
+    // cleanup combo points
+    ClearComboPoints();
+    m_Duel->opponent->ClearComboPoints();
 
     m_Duel->startTimer = 0;
     m_Duel->startTime  = currTime;
@@ -27685,6 +27774,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
                     guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);*/
 
         SendNewItem(newitem, uint32(item->count), false, false, true);
+        newitem->AddItemBonuses(item->itemBonuses);
+
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
@@ -29144,7 +29235,7 @@ uint32 Player::GetAverageItemLevelTotal()
             if (l_Item->IsSuitableForItemLevelCalulcation(true))
             {
                 int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
-                int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate()));
+                int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item));
 
                 if (slot != NULL_SLOT)
                 {
@@ -29174,7 +29265,7 @@ uint32 Player::GetAverageItemLevelTotal()
                     if (l_Item->IsSuitableForItemLevelCalulcation(true))
                     {
                         int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
-                        int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate()));
+                        int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item));
 
                         if (slot != NULL_SLOT)
                         {
@@ -30588,6 +30679,16 @@ void Player::CreateGarrison()
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
 }
+bool Player::IsInGarrison()
+{
+    if (!m_Garrison)
+        return false;
+
+    if (GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)
+        return true;
+
+    return false;
+}
 
 Stats Player::GetPrimaryStat() const
 {
@@ -30622,9 +30723,12 @@ Stats Player::GetPrimaryStat() const
  *
  */
 
-uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto) const
+uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     float ilvl = itemProto->ItemLevel;
+
+    if (item)
+        ilvl += item->GetItemLevelBonusFromItemBonuses();
 
     if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
         ilvl = itemProto->GetItemLevelForHeirloom(getLevel());
@@ -30649,9 +30753,10 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     ItemTemplate const* proto = item->GetTemplate();
 
     if(!proto)
+        return;
 
-    _ApplyItemBonuses(proto, slot, false, proto->ItemLevel);
-    _ApplyItemBonuses(proto, slot, true, ilvl);
+    _ApplyItemBonuses(item, slot, false, proto->ItemLevel);
+    _ApplyItemBonuses(item, slot, true, ilvl);
     m_itemScale[slot] = ilvl;
 }
 
@@ -30667,7 +30772,7 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
             if (l_Item->IsBroken() || !CanUseAttackType(GetAttackBySlot(l_I)))
                 continue;
 
-            uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate());
+            uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate(), m_items[l_I]);
             if (m_itemScale[l_I] != ilvl)
             {
                 RescaleItemTo(l_I, ilvl);

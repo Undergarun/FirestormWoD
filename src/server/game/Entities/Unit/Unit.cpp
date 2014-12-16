@@ -14288,7 +14288,6 @@ void Unit::ClearInCombat()
     else
     {
         ToPlayer()->UpdatePotionCooldown();
-        ToPlayer()->ClearComboPoints();
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
@@ -15811,6 +15810,39 @@ uint32 Unit::GetCreatureType() const
         return ToCreature()->GetCreatureTemplate()->type;
 }
 
+bool Unit::IsInDisallowedMountForm() const
+{
+    if (ShapeshiftForm l_Form = GetShapeshiftForm())
+    {
+        SpellShapeshiftFormEntry const* l_Shapeshift = sSpellShapeshiftFormStore.LookupEntry(l_Form);
+        if (!l_Shapeshift)
+            return true;
+
+        if (!(l_Shapeshift->m_Flags & 0x1))
+            return true;
+    }
+
+    if (GetDisplayId() == GetNativeDisplayId())
+        return false;
+
+    CreatureDisplayInfoEntry const* l_Display = sCreatureDisplayInfoStore.LookupEntry(GetDisplayId());
+    if (!l_Display)
+        return true;
+
+    CreatureDisplayInfoExtraEntry const* l_DisplayExtra = sCreatureDisplayInfoExtraStore.LookupEntry(l_Display->ExtendedDisplayInfoID);
+    if (!l_DisplayExtra)
+        return true;
+
+    CreatureModelDataEntry const* l_Model = sCreatureModelDataStore.LookupEntry(l_Display->ModelId);
+    ChrRacesEntry const* l_Race = sChrRacesStore.LookupEntry(l_DisplayExtra->DisplayRaceID);
+
+    if (l_Model && !(l_Model->Flags & 0x80))
+        if (l_Race && !(l_Race->Flags & 0x4))
+            return true;
+
+    return false;
+}
+
 /*#######################################
 ########                         ########
 ########       STAT SYSTEM       ########
@@ -16133,51 +16165,40 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
 
 uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
-    if (powerId == POWER_ENERGY)
-    {
-        if (IsWarlockPet())
-            return 0;
+    uint32 l_PowerIndex = 0;
 
-        switch (GetEntry())
-        {
-            case 26125:
-            case 59915:
-            case 60043:
-            case 60047:
-            case 60051:
-            case 60999:
-            case 62442:
-            case 67977:
-            case 69131:
-            case 69134:
-            case 69078:
-            case 69132:
-            case 69017:
-            case 76143:
-                return 0;
-            default:
-                break;
-        }
+    // See CGUnit_C::GetPowerSlot
+    if (GetTypeId() != TYPEID_PLAYER)
+    {
+        Powers l_DisplayPower = getPowerType();
+        if (l_DisplayPower == powerId)
+            l_PowerIndex = 0;
+        else if (powerId == Powers::POWER_ALTERNATE_POWER)
+            l_PowerIndex = 1;
+        else if (powerId == Powers::POWER_COMBO_POINT)
+            l_PowerIndex = 2;
+        else
+            l_PowerIndex = Powers::MAX_POWERS;
+
+        return l_PowerIndex;
     }
 
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
+    ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(classId);
 
-    ASSERT(classEntry && "Class not found");
-
-    uint32 index = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    ASSERT(l_ClassEntry && "Class not found");
+    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
+        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        if (!l_PowerEntry)
             continue;
 
-        if (powerEntry->classId != classId)
+        if (l_PowerEntry->classId != classId)
             continue;
 
-        if (powerEntry->power == powerId)
-            return index;
+        if (l_PowerEntry->power == powerId)
+            return l_PowerIndex;
 
-        ++index;
+        ++l_PowerIndex;
     }
 
     // return invalid value - this class doesn't use this power
@@ -16250,7 +16271,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     if (!p_Regen || l_RegenDiff > 2000)
         SetInt32Value(UNIT_FIELD_POWER + l_PowerIndex, p_PowerValue);
 
-    if (IsInWorld() && GetTypeId() == TYPEID_PLAYER && (!p_Regen || l_RegenDiff > 2000))
+    if (IsInWorld() && (!p_Regen || l_RegenDiff > 2000))
     {
         int l_PowerCount = 1;
 
@@ -17932,43 +17953,63 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/) const
 {
-    std::list<Unit*> targets;
+    std::list<Unit*> l_Targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
-    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
+    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, l_Targets, u_check);
     VisitNearbyObject(dist, searcher);
 
     // remove current target
     if (!p_ExcludeVictim)
+    {
         if (getVictim())
-            targets.remove(getVictim());
+            l_Targets.remove(getVictim());
+    }
 
     if (exclude)
-        targets.remove(exclude);
+        l_Targets.remove(exclude);
 
     // remove not LoS targets
-    for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
+    for (std::list<Unit*>::iterator tIter = l_Targets.begin(); tIter != l_Targets.end();)
     {
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
-            targets.erase(tIter++);
+            l_Targets.erase(tIter++);
         else
             ++tIter;
     }
 
     // no appropriate targets
-    if (targets.empty())
-        return NULL;
+    if (l_Targets.empty())
+        return nullptr;
 
     if (p_ExludeAuraID)
-        targets.remove_if(JadeCore::UnitAuraCheck(true, p_ExludeAuraID));
+        l_Targets.remove_if(JadeCore::UnitAuraCheck(true, p_ExludeAuraID));
 
     // no appropriate targets
-    if (targets.empty())
-        return NULL;
+    if (l_Targets.empty())
+        return nullptr;
+
+    if (p_Alive)
+    {
+        l_Targets.remove_if([this](Unit* p_Unit) -> bool
+        {
+            if (!p_Unit)
+                return true;
+
+            if (p_Unit->isAlive())
+                return false;
+
+            return true;
+        });
+    }
+
+    // no appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
 
     // select random
-    return JadeCore::Containers::SelectRandomContainerElement(targets);
+    return JadeCore::Containers::SelectRandomContainerElement(l_Targets);
 }
 
 Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
@@ -18768,6 +18809,9 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
         {
             Map    * l_InstanceMap    = l_KilledCreature->GetMap();
             Player * l_CreditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+            if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
+                l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
 
             /// @TODO: do instance binding anyway if the charmer/owner is offline
 

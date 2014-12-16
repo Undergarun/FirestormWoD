@@ -74,9 +74,9 @@ namespace MS
                 m_IsKilledByPlayers(true)
                 {
                     me->setFaction(16);
-                    me->SetSpeed(MOVE_WALK, 0.5f);
-                    me->SetSpeed(MOVE_RUN, 0.5f);
-                    me->SetSpeed(MOVE_FLIGHT, 0.5f);
+                    me->SetSpeed(MOVE_WALK, 0.35f);
+                    me->SetSpeed(MOVE_RUN, 0.3f);
+                    me->SetSpeed(MOVE_FLIGHT, 0.3f);
                     me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 0);
                     me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 0);
                     me->SetReactState(REACT_PASSIVE);
@@ -98,9 +98,8 @@ namespace MS
                     if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 100.0f, false))
                     {
                         m_PlayerTargetGuid = l_Plr->GetGUID();
-                        me->AddThreat(l_Plr, 1000.0f);
+                        me->AddThreat(l_Plr, 1000000.0f);
                         me->CastSpell(l_Plr, uint32(Spells::FIXATE));
-
                         events.ScheduleEvent(uint32(Events::UPDATE_POSITION), 500);
                     }
                 }
@@ -118,7 +117,7 @@ namespace MS
                     events.Update(diff);
 
                     // If creature reaches the target, it spawns a new pile of ashes and explodes violently.
-                    if (Unit* l_Plr = me->GetUnit(*me, m_PlayerTargetGuid))
+                    if (Player* l_Plr = Player::GetPlayer(*me, m_PlayerTargetGuid))
                     {
                         // It should be less than 2 but I don't know how to make the monsters touch players.
                         if (l_Plr->GetExactDist2d(me) < 0.2f)
@@ -134,7 +133,7 @@ namespace MS
                         switch (l_EventId)
                         {
                         case uint32(Events::UPDATE_POSITION):
-                            if (Unit* l_Plr = me->GetUnit(*me, m_PlayerTargetGuid))
+                            if (Player* l_Plr = Player::GetPlayer(*me, m_PlayerTargetGuid))
                             {
                                 Position l_Pos;
                                 l_Plr->GetPosition(&l_Pos);
@@ -274,6 +273,19 @@ namespace MS
                     me->setPowerType(Powers::POWER_ENERGY);
                     me->SetMaxPower(Powers::POWER_ENERGY, 100);
                     me->SetPower(Powers::POWER_ENERGY, 100);
+
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }
 
                 void Reset()

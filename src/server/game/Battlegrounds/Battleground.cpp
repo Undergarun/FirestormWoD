@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "GroupMgr.h"
 
 namespace JadeCore
 {
@@ -1008,7 +1009,7 @@ void Battleground::EndBattleground(uint32 winner)
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-    uint32 maxLevel = std::min(GetMaxLevel(), 90U);
+    uint32 maxLevel = std::min(GetMaxLevel(), 100U);
     return JadeCore::Honor::hk_honor_at_level(maxLevel, float(kills));
 }
 
@@ -1377,6 +1378,9 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        group->SetLootMethod(LootMethod::FREE_FOR_ALL);
+
+        sGroupMgr->AddGroup(group);
     }
     else                                            // raid already exist
     {

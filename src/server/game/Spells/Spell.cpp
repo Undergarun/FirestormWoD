@@ -3772,13 +3772,13 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
 bool Spell::CheckInterrupt()
 {
-    if (!CallScriptCheckInterruptHandlers())
-        return false;
+    if (CallScriptCheckInterruptHandlers())
+        return true;
 
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) && (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
         return true;
 
-    return true;
+    return false;
 }
 
 void Spell::cancel()

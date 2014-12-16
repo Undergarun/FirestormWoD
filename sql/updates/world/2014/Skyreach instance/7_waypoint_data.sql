@@ -1,23 +1,4 @@
-/*
-SQLyog Ultimate v9.02 
-MySQL - 5.6.17 
-*********************************************************************
-*/
-/*!40101 SET NAMES utf8 */;
 
-create table `waypoint_data` (
-	`id` int (10),
-	`point` mediumint (8),
-	`position_x` float ,
-	`position_y` float ,
-	`position_z` float ,
-	`orientation` float ,
-	`delay` int (10),
-	`move_flag` tinyint (4),
-	`action` int (11),
-	`action_chance` smallint (6),
-	`wpguid` int (11)
-); 
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('810880','1','1151.49','1831.24','172.483','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('810880','2','1159.15','1815.19','177.382','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('810880','3','1152.03','1800.52','178.633','0','0','0','0','100','0');

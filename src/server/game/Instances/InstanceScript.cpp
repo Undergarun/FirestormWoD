@@ -79,6 +79,7 @@ bool InstanceScript::IsEncounterInProgress() const
 void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
+    UpdateCriteriasAfterLoading();
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -248,7 +249,10 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
-            //sLog->outError(LOG_FILTER_GENERAL, "Inialize boss %u state as %u.", id, (uint32)state);
+
+            if (state == DONE)
+                SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
             return false;
         }
         else
@@ -674,6 +678,18 @@ void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaPr
 
     p_Data->WriteBits(p_CriteriaProgress.m_Flags, 4);
     p_Data->FlushBits();
+}
+
+void InstanceScript::UpdateCriteriasAfterLoading()
+{
+    for (uint8 l_I = 0; l_I < bosses.size(); ++l_I)
+    {
+        BossInfo* bossInfo = &bosses[l_I];
+        BossScenarios* l_BossScenario = &m_BossesScenarios[l_I];
+
+        if (bossInfo->state == DONE)
+            SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

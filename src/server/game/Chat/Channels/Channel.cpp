@@ -166,6 +166,9 @@ void Channel::CleanOldChannelsInDB()
 
 void Channel::Join(uint64 p, const char *pass)
 {
+
+    ACE_Guard<RecursiveLock>(m_Lock, true);
+
     WorldPacket data;
     if (IsOn(p))
     {
@@ -217,7 +220,7 @@ void Channel::Join(uint64 p, const char *pass)
     PlayerInfo pinfo;
     pinfo.player = p;
     pinfo.flags = MEMBER_FLAG_NONE;
-    players[p] = pinfo;
+    m_Players[p] = pinfo;
 
     MakeYouJoined(&data);
     SendToOne(&data, p);
@@ -228,14 +231,14 @@ void Channel::Join(uint64 p, const char *pass)
     if (!IsConstant())
     {
         // Update last_used timestamp in db
-        if (!players.empty())
+        if (!m_Players.empty())
             UpdateChannelUseageInDB();
 
         // If the channel has no owner yet and ownership is allowed, set the new owner.
         if (!m_ownerGUID && m_ownership)
         {
-            SetOwner(p, (players.size() > 1 ? true : false));
-            players[p].SetModerator(true);
+            SetOwner(p, (m_Players.size() > 1 ? true : false));
+            m_Players[p].SetModerator(true);
         }
     }
 }
@@ -265,9 +268,11 @@ void Channel::Leave(uint64 p, bool send)
             data.clear();
         }
 
-        bool changeowner = players[p].IsOwner();
+        ACE_Guard<RecursiveLock>(m_Lock, true);
 
-        players.erase(p);
+        bool changeowner = m_Players[p].IsOwner();
+
+        m_Players.erase(p);
         if (m_announce && (!player || !AccountMgr::IsModeratorAccount(player->GetSession()->GetSecurity()) || !sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
         {
             WorldPacket data;
@@ -283,10 +288,10 @@ void Channel::Leave(uint64 p, bool send)
             UpdateChannelUseageInDB();
 
             // If the channel owner left and there are still players inside, pick a new owner
-            if (changeowner && m_ownership && !players.empty())
+            if (changeowner && m_ownership && !m_Players.empty())
             {
-                uint64 newowner = players.begin()->second.player;
-                players[newowner].SetModerator(true);
+                uint64 newowner = m_Players.begin()->second.player;
+                m_Players[newowner].SetModerator(true);
                 SetOwner(newowner);
             }
         }
@@ -306,7 +311,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
         MakeNotMember(&data);
         SendToOne(&data, good);
     }
-    else if (!players[good].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
+    else if (!m_Players[good].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
     {
         WorldPacket data;
         MakeNotModerator(&data);
@@ -348,13 +353,13 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
             if (notify)
                 SendToAll(&data);
 
-            players.erase(bad->GetGUID());
+            m_Players.erase(bad->GetGUID());
             bad->LeftChannel(this);
 
-            if (changeowner && m_ownership && !players.empty())
+            if (changeowner && m_ownership && !m_Players.empty())
             {
                 uint64 newowner = good;
-                players[newowner].SetModerator(true);
+                m_Players[newowner].SetModerator(true);
                 SetOwner(newowner);
             }
         }
@@ -374,7 +379,7 @@ void Channel::UnBan(uint64 good, const char *badname)
         MakeNotMember(&data);
         SendToOne(&data, good);
     }
-    else if (!players[good].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
+    else if (!m_Players[good].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
     {
         WorldPacket data;
         MakeNotModerator(&data);
@@ -417,7 +422,7 @@ void Channel::Password(uint64 p, const char *pass)
         MakeNotMember(&data);
         SendToOne(&data, p);
     }
-    else if (!players[p].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
+    else if (!m_Players[p].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
     {
         WorldPacket data;
         MakeNotModerator(&data);
@@ -455,7 +460,7 @@ void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
         MakeNotMember(&data);
         SendToOne(&data, p);
     }
-    else if (!players[p].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
+    else if (!m_Players[p].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
     {
         WorldPacket data;
         MakeNotModerator(&data);
@@ -550,7 +555,7 @@ void Channel::SetOwner(uint64 p, const char *newname)
         return;
     }
 
-    players[newp->GetGUID()].SetModerator(true);
+    m_Players[newp->GetGUID()].SetModerator(true);
     SetOwner(newp->GetGUID());
 }
 
@@ -586,7 +591,7 @@ void Channel::List(Player * p_Player)
         uint32 l_MemberCount = 0;
         uint32 l_GmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
-        for (PlayerList::const_iterator l_I = players.begin(); l_I != players.end(); ++l_I)
+        for (PlayerList::const_iterator l_I = m_Players.begin(); l_I != m_Players.end(); ++l_I)
         {
             Player* l_Member = ObjectAccessor::FindPlayer(l_I->first);
 
@@ -631,7 +636,7 @@ void Channel::Announce(uint64 p)
         MakeNotMember(&data);
         SendToOne(&data, p);
     }
-    else if (!players[p].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
+    else if (!m_Players[p].IsModerator() && !AccountMgr::IsModeratorAccount(sec))
     {
         WorldPacket data;
         MakeNotModerator(&data);
@@ -669,7 +674,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         MakeNotMember(&data);
         SendToOne(&data, p);
     }
-    else if (players[p].IsMuted())
+    else if (m_Players[p].IsMuted())
     {
         WorldPacket data;
         MakeMuted(&data);
@@ -682,7 +687,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         WorldPacket data;
         player->BuildPlayerChat(&data, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
 
-        SendToAll(&data, !players[p].IsModerator() ? p : false);
+        SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
     }
 }
 
@@ -749,8 +754,8 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
     if (m_ownerGUID)
     {
         // [] will re-add player after it possible removed
-        PlayerList::iterator p_itr = players.find(m_ownerGUID);
-        if (p_itr != players.end())
+        PlayerList::iterator p_itr = m_Players.find(m_ownerGUID);
+        if (p_itr != m_Players.end())
             p_itr->second.SetOwner(false);
     }
 
@@ -758,8 +763,8 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
     if (m_ownerGUID)
     {
         uint8 oldFlag = GetPlayerFlags(m_ownerGUID);
-        players[m_ownerGUID].SetModerator(true);
-        players[m_ownerGUID].SetOwner(true);
+        m_Players[m_ownerGUID].SetModerator(true);
+        m_Players[m_ownerGUID].SetOwner(true);
 
         WorldPacket data;
         MakeModeChange(&data, m_ownerGUID, oldFlag);
@@ -777,7 +782,8 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket* data, uint64 p)
 {
-    for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+    ACE_Guard<RecursiveLock>(m_Lock, true);
+    for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
         Player* player = ObjectAccessor::FindPlayer(i->first);
         if (player)
@@ -790,7 +796,8 @@ void Channel::SendToAll(WorldPacket* data, uint64 p)
 
 void Channel::SendToAllButOne(WorldPacket* data, uint64 who)
 {
-    for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+    ACE_Guard<RecursiveLock>(m_Lock, true);
+    for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
         if (i->first != who)
         {

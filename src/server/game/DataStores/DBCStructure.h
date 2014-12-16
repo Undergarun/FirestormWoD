@@ -243,7 +243,7 @@ struct ChrClassesEntry
 struct ChrRacesEntry
 {
     uint32  RaceID;                                         // 0        m_ID
-    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  Flags;                                          // 1        m_Flags
     uint32  FactionID;                                      // 2        m_FactionID
     //uint32    m_ExplorationSoundID;                       // 3        m_ExplorationSoundID
     uint32  model_m;                                        // 4        m_MaleDisplayId
@@ -334,7 +334,7 @@ struct CreatureDisplayInfoEntry
     uint32  Displayid;                                      // 0        m_ID
     uint32  ModelId;                                        // 1        m_ModelID
     //uint32    m_sounID;                                   // 2        m_SoundID
-    //uint32    m_extendedDisplayInfoID;                    // 3        m_ExtendedDisplayInfoID
+    uint32  ExtendedDisplayInfoID;                          // 3        m_ExtendedDisplayInfoID
     float   scale;                                          // 4        m_CreatureModelScale
     //uint32    m_creatureModelAlpha;                       // 5        m_CreatureModelAlpha
     //char*     m_textureName;                              // 6-8      m_TextureVariation[3]
@@ -350,6 +350,22 @@ struct CreatureDisplayInfoEntry
     //uint32    m_Flags;                                    // 18       m_Flags
     //int32     m_Gender;                                   // 19       m_Gender
     //uint32    m_StateSpellVisualKitID;                    // 20       m_StateSpellVisualKitID
+};
+
+struct CreatureDisplayInfoExtraEntry
+{
+    //uint32    ID;                                         // 0
+    uint32      DisplayRaceID;                              // 1
+    //uint32    DisplaySexID;                               // 2
+    //uint32    SkinID;                                     // 3
+    //uint32    FaceID;                                     // 4
+    //uint32    HairStyleID;                                // 5
+    //uint32    HairColorID;                                // 6
+    //uint32    FacialHairID;                               // 7
+    //uint32    NPCItemDisplay[11];                         // 8-18
+    //uint32    Flags;                                      // 19
+    //uint32    FileDataID;                                 // 20
+    //uint32    Unk;                                        // 21
 };
 
 struct CreatureFamilyEntry
@@ -370,7 +386,7 @@ struct CreatureFamilyEntry
 struct CreatureModelDataEntry
 {
     uint32  Id;                                             // 0        m_ID
-    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  Flags;                                          // 1        m_Flags
     //uint32    m_FileDataID;                               // 2        m_FileDataID
     //uint32    m_SizeClass;                                // 3        m_SizeClass
     //float     m_ModelScale;                               // 4        m_ModelScale
@@ -1589,7 +1605,7 @@ struct SpellShapeshiftFormEntry
     uint32  ID;                                             // 0        m_ID
     //uint32    m_BonusActionBar;                           // 1        m_BonusActionBar
     //char*     m_NameLang;                                 // 2        m_NameLang
-    uint32  m_Flags;                                        // 3        m_Flags
+    uint32  m_Flags;                                          // 3        m_Flags
     int32   creatureType;                                   // 4        m_CreatureType
     //uint32    m_AttackIconID;                             // 5        m_AttackIconID
     uint32  attackSpeed;                                    // 6        m_CombatRoundTime
@@ -1627,8 +1643,8 @@ struct SpellScalingEntry
     int32   CastTimeMax;                                    // 2        m_CastTimeMax
     int32   CastTimeMaxLevel;                               // 3        m_CastTimeMaxLevel
     int32   ScalingClass;                                   // 4        m_Class                 index * 100 + charLevel - 1 => gtSpellScaling.dbc
-    float   CoefBase;                                       // 5        m_NerfFactor
-    uint32  CoefLevelBase;                                  // 6        m_NerfMaxLevel
+    float   NerfFactor;                                       // 5        m_NerfFactor
+    uint32  NerfMaxLevel;                                  // 6        m_NerfMaxLevel
     uint32  MaxScalingLevel;                                // 7        m_MaxScalingLevel
     uint32  ScalesFromItemLevel;                            // 8        m_ScalesFromItemLevel
 };
@@ -1940,6 +1956,17 @@ struct World_PVP_AreaEntry
 
 struct WorldSafeLocsEntry
 {
+    WorldSafeLocsEntry()
+        : ID(0),
+        map_id(0),
+        x(0),
+        y(0),
+        z(0),
+        o(0)
+    {
+
+    }
+
     uint32    ID;                                           // 0
     uint32    map_id;                                       // 1
     float     x;                                            // 2

@@ -1779,10 +1779,6 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
                         case 76577:
                             GetCaster()->CastSpell(d_owner->GetPositionX(), d_owner->GetPositionY(), d_owner->GetPositionZ(), 88611, true);
                             break;
-                        // Consecration
-                        case 36946:
-                            GetCaster()->CastSpell(d_owner->GetPositionX(), d_owner->GetPositionY(), d_owner->GetPositionZ(), 81297, true);
-                            break;
                         case 103558: // Choking Smoke Bomb, Asira Dawnslayer, Hour of Twilight
                             GetCaster()->CastSpell(d_owner->GetPositionX(), d_owner->GetPositionY(), d_owner->GetPositionZ(), 103790, true);
                             break;
@@ -2757,7 +2753,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         {
             if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
-                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), apply);
+                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem, apply);
             }
         }
     }
@@ -3252,7 +3248,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* p_AurApp, uint8 p_Mo
 
             if (attacktype < WeaponAttackType::MaxAttack)
             {
-                l_Target->ToPlayer()->_ApplyWeaponDamage(l_Slot, pItem->GetTemplate(), !p_Apply);
+                l_Target->ToPlayer()->_ApplyWeaponDamage(l_Slot, pItem, !p_Apply);
                 l_Target->ToPlayer()->_ApplyWeaponDependentAuraMods(pItem, WeaponAttackType(attacktype), !p_Apply);
             }
         }
@@ -6859,21 +6855,22 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
 
     uint32 vehicleId = GetMiscValue();
 
+    if (target->GetVehicleKit())
+        target->RemoveVehicleKit();
+
     if (apply)
     {
         if (!target->CreateVehicleKit(vehicleId, 0))
             return;
     }
-    else if (target->GetVehicleKit())
-        target->RemoveVehicleKit();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
 
     WorldPacket l_Data(SMSG_SET_VEHICLE_REC_ID, target->GetPackGUID().size()+4);
     l_Data.appendPackGUID(target->GetGUID());
     l_Data << uint32(apply ? vehicleId : 0);
     target->SendMessageToSet(&l_Data, true);
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
 
     if (apply)
     {

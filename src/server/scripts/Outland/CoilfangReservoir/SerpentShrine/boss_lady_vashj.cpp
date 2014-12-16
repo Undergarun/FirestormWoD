@@ -882,7 +882,7 @@ public:
         }
 
         Creature* vashj = Unit::GetCreature(*player, instance->GetData64(DATA_LADYVASHJ));
-        if (!vashj)
+        if (!vashj || vashj->GetMapId() != 548)
             return false;
 
         boss_lady_vashj::boss_lady_vashjAI* vashjAI = CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI());
@@ -931,9 +931,9 @@ public:
                 return true;
 
             }
-            else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT)
+            else if (targets.GetUnitTarget() && targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT)
                 return false;
-            else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+            else if (targets.GetUnitTarget() && targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
             {
                 player->DestroyItemCount(31088, 1, true);
                 player->CastSpell(targets.GetUnitTarget(), 38134, true);

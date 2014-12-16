@@ -87,6 +87,7 @@ namespace MS
             AirFamiliar = 76102,
             Kaliri = 81080,
             Kaliri2 = 81081,
+            Arakkoa = 81088,
             SunConstructEnergizer = 76367,
             InteriorFocus = 77543,
             DreadRavenHatchling = 76253,
