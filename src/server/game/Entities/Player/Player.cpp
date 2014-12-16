@@ -22815,6 +22815,10 @@ void Player::UpdateDuelFlag(time_t currTime)
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 1);
     m_Duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 2);
 
+    // cleanup combo points
+    ClearComboPoints();
+    m_Duel->opponent->ClearComboPoints();
+
     m_Duel->startTimer = 0;
     m_Duel->startTime  = currTime;
     m_Duel->started    = true;

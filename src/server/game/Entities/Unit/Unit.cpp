@@ -14288,7 +14288,6 @@ void Unit::ClearInCombat()
     else
     {
         ToPlayer()->UpdatePotionCooldown();
-        ToPlayer()->ClearComboPoints();
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
