@@ -500,7 +500,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
                             go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
-
                         break;
                     case GO_SAURFANG_S_DOOR:
                         DeathbringerSaurfangDoorGUID = go->GetGUID();
