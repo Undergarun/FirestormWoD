@@ -134,7 +134,7 @@ GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GA
     /// Horde level 2
     {     445,             0.f,       0.f,       0.f,      0.f        },
     /// Horde level 3
-    {     259,          5592.272,  4589.9390f, 136.66830f, 5.858787f  },
+    {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f },
     /// Alliance Level 1
     {       5,          1893.729f,  208.8733f,  77.06371f, 1.685312f  },
     /// Alliance Level 2

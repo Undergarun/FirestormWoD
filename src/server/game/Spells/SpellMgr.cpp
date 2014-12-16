@@ -3918,8 +3918,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 161288:// Vileblood Serum (DoT)
             case 161833:// Noxious Spit (DoT)
+            case 157420:// Fiery Trail (DoT)
+            case 155057:// Magma Pool (DoT)
+            case 166730:// Burning Bridge (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 154996:// Engulfing Fire (searcher)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 155721:// Black Iron Cyclone
+                spellInfo->Effects[0].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
                 break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -6225,6 +6238,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 106113:
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
+                    break;
+                default:
                     break;
             }
         }

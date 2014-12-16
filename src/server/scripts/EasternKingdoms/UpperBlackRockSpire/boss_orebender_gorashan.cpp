@@ -85,8 +85,11 @@ enum ePositions
     DATA_MOVE_LIGHT = 76464
 };
 
-// DATA_POS_NE
-Position const g_LightningFieldInitPos = { 161.228f, -276.8578f, 95.42406f, M_PI };
+Position const g_LightningFieldInitPos[2] =
+{
+    { 160.4088f, -276.8579f, 91.50262f, M_PI },     ///< DATA_POS_NE
+    { 127.9540f, -240.4484f, 91.45860f, 2 * M_PI }  ///< DATA_POS_SW
+};
 
 Position const g_LightningFieldMovePos[4] =
 {
@@ -131,6 +134,7 @@ class boss_orebender_gorashan : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED | UNIT_FLAG_PREPARATION | UNIT_FLAG_PVP_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
                 m_SealConduitCount = 0;
                 m_InitializeTimer  = 2000;
@@ -180,7 +184,7 @@ class boss_orebender_gorashan : public CreatureScript
                 {
                     // Defeat Orebender Gor'ashan without allowing him to cast Thundering Cacophony 4 times in Upper Blackrock Spire on Heroic difficulty.
                     if (IsHeroic() && m_Instance->GetData(DATA_MAGNETS_ACHIEVEMENT) < 4)
-                        m_Instance->DoCompleteAchievement(ACHIEV_MAGNETS_HOW_DO_THEY_WORK);
+                        m_Instance->DoCompleteAchievement(eAchievements::AchievementMagnetsHowDoTheyWork);
 
                     m_Instance->SetBossState(DATA_OREBENDER_GORASHAN, DONE);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -279,8 +283,15 @@ class boss_orebender_gorashan : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_SHRAPNEL_NOVA, 15000);
                         break;
                     case EVENT_ELECTRIC_PULSE:
-                        me->SummonCreature(NPC_LIGHTNING_FIELD, g_LightningFieldInitPos);
+                    {
+                        for (uint8 l_I = 0; l_I < (IsHeroic() ? 2 : 1); ++l_I)
+                        {
+                            if (Creature* l_Lightning = me->SummonCreature(NPC_LIGHTNING_FIELD, g_LightningFieldInitPos[l_I]))
+                                l_Lightning->AI()->DoAction(l_I);
+                        }
+
                         break;
+                    }
                     case EVENT_LODESTONE_SPIKE:
                         me->CastSpell(me, SPELL_LODESTONE_SPIKE_DUMMY, false);
                         m_Events.ScheduleEvent(EVENT_LODESTONE_SPIKE, 30000);
@@ -403,14 +414,14 @@ class mob_black_iron_apprentice : public CreatureScript
 };
 
 // Rune of Power - 76417
-class mob_rune_of_power : public CreatureScript
+class mob_ubrs_rune_of_power : public CreatureScript
 {
     public:
-        mob_rune_of_power() : CreatureScript("mob_rune_of_power") { }
+        mob_ubrs_rune_of_power() : CreatureScript("mob_ubrs_rune_of_power") { }
 
-        struct mob_rune_of_powerAI : public ScriptedAI
+        struct mob_ubrs_rune_of_powerAI : public ScriptedAI
         {
-            mob_rune_of_powerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            mob_ubrs_rune_of_powerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
 
@@ -487,7 +498,7 @@ class mob_rune_of_power : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new mob_rune_of_powerAI(p_Creature);
+            return new mob_ubrs_rune_of_powerAI(p_Creature);
         }
 };
 
@@ -504,6 +515,12 @@ class mob_lightning_field : public CreatureScript
             uint8 m_PositionID;
             EventMap m_Events;
 
+            enum Actions
+            {
+                SetPosToNE,
+                SetPosToSW
+            };
+
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
@@ -517,6 +534,21 @@ class mob_lightning_field : public CreatureScript
 
                 m_PositionID = DATA_POS_NE;
                 m_Events.ScheduleEvent(EVENT_MOVE_LIGHTNING, 1000);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case Actions::SetPosToNE:
+                        m_PositionID = DATA_POS_NE;
+                        break;
+                    case Actions::SetPosToSW:
+                        m_PositionID = DATA_POS_SW;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID)
@@ -677,7 +709,7 @@ void AddSC_boss_orebender_gorashan()
 {
     new boss_orebender_gorashan();
     new mob_black_iron_apprentice();
-    new mob_rune_of_power();
+    new mob_ubrs_rune_of_power();
     new mob_lightning_field();
     new spell_lodestone_spike();
     new spell_power_conduit_hangover();

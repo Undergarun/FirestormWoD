@@ -95,14 +95,6 @@ class ScriptRegistry
                         ScriptPointerList[id] = script;
                         sScriptMgr->IncrementScriptCount();
                     }
-                    else
-                    {
-                        // If the script is already assigned -> delete it!
-                        sLog->outError(LOG_FILTER_TSCR, "Script '%s' already assigned with the same script name, so the script can't work.",
-                            script->GetName().c_str());
-
-                        ASSERT(false); // Error that should be fixed ASAP.
-                    }
                 }
                 else
                 {
