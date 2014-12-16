@@ -4322,20 +4322,19 @@ enum HurricaneStrikeSpells
     //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
     //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
     //SPELL_MONK_MANA_MEDITATION            = 121278
-    SPELL_MONK_HURRICANE_STRIKE_DAMAGE    = 158221
 };
 
-// Hurricane Strike - 152175
+// Hurricane Strike - 158221
 class spell_monk_hurricane_strike : public SpellScriptLoader
 {
 public:
     spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
 
-    class spell_monk_hurricane_strike_AuraScript : public AuraScript
+    class spell_monk_hurricane_strike_SpellScript : public SpellScript
     {
-        PrepareAuraScript(spell_monk_hurricane_strike_AuraScript);
+        PrepareSpellScript(spell_monk_hurricane_strike_SpellScript);
 
-        void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
+        void HandleOnHit()
         {
             if (!GetCaster())
                 return;
@@ -4377,18 +4376,18 @@ public:
             float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
             float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 
-            int l_Bp0 = int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
-            l_Player->CastCustomSpell(l_Player, SPELL_MONK_HURRICANE_STRIKE_DAMAGE , &l_Bp0, NULL, NULL, true);
+            SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS)));
         }
+
         void Register()
         {
-            OnEffectUpdate += AuraEffectUpdateFn(spell_monk_hurricane_strike_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_ALLOW_ONLY_ABILITY);
+            OnHit += SpellHitFn(spell_monk_hurricane_strike_SpellScript::HandleOnHit);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    SpellScript* GetSpellScript() const
     {
-        return new spell_monk_hurricane_strike_AuraScript();
+        return new spell_monk_hurricane_strike_SpellScript();
     }
 };
 

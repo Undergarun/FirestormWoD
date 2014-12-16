@@ -6181,6 +6181,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 5221:
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
+            // Hurricane Strike (damage)
+            case 158221:
+                spellInfo->SetDurationIndex(39); // 2 seconds
+                break;
             default:
                 break;
         }
