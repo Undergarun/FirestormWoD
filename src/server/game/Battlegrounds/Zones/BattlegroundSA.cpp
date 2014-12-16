@@ -305,6 +305,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 SignaledRoundTwo = true;
                 InitSecondRound = false;
                 SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                StartShips();
             }
         }
         else
@@ -378,7 +379,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
     {
         if (Status == BG_SA_ROUND_ONE)
         {
-            if (TotalTime >= BG_SA_ROUNDLENGTH/10)
+            if (TotalTime >= BG_SA_ROUNDLENGTH)
             {
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
@@ -398,7 +399,6 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 InitSecondRound = true;
                 ToggleTimer();
                 ResetObjs();
-                StartShips();
                 TeleportPlayers();
                 return;
             }

@@ -305,7 +305,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             if (goinfo->transport.startOpen && sScriptMgr->OnGameObjectElevatorCheck(this))
                 SetTransportState(GO_STATE_TRANSPORT_STOPPED, goinfo->transport.startOpen - 1);
             else
-                SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                SetGoState(GO_STATE_TRANSPORT_ACTIVE);
 
             SetGoAnimProgress(0xFF);
             break;
