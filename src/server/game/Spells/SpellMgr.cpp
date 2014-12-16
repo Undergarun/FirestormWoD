@@ -3660,6 +3660,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134030:// Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 break;
+            case 145645:
+                spellInfo->ProcChance = 100;
+                break;
             case 134476:// Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;

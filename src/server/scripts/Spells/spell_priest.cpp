@@ -2320,6 +2320,63 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         }
 };
 
+//Power word : Barrier Update - 145645
+class spell_pri_word_barrier_update : public SpellScriptLoader
+{
+public:
+    spell_pri_word_barrier_update() : SpellScriptLoader("spell_pri_word_barrier_update") { }
+
+    class spell_pri_word_barrier_update_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_word_barrier_update_AuraScript);
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                AreaTrigger* l_Area = l_Caster->GetAreaTrigger(62618);
+
+                if (!l_Area)
+                    return;
+
+                std::list<Unit*> l_BindedList;
+
+                CellCoord l_Pos(JadeCore::ComputeCellCoord(l_Area->GetPositionX(), l_Area->GetPositionY()));
+                Cell l_Cell(l_Pos);
+                l_Cell.SetNoCreate();
+
+                JadeCore::AnyUnitInObjectRangeCheck l_Check(l_Area, 10.0f);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(l_Area, l_BindedList, l_Check);
+
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(l_Searcher);
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(l_Searcher);
+
+                l_Cell.Visit(l_Pos, world_unit_searcher, *l_Area->GetMap(), *l_Area, 10.0f);
+                l_Cell.Visit(l_Pos, grid_unit_searcher, *l_Area->GetMap(), *l_Area, 10.0f);
+
+                for (auto itr : l_BindedList)
+                {
+                    Unit* l_Target = itr->ToUnit();
+                    if (!l_Target)
+                        continue;
+
+                    if (!l_Target->HasAura(81782))
+                        l_Caster->CastSpell(l_Target, 81782, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_word_barrier_update_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_word_barrier_update_AuraScript();
+    }
+};
 //Power word : Barrier - 62618
 class spell_pri_power_word_barrier : public SpellScriptLoader
 {
@@ -2332,10 +2389,9 @@ public:
 
         void HandleOnHit()
         {
-            if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
-                if (l_SpellLoc->IsPositionValid())
-                    if (Unit* l_Caster = GetCaster())
-                        l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 145645, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(GetSpellInfo()->Id))
+                        l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
         }
 
         void Register()
@@ -2486,9 +2542,19 @@ public:
 
         void HandleOnHit()
         {
-            if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 158624, true);
+            if (Unit* l_Caster = GetCaster())
+            if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(158624))
+                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 121557, true);
+          //  if (Unit* caster = GetCaster())
+            //    caster->CastSpell(caster, 158624, true);
+          /*  if (DynamicObject* dynObj = caster->GetDynObject(121536))
+            {
+                caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 158624, true);
+               // caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 121557, true);
+            }*/
+            /*if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
+                if (Unit* l_Caster = GetCaster())*/
+                //    l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 158624, true);
         }
 
         void Register()
@@ -2551,6 +2617,7 @@ public:
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_word_barrier_update();
     new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
