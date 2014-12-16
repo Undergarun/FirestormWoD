@@ -21,12 +21,12 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
   Draenor/Garrison/GarrisonGO.cpp
-  Draenor/BloodMaul\ Slag\ Mines/instance_bloodmaul.h
-  Draenor/BloodMaul\ Slag\ Mines/instance_bloodmaul.cpp
-  Draenor/BloodMaul\ Slag\ Mines/mob_bloodmaul.cpp
-  Draenor/BloodMaul\ Slag\ Mines/spell_bloodmaul.cpp
-  Draenor/BloodMaul\ Slag\ Mines/areatrigger_bloodmaul.cpp
-  Draenor/BloodMaul\ Slag\ Mines/boss_slave_watcher_crushto.cpp
+  Draenor/BloodMaulSlagMines/instance_bloodmaul.h
+  Draenor/BloodMaulSlagMines/instance_bloodmaul.cpp
+  Draenor/BloodMaulSlagMines/mob_bloodmaul.cpp
+  Draenor/BloodMaulSlagMines/spell_bloodmaul.cpp
+  Draenor/BloodMaulSlagMines/areatrigger_bloodmaul.cpp
+  Draenor/BloodMaulSlagMines/boss_slave_watcher_crushto.cpp
   Draenor/Garrison/GarrisonNPC.cpp
   Draenor/Garrison/GarrisonQuest.cpp
   Draenor/Garrison/Garrison_A_1.cpp
