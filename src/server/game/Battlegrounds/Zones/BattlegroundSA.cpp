@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
+#include "ScriptMgr.h"
 
 BattlegroundSA::BattlegroundSA()
 {
@@ -120,27 +121,27 @@ bool BattlegroundSA::ResetObjs()
             return false;
     }
 
-    /// - Boat related, doesn't work atm, we use TP
-    /*for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
-        uint32 boatid = 0;
+        uint32 l_BoatId = 0;
         switch (i)
         {
             case BG_SA_BOAT_ONE:
-                boatid = BG_SA_BOAT_ONE_H;
+                l_BoatId = Attackers ? BG_SA_BOAT_ONE_H : BG_SA_BOAT_ONE_A;
                 break;
             case BG_SA_BOAT_TWO:
-                boatid = BG_SA_BOAT_TWO_H;
+                l_BoatId = Attackers ? BG_SA_BOAT_TWO_H : BG_SA_BOAT_TWO_A;
                 break;
             default:
                 break;
         }
-        if (!AddObject(i, boatid, BG_SA_ObjSpawnlocs[i][0],
+
+        if (!AddObject(i, l_BoatId, BG_SA_ObjSpawnlocs[i][0],
           BG_SA_ObjSpawnlocs[i][1],
-          BG_SA_ObjSpawnlocs[i][2],
+          BG_SA_ObjSpawnlocs[i][2] + (Attackers ? -3.750f : 0),
           BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
-    }*/
+    }
 
     for (uint8 i = BG_SA_SIGIL_1; i <= BG_SA_LEFT_FLAGPOLE; i++)
     {
@@ -151,22 +152,16 @@ bool BattlegroundSA::ResetObjs()
         return false;
     }
 
-    /// - Boat related, doesn't work atm, we use TP
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-    /*GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
+    GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
     GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
 
-    GetBGObject(BG_SA_BOAT_ONE)->SetGoState(GO_STATE_TRANSPORT_STOPPED);
-    GetBGObject(BG_SA_BOAT_TWO)->SetGoState(GO_STATE_TRANSPORT_STOPPED);
-
-    GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278192920);
-    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278192920);
-
-    GetBGObject(BG_SA_BOAT_ONE)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
-    GetBGObject(BG_SA_BOAT_TWO)->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 40);
+    /// - Don't know why we need to set transport 'active' to stop them, and stopped to move them ...
+    GetBGObject(BG_SA_BOAT_ONE)->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+    GetBGObject(BG_SA_BOAT_TWO)->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
 
     SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
-    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);*/
+    SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
@@ -287,22 +282,16 @@ bool BattlegroundSA::ResetObjs()
     return true;
 }
 
-/// - Boat related, doesn't work atm, we use TP
 void BattlegroundSA::StartShips()
 {
-    /*if (ShipsStarted)
+    if (ShipsStarted)
         return;
 
-    if (GetMapId() == 607)
-    {
-        GetBGObject(BG_SA_BOAT_ONE)->m_goValue->Transport.PathProgress = 726084718*10;
-        GetBGObject(BG_SA_BOAT_TWO)->m_goValue->Transport.PathProgress = 726084718*10;
-    }
+    /// - Don't ask why
+    GetBGObject(BG_SA_BOAT_ONE)->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
+    GetBGObject(BG_SA_BOAT_TWO)->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
 
-    GetBGObject(BG_SA_BOAT_ONE)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
-    GetBGObject(BG_SA_BOAT_TWO)->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
-
-    ShipsStarted = true;*/
+    ShipsStarted = true;
 }
 
 void BattlegroundSA::PostUpdateImpl(uint32 diff)
@@ -316,6 +305,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 SignaledRoundTwo = true;
                 InitSecondRound = false;
                 SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                StartShips();
             }
         }
         else
@@ -338,28 +328,15 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             Status = BG_SA_ROUND_ONE;
             StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
 
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
-                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    if (p->GetTeamId() != Attackers)
-                        continue;
-
-                    uint8 l_BoatIndex = p->GetDistance(g_BG_SA_AttackerPosition[0][0], g_BG_SA_AttackerPosition[0][1], g_BG_SA_AttackerPosition[0][2]) < 60.0f ? 0 : 1;
-                    p->TeleportTo(607, g_BG_SA_AttackerEndPosition[l_BoatIndex][0], g_BG_SA_AttackerEndPosition[l_BoatIndex][1], g_BG_SA_AttackerEndPosition[l_BoatIndex][2], g_BG_SA_AttackerEndPosition[l_BoatIndex][3]);
-                }
-            }
-
-
+            // Teleport players to boat ...
 
             m_EndTimestamp = time(nullptr) + BG_SA_ROUNDLENGTH / IN_MILLISECONDS;
             UpdateWorldState(BG_SA_ENABLE_TIMER, 1);
             UpdateWorldState(BG_SA_TIMER, m_EndTimestamp);
         }
 
-        /// - Boat related, doesn't work atm, we use TP
-        //if (TotalTime >= BG_SA_BOAT_START)
-        //    StartShips();
+        if (TotalTime >= BG_SA_BOAT_START)
+            StartShips();
         return;
     }
     else if (Status == BG_SA_SECOND_WARMUP)
@@ -378,18 +355,6 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             Status = BG_SA_ROUND_TWO;
             m_EndTimestamp = time(nullptr) + EndRoundTimer / IN_MILLISECONDS;
 
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
-                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    if (p->GetTeamId() != Attackers)
-                        continue;
-
-                    uint8 l_BoatIndex = p->GetDistance(g_BG_SA_AttackerPosition[0][0], g_BG_SA_AttackerPosition[0][1], g_BG_SA_AttackerPosition[0][2]) < 60.0f ? 0 : 1;
-                    p->TeleportTo(607, g_BG_SA_AttackerEndPosition[l_BoatIndex][0], g_BG_SA_AttackerEndPosition[l_BoatIndex][1], g_BG_SA_AttackerEndPosition[l_BoatIndex][2], g_BG_SA_AttackerEndPosition[l_BoatIndex][3]);
-                }
-            }
-
             UpdateWorldState(BG_SA_ENABLE_TIMER, 1);
             UpdateWorldState(BG_SA_TIMER, m_EndTimestamp);
             StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
@@ -407,8 +372,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 SendMessageToAll(LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
         }
-        /// - Boat related, doesn't work atm, we use TP
-        //StartShips();
+
         return;
     }
     else if (GetStatus() == STATUS_IN_PROGRESS)
@@ -523,6 +487,25 @@ void BattlegroundSA::AddPlayer(Player* player)
     BattlegroundSAScore* sc = new BattlegroundSAScore;
 
     PlayerScores[player->GetGUID()] = sc;
+
+    // Set player on transport if needed
+    uint32 l_AttackersTeam = Attackers == TEAM_ALLIANCE ? ALLIANCE : HORDE;
+    if (l_AttackersTeam == player->GetBGTeam() && Status != BG_SA_ROUND_ONE && Status != BG_SA_ROUND_TWO)
+    {
+        if (GetBGObject(BG_SA_BOAT_ONE) == nullptr || GetBGObject(BG_SA_BOAT_TWO) == nullptr)
+            return;
+
+        float l_BoatOneDistance = player->GetDistance(GetBGObject(BG_SA_BOAT_ONE));
+        float l_BoatTwoDistance = player->GetDistance(GetBGObject(BG_SA_BOAT_TWO));
+
+        GameObject* l_Boat = GetBGObject(BG_SA_BOAT_TWO);
+        if (l_BoatOneDistance < l_BoatTwoDistance)
+            l_Boat = GetBGObject(BG_SA_BOAT_ONE);
+
+        player->m_movementInfo.t_guid = l_Boat->GetGUID();
+        player->m_movementInfo.t_seat = -1;
+        player->m_movementInfo.t_pos.Relocate(13.9f, 1.23f, 17.22f, 3.1f);
+    }
 }
 
 void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
@@ -582,7 +565,17 @@ void BattlegroundSA::TeleportPlayers()
                 player->CastSpell(player, 12438, true);     //Without this player falls before boat loads...
 
                 uint8 l_Boat = urand(0, 1);
-                player->TeleportTo(607, g_BG_SA_AttackerPosition[l_Boat][0], g_BG_SA_AttackerPosition[l_Boat][1], g_BG_SA_AttackerPosition[l_Boat][2], g_BG_SA_AttackerPosition[l_Boat][3]);
+
+                GameObject* l_BoatGO = GetBGObject(BG_SA_BOAT_ONE + l_Boat);
+                if (l_BoatGO != nullptr)
+                {
+                    player->m_movementInfo.t_guid = l_BoatGO->GetGUID();
+                    player->m_movementInfo.t_seat = -1;
+                    player->m_movementInfo.t_pos.Relocate(13.9f, 1.23f, 17.22f, 3.1f);
+                }
+
+                player->TeleportTo(607, g_BG_SA_AttackerPosition[l_Boat][0], g_BG_SA_AttackerPosition[l_Boat][1], g_BG_SA_AttackerPosition[l_Boat][2], g_BG_SA_AttackerPosition[l_Boat][3], TELE_TO_NOT_LEAVE_TRANSPORT);
+                player->UpdateObjectVisibility();
             }
             else
                 player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
@@ -1022,4 +1015,24 @@ void BattlegroundSA::UpdateDemolisherSpawns()
             }
         }
     }
+}
+
+/// - The Graceful Maiden - 193182
+/// - The Blightbringer   - 193183
+/// - The Coffin Carrier  - 193184
+/// - The Frostbreaker    - 193185
+class go_sa_boat : public GameObjectScript
+{
+    public:
+        go_sa_boat() : GameObjectScript("go_sa_boat") {}
+
+        bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const
+        {
+            return false;
+        }
+};
+
+void AddSC_BattlegroundSAScripts()
+{
+    new go_sa_boat();
 }
