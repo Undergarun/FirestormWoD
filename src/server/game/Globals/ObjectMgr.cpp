@@ -2643,7 +2643,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Quality = sparse->Quality;
         itemTemplate.Flags = sparse->Flags;
         itemTemplate.Flags2 = sparse->Flags2;
-        itemTemplate.Flags3 = sparse->Unk540_1;
+        itemTemplate.Flags3 = sparse->Flags3;
         itemTemplate.Unk430_1 = sparse->Unk430_1;
         itemTemplate.Unk430_2 = sparse->Unk430_2;
         itemTemplate.BuyCount = std::max(sparse->BuyCount, 1u);
