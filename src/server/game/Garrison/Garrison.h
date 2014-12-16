@@ -178,6 +178,19 @@ struct GarrisonBuilding
     bool BuiltNotified;
 };
 
+struct GarrisonMissionReward
+{
+    std::vector<std::pair<uint32, uint32>> RewardCurrencies;
+    std::vector<std::pair<uint32, uint32>> RewardItems;
+    std::vector<std::pair<uint64, uint32>> RewardFollowerXPBonus;
+    uint32 RewardGold;
+    uint32 RewardFollowerXP;
+
+    std::vector<uint64> MissionFollowers;
+
+    bool Rewarded;
+};
+
 class Player;
 
 class GarrisonInstanceScriptBase
@@ -376,6 +389,8 @@ class Garrison
         uint32 m_Stat_MaxActiveFollower;
 
         GarrisonInstanceScriptBase * m_GarrisonScript;
+
+        GarrisonMissionReward m_PendingMissionReward;
 
 };
 
