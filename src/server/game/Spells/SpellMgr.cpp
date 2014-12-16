@@ -4934,6 +4934,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157979: // Unstable Magic ARCANE
                 spellInfo->Effects[0].BasePoints = 150;
                 break;
+            case 158624: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENTRY;
+                break;
+            case 121536: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
+                break;
             case 19574: // Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
                 spellInfo->Effects[3].ApplyAuraName = 0;
