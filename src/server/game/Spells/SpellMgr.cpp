@@ -6118,8 +6118,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                spellInfo->Mechanic = MECHANIC_NONE;
-                spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->Mechanic = MECHANIC_GRIP;
+                spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
             case 114255:// Surge of Light (proc)
                 spellInfo->StackAmount = 2;
