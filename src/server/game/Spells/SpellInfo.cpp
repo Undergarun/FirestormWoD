@@ -519,8 +519,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
             if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > l_Level)
                 l_Multiplier *= float(_spellInfo->CastTimeMin + (l_Level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
-            if (_spellInfo->CoefLevelBase > l_Level)
-                l_Multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(l_Level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
+            if (_spellInfo->NerfMaxLevel > l_Level)
+                l_Multiplier *= (1.0f - _spellInfo->NerfFactor) * (float)(l_Level - 1) / (float)(_spellInfo->NerfMaxLevel - 1) + _spellInfo->NerfFactor;
 
             float l_PreciseBasePoints = ScalingMultiplier * l_Multiplier;
             if (DeltaScalingMultiplier)
@@ -1003,8 +1003,8 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
     CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
     ScalingClass = _scaling ? _scaling->ScalingClass : 0;
-    CoefBase = _scaling ? _scaling->CoefBase : 0;
-    CoefLevelBase = _scaling ? _scaling->CoefLevelBase : 0;
+    NerfFactor = _scaling ? _scaling->NerfFactor : 0;
+    NerfMaxLevel = _scaling ? _scaling->NerfMaxLevel : 0;
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();

@@ -415,8 +415,8 @@ public:
     int32  CastTimeMax;
     int32  CastTimeMaxLevel;
     int32  ScalingClass;
-    float  CoefBase;
-    int32  CoefLevelBase;
+    float  NerfFactor;
+    int32  NerfMaxLevel;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
