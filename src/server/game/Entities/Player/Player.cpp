@@ -18344,6 +18344,16 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         m_QuestStatus.erase(itr);
         m_QuestStatusSave[quest_id] = false;
 
+        const Quest * l_Quest = sObjectMgr->GetQuestTemplate(quest_id);
+
+        if (l_Quest)
+        {
+            for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+            {
+                m_questObjectiveStatus[l_Objective.ID] = 0;
+            }
+        }
+
         CheckSpellAreaOnQuestStatusChange(quest_id);
 
         PhaseUpdateData phaseUdateData;
