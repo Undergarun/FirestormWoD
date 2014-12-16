@@ -11,7 +11,7 @@ enum
     QUEST_KEEPING_IT_TOGETHER       = 35176,
 };
 
-enum 
+enum
 {
     GARRISON_PHASE_BASE             = 0x0001,
     GARRISON_PHASE_COMPAGNION       = 0x0002,
@@ -23,7 +23,7 @@ class instance_Garrison_A1 : public InstanceMapScript
     public:
         /// Constructor
         instance_Garrison_A1()
-            : InstanceMapScript("instance_Garrison_A1", 1158) 
+            : InstanceMapScript("instance_Garrison_A1", 1158)
         {
 
         }
