@@ -1524,25 +1524,34 @@ class spell_rog_shadow_focus : public SpellScriptLoader
 public:
     spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
 
-    class spell_rog_shadow_focus_SpellScript : public SpellScript
+    class spell_rog_shadow_focus_AuraScript : public AuraScript
     {
-        PrepareSpellScript(spell_rog_shadow_focus_SpellScript);
+        PrepareAuraScript(spell_rog_shadow_focus_AuraScript);
 
-        void HandleOnHit()
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
-                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+                if (!l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
+                    l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
+                    l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_rog_shadow_focus_SpellScript::HandleOnHit);
+            OnEffectApply += AuraEffectApplyFn(spell_rog_shadow_focus_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_rog_shadow_focus_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    AuraScript* GetAuraScript() const
     {
-        return new spell_rog_shadow_focus_SpellScript();
+        return new spell_rog_shadow_focus_AuraScript();
     }
 };
 
