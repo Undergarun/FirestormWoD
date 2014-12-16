@@ -338,22 +338,32 @@ void Player::UpdateMaxHealth()
     SetMaxHealth((uint32)value);
 }
 
-void Player::UpdateMaxPower(Powers power)
+void Player::UpdateMaxPower(Powers p_Power)
 {
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods l_UnitMod = UnitMods(UNIT_MOD_POWER_START + p_Power);
 
-    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
-    value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE);
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
+    float l_Value       = GetModifierValue(l_UnitMod, BASE_VALUE);
+    float l_CreatePower = GetCreatePowers(p_Power);
+
+    float l_Mod = 1.0f;
+
+    if (p_Power == Powers::POWER_MANA)
+        AddPct(l_Mod, GetTotalAuraModifier(AuraType::SPELL_AURA_MODIFY_MANA_POOL_PCT));
+
+    l_CreatePower *= l_Mod;
+    l_Value       += l_CreatePower;
+
+    l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
+    l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE);
+    l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
     AuraEffectList const& mModMaxPower = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
     for (AuraEffectList::const_iterator i = mModMaxPower.begin(); i != mModMaxPower.end(); ++i)
-        if (power == (*i)->GetMiscValue())
-            value += float((*i)->GetAmount());
+        if (p_Power == (*i)->GetMiscValue())
+            l_Value += float((*i)->GetAmount());
 
-    value = floor(value + 0.5f);
-    SetMaxPower(power, uint32(value));
+        l_Value = floor(l_Value + 0.5f);
+    SetMaxPower(p_Power, uint32(l_Value));
 }
 
 void Player::UpdateItemLevel()
