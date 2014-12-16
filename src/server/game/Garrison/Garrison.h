@@ -109,6 +109,7 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_FOLLOWER_ACTIVATION_COST       2500000
 #define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
 #define GARRISON_CACHE_MAX_CURRENCY             500
+#define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
 
@@ -272,7 +273,7 @@ class Garrison
         /// Get the mission duration
         uint32 GetMissionDuration(uint32 p_MissionRecID);
         /// Get mission chest chance
-        uint32 GetMissionChestChance(uint32 p_MissionRecID);
+        uint32 GetMissionSuccessChance(uint32 p_MissionRecID);
         /// Get missions
         std::vector<GarrisonMission> GetMissions();
         /// Get all completed missions

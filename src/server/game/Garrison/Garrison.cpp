@@ -524,7 +524,7 @@ void Garrison::Update()
         if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
         {
             /// Get display ID
-            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > (GARRISON_CACHE_MAX_CURRENCY / 2)) ? 1 : 0);
+            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
             uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
             /// Destroy old cache if exist
@@ -1021,10 +1021,10 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
     if ((l_Mission->StartTime + (l_TravelDuration + l_MissionDuration)) > time(0))
         return;
 
-    uint32 l_ChestChance = GetMissionChestChance(p_MissionRecID);
+    uint32 l_ChestChance = GetMissionSuccessChance(p_MissionRecID);
 
     bool l_CanComplete = true;
-    bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance == ChestChance
+    bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
 
     l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 
@@ -1052,6 +1052,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
         std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_XP_GAIN, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
         std::vector<uint32> l_PassiveEffects         = GetBuildingsPassiveAbilityEffects();
 
+        /// Global XP Bonus modifier
         float l_XPModifier = 1.0f;
         for (uint32 l_I = 0; l_I < l_PartyXPModifiersEffect.size(); ++l_I)
         {
@@ -1073,6 +1074,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
             if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && (l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY || l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK))
                 l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
         }
+        /// ------------------------------------------
 
         float l_BonusXP = (l_XPModifier - 1.0f) * l_MissionTemplate->RewardFollowerExperience;
 
@@ -1080,6 +1082,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
         {
             float l_SecondXPModifier = 1.0f;
 
+            /// Personnal XP Bonus
             for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
             {
                 uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
@@ -1096,8 +1099,9 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
                 }
             }
 
-            l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_BonusXP;
+            l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
 
+            /// LevelUP Algo
             if (l_MissionFollowers[l_FollowerIt]->Level < GARRISON_MAX_FOLLOWER_LEVEL)
             {
                 const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
@@ -1245,7 +1249,7 @@ uint32 Garrison::GetMissionDuration(uint32 p_MissionRecID)
     return floorf(l_MissionDuration);
 }
 /// Get mission chest chance
-uint32 Garrison::GetMissionChestChance(uint32 p_MissionRecID)
+uint32 Garrison::GetMissionSuccessChance(uint32 p_MissionRecID)
 {
     const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
