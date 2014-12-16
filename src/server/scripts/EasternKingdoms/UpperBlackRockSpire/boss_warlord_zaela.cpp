@@ -121,14 +121,14 @@ static Position const g_CenterPos = { 20.647974f, -122.817032f, 97.818550f, 1.53
 
 static Position const g_BurningBreathPos[eMisc::MaxBurningBreath] =
 {
-    { -5.586f, -114.087f, 98.819f, 0.053f },
-    { 13.139f, -145.650f, 98.819f, 1.627f },
-    { 45.827f, -129.058f, 98.819f, 3.184f },
-    { 29.015f, -96.3660f, 98.819f, 4.660f },
-    { -3.202f, -132.664f, 98.819f, 0.128f },
-    { 33.935f, -143.047f, 98.819f, 1.573f },
-    { 49.320f, -108.727f, 98.819f, 3.211f },
-    { 7.4390f, -95.6347f, 98.819f, 4.817f }
+    { -5.649f, -110.458f, 97.000f, 0.053f },
+    { 10.748f, -145.371f, 97.000f, 1.627f },
+    { 45.843f, -130.213f, 97.000f, 3.184f },
+    { 33.629f, -97.0580f, 97.000f, 4.660f },
+    { -3.202f, -132.664f, 97.000f, 0.128f },
+    { 33.935f, -143.047f, 97.000f, 1.573f },
+    { 47.438f, -108.742f, 97.000f, 3.211f },
+    { 6.1734f, -96.8873f, 97.000f, 4.817f }
 };
 
 ///< Warlord Zaela - 77120
@@ -300,10 +300,16 @@ class boss_warlord_zaela : public CreatureScript
                         me->CastSpell(me, eSpells::BlackIronCycloneSpell, false);
                         break;
                     case eSpells::BlackIronCycloneAura:
+                    {
                         if (Player* l_Target = Player::GetPlayer(*me, m_BlackIronCycloneTarget))
-                            me->GetMotionMaster()->MoveChase(l_Target);
+                        {
+                            Position l_Pos;
+                            l_Target->GetPosition(&l_Pos);
+                            me->GetMotionMaster()->MovePoint(0, l_Pos);
+                        }
                         m_Events.ScheduleEvent(eEvents::EndBlackIronCyclone, 4500);
                         break;
+                    }
                     default:
                         break;
                 }
@@ -324,7 +330,10 @@ class boss_warlord_zaela : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::BackOnTheGround, 40000);
                     m_Events.ScheduleEvent(eEvents::SummonRiders, 1000);
 
-                    Talk(eSays::TalkSpell2);
+                    if (urand(0, 1))
+                        Talk(eSays::TalkSpell2);
+                    else
+                        Talk(eSays::TalkSpell1);
 
                     if (Creature* l_Ironflight = me->SummonCreature(eCreatures::NPC_EMBERSCALE_IRONFLIGHT_2, g_IronflightSpawnPos))
                     {
@@ -354,6 +363,25 @@ class boss_warlord_zaela : public CreatureScript
                 }
 
                 m_Events.Update(p_Diff);
+
+                ///< Update Cyclone's target here
+                if (me->HasAura(eSpells::BlackIronCycloneAura))
+                {
+                    if (Player* l_Target = Player::GetPlayer(*me, m_BlackIronCycloneTarget))
+                    {
+                        Position l_Pos;
+                        l_Target->GetPosition(&l_Pos);
+                        me->GetMotionMaster()->MovePoint(0, l_Pos);
+                    }
+                }
+
+                ///< Update target movements here to avoid some movements problems
+                if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()))
+                {
+                    Position l_Pos;
+                    me->getVictim()->GetPosition(&l_Pos);
+                    me->GetMotionMaster()->MovePoint(0, l_Pos);
+                }
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -411,8 +439,10 @@ class boss_warlord_zaela : public CreatureScript
                             l_Ironflight->GetMotionMaster()->Clear();
                             l_Ironflight->GetMotionMaster()->MovePoint(0, m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ + 10.0f);
                             me->ExitVehicle(&m_JumpPos);
+                            me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
                             l_Ironflight->DespawnOrUnsummon(50);
                             m_Phase = eMisc::PhaseGround;
+                            Talk(eSays::TalkSpell4);
                         }
                         break;
                     }
@@ -440,9 +470,6 @@ class boss_warlord_zaela : public CreatureScript
                     }
                     case eEvents::BurningBreathTime:
                     {
-                        if (m_Phase == eMisc::PhaseGround)
-                            break;
-
                         std::list<Creature*> l_EmberscaleList;
                         me->GetCreatureListWithEntryInGrid(l_EmberscaleList, eCreatures::NPC_EMBERSCALE_IRONFLIGHT_2, 200.0f);
 
@@ -474,7 +501,7 @@ class boss_warlord_zaela : public CreatureScript
                         if (m_BurningBreathCount >= eMisc::MaxBurningBreath)
                             m_BurningBreathCount = 0;
 
-                        m_Events.ScheduleEvent(eEvents::BurningBreathTime, 10000);
+                        m_Events.ScheduleEvent(eEvents::BurningBreathTime, IsHeroic() ? 6000 : 10000);
                         break;
                     }
                     default:
@@ -572,6 +599,8 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 m_Events.ScheduleEvent(Events::CirclePath, 5000);
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void EnterEvadeMode()
@@ -700,12 +729,14 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
 
             enum Spells
             {
-                ChainPullSpell = 167241
+                ChainPullSpell = 167241,
+                DragonRoar     = 167242
             };
 
             enum Events
             {
-                ChainPull = 1
+                ChainPull = 1,
+                TriggerDragonRoar
             };
 
             InstanceScript* m_Instance;
@@ -720,7 +751,12 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
             void DoAction(int32 const p_Action)
             {
                 if (p_Action == eActions::ActionFightRiders)
+                {
                     m_Events.ScheduleEvent(Events::ChainPull, 5000);
+
+                    if (IsHeroic())
+                        m_Events.ScheduleEvent(Events::TriggerDragonRoar, 6000);
+                }
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -739,6 +775,10 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, Spells::ChainPullSpell, false);
                         m_Events.ScheduleEvent(Events::ChainPull, 15000);
+                        break;
+                    case Events::TriggerDragonRoar:
+                        me->CastSpell(me, Spells::DragonRoar, true);
+                        m_Events.ScheduleEvent(Events::TriggerDragonRoar, 6000);
                         break;
                     default:
                         break;
@@ -780,10 +820,54 @@ class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
         }
 };
 
+///< Burning Breath (triggered) - 166041
+class spell_burning_breath : public SpellScriptLoader
+{
+    public:
+        spell_burning_breath() : SpellScriptLoader("spell_burning_breath") { }
+
+        class spell_burning_breath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_burning_breath_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!l_Caster->isInFront(p_Object, M_PI / 6.0f))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_burning_breath_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_129);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_burning_breath_SpellScript();
+        }
+};
+
 void AddSC_boss_warlord_zaela()
 {
     new boss_warlord_zaela();
     new mob_zaela_emberscale_ironfight();
     new mob_zaela_black_iron_wyrm_rider();
     new areatrigger_burning_bridge();
+    new spell_burning_breath();
 }
