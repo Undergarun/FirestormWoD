@@ -533,6 +533,27 @@ struct GarrMissionEntry
     uint32 BaseBronzeChestChance;                       // 18
 };
 
+struct GarrMissionRewardEntry
+{
+    uint32 MissionRewardID;                             // 0
+    uint32 MissionID;                                   // 1
+    uint32 BonusRewardXP;                               // 2
+    uint32 ItemID;                                      // 3
+    uint32 ItemQuantity;                                // 4
+    uint32 RewardCurrencyID;                            // 5
+    uint32 RewardCurrencyAmount;                        // 6
+    uint32 Unk1;                                        // 7
+    uint32 Unk2;                                        // 8
+    uint32 Unk3;                                        // 9
+};
+
+struct GarrMissionXEncouterEntry
+{
+    uint32 ID;                                          // 0
+    uint32 MissionID;                                   // 1
+    uint32 EncounterID;                                 // 2
+};
+
 struct GarrBuildingEntry
 {
     uint32 BuildingID;                                  // 0
@@ -647,13 +668,6 @@ struct GarrMechanicTypeEntry
     char * Environment;                                 // 2
     char * EnvironmentDesc;                             // 3
     uint32 EnvironmentTextureID;                        // 4
-};
-
-struct GarrMissionXEncouterEntry
-{
-    uint32 ID;                                          // 0
-    uint32 MissionID;                                   // 1
-    uint32 EncounterID;                                 // 2
 };
 
 struct GarrEncouterXMechanicEntry

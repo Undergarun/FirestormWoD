@@ -1047,36 +1047,144 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
 
     m_Owner->SendDirectMessage(&l_Result);
 
+    std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_XP_GAIN, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
+    std::vector<uint32> l_PassiveEffects         = GetBuildingsPassiveAbilityEffects();
+
+    /// Global XP Bonus modifier
+    float l_XPModifier = 1.0f;
+    for (uint32 l_I = 0; l_I < l_PartyXPModifiersEffect.size(); ++l_I)
+    {
+        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyXPModifiersEffect[l_I]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
+    }
+
+    for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
+    {
+        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && (l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY || l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK))
+            l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
+    }
+    /// ------------------------------------------
+
+    float l_BonusXP = (l_XPModifier - 1.0f) * l_MissionTemplate->RewardFollowerExperience;
+
+    for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
+    {
+        float l_SecondXPModifier = 1.0f;
+
+        /// Personnal XP Bonus
+        for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
+
+            for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
+            {
+                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF)
+                    l_SecondXPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_SecondXPModifier;
+            }
+        }
+
+        l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
+
+        /// LevelUP Algo
+        if (l_MissionFollowers[l_FollowerIt]->Level < GARRISON_MAX_FOLLOWER_LEVEL)
+        {
+            const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
+
+            for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
+            {
+                const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
+
+                if (l_CurrentLevelData && l_CurrentLevelData->Level == l_MissionFollowers[l_FollowerIt]->Level)
+                {
+                    l_LevelData = l_CurrentLevelData;
+                    break;
+                }
+            }
+
+            if (l_LevelData && l_MissionFollowers[l_FollowerIt]->XP >= l_LevelData->RequiredExperience)
+            {
+                l_MissionFollowers[l_FollowerIt]->Level++;
+                l_MissionFollowers[l_FollowerIt]->XP = l_MissionFollowers[l_FollowerIt]->XP - l_LevelData->RequiredExperience;
+            }
+        }
+        else
+            l_MissionFollowers[l_FollowerIt]->XP = 0;
+    }
+
     if (l_Succeeded)
     {
-        std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_XP_GAIN, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
-        std::vector<uint32> l_PassiveEffects         = GetBuildingsPassiveAbilityEffects();
+        m_PendingMissionReward.RewardFollowerXPBonus.clear();
+        m_PendingMissionReward.MissionFollowers.clear();
+        m_PendingMissionReward.RewardCurrencies.clear();
+        m_PendingMissionReward.RewardItems.clear();
+        m_PendingMissionReward.RewardGold       = 0;
+        m_PendingMissionReward.RewardFollowerXP = 0;
+        m_PendingMissionReward.Rewarded         = false;
 
-        /// Global XP Bonus modifier
-        float l_XPModifier = 1.0f;
-        for (uint32 l_I = 0; l_I < l_PartyXPModifiersEffect.size(); ++l_I)
+        for (uint32 l_I = 0; l_I < l_MissionFollowers.size(); ++l_I)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyXPModifiersEffect[l_I]);
-
-            if (!l_AbilityEffectEntry)
-                continue;
-
-            l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
+            m_PendingMissionReward.MissionFollowers.push_back(l_MissionFollowers[l_I]->DB_ID);
         }
 
-        for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
+        for (uint32 l_I = 0; l_I < sGarrMissionRewardStore.GetNumRows(); ++l_I)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+            const GarrMissionRewardEntry * l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_I);
 
-            if (!l_AbilityEffectEntry)
+            if (!l_RewardEntry || l_RewardEntry->MissionID != p_MissionRecID)
                 continue;
 
-            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && (l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY || l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK))
-                l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
-        }
-        /// ------------------------------------------
+            if (l_RewardEntry->ItemID)
+                m_PendingMissionReward.RewardItems.push_back(std::make_pair(l_RewardEntry->ItemID, l_RewardEntry->ItemQuantity));
 
-        float l_BonusXP = (l_XPModifier - 1.0f) * l_MissionTemplate->RewardFollowerExperience;
+            if (l_RewardEntry->RewardCurrencyID == 0)
+                m_PendingMissionReward.RewardGold += l_RewardEntry->RewardCurrencyAmount;
+
+            if (l_RewardEntry->RewardCurrencyID)
+            {
+                uint32 l_Amount = l_RewardEntry->RewardCurrencyAmount;
+
+                if (l_RewardEntry->RewardCurrencyID == GARRISON_CURRENCY_ID)
+                {
+                    std::vector<uint32> l_PartyCurrencyModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_GARR_CURRENCY_DROP, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
+
+                    /// Global currency Bonus modifier
+                    float l_Modifier = 1.0f;
+                    for (uint32 l_I = 0; l_I < l_PartyCurrencyModifiersEffect.size(); ++l_I)
+                    {
+                        const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyCurrencyModifiersEffect[l_I]);
+
+                        if (!l_AbilityEffectEntry)
+                            continue;
+
+                        l_Modifier = (l_AbilityEffectEntry->Amount - 1.0) + l_Modifier;
+                    }
+
+                    l_Amount += (l_Modifier - 1.0f) * l_Amount;
+                }
+
+                m_PendingMissionReward.RewardCurrencies.push_back(std::make_pair(l_RewardEntry->RewardCurrencyID, l_Amount));
+            }
+
+            if (l_RewardEntry->BonusRewardXP)
+                m_PendingMissionReward.RewardFollowerXP += l_RewardEntry->BonusRewardXP;
+        }
+
+        l_BonusXP = (l_XPModifier - 1.0f) * m_PendingMissionReward.RewardFollowerXP;
+        m_PendingMissionReward.RewardFollowerXP += l_BonusXP;
 
         for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
         {
@@ -1099,33 +1207,15 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
                 }
             }
 
-            l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
-
-            /// LevelUP Algo
-            if (l_MissionFollowers[l_FollowerIt]->Level < GARRISON_MAX_FOLLOWER_LEVEL)
-            {
-                const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
-
-                for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
-                {
-                    const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
-
-                    if (l_CurrentLevelData && l_CurrentLevelData->Level == l_MissionFollowers[l_FollowerIt]->Level)
-                    {
-                        l_LevelData = l_CurrentLevelData;
-                        break;
-                    }
-                }
-
-                if (l_LevelData && l_MissionFollowers[l_FollowerIt]->XP >= l_LevelData->RequiredExperience)
-                {
-                    l_MissionFollowers[l_FollowerIt]->Level++;
-                    l_MissionFollowers[l_FollowerIt]->XP = l_MissionFollowers[l_FollowerIt]->XP - l_LevelData->RequiredExperience;
-                }
-            }
-            else
-                l_MissionFollowers[l_FollowerIt]->XP = 0;
+            m_PendingMissionReward.RewardFollowerXPBonus.push_back(std::make_pair(l_MissionFollowers[l_FollowerIt]->DB_ID, (l_BonusXP + m_PendingMissionReward.RewardFollowerXP) * l_SecondXPModifier));
         }
+    }
+
+    /// Unasign follower to the mission
+    for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
+    {
+        if (m_Followers[l_I].CurrentMissionID == p_MissionRecID)
+            m_Followers[l_I].CurrentMissionID = 0;
     }
 }
 /// Get followers on a mission
