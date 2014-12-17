@@ -378,7 +378,7 @@ namespace MS
                     {
                     case uint32(Events::CastDown):
                         events.ScheduleEvent(uint32(Events::CastDown), 35000);
-                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerExcludedTank(me, 80.0f))
                         {
                             DoScriptText(int32(Texts::SpellCastDown), me);
                             me->CastSpell(l_Plr, uint32(Spells::CastDown));
