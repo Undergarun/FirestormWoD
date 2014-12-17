@@ -94,6 +94,13 @@ enum GarrisonWorldState
     GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
 };
 
+enum GarrMechanicType
+{
+    GARRISON_MECHANIC_TYPE_ENVIRONMENT  = 0,
+    GARRISON_MECHANIC_TYPE_RACIAL       = 1,
+    GARRISON_MECHANIC_TYPE_ABILITY      = 2,
+};
+
 extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
@@ -154,9 +161,9 @@ struct GarrisonFollower
     uint32 DB_ID;
     uint32 FollowerID;
     uint32 Quality;
-    uint32 Level;
-    uint32 ItemLevelWeapon;
-    uint32 ItemLevelArmor;
+    int32  Level;
+    int32  ItemLevelWeapon;
+    int32  ItemLevelArmor;
     uint32 XP;
     uint32 CurrentBuildingID;
     uint32 CurrentMissionID;
