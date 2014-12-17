@@ -340,6 +340,11 @@ namespace MS
                     DoScriptText(int32(Texts::JustDied), me);
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                        if (p_Plr)
+                            p_Plr->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                    });
                 }
 
                 void KilledUnit(Unit* /*victim*/)
