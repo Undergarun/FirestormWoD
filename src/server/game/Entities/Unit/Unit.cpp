@@ -21957,6 +21957,11 @@ bool Unit::IsSplineEnabled() const
     return movespline->Initialized();
 }
 
+bool Unit::IsSplineFinished() const
+{
+    return movespline->Finalized();
+}
+
 void Unit::SetEclipsePower(int32 p_Power, bool p_Send)
 {
     if (p_Power > 100)

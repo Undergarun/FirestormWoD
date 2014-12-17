@@ -3358,10 +3358,10 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="int" name="bonustree" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="bonustype" />
   </ItemBonusTreeNode>
   <ItemCurrencyCost build="0">
     <index>
@@ -3411,8 +3411,8 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="itemID" />
+    <field type="int" name="bonustreeNodefield2" />
   </ItemXBonusTree>
   <WorldSafeLocs build="0">
     <index>

@@ -592,6 +592,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             {
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
+                    player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
                 }
@@ -1054,6 +1055,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->ResurrectPlayer(1.0f);
             player->SpawnCorpseBones();
         }
+
+        player->ActivateSpec(player->GetBGLastActiveSpec());
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
@@ -1339,6 +1342,8 @@ void Battleground::AddPlayer(Player* player)
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
+            player->SaveBGLastSpecialization();
+            player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
             SendCountdownTimer();
         }

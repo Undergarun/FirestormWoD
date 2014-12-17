@@ -340,6 +340,11 @@ namespace MS
                     DoScriptText(int32(Texts::JustDied), me);
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                        if (p_Plr)
+                            p_Plr->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                    });
                 }
 
                 void KilledUnit(Unit* /*victim*/)
@@ -378,7 +383,7 @@ namespace MS
                     {
                     case uint32(Events::CastDown):
                         events.ScheduleEvent(uint32(Events::CastDown), 35000);
-                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerExcludedTank(me, 80.0f))
                         {
                             DoScriptText(int32(Texts::SpellCastDown), me);
                             me->CastSpell(l_Plr, uint32(Spells::CastDown));

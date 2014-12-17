@@ -513,8 +513,8 @@ struct GarrPlotUICategoryEntry
 struct GarrMissionEntry
 {
     uint32 MissionRecID;                                // 0
-    uint32 RequiredLevel;                               // 1
-    uint32 RequiredItemLevel;                           // 2
+    int32  RequiredLevel;                               // 1
+    int32  RequiredItemLevel;                           // 2
     uint32 GarrMechanicTypeRecID;                       // 3
     uint32 RequiredFollowersCount;                      // 4
     uint32 TravelTime;                                  // 5
@@ -597,9 +597,9 @@ struct GarrFollowerEntry
     uint32 Unk5;                                        // 7
     uint32 Unk6;                                        // 8
     uint32 Unk7;                                        // 9
-    uint32 Level;                                       // 10
-    uint32 ItemLevelWeapon;                             // 11
-    uint32 ItemLevelArmor;                              // 12
+    int32  Level;                                       // 10
+    int32  ItemLevelWeapon;                             // 11
+    int32  ItemLevelArmor;                              // 12
     uint32 Unk8;                                        // 13
     uint32 Unk9;                                        // 14
     char * UnkString1;                                  // 15
@@ -664,7 +664,7 @@ struct GarrMechanicEntry
 struct GarrMechanicTypeEntry
 {
     uint32 ID;                                          // 0
-    uint32 Unk1;                                        // 1
+    uint32 Type;                                        // 1
     char * Environment;                                 // 2
     char * EnvironmentDesc;                             // 3
     uint32 EnvironmentTextureID;                        // 4

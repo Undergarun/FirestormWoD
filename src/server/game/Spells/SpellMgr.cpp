@@ -4838,13 +4838,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484:  // Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
-            case 6544:  // Heroic Leap
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[2].TargetB = 0;
-                spellInfo->Effects[2].BasePoints = 0;
-                break;
             case 116198:// Enfeeblement Aura
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
@@ -4931,6 +4924,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 132764:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 157977: // Unstable Magic FIRE
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 157978: // Unstable Magic FROST
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 157979: // Unstable Magic ARCANE
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 158624: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENTRY;
+                break;
+            case 121536: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
             case 19574: // Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
@@ -6146,8 +6154,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                spellInfo->Mechanic = MECHANIC_NONE;
-                spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->Mechanic = MECHANIC_GRIP;
+                spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
             case 114255:// Surge of Light (proc)
                 spellInfo->StackAmount = 2;
@@ -6172,6 +6180,10 @@ void SpellMgr::LoadSpellCustomAttr()
             // Shred
             case 5221:
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            // Hurricane Strike (damage)
+            case 158221:
+                spellInfo->SetDurationIndex(39); // 2 seconds
                 break;
             default:
                 break;

@@ -283,7 +283,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             UpdateMinionState(*i, state);
 
         ///< End of challenge
-        if (id == (bosses.size() - 1))
+        if (id == (bosses.size() - 1) && state == DONE)
         {
             if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
             {

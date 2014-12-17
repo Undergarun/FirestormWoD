@@ -87,12 +87,16 @@ enum MageSpells
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FROSTBOLT                         = 116,
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
-    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE             = 157977,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE        = 157977,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST       = 157978,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE      = 157979,
     SPELL_MAGE_ARCANE_POWER                      = 12042,
     SPELL_MAGE_OVERPOWERED                       = 155147,
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_THERMAL_VOID                      = 155149,
-    SPELL_MAGE_PYROBLAST_AURA                    = 159517
+    SPELL_MAGE_PYROBLAST_AURA                    = 159517,
+    SPELL_MAGE_KINDKING                          = 155148,
+    SPELL_MAGE_COMBUSTION                        = 11129
 };
 
 
@@ -1358,23 +1362,29 @@ public:
     {
         PrepareSpellScript(spell_mage_unstable_magic_SpellScript);
 
-        void HandleAfterHit()
+        void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
                 if (l_Caster->HasAura(SPELL_MAGE_UNSTABLE_MAGIC))
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 l_Damage = CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE)->Effects[EFFECT_0].BasePoints);
-                        if ((GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_0].BasePoints))
-                            || (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_2].BasePoints))
-                            || (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_1].BasePoints)))
-                            l_Caster->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE, NULL, &l_Damage, NULL, true);
+                        if ((GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_0].BasePoints))
+                            || (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_2].BasePoints))
+                            || (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_1].BasePoints)))
+                        {
+                            if (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL)
+                                l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, true);
+                            else if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST)
+                                l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE, true);
+                            else if (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT)
+                                l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, true);
+                        }
                     }
         }
 
         void Register()
         {
-            AfterHit += SpellHitFn(spell_mage_unstable_magic_SpellScript::HandleAfterHit);
+            OnHit += SpellHitFn(spell_mage_unstable_magic_SpellScript::HandleOnHit);
         }
     };
 
@@ -1472,8 +1482,41 @@ public:
     }
 };
 
+// Call by Fireball 133 - FrostFire Bolt 44614 - Pyroblast 11366 - Inferno Blast 108853
+// Kindling - 5405
+class spell_mage_kindling : public SpellScriptLoader
+{
+public:
+    spell_mage_kindling() : SpellScriptLoader("spell_mage_kindling") { }
+
+    class spell_mage_kindling_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_kindling_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Unit = GetCaster())
+                if (l_Unit->HasAura(SPELL_MAGE_KINDKING))
+                    if (Player *l_Player = l_Unit->ToPlayer())
+                        if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                            l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDKING)->Effects[EFFECT_0].BasePoints);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_kindling_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
     new spell_mage_pyroblast();
     new spell_mage_ice_lance();

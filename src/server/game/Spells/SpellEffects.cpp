@@ -292,7 +292,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217                     Upgrade Garrison (171905)
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
     &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1
-    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220                     Unk 6.0.1
+    &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_OBTAIN_FOLLOWER         Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
     &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222                     Create Heirloom
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223                     Unk 6.0.1
@@ -8299,6 +8299,33 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
         uint32 l_DestroyCount = 1;
         l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
     }
+    else
+        SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
+}
+
+void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player)
+        return;
+
+    if (!l_Player->GetGarrison())
+        return;
+
+    if (l_Player->GetGarrison()->AddFollower(m_spellInfo->Effects[p_EffIndex].MiscValue))
+    {
+        uint32 l_DestroyCount = 1;
+        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+    }
+    else
+        SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
 void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
