@@ -1135,8 +1135,18 @@ class Player;
 /// Holder for Battleground data
 struct BGData
 {
-    BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
-        bgTeam(0), mountSpell(0) { bgQueuesJoinedTime.clear(); ClearTaxiPath(); }
+    BGData() :
+        bgInstanceID(0),
+        bgTypeID(BATTLEGROUND_TYPE_NONE),
+        bgAfkReportedCount(0),
+        bgAfkReportedTimer(0),
+        bgTeam(0),
+        mountSpell(0),
+        m_LastActiveSpec(0)
+    {
+        bgQueuesJoinedTime.clear();
+        ClearTaxiPath();
+    }
 
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
@@ -1154,6 +1164,8 @@ struct BGData
     uint32 taxiPath[2];
 
     WorldLocation joinPos;                  ///< From where player entered BG
+
+    uint8 m_LastActiveSpec;
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
@@ -2806,6 +2818,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
+        uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
+        void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground() const;
