@@ -1368,12 +1368,12 @@ struct ChargesData
         m_Changed = false;
     }
 
-    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown)
+    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown, uint32 p_Charges = 1)
     {
         m_MaxCharges = p_MaxCharges;
 
         // Called in ConsumeCharge, so one charge has gone
-        m_ConsumedCharges = 1;
+        m_ConsumedCharges = p_Charges;
 
         m_ChargesCooldown.push_back(p_Cooldown);
         m_Changed = true;

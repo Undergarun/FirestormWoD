@@ -5660,11 +5660,11 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
             if (m_SpellChargesMap.find(l_SpellID) != m_SpellChargesMap.end())
             {
                 ChargesData* l_Charges = GetChargesData(l_SpellID);
-                ++l_Charges->m_ConsumedCharges;
+                l_Charges->m_ConsumedCharges = l_Charge;
                 l_Charges->m_ChargesCooldown.push_back(l_RealCooldown);
             }
             else
-                m_SpellChargesMap.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown)));
+                m_SpellChargesMap.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_Charge)));
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_SpellID, uint32(l_Cooldown - l_CurrTime));
         }
@@ -5717,12 +5717,9 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
     l_Statement->setUInt32(0, GetGUIDLow());
     p_Transaction->Append(l_Statement);
 
-    uint64 l_CurrTime = 0;
-    ACE_OS::gettimeofday().msec(l_CurrTime);
-
     for (auto l_SpellCharges : m_SpellChargesMap)
     {
-        uint8 l_Count = 0;
+        uint8 l_Count = 1;
         for (uint64 l_Cooldown : l_SpellCharges.second.m_ChargesCooldown)
         {
             PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
@@ -24782,31 +24779,38 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         // Now we have cooldown data (if found any), time to apply mods
         if (rec > 0)
-        {
-            Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
-            for (Unit::AuraEffectList::const_iterator itr = categoryCooldownAuras.begin(); itr != categoryCooldownAuras.end(); ++itr)
-            {
-                 if ((*itr)->GetMiscValue() != spellInfo->Category)
-                     continue;
+            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, rec, spell);
 
-                 rec += (*itr)->GetAmount();
+        if (catrec > 0 && !(spellInfo->AttributesEx6 & SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
+
+        if (cat)
+        {
+            if (int32 l_CategoryModifier = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN, cat))
+            {
+                if (rec > 0)
+                    rec += l_CategoryModifier;
+
+                if (catrec > 0)
+                    catrec += l_CategoryModifier;
             }
 
-            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, rec, spell);
+            // New MoP skill cooldown
+            // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
+            if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
+            {
+                int days = catrec / 1000;
+                recTime = (86400 * days) * IN_MILLISECONDS;
+            }
         }
 
-        if (catrec > 0)
+        // TODO: is charge regen time affected by any mods?
+        SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
+        if (categories && categories->ChargesCategory != 0)
         {
-            Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
-            for (Unit::AuraEffectList::const_iterator itr = categoryCooldownAuras.begin(); itr != categoryCooldownAuras.end(); ++itr)
-            {
-                if ((*itr)->GetMiscValue() != spellInfo->Category)
-                    continue;
-
-                catrec += (*itr)->GetAmount();
-            }
-
-            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
+            SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+            if (category && category->ChargeRegenTime != 0 && category->MaxCharges != 0)
+                ConsumeCharge(spellInfo->Id, category);
         }
 
         // replace negative cooldowns by 0
@@ -24818,30 +24822,12 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         // no cooldown after applying spell mods
         if (rec == 0 && catrec == 0)
-        {
-            // TODO: is charge regen time affected by any mods?
-            SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
-            if (categories && categories->ChargesCategory != 0)
-            {
-                SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-                if (category && category->ChargeRegenTime != 0)
-                    ConsumeCharge(spellInfo->Id, category);
-            }
-
             return;
-        }
 
         catrecTime = catrec ? catrec : 0;
         recTime = rec ? rec : catrecTime;
     }
 
-    // New MoP skill cooldown
-    // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
-    if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
-    {
-        int days = catrec / 1000;
-        recTime = (86400 * days) * IN_MILLISECONDS;
-    }
 
     // self spell cooldown
     if (recTime > 0)
@@ -24866,10 +24852,11 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
 {
+    uint64 curTime = 0;
+    ACE_OS::gettimeofday().msec(curTime);
+
     SpellCooldown sc;
-    uint64 currTime = 0;
-    ACE_OS::gettimeofday().msec(currTime);
-    sc.end = currTime + end_time;
+    sc.end = curTime + end_time;
     sc.itemid = itemid;
     m_spellCooldowns[spellid] = sc;
 
@@ -25659,7 +25646,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendCooldownAtLogin()
 {
-    time_t curTime = time(NULL);
+    uint64 curTime = 0;
+    ACE_OS::gettimeofday().msec(curTime);
 
     for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
     {
@@ -31011,7 +30999,7 @@ void Player::SendSpellCharges()
         else
             l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
 
-        l_Data << uint8(l_Charges.m_ConsumedCharges);
+        l_Data << uint8(l_Charges.m_ConsumedCharges + 1);
 
         ++l_Count;
     }
