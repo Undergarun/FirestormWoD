@@ -3021,13 +3021,22 @@ void ObjectMgr::LoadItemSpecs()
     uint32 l_Count = 0;
     uint32 l_OldMSTime = getMSTime();
 
+    /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
+    /// - The process must be done with the character level, so we can't do it at loading ...          ///
+    /// - For now, we use 100 as placeholder, we will change that in somes day/month/year, who know ?  ///
+    /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
+
+    const uint32 l_CharacterLevel = 100;
+
     for (ItemTemplateContainer::iterator l_Itr = _itemTemplateStore.begin(); l_Itr != _itemTemplateStore.end(); ++l_Itr)
     {
         ItemTemplate& l_ItemTemplate = l_Itr->second;
         if (l_ItemTemplate.HasSpec())
             continue;
 
-        uint32 l_TempStat = 26;
+        uint32               l_TempStat  = 28;
+        bool                 l_Find      = false;
+        std::vector<uint32>  l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
 
         for (uint32 l_Idx = 0; l_Idx < sItemSpecStore.GetNumRows(); l_Idx++)
         {
@@ -3035,14 +3044,14 @@ void ObjectMgr::LoadItemSpecs()
             if (!l_ItemSpec)
                 continue;
 
-            if (l_ItemTemplate.RequiredLevel >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_ItemSpec->MaxLevel)
+            if (l_CharacterLevel >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_CharacterLevel)
             {
                 if (l_ItemSpec->ItemType == ItemSpecialization::GetItemType(&l_ItemTemplate))
                 {
-                    std::list<uint32> l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
+                    l_Find = true;
                     if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->PrimaryStat, l_ItemStats))
                     {
-                        if (l_ItemSpec->SecondaryStat == 26)
+                        if (l_ItemSpec->SecondaryStat == 28)
                         {
                             if (l_TempStat != l_ItemSpec->PrimaryStat)
                             {
@@ -3050,14 +3059,16 @@ void ObjectMgr::LoadItemSpecs()
                                 ++l_Count;
                             }
                         }
-                    }
-                    else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
-                    {
-                        l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
-                        ++l_Count;
-                        l_TempStat = l_ItemSpec->PrimaryStat;
+                        else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
+                        {
+                            l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
+                            ++l_Count;
+                            l_TempStat = l_ItemSpec->PrimaryStat;
+                        }
                     }
                 }
+                else if (l_Find)
+                    break;
             }
         }
     }
