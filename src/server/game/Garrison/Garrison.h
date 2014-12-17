@@ -60,6 +60,12 @@ enum GarrisonPurchaseBuildingResult
     GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47,
 };
 
+enum GarrisonMissionBonusRollResult
+{
+    GARRISON_MISSION_BONUS_ROLL_OK      = 0,
+    GARRISON_MISSION_BONUS_ROLL_ERROR   = 1,
+};
+
 enum GarrisonAbilityEffectType
 {
     GARRISION_ABILITY_EFFECT_UNK_0                                  = 0,    ///< @TODO
@@ -195,6 +201,7 @@ struct GarrisonMissionReward
 
     std::vector<uint64> MissionFollowers;
 
+    uint32 MissionID;
     bool Rewarded;
 };
 
@@ -282,6 +289,10 @@ class Garrison
         void StartMissionFailed();
         /// Complete a mission
         void CompleteMission(uint32 p_MissionRecID);
+        /// Do mission bonus roll
+        void DoMissionBonusRoll(uint32 p_MissionRecID);
+        /// Set mission has complete
+        void SetAllInProgressMissionAsComplete();
         /// Get followers on a mission
         std::vector<GarrisonFollower*> GetMissionFollowers(uint32 p_MissionRecID);
         /// Get mission followers abilities effect

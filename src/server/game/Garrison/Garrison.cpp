@@ -1078,6 +1078,28 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
 
     for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
     {
+        WorldPacket l_Update(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 500);
+        ByteBuffer l_UpdatePart(150);
+
+        /// Before
+        {
+            l_UpdatePart << uint64(l_MissionFollowers[l_FollowerIt]->DB_ID);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->FollowerID);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Quality);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Level);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelWeapon);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelArmor);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->XP);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentBuildingID);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentMissionID);
+
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Abilities.size());
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Flags);
+
+            for (uint32 l_Y = 0; l_Y < l_MissionFollowers[l_FollowerIt]->Abilities.size(); ++l_Y)
+                l_UpdatePart << int32(l_MissionFollowers[l_FollowerIt]->Abilities[l_Y]);
+        }
+
         float l_SecondXPModifier = 1.0f;
 
         /// Personnal XP Bonus
@@ -1097,6 +1119,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
             }
         }
 
+        uint32 l_AddedXP = (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
         l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
 
         /// LevelUP Algo
@@ -1121,20 +1144,42 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
                 l_MissionFollowers[l_FollowerIt]->XP = l_MissionFollowers[l_FollowerIt]->XP - l_LevelData->RequiredExperience;
             }
         }
-        else
-            l_MissionFollowers[l_FollowerIt]->XP = 0;
+
+        /// After
+        {
+            l_UpdatePart << uint64(l_MissionFollowers[l_FollowerIt]->DB_ID);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->FollowerID);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Quality);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Level);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelWeapon);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelArmor);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->XP);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentBuildingID);
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentMissionID);
+
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Abilities.size());
+            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Flags);
+
+            for (uint32 l_Y = 0; l_Y < l_MissionFollowers[l_FollowerIt]->Abilities.size(); ++l_Y)
+                l_UpdatePart << int32(l_MissionFollowers[l_FollowerIt]->Abilities[l_Y]);
+        }
+        l_Update << uint32(l_AddedXP);
+        l_Update.append(l_UpdatePart);
+
+        m_Owner->SendDirectMessage(&l_Update);
     }
+
+    m_PendingMissionReward.RewardFollowerXPBonus.clear();
+    m_PendingMissionReward.MissionFollowers.clear();
+    m_PendingMissionReward.RewardCurrencies.clear();
+    m_PendingMissionReward.RewardItems.clear();
+    m_PendingMissionReward.RewardGold       = 0;
+    m_PendingMissionReward.RewardFollowerXP = 0;
+    m_PendingMissionReward.Rewarded         = false;
+    m_PendingMissionReward.MissionID        = p_MissionRecID;
 
     if (l_Succeeded)
     {
-        m_PendingMissionReward.RewardFollowerXPBonus.clear();
-        m_PendingMissionReward.MissionFollowers.clear();
-        m_PendingMissionReward.RewardCurrencies.clear();
-        m_PendingMissionReward.RewardItems.clear();
-        m_PendingMissionReward.RewardGold       = 0;
-        m_PendingMissionReward.RewardFollowerXP = 0;
-        m_PendingMissionReward.Rewarded         = false;
-
         for (uint32 l_I = 0; l_I < l_MissionFollowers.size(); ++l_I)
         {
             m_PendingMissionReward.MissionFollowers.push_back(l_MissionFollowers[l_I]->DB_ID);
@@ -1215,8 +1260,217 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
     for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
     {
         if (m_Followers[l_I].CurrentMissionID == p_MissionRecID)
+        {
             m_Followers[l_I].CurrentMissionID = 0;
+
+            WorldPacket l_Update(SMSG_GARRISON_UPDATE_FOLLOWER, 500);
+            l_Update << uint64(m_Followers[l_I].DB_ID);
+            l_Update << uint32(m_Followers[l_I].FollowerID);
+            l_Update << uint32(m_Followers[l_I].Quality);
+            l_Update << uint32(m_Followers[l_I].Level);
+            l_Update << uint32(m_Followers[l_I].ItemLevelWeapon);
+            l_Update << uint32(m_Followers[l_I].ItemLevelArmor);
+            l_Update << uint32(m_Followers[l_I].XP);
+            l_Update << uint32(m_Followers[l_I].CurrentBuildingID);
+            l_Update << uint32(m_Followers[l_I].CurrentMissionID);
+
+            l_Update << uint32(m_Followers[l_I].Abilities.size());
+            l_Update << uint32(m_Followers[l_I].Flags);
+
+            for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
+                l_Update << int32(m_Followers[l_I].Abilities[l_Y]);
+
+            m_Owner->SendDirectMessage(&l_Update);
+        }
     }
+}
+/// Do mission bonus roll
+void Garrison::DoMissionBonusRoll(uint32 p_MissionRecID)
+{
+    auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission & p_Mission) -> bool
+    {
+        if (p_Mission.State == GARRISON_MISSION_COMPLETE_FAILED || p_Mission.State == GARRISON_MISSION_COMPLETE_SUCCESS)
+        {
+            if (p_Mission.MissionID == p_MissionRecID)
+                return true;
+        }
+
+        return false;
+    });
+
+    GarrisonMission * l_Mission = nullptr;
+
+    if (l_It != m_Missions.end())
+        l_Mission = reinterpret_cast<GarrisonMission*>(&(*l_It));
+
+    if (m_PendingMissionReward.MissionID != p_MissionRecID || m_PendingMissionReward.Rewarded == true || !l_Mission || (l_Mission && l_Mission->State == GARRISON_MISSION_COMPLETE_FAILED))
+    {
+        m_PendingMissionReward.Rewarded = true;
+
+        WorldPacket l_Packet(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT, 100);
+
+        if (l_Mission)
+        {
+            l_Packet << uint64(l_Mission->DB_ID);
+            l_Packet << uint32(l_Mission->MissionID);
+            l_Packet << uint32(l_Mission->OfferTime);
+            l_Packet << uint32(l_Mission->OfferMaxDuration);
+            l_Packet << uint32(l_Mission->StartTime);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(l_Mission->State);
+        }
+        else
+        {
+            l_Packet << uint64(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+            l_Packet << uint32(0);
+        }
+
+        l_Packet << uint32(p_MissionRecID);
+        l_Packet << uint32(GARRISON_MISSION_BONUS_ROLL_ERROR);
+
+        m_Owner->SendDirectMessage(&l_Packet);
+
+        return;
+    }
+
+    WorldPacket l_Packet(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT, 100);
+
+    l_Packet << uint64(l_Mission->DB_ID);
+    l_Packet << uint32(l_Mission->MissionID);
+    l_Packet << uint32(l_Mission->OfferTime);
+    l_Packet << uint32(l_Mission->OfferMaxDuration);
+    l_Packet << uint32(l_Mission->StartTime);
+    l_Packet << uint32(0);
+    l_Packet << uint32(0);
+    l_Packet << uint32(l_Mission->State);
+
+    l_Packet << uint32(p_MissionRecID);
+    l_Packet << uint32(GARRISON_MISSION_BONUS_ROLL_OK);
+
+    m_Owner->SendDirectMessage(&l_Packet);
+
+    m_PendingMissionReward.Rewarded = true;
+
+    m_Owner->ModifyMoney(m_PendingMissionReward.RewardGold);
+
+    for (auto l_Currency : m_PendingMissionReward.RewardCurrencies)
+        m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
+
+    for (auto l_Item : m_PendingMissionReward.RewardItems)
+        m_Owner->AddItem(l_Item.first, l_Item.second);
+
+    const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+
+    std::vector<GarrisonFollower*> l_MissionFollowers;
+
+    std::for_each(m_Followers.begin(), m_Followers.end(), [this, &l_MissionFollowers](const GarrisonFollower & p_Follower) -> void
+    {
+        if (std::find(m_PendingMissionReward.MissionFollowers.begin(), m_PendingMissionReward.MissionFollowers.end(), p_Follower.DB_ID) != m_PendingMissionReward.MissionFollowers.end())
+            l_MissionFollowers.push_back(const_cast<GarrisonFollower*>(&p_Follower));
+    });
+
+    std::for_each(l_MissionFollowers.begin(), l_MissionFollowers.end(), [this](const GarrisonFollower * p_Follower) -> void
+    {
+        WorldPacket l_Update(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 500);
+        ByteBuffer l_UpdatePart(150);
+
+        /// Before
+        {
+            l_UpdatePart << uint64(p_Follower->DB_ID);
+            l_UpdatePart << uint32(p_Follower->FollowerID);
+            l_UpdatePart << uint32(p_Follower->Quality);
+            l_UpdatePart << uint32(p_Follower->Level);
+            l_UpdatePart << uint32(p_Follower->ItemLevelWeapon);
+            l_UpdatePart << uint32(p_Follower->ItemLevelArmor);
+            l_UpdatePart << uint32(p_Follower->XP);
+            l_UpdatePart << uint32(p_Follower->CurrentBuildingID);
+            l_UpdatePart << uint32(p_Follower->CurrentMissionID);
+
+            l_UpdatePart << uint32(p_Follower->Abilities.size());
+            l_UpdatePart << uint32(p_Follower->Flags);
+
+            for (uint32 l_Y = 0; l_Y < p_Follower->Abilities.size(); ++l_Y)
+                l_UpdatePart << int32(p_Follower->Abilities[l_Y]);
+        }
+
+        uint32 l_AddedXP = m_PendingMissionReward.RewardFollowerXP;
+        const_cast<GarrisonFollower*>(p_Follower)->XP += m_PendingMissionReward.RewardFollowerXP;
+
+        std::for_each(m_PendingMissionReward.RewardFollowerXPBonus.begin(), m_PendingMissionReward.RewardFollowerXPBonus.end(), [p_Follower, &l_AddedXP](const std::pair<uint64, uint32> & p_Values)
+        {
+            if (p_Values.first == p_Follower->DB_ID)
+            {
+                l_AddedXP += p_Values.second;
+                const_cast<GarrisonFollower*>(p_Follower)->XP += p_Values.second;
+            }
+        });
+
+        /// LevelUP Algo
+        if (p_Follower->Level < GARRISON_MAX_FOLLOWER_LEVEL)
+        {
+            const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
+
+            for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
+            {
+                const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
+
+                if (l_CurrentLevelData && l_CurrentLevelData->Level == p_Follower->Level)
+                {
+                    l_LevelData = l_CurrentLevelData;
+                    break;
+                }
+            }
+
+            if (l_LevelData && p_Follower->XP >= l_LevelData->RequiredExperience)
+            {
+                const_cast<GarrisonFollower*>(p_Follower)->Level++;
+                const_cast<GarrisonFollower*>(p_Follower)->XP = const_cast<GarrisonFollower*>(p_Follower)->XP - l_LevelData->RequiredExperience;
+            }
+        }
+
+        /// After
+        {
+            l_UpdatePart << uint64(p_Follower->DB_ID);
+            l_UpdatePart << uint32(p_Follower->FollowerID);
+            l_UpdatePart << uint32(p_Follower->Quality);
+            l_UpdatePart << uint32(p_Follower->Level);
+            l_UpdatePart << uint32(p_Follower->ItemLevelWeapon);
+            l_UpdatePart << uint32(p_Follower->ItemLevelArmor);
+            l_UpdatePart << uint32(p_Follower->XP);
+            l_UpdatePart << uint32(p_Follower->CurrentBuildingID);
+            l_UpdatePart << uint32(p_Follower->CurrentMissionID);
+
+            l_UpdatePart << uint32(p_Follower->Abilities.size());
+            l_UpdatePart << uint32(p_Follower->Flags);
+
+            for (uint32 l_Y = 0; l_Y < p_Follower->Abilities.size(); ++l_Y)
+                l_UpdatePart << int32(p_Follower->Abilities[l_Y]);
+        }
+
+        l_Update << uint32(l_AddedXP);
+        l_Update.append(l_UpdatePart);
+
+        m_Owner->SendDirectMessage(&l_Update);
+    });
+}
+/// Set mission has complete
+void Garrison::SetAllInProgressMissionAsComplete()
+{
+    for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+    {
+        if (m_Missions[l_I].State == GARRISON_MISSION_IN_PROGRESS)
+            m_Missions[l_I].StartTime = time(0) - (GetMissionTravelDuration(m_Missions[l_I].MissionID) + GetMissionDuration(m_Missions[l_I].MissionID));
+    }
+
+    WorldPacket l_PlaceHolder;
+    m_Owner->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
 }
 /// Get followers on a mission
 std::vector<GarrisonFollower*> Garrison::GetMissionFollowers(uint32 p_MissionRecID)

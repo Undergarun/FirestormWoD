@@ -379,6 +379,29 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     
     l_Garrison->CompleteMission(l_MissionID);
 }
+void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID    = 0;
+    uint32 l_MissionID  = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_MissionID;
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    l_Garrison->DoMissionBonusRoll(l_MissionID);
+}
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
 {
     Garrison * l_Garrison = m_Player->GetGarrison();
