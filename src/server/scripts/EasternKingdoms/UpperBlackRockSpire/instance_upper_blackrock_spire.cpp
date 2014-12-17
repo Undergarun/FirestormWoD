@@ -179,7 +179,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     }
                     case DATA_KYRAK_THE_CORRUPTOR:
                     {
-                        if (p_State != DONE)
+                        if (p_State != DONE || !instance->IsHeroic())
                             break;
 
                         if (Creature* l_Leeroy = sObjectAccessor->FindCreature(m_LeeroyJenkinsGuid))
