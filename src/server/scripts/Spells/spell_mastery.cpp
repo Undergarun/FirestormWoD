@@ -492,14 +492,10 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
                     {
                         if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(76672) && l_Caster->getLevel() >= 80)
                         {
-                            float l_MasteryPct = 0.18f;
-                            if (l_Caster->getLevel() >= 90)
-                                l_MasteryPct = 0.2925f;
-                            l_MasteryPct += ((l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) / 48.89f) / 100);
                             uint32 l_ProcSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (l_ProcSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
                             {
-                                int32 l_Bp = int32(GetHitDamage() * l_MasteryPct);
+                                int32 l_Bp = int32(CalculatePct(GetHitDamage(), l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f));
                                 l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
                             }
                         }

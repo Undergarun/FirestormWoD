@@ -3875,7 +3875,8 @@ bool SpellInfo::IsCanBeStolen() const
         case 22812: // Barkskin
         case 24275: // Hammer of Wrath
         case 31935: // Avenger's Shield
-        case 53563: // Beaconf of the Light
+        case 53563: // Beacon of the Light
+        case 156910: // Beacon of the Faith
             return false;
         default:
             break;
