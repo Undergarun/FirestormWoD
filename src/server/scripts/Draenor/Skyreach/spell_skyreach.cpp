@@ -114,7 +114,7 @@ namespace MS
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             std::list<Unit*> l_TargetList;
-            float l_Radius = 3.0f;
+            float l_Radius = 3.5f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
