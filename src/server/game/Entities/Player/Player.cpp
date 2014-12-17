@@ -7012,7 +7012,7 @@ void Player::RepopAtGraveyard()
                 l_AreaTrigger->target_mapId);
 
             // Since Wod, you are resurected in Dungeon with 100% life.
-            ResurrectPlayer(100.0f);
+            ResurrectPlayer(1.0f);
         }
         else
             sLog->outAshran("MapEntranceTrigger not found for map %u.", GetMapId());
