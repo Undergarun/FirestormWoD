@@ -158,6 +158,101 @@ uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Follower can earn XP
+bool GarrisonFollower::CanXP()
+{
+    if (Level < GARRISON_MAX_FOLLOWER_LEVEL)
+        return true;
+    else if (Level == GARRISON_MAX_FOLLOWER_LEVEL && Quality < ITEM_QUALITY_EPIC)
+        return true;
+
+    return false;
+}
+/// Earn XP
+uint32 GarrisonFollower::EarnXP(uint32 p_XP)
+{
+    uint32 l_AddedXP = 0;
+    const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
+
+    for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
+    {
+        const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
+
+        if (l_CurrentLevelData && l_CurrentLevelData->Level == this->Level)
+        {
+            l_LevelData = l_CurrentLevelData;
+            break;
+        }
+    }
+
+    if (Level < GARRISON_MAX_FOLLOWER_LEVEL)
+    {
+        if ((p_XP + this->XP) >= l_LevelData->RequiredExperience)
+        {
+            uint32 l_Value = l_LevelData->RequiredExperience - this->XP;
+            this->XP = 0;
+            this->Level++;
+
+            return l_Value + EarnXP(p_XP - l_Value);
+        }
+        else
+        {
+            this->XP += p_XP;
+            return p_XP;
+        }
+    }
+    else if (this->Level == GARRISON_MAX_FOLLOWER_LEVEL && this->Quality < ITEM_QUALITY_EPIC)
+    {
+        /// These values are not present in DBC
+        ///  60 000 XP for ITEM_QUALITY_UNCOMMON -> ITEM_QUALITY_RARE
+        /// 120 000 XP for ITEM_QUALITY_RARE     -> ITEM_QUALITY_EPIC
+        uint32 l_MaxXP = this->Quality == ITEM_QUALITY_UNCOMMON ? 60000 : 120000;
+
+        if ((this->XP + p_XP) >= l_MaxXP)
+        {
+            uint32 l_Value = l_MaxXP - this->XP;
+            this->XP = 0;
+            this->Quality++;
+
+            return l_Value + EarnXP(p_XP - l_Value);
+        }
+        else
+        {
+            this->XP += p_XP;
+            return p_XP;
+        }
+    } 
+
+    return 0;
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Write follower into a packet
+void GarrisonFollower::Write(ByteBuffer & p_Buffer)
+{
+    p_Buffer << uint64(this->DB_ID);
+    p_Buffer << uint32(this->FollowerID);
+    p_Buffer << uint32(this->Quality);
+    p_Buffer << uint32(this->Level);
+    p_Buffer << uint32(this->ItemLevelWeapon);
+    p_Buffer << uint32(this->ItemLevelArmor);
+    p_Buffer << uint32(this->XP);
+    p_Buffer << uint32(this->CurrentBuildingID);
+    p_Buffer << uint32(this->CurrentMissionID);
+
+    p_Buffer << uint32(this->Abilities.size());
+    p_Buffer << uint32(this->Flags);
+
+    for (uint32 l_Y = 0; l_Y < this->Abilities.size(); ++l_Y)
+        p_Buffer << int32(this->Abilities[l_Y]);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Constructor
 Garrison::Garrison(Player * p_Owner)
     : m_Owner(p_Owner)
@@ -1078,31 +1173,18 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
 
     for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
     {
+        if (!l_MissionFollowers[l_FollowerIt]->CanXP())
+            continue;
+
         WorldPacket l_Update(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 500);
         ByteBuffer l_UpdatePart(150);
 
-        /// Before
-        {
-            l_UpdatePart << uint64(l_MissionFollowers[l_FollowerIt]->DB_ID);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->FollowerID);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Quality);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Level);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelWeapon);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelArmor);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->XP);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentBuildingID);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentMissionID);
-
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Abilities.size());
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Flags);
-
-            for (uint32 l_Y = 0; l_Y < l_MissionFollowers[l_FollowerIt]->Abilities.size(); ++l_Y)
-                l_UpdatePart << int32(l_MissionFollowers[l_FollowerIt]->Abilities[l_Y]);
-        }
+        /// Write follower before any modification
+        l_MissionFollowers[l_FollowerIt]->Write(l_UpdatePart);
 
         float l_SecondXPModifier = 1.0f;
 
-        /// Personnal XP Bonus
+        /// Personal XP Bonus
         for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
         {
             uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
@@ -1120,49 +1202,11 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
         }
 
         uint32 l_AddedXP = (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
-        l_MissionFollowers[l_FollowerIt]->XP += (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
+        l_AddedXP = l_MissionFollowers[l_FollowerIt]->EarnXP(l_AddedXP);
 
-        /// LevelUP Algo
-        if (l_MissionFollowers[l_FollowerIt]->Level < GARRISON_MAX_FOLLOWER_LEVEL)
-        {
-            const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
+        /// Write follower after modifications
+        l_MissionFollowers[l_FollowerIt]->Write(l_UpdatePart);
 
-            for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
-            {
-                const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
-
-                if (l_CurrentLevelData && l_CurrentLevelData->Level == l_MissionFollowers[l_FollowerIt]->Level)
-                {
-                    l_LevelData = l_CurrentLevelData;
-                    break;
-                }
-            }
-
-            if (l_LevelData && l_MissionFollowers[l_FollowerIt]->XP >= l_LevelData->RequiredExperience)
-            {
-                l_MissionFollowers[l_FollowerIt]->Level++;
-                l_MissionFollowers[l_FollowerIt]->XP = l_MissionFollowers[l_FollowerIt]->XP - l_LevelData->RequiredExperience;
-            }
-        }
-
-        /// After
-        {
-            l_UpdatePart << uint64(l_MissionFollowers[l_FollowerIt]->DB_ID);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->FollowerID);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Quality);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Level);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelWeapon);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->ItemLevelArmor);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->XP);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentBuildingID);
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->CurrentMissionID);
-
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Abilities.size());
-            l_UpdatePart << uint32(l_MissionFollowers[l_FollowerIt]->Flags);
-
-            for (uint32 l_Y = 0; l_Y < l_MissionFollowers[l_FollowerIt]->Abilities.size(); ++l_Y)
-                l_UpdatePart << int32(l_MissionFollowers[l_FollowerIt]->Abilities[l_Y]);
-        }
         l_Update << uint32(l_AddedXP);
         l_Update.append(l_UpdatePart);
 
@@ -1381,78 +1425,21 @@ void Garrison::DoMissionBonusRoll(uint32 p_MissionRecID)
         WorldPacket l_Update(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 500);
         ByteBuffer l_UpdatePart(150);
 
-        /// Before
-        {
-            l_UpdatePart << uint64(p_Follower->DB_ID);
-            l_UpdatePart << uint32(p_Follower->FollowerID);
-            l_UpdatePart << uint32(p_Follower->Quality);
-            l_UpdatePart << uint32(p_Follower->Level);
-            l_UpdatePart << uint32(p_Follower->ItemLevelWeapon);
-            l_UpdatePart << uint32(p_Follower->ItemLevelArmor);
-            l_UpdatePart << uint32(p_Follower->XP);
-            l_UpdatePart << uint32(p_Follower->CurrentBuildingID);
-            l_UpdatePart << uint32(p_Follower->CurrentMissionID);
-
-            l_UpdatePart << uint32(p_Follower->Abilities.size());
-            l_UpdatePart << uint32(p_Follower->Flags);
-
-            for (uint32 l_Y = 0; l_Y < p_Follower->Abilities.size(); ++l_Y)
-                l_UpdatePart << int32(p_Follower->Abilities[l_Y]);
-        }
+        /// Write follower before any modification
+        const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
 
         uint32 l_AddedXP = m_PendingMissionReward.RewardFollowerXP;
-        const_cast<GarrisonFollower*>(p_Follower)->XP += m_PendingMissionReward.RewardFollowerXP;
 
         std::for_each(m_PendingMissionReward.RewardFollowerXPBonus.begin(), m_PendingMissionReward.RewardFollowerXPBonus.end(), [p_Follower, &l_AddedXP](const std::pair<uint64, uint32> & p_Values)
         {
             if (p_Values.first == p_Follower->DB_ID)
-            {
                 l_AddedXP += p_Values.second;
-                const_cast<GarrisonFollower*>(p_Follower)->XP += p_Values.second;
-            }
         });
 
-        /// LevelUP Algo
-        if (p_Follower->Level < GARRISON_MAX_FOLLOWER_LEVEL)
-        {
-            const GarrFollowerLevelXPEntry * l_LevelData = nullptr;
+        l_AddedXP = const_cast<GarrisonFollower*>(p_Follower)->EarnXP(l_AddedXP);
 
-            for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
-            {
-                const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
-
-                if (l_CurrentLevelData && l_CurrentLevelData->Level == p_Follower->Level)
-                {
-                    l_LevelData = l_CurrentLevelData;
-                    break;
-                }
-            }
-
-            if (l_LevelData && p_Follower->XP >= l_LevelData->RequiredExperience)
-            {
-                const_cast<GarrisonFollower*>(p_Follower)->Level++;
-                const_cast<GarrisonFollower*>(p_Follower)->XP = const_cast<GarrisonFollower*>(p_Follower)->XP - l_LevelData->RequiredExperience;
-            }
-        }
-
-        /// After
-        {
-            l_UpdatePart << uint64(p_Follower->DB_ID);
-            l_UpdatePart << uint32(p_Follower->FollowerID);
-            l_UpdatePart << uint32(p_Follower->Quality);
-            l_UpdatePart << uint32(p_Follower->Level);
-            l_UpdatePart << uint32(p_Follower->ItemLevelWeapon);
-            l_UpdatePart << uint32(p_Follower->ItemLevelArmor);
-            l_UpdatePart << uint32(p_Follower->XP);
-            l_UpdatePart << uint32(p_Follower->CurrentBuildingID);
-            l_UpdatePart << uint32(p_Follower->CurrentMissionID);
-
-            l_UpdatePart << uint32(p_Follower->Abilities.size());
-            l_UpdatePart << uint32(p_Follower->Flags);
-
-            for (uint32 l_Y = 0; l_Y < p_Follower->Abilities.size(); ++l_Y)
-                l_UpdatePart << int32(p_Follower->Abilities[l_Y]);
-        }
+        /// Write follower after modifications
+        const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
 
         l_Update << uint32(l_AddedXP);
         l_Update.append(l_UpdatePart);

@@ -176,6 +176,14 @@ struct GarrisonFollower
     uint32 Flags;
 
     std::vector<uint32> Abilities;
+
+    /// Follower can earn XP
+    bool CanXP();
+    /// Earn XP
+    uint32 EarnXP(uint32 p_XP);
+
+    /// Write follower into a packet
+    void Write(ByteBuffer & p_Buffer);
 };
 
 struct GarrisonBuilding
