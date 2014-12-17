@@ -242,6 +242,15 @@ namespace MS
                     case GameObjectEntries::DOOR_RUKHRAN_EXIT:
                     case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
                         AddDoor(p_Gameobject, true);
+
+                        // If server crash, we better activate the doors otherwise the players won't be able to access the other parts.
+                        if (p_Gameobject->GetEntry() == GameObjectEntries::DOOR_RANJIT_EXIT && GetBossState(Data::Ranjit) == EncounterState::DONE)
+                            p_Gameobject->UseDoorOrButton();
+                        if ((p_Gameobject->GetEntry() == GameObjectEntries::DOOR_ARAKNATH_EXIT_1 || p_Gameobject->GetEntry() == GameObjectEntries::DOOR_ARAKNATH_EXIT_2)
+                            && GetBossState(Data::Araknath) == EncounterState::DONE)
+                            p_Gameobject->UseDoorOrButton();
+                        if (p_Gameobject->GetEntry() == GameObjectEntries::DOOR_RUKHRAN_EXIT && GetBossState(Data::Rukhran) == EncounterState::DONE)
+                            p_Gameobject->UseDoorOrButton();
                         break;
                     case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
                         p_Gameobject->SetPhaseMask(0, true);
