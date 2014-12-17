@@ -8299,6 +8299,8 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
         uint32 l_DestroyCount = 1;
         l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
     }
+    else
+        SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
 }
 
 void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
@@ -8322,6 +8324,8 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         uint32 l_DestroyCount = 1;
         l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
     }
+    else
+        SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
 void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
