@@ -3564,6 +3564,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[0].Amplitude = 1500;
                 break;
+            case 156910: // Beacon of Faith
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[0].Amplitude = 1500;
+                spellInfo->ProcChance = 100;
+                break;
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
@@ -3659,9 +3665,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134030:// Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                break;
-            case 145645:
-                spellInfo->ProcChance = 100;
                 break;
             case 134476:// Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
