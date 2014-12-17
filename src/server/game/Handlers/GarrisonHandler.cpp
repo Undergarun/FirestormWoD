@@ -68,21 +68,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     for (uint32 l_I = 0; l_I < l_Followers.size(); ++l_I)
     {
-        l_Infos << uint64(l_Followers[l_I].DB_ID);
-        l_Infos << uint32(l_Followers[l_I].FollowerID);
-        l_Infos << uint32(l_Followers[l_I].Quality);
-        l_Infos << uint32(l_Followers[l_I].Level);
-        l_Infos << uint32(l_Followers[l_I].ItemLevelWeapon);
-        l_Infos << uint32(l_Followers[l_I].ItemLevelArmor);
-        l_Infos << uint32(l_Followers[l_I].XP);
-        l_Infos << uint32(l_Followers[l_I].CurrentBuildingID);
-        l_Infos << uint32(l_Followers[l_I].CurrentMissionID);
-
-        l_Infos << uint32(l_Followers[l_I].Abilities.size());
-        l_Infos << uint32(l_Followers[l_I].Flags);
-
-        for (uint32 l_Y = 0; l_Y < l_Followers[l_I].Abilities.size(); ++l_Y)
-            l_Infos << int32(l_Followers[l_I].Abilities[l_Y]);
+        l_Followers[l_I].Write(l_Infos);
     }
 
     for (uint32 l_I = 0; l_I < l_Missions.size(); ++l_I)
@@ -378,6 +364,29 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     }
     
     l_Garrison->CompleteMission(l_MissionID);
+}
+void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
+{
+    Garrison * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID    = 0;
+    uint32 l_MissionID  = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_MissionID;
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    l_Garrison->DoMissionBonusRoll(l_MissionID);
 }
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
 {

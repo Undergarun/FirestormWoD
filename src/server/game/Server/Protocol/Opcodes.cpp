@@ -940,12 +940,12 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT,                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT,                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_UPDATE_FOLLOWER,                                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_FOLLOWER_CHANGED_XP,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_ADD_MISSION_RESULT,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL,                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_START_MISSION_RESULT,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_COMPLETE_MISSION_RESULT,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT,                        STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_FOLLOWER_CHANGED_XP,                              STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL,                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT,                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT,               STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT,             STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_DELETE_RESULT,                                    STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -998,7 +998,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_ADD_MISSION_CHEAT,                          STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_START_MISSION,                              STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonStartMissionOpcode );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_COMPLETE_MISSION,                           STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonCompleteMissionOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_BONUS_ROLL,                         STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_BONUS_ROLL,                         STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionBonusRollOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_UPGRADEABLE,                        STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleRequestGarrisonUpgradeableOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO,         STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleRequestLandingPageShipmentInfoOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_NPC_HELLO,                          STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionNPCHelloOpcode);
