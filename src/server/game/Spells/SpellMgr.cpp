@@ -5191,6 +5191,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 spellInfo->Effects[0].BasePoints = 35;
                 break;
+            case 8092: // Mind Blast
+                spellInfo->Effects[1].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 1;
+                break;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
             case 57761: // Brain Freeze
