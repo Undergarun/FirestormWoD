@@ -68,21 +68,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     for (uint32 l_I = 0; l_I < l_Followers.size(); ++l_I)
     {
-        l_Infos << uint64(l_Followers[l_I].DB_ID);
-        l_Infos << uint32(l_Followers[l_I].FollowerID);
-        l_Infos << uint32(l_Followers[l_I].Quality);
-        l_Infos << uint32(l_Followers[l_I].Level);
-        l_Infos << uint32(l_Followers[l_I].ItemLevelWeapon);
-        l_Infos << uint32(l_Followers[l_I].ItemLevelArmor);
-        l_Infos << uint32(l_Followers[l_I].XP);
-        l_Infos << uint32(l_Followers[l_I].CurrentBuildingID);
-        l_Infos << uint32(l_Followers[l_I].CurrentMissionID);
-
-        l_Infos << uint32(l_Followers[l_I].Abilities.size());
-        l_Infos << uint32(l_Followers[l_I].Flags);
-
-        for (uint32 l_Y = 0; l_Y < l_Followers[l_I].Abilities.size(); ++l_Y)
-            l_Infos << int32(l_Followers[l_I].Abilities[l_Y]);
+        l_Followers[l_I].Write(l_Infos);
     }
 
     for (uint32 l_I = 0; l_I < l_Missions.size(); ++l_I)

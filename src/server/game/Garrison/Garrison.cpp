@@ -2141,21 +2141,7 @@ void Garrison::ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Activ
         return;
 
     WorldPacket l_Update(SMSG_GARRISON_UPDATE_FOLLOWER, 500);
-    l_Update << uint64(l_Follower->DB_ID);
-    l_Update << uint32(l_Follower->FollowerID);
-    l_Update << uint32(l_Follower->Quality);
-    l_Update << uint32(l_Follower->Level);
-    l_Update << uint32(l_Follower->ItemLevelWeapon);
-    l_Update << uint32(l_Follower->ItemLevelArmor);
-    l_Update << uint32(l_Follower->XP);
-    l_Update << uint32(l_Follower->CurrentBuildingID);
-    l_Update << uint32(l_Follower->CurrentMissionID);
-
-    l_Update << uint32(l_Follower->Abilities.size());
-    l_Update << uint32(l_Follower->Flags);
-
-    for (uint32 l_Y = 0; l_Y < l_Follower->Abilities.size(); ++l_Y)
-        l_Update << int32(l_Follower->Abilities[l_Y]);
+    l_Follower->Write(l_Update);
 
     m_Owner->SendDirectMessage(&l_Update);
 }
