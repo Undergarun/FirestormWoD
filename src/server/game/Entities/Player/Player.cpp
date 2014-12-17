@@ -1506,22 +1506,25 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     }
 }
 
-void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen)
+void Player::SendMirrorTimer(MirrorTimerType p_Type, uint32 p_MaxValue, uint32 p_CurrValue, int32 p_Regen)
 {
-    if (int(MaxValue) == DISABLED_MIRROR_TIMER)
+    if (int(p_MaxValue) == DISABLED_MIRROR_TIMER)
     {
-        if (int(CurrentValue) != DISABLED_MIRROR_TIMER)
-            StopMirrorTimer(Type);
+        if (int(p_CurrValue) != DISABLED_MIRROR_TIMER)
+            StopMirrorTimer(p_Type);
         return;
     }
-    WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
-    data << uint32(Type);
-    data << uint32(Regen);
-    data << uint32(0);                                      // spell id
-    data << MaxValue;
-    data << CurrentValue;
-    data.WriteBit(0);
-    GetSession()->SendPacket(&data);
+
+    WorldPacket l_Data(SMSG_START_MIRROR_TIMER, (21));
+    uint32 l_SpellID = 0;
+
+    l_Data << uint32(p_Type);
+    l_Data << p_CurrValue;
+    l_Data << p_MaxValue;
+    l_Data << uint32(p_Regen);
+    l_Data << uint32(l_SpellID);
+    l_Data.WriteBit(0);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::StopMirrorTimer(MirrorTimerType Type)
