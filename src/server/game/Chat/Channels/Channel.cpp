@@ -166,7 +166,6 @@ void Channel::CleanOldChannelsInDB()
 
 void Channel::Join(uint64 p, const char *pass)
 {
-
     ACE_Guard<RecursiveLock>(m_Lock, true);
 
     WorldPacket data;

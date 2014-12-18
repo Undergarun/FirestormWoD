@@ -182,10 +182,6 @@ namespace MS
                         break;
                     case MobEntries::SunConstructEnergizer:
                         m_SolarConstructorEnergizerGuid = p_Creature->GetGUID();
-                        p_Creature->SetDisableGravity(true);
-                        p_Creature->SetCanFly(true);
-                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::InteriorFocus:
                         m_InteriorFocusGuid = p_Creature->GetGUID();
@@ -233,35 +229,26 @@ namespace MS
                 {
                     switch (p_Gameobject->GetEntry())
                     {
-                    case GameObjectEntries::DOOR_RANJIT_ENTRANCE:
-                    case GameObjectEntries::DOOR_RANJIT_EXIT:
-                    case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_1:
-                    case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_2:
-                    case GameObjectEntries::DOOR_ARAKNATH_EXIT_1:
-                    case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
-                    case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
-                    case GameObjectEntries::DOOR_RUKHRAN_EXIT:
-                    case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
-                        AddDoor(p_Gameobject, true);
-
-                        // If server crash, we better activate the doors otherwise the players won't be able to access the other parts.
-                        if (p_Gameobject->GetEntry() == GameObjectEntries::DOOR_RANJIT_EXIT && GetBossState(Data::Ranjit) == EncounterState::DONE)
-                            p_Gameobject->UseDoorOrButton();
-                        if ((p_Gameobject->GetEntry() == GameObjectEntries::DOOR_ARAKNATH_EXIT_1 || p_Gameobject->GetEntry() == GameObjectEntries::DOOR_ARAKNATH_EXIT_2)
-                            && GetBossState(Data::Araknath) == EncounterState::DONE)
-                            p_Gameobject->UseDoorOrButton();
-                        if (p_Gameobject->GetEntry() == GameObjectEntries::DOOR_RUKHRAN_EXIT && GetBossState(Data::Rukhran) == EncounterState::DONE)
-                            p_Gameobject->UseDoorOrButton();
-                        break;
-                    case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
-                        p_Gameobject->SetPhaseMask(0, true);
-                        m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
-                        break;
-                    case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
-                        m_ChallengeDoorGuid = p_Gameobject->GetGUID();
-                        break;
-                    default:
-                        break;
+                        case GameObjectEntries::DOOR_RANJIT_ENTRANCE:
+                        case GameObjectEntries::DOOR_RANJIT_EXIT:
+                        case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_1:
+                        case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_2:
+                        case GameObjectEntries::DOOR_ARAKNATH_EXIT_1:
+                        case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
+                        case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
+                        case GameObjectEntries::DOOR_RUKHRAN_EXIT:
+                        case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
+                            AddDoor(p_Gameobject, true);
+                            break;
+                        case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
+                            p_Gameobject->SetPhaseMask(0, true);
+                            m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
+                            break;
+                        case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
+                            m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                            break;
+                        default:
+                            break;
                     }
                 }
 

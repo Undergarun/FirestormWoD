@@ -175,17 +175,6 @@ class instance_pit_of_saron : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, false);
-                        break;
-                }
-            }
-
             bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
