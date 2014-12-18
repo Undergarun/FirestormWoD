@@ -652,24 +652,6 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* gameObject)
-            {
-                switch (gameObject->GetEntry())
-                {
-                    case GO_LEVIATHAN_DOOR:
-                    case GO_XT_002_DOOR:
-                    case GO_DOODAD_UL_SIGILDOOR_03:
-                    case GO_DOODAD_UL_UNIVERSEFLOOR_01:
-                    case GO_DOODAD_UL_UNIVERSEFLOOR_02:
-                    case GO_DOODAD_UL_UNIVERSEGLOBE01:
-                    case GO_DOODAD_UL_ULDUAR_TRAPDOOR_03:
-                        AddDoor(gameObject, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void OnUnitDeath(Unit* unit)
             {
                 Creature* creature = unit->ToCreature();

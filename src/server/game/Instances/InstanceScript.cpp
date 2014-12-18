@@ -227,6 +227,26 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         UpdateDoorState(door);
 }
 
+void InstanceScript::OnGameObjectRemove(GameObject* p_Go)
+{
+    /// - If gameobject is door, remove it from DoorInfoMap
+    {
+        DoorInfoMap::iterator l_Lower = doors.lower_bound(p_Go->GetEntry());
+        DoorInfoMap::iterator l_Upper = doors.upper_bound(p_Go->GetEntry());
+
+        if (l_Lower != l_Upper)
+        {
+            for (DoorInfoMap::iterator l_Iterator = l_Lower; l_Iterator != l_Upper; ++l_Iterator)
+            {
+                DoorInfo const& l_DoorInfo = l_Iterator->second;
+                l_DoorInfo.bossInfo->door[l_DoorInfo.type].erase(p_Go);
+            }
+        }
+    }
+
+    ZoneScript::OnGameObjectRemove(p_Go);
+}
+
 void InstanceScript::AddMinion(Creature* minion, bool add)
 {
     MinionInfoMap::iterator itr = minions.find(minion->GetEntry());

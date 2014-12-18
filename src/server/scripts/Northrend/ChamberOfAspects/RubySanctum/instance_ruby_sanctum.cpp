@@ -168,18 +168,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_FIRE_FIELD:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void OnUnitDeath(Unit* unit)
             {
                 Creature* creature = unit->ToCreature();

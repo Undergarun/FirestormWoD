@@ -233,26 +233,26 @@ namespace MS
                 {
                     switch (p_Gameobject->GetEntry())
                     {
-                    case GameObjectEntries::DOOR_RANJIT_ENTRANCE:
-                    case GameObjectEntries::DOOR_RANJIT_EXIT:
-                    case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_1:
-                    case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_2:
-                    case GameObjectEntries::DOOR_ARAKNATH_EXIT_1:
-                    case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
-                    case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
-                    case GameObjectEntries::DOOR_RUKHRAN_EXIT:
-                    case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
-                        AddDoor(p_Gameobject, true);
-                        break;
-                    case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
-                        p_Gameobject->SetPhaseMask(0, true);
-                        m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
-                        break;
-                    case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
-                        m_ChallengeDoorGuid = p_Gameobject->GetGUID();
-                        break;
-                    default:
-                        break;
+                        case GameObjectEntries::DOOR_RANJIT_ENTRANCE:
+                        case GameObjectEntries::DOOR_RANJIT_EXIT:
+                        case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_1:
+                        case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_2:
+                        case GameObjectEntries::DOOR_ARAKNATH_EXIT_1:
+                        case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
+                        case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
+                        case GameObjectEntries::DOOR_RUKHRAN_EXIT:
+                        case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
+                            AddDoor(p_Gameobject, true);
+                            break;
+                        case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
+                            p_Gameobject->SetPhaseMask(0, true);
+                            m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
+                            break;
+                        case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
+                            m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                            break;
+                        default:
+                            break;
                     }
                 }
 
