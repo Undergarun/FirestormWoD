@@ -30769,6 +30769,53 @@ void Player::UpdateBattlePetCombatTeam()
 }
 
 //////////////////////////////////////////////////////////////////////////
+/// Calc Monk Melee Attacks
+enum ExpelHarmSpells
+{
+    SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    SPELL_MONK_2H_STAFF_OVERRIDE = 108561,
+    SPELL_MONK_EXPEL_HARM_DAMAGE = 115129,
+    SPELL_MONK_2H_POLEARM_OVERRIDE = 115697,
+    SPELL_MONK_MANA_MEDITATION = 121278
+};
+
+void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
+{
+    Item* l_MainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* l_OffItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+    float l_MainWeaponMinDamage = 0.0f;
+    float l_MainWeaponMaxDamage = 0.0f;
+    float l_MainWeaponSpeed = 1.0f;
+    float l_OffhandWeaponMinDamage = 0.0f;
+    float l_OffhandWeaponMaxDamage = 0.0f;
+    float l_OffhandWeaponSpeed = 1.0f;
+
+    if (l_MainItem && l_MainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        l_MainWeaponMinDamage = l_MainItem->GetTemplate()->DamageMin;
+        l_MainWeaponMaxDamage = l_MainItem->GetTemplate()->DamageMax;
+        l_MainWeaponSpeed = float(l_MainItem->GetTemplate()->Delay) / 1000.0f;
+    }
+    if (l_OffItem && l_OffItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        l_OffhandWeaponMinDamage = l_OffItem->GetTemplate()->DamageMin;
+        l_OffhandWeaponMaxDamage = l_OffItem->GetTemplate()->DamageMax;
+        l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
+    }
+
+    float l_Stnc = (HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+    float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
+    float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+    float l_Offlow = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+    float l_Offhigh = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+    p_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+    p_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+}
+
+//////////////////////////////////////////////////////////////////////////
 /// ToyBox
 void Player::_LoadToyBox(PreparedQueryResult p_Result)
 {
