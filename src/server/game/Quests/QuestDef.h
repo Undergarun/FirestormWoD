@@ -409,6 +409,7 @@ class Quest
  
         uint8 GetQuestObjectiveCount() const { return QuestObjectives.size(); }
         uint8 GetQuestObjectiveCountType(uint8 type) const;
+        uint32 GetQuestObjectiveId(uint32 p_QuestId, uint8 p_ObjIndex) const;
 
         // cached data
     private:

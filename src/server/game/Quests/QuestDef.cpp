@@ -210,6 +210,16 @@ QuestObjective const * Quest::GetQuestObjective(uint32 objectiveId) const
     return nullptr;
 }
 
+uint32 Quest::GetQuestObjectiveId(uint32 p_QuestId, uint8 p_ObjIndex) const
+{
+    const Quest * l_Quest = sObjectMgr->GetQuestTemplate(p_QuestId);
+
+    if (uint32 l_ObjectiveId = QuestObjectives[p_ObjIndex].ID)
+        return l_ObjectiveId;
+
+    return 0;
+}
+
 QuestObjective const * Quest::GetQuestObjectiveXIndex(uint8 index) const
 {
     for (uint32 l_I = 0; l_I < QuestObjectives.size(); ++l_I)
