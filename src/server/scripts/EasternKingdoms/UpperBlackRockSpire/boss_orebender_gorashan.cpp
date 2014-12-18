@@ -250,6 +250,8 @@ class boss_orebender_gorashan : public CreatureScript
                                     l_FirstTalk = true;
                                 }
                             }
+
+                            Reset();
                         }
                         break;
                     }

@@ -17953,6 +17953,22 @@ void Unit::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearch
     cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
 }
 
+void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const
+{
+    CellCoord l_Coords(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell l_Cell(l_Coords);
+    l_Cell.SetNoCreate();
+
+    JadeCore::AnyAreatriggerInObjectRangeCheck l_Check(this, p_Range);
+    JadeCore::AreaTriggerListSearcher<JadeCore::AnyAreatriggerInObjectRangeCheck> searcher(this, p_List, l_Check);
+
+    TypeContainerVisitor<JadeCore::AreaTriggerListSearcher<JadeCore::AnyAreatriggerInObjectRangeCheck>, WorldTypeMapContainer> l_WorldSearcher(searcher);
+    TypeContainerVisitor<JadeCore::AreaTriggerListSearcher<JadeCore::AnyAreatriggerInObjectRangeCheck>, GridTypeMapContainer>  l_GridSearcher(searcher);
+
+    l_Cell.Visit(l_Coords, l_WorldSearcher, *GetMap(), *this, p_Range);
+    l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
+}
+
 Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/) const
 {
     std::list<Unit*> l_Targets;
