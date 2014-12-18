@@ -891,6 +891,7 @@ struct ItemTemplate
     uint32 GetRandomPointsOffset() const;
     float GetSocketCost(uint32 ilvl) const;
     uint32 CalculateStatScaling(uint32 index, uint32 ilvl) const;
+    uint32 CalculateStatScaling(uint32 scalingValue, float socketCost, uint32 ilvl) const;
     uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
     uint32 CalculateArmorScaling(uint32 ilvl) const;
     void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;

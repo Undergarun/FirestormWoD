@@ -2657,6 +2657,7 @@ class Player : public Unit, public GridObject<Player>
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyItemBonuses(Item const* proto, uint8 slot, bool apply, uint32 rescaleToItemLevel = 0);
+        void _ApplyItemModifications(Item const* p_Item, uint8 p_Slot, bool p_Apply, uint32 p_RescaleToItemLevel = 0);
         void _ApplyWeaponDamage(uint8 slot, Item const* item, bool apply, uint32 minDamage = 0, uint32 maxDamage = 0);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);

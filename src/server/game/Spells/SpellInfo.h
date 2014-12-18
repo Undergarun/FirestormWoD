@@ -584,7 +584,6 @@ public:
     bool IsNeedToCheckSchoolImmune() const;
     bool IsRemoveLossControlEffects() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
-    int32 GetCustomCoefficientForStormlash() const;
 
     // helpers for breaking by damage spells
     bool IsBreakingCamouflage() const;

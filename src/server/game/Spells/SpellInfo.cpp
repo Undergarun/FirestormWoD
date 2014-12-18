@@ -4179,25 +4179,6 @@ bool SpellInfo::IsRemoveLossControlEffects() const
     return false;
 }
 
-int32 SpellInfo::GetCustomCoefficientForStormlash() const
-{
-    switch (Id)
-    {
-        case 403:   // Lightning Bolt
-        case 1120:  // Drain Soul
-        case 45284: // Lightning Bolt (Mastery)
-        case 51505: // Lava Burst
-        case 77451: // Lava Burst (Mastery)
-            return 200;
-        case 1752:  // Sinister Strike
-            return 50;
-        default:
-            break;
-    }
-
-    return 0;
-}
-
 bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 {
     switch (Id)
