@@ -30,6 +30,7 @@ namespace MS
             { Data::Araknath,       ScenarioDatas::AraknathCriteriaId },
             { Data::Rukhran,        ScenarioDatas::RukhranCriteriaId },
             { Data::HighSageViryx,  ScenarioDatas::ViryxCriteriaId },
+            { 0,                    0 }, // EOF
         };
 
         class instance_Skyreach : public InstanceMapScript
