@@ -21,6 +21,8 @@
 #include "upper_blackrock_spire.h"
 #include "Language.h"
 #include "AreaTriggerScript.h"
+#include "MoveSplineInit.h"
+#include "ScriptedEscortAI.h"
 
 enum eSpells
 {
@@ -1159,12 +1161,17 @@ class mob_leeroy_jenkins : public CreatureScript
             {
                 m_Instance = p_Creature->GetInstanceScript();
                 m_ChickenTime = 0;
+                m_BigRun = false;
             }
 
             enum Spells
             {
                 ClassSpecificRes    = 157175,
-                PermanentFeignDeath = 29266
+                PermanentFeignDeath = 29266,
+                ChickenTimer        = 172584,
+                DevoutShoulders     = 166563,
+                CosmeticHearthstone = 101188,
+                FollowerLeeroy      = 174984
             };
 
             enum Talks
@@ -1173,7 +1180,10 @@ class mob_leeroy_jenkins : public CreatureScript
                 TalkWake2,
                 TalkWake3,
                 TalkWake4,
-                TalkWake5
+                TalkWake5,
+                TalkLEEEEEEEEEEEEEROOOOY,
+                TalkShoulders,
+                TalkGarrison
             };
 
             enum Events
@@ -1184,26 +1194,25 @@ class mob_leeroy_jenkins : public CreatureScript
                 EventTalk4,
                 EventTalk5,
                 EventUpdateChicken,
-                EventChicken
+                EventChicken,
+                EventMove,
+                EventBack,
+                EventShoulders,
+                EventTransform,
+                EventFinal
             };
 
-            EventMap m_Events;
             EventMap m_TalkEvents;
 
             uint32 m_ChickenTime;
+            bool m_BigRun;
 
             InstanceScript* m_Instance;
 
             void Reset()
             {
-                m_Events.Reset();
-
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-                ///< TEMP !
-                me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, Spells::ClassSpecificRes);
-                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void DoAction(int32 const p_Action)
@@ -1211,8 +1220,8 @@ class mob_leeroy_jenkins : public CreatureScript
                 switch (p_Action)
                 {
                     case eActions::ActionActivateLeeroyRes:
-                        me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, Spells::ClassSpecificRes);
-                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, Spells::ClassSpecificRes);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
                         break;
                     default:
                         break;
@@ -1221,17 +1230,34 @@ class mob_leeroy_jenkins : public CreatureScript
 
             void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
             {
-                if (!p_SpellInfo->HasEffect(SpellEffects::SPELL_EFFECT_RESURRECT) || !me->HasAura(Spells::PermanentFeignDeath))
-                    return;
+                if (p_SpellInfo->Id == Spells::CosmeticHearthstone)
+                {
+                    if (m_Instance != nullptr)
+                    {
+                        m_Instance->DoCompleteAchievement(eAchievements::AchievementLeeeeeeeeeeeeeeeeroy);
+                        m_Instance->DoCastSpellOnPlayers(Spells::FollowerLeeroy);
+                    }
 
-                me->SetFullHealth();
-                me->RemoveAura(Spells::PermanentFeignDeath);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
-                me->SetUInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, 0);
-                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                    me->DespawnOrUnsummon();
+                }
+                else
+                {
+                    if (!p_SpellInfo->HasEffect(SpellEffects::SPELL_EFFECT_RESURRECT) || !me->HasAura(Spells::PermanentFeignDeath))
+                        return;
 
-                m_TalkEvents.ScheduleEvent(Events::EventTalk1, 1000);
+                    me->SetFullHealth();
+                    me->RemoveAura(Spells::PermanentFeignDeath);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, 0);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+                    me->RemoveFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                    me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+                    me->SetOrientation(1.4885f);
+                    me->SetFacingTo(1.4885f);
+                    me->SetWalk(true);
+
+                    m_TalkEvents.ScheduleEvent(Events::EventTalk1, 1000);
+                }
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -1245,7 +1271,9 @@ class mob_leeroy_jenkins : public CreatureScript
                         m_TalkEvents.ScheduleEvent(Events::EventTalk2, 8000);
                         break;
                     case Events::EventTalk2:
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, 0);
                         Talk(Talks::TalkWake2);
+                        me->GetMotionMaster()->MovePoint(0, 74.720f, -319.148f, 91.446f);
                         m_TalkEvents.ScheduleEvent(Events::EventTalk3, 13000);
                         break;
                     case Events::EventTalk3:
@@ -1259,18 +1287,7 @@ class mob_leeroy_jenkins : public CreatureScript
                     case Events::EventTalk5:
                     {
                         Talk(Talks::TalkWake5);
-                        break;
-                        ///< Launch some moves
-                        m_ChickenTime = 900;
-                        m_TalkEvents.ScheduleEvent(Events::EventUpdateChicken, 1000);
-                        m_TalkEvents.ScheduleEvent(Events::EventChicken, 900000);
-
-                        if (m_Instance)
-                        {
-                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateEnableChicken, 1);
-                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateChickenTimer, 900);
-                        }
-
+                        m_TalkEvents.ScheduleEvent(Events::EventMove, 6500);
                         break;
                     }
                     case Events::EventUpdateChicken:
@@ -1293,27 +1310,122 @@ class mob_leeroy_jenkins : public CreatureScript
                             m_Instance->DoUpdateWorldState(eWorldStates::WorldStateEnableChicken, 0);
                             m_Instance->DoUpdateWorldState(eWorldStates::WorldStateChickenTimer, 0);
                         }
+
+                        me->RemoveAura(Spells::ChickenTimer);
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+
+                        Talk(Talks::TalkLEEEEEEEEEEEEEROOOOY);
+                        me->SetWalk(false);
+
+                        Movement::MoveSplineInit l_Init(*me);
+                        l_Init.Path().push_back(G3D::Vector3(80.363f, -278.893f, 91.463f));
+                        l_Init.Path().push_back(G3D::Vector3(54.556f, -263.705f, 94.041f));
+                        l_Init.Path().push_back(G3D::Vector3(67.622f, -240.374f, 98.381f));
+                        l_Init.Path().push_back(G3D::Vector3(103.112f, -243.005f, 106.436f));
+                        l_Init.Path().push_back(G3D::Vector3(106.794f, -259.459f, 106.436f));
+                        l_Init.Path().push_back(G3D::Vector3(150.768f, -262.547f, 110.908f));
+                        l_Init.Path().push_back(G3D::Vector3(136.134f, -364.976f, 116.833f));
+                        l_Init.Path().push_back(G3D::Vector3(95.402f, -366.344f, 116.838f));
+                        l_Init.Path().push_back(G3D::Vector3(93.032f, -473.292f, 116.842f));
+                        l_Init.Path().push_back(G3D::Vector3(35.159f, -475.309f, 110.950f));
+                        l_Init.Path().push_back(G3D::Vector3(23.331f, -525.586f, 110.942f));
+                        l_Init.Path().push_back(G3D::Vector3(57.042f, -542.330f, 110.933f));
+                        l_Init.SetWalk(false);
+                        l_Init.Launch();
+                        m_BigRun = true;
                         break;
                     }
+                    case Events::EventMove:
+                        me->GetMotionMaster()->MovePoint(1, 69.690f, -309.859f, 91.427f);
+                        break;
+                    case Events::EventBack:
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, 0);
+                        me->GetMotionMaster()->MovePoint(3, 69.690f, -309.859f, 91.427f);
+                        break;
+                    case Events::EventShoulders:
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_EMOTE_CHEER);
+                        Talk(Talks::TalkShoulders);
+                        m_TalkEvents.ScheduleEvent(Events::EventTransform, 3000);
+                        break;
+                    case Events::EventTransform:
+                        me->CastSpell(me, Spells::DevoutShoulders, true);
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_EMOTE_FLEX);
+                        m_TalkEvents.ScheduleEvent(Events::EventFinal, 3000);
+                        break;
+                    case Events::EventFinal:
+                        Talk(Talks::TalkGarrison);
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, 0);
+                        me->CastSpell(me, Spells::CosmeticHearthstone, false);
+                        break;
                     default:
                         break;
+                }
+
+                ///< Check movespline end
+                if (m_BigRun && me->IsSplineFinished() && m_Instance != nullptr)
+                {
+                    if (Creature* l_SonOfBeast = Creature::GetCreature(*me, m_Instance->GetData64(eCreatures::NPC_SON_OF_THE_BEAST)))
+                    {
+                        if (!l_SonOfBeast->isAlive())
+                        {
+                            m_BigRun = false;
+
+                            Position l_Pos;
+                            l_SonOfBeast->GetPosition(&l_Pos);
+                            l_Pos.m_positionX -= 3.0f;
+                            l_Pos.m_positionY -= 3.0f;
+
+                            me->GetMotionMaster()->MovePoint(5, l_Pos);
+                        }
+                    }
                 }
 
                 if (!UpdateVictim())
                     return;
 
-                m_Events.Update(p_Diff);
+                DoMeleeAttackIfReady();
+            }
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                /*switch (m_Events.ExecuteEvent())
+            void MovementInform(uint32 p_Type, uint32 p_ID)
+            {
+                switch (p_ID)
                 {
+                    case 1: ///< Events::EventMove
+                        me->GetMotionMaster()->MovePoint(2, 49.700f, -308.808f, 91.545f);
+                        break;
+                    case 2:
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+                        m_TalkEvents.ScheduleEvent(Events::EventBack, 1500);
+                        break;
+                    case 3:
+                        me->GetMotionMaster()->MovePoint(4, 78.228f, -333.180f, 91.488f);
+                        break;
+                    case 4: ///< Chicken timer
+                    {
+                        me->SetOrientation(4.667f);
+                        me->SetFacingTo(4.667f);
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, Emote::EMOTE_STATE_USE_STANDING);
+                        me->CastSpell(me, Spells::ChickenTimer, true);
+                        //m_ChickenTime = 900;
+                        m_ChickenTime = 90;
+                        m_TalkEvents.ScheduleEvent(Events::EventUpdateChicken, 1000);
+                        m_TalkEvents.ScheduleEvent(Events::EventChicken, /*900000*/90000);
+
+                        if (m_Instance)
+                        {
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateEnableChicken, 1);
+                            m_Instance->DoUpdateWorldState(eWorldStates::WorldStateChickenTimer, m_ChickenTime);
+                        }
+
+                        break;
+                    }
+                    case 5: ///< Just found Son of the Beast
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+                        m_TalkEvents.ScheduleEvent(Events::EventShoulders, 2000);
+                        break;
                     default:
                         break;
-                }*/
-
-                DoMeleeAttackIfReady();
+                }
             }
         };
 

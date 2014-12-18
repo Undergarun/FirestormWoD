@@ -59,11 +59,10 @@ class spell_dru_yseras_gift : public SpellScriptLoader
                     std::list<Unit*> l_Party;
 
                     l_Caster->GetPartyMembers(l_Party);
-                    for (auto itr : l_Party)
-                    {
-                        if (itr->IsFullHealth() || itr->GetDistance(l_Caster) >= 40.0f)
-                            l_Party.remove(itr);
-                    }
+
+                    l_Party.remove_if([l_Caster](Unit* p_Unit) {
+                        return (p_Unit->IsFullHealth() || p_Unit->GetDistance(l_Caster) >= 40.0f);
+                    });
 
                     if (l_Party.empty())
                         return;

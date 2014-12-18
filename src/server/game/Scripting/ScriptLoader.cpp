@@ -828,6 +828,7 @@ void AddSC_boss_SlaveWatcherCrushto();
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
+void AddSC_BattlegroundSAScripts();
 
 // outdoor pvp
 void AddSC_outdoorpvp_hp();
@@ -1710,6 +1711,7 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
     AddSC_BattlegroundAVcripts();
     AddSC_BattlegroundDGScripts();
+    AddSC_BattlegroundSAScripts();
 #endif
 }
 

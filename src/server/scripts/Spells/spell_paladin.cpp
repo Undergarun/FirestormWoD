@@ -75,6 +75,7 @@ enum PaladinSpells
     PALADIN_SPELL_ARDENT_DEFENDER_HEAL          = 66235,
     PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE    = 88852,
     PALADIN_SPELL_BEACON_OF_LIGHT               = 53563,
+    PALADIN_SPELL_BEACON_OF_FAITH               = 156910,
     PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
     PALADIN_SPELL_BASTION_OF_GLORY              = 114637,
@@ -519,7 +520,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetExplTargetUnit())
                     {
-                        if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
+                        if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()) || l_Target->HasAura(PALADIN_SPELL_BEACON_OF_FAITH, l_Caster->GetGUID()))
                         {
                             if (GetSpellInfo()->Id == 19750)
                                 l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(20), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
@@ -1837,8 +1838,40 @@ public:
     }
 };
 
+// Beacon of Faith - 156910
+class spell_pal_beacon_of_faith : public SpellScriptLoader
+{
+public:
+    spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
+
+    class spell_pal_beacon_of_faith_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_beacon_of_faith_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetExplTargetUnit())
+                    if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
+                        return SPELL_FAILED_BAD_TARGETS;
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_faith_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_beacon_of_faith_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_beacon_of_faith();
     new spell_pal_holy_shield();
     new spell_pal_divine_purpose();
     new spell_pal_hammer_of_wrath();

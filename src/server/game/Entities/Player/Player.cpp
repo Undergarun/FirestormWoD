@@ -692,7 +692,7 @@ bool PetLoginQueryHolder::Initialize()
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this)
+Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -1506,22 +1506,25 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     }
 }
 
-void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen)
+void Player::SendMirrorTimer(MirrorTimerType p_Type, uint32 p_MaxValue, uint32 p_CurrValue, int32 p_Regen)
 {
-    if (int(MaxValue) == DISABLED_MIRROR_TIMER)
+    if (int(p_MaxValue) == DISABLED_MIRROR_TIMER)
     {
-        if (int(CurrentValue) != DISABLED_MIRROR_TIMER)
-            StopMirrorTimer(Type);
+        if (int(p_CurrValue) != DISABLED_MIRROR_TIMER)
+            StopMirrorTimer(p_Type);
         return;
     }
-    WorldPacket data(SMSG_START_MIRROR_TIMER, (21));
-    data << uint32(Type);
-    data << uint32(Regen);
-    data << uint32(0);                                      // spell id
-    data << MaxValue;
-    data << CurrentValue;
-    data.WriteBit(0);
-    GetSession()->SendPacket(&data);
+
+    WorldPacket l_Data(SMSG_START_MIRROR_TIMER, (21));
+    uint32 l_SpellID = 0;
+
+    l_Data << uint32(p_Type);
+    l_Data << p_CurrValue;
+    l_Data << p_MaxValue;
+    l_Data << uint32(p_Regen);
+    l_Data << uint32(l_SpellID);
+    l_Data.WriteBit(0);
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::StopMirrorTimer(MirrorTimerType Type)
@@ -4164,9 +4167,9 @@ void Player::GiveLevel(uint8 level)
     }
     else if (level == 90)
     {
-        if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(34398)) // Add quest for starting oD missions and go to Draenor
+        if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(36881)) // Add quest for starting oD missions and go to Draenor
         {
-            if (GetQuestStatus(34398) == QUEST_STATUS_NONE || GetQuestStatus(34398) == QUEST_STATUS_FAILED)
+            if (GetQuestStatus(36881) == QUEST_STATUS_NONE || GetQuestStatus(36881) == QUEST_STATUS_FAILED)
                 AddQuest(l_Quest, NULL);
         }
     }
@@ -5657,11 +5660,11 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
             if (m_SpellChargesMap.find(l_SpellID) != m_SpellChargesMap.end())
             {
                 ChargesData* l_Charges = GetChargesData(l_SpellID);
-                ++l_Charges->m_ConsumedCharges;
+                l_Charges->m_ConsumedCharges = l_Charge;
                 l_Charges->m_ChargesCooldown.push_back(l_RealCooldown);
             }
             else
-                m_SpellChargesMap.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown)));
+                m_SpellChargesMap.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_Charge)));
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_SpellID, uint32(l_Cooldown - l_CurrTime));
         }
@@ -5714,12 +5717,9 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
     l_Statement->setUInt32(0, GetGUIDLow());
     p_Transaction->Append(l_Statement);
 
-    uint64 l_CurrTime = 0;
-    ACE_OS::gettimeofday().msec(l_CurrTime);
-
     for (auto l_SpellCharges : m_SpellChargesMap)
     {
-        uint8 l_Count = 0;
+        uint8 l_Count = 1;
         for (uint64 l_Cooldown : l_SpellCharges.second.m_ChargesCooldown)
         {
             PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
@@ -6990,42 +6990,36 @@ void Player::RepopAtGraveyard()
         SpawnCorpseBones();
     }
 
-    WorldSafeLocsEntry ClosestGrave;
+    WorldSafeLocsEntry const* l_ClosestGrave = nullptr;
 
-    bool l_ClosestGraveFound = false;
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
-    {
-        l_ClosestGraveFound = true;
-        ClosestGrave = *bg->GetClosestGraveYard(this);
-    }
+        l_ClosestGrave = bg->GetClosestGraveYard(this);
     // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
     else if (GetMap()->IsDungeon())
     {
         AreaTriggerStruct const* l_AreaTrigger = sObjectMgr->GetMapEntranceTrigger(GetMapId());
         if (l_AreaTrigger)
         {
-            ClosestGrave.ID = 1; // Fake of course.
-            ClosestGrave.x = l_AreaTrigger->target_X;
-            ClosestGrave.y = l_AreaTrigger->target_Y;
-            ClosestGrave.z = l_AreaTrigger->target_Z;
-            ClosestGrave.o = GetOrientation();
-            ClosestGrave.map_id = l_AreaTrigger->target_mapId;
+            TeleportToClosestGrave(
+                l_AreaTrigger->target_X,
+                l_AreaTrigger->target_Y,
+                l_AreaTrigger->target_Z,
+                GetOrientation(),
+                l_AreaTrigger->target_mapId);
 
             // Since Wod, you are resurected in Dungeon with 100% life.
-            ResurrectPlayer(100.0f);
-            l_ClosestGraveFound = true;
+            ResurrectPlayer(1.0f);
         }
         else
             sLog->outAshran("MapEntranceTrigger not found for map %u.", GetMapId());
     }
-    
-    if (!l_ClosestGraveFound)
+    else
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
-            ClosestGrave = *bf->GetClosestGraveYard(this);
+            l_ClosestGrave = bf->GetClosestGraveYard(this);
         else
-            ClosestGrave = *sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+            l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
 
     // stop countdown until repop
@@ -7033,24 +7027,27 @@ void Player::RepopAtGraveyard()
 
     // if no grave found, stay at the current location
     // and don't show spirit healer location
-    if (ClosestGrave.ID != 0)
-    {
-        TeleportTo(ClosestGrave.map_id, ClosestGrave.x, ClosestGrave.y, ClosestGrave.z, ClosestGrave.o);
-        UpdateObjectVisibility();
-
-        /// not send if alive, because it used in TeleportTo()
-        if (isDead())
-        {
-            WorldPacket l_Data(SMSG_DEATH_RELEASE_LOC, 4 * 4);  // show spirit healer position on minimap
-            l_Data << ClosestGrave.map_id;
-            l_Data << ClosestGrave.x;
-            l_Data << ClosestGrave.y;
-            l_Data << ClosestGrave.z;
-            GetSession()->SendPacket(&l_Data);
-        }
-    }
+    if (l_ClosestGrave != nullptr)
+        TeleportToClosestGrave(l_ClosestGrave);
     else if (GetPositionZ() < -500.0f)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+}
+
+void Player::TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId)
+{
+    TeleportTo(p_MapId, p_X, p_Y, p_Z, p_O);
+    UpdateObjectVisibility();
+
+    /// not send if alive, because it used in TeleportTo()
+    if (isDead())
+    {
+        WorldPacket l_Data(SMSG_DEATH_RELEASE_LOC, 4 * 4);  // show spirit healer position on minimap
+        l_Data << p_MapId;
+        l_Data << p_X;
+        l_Data << p_Y;
+        l_Data << p_Z;
+        GetSession()->SendPacket(&l_Data);
+    }
 }
 
 void Player::SendCemeteryList(bool p_OnMap)
@@ -19155,8 +19152,8 @@ void Player::_LoadBGData(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
     // Expecting only one row
-    //        0           1     2      3      4      5      6          7          8        9
-    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell FROM character_battleground_data WHERE guid = ?
+    //        0           1     2      3      4      5      6          7          8        9            10
+    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec FROM character_battleground_data WHERE guid = ?
 
     m_bgData.bgInstanceID = fields[0].GetUInt32();
     m_bgData.bgTeam       = fields[1].GetUInt16();
@@ -19168,6 +19165,7 @@ void Player::_LoadBGData(PreparedQueryResult result)
     m_bgData.taxiPath[0]  = fields[7].GetUInt32();
     m_bgData.taxiPath[1]  = fields[8].GetUInt32();
     m_bgData.mountSpell   = fields[9].GetUInt32();
+    m_bgData.m_LastActiveSpec = fields[10].GetUInt16();
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid)
@@ -24781,31 +24779,38 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         // Now we have cooldown data (if found any), time to apply mods
         if (rec > 0)
-        {
-            Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
-            for (Unit::AuraEffectList::const_iterator itr = categoryCooldownAuras.begin(); itr != categoryCooldownAuras.end(); ++itr)
-            {
-                 if ((*itr)->GetMiscValue() != spellInfo->Category)
-                     continue;
+            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, rec, spell);
 
-                 rec += (*itr)->GetAmount();
+        if (catrec > 0 && !(spellInfo->AttributesEx6 & SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
+
+        if (cat)
+        {
+            if (int32 l_CategoryModifier = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN, cat))
+            {
+                if (rec > 0)
+                    rec += l_CategoryModifier;
+
+                if (catrec > 0)
+                    catrec += l_CategoryModifier;
             }
 
-            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, rec, spell);
+            // New MoP skill cooldown
+            // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
+            if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
+            {
+                int days = catrec / 1000;
+                recTime = (86400 * days) * IN_MILLISECONDS;
+            }
         }
 
-        if (catrec > 0)
+        // TODO: is charge regen time affected by any mods?
+        SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
+        if (categories && categories->ChargesCategory != 0)
         {
-            Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
-            for (Unit::AuraEffectList::const_iterator itr = categoryCooldownAuras.begin(); itr != categoryCooldownAuras.end(); ++itr)
-            {
-                if ((*itr)->GetMiscValue() != spellInfo->Category)
-                    continue;
-
-                catrec += (*itr)->GetAmount();
-            }
-
-            ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, catrec, spell);
+            SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
+            if (category && category->ChargeRegenTime != 0 && category->MaxCharges != 0)
+                ConsumeCharge(spellInfo->Id, category);
         }
 
         // replace negative cooldowns by 0
@@ -24817,30 +24822,12 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 
         // no cooldown after applying spell mods
         if (rec == 0 && catrec == 0)
-        {
-            // TODO: is charge regen time affected by any mods?
-            SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
-            if (categories && categories->ChargesCategory != 0)
-            {
-                SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-                if (category && category->ChargeRegenTime != 0)
-                    ConsumeCharge(spellInfo->Id, category);
-            }
-
             return;
-        }
 
         catrecTime = catrec ? catrec : 0;
         recTime = rec ? rec : catrecTime;
     }
 
-    // New MoP skill cooldown
-    // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
-    if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
-    {
-        int days = catrec / 1000;
-        recTime = (86400 * days) * IN_MILLISECONDS;
-    }
 
     // self spell cooldown
     if (recTime > 0)
@@ -24861,23 +24848,15 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             }
         }
     }
-
-    // TODO: is charge regen time affected by any mods?
-    SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
-    if (categories && categories->ChargesCategory != 0)
-    {
-        SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-        if (category && category->ChargeRegenTime != 0)
-            ConsumeCharge(spellInfo->Id, category);
-    }
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
 {
+    uint64 curTime = 0;
+    ACE_OS::gettimeofday().msec(curTime);
+
     SpellCooldown sc;
-    uint64 currTime = 0;
-    ACE_OS::gettimeofday().msec(currTime);
-    sc.end = currTime + end_time;
+    sc.end = curTime + end_time;
     sc.itemid = itemid;
     m_spellCooldowns[spellid] = sc;
 
@@ -25667,7 +25646,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendCooldownAtLogin()
 {
-    time_t curTime = time(NULL);
+    uint64 curTime = 0;
+    ACE_OS::gettimeofday().msec(curTime);
 
     for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
     {
@@ -25766,6 +25746,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     // Hack fix for Sparring - Not applied
     if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
         AddAura(116023, this);
+
+    // Hack fix for AURA_STATE_PVP_PREPARATION.
+    if (GetBattleground() && GetBattleground()->GetStatus() == BattlegroundStatus::STATUS_WAIT_JOIN)
+        ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
 
     /// Fix ghost group leader flag
     RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
@@ -28544,7 +28528,7 @@ void Player::_SaveBGData(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-    /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
+    /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell, lastActiveSpec, lastSpecId */
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
     stmt->setUInt32(1, m_bgData.bgInstanceID);
@@ -28557,6 +28541,7 @@ void Player::_SaveBGData(SQLTransaction& trans)
     stmt->setUInt16(8, m_bgData.taxiPath[0]);
     stmt->setUInt16(9, m_bgData.taxiPath[1]);
     stmt->setUInt16(10, m_bgData.mountSpell);
+    stmt->setUInt8(11, m_bgData.m_LastActiveSpec);
     trans->Append(stmt);
 }
 
@@ -31014,7 +30999,7 @@ void Player::SendSpellCharges()
         else
             l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
 
-        l_Data << uint8(l_Charges.m_ConsumedCharges);
+        l_Data << uint8(l_Charges.m_ConsumedCharges + 1);
 
         ++l_Count;
     }

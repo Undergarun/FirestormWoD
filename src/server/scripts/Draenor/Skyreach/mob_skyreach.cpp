@@ -853,7 +853,7 @@ namespace MS
                         me->CastSpell(me, uint32(Spells::CRAFT_SUN_TRINCKET));
                         break;
                     case uint32(Events::FLASH_HEAL):
-                        m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(2500, 4500));
+                        m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
                         me->CastSpell(me, uint32(Spells::FLASH_HEAL));
                         break;
                     default:

@@ -34,7 +34,8 @@ class garrison_commandscript : public CommandScript
 
             static ChatCommand missionCommandTable[] =
             {
-                { "add", SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
+                { "add",            SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
+                { "completeall",    SEC_GAMEMASTER, true, &HandleMissionCompleteAllCommand, "", NULL },
             };
 
             static ChatCommand garrisonCommandTable[] =
@@ -71,7 +72,7 @@ class garrison_commandscript : public CommandScript
             p_Handler->PSendSysMessage("Level : %u SiteLevelID : %u MapID : %u FactionID : %u", l_Entry->Level, l_Entry->SiteID, l_Entry->MapID, (uint32)l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex());
             p_Handler->PSendSysMessage("Cache Resource : %u", l_TargetPlayer->GetGarrison()->GetGarrisonCacheTokenCount());
 
-            return false;
+            return true;
         }
 
         static bool HandleBlueprintLearnCommand(ChatHandler * p_Handler, char const* p_Args)
@@ -112,7 +113,7 @@ class garrison_commandscript : public CommandScript
                 }
             }
 
-            return false;
+            return true;
         }
 
         static bool HandlePlotInfoCommand(ChatHandler * p_Handler, char const* p_Args)
@@ -189,7 +190,7 @@ class garrison_commandscript : public CommandScript
                 }
             }
 
-            return false;
+            return true;
         }
 
         static bool HandleMissionAddCommand(ChatHandler * p_Handler, char const* p_Args)
@@ -230,9 +231,23 @@ class garrison_commandscript : public CommandScript
                 }
             }
 
-            return false;
+            return true;
         }
-        
+        static bool HandleMissionCompleteAllCommand(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->GetGarrison()->SetAllInProgressMissionAsComplete();
+
+            return true;
+        }
 };
 
 void AddSC_garrison_commandscript()

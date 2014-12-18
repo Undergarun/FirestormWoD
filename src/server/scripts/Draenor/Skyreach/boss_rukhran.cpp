@@ -433,7 +433,7 @@ namespace MS
                     }
 
                     // We check if someone is in melee range.
-                    if (!me->IsWithinMeleeRange(me->getVictim()))
+                    if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()))
                     {
                         Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.0f);
                         if (!l_Plr || !l_Plr->IsWithinMeleeRange(me))
@@ -459,7 +459,7 @@ namespace MS
                     case uint32(Events::PIERCE_ARMOR):
                         events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), urand(10500, 13000));
                         // We want to cast PierceArmor on the closest ennemy.
-                        if (me->getVictim()->IsWithinMeleeRange(me))
+                        if (me->getVictim() && me->getVictim()->IsWithinMeleeRange(me))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
                         else if (Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.f))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));

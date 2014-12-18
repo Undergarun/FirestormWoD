@@ -891,12 +891,12 @@ enum Opcodes
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
         SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0D92,   ///< 6.0.3 19116
         SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x11C1,   ///< 6.0.3 19116
+        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x1B64,   ///< 6.0.3 19116
+        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0973,   ///< 6.0.3 19116
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x0D01,   ///< 6.0.3 19116
         SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0D54,   ///< 6.0.3 19116
-        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0000,
-        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0000,
-        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
+        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0952,   ///< 6.0.3 19116
         SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
@@ -949,7 +949,7 @@ enum Opcodes
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
     CMSG_GARRISON_START_MISSION                             = 0x1624,   ///< 6.0.3 19116
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x102C,   ///< 6.0.3 19116
-    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
+    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x02C2,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x02BD,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x03D9,   ///< 6.0.3 19116
