@@ -115,6 +115,7 @@ static Position const g_BurningBridgePos[eMisc::MaxBurningBridge] =
     { 7.769579f, -194.1159f, 101.4526f, 4.591072f }
 };
 
+static Position const g_SpawnPos = { 22.1094f, -103.059f, 97.7569f, 4.711267f };
 static Position const g_IronflightSpawnPos = { 20.5842f, -46.9536f, 107.4032f, 4.7185f };
 static Position const g_IronflightSecondPos = { 21.342f, -173.01f, 117.342f, 1.551f };
 static Position const g_CenterPos = { 20.647974f, -122.817032f, 97.818550f, 1.531097f };
@@ -223,26 +224,22 @@ class boss_warlord_zaela : public CreatureScript
                 if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER || p_Who->GetDistance(me) > 35.f)
                     return;
 
-                if ((m_Instance != nullptr && m_Instance->GetBossState(eDatas::DATA_COMMANDER_THARBEK) == EncounterState::DONE) || m_IntroDone)
-                    return;
+                if (!m_TharbekIntroDone)
+                {
+                    m_TharbekIntroDone = true;
+                    Talk(eSays::TalkWave1_01);
 
-                if (!m_IntroDone)
+                    if (m_Instance)
+                    {
+                        if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(eCreatures::NPC_COMMANDER_THARBEK)))
+                            l_Tharbek->AI()->DoAction(eActions::ActionTharbekTalk1);
+                    }
+                }
+                else if (m_TharbekIntroDone && !m_IntroDone && m_Instance != nullptr && m_Instance->GetBossState(eDatas::DATA_COMMANDER_THARBEK) == EncounterState::DONE)
                 {
                     Talk(eSays::TalkIntro);
                     m_IntroDone = true;
                     return;
-                }
-
-                if (m_TharbekIntroDone)
-                    return;
-
-                m_TharbekIntroDone = true;
-                Talk(eSays::TalkWave1_01);
-
-                if (m_Instance)
-                {
-                    if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(eCreatures::NPC_COMMANDER_THARBEK)))
-                        l_Tharbek->AI()->DoAction(eActions::ActionTharbekTalk1);
                 }
             }
 
@@ -540,6 +537,8 @@ class boss_warlord_zaela : public CreatureScript
                         if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(eCreatures::NPC_COMMANDER_THARBEK)))
                             l_Tharbek->AI()->DoAction(eActions::ActionTharbekTalk4);
                     }
+
+                    me->NearTeleportTo(g_SpawnPos.m_positionX, g_SpawnPos.m_positionY, g_SpawnPos.m_positionZ, g_SpawnPos.m_orientation);
                 }
                 else
                     m_SecondTalkTimer -= p_Diff;

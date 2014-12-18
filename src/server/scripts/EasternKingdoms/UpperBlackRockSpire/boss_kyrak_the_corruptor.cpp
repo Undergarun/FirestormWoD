@@ -23,6 +23,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
+#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -45,7 +46,8 @@ enum eEvents
     EVENT_VILEBLOOD_SERUM,
 
     ///< Heroic only
-    EVENT_SALVE_OF_TOXIC_FUMES
+    EVENT_SALVE_OF_TOXIC_FUMES,
+    EVENT_ACTIVE_VILEBLOOD_SERUM
 };
 
 enum eSays
@@ -119,7 +121,10 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 26000);
 
                 if (IsHeroic())
+                {
                     m_Events.ScheduleEvent(EVENT_SALVE_OF_TOXIC_FUMES, 12000);
+                    m_Events.ScheduleEvent(EVENT_ACTIVE_VILEBLOOD_SERUM, 10000);
+                }
             }
 
             void JustReachedHome()
@@ -223,6 +228,9 @@ class boss_kyrak_the_corruptor : public CreatureScript
                     case EVENT_SALVE_OF_TOXIC_FUMES:
                         me->CastSpell(me, SPELL_SALVE_OF_TOXIC_FUMES_SEARCHER, true);
                         m_Events.ScheduleEvent(EVENT_SALVE_OF_TOXIC_FUMES, 12000);
+                        break;
+                    case EVENT_ACTIVE_VILEBLOOD_SERUM:
+                        me->CastSpell(me, SPELL_VILEBLOOD_SERUM_SEARCHER, true);
                         break;
                     default:
                         break;
@@ -330,8 +338,42 @@ class spell_vilebloom_serum : public SpellScriptLoader
         }
 };
 
+///< Vileblood Serum - 161210
+class areatrigger_vileblood_serum : public MS::AreaTriggerEntityScript
+{
+    public:
+        areatrigger_vileblood_serum() : MS::AreaTriggerEntityScript("areatrigger_vileblood_serum") { }
+
+        enum eSpells
+        {
+            VilebloodSerum = 161288
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 2.0f;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetDistance(p_AreaTrigger) <= l_Radius)
+                    l_Unit->CastSpell(l_Unit, eSpells::VilebloodSerum, true);
+            }
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new areatrigger_vileblood_serum();
+        }
+};
+
 void AddSC_boss_kyrak_the_corruptor()
 {
     new boss_kyrak_the_corruptor();
     new spell_vilebloom_serum();
+    new areatrigger_vileblood_serum();
 }

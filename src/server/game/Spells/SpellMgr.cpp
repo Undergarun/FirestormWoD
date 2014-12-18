@@ -3461,6 +3461,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
+            case 117962:// Crackling Jade Shock
+                spellInfo->Effects[0].Mechanic = MECHANIC_KNOCKOUT;
+                break;
             case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;

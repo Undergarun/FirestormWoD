@@ -1252,36 +1252,6 @@ public:
     }
 };
 
-class AreaTrigger_vileblood_serum : public MS::AreaTriggerEntityScript
-{
-public:
-    AreaTrigger_vileblood_serum()
-        : MS::AreaTriggerEntityScript("at_vileblood_serum")
-    {
-    }
-
-    MS::AreaTriggerEntityScript* GetAI() const
-    {
-        return new AreaTrigger_vileblood_serum();
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        std::list<Unit*> l_TargetList;
-        float l_Radius = 2.0f;
-
-        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
-        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-        for (Unit* l_Unit : l_TargetList)
-        {
-            if (l_Unit->GetDistance(p_AreaTrigger) <= l_Radius)
-                l_Unit->CastSpell(l_Unit, 161288, true);
-        }
-    }
-};
-
 class AreaTrigger_noxious_spit : public MS::AreaTriggerEntityScript
 {
 public:
@@ -1321,7 +1291,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_zen_sphere_2();
     new AreaTrigger_zen_sphere_1();
     new AreaTrigger_noxious_spit();
-    new AreaTrigger_vileblood_serum();
     new AreaTrigger_down_draft();
     new AreaTrigger_gift_of_the_ox();
     new AreaTrigger_angelic_feather();

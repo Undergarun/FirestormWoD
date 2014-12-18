@@ -41,7 +41,8 @@ static const BossScenarios g_BossScenarios[] =
     { DATA_KYRAK_THE_CORRUPTOR,  SCENARIO_UBRS_KYRAK    },
     { DATA_COMMANDER_THARBEK,    SCENARIO_UBRS_THARBEK  },
     { DATA_RAGEWING_THE_UNTAMED, SCENARIO_UBRS_RAGEWING },
-    { DATA_WARLORD_ZAELA,        SCENARIO_UBRS_ZAELA    } 
+    { DATA_WARLORD_ZAELA,        SCENARIO_UBRS_ZAELA    },
+    { 0,                         0                      }
 };
 
 class instance_upper_blackrock_spire : public InstanceMapScript
@@ -293,12 +294,12 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         if (!m_RagewingTimeAchiev)
                         {
                             m_RagewingWhelpsKilled = 0;
-                            m_RagewingTimeAchiev = time(NULL);
+                            m_RagewingTimeAchiev = 1;
                         }
 
                         ++m_RagewingWhelpsKilled;
 
-                        if (m_RagewingWhelpsKilled >= 20 && m_RagewingTimeAchiev > 0 && (m_RagewingTimeAchiev + 10) <= time(NULL))
+                        if (m_RagewingWhelpsKilled >= 20 && m_RagewingTimeAchiev > 0 && m_RagewingTimeAchiev <= 10 * IN_MILLISECONDS)
                             DoCompleteAchievement(eAchievements::AchievementBridgeOverFire);
 
                         return;
@@ -336,6 +337,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 ScheduleBeginningTimeUpdate(p_Diff);
                 ScheduleChallengeStartup(p_Diff);
                 ScheduleChallengeTimeUpdate(p_Diff);
+
+                if (m_RagewingTimeAchiev)
+                    m_RagewingTimeAchiev += p_Diff;
             }
 
             void FillInitialWorldStates(ByteBuffer& p_Buffer)
