@@ -302,7 +302,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227                     Teleport Into Karabor
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228                     Recruit A Friend Summon Effect
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229                     Upgrade follower to epic
-    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230                     level follower related
+    &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL   Upgrade follower iLvL
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231                     level up an follower (debug PTR spell)
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232                     Phase related
     &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233                     Retrain Follower (Reroll the abilities and traits on a follower.)
@@ -8326,6 +8326,50 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     }
     else
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
+}
+
+void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player * l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player || !l_Player->GetGarrison())
+        return;
+
+    bool l_IsArmor = !!m_spellInfo->Effects[p_EffIndex].MiscValue;
+    uint32 l_FollowerEntry = m_glyphIndex;
+    uint32 l_NewValue = 0;
+
+    printf("Follower entry %u \n", m_glyphIndex);
+    if (m_spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
+    {
+        l_NewValue = m_spellInfo->Effects[EFFECT_1].BasePoints;
+    }
+    else
+    {
+        if (l_IsArmor)
+            l_NewValue = /*OldArmorValue*/0 + m_spellInfo->Effects[p_EffIndex].BasePoints;
+        else
+            l_NewValue = /*OldWeponValue*/0 + m_spellInfo->Effects[p_EffIndex].BasePoints;
+    }
+
+    uint32 l_Value = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+
+    /// Armor case
+    if (l_IsArmor)
+    {
+
+    }
+    /// Weapon case
+    else
+    {
+
+    }
 }
 
 void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)

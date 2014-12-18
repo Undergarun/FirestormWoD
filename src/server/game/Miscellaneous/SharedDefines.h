@@ -1304,7 +1304,7 @@ enum SpellEffects
     SPELL_EFFECT_227                                = 227,
     SPELL_EFFECT_228                                = 228,
     SPELL_EFFECT_229                                = 229,
-    SPELL_EFFECT_230                                = 230,
+    SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL              = 230,
     SPELL_EFFECT_231                                = 231,
     SPELL_EFFECT_232                                = 232,
     SPELL_EFFECT_233                                = 233,

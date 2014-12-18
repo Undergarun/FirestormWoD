@@ -197,8 +197,23 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     }
 
     //////////////////////////////////////////////////////////////////////////
+    
+    bool l_IsGarrisonItem = false;
+    
+    if (sSpellMgr->GetSpellInfo(l_SpellID))
+    {
+        switch (sSpellMgr->GetSpellInfo(l_SpellID)->Effects[EFFECT_0].Effect)
+        {
+            case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                l_IsGarrisonItem = true;
+                break;
 
-    if (l_Misc >= MAX_GLYPH_SLOT_INDEX)
+            default:
+                break;
+        }
+    }
+
+    if (!l_IsGarrisonItem && l_Misc >= MAX_GLYPH_SLOT_INDEX)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
