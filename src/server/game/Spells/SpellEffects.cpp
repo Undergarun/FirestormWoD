@@ -2139,44 +2139,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             addhealth += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f);
             break;
         }
-        case 114163:// Eternal Flame
-        case 130551:// Word of Glory
-        {
-            if (!caster || !unitTarget)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            addhealth += int32(0.49f * m_caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
-
-            int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
-
-            if (holyPower > 3)
-                holyPower = 3;
-
-            // Divine Purpose
-            if (caster->HasAura(90174))
-                holyPower = 3;
-
-            addhealth *= holyPower;
-
-            // Bastion of Glory : +10% of power per application if target is caster
-            if (unitTarget->GetGUID() == caster->GetGUID() && caster->HasAura(114637))
-            {
-                AuraPtr bastionOfGlory = caster->GetAura(114637);
-                if (!bastionOfGlory)
-                    break;
-
-                AddPct(addhealth, (10 * bastionOfGlory->GetStackAmount()));
-
-                caster->RemoveAurasDueToSpell(114637);
-            }
-
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-            break;
-        }
         case 121129:// Daybreak
         {
             if (caster && unitTarget && caster->GetGUID() == unitTarget->GetGUID())

@@ -14,3 +14,7 @@ INSERT INTO `spell_script_names` VALUES ('115698', 'spell_monk_jab');
 INSERT INTO `spell_script_names` VALUES ('115687', 'spell_monk_jab');
 INSERT INTO `spell_script_names` VALUES ('115693', 'spell_monk_jab');
 INSERT INTO `spell_script_names` VALUES ('115695', 'spell_monk_jab');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pal_word_of_glory_heal';
+INSERT INTO `spell_script_names` VALUES ('130551', 'spell_pal_word_of_glory_heal');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pal_word_of_glory_damage';
+INSERT INTO `spell_script_names` VALUES ('130552', 'spell_pal_word_of_glory_damage');

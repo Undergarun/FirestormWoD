@@ -3897,13 +3897,6 @@ enum JabSpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-           /* case 100780:// Jab
-            case 108557:// Jab (Staff)
-            case 115698:// Jab (Polearm)
-            case 115687:// Jab (Axes)
-            case 115693:// Jab (Maces)
-            case 115695:// Jab (Swords)*/
-// Jab - 100780
 class spell_monk_jab : public SpellScriptLoader
 {
 public:

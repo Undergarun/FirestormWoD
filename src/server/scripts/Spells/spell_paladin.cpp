@@ -1166,6 +1166,88 @@ class spell_pal_consecration_area : public SpellScriptLoader
         }
 };
 
+//  Word of Glory (Heal) - 130551
+class spell_pal_word_of_glory_heal : public SpellScriptLoader
+{
+public:
+    spell_pal_word_of_glory_heal() : SpellScriptLoader("spell_pal_word_of_glory_heal") { }
+
+    class spell_pal_word_of_glory_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_word_of_glory_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    int32 l_Power = l_Caster->GetPower(POWER_HOLY_POWER);
+
+                    SetHitHeal(GetHitHeal() / (3 - l_Power + 1));
+
+                    if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                    {
+                        if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                        {
+                            SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), sSpellMgr->GetSpellInfo(114637)->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
+                            l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
+                        }
+                    }
+
+
+                    if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        l_Caster->ModifyPower(POWER_HOLY_POWER, -l_Power);
+                }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pal_word_of_glory_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_word_of_glory_heal_SpellScript;
+    }
+};
+
+//  Word of Glory (Damage) - 130552
+class spell_pal_word_of_glory_damage : public SpellScriptLoader
+{
+public:
+    spell_pal_word_of_glory_damage() : SpellScriptLoader("spell_pal_word_of_glory_damage") { }
+
+    class spell_pal_word_of_glory_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_word_of_glory_damage_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Player = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
+                    
+                    SetHitDamage((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) *  GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) / (3 - l_Power + 1));
+
+                    if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
+                }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_pal_word_of_glory_damage_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_word_of_glory_damage_SpellScript;
+    }
+};
+
 // Word of Glory - 85673 - 136494
 class spell_pal_word_of_glory : public SpellScriptLoader
 {
@@ -1195,8 +1277,8 @@ class spell_pal_word_of_glory : public SpellScriptLoader
 
                         int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
 
-                        if (l_Power > 2)
-                            l_Power = 2;
+                        if (l_Power > 3)
+                            l_Power = 3;
 
                         if (l_Target->IsFriendlyTo(l_Player))
                             l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
@@ -1209,13 +1291,10 @@ class spell_pal_word_of_glory : public SpellScriptLoader
 
                             if (l_Aura)
                             {
-                                l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (l_Power + 1));
+                                l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (l_Power));
                                 l_Aura->SetNeedClientUpdateForTargets();
                             }
                         }
-
-                        if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
-                            l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
                     }
                 }
             }
@@ -1871,6 +1950,8 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_word_of_glory_damage();
+    new spell_pal_word_of_glory_heal();
     new spell_pal_beacon_of_faith();
     new spell_pal_holy_shield();
     new spell_pal_divine_purpose();
