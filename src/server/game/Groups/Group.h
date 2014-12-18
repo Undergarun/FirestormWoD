@@ -393,7 +393,12 @@ class Group
         void BroadcastGroupUpdate(void);
 
         void IncrementPlayersInInstance() { m_membersInInstance++; }
-        void DecrementPlayersInInstance() { m_membersInInstance--; }
+        void DecrementPlayersInInstance()
+        {
+            if (m_membersInInstance > 0)
+                m_membersInInstance--;
+        }
+
         bool CanEnterInInstance();
 
         void SetReadyCheckCount(uint8 count) { m_readyCheckCount = count; }

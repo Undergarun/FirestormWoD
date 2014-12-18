@@ -66,16 +66,18 @@ class spell_garrison_hearthstone : public SpellScriptLoader
                 return true;
             }
 
-            /// On spell chech cast
+            /// On spell check cast
             SpellCastResult HandleCheckCast()
             {
-                if (GetCaster()->isInCombat() && GetCaster()->ToPlayer())
+                Player * l_Player = GetCaster()->ToPlayer();
+
+                if (GetCaster()->isInCombat() && l_Player)
                 {
-                    GetCaster()->ToPlayer()->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, GetSpell()->m_CastItem, NULL);
+                    l_Player->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, GetSpell()->m_CastItem, NULL);
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
-                if (GetCaster()->ToPlayer() && !GetCaster()->ToPlayer()->GetGarrison())
+                if (l_Player && !l_Player->GetGarrison())
                     return SPELL_FAILED_GARRISON_NOT_OWNED;
 
                 return SPELL_CAST_OK;
@@ -84,11 +86,11 @@ class spell_garrison_hearthstone : public SpellScriptLoader
             /// On spell EFFECT_0 dummy proc
             void HandleDummy(SpellEffIndex p_EffectIndex)
             {
-                Unit * l_Caster = GetCaster();
+                Player  * l_Player = GetCaster()->ToPlayer();
 
-                if (l_Caster && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetGarrison())
+                if (l_Player && l_Player->GetGarrison())
                 {
-                    Garrison * l_Garrison = l_Caster->ToPlayer()->GetGarrison();
+                    Garrison * l_Garrison = l_Player->GetGarrison();
 
                     uint32 l_Index = (l_Garrison->GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (l_Garrison->GetGarrisonSiteLevelEntry()->Level - 1);
 
@@ -97,7 +99,7 @@ class spell_garrison_hearthstone : public SpellScriptLoader
                     float l_Z = gGarrisonHearthStoneTeleportCoord[l_Index][2];
                     float l_O = gGarrisonHearthStoneTeleportCoord[l_Index][3];
 
-                    l_Caster->ToPlayer()->TeleportTo(l_Garrison->GetGarrisonSiteLevelEntry()->MapID, l_X, l_Y, l_Z, l_O);
+                    l_Player->TeleportTo(l_Garrison->GetGarrisonSiteLevelEntry()->MapID, l_X, l_Y, l_Z, l_O);
                 }
             }
 

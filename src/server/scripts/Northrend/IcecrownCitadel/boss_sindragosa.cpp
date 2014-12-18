@@ -240,6 +240,9 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_DAMAGE);
             }
 
             void EnterCombat(Unit* victim)
@@ -257,6 +260,9 @@ class boss_sindragosa : public CreatureScript
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
+
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_DAMAGE);
             }
 
             void JustReachedHome()
