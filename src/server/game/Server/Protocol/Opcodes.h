@@ -1146,9 +1146,10 @@ enum Opcodes
     CMSG_UNLEARN_SKILL                          = 0x0A26,   ///< 6.0.3 19116
     CMSG_EMOTE                                  = 0x0A27,   ///> 6.0.3 19116
     CMSG_SEND_TEXT_EMOTE                        = 0x1901,   ///< 6.0.3 19116
-    CMSG_ALTER_APPEARANCE                       = 0x13E9,   ///< 6.0.3 19166
-    CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19166
-    CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19166
+    CMSG_ALTER_APPEARANCE                       = 0x13E9,   ///< 6.0.3 19116
+    CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19116
+    CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19116
+    CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1629,7 +1630,6 @@ enum Opcodes
     CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND             = 0x0000,
     CMSG_COMMENTATOR_START_WARGAME                      = 0x0000,
     CMSG_COMPLAIN                                       = 0x0000,
-    CMSG_COMPLETE_MOVIE                                 = 0x0000,
     CMSG_CONNECT_TO_FAILED                              = 0x0000,
     CMSG_DANCE_QUERY                                    = 0x0000,
     CMSG_DEL_VOICE_IGNORE                               = 0x0000,
