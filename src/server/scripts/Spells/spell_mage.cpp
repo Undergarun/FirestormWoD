@@ -1368,17 +1368,12 @@ public:
                 if (l_Caster->HasAura(SPELL_MAGE_UNSTABLE_MAGIC))
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if ((GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_0].BasePoints))
-                            || (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_2].BasePoints))
-                            || (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_1].BasePoints)))
-                        {
-                            if (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL)
-                                l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, true);
-                            else if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST)
-                                l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE, true);
-                            else if (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT)
-                                l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, true);
-                        }
+                        if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE, true);
+                        else if (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_1].BasePoints))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, true);
+                        else if (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_2].BasePoints))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, true);
                     }
         }
 
