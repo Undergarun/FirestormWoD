@@ -1887,7 +1887,12 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
 uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
-    return floor((((float)itemStat.ScalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * itemStat.SocketCostRate)) + 0.5f);
+    return CalculateStatScaling(itemStat.ScalingValue, itemStat.SocketCostRate, ilvl);
+}
+
+uint32 ItemTemplate::CalculateStatScaling(uint32 scalingValue, float socketCost, uint32 ilvl) const
+{
+    return floor((((float)scalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * socketCost)) + 0.5f);
 }
 
 uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
@@ -1987,7 +1992,7 @@ void Item::AddItemBonuses(std::vector<uint32> const& p_ItemBonuses)
     if (!p_ItemBonuses.size())
         return;
 
-    for (int i = 0; i < p_ItemBonuses.size(); i++)
+    for (uint32 i = 0; i < p_ItemBonuses.size(); i++)
         AddItemBonus(p_ItemBonuses[i]);
 }
 
@@ -2005,7 +2010,7 @@ bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
-        if (l_BonusList[i] == p_ItemBonusId)
+        if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
             SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
             return true;
@@ -2019,7 +2024,8 @@ void Item::RemoveAllItemBonuses()
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
     for (auto& l_Bonus : l_BonusList)
-        RemoveItemBonus(l_Bonus);
+        if (l_Bonus)
+            RemoveItemBonus(l_Bonus);
 }
 
 std::vector<uint32> const& Item::GetAllItemBonuses() const
@@ -2032,6 +2038,9 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
     uint32 itemLevel = 0;
     for (auto l_Bonus : GetAllItemBonuses())
     {
+        if (!l_Bonus)
+            continue;
+
         std::vector<ItemBonusEntry const*> const* l_ItemBonus = GetItemBonusesByID(l_Bonus);
         if (!l_ItemBonus)
             continue;

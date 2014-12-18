@@ -121,7 +121,9 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_BLAST_MASTERY_BONUS = 173184,
     SPELL_SHA_ELEMENTAL_BLAST_MULTISTRIKE_BONUS = 173185,
     SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS = 173186,
-    SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS  = 173187
+    SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS  = 173187,
+    SPELL_SHA_ELEMENTAL_FUSION              = 152257,
+    SPELL_SHA_ELEMENTAL_FUSION_PROC         = 157174
 };
 
 // Totemic Projection - 108287
@@ -1375,6 +1377,9 @@ class spell_sha_lava_lash : public SpellScriptLoader
                 if (Unit* l_Target = GetHitUnit())
                     if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
                         GetCaster()->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
+
+                if (GetCaster()->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                    GetCaster()->CastSpell(GetCaster(), SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
             }
 
             void Register()
@@ -1904,6 +1909,34 @@ class spell_sha_ghost_wolf : public SpellScriptLoader
         }
 };
 
+// 51505 Lava Burst
+class spell_sha_lava_burst : public SpellScriptLoader
+{
+    public:
+        spell_sha_lava_burst() : SpellScriptLoader("spell_sha_lava_burst") { }
+
+        class spell_sha_lava_burst_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_lava_burst_SpellScript);
+
+            void HitTarget(SpellEffIndex)
+            {
+                if (GetCaster()->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                    GetCaster()->CastSpell(GetCaster(), SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_lava_burst_SpellScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_totemic_projection();
@@ -1945,4 +1978,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_liquid_magma();
     new spell_sha_liquid_magma_visual();
     new spell_sha_ghost_wolf();
+    new spell_sha_lava_burst();
 }

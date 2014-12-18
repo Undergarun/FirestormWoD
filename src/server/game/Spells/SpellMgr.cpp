@@ -3445,6 +3445,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 157174: // Elemental Fusion
+                spellInfo->ProcCharges = 1;
+                break;
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
@@ -4381,7 +4384,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
                 spellInfo->Effects[2].Effect = 0;
                 break;
-            case 53490:  // Bullheaded 
+            case 53490:  // Bullheaded
                 spellInfo->ProcChance = 100;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
                 break;
