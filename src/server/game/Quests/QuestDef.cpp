@@ -214,6 +214,9 @@ uint32 Quest::GetQuestObjectiveId(uint32 p_QuestId, uint8 p_ObjIndex) const
 {
     const Quest * l_Quest = sObjectMgr->GetQuestTemplate(p_QuestId);
 
+    if (!l_Quest)
+        return 0;
+
     if (uint32 l_ObjectiveId = QuestObjectives[p_ObjIndex].ID)
         return l_ObjectiveId;
 
