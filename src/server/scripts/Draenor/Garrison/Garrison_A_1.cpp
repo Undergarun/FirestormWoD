@@ -7,7 +7,7 @@
 
 enum
 {
-    QUEST_ETABLISH_YOUR_GARRISON    = 34586,
+    QUEST_ETABLISH_YOUR_GARRISON_A  = 34586,
     QUEST_KEEPING_IT_TOGETHER       = 35176,
 };
 
@@ -63,7 +63,7 @@ class instance_Garrison_A1 : public InstanceMapScript
             {
                 uint32 l_PhaseMask = GARRISON_PHASE_BASE;
 
-                if (p_Owner->GetQuestStatus(QUEST_ETABLISH_YOUR_GARRISON) == QUEST_STATUS_REWARDED)
+                if (p_Owner->GetQuestStatus(QUEST_ETABLISH_YOUR_GARRISON_A) == QUEST_STATUS_REWARDED)
                     l_PhaseMask |= GARRISON_PHASE_COMPAGNION;
 
                 if (p_Owner->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_INCOMPLETE)

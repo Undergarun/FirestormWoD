@@ -468,7 +468,7 @@ struct GarrSiteLevelEntry
     uint32      MapTextureUiTextureKitID;               // 4
     float       TownHallX;                              // 5
     float       TownHallY;                              // 6
-    uint32      Unk4;                                   // 7
+    uint32      CreationMovie;                          // 7
     uint32      Unk5;                                   // 8
     uint32      UpgradeCost;                            // 9
     uint32      UpgradeMoneyCost;                       // 10
