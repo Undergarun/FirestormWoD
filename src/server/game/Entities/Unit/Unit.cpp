@@ -12864,7 +12864,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING);
-        AddPct(DoneTotal, PvPPower);
+        DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
     // Done fixed damage bonus auras
