@@ -57,8 +57,8 @@ class npc_GarrisonFord : public CreatureScript
         {
             if (!p_Player->GetGarrison())
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            p_Player->SEND_GOSSIP_MENU(0, p_Creature->GetGUID());
+            
+            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
             return true;
         }
