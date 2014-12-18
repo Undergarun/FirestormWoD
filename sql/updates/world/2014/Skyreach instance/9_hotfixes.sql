@@ -13,3 +13,6 @@ UPDATE creature_template SET flags_extra = flags_extra | 128 WHERE entry IN (773
 UPDATE creature_template SET faction=16 WHERE entry=76292;
 
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES((select guid from creature where id=84782), 57164, 50331648, 1, 0) ;
+
+UPDATE creature_template SET unit_flags=0 WHERE entry=76292;
+UPDATE creature_template SET unit_flags=unit_flags|512 WHERE entry=82376;

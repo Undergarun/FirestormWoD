@@ -31,14 +31,21 @@ enum eSpells
     SPELL_REJUVENATING_SERUM                = 161203,
     SPELL_VILEBLOOD_SERUM_SEARCHER          = 161235,
     SPELL_VILEBLOOD_SERUM_ACTIVATED         = 161233,
-    SPELL_VILEBLOOD_SERUM_MISSILE           = 161209
+    SPELL_VILEBLOOD_SERUM_MISSILE           = 161209,
+
+    ///< Heroic only
+    SPELL_SALVE_OF_TOXIC_FUMES_SEARCHER     = 162589,
+    SPELL_SALVE_OF_TOXIC_FUMES_AURA         = 162600
 };
 
 enum eEvents
 {
     EVENT_DEBILITATING_FIXATION = 1,
     EVENT_REJUVENATING_SERUM,
-    EVENT_VILEBLOOD_SERUM
+    EVENT_VILEBLOOD_SERUM,
+
+    ///< Heroic only
+    EVENT_SALVE_OF_TOXIC_FUMES
 };
 
 enum eSays
@@ -110,6 +117,9 @@ class boss_kyrak_the_corruptor : public CreatureScript
 
                 m_Events.ScheduleEvent(EVENT_DEBILITATING_FIXATION, 8000);
                 m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 26000);
+
+                if (IsHeroic())
+                    m_Events.ScheduleEvent(EVENT_SALVE_OF_TOXIC_FUMES, 12000);
             }
 
             void JustReachedHome()
@@ -138,10 +148,20 @@ class boss_kyrak_the_corruptor : public CreatureScript
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
             {
-                if (p_SpellInfo->Id == SPELL_DEBILITATING_FIXATION_SEARCHER && p_Target)
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
                 {
-                    me->CastSpell(p_Target, SPELL_DEBILITATING_FIXATION, false);
-                    Talk(urand(TALK_SPELL_1, TALK_SPELL_3));
+                    case SPELL_DEBILITATING_FIXATION_SEARCHER:
+                        me->CastSpell(p_Target, SPELL_DEBILITATING_FIXATION, false);
+                        Talk(urand(TALK_SPELL_1, TALK_SPELL_3));
+                        break;
+                    case SPELL_SALVE_OF_TOXIC_FUMES_SEARCHER:
+                        me->CastSpell(p_Target, SPELL_SALVE_OF_TOXIC_FUMES_AURA, true);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -199,6 +219,10 @@ class boss_kyrak_the_corruptor : public CreatureScript
                             l_Target->CastSpell(l_Target, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, NULLAURA_EFFECT, me->GetGUID());
                         }
                         m_Events.ScheduleEvent(EVENT_VILEBLOOD_SERUM, 15000);
+                        break;
+                    case EVENT_SALVE_OF_TOXIC_FUMES:
+                        me->CastSpell(me, SPELL_SALVE_OF_TOXIC_FUMES_SEARCHER, true);
+                        m_Events.ScheduleEvent(EVENT_SALVE_OF_TOXIC_FUMES, 12000);
                         break;
                     default:
                         break;

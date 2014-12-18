@@ -362,7 +362,10 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             SetStatus(STATUS_IN_PROGRESS);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* p = ObjectAccessor::FindPlayer(itr->first))
+                {
+                    p->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
                     p->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                }
         }
         if (TotalTime >= 30000)
         {
@@ -558,7 +561,10 @@ void BattlegroundSA::TeleportPlayers()
 
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* p = ObjectAccessor::FindPlayer(itr->first))
+                {
+                    p->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
                     p->CastSpell(p, SPELL_PREPARATION, true);
+                }
 
             if (player->GetTeamId() == Attackers)
             {

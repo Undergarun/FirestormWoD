@@ -486,17 +486,17 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(76672) && caster->getLevel() >= 80)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(76672) && l_Caster->getLevel() >= 80)
                         {
-                            uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
-                            if (procSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
+                            uint32 l_ProcSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
+                            if (l_ProcSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
                             {
-                                int32 bp = int32(GetHitDamage() * 0.18f);
-                                caster->CastCustomSpell(target, MASTERY_SPELL_HAND_OF_LIGHT, &bp, NULL, NULL, true);
+                                int32 l_Bp = int32(CalculatePct(GetHitDamage(), l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f));
+                                l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
                             }
                         }
                     }

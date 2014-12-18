@@ -3564,6 +3564,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[0].Amplitude = 1500;
                 break;
+            case 156910: // Beacon of Faith
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[0].Amplitude = 1500;
+                spellInfo->ProcChance = 100;
+                break;
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
@@ -3659,9 +3665,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134030:// Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                break;
-            case 145645:
-                spellInfo->ProcChance = 100;
                 break;
             case 134476:// Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -5191,6 +5194,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 spellInfo->Effects[0].BasePoints = 35;
                 break;
+            case 8092: // Mind Blast
+                spellInfo->Effects[1].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 1;
+                break;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
             case 57761: // Brain Freeze
@@ -6154,8 +6161,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                spellInfo->Mechanic = MECHANIC_NONE;
-                spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->Mechanic = MECHANIC_GRIP;
+                spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
             case 114255:// Surge of Light (proc)
                 spellInfo->StackAmount = 2;
