@@ -267,7 +267,7 @@ public:
                     break;
             }
 
-            ZoneScript::OnGameObjectRemove(p_Go);
+            InstanceScript::OnGameObjectRemove(p_Go);
         }
 
         void OnUnitDeath(Unit* unit)

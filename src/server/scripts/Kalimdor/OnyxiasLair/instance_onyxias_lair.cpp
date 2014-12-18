@@ -112,7 +112,7 @@ public:
                 return;
             }
 
-            ZoneScript::OnGameObjectRemove(p_Go);
+            InstanceScript::OnGameObjectRemove(p_Go);
         }
 
         void FloorEruption(uint64 floorEruptedGUID)
