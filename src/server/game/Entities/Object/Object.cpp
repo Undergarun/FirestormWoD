@@ -638,7 +638,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     {
         uint32 l_TransportTime = getMSTime();
 
-        if (l_GameObject && l_GameObject->IsTransport())
+        if (l_GameObject && l_GameObject->ToTransport())
             l_TransportTime = l_GameObject->GetGOValue()->Transport.PathProgress;
 
         *p_Data << uint32(l_TransportTime);                                 ///< Transport time

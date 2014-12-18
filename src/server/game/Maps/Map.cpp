@@ -537,12 +537,6 @@ bool Map::AddToMap(T* obj)
     if (obj->ToCreature())
         sWildBattlePetMgr->OnAddToMap(obj->ToCreature());
 
-    if (obj->ToGameObject() && obj->ToGameObject()->IsTransport())
-    {
-        _transportsGameObject.insert(obj->ToGameObject());
-        obj->ToGameObject()->SendTransportToOutOfRangePlayers();
-    }
-
     return true;
 }
 

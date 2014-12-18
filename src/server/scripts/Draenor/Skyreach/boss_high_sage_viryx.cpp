@@ -79,8 +79,7 @@ namespace MS
 
         static const Position k_FallPoints[] =
         {
-            { 1075.627f, 1721.043f, 263.72f },
-            { 1085.533f, 1720.696f, 263.72f },
+            { 1094.775f, 1715.610f, 275.72f },
             { 1094.993f, 1721.900f, 263.72f },
             { 1104.928f, 1724.705f, 263.72f },
             { 1141.754f, 1729.700f, 263.72f },
@@ -110,6 +109,11 @@ namespace MS
                 ForceDemonCreatorToRideMe = 136522,
             };
 
+            enum class Moves : uint32
+            {
+                ArrivedAtDestination = 0xBAB,
+            };
+
             CreatureAI* GetAI(Creature* creature) const
             {
                 return new mob_SolarZealotAI(creature);
@@ -137,7 +141,7 @@ namespace MS
 
                 void MovementInform(uint32 p_TypeId, uint32 p_PointId)
                 {
-                    if (p_TypeId == POINT_MOTION_TYPE && p_PointId == 0)
+                    if (p_TypeId == POINT_MOTION_TYPE && p_PointId == uint32(Moves::ArrivedAtDestination))
                     {
                         if (me->GetVehicle())
                             me->GetVehicle()->RemoveAllPassengers();
@@ -167,7 +171,7 @@ namespace MS
                             }
                         }
 
-                        me->GetMotionMaster()->MovePoint(0, k_FallPoints[l_ClosestPoint]);
+                        me->GetMotionMaster()->MovePoint(uint32(Moves::ArrivedAtDestination), k_FallPoints[l_ClosestPoint]);
                     }
                 }
 
@@ -336,6 +340,11 @@ namespace MS
                     DoScriptText(int32(Texts::JustDied), me);
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                        if (p_Plr)
+                            p_Plr->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                    });
                 }
 
                 void KilledUnit(Unit* /*victim*/)
@@ -374,14 +383,14 @@ namespace MS
                     {
                     case uint32(Events::CastDown):
                         events.ScheduleEvent(uint32(Events::CastDown), 35000);
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerExcludedTank(me, 80.0f))
                         {
                             DoScriptText(int32(Texts::SpellCastDown), me);
                             me->CastSpell(l_Plr, uint32(Spells::CastDown));
                         }
                         break;
                     case uint32(Events::LensFlare):
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 80.0f))
                         {
                             l_Plr->CastSpell(l_Plr, uint32(Spells::LensFlare), true);
                             DoScriptText(int32(Texts::SpellLensFlare), me);

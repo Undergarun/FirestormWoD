@@ -1294,7 +1294,7 @@ enum SpellEffects
     SPELL_EFFECT_217                                = 217,
     SPELL_EFFECT_218                                = 218,
     SPELL_EFFECT_219                                = 219,
-    SPELL_EFFECT_220                                = 220,
+    SPELL_EFFECT_OBTAIN_FOLLOWER                    = 220,
     SPELL_EFFECT_221                                = 221,
     SPELL_EFFECT_222                                = 222,
     SPELL_EFFECT_223                                = 223,
@@ -1819,7 +1819,7 @@ enum AuraStateType
     AURA_STATE_ENRAGE                       = 17,           // C   |
     AURA_STATE_BLEEDING                     = 18,           //    T|
     AURA_STATE_UNKNOWN19                    = 19,           //     |
-    //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
+    AURA_STATE_PVP_RAID_PREPARE             = 20,           //  c  |
     //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
     AURA_STATE_UNKNOWN22                    = 22,           // C  t| varius spells (63884, 50240)
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23            // C   |

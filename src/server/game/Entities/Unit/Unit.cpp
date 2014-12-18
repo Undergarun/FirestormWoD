@@ -11808,25 +11808,23 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             if ((*i)->GetMiscValue() == INCREASE_MAGIC_DAMAGE_PERCENT)
                 amount += float((*i)->GetAmount());
 
-        AddPct(DoneTotal, amount);
+        DoneTotal += CalculatePct(pdamage, amount);
     }
 
     // Apply Power PvP damage bonus
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
-        AddPct(DoneTotal, PvPPower);
+        DoneTotal += CalculatePct(pdamage, PvPPower);
     }
 
-    // Custom MoP Script
     // 76658 - Mastery : Essence of the Viper
     if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SPELL && HasAura(76658))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Custom MoP Script
     // 76657 - Mastery : Master of Beasts
     if (isPet())
     {
@@ -11834,7 +11832,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
         {
             float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            AddPct(DoneTotal, Mastery);
+            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
@@ -11846,7 +11844,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         || spellProto->Id == 108686))
     {
         float Mastery = (GetFloatValue(PLAYER_FIELD_MASTERY) + 1);
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
     // Mastery : Emberstorm - 77220
@@ -11854,7 +11852,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
     // Custom MoP Script
@@ -11862,27 +11860,24 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 1943 || spellProto->Id == 2098 || spellProto->Id == 121411) && HasAura(76808))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Custom MoP Script
     // 77215 - Mastery : Potent Afflictions
     // Increase periodic damage of Corruption, Agony and Unstable Affliction
     if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->IsAfflictionPeriodicDamage() && damagetype == DOT && HasAura(77215))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.1f;
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Custom MoP Script
     // 76803 - Mastery : Potent Poisons
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 2818 || spellProto->Id == 8680 || spellProto->Id == 113780 || spellProto->Id == 32645) && pdamage != 0 && HasAura(76803))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Custom MoP Script
     // 77219 - Mastery : Master Demonologist
     // Bonus damage while using Metamorphosis
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
@@ -11894,7 +11889,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         else
             Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
 
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
     else if (isPet())
     {
@@ -11902,59 +11897,53 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
             float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
-            AddPct(DoneTotal, Mastery);
+            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
-    // Custom MoP Script
     // 77493 - Mastery : Razor Claws
     if (GetTypeId() == TYPEID_PLAYER && spellProto && damagetype == DOT)
     {
         if (HasAura(77493))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.13f;
-            AddPct(DoneTotal, Mastery);
+            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
-    // Custom MoP Script
     // 76547 - Mastery : Mana Adept
     if (spellProto && GetTypeId() == TYPEID_PLAYER)
     {
         if (HasAura(76547))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f / 100.0f;
-            float manapct = float(GetPower(POWER_MANA)) / float(GetMaxPower(POWER_MANA)) * 100.0f;
+            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+            float manapct = float(GetPower(POWER_MANA)) / float(GetMaxPower(POWER_MANA));
             float bonus = 0;
-            bonus = (1.5f * Mastery * manapct);
-
-            AddPct(DoneTotal, bonus);
+            bonus = (Mastery * manapct);
+            DoneTotal += CalculatePct(pdamage, bonus);
         }
     }
 
-    // Custom MoP Script
     // 77514 - Mastery : Frozen Heart
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
     {
         if (HasAura(77514))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            AddPct(DoneTotal, Mastery);
+            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
-    // Custom MoP Script
     // 77515 - Mastery : Dreadblade
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
     {
         if (HasAura(77515))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-            AddPct(DoneTotal, Mastery);
+            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
-    // Custom MoP Script
     // 76613 - Mastery : Icicles
     if (spellProto && victim)
     {
@@ -11964,12 +11953,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76613))
             {
                 float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-                AddPct(DoneTotal, Mastery);
+                DoneTotal += CalculatePct(pdamage, Mastery);
             }
         }
     }
 
-    // Custom MoP Script
     // 77223 - Mastery : Enhanced Elements
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
     {
@@ -11977,21 +11965,20 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
 
-            AddPct(DoneTotal, Mastery);
+            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
-    // Custom MoP Script
     // 77492 - Mastery : Total Eclipse
     if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_NATURE && HasAura(77492) && HasAura(48517)) // Solar Eclipse
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
     else if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_ARCANE && HasAura(77492) && HasAura(48518)) // Lunar Eclipse
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
-        AddPct(DoneTotal, Mastery);
+        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
     // Chaos Bolt - 116858 and Soul Fire - 6353
@@ -12000,13 +11987,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         float crit_chance;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
-        AddPct(DoneTotal, crit_chance);
+        DoneTotal += CalculatePct(pdamage, crit_chance);
     }
-
-    // Pyroblast - 11366
-    // Pyroblast ! - 48108 : Next Pyroblast damage increased by 25%
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->Id == 11366 && damagetype == SPELL_DIRECT_DAMAGE && HasAura(48108))
-        AddPct(DoneTotal, 25);
 
     // Fingers of Frost - 112965
     if (GetTypeId() == TYPEID_PLAYER && pdamage != 0 && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
@@ -12040,7 +12022,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Sword of Light - 53503
     // Increases damage of Hammer of Wrath and Judgement too
      if (GetTypeId() == TYPEID_PLAYER && spellProto && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && (spellProto->Id == 20271 || spellProto->Id == 24275))
-         AddPct(DoneTotal, 30);
+         DoneTotal += CalculatePct(pdamage, 25);
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
@@ -12134,7 +12116,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // apply spellmod to Done damage (flat and pct)
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
-
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
@@ -18702,6 +18683,9 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
 
             if (l_InstanceMap->IsDungeon() && l_CreditedPlayer)
             {
+                if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
+                    l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
+
                 if (l_InstanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
@@ -21837,6 +21821,11 @@ void Unit::SendCanTurnWhileFalling(bool p_Apply)
 bool Unit::IsSplineEnabled() const
 {
     return movespline->Initialized();
+}
+
+bool Unit::IsSplineFinished() const
+{
+    return movespline->Finalized();
 }
 
 void Unit::SetEclipsePower(int32 p_Power, bool p_Send)

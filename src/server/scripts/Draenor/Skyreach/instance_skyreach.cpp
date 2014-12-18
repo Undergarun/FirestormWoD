@@ -30,6 +30,7 @@ namespace MS
             { Data::Araknath,       ScenarioDatas::AraknathCriteriaId },
             { Data::Rukhran,        ScenarioDatas::RukhranCriteriaId },
             { Data::HighSageViryx,  ScenarioDatas::ViryxCriteriaId },
+            { 0,                    0 }, // EOF
         };
 
         class instance_Skyreach : public InstanceMapScript
@@ -120,6 +121,9 @@ namespace MS
                         break;
                     case MobEntries::SKYREACH_ARCANALOGIST:
                         m_SkyreachArcanologistGuid = p_Creature->GetGUID();
+                        break;
+                    case MobEntries::SkyreachDefenseConstruct:
+                        p_Creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
                         break;
                     case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                         m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
@@ -482,7 +486,7 @@ namespace MS
                         if (Unit* l_SolarFlareDying = sObjectAccessor->FindCreature(p_Data))
                         {
                             uint32 l_SolarFlaresFormed = 0;
-                            auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
+                            auto l_Piles = ScriptUtils::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
                             for (auto l_Pile : l_Piles)
                             {
                                 if (m_PileOfAshesGuid.find(l_Pile->GetGUID()) == m_PileOfAshesGuid.end())

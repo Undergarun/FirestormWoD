@@ -818,9 +818,17 @@ void AddSC_boss_Araknath();
 void AddSC_boss_Rukhran();
 void AddSC_boss_HighSaveViryx();
 
+/* Bloodmaul Slag Mines */
+void AddSC_instance_Bloodmaul();
+void AddSC_mob_Bloodmaul();
+void AddSC_spell_Bloodmaul();
+void AddSC_areatrigger_Bloodmaul();
+void AddSC_boss_SlaveWatcherCrushto();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
+void AddSC_BattlegroundSAScripts();
 
 // outdoor pvp
 void AddSC_outdoorpvp_hp();
@@ -1677,6 +1685,12 @@ void AddDraenorScripts()
     AddSC_boss_Araknath();
     AddSC_boss_Rukhran();
     AddSC_boss_HighSaveViryx();
+    /* Instance Bloodmaul Slag Mines */
+    AddSC_instance_Bloodmaul();
+    AddSC_mob_Bloodmaul();
+    AddSC_spell_Bloodmaul();
+    AddSC_areatrigger_Bloodmaul();
+    AddSC_boss_SlaveWatcherCrushto();
 #endif
 }
 
@@ -1697,6 +1711,7 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
     AddSC_BattlegroundAVcripts();
     AddSC_BattlegroundDGScripts();
+    AddSC_BattlegroundSAScripts();
 #endif
 }
 

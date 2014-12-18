@@ -69,7 +69,7 @@ enum RogueSpells
     ROGUE_SPELL_DEADLY_BREW                     = 51626,
     ROGUE_SPELL_GLYPH_OF_HEMORRHAGE             = 56807,
     ROGUE_SPELL_CLOAK_AND_DAGGER                = 138106,
-    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY        = 128766,
+    ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY        = 36563,
     ROGUE_SPELL_MARKED_FOR_DEATH                = 137619,
     ROGUE_SPELL_SHURIKEN_TOSS_CHANGE_MELEE      = 137586,
     ROGUE_SPELL_GLYPH_OF_DECOY                  = 56800,
@@ -300,16 +300,31 @@ class spell_rog_cloak_and_dagger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasUnitState(UNIT_STATE_ROOT))
+                        return SPELL_FAILED_ROOTED;
+                    if (Unit* l_Target = GetHitUnit())
+                        if (l_Target == l_Caster)
+                        return SPELL_FAILED_BAD_TARGETS;
+                    return SPELL_CAST_OK;
+                }
+                return SPELL_FAILED_TRY_AGAIN;
+            }
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        if (caster->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER))
-                            caster->CastSpell(target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        if (l_Caster->HasSpell(ROGUE_SPELL_CLOAK_AND_DAGGER))
+                            l_Caster->CastSpell(l_Target, 36563, true);
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_rog_cloak_and_dagger_SpellScript::CheckCast);
                 OnHit += SpellHitFn(spell_rog_cloak_and_dagger_SpellScript::HandleOnHit);
             }
         };
@@ -1524,25 +1539,34 @@ class spell_rog_shadow_focus : public SpellScriptLoader
 public:
     spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
 
-    class spell_rog_shadow_focus_SpellScript : public SpellScript
+    class spell_rog_shadow_focus_AuraScript : public AuraScript
     {
-        PrepareSpellScript(spell_rog_shadow_focus_SpellScript);
+        PrepareAuraScript(spell_rog_shadow_focus_AuraScript);
 
-        void HandleOnHit()
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
-                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+                if (!l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
+                    l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
+                    l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_rog_shadow_focus_SpellScript::HandleOnHit);
+            OnEffectApply += AuraEffectApplyFn(spell_rog_shadow_focus_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_rog_shadow_focus_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    AuraScript* GetAuraScript() const
     {
-        return new spell_rog_shadow_focus_SpellScript();
+        return new spell_rog_shadow_focus_AuraScript();
     }
 };
 

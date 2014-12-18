@@ -3567,6 +3567,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[0].Amplitude = 1500;
                 break;
+            case 156910: // Beacon of Faith
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[0].Amplitude = 1500;
+                spellInfo->ProcChance = 100;
+                break;
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
@@ -3662,9 +3668,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134030:// Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                break;
-            case 145645:
-                spellInfo->ProcChance = 100;
                 break;
             case 134476:// Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -4165,6 +4168,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156791:// Call Adds
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);    ///< 100yards
+                break;
+            case 176544:// Fixate (Skyreach)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_TARGET_ANY;
                 break;
             case 152973:// Protective Barrier (Skyreach)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
@@ -4835,13 +4844,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484:  // Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
-            case 6544:  // Heroic Leap
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[2].TargetB = 0;
-                spellInfo->Effects[2].BasePoints = 0;
-                break;
             case 116198:// Enfeeblement Aura
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
@@ -4928,6 +4930,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 132764:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 157977: // Unstable Magic FIRE
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 157978: // Unstable Magic FROST
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 157979: // Unstable Magic ARCANE
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 158624: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENTRY;
+                break;
+            case 121536: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
             case 19574: // Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
@@ -5179,6 +5196,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 13165: // Aspect of the Hawk
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 spellInfo->Effects[0].BasePoints = 35;
+                break;
+            case 8092: // Mind Blast
+                spellInfo->Effects[1].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 1;
                 break;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
@@ -6143,8 +6164,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                spellInfo->Mechanic = MECHANIC_NONE;
-                spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->Mechanic = MECHANIC_GRIP;
+                spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
             case 114255:// Surge of Light (proc)
                 spellInfo->StackAmount = 2;
@@ -6169,6 +6190,10 @@ void SpellMgr::LoadSpellCustomAttr()
             // Shred
             case 5221:
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            // Hurricane Strike (damage)
+            case 158221:
+                spellInfo->SetDurationIndex(39); // 2 seconds
                 break;
             default:
                 break;

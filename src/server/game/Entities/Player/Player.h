@@ -1135,8 +1135,18 @@ class Player;
 /// Holder for Battleground data
 struct BGData
 {
-    BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
-        bgTeam(0), mountSpell(0) { bgQueuesJoinedTime.clear(); ClearTaxiPath(); }
+    BGData() :
+        bgInstanceID(0),
+        bgTypeID(BATTLEGROUND_TYPE_NONE),
+        bgAfkReportedCount(0),
+        bgAfkReportedTimer(0),
+        bgTeam(0),
+        mountSpell(0),
+        m_LastActiveSpec(0)
+    {
+        bgQueuesJoinedTime.clear();
+        ClearTaxiPath();
+    }
 
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
@@ -1154,6 +1164,8 @@ struct BGData
     uint32 taxiPath[2];
 
     WorldLocation joinPos;                  ///< From where player entered BG
+
+    uint8 m_LastActiveSpec;
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
@@ -1356,12 +1368,12 @@ struct ChargesData
         m_Changed = false;
     }
 
-    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown)
+    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown, uint32 p_Charges = 1)
     {
         m_MaxCharges = p_MaxCharges;
 
         // Called in ConsumeCharge, so one charge has gone
-        m_ConsumedCharges = 1;
+        m_ConsumedCharges = p_Charges;
 
         m_ChargesCooldown.push_back(p_Cooldown);
         m_Changed = true;
@@ -2528,6 +2540,8 @@ class Player : public Unit, public GridObject<Player>
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
+        void TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId);
+        void TeleportToClosestGrave(WorldSafeLocsEntry const* p_WorldSafeLoc) { TeleportToClosestGrave(p_WorldSafeLoc->x, p_WorldSafeLoc->y, p_WorldSafeLoc->z, p_WorldSafeLoc->o, p_WorldSafeLoc->map_id);  }
         void SendCemeteryList(bool onMap);
 
         void DurabilityLossAll(double percent, bool inventory);
@@ -2805,6 +2819,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
+        uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
+        void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground() const;

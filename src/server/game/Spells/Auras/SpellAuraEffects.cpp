@@ -8048,6 +8048,16 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
                     caster->CastSpell(target, 24406, true); // Dispel
 
         damage = uint32(target->CountPctFromMaxHealth(damage));
+
+        switch (m_spellInfo->Id)
+        {
+            case 154149: // Energize (Skyreach), hackfix from client point of view. So hack fix on server side.
+                damage /= 100;
+                break;
+            default:
+                break;
+        }
+
         damage = uint32(damage * TakenTotalMod);
 
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());

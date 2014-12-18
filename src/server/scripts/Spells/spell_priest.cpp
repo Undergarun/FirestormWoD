@@ -962,7 +962,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
-            std::map<Unit*, uint32> m_DmgByAttackerList;
+            std::map<uint64, uint32> m_DmgByAttackerList;
 
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
@@ -978,13 +978,12 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 if (Unit* l_Owner = GetUnitOwner())
                     if (Unit* l_Target = GetTarget())
                         if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
-                            for (std::map<Unit*, uint32>::iterator it = m_DmgByAttackerList.begin(); it != m_DmgByAttackerList.end(); ++it)
+                            for (std::map<uint64, uint32>::iterator it = m_DmgByAttackerList.begin(); it != m_DmgByAttackerList.end(); ++it)
                             {
-                                if ((*it).first == l_Target)
+                                if ((*it).first == l_Target->GetGUID())
                                     return;
-
                                 int32 l_Damage = CalculatePct((*it).second, sSpellMgr->GetSpellInfo(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)->Effects[EFFECT_0].BasePoints);
-                                l_Owner->CastCustomSpell((*it).first, PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true);
+                                l_Owner->CastCustomSpell(l_Target->GetUnit(*l_Target, (*it).first), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true);
                             }
             }
 
@@ -997,10 +996,10 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                         if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
                             if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
                             {
-                                if (m_DmgByAttackerList.find(l_Attacker) != m_DmgByAttackerList.end())
-                                    m_DmgByAttackerList.find(l_Attacker)->second += p_DmgInfo.GetDamage();
+                                if (m_DmgByAttackerList.find(l_Attacker->GetGUID()) != m_DmgByAttackerList.end())
+                                    m_DmgByAttackerList.find(l_Attacker->GetGUID())->second += p_DmgInfo.GetDamage();
                                 else
-                                    m_DmgByAttackerList[l_Attacker] = p_DmgInfo.GetDamage();
+                                    m_DmgByAttackerList[l_Attacker->GetGUID()] = p_DmgInfo.GetDamage();
                             }
 
                         if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
@@ -2540,26 +2539,16 @@ public:
     {
         PrepareSpellScript(spell_pri_angelic_feather_SpellScript);
 
-        void HandleOnHit()
+        void HandleOnCast()
         {
-            if (Unit* l_Caster = GetCaster())
-            if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(158624))
-                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 121557, true);
-          //  if (Unit* caster = GetCaster())
-            //    caster->CastSpell(caster, 158624, true);
-          /*  if (DynamicObject* dynObj = caster->GetDynObject(121536))
-            {
-                caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 158624, true);
-               // caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 121557, true);
-            }*/
-            /*if (WorldLocation const* l_SpellLoc = GetExplTargetDest())
-                if (Unit* l_Caster = GetCaster())*/
-                //    l_Caster->CastSpell(l_SpellLoc->GetPositionX(), l_SpellLoc->GetPositionY(), l_SpellLoc->GetPositionZ(), 158624, true);
+            if (Unit *l_Caster = GetCaster())
+                if (WorldLocation* l_Dest = const_cast<WorldLocation*>(GetExplTargetDest()))
+                    l_Caster->CastSpell(l_Dest->GetPositionX(), l_Dest->GetPositionY(), l_Dest->GetPositionZ(), 158624, true);
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_pri_angelic_feather_SpellScript::HandleOnHit);
+            OnCast += SpellCastFn(spell_pri_angelic_feather_SpellScript::HandleOnCast);
         }
     };
 

@@ -63,8 +63,6 @@ enum WarriorSpells
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
-    WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS         = 133277,
-    WARRIOR_SPELL_HEROIC_LEAP_SPEED             = 133278,
     WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356,
     WARRIOR_SPELL_SWEEPING_STRIKES              = 12328,
     WARRIOR_SPELL_SLAM_AOE                      = 146361,
@@ -72,7 +70,6 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
     WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
-    WARRIOR_SPELL_GLYPH_OF_BULL_RUSH            = 94372,
     WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD       = 146128,
     WARRIOR_SPELL_SHIELD_OF_WALL_HORDE          = 146127,
     WARRIOR_SPELL_SHIELD_OF_WALL_ALLIANCE       = 147925,
@@ -741,6 +738,13 @@ class spell_warr_rallying_cry : public SpellScriptLoader
         }
 };
 
+enum HeroicLeapSpells
+{
+    SPELL_WARR_HEROIC_LEAP_JUMP      = 94954,
+    SPELL_WARR_ITEM_PVP_SET_4P_BONUS = 133277,
+    SPELL_WARR_HEROIC_LEAP_SPEED     = 133278,
+};
+
 // Heroic leap - 6544
 class spell_warr_heroic_leap : public SpellScriptLoader
 {
@@ -753,24 +757,21 @@ class spell_warr_heroic_leap : public SpellScriptLoader
 
             SpellCastResult CheckElevation()
             {
-                if (!GetCaster() || !GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
+
+                if (!l_Player || !l_SpellDest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                Player* player = GetCaster()->ToPlayer();
-
-                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
-                if (!dest)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f)
+                if (l_SpellDest->GetPositionZ() > l_Player->GetPositionZ() + 5.0f)
                     return SPELL_FAILED_NOPATH;
-                else if (player->HasAuraType(SPELL_AURA_MOD_ROOT) || player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
+                else if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
                     return SPELL_FAILED_ROOTED;
-                else if (player->GetMap()->IsBattlegroundOrArena())
+                else if (l_Player->GetMap()->IsBattlegroundOrArena())
                 {
-                    if (Battleground* bg = player->GetBattleground())
+                    if (Battleground* l_Bg = l_Player->GetBattleground())
                     {
-                        if (bg->GetStatus() != STATUS_IN_PROGRESS)
+                        if (l_Bg->GetStatus() != STATUS_IN_PROGRESS)
                             return SPELL_FAILED_NOT_READY;
                     }
                 }
@@ -778,17 +779,25 @@ class spell_warr_heroic_leap : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnCast()
+            {
+                WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
+                if (l_SpellDest)
+                    GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), SPELL_WARR_HEROIC_LEAP_JUMP, true);
+            }
+
             void HandleAfterCast()
             {
-                // Item - Warrior PvP Set 4P Bonus
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARRIOR_SPELL_ITEM_PVP_SET_4P_BONUS))
-                        caster->CastSpell(caster, WARRIOR_SPELL_HEROIC_LEAP_SPEED, true);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_WARR_ITEM_PVP_SET_4P_BONUS))
+                    l_Caster->CastSpell(l_Caster, SPELL_WARR_HEROIC_LEAP_SPEED, true);
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
+                OnCast += SpellCastFn(spell_warr_heroic_leap_SpellScript::HandleOnCast);
                 AfterCast += SpellCastFn(spell_warr_heroic_leap_SpellScript::HandleAfterCast);
             }
         };
@@ -796,27 +805,6 @@ class spell_warr_heroic_leap : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_heroic_leap_SpellScript();
-        }
-
-        class spell_warr_heroic_leap_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_heroic_leap_AuraScript);
-
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, WARRIOR_SPELL_HEROIC_LEAP_DAMAGE, true);
-            }
-
-            void Register()
-            {
-                OnEffectRemove += AuraEffectRemoveFn(spell_warr_heroic_leap_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warr_heroic_leap_AuraScript();
         }
 };
 
@@ -832,8 +820,11 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    SetHitDamage(int32(caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier));
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                        SetHitDamage(int32(GetHitDamage() * 1.2f));
             }
 
             void Register()
@@ -1045,77 +1036,61 @@ class spell_warr_deep_wounds : public SpellScriptLoader
         }
 };
 
+enum ChargeSpells
+{
+    SPELL_WARR_WARBRINGER_STUN    = 7922,
+    SPELL_WARR_GLYPH_OF_BULL_RUSH = 94372,
+    SPELL_WARR_DOUBLE_TIME        = 103827,
+    SPELL_WARR_WARBRINGER         = 103828,
+    SPELL_WARR_CHARGE_ROOT        = 105771,
+    SPELL_WARR_DOUBLE_TIME_MARKER = 124184
+};
+
 // Charge - 100
 class spell_warr_charge : public SpellScriptLoader
 {
-    class script_impl : public SpellScript
+    public:
+        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
+
+    class spell_warr_charge_SpellScript : public SpellScript
     {
-        PrepareSpellScript(script_impl)
+        PrepareSpellScript(spell_warr_charge_SpellScript)
 
-        enum
+        void HandleCharge(SpellEffIndex /*effIndex*/)
         {
-            WARBRINGER_STUN    = 7922,
-            DOUBLE_TIME        = 103827,
-            WARBRINGER         = 103828,
-            CHARGE_ROOT        = 105771,
-            DOUBLE_TIME_MARKER = 124184
-        };
-
-        bool canGenerateCharge;
-
-        bool Load()
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return false;
-
-            canGenerateCharge = !caster->HasAura(DOUBLE_TIME) || !caster->HasAura(DOUBLE_TIME_MARKER);
-            return true;
-        }
-
-        void HandleCharge(SpellEffIndex)
-        {
-            Unit* target = GetHitUnit();
-            if (!target)
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+            if (!l_Target)
                 return;
 
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            uint32 stunSpellId = caster->HasAura(WARBRINGER) ? WARBRINGER_STUN : CHARGE_ROOT;
-            caster->CastSpell(target, stunSpellId, true);
+            l_Caster->CastSpell(l_Target, l_Caster->HasAura(SPELL_WARR_WARBRINGER) ? SPELL_WARR_WARBRINGER_STUN : SPELL_WARR_CHARGE_ROOT, true);
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleRageGain(SpellEffIndex /*effIndex*/)
         {
-            PreventHitDefaultEffect(effIndex);
+            Unit* l_Caster = GetCaster();
 
-            Unit* caster = GetCaster();
-            if (canGenerateCharge && caster)
+            if (!l_Caster->HasSpell(SPELL_WARR_DOUBLE_TIME))
             {
-                int32 bp = GetEffectValue();
+                int32 l_RageGain = GetEffectValue() / l_Caster->GetPowerCoeff(POWER_RAGE);
 
-                if (AuraEffectPtr bullRush = caster->GetAuraEffect(WARRIOR_SPELL_GLYPH_OF_BULL_RUSH, EFFECT_1))
-                    bp += bullRush->GetAmount();
+                if (AuraEffectPtr l_BullRush = l_Caster->GetAuraEffect(SPELL_WARR_GLYPH_OF_BULL_RUSH, EFFECT_0))
+                    l_RageGain += l_BullRush->GetAmount();
 
-                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, bp, POWER_RAGE);
+                l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, l_RageGain * l_Caster->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
             }
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(script_impl::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
-            OnEffectHitTarget += SpellEffectFn(script_impl::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleRageGain, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
     };
 
-    public:
-        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
-
     SpellScript* GetSpellScript() const
     {
-        return new script_impl;
+        return new spell_warr_charge_SpellScript;
     }
 };
 

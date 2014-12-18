@@ -114,7 +114,7 @@ namespace MS
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             std::list<Unit*> l_TargetList;
-            float l_Radius = 4.0f;
+            float l_Radius = 3.5f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -823,7 +823,7 @@ namespace MS
                 };
                 if (GetCaster())
                 {
-                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
+                    std::list<Unit*> l_Target = ScriptUtils::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
                     if (l_Target.empty())
                         return;
 
@@ -1020,7 +1020,7 @@ namespace MS
                 if (GetCaster())
                 {
                     Unit* l_Target = nullptr;
-                    if (l_Target = InstanceSkyreach::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
+                    if (l_Target = ScriptUtils::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
                     {
                         uint32 l_Random = urand(0, 1);
                         if (l_Random == 0)

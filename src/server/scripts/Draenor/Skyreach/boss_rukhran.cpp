@@ -95,7 +95,7 @@ namespace MS
                     m_events.Reset();
                     m_IsKilledByPlayers = true;
                     
-                    if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 100.0f, false))
+                    if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 100.0f, false))
                     {
                         m_PlayerTargetGuid = l_Plr->GetGUID();
                         me->AddThreat(l_Plr, 1000000.0f);
@@ -299,13 +299,13 @@ namespace MS
                     me->SetControlled(false, UNIT_STATE_ROOT);
 
                     // Cleaning the summons.
-                    auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
+                    auto l_Piles = ScriptUtils::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
                     for (auto l_Pile : l_Piles)
                     {
                         if (l_Pile->ToCreature())
                             l_Pile->ToCreature()->DespawnOrUnsummon();
                     }
-                    auto l_SolarFlares = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::SOLAR_FLARE, 50.0f);
+                    auto l_SolarFlares = ScriptUtils::SelectNearestCreatureListWithEntry(me, MobEntries::SOLAR_FLARE, 50.0f);
                     for (auto l_SolarFlare : l_SolarFlares)
                     {
                         if (l_SolarFlare->ToCreature())
@@ -325,7 +325,7 @@ namespace MS
                             me->SetInCombatWithZone();
                             me->SetControlled(true, UNIT_STATE_ROOT);
                             me->SetReactState(REACT_AGGRESSIVE);
-                            me->Attack(InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 40.0f, false), true);
+                            me->Attack(ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f, false), true);
                             m_CombatStarted = true;
                         }
                         else
@@ -359,13 +359,13 @@ namespace MS
                     _JustDied();
 
                     // Cleaning the summons.
-                    auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
+                    auto l_Piles = ScriptUtils::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
                     for (auto l_Pile : l_Piles)
                     {
                         if (l_Pile->ToCreature())
                             l_Pile->ToCreature()->DespawnOrUnsummon();
                     }
-                    auto l_SolarFlares = InstanceSkyreach::SelectNearestCreatureListWithEntry(me, MobEntries::SOLAR_FLARE, 50.0f);
+                    auto l_SolarFlares = ScriptUtils::SelectNearestCreatureListWithEntry(me, MobEntries::SOLAR_FLARE, 50.0f);
                     for (auto l_SolarFlare : l_SolarFlares)
                     {
                         if (l_SolarFlare->ToCreature())
@@ -424,7 +424,7 @@ namespace MS
                             if (l_Spell->GetSpellInfo()->Id == uint32(Spells::SCREECH))
                             {
                                 // Should we stop ?
-                                Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f);
+                                Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.0f);
                                 if (l_Plr && l_Plr->IsWithinMeleeRange(me))
                                     me->CastStop();
                             }
@@ -433,9 +433,9 @@ namespace MS
                     }
 
                     // We check if someone is in melee range.
-                    if (!me->IsWithinMeleeRange(me->getVictim()))
+                    if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()))
                     {
-                        Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.0f);
+                        Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.0f);
                         if (!l_Plr || !l_Plr->IsWithinMeleeRange(me))
                         {
                             // We can't, so we cast Screech and Weak.
@@ -449,7 +449,7 @@ namespace MS
                     case uint32(Events::SUMMON_SOLAR_FLARE):
                         events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), urand(14000, 16000));
 
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 30.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 30.0f))
                         {
                             m_LastTarget = urand(0, 10) + 1;
                             Position l_Pos = k_RandomSummonSolarFlare[m_LastTarget - 1];
@@ -459,9 +459,9 @@ namespace MS
                     case uint32(Events::PIERCE_ARMOR):
                         events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), urand(10500, 13000));
                         // We want to cast PierceArmor on the closest ennemy.
-                        if (me->getVictim()->IsWithinMeleeRange(me))
+                        if (me->getVictim() && me->getVictim()->IsWithinMeleeRange(me))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
-                        else if (Player* l_Plr = InstanceSkyreach::SelectNearestPlayer(me, 15.f))
+                        else if (Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.f))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
                         break;
                     case uint32(Events::QUILLS):

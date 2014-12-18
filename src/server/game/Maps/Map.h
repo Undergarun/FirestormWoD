@@ -485,6 +485,9 @@ class Map : public GridRefManager<NGridType>
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
+        void AddGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.insert(p_Transport); }
+        void DeleteGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.erase(p_Transport); }
+
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
     private:

@@ -283,19 +283,22 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             UpdateMinionState(*i, state);
 
         ///< End of challenge
-        if (id == (bosses.size() - 1) && instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+        if (id == (bosses.size() - 1) && state == DONE)
         {
-            m_ChallengeStarted = false;
+            if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+            {
+                m_ChallengeStarted = false;
 
-            SendChallengeNewPlayerRecord();
-            SendChallengeModeComplete(RewardChallengers());
-            SendChallengeStopElapsedTimer(1);
+                SendChallengeNewPlayerRecord();
+                SendChallengeModeComplete(RewardChallengers());
+                SendChallengeStopElapsedTimer(1);
+
+                SaveChallengeDatasIfNeeded();
+
+                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
+            }
 
             SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
-
-            SaveChallengeDatasIfNeeded();
-
-            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
         }
 
         return true;

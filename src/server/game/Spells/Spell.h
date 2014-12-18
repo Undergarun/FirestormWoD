@@ -443,6 +443,7 @@ public:
     void EffectPlaySceneObject(SpellEffIndex effIndex);
     void EffectLearnBluePrint(SpellEffIndex p_EffIndex);
     void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
+    void EffectObtainFollower(SpellEffIndex p_EffIndex);
     void EffectResurectPetBattles(SpellEffIndex effIndex);
     void EffectUncagePetBattle(SpellEffIndex effIndex);
     void EffectCanPetBattle(SpellEffIndex effIndex);
