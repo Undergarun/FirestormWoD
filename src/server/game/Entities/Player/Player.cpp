@@ -17704,7 +17704,20 @@ void Player::CompleteQuest(uint32 quest_id)
 
         uint16 log_slot = FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
             SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_0_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_1_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_2_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_3_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_4_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_5_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_6_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_7_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_8_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_9_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_10_COMPLETE);
+        }
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
