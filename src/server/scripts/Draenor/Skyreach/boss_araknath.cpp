@@ -147,6 +147,7 @@ namespace MS
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                     me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }
@@ -209,7 +210,12 @@ namespace MS
                     {
                     case uint32(Events::Reset):
                         if (instance)
-                            instance->SetData(Data::AraknathSolarConstructorActivation, false);
+                        {
+                            if (instance->GetBossState(Data::Araknath) == EncounterState::SPECIAL)
+                                instance->SetData(Data::SkyreachArcanologistIsDead, 0);
+                            else
+                                instance->SetData(Data::AraknathSolarConstructorActivation, false);
+                        }
                         break;
                     case uint32(Events::MELEE):
                         events.ScheduleEvent(uint32(Events::MELEE), 2000);
