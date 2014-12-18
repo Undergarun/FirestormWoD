@@ -87,19 +87,19 @@ enum ePositions
 
 Position const g_LightningFieldInitPos[2] =
 {
-    { 160.4088f, -276.8579f, 91.50262f, M_PI },     ///< DATA_POS_NE
-    { 127.9540f, -240.4484f, 91.45860f, 2 * M_PI }  ///< DATA_POS_SW
+    { 164.569473f, -278.615875f, 94.607742f, M_PI               },  ///< DATA_POS_NE
+    { 124.726387f, -239.007599f, 94.607742f, 2 * M_PI           }   ///< DATA_POS_SW
 };
 
 Position const g_LightningFieldMovePos[4] =
 {
-    { 161.228f, -276.8578f, 95.42406f, M_PI               },    // DATA_POS_NE
-    { 127.786f, -276.5409f, 95.42406f, M_PI / 2.0f        },    // DATA_POS_SE
-    { 127.786f, -240.7292f, 95.42406f, 0.0f               },    // DATA_POS_SW
-    { 161.228f, -240.7292f, 95.42406f, M_PI + M_PI / 2.0f }     // DATA_POS_NW
+    { 164.569473f, -278.615875f, 94.607742f, M_PI               },  ///< DATA_POS_NE
+    { 124.726387f, -278.615875f, 94.607742f, M_PI / 2.0f        },  ///< DATA_POS_SE
+    { 124.726387f, -239.007599f, 94.607742f, 0.0f               },  ///< DATA_POS_SW
+    { 164.569473f, -239.007599f, 94.607742f, M_PI + M_PI / 2.0f }   ///< DATA_POS_NW
 };
 
-// Orebender Gor'Ashan - 76413
+///< Orebender Gor'Ashan - 76413
 class boss_orebender_gorashan : public CreatureScript
 {
     public:
@@ -154,7 +154,10 @@ class boss_orebender_gorashan : public CreatureScript
             void EnterCombat(Unit* p_Attacker)
             {
                 if (!m_Active)
+                {
+                    EnterEvadeMode();
                     return;
+                }
 
                 Talk(TALK_AGGRO);
 
@@ -308,25 +311,31 @@ class boss_orebender_gorashan : public CreatureScript
                     {
                         switch (m_SealConduitCount)
                         {
-                            case 0:
+                            case 0: ///< 2 Conduits
                                 ++m_SealConduitCount;
                                 Talk(TALK_SPELL_1);
                                 me->CastSpell(me, SPELL_SEAL_CONDUIT_FIRST, true);
+                                me->CastSpell(me, SPELL_SEAL_CONDUIT_FIRST, true);
                                 break;
-                            case 1:
+                            case 1: ///< 4 Conduits
                                 ++m_SealConduitCount;
                                 Talk(TALK_SPELL_2);
                                 me->CastSpell(me, SPELL_SEAL_CONDUIT_SECOND, true);
+                                me->CastSpell(me, SPELL_SEAL_CONDUIT_SECOND, true);
                                 break;
-                            case 2:
+                            case 2: ///< 6 Conduits
                                 ++m_SealConduitCount;
                                 Talk(TALK_SPELL_3);
                                 me->CastSpell(me, SPELL_SEAL_CONDUIT_THIRD, true);
+                                me->CastSpell(me, SPELL_SEAL_CONDUIT_THIRD, true);
                                 break;
-                            case 3:
-                            default:
+                            case 3: ///< 7 Conduits
+                            default:///< 7 Conduits
+                                ++m_SealConduitCount;
                                 Talk(TALK_SPELL_4);
                                 me->CastSpell(me, SPELL_SEAL_CONDUIT_THIRD, true);
+                                me->CastSpell(me, SPELL_SEAL_CONDUIT_THIRD, true);
+                                me->CastSpell(me, SPELL_SEAL_CONDUIT_FIRST, true);
                                 break;
                         }
 
@@ -379,7 +388,7 @@ class boss_orebender_gorashan : public CreatureScript
         }
 };
 
-// Black Iron Apprentice - 76773
+///< Black Iron Apprentice - 76773
 class mob_black_iron_apprentice : public CreatureScript
 {
     public:
@@ -415,7 +424,7 @@ class mob_black_iron_apprentice : public CreatureScript
         }
 };
 
-// Rune of Power - 76417
+///< Rune of Power - 76417
 class mob_ubrs_rune_of_power : public CreatureScript
 {
     public:
@@ -442,7 +451,9 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 switch (p_Action)
                 {
                     case ACTION_POWER_CONDUIT:
-                        m_Events.ScheduleEvent(EVENT_POWER_CONDUIT, 2000);
+                        me->RemoveAura(SPELL_UNHARNESSED_POWER);
+                        me->CastSpell(me, SPELL_POWER_CONDUIT_VISUAL, false);
+                        m_Events.ScheduleEvent(EVENT_POWER_CONDUIT, 1000);
                         break;
                     default:
                         break;
@@ -482,9 +493,6 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 {
                     case EVENT_POWER_CONDUIT:
                     {
-                        me->RemoveAura(SPELL_UNHARNESSED_POWER);
-                        me->CastSpell(me, SPELL_POWER_CONDUIT_VISUAL, false);
-
                         if (GameObject* l_Conduit = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.f))
                         {
                             l_Conduit->SetGoState(GO_STATE_ACTIVE);
@@ -504,7 +512,7 @@ class mob_ubrs_rune_of_power : public CreatureScript
         }
 };
 
-// Lightning Field - 76464
+///< Lightning Field - 76464
 class mob_lightning_field : public CreatureScript
 {
     public:
@@ -593,7 +601,7 @@ class mob_lightning_field : public CreatureScript
         }
 };
 
-// Lodestone Spike - 154435
+///< Lodestone Spike - 154435
 class spell_lodestone_spike : public SpellScriptLoader
 {
     public:
@@ -624,7 +632,7 @@ class spell_lodestone_spike : public SpellScriptLoader
         }
 };
 
-// Power Conduit - 166168
+///< Power Conduit - 166168
 class spell_power_conduit_hangover : public SpellScriptLoader
 {
     public:
@@ -652,7 +660,7 @@ class spell_power_conduit_hangover : public SpellScriptLoader
         }
 };
 
-// Seal Conduit - 154302 / 154900 / 154901
+///< Seal Conduit - 154302 / 154900 / 154901
 class spell_seal_conduit : public SpellScriptLoader
 {
     public:
@@ -683,7 +691,49 @@ class spell_seal_conduit : public SpellScriptLoader
         }
 };
 
-// Runic Conduit - 226704
+///< Electric Pulse - 154345
+class spell_electric_pulse : public SpellScriptLoader
+{
+    public:
+        spell_electric_pulse() : SpellScriptLoader("spell_electric_pulse") { }
+
+        class spell_electric_pulse_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_electric_pulse_SpellScript);
+
+            void CorrectRange(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    Position l_Pos;
+                    l_Caster->GetPosition(&l_Pos);
+                    if (!p_Object->GetExactDist(&l_Pos) <= 14.0f)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_electric_pulse_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_electric_pulse_SpellScript();
+        }
+};
+
+///< Runic Conduit - 226704
 class go_runic_conduit : public GameObjectScript
 {
     public:
@@ -691,13 +741,25 @@ class go_runic_conduit : public GameObjectScript
 
         struct go_runic_conduitAI : public GameObjectAI
         {
-            go_runic_conduitAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+            go_runic_conduitAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Activated(false) { }
+
+            bool m_Activated;
 
             bool GossipHello(Player* p_Player)
             {
-                if (go->GetGoState() != GO_STATE_READY)
+                if (go->GetGoState() == GO_STATE_ACTIVE && !m_Activated)
+                {
+                    m_Activated = true;
                     p_Player->CastSpell(go, SPELL_DISRUPTING_CONDUCTOR, false);
+                }
+
                 return false;
+            }
+
+            void OnStateChanged(uint32 p_State)
+            {
+                if (p_State == GO_STATE_READY)
+                    m_Activated = false;
             }
         };
 
@@ -716,5 +778,6 @@ void AddSC_boss_orebender_gorashan()
     new spell_lodestone_spike();
     new spell_power_conduit_hangover();
     new spell_seal_conduit();
+    new spell_electric_pulse();
     new go_runic_conduit();
 }

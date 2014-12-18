@@ -34,7 +34,6 @@ enum eSpells
     SPELL_RIFLE_SHOT                = 153974,
     ///< Sentry Cannon
     SPELL_CANNON_SHOT               = 154178,
-    SPELL_SAFETY_PROTOCOLS          = 154894,
     ///< Ragemaw Worg
     SPELL_BLACKROCK_RABIES          = 154017,
     SPELL_FRANTIC_MAULING           = 154039,
@@ -358,13 +357,7 @@ class mob_sentry_cannon : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
-                m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 5000);
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
-            {
-                if (me->HealthBelowPctDamaged(50, p_Damage) && !me->HasAura(SPELL_SAFETY_PROTOCOLS))
-                    me->CastSpell(me, SPELL_SAFETY_PROTOCOLS, true);
+                m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 2000);
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -382,7 +375,7 @@ class mob_sentry_cannon : public CreatureScript
                     case EVENT_CANNON_SHOT:
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SPELL_CANNON_SHOT, false);
-                        m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 15000);
+                        m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 5000);
                         break;
                     default:
                         break;

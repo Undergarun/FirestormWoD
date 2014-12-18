@@ -952,7 +952,7 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_UNK_28);
 
                 me->GetMotionMaster()->Clear();
