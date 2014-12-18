@@ -38,6 +38,7 @@ enum eCreatures
     ///< Trashs mobs
     NPC_RUNE_GLOW               = 76396,
     NPC_BLACK_IRON_GRUNT        = 76179,
+    NPC_RALLYING_BANNER         = 76222,
     NPC_BLACK_IRON_LEADBELCHER  = 76157,
     NPC_SENTRY_CANNON           = 76314,
     NPC_RAGEMAW_WORG            = 76181,
@@ -62,6 +63,7 @@ enum eCreatures
     NPC_WINDFURY_TOTEM          = 80703,
     NPC_BLACK_IRON_FLAME_REAVER = 80678,
     NPC_BLACK_IRON_RAGEGUARD    = 82418,
+    NPC_EMBERSCALE_WHELPING     = 76694,
 
     ///< Orebender Gor'Ashan
     NPC_OREBENDER_GORASHAN      = 76413,
@@ -112,7 +114,9 @@ enum eGameObjects
     GOB_THARBEK_EXIT_SECOND     = 175186,
     GOB_CHALLENGE_START_DOOR    = 211989,
     GOB_RAGEWING_ENTRANCE       = 232998,
-    GOB_RAGEWING_EXIT           = 232999
+    GOB_RAGEWING_EXIT           = 232999,
+
+    GOB_WHELP_CAGE              = 227011
 };
 
 enum eScenarioDatas

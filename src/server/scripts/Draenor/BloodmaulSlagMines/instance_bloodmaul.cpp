@@ -99,11 +99,11 @@ namespace MS
 
                     void OnGameObjectCreate(GameObject* p_Gameobject)
                     {
-                        switch (p_Gameobject->GetEntry())
+                        /*switch (p_Gameobject->GetEntry())
                         {
                         default:
                             break;
-                        }
+                        }*/
                     }
 
                     void OnCreatureKilled(Creature* p_Creature, Player* p_Player)

@@ -76,6 +76,7 @@ enum eEvents
     ///< Black Iron Leadbelcher
     EVENT_INCENDIARY_SHELL,
     EVENT_RIFLE_SHOT,
+    EVENT_ACTIVATE_CANON,
     ///< Sentry Cannon
     EVENT_CANNON_SHOT,
     EVENT_SAFETY_PROTOCOLS,
@@ -138,7 +139,7 @@ class mob_black_iron_grunt : public CreatureScript
 
             void Reset()
             {
-                me->ReenableEvadeMode();
+                summons.DespawnAll();
 
                 m_Events.Reset();
 
@@ -182,12 +183,6 @@ class mob_black_iron_grunt : public CreatureScript
                     case EVENT_RALLYING_BANNER:
                         me->MonsterTextEmote(LANG_RALLYING_BANNER_SUMMONED, 0, true);
                         me->CastSpell(me, SPELL_RALLYING_BANNER, false);
-                        /*
-                        @TODO:
-                            - Script for Rallying Banner
-                            - 153799 : Create Areatrigger, which grows up
-                            - And aggro nearby allies
-                        */
                         m_Events.ScheduleEvent(EVENT_RALLYING_BANNER, 15000);
                         break;
                     default:
@@ -204,6 +199,43 @@ class mob_black_iron_grunt : public CreatureScript
         }
 };
 
+///< Rallying Banner - 76222
+class mob_rallying_banner : public CreatureScript
+{
+    public:
+        mob_rallying_banner() : CreatureScript("mob_rallying_banner") { }
+
+        struct mob_rallying_bannerAI : public ScriptedAI
+        {
+            mob_rallying_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum Spells
+            {
+                SpellRallyingAura = 153799
+            };
+
+            void Reset()
+            {
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->RemoveAllAreasTrigger();
+
+                me->CastSpell(me, Spells::SpellRallyingAura, true);
+            }
+
+            void JustDied(Unit* /*p_Killer*/)
+            {
+                me->RemoveAllAreasTrigger();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_rallying_bannerAI(p_Creature);
+        }
+};
+
 ///< Black Iron Leadbelcher - 76157
 class mob_black_iron_leadbelcher : public CreatureScript
 {
@@ -215,18 +247,30 @@ class mob_black_iron_leadbelcher : public CreatureScript
             mob_black_iron_leadbelcherAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            bool m_Canon;
 
             void Reset()
             {
                 me->ReenableEvadeMode();
 
                 m_Events.Reset();
+
+                m_Canon = false;
             }
 
             void EnterCombat(Unit* p_Attacker)
             {
                 m_Events.ScheduleEvent(EVENT_INCENDIARY_SHELL, 4000);
                 m_Events.ScheduleEvent(EVENT_RIFLE_SHOT, 8000);
+            }
+
+            void DamageTaken(Unit* p_Atacker, uint32& p_Damage)
+            {
+                if (me->HealthBelowPctDamaged(50, p_Damage) && !m_Canon)
+                {
+                    m_Events.ScheduleEvent(eEvents::EVENT_ACTIVATE_CANON, 1000);
+                    m_Canon = true;
+                }
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -251,11 +295,38 @@ class mob_black_iron_leadbelcher : public CreatureScript
                             me->CastSpell(l_Target, SPELL_RIFLE_SHOT, false);
                         m_Events.ScheduleEvent(EVENT_RIFLE_SHOT, 10000);
                         break;
+                    case eEvents::EVENT_ACTIVATE_CANON:
+                    {
+                        if (Creature* l_Canon = me->FindNearestCreature(NPC_SENTRY_CANNON, 30.0f))
+                        {
+                            Position l_Pos;
+                            l_Canon->GetPosition(&l_Pos);
+                            l_Pos.m_positionX -= 2.0f;
+                            l_Pos.m_positionY -= 2.0f;
+
+                            me->GetMotionMaster()->MovePoint(1, l_Pos);
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID)
+            {
+                if (p_ID == 1)
+                {
+                    if (Creature* l_Canon = me->FindNearestCreature(NPC_SENTRY_CANNON, 2.0f))
+                    {
+                        l_Canon->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                        if (me->getVictim() != nullptr)
+                            l_Canon->AI()->AttackStart(me->getVictim());
+                    }
+                }
             }
         };
 
@@ -279,11 +350,10 @@ class mob_sentry_cannon : public CreatureScript
 
             void Reset()
             {
-                me->ReenableEvadeMode();
-
                 m_Events.Reset();
 
-                me->AddUnitState(UNIT_STATE_ROOT);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -317,8 +387,6 @@ class mob_sentry_cannon : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -1213,6 +1281,7 @@ class mob_leeroy_jenkins : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->CastSpell(me, Spells::PermanentFeignDeath, true);
             }
 
             void DoAction(int32 const p_Action)
@@ -1406,10 +1475,9 @@ class mob_leeroy_jenkins : public CreatureScript
                         me->SetFacingTo(4.667f);
                         me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, Emote::EMOTE_STATE_USE_STANDING);
                         me->CastSpell(me, Spells::ChickenTimer, true);
-                        //m_ChickenTime = 900;
-                        m_ChickenTime = 90;
+                        m_ChickenTime = 900;
                         m_TalkEvents.ScheduleEvent(Events::EventUpdateChicken, 1000);
-                        m_TalkEvents.ScheduleEvent(Events::EventChicken, /*900000*/90000);
+                        m_TalkEvents.ScheduleEvent(Events::EventChicken, 900000);
 
                         if (m_Instance)
                         {
@@ -1821,6 +1889,83 @@ class mob_black_iron_rageguard : public CreatureScript
         }
 };
 
+///< Emberscale Whelping - 76694
+class mob_emberscale_whelping : public CreatureScript
+{
+    public:
+        mob_emberscale_whelping() : CreatureScript("mob_emberscale_whelping") { }
+
+        struct mob_emberscale_whelpingAI : public ScriptedAI
+        {
+            mob_emberscale_whelpingAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_emberscale_whelpingAI(p_Creature);
+        }
+};
+
+///< Rallying Banner - 153799
+class areatrigger_rallying_banner : public MS::AreaTriggerEntityScript
+{
+    public:
+        areatrigger_rallying_banner() : MS::AreaTriggerEntityScript("areatrigger_rallying_banner") { }
+
+        uint32 m_GrowTime;
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            m_GrowTime = 1000;
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            std::list<Unit*> l_TargetList;
+            float l_Scale = p_AreaTrigger->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE);
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Scale);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Scale, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->isInCombat())
+                    continue;
+
+                if (l_Caster->getVictim() == nullptr)
+                    continue;
+
+                if (l_Unit->ToCreature()->GetAI() && l_Unit->ToCreature()->GetAI())
+                    l_Unit->ToCreature()->AI()->AttackStart(l_Caster->getVictim());
+            }
+
+            if (m_GrowTime <= p_Time)
+            {
+                m_GrowTime = 1000;
+                l_Scale += 2.0f;
+                p_AreaTrigger->SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, l_Scale);
+            }
+            else
+                m_GrowTime -= p_Time;
+        }
+
+        MS::AreaTriggerEntityScript* GetAI() const
+        {
+            return new areatrigger_rallying_banner();
+        }
+};
+
 ///< Fiery Trail - 157364
 class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
 {
@@ -1986,9 +2131,38 @@ class spell_class_specific_res : public SpellScriptLoader
         }
 };
 
+///< Whelp Cage - 227011
+class go_ubrs_whelp_cage : public GameObjectScript
+{
+    public:
+        go_ubrs_whelp_cage() : GameObjectScript("go_ubrs_whelp_cage") { }
+
+        bool GossipHello(Player* p_Player, GameObject* p_Gameobject)
+        {
+            if (p_Gameobject->GetGoState() != GOState::GO_STATE_READY)
+            {
+                std::list<Creature*> l_WhelpList;
+                p_Player->GetCreatureListWithEntryInGrid(l_WhelpList, eCreatures::NPC_EMBERSCALE_WHELPING, 10.0f);
+
+                for (Creature* l_EmbercaleWhelp : l_WhelpList)
+                {
+                    if (l_EmbercaleWhelp->GetAI())
+                    {
+                        l_EmbercaleWhelp->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                        l_EmbercaleWhelp->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        l_EmbercaleWhelp->AI()->AttackStart(p_Player);
+                    }
+                }
+            }
+
+            return false;
+        }
+};
+
 void AddSC_upper_blackrock_spire()
 {
     new mob_black_iron_grunt();
+    new mob_rallying_banner();
     new mob_black_iron_leadbelcher();
     new mob_sentry_cannon();
     new mob_ragemaw_worg();
@@ -2011,8 +2185,11 @@ void AddSC_upper_blackrock_spire()
     new mob_emberscale_ironflight();
     new mob_black_iron_flame_reaver();
     new mob_black_iron_rageguard();
+    new mob_emberscale_whelping();
+    new areatrigger_rallying_banner();
     new areatrigger_fiery_trail();
     new spell_shrapnel_storm();
     new spell_eruption();
     new spell_class_specific_res();
+    new go_ubrs_whelp_cage();
 }
