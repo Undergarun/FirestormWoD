@@ -69,9 +69,6 @@ namespace MS
                     m_TriggerFourWinds[0] = 0;
                     m_TriggerFourWinds[1] = 0;
 
-                    if (instance)
-                        instance->SetBossState(Data::Ranjit, TO_BE_DECIDED);
-
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);

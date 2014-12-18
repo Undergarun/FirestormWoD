@@ -264,9 +264,6 @@ namespace MS
                 m_CombatStarted(false),
                 m_LastTarget(0)
                 {
-                    if (instance)
-                        instance->SetBossState(Data::Rukhran, TO_BE_DECIDED);
-
                     me->SetDisableGravity(true);
                     me->SetCanFly(true);
                     me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);

@@ -297,9 +297,6 @@ namespace MS
             {
                 boss_HighSageViryxAI(Creature* creature) : BossAI(creature, Data::HighSageViryx)
                 {
-                    if (instance)
-                        instance->SetBossState(Data::HighSageViryx, TO_BE_DECIDED);
-
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
