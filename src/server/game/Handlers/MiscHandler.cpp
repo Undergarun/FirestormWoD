@@ -1225,6 +1225,16 @@ void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
         return false;
     });
 
+    if (l_It != m_Player->MovieDelayedTeleports.end())
+    {
+        Player::MovieDelayedTeleport l_TeleportData = (*l_It);
+        m_Player->MovieDelayedTeleports.erase(l_It);
+
+        if (l_TeleportData.MapID == m_Player->GetMapId())
+            m_Player->NearTeleportTo(l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+        else
+            m_Player->TeleportTo(l_TeleportData.MapID, l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+    }
 
     m_Player->MovieDelayedTeleportMutex.unlock();
 }
