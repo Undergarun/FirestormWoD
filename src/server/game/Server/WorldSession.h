@@ -27,6 +27,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
+#include "MSCallback.h"
 
 class Creature;
 class GameObject;
@@ -464,6 +465,14 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         bool HaveVoteRemainingTime() const { return m_VoteRemainingTime != 0; }
         uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New callback system
+        //////////////////////////////////////////////////////////////////////////
+        void AddTransactionCallback(std::shared_ptr<MS::Util::Callback> p_Callback)
+        {
+            m_TransactionCallbacks->push_front(p_Callback);
+        }
 
     public:                                                 // opcodes handlers
 
@@ -1125,6 +1134,12 @@ class WorldSession
         QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture m_CharacterLoginCallback;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New callback system
+        //////////////////////////////////////////////////////////////////////////
+        typedef std::forward_list<std::shared_ptr<MS::Util::Callback>> TransactionCallbacks;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
 
     private:
         // private trade methods

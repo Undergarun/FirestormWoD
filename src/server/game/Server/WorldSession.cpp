@@ -118,6 +118,8 @@ timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailS
 
     InitializeQueryCallbackParameters();
 
+    m_TransactionCallbacks = std::make_unique<TransactionCallbacks>();
+
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
     _compressionStream->zfree = (free_func)NULL;
