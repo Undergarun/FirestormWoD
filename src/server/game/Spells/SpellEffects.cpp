@@ -4097,9 +4097,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetPetGUID())
-        return;
-
     if (!unitTarget)
         return;
 
@@ -4113,13 +4110,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
 
     if (m_caster->getClass() != CLASS_HUNTER)
         return;
-
-    // If we have a full list we shoulden't be able to create a new one.
-    if (m_caster->ToPlayer()->getSlotForNewPet() == PET_SLOT_FULL_LIST)
-    {
-        m_caster->ToPlayer()->SendPetTameResult(PET_TAME_ERROR_TOO_MANY_PETS);
-        return;
-    }
 
     // cast finish successfully
     //SendChannelUpdate(0);
