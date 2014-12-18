@@ -3291,6 +3291,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
                 switch (spellInfo->Effects[j].Effect)
                 {
+                    case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                        spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
+                        spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
+
+                        if (j == EFFECT_0 && spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
+                        {
+                            spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
+                            spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_CASTER;
+                        }
+                        break;
                     case SPELL_EFFECT_SCHOOL_DAMAGE:
                     case SPELL_EFFECT_WEAPON_DAMAGE:
                     case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -3450,6 +3460,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
+                break;
+            case 117962:// Crackling Jade Shock
+                spellInfo->Effects[0].Mechanic = MECHANIC_KNOCKOUT;
                 break;
             case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;

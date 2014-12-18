@@ -701,6 +701,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_Garrison = nullptr;
     m_GarrisonUpdateTimer.SetInterval(2 * IN_MILLISECONDS);
 
+    CurrentPlayedMovie = 0;
+
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -8232,6 +8234,8 @@ void Player::SendMovieStart(uint32 MovieId)
     WorldPacket data(SMSG_TRIGGER_MOVIE, 4);
     data << uint32(MovieId);
     SendDirectMessage(&data);
+
+    CurrentPlayedMovie = MovieId;
 }
 
 void Player::CheckAreaExploreAndOutdoor()

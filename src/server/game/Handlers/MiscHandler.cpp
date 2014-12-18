@@ -1210,6 +1210,35 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player || m_Player->CurrentPlayedMovie == 0)
+        return;
+
+    m_Player->MovieDelayedTeleportMutex.lock();
+
+    auto l_It = std::find_if(m_Player->MovieDelayedTeleports.begin(), m_Player->MovieDelayedTeleports.end(), [this](const Player::MovieDelayedTeleport & p_Elem) -> bool
+    {
+        if (p_Elem.MovieID == m_Player->CurrentPlayedMovie)
+            return true;
+
+        return false;
+    });
+
+    if (l_It != m_Player->MovieDelayedTeleports.end())
+    {
+        Player::MovieDelayedTeleport l_TeleportData = (*l_It);
+        m_Player->MovieDelayedTeleports.erase(l_It);
+
+        if (l_TeleportData.MapID == m_Player->GetMapId())
+            m_Player->NearTeleportTo(l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+        else
+            m_Player->TeleportTo(l_TeleportData.MapID, l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+    }
+
+    m_Player->MovieDelayedTeleportMutex.unlock();
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");

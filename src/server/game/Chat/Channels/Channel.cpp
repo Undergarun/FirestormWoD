@@ -166,8 +166,6 @@ void Channel::CleanOldChannelsInDB()
 
 void Channel::Join(uint64 p, const char *pass)
 {
-    ACE_Guard<RecursiveLock>(m_Lock, true);
-
     WorldPacket data;
     if (IsOn(p))
     {
@@ -219,7 +217,10 @@ void Channel::Join(uint64 p, const char *pass)
     PlayerInfo pinfo;
     pinfo.player = p;
     pinfo.flags = MEMBER_FLAG_NONE;
+
+    m_Lock.acquire();
     m_Players[p] = pinfo;
+    m_Lock.release();
 
     MakeYouJoined(&data);
     SendToOne(&data, p);
@@ -267,11 +268,13 @@ void Channel::Leave(uint64 p, bool send)
             data.clear();
         }
 
-        ACE_Guard<RecursiveLock>(m_Lock, true);
 
         bool changeowner = m_Players[p].IsOwner();
 
+        m_Lock.acquire();
         m_Players.erase(p);
+        m_Lock.release();
+
         if (m_announce && (!player || !AccountMgr::IsModeratorAccount(player->GetSession()->GetSecurity()) || !sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
         {
             WorldPacket data;
@@ -781,7 +784,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket* data, uint64 p)
 {
-    ACE_Guard<RecursiveLock>(m_Lock, true);
+    m_Lock.acquire();
     for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
         Player* player = ObjectAccessor::FindPlayer(i->first);
@@ -791,11 +794,12 @@ void Channel::SendToAll(WorldPacket* data, uint64 p)
                 player->GetSession()->SendPacket(data);
         }
     }
+    m_Lock.release();
 }
 
 void Channel::SendToAllButOne(WorldPacket* data, uint64 who)
 {
-    ACE_Guard<RecursiveLock>(m_Lock, true);
+    m_Lock.acquire();
     for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
         if (i->first != who)
@@ -805,6 +809,7 @@ void Channel::SendToAllButOne(WorldPacket* data, uint64 who)
                 player->GetSession()->SendPacket(data);
         }
     }
+    m_Lock.release();
 }
 
 void Channel::SendToOne(WorldPacket* data, uint64 who)

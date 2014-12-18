@@ -48,6 +48,7 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 #include <ace/Stack_Trace.h>
 
 struct Mail;
@@ -3332,6 +3333,32 @@ class Player : public Unit, public GridObject<Player>
 
         CompletedChallengesMap m_CompletedChallenges;
         //////////////////////////////////////////////////////////////////////////
+
+        struct MovieDelayedTeleport
+        {
+            uint32 MovieID;
+            uint32 MapID;
+            float X, Y, Z, O;
+        };
+
+        uint32 CurrentPlayedMovie;
+        std::vector<MovieDelayedTeleport> MovieDelayedTeleports;
+        std::mutex MovieDelayedTeleportMutex;
+
+        void AddMovieDelayedTeleport(uint32 p_MovieID, uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O)
+        {
+            MovieDelayedTeleport l_Data;
+            l_Data.MovieID  = p_MovieID;
+            l_Data.MapID    = p_MapID;
+            l_Data.X        = p_X;
+            l_Data.Y        = p_Y;
+            l_Data.Z        = p_Z;
+            l_Data.O        = p_O;
+
+            MovieDelayedTeleportMutex.lock();
+            MovieDelayedTeleports.push_back(l_Data);
+            MovieDelayedTeleportMutex.unlock();
+        }
 
     protected:
         void OnEnterPvPCombat();
