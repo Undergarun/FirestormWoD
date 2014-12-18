@@ -1623,17 +1623,13 @@ class spell_monk_power_strikes : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (l_Player->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
                     {
-                        if (_player->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
-                        {
-                            if (_player->GetPower(POWER_CHI) < _player->GetMaxPower(POWER_CHI))
-                                _player->EnergizeBySpell(_player, GetSpellInfo()->Id, 1, POWER_CHI);
-                            else
-                                _player->CastSpell(_player, SPELL_MONK_CREATE_CHI_SPHERE, true);
-                        }
+                        if (l_Player->GetPower(POWER_CHI) >= l_Player->GetMaxPower(POWER_CHI))
+                            l_Player->CastSpell(l_Player, SPELL_MONK_CREATE_CHI_SPHERE, true);
+                        l_Player->RemoveAura(SPELL_MONK_POWER_STRIKES_AURA);
                     }
                 }
             }
