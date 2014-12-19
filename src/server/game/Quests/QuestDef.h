@@ -281,6 +281,7 @@ class Quest
         uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
+        bool HasFlag2(uint32 flag) const { return (Flags2 & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
 
         bool HasSpecialFlag(uint32 flag) const { return (SpecialFlags & flag) != 0; }

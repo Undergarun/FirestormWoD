@@ -1356,25 +1356,6 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                         count = iProto->GetMaxStackSize();
                 }
 
-                switch(itemId)
-                {
-                    // Pandaren start weapons, they are given with the first quest
-                    case 73207:
-                    case 73208:
-                    case 73209:
-                    case 73210:
-                    case 73211:
-                    case 73212:
-                    case 73213:
-                    case 76390:
-                    case 76391:
-                    case 76392:
-                    case 76393:
-                        continue;
-                    default:
-                        break;
-                }
-
                 StoreNewItemInBestSlots(itemId, count);
             }
         }
@@ -17750,12 +17731,15 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    if (!quest->HasFlag2(QUEST_FLAGS2_KEEP_ADDITIONAL_ITEMS))
     {
-        if (quest->RequiredSourceItemId[i])
+        for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         {
-            uint32 count = quest->RequiredSourceItemCount[i];
-            DestroyItemCount(quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            if (quest->RequiredSourceItemId[i])
+            {
+                uint32 count = quest->RequiredSourceItemCount[i];
+                DestroyItemCount(quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            }
         }
     }
 
