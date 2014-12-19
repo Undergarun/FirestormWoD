@@ -162,6 +162,9 @@ Quest::Quest(Field* questRecord)
         if (RewardCurrencyId[i])
             ++m_rewCurrencyCount;
 
+    for (QuestPackageItemEntry const* l_QuestPackageItem : sQuestPackageItemsByGroup[ExclusiveGroup])
+        DynamicRewards.push_back(l_QuestPackageItem);
+
     memset(QuestObjecitveTypeCount, 0, sizeof(QuestObjecitveTypeCount));
 }
 

@@ -211,6 +211,23 @@ struct ItemExtendedCostEntry
     //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
+struct QuestPackageItemEntry
+{
+    uint32 ID;                  // 0
+    uint32 ExclusiveGroup;      // 1
+    uint32 ItemId;              // 2
+    uint32 Count;               // 3
+    uint32 Type;                // 4
+};
+
+enum class PackageItemRewardType : uint8
+{
+    SpecializationReward = 0,
+    ClassReward          = 1,
+    DefaultHiddenReward  = 2,
+    NoRequire            = 3
+};
+
 struct MapChallengeModeEntry
 {
     uint32 ID;                  // 0

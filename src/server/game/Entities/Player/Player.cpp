@@ -17540,28 +17540,41 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
         memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
         memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
 
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto dynamicReward : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
-                    continue;
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
                     continue;
 
-                RewardChoiceItemId[index] = dynamicReward.itemID;
-                RewardChoiceItemCount[index] = dynamicReward.count;
+                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
+                RewardChoiceItemCount[index] = l_DynamicReward->Count;
                 index++;
             }
         }
@@ -17765,28 +17778,40 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto dynamicReward : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
-
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
-                    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
                     continue;
 
-                RewardChoiceItemId[index] = dynamicReward.itemID;
-                RewardChoiceItemCount[index] = dynamicReward.count;
+                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
+                RewardChoiceItemCount[index] = l_DynamicReward->Count;
                 index++;
             }
         }

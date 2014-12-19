@@ -1018,7 +1018,6 @@ class ObjectMgr
         void LoadQuests();
         void LoadQuestObjectives();
         void LoadQuestObjectiveLocales();
-        void LoadQuestDynamicRewards();
         void LoadQuestRelations()
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO Start Quest Data...");

@@ -53,6 +53,7 @@ extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
 extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
+extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -98,6 +99,7 @@ SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
+extern std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
 
 std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
 void LoadDB2Stores(const std::string& dataPath);

@@ -4602,36 +4602,6 @@ void ObjectMgr::LoadQuests()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadQuestDynamicRewards()
-{
-    uint32 oldMSTime = getMSTime();
-    QueryResult result = WorldDatabase.Query("SELECT questId, itemId, itemCount FROM quest_dynamic_reward");
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Empty or non-exist quest_dynamic_reward table");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 questId = fields[0].GetUInt32();
-
-        if (_questTemplates.find(questId) == _questTemplates.end())
-            continue;
-
-        count++;
-
-        Quest* quest = _questTemplates[questId];
-        quest->AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadQuestLocales()
 {
     uint32 oldMSTime = getMSTime();
