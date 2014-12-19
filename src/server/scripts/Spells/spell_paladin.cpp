@@ -1182,10 +1182,9 @@ public:
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Caster->GetPower(POWER_HOLY_POWER);
-                    if (l_Power > 3)
-                        l_Power = 3;
+                    if (l_Power > 2)
+                        l_Power = 2;
 
-                    sLog->outError(LOG_FILTER_GENERAL, "Heal = %d, get heal = %d, power = %d", GetHitHeal() / (std::max(1, 3 - l_Power)), GetHitHeal(), l_Power);
                     SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power)));
 
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
@@ -1743,6 +1742,8 @@ public:
     {
         PrepareSpellScript(spell_pal_eternal_flame_SpellScript);
 
+        int32 m_PowerUsed = 0;
+
         SpellCastResult CheckCast()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
@@ -1752,21 +1753,45 @@ public:
             return SPELL_CAST_OK;
         }
 
-        void HandleOnHit()
+        void HandleBeforeHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                m_PowerUsed = l_Caster->GetPower(POWER_HOLY_POWER);
+                if (m_PowerUsed > 2)
+                    m_PowerUsed = 2;
+            }
+        }
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
+                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - m_PowerUsed)));
+
+                    if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                    {
+                        if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                        {
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(114637);
+
+                            if (l_SpellInfo != nullptr)
+                            {
+                                SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
+                                l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
+                            }
+                        }
+                    }
                     l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
-                    if (l_Caster == l_Target)
-                        SetHitHeal(int32(GetHitHeal() + CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[1].BasePoints)));
                 }
         }
 
         void Register()
         {
             OnCheckCast += SpellCheckCastFn(spell_pal_eternal_flame_SpellScript::CheckCast);
-            OnHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleOnHit);
+            BeforeHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleBeforeHit);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_eternal_flame_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
 
@@ -1789,10 +1814,22 @@ public:
 
         void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
         {
-            if (Unit* l_Caster = GetCaster())
-                if (Unit* l_Target = GetAura()->GetOwner()->ToUnit())
-                    if (l_Caster == l_Target)
-                        amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier, sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME)->Effects[1].BasePoints);
+            if (Unit* l_Owner = GetOwner()->ToUnit())
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfoPeriodicHeal = GetSpellInfo();
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME);
+
+                    int32 l_Heal = 0;
+                    
+                    if (l_SpellInfoPeriodicHeal != nullptr)
+                        l_Heal = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * l_SpellInfoPeriodicHeal->Effects[0].BonusMultiplier;
+
+                    if (l_Owner->GetGUID() == l_Caster->GetGUID() && l_SpellInfo != nullptr)
+                        AddPct(l_Heal, l_SpellInfo->Effects[1].BasePoints);
+
+                    amount = l_Heal;
+                }
         }
 
         void Register()
