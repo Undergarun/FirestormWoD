@@ -166,7 +166,7 @@ namespace MS
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::PILE_OF_ASHES:
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        p_Creature->AddUnitState(UNIT_STATE_UNATTACKABLE);
                         p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         m_PileOfAshesGuid.insert(p_Creature->GetGUID());
