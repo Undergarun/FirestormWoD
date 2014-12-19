@@ -703,6 +703,9 @@ void Garrison::OnPlayerEnter()
 
     if (l_GarrisonScript)
         m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+
+    /// Enable AI Client collision manager
+    m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
 }
 /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
 void Garrison::OnPlayerLeave()
@@ -724,6 +727,9 @@ void Garrison::OnPlayerLeave()
     }
 
     m_Owner->SetPhaseMask(1, true);
+
+    /// Disable AI Client collision manager
+    m_Owner->RemoveFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
 }
 /// When the garrison owner started a quest
 void Garrison::OnQuestStarted(const Quest * p_Quest)
