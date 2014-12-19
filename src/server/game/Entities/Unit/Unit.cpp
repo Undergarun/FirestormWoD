@@ -1394,10 +1394,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         return;
 
     // WoD: Apply factor on damages depending on creature level and expansion
-    if (GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && !victim->isPet())
-        damage *= CalculateDamageDealtFactor(ToPlayer(), victim->ToCreature());
-    else if (GetTypeId() == TYPEID_UNIT && !isPet() && victim->GetTypeId() == TYPEID_PLAYER)
-        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), ToCreature());
+    if ((GetTypeId() == TYPEID_PLAYER || IsPetGuardianStuff()) && victim->GetTypeId() == TYPEID_UNIT)
+        damage *= CalculateDamageDealtFactor(this, victim->ToCreature());
+    else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
+        damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     // Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
@@ -1579,10 +1579,10 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
 
     // WoD: Apply factor on damages depending on creature level and expansion
-    if (GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && !victim->isPet())
-        damage *= CalculateDamageDealtFactor(ToPlayer(), victim->ToCreature());
-    else if (GetTypeId() == TYPEID_UNIT && ! isPet() && victim->GetTypeId() == TYPEID_PLAYER)
-        damage *= CalculateDamageTakenFactor(victim->ToPlayer(), ToCreature());
+    if ((GetTypeId() == TYPEID_PLAYER || IsPetGuardianStuff()) && victim->GetTypeId() == TYPEID_UNIT)
+        damage *= CalculateDamageDealtFactor(this, victim->ToCreature());
+    else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
+        damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     // Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
@@ -12864,7 +12864,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING);
-        AddPct(DoneTotal, PvPPower);
+        DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
     // Done fixed damage bonus auras
@@ -16445,9 +16445,7 @@ void CharmInfo::InitPetActionBar()
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
     {
         if (i != 1)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, COMMAND_ATTACK - i, ACT_REACTION);
-        else
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
+            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER - i, ACT_REACTION);
     }
 }
 
@@ -18692,11 +18690,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             Map    * l_InstanceMap    = l_KilledCreature->GetMap();
             Player * l_CreditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
 
-            if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
-                l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
-
             /// @TODO: do instance binding anyway if the charmer/owner is offline
-
             if (l_InstanceMap->IsDungeon() && l_CreditedPlayer)
             {
                 if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
@@ -22152,13 +22146,13 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     data->append(fieldBuffer);
 }
 
-float Unit::CalculateDamageDealtFactor(Player* p_Player, Creature* p_Target)
+float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
 {
-    if (!p_Player || !p_Target)
+    if (!p_Unit || !p_Creature)
         return 1.0f;
 
-    uint8 l_TargetExpansion = p_Target->GetCreatureTemplate()->expansion;
-    int32 l_LevelDiff = p_Player->getLevel() - p_Target->getLevel();
+    uint8 l_TargetExpansion = p_Creature->GetCreatureTemplate()->expansion;
+    int32 l_LevelDiff = p_Unit->getLevel() - p_Creature->getLevel();
 
     float l_DamageDealtFactor = 1.0f;
 
@@ -22184,23 +22178,27 @@ float Unit::CalculateDamageDealtFactor(Player* p_Player, Creature* p_Target)
     uint16 l_IntendedItemLevelByExpansion[MAX_EXPANSION] = { 65, 115, 200, 346, 463, 609 };
     uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = { 69, 79, 84, 89, 99, 109 };
 
-    if (l_TargetExpansion > 0)
-    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
+    if (l_TargetExpansion > 0 && p_Unit->GetTypeId() == TYPEID_PLAYER)
     {
-        float l_AltDamageDealtFactor = 1 + 5 / 3 * 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
-        l_DamageDealtFactor = std::max(l_DamageDealtFactor, l_AltDamageDealtFactor);
+        Player* p_Player = p_Unit->ToPlayer();
+
+        if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
+        {
+            float l_AltDamageDealtFactor = 1 + 5 / 3 * 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+            l_DamageDealtFactor = std::max(l_DamageDealtFactor, l_AltDamageDealtFactor);
+        }
     }
 
     return l_DamageDealtFactor;
 }
 
-float Unit::CalculateDamageTakenFactor(Player* p_Player, Creature* p_Target)
+float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 {
-    if (!p_Player || !p_Target)
+    if (!p_Unit || !p_Creature)
         return 1.0f;
 
-    uint8 l_TargetExpansion = p_Target->GetCreatureTemplate()->expansion;
-    int32 l_LevelDiff = p_Player->getLevel() - p_Target->getLevel();
+    uint8 l_TargetExpansion = p_Creature->GetCreatureTemplate()->expansion;
+    int32 l_LevelDiff = p_Unit->getLevel() - p_Creature->getLevel();
 
     float l_DamageTakenFactor = 1.0f;
 
@@ -22213,11 +22211,15 @@ float Unit::CalculateDamageTakenFactor(Player* p_Player, Creature* p_Target)
     uint16 l_IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 463, 609};
     uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = {69, 79, 84, 89, 99, 109};
 
-    if (l_TargetExpansion > 0)
-    if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
+    if (l_TargetExpansion > 0 && p_Unit->GetTypeId() == TYPEID_PLAYER)
     {
-        float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
-        l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
+        Player* p_Player = p_Unit->ToPlayer();
+
+        if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
+        {
+            float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+            l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
+        }
     }
 
     return l_DamageTakenFactor;

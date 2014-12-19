@@ -77,7 +77,8 @@ namespace MS
             };
         };
 
-        static const Position k_FallPoints[] =
+        static const std::size_t k_NumFallPoints = 13;
+        static const Position k_FallPoints[k_NumFallPoints] =
         {
             { 1094.775f, 1715.610f, 275.72f },
             { 1094.993f, 1721.900f, 263.72f },
@@ -162,7 +163,7 @@ namespace MS
 
                         int l_ClosestPoint = 0;
                         float l_ClosestDistance = k_FallPoints[0].GetExactDist2d(me);
-                        for (int i = 1; i < 14; i++)
+                        for (int i = 1; i < k_NumFallPoints; i++)
                         {
                             if (k_FallPoints[i].GetExactDist2d(me) < l_ClosestDistance)
                             {
@@ -297,9 +298,6 @@ namespace MS
             {
                 boss_HighSageViryxAI(Creature* creature) : BossAI(creature, Data::HighSageViryx)
                 {
-                    if (instance)
-                        instance->SetBossState(Data::HighSageViryx, TO_BE_DECIDED);
-
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -310,6 +308,7 @@ namespace MS
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                     me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }

@@ -87,7 +87,9 @@ enum MageSpells
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FROSTBOLT                         = 116,
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
-    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE             = 157977,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE        = 157977,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST       = 157978,
+    SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE      = 157979,
     SPELL_MAGE_ARCANE_POWER                      = 12042,
     SPELL_MAGE_OVERPOWERED                       = 155147,
     SPELL_MAGE_ICY_VEINS                         = 12472,
@@ -1366,11 +1368,12 @@ public:
                 if (l_Caster->HasAura(SPELL_MAGE_UNSTABLE_MAGIC))
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 l_Damage = CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE)->Effects[EFFECT_0].BasePoints);
-                        if ((GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_0].BasePoints))
-                            || (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_2].BasePoints))
-                            || (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(157976)->Effects[EFFECT_1].BasePoints)))
-                            l_Caster->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE, NULL, &l_Damage, NULL, true);
+                        if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE, true);
+                        else if (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_1].BasePoints))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, true);
+                        else if (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_2].BasePoints))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, true);
                     }
         }
 
@@ -1399,9 +1402,9 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_THERMAL_VOID))
+                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                        l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                        l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
         }
 
         void Register()

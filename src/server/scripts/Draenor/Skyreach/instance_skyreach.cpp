@@ -182,10 +182,6 @@ namespace MS
                         break;
                     case MobEntries::SunConstructEnergizer:
                         m_SolarConstructorEnergizerGuid = p_Creature->GetGUID();
-                        p_Creature->SetDisableGravity(true);
-                        p_Creature->SetCanFly(true);
-                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::InteriorFocus:
                         m_InteriorFocusGuid = p_Creature->GetGUID();
