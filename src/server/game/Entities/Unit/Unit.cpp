@@ -16445,9 +16445,7 @@ void CharmInfo::InitPetActionBar()
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
     {
         if (i != 1)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, COMMAND_ATTACK - i, ACT_REACTION);
-        else
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
+            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER - i, ACT_REACTION);
     }
 }
 

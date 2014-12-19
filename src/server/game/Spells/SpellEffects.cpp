@@ -8321,7 +8321,7 @@ void Spell::EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex)
 
             // Set pet at full health
             l_Pet->SetHealth(l_Pet->GetMaxHealth());
-            l_Pet->SetReactState(REACT_AGGRESSIVE);
+            l_Pet->SetReactState(REACT_HELPER);
             l_Pet->m_Stampeded = true;
 
             l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
