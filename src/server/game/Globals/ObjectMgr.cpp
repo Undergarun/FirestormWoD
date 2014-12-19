@@ -48,6 +48,7 @@
 #include "DB2Stores.h"
 #include "Configuration/Config.h"
 #include "VMapFactory.h"
+#include "Garrison.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -5738,11 +5739,36 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
+    std::map<uint32, uint32> l_MapOverrides;
+
+    /// Special case for taxi in garrison phased map
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+        
+        if (l_Entry)
+        {
+            l_MapOverrides[l_Entry->MapID] = GARRISON_BASE_MAP;
+
+            if (l_Entry->MapID == mapid)
+                mapid = GARRISON_BASE_MAP;
+        }
+    }
+
     for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-        if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        if (!node)
+            continue;
+
+        if (node->map_id != mapid)
+        {
+            if (l_MapOverrides.find(node->map_id) != l_MapOverrides.end() && l_MapOverrides[node->map_id] != mapid)
+                continue;
+        }
+
+        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight)
             continue;
 
         uint8  field   = (uint8)((i - 1) / 8);
