@@ -1402,9 +1402,9 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_THERMAL_VOID))
+                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                        l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                        l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
         }
 
         void Register()
