@@ -502,6 +502,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         {
             if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER || isSpiritService())
                 SetReactState(REACT_PASSIVE);
+            else if (isPet())
+                SetReactState(REACT_HELPER);
             else
                 SetReactState(REACT_AGGRESSIVE);
             /*else if (isCivilian())

@@ -17521,28 +17521,41 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
         memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
         memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
 
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto dynamicReward : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
-                    continue;
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
                     continue;
 
-                RewardChoiceItemId[index] = dynamicReward.itemID;
-                RewardChoiceItemCount[index] = dynamicReward.count;
+                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
+                RewardChoiceItemCount[index] = l_DynamicReward->Count;
                 index++;
             }
         }
@@ -17672,7 +17685,20 @@ void Player::CompleteQuest(uint32 quest_id)
 
         uint16 log_slot = FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
             SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_0_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_1_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_2_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_3_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_4_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_5_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_6_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_7_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_8_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_9_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_10_COMPLETE);
+        }
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
@@ -17749,28 +17775,40 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto dynamicReward : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
-
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
-                    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
                     continue;
 
-                RewardChoiceItemId[index] = dynamicReward.itemID;
-                RewardChoiceItemCount[index] = dynamicReward.count;
+                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
+                RewardChoiceItemCount[index] = l_DynamicReward->Count;
                 index++;
             }
         }
@@ -24050,10 +24088,23 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
+    uint32 l_MapID = GetMapId();
+    /// Special case for taxi in garrison phased map
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+
+        if (l_Entry && l_Entry->MapID == l_MapID)
+        {
+            l_MapID = GARRISON_BASE_MAP;
+            break;
+        }
+    }
+
     // check node starting pos data set case if provided
     if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
     {
-        if (node->map_id != GetMapId() ||
+        if (node->map_id != l_MapID ||
             (node->x - GetPositionX())*(node->x - GetPositionX())+
             (node->y - GetPositionY())*(node->y - GetPositionY())+
             (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
@@ -30750,6 +30801,53 @@ void Player::UpdateBattlePetCombatTeam()
         if (p_BattlePet->Slot >= 0 && p_BattlePet->Slot < (int32)l_UnlockedSlotCount)
             m_BattlePetCombatTeam[p_BattlePet->Slot] = p_BattlePet;
     });
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// Calc Monk Melee Attacks
+enum ExpelHarmSpells
+{
+    SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    SPELL_MONK_2H_STAFF_OVERRIDE = 108561,
+    SPELL_MONK_EXPEL_HARM_DAMAGE = 115129,
+    SPELL_MONK_2H_POLEARM_OVERRIDE = 115697,
+    SPELL_MONK_MANA_MEDITATION = 121278
+};
+
+void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
+{
+    Item* l_MainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* l_OffItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+    float l_MainWeaponMinDamage = 0.0f;
+    float l_MainWeaponMaxDamage = 0.0f;
+    float l_MainWeaponSpeed = 1.0f;
+    float l_OffhandWeaponMinDamage = 0.0f;
+    float l_OffhandWeaponMaxDamage = 0.0f;
+    float l_OffhandWeaponSpeed = 1.0f;
+
+    if (l_MainItem && l_MainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        l_MainWeaponMinDamage = l_MainItem->GetTemplate()->DamageMin;
+        l_MainWeaponMaxDamage = l_MainItem->GetTemplate()->DamageMax;
+        l_MainWeaponSpeed = float(l_MainItem->GetTemplate()->Delay) / 1000.0f;
+    }
+    if (l_OffItem && l_OffItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        l_OffhandWeaponMinDamage = l_OffItem->GetTemplate()->DamageMin;
+        l_OffhandWeaponMaxDamage = l_OffItem->GetTemplate()->DamageMax;
+        l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
+    }
+
+    float l_Stnc = (HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+    float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
+    float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+    float l_Offlow = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+    float l_Offhigh = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+    p_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+    p_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

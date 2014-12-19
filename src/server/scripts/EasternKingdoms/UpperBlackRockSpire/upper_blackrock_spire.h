@@ -80,6 +80,7 @@ enum eCreatures
     NPC_IRONBARB_SKYREAVER      = 80098,
     NPC_VILEMAW_HATCHLING       = 77096,
     NPC_IMBUED_IRON_AXE_STALKER = 80307,
+    NPC_AWBEE                   = 86533,
 
     ///< Ragewing the Untamed
     NPC_RAGEWING_THE_UNTAMED    = 76585,

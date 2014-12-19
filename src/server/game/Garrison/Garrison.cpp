@@ -128,19 +128,19 @@ GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT
 
 GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
 {
-    /// SiteLevelID         X          Y          Z         O
+    /// SiteLevelID         X           Y          Z         O
     /// Horde Level 1
-    {     258,             0.f,       0.f,       0.f,      0.f        },
+    {     258,          5565.679f,  4499.0090f, 132.02610f, 0.081281f  },
     /// Horde level 2
-    {     445,             0.f,       0.f,       0.f,      0.f        },
+    {     445,             0.f,        0.f,       0.f,      0.f        },
     /// Horde level 3
-    {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f },
+    {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f  },
     /// Alliance Level 1
-    {       5,          1893.729f,  208.8733f,  77.06371f, 1.685312f  },
+    {       5,          1893.729f,   208.8733f,  77.06371f, 1.685312f  },
     /// Alliance Level 2
-    {     444,             0.f,       0.f,       0.f,      0.f        },
+    {     444,             0.f,        0.f,       0.f,      0.f        },
     /// Alliance Level 3
-    {       6,             0.f,       0.f,       0.f,      0.f        },
+    {       6,             0.f,        0.f,       0.f,      0.f        },
 };
 
 uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
@@ -703,6 +703,9 @@ void Garrison::OnPlayerEnter()
 
     if (l_GarrisonScript)
         m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+
+    /// Enable AI Client collision manager
+    m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
 }
 /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
 void Garrison::OnPlayerLeave()
@@ -724,6 +727,9 @@ void Garrison::OnPlayerLeave()
     }
 
     m_Owner->SetPhaseMask(1, true);
+
+    /// Disable AI Client collision manager
+    m_Owner->RemoveFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
 }
 /// When the garrison owner started a quest
 void Garrison::OnQuestStarted(const Quest * p_Quest)

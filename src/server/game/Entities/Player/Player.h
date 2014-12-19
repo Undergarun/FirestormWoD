@@ -1971,6 +1971,7 @@ class Player : public Unit, public GridObject<Player>
         void SetBindPoint(uint64 guid);
         void SendTalentWipeConfirm(uint64 guid, bool specializaion);
         void CalcRage(uint32 damage, bool attacker);
+        void CalculateMonkMeleeAttacks(float &p_Low, float &p_High);
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();

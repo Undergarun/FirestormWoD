@@ -1691,8 +1691,8 @@ class Unit : public WorldObject
 
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
-        float CalculateDamageDealtFactor(Player* player, Creature* target);
-        float CalculateDamageTakenFactor(Player* player, Creature* target);
+        float CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature);
+        float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
         float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;

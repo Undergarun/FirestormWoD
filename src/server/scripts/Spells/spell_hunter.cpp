@@ -2363,41 +2363,38 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                int8 l_ResultId = -1;
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!GetExplTargetUnit() || GetExplTargetUnit()->GetTypeId() != TYPEID_UNIT)
+                    l_ResultId = PET_TAME_ERROR_INVALID_CREATURE;
+
+                Creature* l_Target = GetExplTargetUnit()->ToCreature();
+
+                // No errors until now, time to do more checks
+                if (l_ResultId == -1)
                 {
-                    if (!GetExplTargetUnit())
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    // If we have a full list we shoulden't be able to create a new one.
-                    if (caster->getSlotForNewPet() == PET_SLOT_FULL_LIST)
-                    {
-                        caster->SendPetTameResult(PET_TAME_ERROR_TOO_MANY_PETS);
-                        return SPELL_FAILED_DONT_REPORT;
-                    }
-
-                    if (Creature* target = GetExplTargetUnit()->ToCreature())
-                    {
-                        if (target->getLevel() > caster->getLevel())
-                            return SPELL_FAILED_HIGHLEVEL;
-
-                        if (!target->GetCreatureTemplate()->isTameable(caster->ToPlayer()->CanTameExoticPets()))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (caster->GetPetGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                        if (caster->GetCharmGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_CHARM;
-                    }
-                    else
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    return SPELL_CAST_OK;
+                    if (l_Player->getSlotForNewPet() == PET_SLOT_FULL_LIST)
+                        l_ResultId = PET_TAME_ERROR_TOO_MANY_PETS;
+                    else if (l_Player->GetPetGUID() || l_Player->GetCharmGUID())
+                        l_ResultId = PET_TAME_ERROR_ANOTHER_SUMMON_ACTIVE;
+                    else if (l_Target->isPet())
+                        l_ResultId = PET_TAME_ERROR_CREATURE_ALREADY_OWNED;
+                    else if (l_Target->getLevel() > l_Player->getLevel())
+                        l_ResultId = PET_TAME_ERROR_TOO_HIGH_LEVEL;
+                    else if ((l_Target->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_EXOTIC) && !l_Player->CanTameExoticPets())
+                        l_ResultId = PET_TAME_ERROR_CANT_CONTROL_EXOTIC;
+                    else if (!l_Target->GetCreatureTemplate()->isTameable(l_Player->CanTameExoticPets()))
+                        l_ResultId = PET_TAME_ERROR_NOT_TAMEABLE;
                 }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
 
-                return SPELL_FAILED_DONT_REPORT;
+                if (l_ResultId >= 0)
+                {
+                    l_Player->SendPetTameResult((PetTameResult) l_ResultId);
+                    return SPELL_FAILED_DONT_REPORT;
+                }
+
+                return SPELL_CAST_OK;
             }
 
             void Register()

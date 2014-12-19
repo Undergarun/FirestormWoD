@@ -152,7 +152,7 @@ void GameObject::AddToWorld()
         if (m_model)
             GetMap()->InsertGameObjectModel(*m_model);
 
-        if (IsTransport())
+        if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
         {
             GetMap()->AddGameObjectTransport(this);
             SendTransportToOutOfRangePlayers();
@@ -2141,7 +2141,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 void GameObject::SetLootState(LootState state, Unit* unit)
 {
     m_lootState = state;
-    AI()->OnStateChanged(state, unit);
+
+    if (AI() != nullptr)
+        AI()->OnLootStateChanged(state, unit);
+
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
     if (m_model)
     {
@@ -2158,6 +2161,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+
+    if (AI() != nullptr)
+        AI()->OnStateChanged(state);
+
     sScriptMgr->OnGameObjectStateChanged(this, state);
     if (m_model)
     {
