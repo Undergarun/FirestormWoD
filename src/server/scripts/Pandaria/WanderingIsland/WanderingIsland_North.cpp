@@ -351,6 +351,7 @@ public:
                 {
                     player->KilledMonsterCredit(me->GetEntry(), 0);
                     me->CombatStop();
+                    player->CombatStop(true);
                     me->setFaction(35);
                     me->SetFullHealth();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -365,19 +366,15 @@ public:
             }
         }
 
-        void DoAction(const int32 action)
+        void DoAction(const int32 p_Action)
         {
-            switch (action)
+            if (p_Action == ACTION_TALK)
             {
-            case ACTION_TALK:
                 if (hasSaidIntro == false)
                 {
                     Talk(0);
                     hasSaidIntro = true;
                 }
-                break;
-            default:
-                break;
             }
         }
 
@@ -1666,28 +1663,24 @@ class mob_huojin_monk : public CreatureScript
 
             void DoAction (uint8 action)
             {
-                switch (action)
+                if (action == ACTION_TALK)
                 {
-                case ACTION_TALK:
                     if (!hasSaid1)
                     {
                         Talk(0);
                         hasSaid1 = true;
                     }
-                    break;
                 }
             }
 
             void UpdateAI(const uint32 diff)
             {
-                std::list<Player*> playerList;
-                GetPlayerListInGrid(playerList, me, 10.0f);
-                for (auto player: playerList)
+                std::list<Player*> l_PlayerList;
+                GetPlayerListInGrid(l_PlayerList, me, 10.0f);
+                for (Player* l_Player : l_PlayerList)
                 {
-                    if (player->GetQuestStatus(29420) == QUEST_STATUS_COMPLETE)
-                    {
+                    if (l_Player->GetQuestStatus(29420) == QUEST_STATUS_COMPLETE)
                         DoAction(ACTION_TALK);
-                    }
                 }
 
                 DoMeleeAttackIfReady();
