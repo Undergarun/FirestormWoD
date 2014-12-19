@@ -1183,14 +1183,19 @@ public:
                 {
                     int32 l_Power = l_Caster->GetPower(POWER_HOLY_POWER);
 
-                    SetHitHeal(GetHitHeal() / (3 - l_Power + 1));
+                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power + 1)));
 
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                     {
                         if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
                         {
-                            SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), sSpellMgr->GetSpellInfo(114637)->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
-                            l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(114637);
+                            
+                            if (l_SpellInfo != nullptr)
+                            {
+                                SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
+                                l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
+                            }
                         }
                     }
 
