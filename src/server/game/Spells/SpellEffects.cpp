@@ -690,26 +690,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 break;
             }
-            case 32645: // Envenom
-            {
-                if (Player* player = m_caster->ToPlayer())
-                {
-                    uint8 combo = player->GetComboPoints();
-
-                    float ap = player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                    if (combo)
-                    {
-                        damage += int32(0.112f * combo * ap + damage * combo);
-
-                        // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (m_caster->HasAura(37169))
-                            damage += combo * 40;
-                    }
-                }
-
-                break;
-            }
             case 51723: // Fan of Knives
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)

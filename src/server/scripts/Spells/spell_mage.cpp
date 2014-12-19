@@ -1373,10 +1373,11 @@ public:
                         l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
 
                 if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA))
+                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA) && l_Target->isFrozen())
                     {
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
+                        l_Target->RemoveAurasDueToSpell(SPELL_MAGE_FROST_BOMB_AURA);
                     }
 
             }

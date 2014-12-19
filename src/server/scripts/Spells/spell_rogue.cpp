@@ -87,7 +87,8 @@ enum RogueSpells
     ROGUE_SPELL_RELTENTLESS_STRIKES_AURA        = 58423,
     ROGUE_SPELL_RELTENTLESS_STRIKES_PROC        = 14181,
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
-    ROGUE_SPELL_RUTHLESSNESS                    = 14161
+    ROGUE_SPELL_RUTHLESSNESS                    = 14161,
+    ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169
 };
 
 // Killing Spree - 51690
@@ -786,6 +787,54 @@ class spell_rog_hemorrhage : public SpellScriptLoader
         }
 };
 
+// Called by Envenom - 32645
+class spell_rog_envenom : public SpellScriptLoader
+{
+public:
+    spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
+
+    class spell_rog_envenom_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_envenom_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint8 l_ComboPoint = l_Player->GetComboPoints();
+                int32 l_Damage = 0;
+
+                if (l_ComboPoint)
+                {
+                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+
+                    l_Damage += int32(1.05 * 1 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+
+                    // Eviscerate and Envenom Bonus Damage (item set effect)
+                    if (l_Player->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
+
+                        l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                    }
+                }
+                SetHitDamage(l_Damage);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_envenom_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_envenom_SpellScript();
+    }
+};
+
+
 // Called by Envenom - 32645 and Eviscerate - 2098
 // Cut to the Chase - 51667
 class spell_rog_cut_to_the_chase : public SpellScriptLoader
@@ -799,17 +848,14 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (!GetHitUnit())
-                    return;
-
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (caster->HasAura(ROGUE_SPELL_CUT_TO_THE_CHASE_AURA))
+                    if (l_Caster->HasAura(ROGUE_SPELL_CUT_TO_THE_CHASE_AURA))
                     {
-                        if (AuraPtr sliceAndDice = caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE, caster->GetGUID()))
+                        if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE, l_Caster->GetGUID()))
                         {
-                            sliceAndDice->SetDuration(36 * IN_MILLISECONDS);
-                            sliceAndDice->SetMaxDuration(36 * IN_MILLISECONDS);
+                            l_SliceAndDice->SetDuration(36 * IN_MILLISECONDS);
+                            l_SliceAndDice->SetMaxDuration(36 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -1809,6 +1855,7 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_envenom();
     new spell_rog_combo_point_delayed();
     new spell_rog_retenless_strikes_proc();
     new spell_rog_retenless_strikes();
