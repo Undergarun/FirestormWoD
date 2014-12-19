@@ -127,10 +127,20 @@ namespace MS
                         break;
                     case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                         m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
-                        p_Creature->RemoveAura(RandomSpells::SUBMERGED);
                         p_Creature->DisableEvadeMode();
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
-                        p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                        if (GetBossState(Data::Araknath) == EncounterState::NOT_STARTED || GetBossState(Data::Araknath) == EncounterState::TO_BE_DECIDED)
+                        {
+                            p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
+                            p_Creature->RemoveAura(RandomSpells::SUBMERGED);
+                        }
+                        else
+                        {
+                            p_Creature->AddAura(RandomSpells::SUBMERGED, p_Creature);
+                            p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                            p_Creature->getThreatManager().clearReferences();
+                            p_Creature->getThreatManager().resetAllAggro();
+                        }
                         break;
                     case MobEntries::SKYREACH_RAVEN_WHISPERER:
                         m_SkyreachRavenWhispererGuid = p_Creature->GetGUID();
@@ -155,6 +165,8 @@ namespace MS
                         break;
                     case MobEntries::PILE_OF_ASHES:
                         p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         m_PileOfAshesGuid.insert(p_Creature->GetGUID());
                         break;
                     case MobEntries::SOLAR_FLARE:
@@ -182,6 +194,10 @@ namespace MS
                         break;
                     case MobEntries::SunConstructEnergizer:
                         m_SolarConstructorEnergizerGuid = p_Creature->GetGUID();
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::InteriorFocus:
                         m_InteriorFocusGuid = p_Creature->GetGUID();
@@ -302,6 +318,18 @@ namespace MS
                         case EncounterState::DONE:
                             if (instance->IsHeroic())
                                 DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
+
+                            for (uint64 l_Guid : m_SolarConstructorsGuid)
+                            {
+                                if (Creature* l_Constructor = sObjectAccessor->FindCreature(l_Guid))
+                                {
+                                    l_Constructor->CombatStop();
+                                    l_Constructor->SetReactState(ReactStates::REACT_PASSIVE);
+                                    l_Constructor->getThreatManager().clearReferences();
+                                    l_Constructor->getThreatManager().resetAllAggro();
+                                }
+                            }
+
                             break;
                         }
                         break;
@@ -358,6 +386,7 @@ namespace MS
                     case Data::SkyreachArcanologistIsDead:
                         if (Creature* l_Araknath = sObjectAccessor->FindCreature(m_AraknathGuid))
                         {
+                            SetBossState(Data::Araknath, EncounterState::SPECIAL);
                             l_Araknath->RemoveAura(RandomSpells::SUBMERGED);
                             l_Araknath->SetReactState(REACT_AGGRESSIVE);
                         }

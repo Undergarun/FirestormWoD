@@ -275,7 +275,7 @@ namespace MS
 
             for (auto l_Target : l_TargetList)
             {
-                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
+                if (l_Target && p_AreaTrigger->GetCaster()->isInFront(l_Target) && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
                 {
                     if (p_AreaTrigger->GetCaster())
                         p_AreaTrigger->GetCaster()->CastSpell(l_Target, uint32(Spells::SMASH_DMG), true);
