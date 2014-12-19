@@ -1234,7 +1234,7 @@ public:
                 {
                     int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
 
-                    SetHitHeal((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) *  GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) / (std::max(1, 3 - l_Power + 1)));
+                    SetHitDamage((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) *  GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) / (std::max(1, 3 - l_Power + 1)));
 
                     if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
