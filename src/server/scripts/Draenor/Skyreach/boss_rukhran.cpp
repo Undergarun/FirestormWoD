@@ -288,12 +288,14 @@ namespace MS
 
                 void Reset()
                 {
-                    m_CombatStarted = false;
+                    events.Reset();
+
                     if (instance && instance->GetBossState(Data::Rukhran) != EncounterState::SPECIAL
                         && instance->GetBossState(Data::Rukhran) != EncounterState::FAIL)
                     {
                         _Reset();
 
+                        m_CombatStarted = false;
                         m_WaypointId = 0;
                         me->SetReactState(REACT_PASSIVE);
                         me->GetMotionMaster()->MovePoint(m_WaypointId, k_Waypoints[0]);
@@ -333,6 +335,7 @@ namespace MS
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->Attack(ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f, false), true);
                             m_CombatStarted = true;
+                            me->SetOrientation(5.4f);
                         }
                         else
                         {
