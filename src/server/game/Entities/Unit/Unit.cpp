@@ -16444,8 +16444,10 @@ void CharmInfo::InitPetActionBar()
     // last 3 SpellOrActions are reactions
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
     {
-        if (i != 1)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER - i, ACT_REACTION);
+        if (i == 0)
+            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
+        else
+            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
     }
 }
 
