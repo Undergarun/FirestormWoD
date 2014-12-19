@@ -1817,13 +1817,11 @@ public:
             if (Unit* l_Owner = GetOwner()->ToUnit())
                 if (Unit* l_Caster = GetCaster())
                 {
-                    SpellInfo const* l_SpellInfoPeriodicHeal = GetSpellInfo();
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME);
 
                     int32 l_Heal = 0;
                     
-                    if (l_SpellInfoPeriodicHeal != nullptr)
-                        l_Heal = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * l_SpellInfoPeriodicHeal->Effects[0].BonusMultiplier;
+                    l_Heal = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier;
 
                     if (l_Owner->GetGUID() == l_Caster->GetGUID() && l_SpellInfo != nullptr)
                         AddPct(l_Heal, l_SpellInfo->Effects[1].BasePoints);

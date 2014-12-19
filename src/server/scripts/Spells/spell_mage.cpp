@@ -96,7 +96,9 @@ enum MageSpells
     SPELL_MAGE_THERMAL_VOID                      = 155149,
     SPELL_MAGE_PYROBLAST_AURA                    = 159517,
     SPELL_MAGE_KINDKING                          = 155148,
-    SPELL_MAGE_COMBUSTION                        = 11129
+    SPELL_MAGE_COMBUSTION                        = 11129,
+    SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
+    SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846
 };
 
 
@@ -575,43 +577,6 @@ class spell_mage_frostbolt : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_frostbolt_SpellScript();
-        }
-};
-
-// Frost Bomb - 112948
-class spell_mage_frost_bomb : public SpellScriptLoader
-{
-    public:
-        spell_mage_frost_bomb() : SpellScriptLoader("spell_mage_frost_bomb") { }
-
-        class spell_mage_frost_bomb_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_frost_bomb_AuraScript);
-
-            void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                if (Unit* caster = GetCaster())
-                {
-                    caster->CastSpell(GetTarget(), SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
-
-                    if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_frost_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_frost_bomb_AuraScript();
         }
 };
 
@@ -1402,9 +1367,19 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
+            {
                 if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
                         l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA))
+                    {
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
+                    }
+
+            }
         }
 
         void Register()
@@ -1526,7 +1501,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_barrage();
     new spell_mage_arcane_explosion();
     new spell_mage_frostbolt();
-    new spell_mage_frost_bomb();
     new spell_mage_nether_tempest();
     new spell_mage_blazing_speed();
     new spell_mage_frostjaw();

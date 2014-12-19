@@ -785,23 +785,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             break;
         }
-        case SPELLFAMILY_MAGE:
-        {
-            switch (m_spellInfo->Id)
-            {
-                // Frost Bomb
-            case 113092:
-            {
-                if (effIndex == 0)
-                    damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 3.447f;
-                else if (effIndex == 1)
-                    damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 1.725f;
-                if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-                    damage *= 0.7f;
-            }
-            break;
-            }
-        }
         case SPELLFAMILY_MONK:
         {
             switch (m_spellInfo->Id)
