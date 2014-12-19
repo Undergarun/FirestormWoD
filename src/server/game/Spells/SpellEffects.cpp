@@ -690,27 +690,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 break;
             }
-            case 51723: // Fan of Knives
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
-
-                // Fan of Knives - Vile Poisons
-                if (AuraEffectPtr aur = m_caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, 857, 2))
-                {
-                    if (roll_chance_i(aur->GetAmount()))
-                    {
-                        for (uint8 i = WeaponAttackType::BaseAttack; i < WeaponAttackType::MaxAttack; ++i)
-                            m_caster->ToPlayer()->CastItemCombatSpell(unitTarget, WeaponAttackType(i), PROC_FLAG_TAKEN_DAMAGE, PROC_EX_NORMAL_HIT);
-                    }
-                }
-
-                // Glyph of Sharpened Knives
-                if (m_caster->HasAura(146628))
-                    m_caster->CastSpell(unitTarget, 113746, true);
-
-                break;
-            }
             case 121411:// Crimson Tempest
             {
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
