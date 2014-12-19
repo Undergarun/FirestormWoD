@@ -118,6 +118,8 @@ namespace MS
                         break;
                     case BossEntries::RUKHRAN:
                         m_RukhranGuid = p_Creature->GetGUID();
+                        if (GetBossState(Data::Rukhran) == EncounterState::SPECIAL)
+                            SetData(Data::SkyreachRavenWhispererIsDead, 0);
                         break;
                     case MobEntries::SKYREACH_ARCANALOGIST:
                         m_SkyreachArcanologistGuid = p_Creature->GetGUID();
@@ -341,8 +343,12 @@ namespace MS
                                 l_Gob->SetPhaseMask(1, true);
                             break;
                         case EncounterState::FAIL:
-                            if (Creature* l_SkyreachRavenWhisperer = sObjectAccessor->FindCreature(m_SkyreachRavenWhispererGuid))
-                                l_SkyreachRavenWhisperer->Respawn();
+                            if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
+                            {
+                                l_Rukhran->GetMotionMaster()->Clear(true);
+                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                            }
                             break;
                         }
                         break;
@@ -379,8 +385,15 @@ namespace MS
                     case Data::SkyreachRavenWhispererIsDead:
                         if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
                         {
-                            l_Rukhran->GetMotionMaster()->Clear(true);
-                            l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                            if (GetBossState(Data::Rukhran) == EncounterState::NOT_STARTED)
+                            {
+                                l_Rukhran->GetMotionMaster()->Clear(true);
+                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                                l_Rukhran->DisableEvadeMode();
+                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                            }
+                            else
+                                l_Rukhran->SetOrientation(5.4f);
                         }
                         break;
                     case Data::SkyreachArcanologistIsDead:
