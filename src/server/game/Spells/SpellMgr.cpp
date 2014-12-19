@@ -3473,6 +3473,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154901:// Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;
+            case 157347:// Fiery Charge
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[1].Effect = 0;   ///< Need to be scripted
+                break;
             case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;

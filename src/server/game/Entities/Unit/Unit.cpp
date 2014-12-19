@@ -18692,11 +18692,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             Map    * l_InstanceMap    = l_KilledCreature->GetMap();
             Player * l_CreditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
 
-            if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
-                l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_CreditedPlayer);
-
             /// @TODO: do instance binding anyway if the charmer/owner is offline
-
             if (l_InstanceMap->IsDungeon() && l_CreditedPlayer)
             {
                 if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())

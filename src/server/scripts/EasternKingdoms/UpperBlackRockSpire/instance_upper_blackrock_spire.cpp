@@ -64,6 +64,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 m_ThunderingCacophonyCasted = 0;
                 m_RunesDisabled             = 0;
                 m_CommanderTharbekGuid      = 0;
+                m_AwbeeGuid                 = 0;
                 m_RagewingGuid              = 0;
                 m_LeftTrackerGuid           = 0;
                 m_RightTrackerGuid          = 0;
@@ -83,6 +84,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             uint8  m_RunesDisabled;
 
             uint64 m_CommanderTharbekGuid;
+            uint64 m_AwbeeGuid;
             uint64 m_SpawnDoorGuid;
 
             uint64 m_RagewingGuid;
@@ -110,6 +112,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                     case NPC_COMMANDER_THARBEK:
                         m_CommanderTharbekGuid = p_Creature->GetGUID();
+                        break;
+                    case NPC_AWBEE:
+                        m_AwbeeGuid = p_Creature->GetGUID();
                         break;
                     case NPC_RAGEWING_THE_UNTAMED:
                         m_RagewingGuid = p_Creature->GetGUID();
@@ -267,6 +272,8 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         return m_OrebenderGorashanGuid;
                     case NPC_COMMANDER_THARBEK:
                         return m_CommanderTharbekGuid;
+                    case NPC_AWBEE:
+                        return m_AwbeeGuid;
                     case NPC_RAGEWING_THE_UNTAMED:
                         return m_RagewingGuid;
                     case NPC_ENGULFING_FIRE_R_TO_L:

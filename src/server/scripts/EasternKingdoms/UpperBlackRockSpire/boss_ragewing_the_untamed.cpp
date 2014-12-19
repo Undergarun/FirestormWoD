@@ -63,10 +63,6 @@ enum eEvents
     EventBurningRage
 };
 
-enum eSays
-{
-};
-
 enum eActions
 {
     ActionMoveToBridge
@@ -161,6 +157,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->SetCanFly(true);
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_MASK_MOVING_FLY);
 
                 me->RemoveAllAreasTrigger();
                 summons.DespawnAll();
@@ -230,6 +227,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                 {
                     me->SetCanFly(false);
                     me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
+                    me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_MASK_MOVING_FLY);
                     return;
                 }
 
@@ -658,9 +656,16 @@ class mob_ragewing_whelp : public CreatureScript
             }
 
             InstanceScript* m_Instance;
+            bool m_Ground;
 
             void Reset()
             {
+                m_Ground = false;
+
+                me->SetCanFly(true);
+                me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
+                me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_MASK_MOVING_FLY);
+
                 if (m_Instance != nullptr)
                 {
                     if (Creature* l_Ragewing = Creature::GetCreature(*me, m_Instance->GetData64(NPC_RAGEWING_THE_UNTAMED)))
@@ -668,6 +673,18 @@ class mob_ragewing_whelp : public CreatureScript
                         if (l_Ragewing->getVictim() != nullptr)
                             AttackStart(l_Ragewing->getVictim());
                     }
+                }
+            }
+
+            void DamageDealt(Unit* /*p_Attacker*/, uint32& /*p_Damage*/, DamageEffectType /*p_DamageType*/)
+            {
+                if (!m_Ground)
+                {
+                    m_Ground = true;
+
+                    me->SetCanFly(false);
+                    me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
+                    me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_MASK_MOVING_FLY);
                 }
             }
         };

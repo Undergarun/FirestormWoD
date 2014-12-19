@@ -714,7 +714,7 @@ class spell_electric_pulse : public SpellScriptLoader
 
                     Position l_Pos;
                     l_Caster->GetPosition(&l_Pos);
-                    if (!p_Object->GetExactDist(&l_Pos) <= 14.0f)
+                    if (p_Object->GetExactDist(&l_Pos) > 14.0f)
                         return true;
 
                     return false;

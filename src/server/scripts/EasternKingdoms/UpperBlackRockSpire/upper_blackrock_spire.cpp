@@ -255,6 +255,8 @@ class mob_black_iron_leadbelcher : public CreatureScript
                 m_Events.Reset();
 
                 m_Canon = false;
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -1568,7 +1570,7 @@ class mob_son_of_the_beast : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case Events::EventFieryCharge:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST))
                             me->CastSpell(l_Target, Spells::FieryCharge, true);
                         m_Events.ScheduleEvent(Events::EventFieryCharge, 8000);
                         m_Events.ScheduleEvent(Events::EventStopCharge, 600);
