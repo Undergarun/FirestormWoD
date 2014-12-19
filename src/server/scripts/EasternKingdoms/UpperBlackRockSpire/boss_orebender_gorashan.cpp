@@ -752,7 +752,7 @@ class go_runic_conduit : public GameObjectScript
                 {
                     m_Activated = true;
                     p_Player->CastSpell(go, SPELL_DISRUPTING_CONDUCTOR, false);
-                    m_ResetTime = 1500;
+                    m_ResetTime = 1000;
                 }
 
                 return false;

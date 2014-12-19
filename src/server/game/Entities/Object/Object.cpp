@@ -1854,6 +1854,18 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
         if (GetEntry() == 36980 || GetEntry() == 38320 || GetEntry() == 38321 || GetEntry() == 38322)
             return true;
 
+    if (obj->ToCreature() && obj->ToCreature()->IsAIEnabled)
+    {
+        if (obj->ToCreature()->AI()->CanBeTargetedOutOfLOS())
+            return true;
+    }
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+    {
+        if (ToCreature()->AI()->CanTargetOutOfLOS())
+            return true;
+    }
+
     return IsWithinLOS(ox, oy, oz);
 }
 

@@ -26,3 +26,5 @@ INSERT INTO creature_text VALUES
 DELETE FROM locales_creature_text WHERE entry = 86533;
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc6) VALUES
 (86533, 0, 0, 'Vous m''avez sauvé la vie, il est temps que je vous rende la pareille !', 'Me salvaste la vida una vez, es hora de que me volvió el favor!');
+
+UPDATE creature_template SET minlevel = 101, maxlevel = 101, EXP = 5 WHERE entry IN (84462, 84475);

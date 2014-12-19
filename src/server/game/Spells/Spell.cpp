@@ -6211,10 +6211,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
             if (!IsTriggered())
             {
-                // Hackfix for Raigonn
-                if (m_caster->GetEntry() != WORLD_TRIGGER && target->GetEntry() != 56895) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+                // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+                if (m_caster->GetEntry() != WORLD_TRIGGER)
+                {
                     if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_caster->IsWithinLOSInMap(target))
                         return SPELL_FAILED_LINE_OF_SIGHT;
+                }
 
                 if (m_caster->IsVisionObscured(target, m_spellInfo))
                     return SPELL_FAILED_VISION_OBSCURED; // smoke bomb, camouflage...
