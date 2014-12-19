@@ -1110,14 +1110,30 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = int32(GetHitDamage() * 2.4f / 6); // 30% / number_of_ticks
-                        caster->CastCustomSpell(target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &damage, NULL, NULL, true);
+                        if (l_Player->GetGUID() == l_Target->GetGUID())
+                            return;
+
+                        uint8 l_ComboPoint = l_Player->GetComboPoints();
+                        int32 l_Damage = 0;
+
+                        if (l_ComboPoint)
+                        {
+                            float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_CRIMSON_TEMPEST_DOT);
+                            int32 l_DamageDot = 0;
+
+                            l_Damage += int32(3 + ((l_Ap * 0.0602f) * l_ComboPoint * 1.5f));
+
+                            if (l_SpellInfo != nullptr)
+                                l_DamageDot += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_0].BasePoints) / 6;
+
+                            l_Player->CastCustomSpell(l_Target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &l_DamageDot, NULL, NULL, true);
+                        }
+                        SetHitDamage(l_Damage);
                     }
-                }
             }
 
             void Register()

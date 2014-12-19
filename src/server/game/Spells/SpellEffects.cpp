@@ -690,24 +690,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 break;
             }
-            case 121411:// Crimson Tempest
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                    {
-                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
-                            || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
-                            damage += int32(ap * combo * 0.028f);
-                        else if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_SUBTLETY)
-                            damage += int32(ap * combo * 0.034f);
-                    }
-                }
-
-                break;
-            }
             }
 
             break;
