@@ -91,6 +91,7 @@ class instance_Garrison_A1 : public InstanceMapScript
 
             }
 
+            /// Called when a player successfully enters the instance.
             void OnPlayerEnter(Player* p_Player) override
             {
                 if (!p_Player->IsInWorld())
