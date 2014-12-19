@@ -540,7 +540,7 @@ class mob_lightning_field : public CreatureScript
 
                 me->CastSpell(me, SPELL_ELECTRIC_PULSE_AURA, true);
 
-                me->SetSpeed(MOVE_FLIGHT, 0.7f);
+                me->SetSpeed(MOVE_FLIGHT, 1.0f);
 
                 m_PositionID = DATA_POS_NE;
                 m_Events.ScheduleEvent(EVENT_MOVE_LIGHTNING, 1000);
@@ -741,9 +741,10 @@ class go_runic_conduit : public GameObjectScript
 
         struct go_runic_conduitAI : public GameObjectAI
         {
-            go_runic_conduitAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Activated(false) { }
+            go_runic_conduitAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Activated(false), m_ResetTime(0) { }
 
             bool m_Activated;
+            uint32 m_ResetTime;
 
             bool GossipHello(Player* p_Player)
             {
@@ -751,6 +752,7 @@ class go_runic_conduit : public GameObjectScript
                 {
                     m_Activated = true;
                     p_Player->CastSpell(go, SPELL_DISRUPTING_CONDUCTOR, false);
+                    m_ResetTime = 1000;
                 }
 
                 return false;
@@ -760,6 +762,20 @@ class go_runic_conduit : public GameObjectScript
             {
                 if (p_State == GO_STATE_READY)
                     m_Activated = false;
+            }
+
+            void UpdateAI(uint32 p_Diff)
+            {
+                if (m_ResetTime)
+                {
+                    if (m_ResetTime <= p_Diff)
+                    {
+                        m_ResetTime = 0;
+                        m_Activated = false;
+                    }
+                    else
+                        m_ResetTime -= p_Diff;
+                }
             }
         };
 

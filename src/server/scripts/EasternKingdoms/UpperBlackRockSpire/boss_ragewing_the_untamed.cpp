@@ -454,6 +454,16 @@ class boss_ragewing_the_untamed : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->GetMotionMaster()->MovePoint(eBossDatas::MaxWaypoints + 1, g_MoveToBridgePos[eBossDatas::MaxWaypoints - 1]);
             }
+
+            bool CanBeTargetedOutOfLOS()
+            {
+                return true;
+            }
+
+            bool CanTargetOutOfLOS()
+            {
+                return true;
+            }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const

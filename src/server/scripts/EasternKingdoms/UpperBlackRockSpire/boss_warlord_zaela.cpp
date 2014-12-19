@@ -183,7 +183,11 @@ class boss_warlord_zaela : public CreatureScript
 
                 summons.DespawnAll();
 
-                me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
+                if (m_TharbekIntroDone)
+                {
+                    m_JumpPos = g_SpawnPos;
+                    me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
+                }
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
