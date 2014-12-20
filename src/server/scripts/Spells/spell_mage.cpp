@@ -94,7 +94,7 @@ enum MageSpells
     SPELL_MAGE_OVERPOWERED                       = 155147,
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_THERMAL_VOID                      = 155149,
-    SPELL_MAGE_PYROBLAST_AURA                    = 159517,
+    SPELL_MAGE_HEATING_UP                        = 48108,
     SPELL_MAGE_KINDKING                          = 155148,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
@@ -1405,16 +1405,17 @@ public:
     {
         PrepareSpellScript(spell_mage_pyroblast_SpellScript);
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_PYROBLAST_AURA))
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+                if (l_Caster->HasAura(SPELL_MAGE_HEATING_UP))
+                    if (sSpellMgr->GetSpellInfo(SPELL_MAGE_HEATING_UP))
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_HEATING_UP)->Effects[EFFECT_2].BasePoints));
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_mage_pyroblast_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_pyroblast_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
