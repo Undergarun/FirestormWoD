@@ -3,6 +3,7 @@
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
+#include "UnitAI.h"
 
 uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
 {
@@ -2586,7 +2587,7 @@ void Garrison::UninitPlots()
 
     m_PlotsGob.clear();
 
-    for (std::map<uint32, std::vector<uint64>>::iterator l_It = m_PlotsBuildingCosmeticGobs.begin(); l_It != m_PlotsBuildingCosmeticGobs.end(); ++l_It)
+    for (std::map<uint32, std::vector<uint64>>::iterator l_It = m_PlotsGameObjects.begin(); l_It != m_PlotsGameObjects.end(); ++l_It)
     {
         for (uint32 l_Y = 0; l_Y < l_It->second.size(); ++l_Y)
         {
@@ -2601,7 +2602,24 @@ void Garrison::UninitPlots()
         }
     }
 
-    m_PlotsBuildingCosmeticGobs.clear();
+    m_PlotsGameObjects.clear();
+
+    for (std::map<uint32, std::vector<uint64>>::iterator l_It = m_PlotsCreatures.begin(); l_It != m_PlotsCreatures.end(); ++l_It)
+    {
+        for (uint32 l_Y = 0; l_Y < l_It->second.size(); ++l_Y)
+        {
+            Creature * l_Crea = HashMapHolder<Creature>::Find(l_It->second[l_Y]);
+
+            if (l_Crea)
+            {
+                l_Crea->DestroyForNearbyPlayers();
+                l_Crea->CleanupsBeforeDelete();
+                delete l_Crea;
+            }
+        }
+    }
+
+    m_PlotsCreatures.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2613,7 +2631,8 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
     if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
         return;
 
-    GarrisonPlotInstanceInfoLocation l_PlotInfo = GetPlot(p_PlotInstanceID);
+    GarrisonPlotInstanceInfoLocation    l_PlotInfo = GetPlot(p_PlotInstanceID);
+    GarrisonBuilding                    l_Building = GetBuilding(p_PlotInstanceID);
     
     if (m_PlotsGob[p_PlotInstanceID] != 0)
     {
@@ -2639,8 +2658,6 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
     }
     else
     {
-        GarrisonBuilding l_Building = GetBuilding(p_PlotInstanceID);
-
         if (!l_Building.Active)
         {
             l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
@@ -2669,52 +2686,25 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
         {
             m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
 
-            if (l_IsPlotBuilding)
+            if (m_PlotsGameObjects[p_PlotInstanceID].size() != 0 || m_PlotsCreatures[p_PlotInstanceID].size() != 0)
             {
-                G3D::Vector3 l_NonRotatedPosition;
-
+                for (uint32 l_I = 0; l_I < m_PlotsCreatures[p_PlotInstanceID].size(); ++l_I)
                 {
-                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_PlotInfo.O);
+                    Creature * l_Crea = HashMapHolder<Creature>::Find(m_PlotsCreatures[p_PlotInstanceID][l_I]);
 
-                    /// transform plot coord
-                    l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
-                }
-
-                std::vector<GarrisonPlotBuildingContent> l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
-
-                for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
-                {
-                    G3D::Vector3 l_Position = G3D::Vector3(l_Contents[l_I].X, l_Contents[l_I].Y, 0);
-
-                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
-
-                    l_Position.x += l_NonRotatedPosition.x;
-                    l_Position.y += l_NonRotatedPosition.y;
-
-                    l_Position = l_Mat * l_Position;
-
-                    l_Position.z = l_Contents[l_I].Z + l_PlotInfo.Z;
-
-                    if (l_Contents[l_I].CreatureOrGob > 0)
+                    if (l_Crea)
                     {
-                        auto ee = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, TEMPSUMMON_MANUAL_DESPAWN);
-                        ee->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK1);
-                    }
-                    else
-                    {
-                        GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
-
-                        m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+                        l_Crea->DestroyForNearbyPlayers();
+                        l_Crea->CleanupsBeforeDelete();
+                        delete l_Crea;
                     }
                 }
-            }
-            else if (m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].size() != 0)
-            {
-                for (uint32 l_I = 0; l_I < m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].size(); ++l_I)
+
+                m_PlotsCreatures[p_PlotInstanceID].clear();
+
+                for (uint32 l_I = 0; l_I < m_PlotsGameObjects[p_PlotInstanceID].size(); ++l_I)
                 {
-                    GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsBuildingCosmeticGobs[p_PlotInstanceID][l_I]);
+                    GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsGameObjects[p_PlotInstanceID][l_I]);
 
                     if (l_Gob)
                     {
@@ -2724,7 +2714,68 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     }
                 }
 
-                m_PlotsBuildingCosmeticGobs[p_PlotInstanceID].clear();
+                m_PlotsGameObjects[p_PlotInstanceID].clear();
+            }
+
+            G3D::Vector3 l_NonRotatedPosition;
+            {
+                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_PlotInfo.O);
+
+                /// transform plot coord
+                l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
+            }
+
+            std::vector<GarrisonPlotBuildingContent> l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
+
+            for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
+            {
+                if (l_IsPlotBuilding && l_Contents[l_I].PlotTypeOrBuilding < 0)
+                    continue;
+                else if (!l_IsPlotBuilding && l_Building.Active && -l_Contents[l_I].PlotTypeOrBuilding == l_Building.BuildingID)
+                    continue;
+                else if (!l_IsPlotBuilding && !l_Building.BuildingID)
+                    continue;
+
+                G3D::Vector3 l_Position = G3D::Vector3(l_Contents[l_I].X, l_Contents[l_I].Y, 0);
+
+                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
+
+                l_Position.x += l_NonRotatedPosition.x;
+                l_Position.y += l_NonRotatedPosition.y;
+
+                l_Position = l_Mat * l_Position;
+
+                l_Position.z = l_Contents[l_I].Z + l_PlotInfo.Z;
+
+                if (l_Contents[l_I].CreatureOrGob > 0)
+                {
+                    Creature * l_Creature = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, TEMPSUMMON_MANUAL_DESPAWN);
+
+                    m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
+
+                    if (l_Creature->GetAI())
+                        l_Creature->GetAI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                }
+                else
+                {
+                    GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
+
+                    m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+                }
+            }
+
+            if (m_PlotsActivateGob[p_PlotInstanceID] != 0)
+            {
+                GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsActivateGob[p_PlotInstanceID]);
+
+                if (l_Gob)
+                {
+                    l_Gob->DestroyForNearbyPlayers();
+                    l_Gob->CleanupsBeforeDelete();
+                    delete l_Gob;
+                }
             }
 
             if (l_SpanwActivateGob)
@@ -2763,16 +2814,6 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 
                 if (l_ActivationGob)
                     m_PlotsActivateGob[p_PlotInstanceID] = l_ActivationGob->GetGUID();
-            }
-            else if (m_PlotsActivateGob[p_PlotInstanceID] != 0)
-            {
-                GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsActivateGob[p_PlotInstanceID]);
-
-                if (l_Gob)
-                {
-                    l_Gob->CleanupsBeforeDelete();
-                    delete l_Gob;
-                }
             }
         }
     }
