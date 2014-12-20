@@ -1435,16 +1435,17 @@ public:
     {
         PrepareSpellScript(spell_mage_frostfire_bolt_SpellScript);
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
                 if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
+                    if (sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE))
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_mage_frostfire_bolt_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
