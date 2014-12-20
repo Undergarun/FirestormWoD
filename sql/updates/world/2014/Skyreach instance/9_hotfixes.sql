@@ -16,3 +16,6 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 
 UPDATE creature_template SET unit_flags=0 WHERE entry=76292;
 UPDATE creature_template SET unit_flags=unit_flags|512 WHERE entry=82376;
+
+DELETE FROM gameobject WHERE id=234164 AND map=1209;
+UPDATE gameobject_template SET faction=94 WHERE entry=234164;

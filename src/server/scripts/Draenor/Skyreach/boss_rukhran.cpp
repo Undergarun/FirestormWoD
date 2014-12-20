@@ -363,7 +363,7 @@ namespace MS
                     _JustReachedHome();
                 }
 
-                void JustDied(Unit* /*killer*/)
+                void JustDied(Unit* p_Killer)
                 {
                     _JustDied();
 
@@ -380,6 +380,8 @@ namespace MS
                         if (l_SolarFlare->ToCreature())
                             l_SolarFlare->ToCreature()->DespawnOrUnsummon();
                     }
+
+                    p_Killer->SummonGameObject(GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES, 925.22f, 1904.54f, 213.86f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

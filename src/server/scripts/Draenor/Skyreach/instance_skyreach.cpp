@@ -258,10 +258,6 @@ namespace MS
                         case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
                             AddDoor(p_Gameobject, true);
                             break;
-                        case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
-                            p_Gameobject->SetPhaseMask(0, true);
-                            m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
-                            break;
                         case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
                             m_ChallengeDoorGuid = p_Gameobject->GetGUID();
                             break;
@@ -338,10 +334,6 @@ namespace MS
                     case Data::Rukhran:
                         switch (p_State)
                         {
-                        case EncounterState::DONE:
-                            if (GameObject* l_Gob = sObjectAccessor->FindGameObject(m_CacheOfArakoanTreasuresGuid))
-                                l_Gob->SetPhaseMask(1, true);
-                            break;
                         case EncounterState::FAIL:
                             if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
                             {
