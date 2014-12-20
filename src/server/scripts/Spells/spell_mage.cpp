@@ -1408,8 +1408,7 @@ public:
         void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_HEATING_UP))
-                    if (sSpellMgr->GetSpellInfo(SPELL_MAGE_HEATING_UP))
+                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_HEATING_UP))
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_HEATING_UP)->Effects[EFFECT_2].BasePoints));
         }
 
@@ -1438,14 +1437,13 @@ public:
         void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
-                    if (sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE))
+                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_BRAIN_FREEZE))
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
