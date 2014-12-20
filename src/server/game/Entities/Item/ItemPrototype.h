@@ -888,7 +888,7 @@ struct ItemTemplate
     bool IsWeapon() const { return Class == ITEM_CLASS_WEAPON; }
 
     float GetScalingDamageValue(uint32 ilvl) const;
-    uint32 GetRandomPointsOffset() const;
+    int32 GetRandomPointsOffset() const;
     float GetSocketCost(uint32 ilvl) const;
     uint32 CalculateStatScaling(uint32 index, uint32 ilvl) const;
     uint32 CalculateStatScaling(uint32 scalingValue, float socketCost, uint32 ilvl) const;

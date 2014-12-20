@@ -22,6 +22,8 @@
 #include "Define.h"
 #include <cassert>
 
+#define UNUSED(x) (void)(x)
+
 #define MAX_CREATURE_BASE_HP 6
 
 enum SpellEffIndex

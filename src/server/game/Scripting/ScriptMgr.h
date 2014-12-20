@@ -111,7 +111,7 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
             // body. If, on the other hand, it's logical only to override it (i.e.
             // if it's the only method in the class), make it pure virtual, by adding
             // = 0 to it.
-            virtual void OnSomeEvent(uint32 someArg1, std::string& someArg2) { }
+            virtual void OnSomeEvent(uint32 someArg1, std::string& someArg2) { UNUSED(p_Player); }
 
             // This is a pure virtual function:
             virtual void OnAnotherEvent(uint32 someArg) = 0;
@@ -180,14 +180,17 @@ class ScriptObject
 template<class TObject> class UpdatableScript
 {
     protected:
-
         UpdatableScript()
         {
         }
 
     public:
+        virtual void OnUpdate(TObject* p_Object, uint32 p_Diff) 
+        { 
+            UNUSED(p_Object);
+            UNUSED(p_Diff);
+        }
 
-        virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
 };
 
 class SpellScriptLoader : public ScriptObject
@@ -238,7 +241,7 @@ class ServerScript : public ScriptObject
 
         // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
         // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) { }
+        virtual void OnUnknownPacketReceive(WorldSocket* /*socket*/, WorldPacket& /*packet*/) {  }
 };
 
 class WorldScript : public ScriptObject
@@ -250,28 +253,28 @@ class WorldScript : public ScriptObject
     public:
 
         // Called when the open/closed state of the world changes.
-        virtual void OnOpenStateChange(bool /*open*/) { }
+        virtual void OnOpenStateChange(bool /*open*/) {  }
 
         // Called after the world configuration is (re)loaded.
-        virtual void OnConfigLoad(bool /*reload*/) { }
+        virtual void OnConfigLoad(bool /*reload*/) {  }
 
         // Called before the message of the day is changed.
-        virtual void OnMotdChange(std::string& /*newMotd*/) { }
+        virtual void OnMotdChange(std::string& /*newMotd*/) {  }
 
         // Called when a world shutdown is initiated.
-        virtual void OnShutdownInitiate(ShutdownExitCode /*code*/, ShutdownMask /*mask*/) { }
+        virtual void OnShutdownInitiate(ShutdownExitCode /*code*/, ShutdownMask /*mask*/) {  }
 
         // Called when a world shutdown is cancelled.
-        virtual void OnShutdownCancel() { }
+        virtual void OnShutdownCancel() {  }
 
         // Called on every world tick (don't execute too heavy code here).
-        virtual void OnUpdate(uint32 /*diff*/) { }
+        virtual void OnUpdate(uint32 /*diff*/) {  }
 
         // Called when the world is started.
-        virtual void OnStartup() { }
+        virtual void OnStartup() {  }
 
         // Called when the world is actually shut down.
-        virtual void OnShutdown() { }
+        virtual void OnShutdown() {  }
 };
 
 class FormulaScript : public ScriptObject
@@ -289,7 +292,7 @@ class FormulaScript : public ScriptObject
         virtual void OnGrayLevelCalculation(uint8& /*grayLevel*/, uint8 /*playerLevel*/) { }
 
         // Called after calculating experience color.
-        virtual void OnColorCodeCalculation(XPColorChar& /*color*/, uint8 /*playerLevel*/, uint8 /*mobLevel*/) { }
+        virtual void OnColorCodeCalculation(XPColorChar& /*color*/, uint8 /*playerLevel*/, uint8 /*mobLevel*/) {  }
 
         // Called after calculating zero difference.
         virtual void OnZeroDifferenceCalculation(uint8& /*diff*/, uint8 /*playerLevel*/) { }
@@ -298,7 +301,7 @@ class FormulaScript : public ScriptObject
         virtual void OnBaseGainCalculation(uint32& /*gain*/, uint8 /*playerLevel*/, uint8 /*mobLevel*/, ContentLevels /*content*/) { }
 
         // Called after calculating experience gain.
-        virtual void OnGainCalculation(uint32& /*gain*/, Player* /*player*/, Unit* /*unit*/) { }
+        virtual void OnGainCalculation(uint32& /*gain*/, Player* p_Player, Unit* /*unit*/) { UNUSED(p_Player); }
 
         // Called when calculating the experience rate for group experience.
         virtual void OnGroupRateCalculation(float& /*rate*/, uint32 /*count*/, bool /*isRaid*/) { }
@@ -309,7 +312,6 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
     MapEntry const* _mapEntry;
 
     protected:
-
         MapScript(uint32 mapId)
             : _mapEntry(sMapStore.LookupEntry(mapId))
         {
@@ -323,25 +325,25 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
         MapEntry const* GetEntry() { return _mapEntry; }
 
         // Called when the map is created.
-        virtual void OnCreate(TMap* /*map*/) { }
+        virtual void OnCreate(TMap* p_Map) { UNUSED(p_Map); }
 
         // Called just before the map is destroyed.
-        virtual void OnDestroy(TMap* /*map*/) { }
+        virtual void OnDestroy(TMap* p_Map) { UNUSED(p_Map); }
 
         // Called when a grid map is loaded.
-        virtual void OnLoadGridMap(TMap* /*map*/, GridMap* /*gmap*/, uint32 /*gx*/, uint32 /*gy*/) { }
+        virtual void OnLoadGridMap(TMap* p_Map, GridMap* /*gmap*/, uint32 /*gx*/, uint32 /*gy*/) { UNUSED(p_Map); }
 
         // Called when a grid map is unloaded.
-        virtual void OnUnloadGridMap(TMap* /*map*/, GridMap* /*gmap*/, uint32 /*gx*/, uint32 /*gy*/)  { }
+        virtual void OnUnloadGridMap(TMap* p_Map, GridMap* /*gmap*/, uint32 /*gx*/, uint32 /*gy*/)  { UNUSED(p_Map); }
 
         // Called when a player enters the map.
-        virtual void OnPlayerEnter(TMap* /*map*/, Player* /*player*/) { }
+        virtual void OnPlayerEnter(TMap* p_Map, Player* p_Player) { UNUSED(p_Map); }
 
         // Called when a player leaves the map.
-        virtual void OnPlayerLeave(TMap* /*map*/, Player* /*player*/) { }
+        virtual void OnPlayerLeave(TMap* p_Map, Player* p_Player) { UNUSED(p_Map); }
 
         // Called on every map update tick.
-        virtual void OnUpdate(TMap* /*map*/, uint32 /*diff*/) { }
+        virtual void OnUpdate(TMap* p_Map, uint32 /*diff*/) { UNUSED(p_Map); }
 };
 
 class WorldMapScript : public ScriptObject, public MapScript<Map>
@@ -386,13 +388,13 @@ class ItemScript : public ScriptObject
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Item* /*target*/) { return false; }
 
         // Called when a player accepts a quest from the item.
-        virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return false; }
+        virtual bool OnQuestAccept(Player* p_Player, Item* /*item*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player uses the item.
-        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
+        virtual bool OnUse(Player* p_Player, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
 
         // Called when the item expires (is destroyed).
-        virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
+        virtual bool OnExpire(Player* p_Player, ItemTemplate const* /*proto*/) { return false; }
 };
 
 class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
@@ -409,28 +411,28 @@ class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Creature* /*target*/) { return false; }
 
         // Called when a player opens a gossip dialog with the creature.
-        virtual bool OnGossipHello(Player* /*player*/, Creature* /*creature*/) { return false; }
+        virtual bool OnGossipHello(Player* p_Player, Creature* /*creature*/) { return false; }
 
         // Called when a player selects a gossip item in the creature's gossip menu.
-        virtual bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+        virtual bool OnGossipSelect(Player* p_Player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
 
         // Called when a player selects a gossip with a code in the creature's gossip menu.
-        virtual bool OnGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+        virtual bool OnGossipSelectCode(Player* p_Player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
 
         // Called when a player accepts a quest from the creature.
-        virtual bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+        virtual bool OnQuestAccept(Player* p_Player, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player selects a quest in the creature's quest menu.
-        virtual bool OnQuestSelect(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+        virtual bool OnQuestSelect(Player* p_Player, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player completes a quest with the creature.
-        virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+        virtual bool OnQuestComplete(Player* p_Player, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player selects a quest reward.
-        virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+        virtual bool OnQuestReward(Player* p_Player, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return 100; }
+        virtual uint32 GetDialogStatus(Player* p_Player, Creature* /*creature*/) { return 100; }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
@@ -450,34 +452,43 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, GameObject* /*target*/) { return false; }
 
         // Called when a player opens a gossip dialog with the gameobject.
-        virtual bool OnGossipHello(Player* /*player*/, GameObject* /*go*/) { return false; }
+        virtual bool OnGossipHello(Player* p_Player, GameObject* /*go*/) { return false; }
 
         // Called when a player selects a gossip item in the gameobject's gossip menu.
-        virtual bool OnGossipSelect(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+        virtual bool OnGossipSelect(Player* p_Player, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
 
         // Called when a player selects a gossip with a code in the gameobject's gossip menu.
-        virtual bool OnGossipSelectCode(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+        virtual bool OnGossipSelectCode(Player* p_Player, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
 
         // Called when a player accepts a quest from the gameobject.
-        virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
+        virtual bool OnQuestAccept(Player* p_Player, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player selects a quest reward.
-        virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+        virtual bool OnQuestReward(Player* p_Player, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return 100; }
+        virtual uint32 GetDialogStatus(Player* p_Player, GameObject* /*go*/) { return 100; }
 
         // Called when the game object is destroyed (destructible buildings only).
-        virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }
-
+        virtual void OnDestroyed(GameObject* p_GameObject, Player* p_Player)
+        {
+            UNUSED(p_GameObject);
+        }
         // Called when the game object is damaged (destructible buildings only).
-        virtual void OnDamaged(GameObject* /*go*/, Player* /*player*/) { }
-
+        virtual void OnDamaged(GameObject* p_GameObject, Player* p_Player)
+        {
+            UNUSED(p_GameObject);
+        }
         // Called when the game object loot state is changed.
-        virtual void OnLootStateChanged(GameObject* /*go*/, uint32 /*state*/, Unit* /*unit*/) { }
-
+        virtual void OnLootStateChanged(GameObject* p_GameObject, uint32 /*state*/, Unit* /*unit*/)
+        { 
+            UNUSED(p_GameObject);
+        }
         // Called when the game object state is changed.
-        virtual void OnGameObjectStateChanged(GameObject const* /*go*/, uint32 /*state*/) { }
+        virtual void OnGameObjectStateChanged(const GameObject * p_GameObject, uint32 /*state*/)
+        {
+            UNUSED(p_GameObject);
+        }
 
         // Called when server want to send elevator update, by default all gameobject type transport are elevator
         virtual bool OnGameObjectElevatorCheck(GameObject const* /*go*/) const { return true; }
@@ -489,18 +500,25 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 class AreaTriggerScript : public ScriptObject
 {
     protected:
-
         AreaTriggerScript(const char* name);
 
     public:
-
         bool IsDatabaseBound() const { return true; }
 
         // Called when the area trigger is activated by a player.
-        virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
+        virtual bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) 
+        {
+            UNUSED(player);
+            UNUSED(trigger);
+
+            return false;
+        }
 
         // Called on each update of AreaTriggers.
-        virtual void OnUpdate(AreaTrigger* p_AreaTrigger) {}
+        virtual void OnUpdate(AreaTrigger* p_AreaTrigger)
+        {
+            UNUSED(p_AreaTrigger);
+        }
 };
 
 class BattlegroundScript : public ScriptObject
@@ -554,7 +572,10 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
         bool IsDatabaseBound() const { return true; }
 
         // Called when the weather changes in the zone this script is associated with.
-        virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
+        virtual void OnChange(Weather* p_Weather, WeatherState /*state*/, float /*grade*/) 
+        {
+            UNUSED(p_Weather);
+        }
 };
 
 class AuctionHouseScript : public ScriptObject
@@ -566,16 +587,26 @@ class AuctionHouseScript : public ScriptObject
     public:
 
         // Called when an auction is added to an auction house.
-        virtual void OnAuctionAdd(AuctionHouseObject* /*ah*/, AuctionEntry* /*entry*/) { }
+        virtual void OnAuctionAdd(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* /*entry*/)
+        {
+            UNUSED(p_AuctionHouseObject);
+        }
 
         // Called when an auction is removed from an auction house.
-        virtual void OnAuctionRemove(AuctionHouseObject* /*ah*/, AuctionEntry* /*entry*/) { }
-
+        virtual void OnAuctionRemove(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* /*entry*/)
+        {
+            UNUSED(p_AuctionHouseObject);
+        }
         // Called when an auction was succesfully completed.
-        virtual void OnAuctionSuccessful(AuctionHouseObject* /*ah*/, AuctionEntry* /*entry*/) { }
-
+        virtual void OnAuctionSuccessful(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* /*entry*/)
+        {
+            UNUSED(p_AuctionHouseObject);
+        }
         // Called when an auction expires.
-        virtual void OnAuctionExpire(AuctionHouseObject* /*ah*/, AuctionEntry* /*entry*/) { }
+        virtual void OnAuctionExpire(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* /*entry*/)
+        {
+            UNUSED(p_AuctionHouseObject);
+        }
 };
 
 class ConditionScript : public ScriptObject
@@ -603,22 +634,35 @@ class VehicleScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Called after a vehicle is installed.
-        virtual void OnInstall(Vehicle* /*veh*/) { }
-
+        virtual void OnInstall(Vehicle* p_Vehicle)
+        { 
+            UNUSED(p_Vehicle); 
+        }
         // Called after a vehicle is uninstalled.
-        virtual void OnUninstall(Vehicle* /*veh*/) { }
-
+        virtual void OnUninstall(Vehicle* p_Vehicle)
+        {
+            UNUSED(p_Vehicle);
+        }
         // Called when a vehicle resets.
-        virtual void OnReset(Vehicle* /*veh*/) { }
-
+        virtual void OnReset(Vehicle* p_Vehicle)
+        {
+            UNUSED(p_Vehicle);
+        }
         // Called after an accessory is installed in a vehicle.
-        virtual void OnInstallAccessory(Vehicle* /*veh*/, Creature* /*accessory*/) { }
-
+        virtual void OnInstallAccessory(Vehicle* p_Vehicle, Creature* /*accessory*/)
+        {
+            UNUSED(p_Vehicle);
+        }
         // Called after a passenger is added to a vehicle.
-        virtual void OnAddPassenger(Vehicle* /*veh*/, Unit* /*passenger*/, int8 /*seatId*/) { }
-
+        virtual void OnAddPassenger(Vehicle* p_Vehicle, Unit* /*passenger*/, int8 /*seatId*/)
+        {
+            UNUSED(p_Vehicle);
+        }
         // Called after a passenger is removed from a vehicle.
-        virtual void OnRemovePassenger(Vehicle* /*veh*/, Unit* /*passenger*/) { }
+        virtual void OnRemovePassenger(Vehicle* p_Vehicle, Unit* /*passenger*/)
+        {
+            UNUSED(p_Vehicle);
+        }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
@@ -634,24 +678,45 @@ class DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicO
 class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
     protected:
-
         TransportScript(const char* name);
 
     public:
+        bool IsDatabaseBound() const 
+        { 
+            return true; 
+        }
 
-        bool IsDatabaseBound() const { return true; }
+        /// Called when a player boards the transport.
+        virtual void OnAddPassenger(Transport* p_Transport, Player* p_Player)
+        { 
+            UNUSED(p_Transport);
+            UNUSED(p_Player);
+        }
 
-        // Called when a player boards the transport.
-        virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
-
-        // Called when a creature boards the transport.
-        virtual void OnAddCreaturePassenger(Transport* /*transport*/, Creature* /*creature*/) { }
+        /// Called when a creature boards the transport.
+        virtual void OnAddCreaturePassenger(Transport* p_Transport, Creature* p_Creature)
+        {
+            UNUSED(p_Transport);
+            UNUSED(p_Creature);
+        }
 
         // Called when a player exits the transport.
-        virtual void OnRemovePassenger(Transport* /*transport*/, Player* /*player*/) { }
+        virtual void OnRemovePassenger(Transport* p_Transport, Player* p_Player)
+        {
+            UNUSED(p_Transport);
+            UNUSED(p_Player);
+        }
 
         // Called when a transport moves.
-        virtual void OnRelocate(Transport* /*transport*/, uint32 /*waypointId*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/) { }
+        virtual void OnRelocate(Transport* p_Transport, uint32 p_WaypointID, uint32 p_MapID, float p_X, float p_Y, float p_Z)
+        {
+            UNUSED(p_Transport);
+            UNUSED(p_WaypointID);
+            UNUSED(p_MapID);
+            UNUSED(p_X);
+            UNUSED(p_Y);
+            UNUSED(p_Z);
+        }
 };
 
 class AchievementCriteriaScript : public ScriptObject
@@ -677,94 +742,107 @@ class PlayerScript : public ScriptObject
     public:
 
         // Called when a player kills another player
-        virtual void OnPVPKill(Player* /*killer*/, Player* /*killed*/) { }
-
+        virtual void OnPVPKill(Player* p_Killer, Player* /*killed*/) 
+        { 
+            UNUSED(p_Killer); 
+        }
         // Called when a player kills another player
-        virtual void OnModifyPower(Player* /*killer*/, Powers /*power*/, int32 /*value*/) { }
-
+        virtual void OnModifyPower(Player* p_Killer, Powers /*power*/, int32 value)
+        {
+            UNUSED(p_Killer);
+        }
         // Called when a player kills a creature
-        virtual void OnCreatureKill(Player* /*killer*/, Creature* /*killed*/) { }
-
+        virtual void OnCreatureKill(Player* p_Killer, Creature* /*killed*/)
+        {
+            UNUSED(p_Killer);
+        }
         // Called when a player is killed by a creature
-        virtual void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
-
+        virtual void OnPlayerKilledByCreature(Creature* p_Killer, Player* /*killed*/)
+        {
+            UNUSED(p_Killer);
+        }
         // Called when a player's level changes (right before the level is applied)
-        virtual void OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/) { }
+        virtual void OnLevelChanged(Player* p_Player, uint8 /*newLevel*/) { UNUSED(p_Player); }
 
         // Called when a player's free talent points change (right before the change is applied)
-        virtual void OnFreeTalentPointsChanged(Player* /*player*/, uint32 /*points*/) { }
+        virtual void OnFreeTalentPointsChanged(Player* p_Player, uint32 /*points*/) { UNUSED(p_Player); }
 
         // Called when a player's talent points are reset (right before the reset is done)
-        virtual void OnTalentsReset(Player* /*player*/, bool /*noCost*/) { }
+        virtual void OnTalentsReset(Player* p_Player, bool /*noCost*/) { UNUSED(p_Player); }
 
         // Called when a player's money is modified (before the modification is done)
-        virtual void OnMoneyChanged(Player* /*player*/, int64& /*amount*/) { }
+        virtual void OnMoneyChanged(Player* p_Player, int64& /*amount*/) { UNUSED(p_Player); }
 
         // Called when a player gains XP (before anything is given)
-        virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
+        virtual void OnGiveXP(Player* p_Player, uint32& /*amount*/, Unit* /*victim*/) { UNUSED(p_Player); }
 
         // Called when a player's reputation changes (before it is actually changed)
-        virtual void OnReputationChange(Player* /*player*/, uint32 /*factionId*/, int32& /*standing*/, bool /*incremental*/) { }
+        virtual void OnReputationChange(Player* p_Player, uint32 /*factionId*/, int32& /*standing*/, bool /*incremental*/) { UNUSED(p_Player); }
 
         // Called when a duel is requested
-        virtual void OnDuelRequest(Player* /*target*/, Player* /*challenger*/) { }
-
+        virtual void OnDuelRequest(Player* p_Target, Player* /*challenger*/)
+        {
+            UNUSED(p_Target);
+        }
         // Called when a duel starts (after 3s countdown)
-        virtual void OnDuelStart(Player* /*player1*/, Player* /*player2*/) { }
+        virtual void OnDuelStart(Player* p_Player1, Player* /*player2*/)
+        {
+            UNUSED(p_Player1);
+        }
 
         // Called when a duel ends
-        virtual void OnDuelEnd(Player* /*winner*/, Player* /*loser*/, DuelCompleteType /*type*/) { }
+        virtual void OnDuelEnd(Player* p_Winner, Player* /*loser*/, DuelCompleteType /*type*/) { UNUSED(p_Winner); }
 
         // The following methods are called when a player sends a chat message.
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/) { }
+        virtual void OnChat(Player* p_Player, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/) { UNUSED(p_Player); }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Player* /*receiver*/) { }
+        virtual void OnChat(Player* p_Player, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Player* /*receiver*/) { UNUSED(p_Player); }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Group* /*group*/) { }
+        virtual void OnChat(Player* p_Player, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Group* /*group*/) { UNUSED(p_Player); }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Guild* /*guild*/) { }
+        virtual void OnChat(Player* p_Player, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Guild* /*guild*/) { UNUSED(p_Player); }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Channel* /*channel*/) { }
+        virtual void OnChat(Player* p_Player, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Channel* /*channel*/) { UNUSED(p_Player); }
 
         // Both of the below are called on emote opcodes.
-        virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
+        virtual void OnEmote(Player* p_Player, uint32 /*emote*/) { UNUSED(p_Player); }
 
-        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*soundIndex*/, uint64 /*guid*/) { }
+        virtual void OnTextEmote(Player* p_Player, uint32 /*textEmote*/, uint32 /*soundIndex*/, uint64 guid) { UNUSED(p_Player); }
 
         // Called in Spell::Cast.
-        virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
+        virtual void OnSpellCast(Player* p_Player, Spell* /*spell*/, bool /*skipCheck*/) { UNUSED(p_Player); }
 
         virtual void OnSpellLearned(Player* /*p_Player*/, uint32 /*p_SpellId*/) {}
 
         // Called when a player logs in.
-        virtual void OnLogin(Player* /*player*/) { }
+        virtual void OnLogin(Player* p_Player) { UNUSED(p_Player); }
 
         // Called when a player logs out.
-        virtual void OnLogout(Player* /*player*/) { }
+        virtual void OnLogout(Player* p_Player) { UNUSED(p_Player); }
 
         // Called when a player is created.
-        virtual void OnCreate(Player* /*player*/) { }
+        virtual void OnCreate(Player* p_Player) { UNUSED(p_Player); }
 
         // Called when a player is deleted.
-        virtual void OnDelete(uint64 /*guid*/) { }
+        virtual void OnDelete(uint64 p_GUID) { UNUSED(p_GUID); }
 
         // Called when a player is bound to an instance
-        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { }
+        virtual void OnBindToInstance(Player* p_Player, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { UNUSED(p_Player); }
 
         // Called when a player switches to a new zone
-        virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*p_OldZoneID*/, uint32 /*newArea*/) { }
+        virtual void OnUpdateZone(Player* p_Player, uint32 /*newZone*/, uint32 /*p_OldZoneID*/, uint32 /*newArea*/) { UNUSED(p_Player); }
 
         // Called when a player updates his movement
-        virtual void OnPlayerUpdateMovement(Player* /*player*/) { }
+        virtual void OnPlayerUpdateMovement(Player* p_Player) { UNUSED(p_Player); }
 
         // Called when player rewards some quest
-        virtual void OnQuestReward(Player* /*player*/, const Quest* /*quest*/) { }
+        virtual void OnQuestReward(Player* p_Player, const Quest* /*quest*/) { UNUSED(p_Player); }
 
         // Called when a player validates some quest objective
-        virtual void OnObjectiveValidate(Player* /*player*/, uint32 /*questid*/, uint32 /*ObjectiveId*/) { }
+        virtual void OnObjectiveValidate(Player* p_Player, uint32 /*questid*/, uint32 /*ObjectiveId*/) { UNUSED(p_Player); }
 
         // Called when a player shapeshift
-        virtual void OnChangeShapeshift(Player* /*player*/, ShapeshiftForm /*p_Form*/) { }
+        virtual void OnChangeShapeshift(Player* p_Player, ShapeshiftForm /*p_Form*/) { UNUSED(p_Player); }
 };
 
 class GuildScript : public ScriptObject
@@ -774,40 +852,64 @@ class GuildScript : public ScriptObject
         GuildScript(const char* name);
 
     public:
-
         bool IsDatabaseBound() const { return false; }
 
         // Called when a member is added to the guild.
-        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
-
+        virtual void OnAddMember(Guild* p_Guild, Player* p_Player, uint8& /*plRank*/)
+        {
+            UNUSED(p_Guild);
+            UNUSED(p_Player); 
+        }
         // Called when a member is removed from the guild.
-        virtual void OnRemoveMember(Guild* /*guild*/, Player* /*player*/, bool /*isDisbanding*/, bool /*isKicked*/) { }
-
+        virtual void OnRemoveMember(Guild* p_Guild, Player* p_Player, bool /*isDisbanding*/, bool /*isKicked*/)
+        {
+            UNUSED(p_Guild);
+            UNUSED(p_Player); 
+        }
         // Called when the guild MOTD (message of the day) changes.
-        virtual void OnMOTDChanged(Guild* /*guild*/, const std::string& /*newMotd*/) { }
-
+        virtual void OnMOTDChanged(Guild* p_Guild, const std::string& /*newMotd*/)
+        { 
+            UNUSED(p_Guild);
+        }
         // Called when the guild info is altered.
-        virtual void OnInfoChanged(Guild* /*guild*/, const std::string& /*newInfo*/) { }
-
+        virtual void OnInfoChanged(Guild* p_Guild, const std::string& /*newInfo*/)
+        { 
+            UNUSED(p_Guild); 
+        }
         // Called when a guild is created.
-        virtual void OnCreate(Guild* /*guild*/, Player* /*leader*/, const std::string& /*name*/) { }
-
+        virtual void OnCreate(Guild* p_Guild, Player* /*leader*/, const std::string& /*name*/)
+        {
+            UNUSED(p_Guild);
+        }
         // Called when a guild is disbanded.
-        virtual void OnDisband(Guild* /*guild*/) { }
-
+        virtual void OnDisband(Guild* p_Guild)
+        { 
+            UNUSED(p_Guild); 
+        }
         // Called when a guild member withdraws money from a guild bank.
-        virtual void OnMemberWitdrawMoney(Guild* /*guild*/, Player* /*player*/, uint64& /*amount*/, bool /*isRepair*/) { }
-
+        virtual void OnMemberWitdrawMoney(Guild* p_Guild, Player* p_Player, uint64& /*amount*/, bool /*isRepair*/)
+        { 
+            UNUSED(p_Guild);
+        }
         // Called when a guild member deposits money in a guild bank.
-        virtual void OnMemberDepositMoney(Guild* /*guild*/, Player* /*player*/, uint64& /*amount*/) { }
-
+        virtual void OnMemberDepositMoney(Guild* p_Guild, Player* p_Player, uint64& /*amount*/)
+        { 
+            UNUSED(p_Guild);
+        }
         // Called when a guild member moves an item in a guild bank.
-        virtual void OnItemMove(Guild* /*guild*/, Player* /*player*/, Item* /*pItem*/, bool /*isSrcBank*/, uint8 /*srcContainer*/, uint8 /*srcSlotId*/,
-            bool /*isDestBank*/, uint8 /*destContainer*/, uint8 /*destSlotId*/) { }
-
-        virtual void OnEvent(Guild* /*guild*/, uint8 /*eventType*/, uint32 /*playerGuid1*/, uint32 /*playerGuid2*/, uint8 /*newRank*/) { }
-
-        virtual void OnBankEvent(Guild* /*guild*/, uint8 /*eventType*/, uint8 /*tabId*/, uint32 /*playerGuid*/, uint32 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/) { }
+        virtual void OnItemMove(Guild* p_Guild, Player* p_Player, Item* /*pItem*/, bool /*isSrcBank*/, uint8 /*srcContainer*/, uint8 /*srcSlotId*/, bool /*isDestBank*/, uint8 /*destContainer*/, uint8 /*destSlotId*/)
+        {
+            UNUSED(p_Guild);
+            UNUSED(p_Player); 
+        }
+        virtual void OnEvent(Guild* p_Guild, uint8 /*eventType*/, uint32 /*playerGuid1*/, uint32 /*playerGuid2*/, uint8 /*newRank*/)
+        {
+            UNUSED(p_Guild);
+        }
+        virtual void OnBankEvent(Guild* p_Guild, uint8 /*eventType*/, uint8 /*tabId*/, uint32 /*playerGuid*/, uint32 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/)
+        {
+            UNUSED(p_Guild);
+        }
 };
 
 class GroupScript : public ScriptObject
@@ -821,19 +923,30 @@ class GroupScript : public ScriptObject
         bool IsDatabaseBound() const { return false; }
 
         // Called when a member is added to a group.
-        virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }
-
+        virtual void OnAddMember(Group* p_Group, uint64 guid)
+        { 
+            UNUSED(p_Group);
+        }
         // Called when a member is invited to join a group.
-        virtual void OnInviteMember(Group* /*group*/, uint64 /*guid*/) { }
-
+        virtual void OnInviteMember(Group* p_Group, uint64 guid)
+        {
+            UNUSED(p_Group);
+        }
         // Called when a member is removed from a group.
-        virtual void OnRemoveMember(Group* /*group*/, uint64 /*guid*/, RemoveMethod /*method*/, uint64 /*kicker*/, const char* /*reason*/) { }
-
+        virtual void OnRemoveMember(Group* p_Group, uint64 guid, RemoveMethod /*method*/, uint64 /*kicker*/, const char* /*reason*/)
+        {
+            UNUSED(p_Group);
+        }
         // Called when the leader of a group is changed.
-        virtual void OnChangeLeader(Group* /*group*/, uint64 /*newLeaderGuid*/, uint64 /*oldLeaderGuid*/) { }
-
+        virtual void OnChangeLeader(Group* p_Group, uint64 /*newLeaderGuid*/, uint64 /*oldLeaderGuid*/)
+        {
+            UNUSED(p_Group);
+        }
         // Called when a group is disbanded.
-        virtual void OnDisband(Group* /*group*/) { }
+        virtual void OnDisband(Group* p_Group  )
+        {
+            UNUSED(p_Group);
+        }
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.

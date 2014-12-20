@@ -225,7 +225,7 @@ void BattlegroundBFG::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = score;
 }
 
-void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/)
+void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 guid)
 {
 }
 

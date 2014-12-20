@@ -2874,7 +2874,7 @@ bool InstanceMap::Reset(uint8 method)
         {
             // notify the players to leave the instance so it can be reset
             for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                itr->getSource()->SendResetFailedNotify(GetId());
+                itr->getSource()->SendResetFailedNotify();
         }
         else
         {

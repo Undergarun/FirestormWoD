@@ -235,9 +235,6 @@ void AreaTrigger::Update(uint32 p_Time)
         return;
     }
 
-    Unit* l_Caster = GetCaster();
-    float l_Radius = 0.0f;
-
     sScriptMgr->OnUpdateAreaTriggerEntity(this, p_Time);
 
     m_UpdateTimer.Update(p_Time);

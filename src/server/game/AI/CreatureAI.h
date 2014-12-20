@@ -138,7 +138,7 @@ class CreatureAI : public UnitAI
         virtual void JustRespawned() { Reset(); }
 
         // Called at waypoint reached or point movement finished
-        virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
+        virtual void MovementInform(uint32 /*type*/, uint32 id) {}
 
         void OnCharmed(bool apply);
 

@@ -1217,8 +1217,13 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         Pet* pet = NULL;
         if (!p_Player)
             p_Mask &= ~GROUP_UPDATE_FULL;
-        else if (!(pet = p_Player->GetPet()))
-            p_Mask &= ~GROUP_UPDATE_PET;
+        else
+        {
+            pet = p_Player->GetPet();
+
+            if (!pet)
+                p_Mask &= ~GROUP_UPDATE_PET;
+        }
 
         bool l_PetInfo = p_Mask & (GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS);
 

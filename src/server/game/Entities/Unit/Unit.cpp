@@ -793,7 +793,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         std::list<Unit*> targetList;
         std::list<Creature*> tempList;
         std::list<Creature*> statueList;
-        Creature* statue;
+        Creature* statue = nullptr;
 
         ToPlayer()->GetPartyMembers(targetList);
 
@@ -12048,6 +12048,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
+    UNUSED(DoneAdvertisedBenefit);  ///< @TODO
 
     // Check for table values
     float coeff = 0;
@@ -12516,7 +12517,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 {
                     if (!((*i)->IsAffectingSpell(spellProto)))
                         continue;
-                    int32 modChance = 0;
+
                     switch ((*i)->GetMiscValue())
                     {
                             // Shatter
@@ -16027,7 +16028,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
     if (GetTypeId() != TYPEID_PLAYER)
     {
         Powers l_DisplayPower = getPowerType();
-        if (l_DisplayPower == powerId)
+        if (l_DisplayPower == (Powers)powerId)
             l_PowerIndex = 0;
         else if (powerId == Powers::POWER_ALTERNATE_POWER)
             l_PowerIndex = 1;
@@ -17445,7 +17446,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 }
 
 bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell,
-uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
+                          uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
 {
     // Dragon Breath & Living Bomb
     if (spellInfo->Category == 1215 && procSpell &&
@@ -19524,10 +19525,8 @@ AuraPtr Unit::ToggleAura(uint32 spellId, Unit* target)
         target->RemoveAurasDueToSpell(spellId);
         return NULLAURA;
     }
-    else
-        return target->AddAura(spellId, target);
-
-    return NULLAURA;
+    
+    return target->AddAura(spellId, target);
 }
 
 AuraPtr Unit::AddAura(uint32 spellId, Unit* target)
@@ -21715,10 +21714,16 @@ void Unit::SendMovementHover(bool apply)
 
     WorldPacket l_Data;
 
-    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+    if (apply)
+    {
         l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 8);
+        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+    }
     else
+    {
         l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 8);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+    }
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
