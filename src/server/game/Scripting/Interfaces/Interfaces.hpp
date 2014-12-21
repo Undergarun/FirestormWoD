@@ -18,4 +18,18 @@
 #include "Interface_Transport.hpp"
 #include "Interface_Vehicle.hpp"
 
+namespace MS { namespace Game { namespace Scripting 
+{ 
+
+    /// Contains all script interface for Game classes
+    namespace Interfaces 
+    {
+
+
+    }   ///< Namespace Interfaces
+
+}   ///< Namespace Scripting
+}   ///< Namespace Game
+}   ///< Namespace MS
+
 #endif  ///< SCRIPTING_INTERFACES_INTERFACES
